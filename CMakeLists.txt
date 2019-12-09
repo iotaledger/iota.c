@@ -5,35 +5,45 @@ https://github.com/iotaledger/iota.c
 Refer to the LICENSE file for licensing information
 ]]
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.11)
 
 cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 
-if(${CMAKE_VERSION} VERSION_LESS "3.9.6")
-  project(iota_client)
-else()
-  project(iota_client DESCRIPTION "IOTA Client Library")
-endif()
+project(iota_client DESCRIPTION "IOTA Client Library")
 
 enable_language(C)
 enable_testing()
 
 option(CCLIENT_TEST "Enable CClient library test cases" OFF)
-option(EXTERNAL_IOTA_COMMON "Build with external iota_common instead of local one" OFF)
 
+# fetch iota_common
+include(FetchContent)
+FetchContent_Declare(
+  iota_common
+  GIT_REPOSITORY git@github.com:iotaledger/iota_common.git
+  GIT_TAG 29269df072c793eeb545cc918c19535e9e52a1ee
+)
+
+if(${CMAKE_VERSION} VERSION_LESS 3.14)
+    macro(FetchContent_MakeAvailable NAME)
+        FetchContent_GetProperties(${NAME})
+        if(NOT ${NAME}_POPULATED)
+            FetchContent_Populate(${NAME})
+            add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
+        endif()
+    endmacro()
+endif()
+
+message(STATUS "Fetching iota_common")
+FetchContent_MakeAvailable(iota_common)
+
+# fetch external libs
 include(ExternalProject)
+include(cmake/cjson.cmake)
+include(cmake/http_parser.cmake)
 
 # libs in the sandbox
 link_directories("${CMAKE_INSTALL_PREFIX}/lib")
-
-if(NOT ${EXTERNAL_IOTA_COMMON})
-  add_subdirectory(iota_common)
-else()
-  include(cmake/iota_common.cmake)
-endif()
-
-include(cmake/cjson.cmake)
-include(cmake/http_parser.cmake)
 
 #==============cclient source=====================
 set(API_CORE_DIR "cclient/api/core")
@@ -80,7 +90,10 @@ set(API_EXTENDED_SRC
   ${API_EXTENDED_DIR}/traverse_bundle.c
 )
 
-set(HTTP_SRC "cclient/http/http.c")
+set(HTTP_SRC 
+  "cclient/http/http.c"
+  "cclient/http/socket.c"
+)
 
 set(REQ_DIR "cclient/request")
 set(REQ_SRC
@@ -155,25 +168,25 @@ add_library(cclient
   ${JSON_SERIALIZER_SRC}
 )
 
-set(dep_libs "ext_cjson" "ext_http_parser")
-if(NOT ${EXTERNAL_IOTA_COMMON})
-  list(APPEND dep_libs "common")
-else()
-  list(APPEND dep_libs "ext_iota_common")
-endif()
-
-add_dependencies(cclient ${dep_libs})
+add_dependencies(cclient "ext_cjson" "ext_http_parser")
 
 target_include_directories(cclient PUBLIC 
   "${PROJECT_SOURCE_DIR}"
   "${CMAKE_INSTALL_PREFIX}/include"
   "${CMAKE_INSTALL_PREFIX}/include/cjson"
-  )
+  "${iota_common_SOURCE_DIR}"
+)
 
+set(IOTA_COMMON_LIBS common
+  logger
+  keccak
+  mbedtls
+  mbedcrypto
+  mbedx509
+)
 target_link_libraries(cclient PUBLIC
-  common
-  cjson
-  http_parser
+  ${IOTA_COMMON_LIBS}
+  cjson http_parser
 )
 
 install(TARGETS cclient DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
@@ -183,14 +196,15 @@ if(${CCLIENT_TEST})
   # ==============API test cases================
   function(add_cclient_test test_src test_name)
     add_executable(${test_name} "cclient/api/tests/${test_src}" "cclient/api/tests/cclient_service_init.c")
-    if(${RPI_CROSS_COMPILATION})
-      set_property(TARGET ${test_name} PROPERTY C_STANDARD 99)
-    endif()
-    target_include_directories(${test_name} PUBLIC 
+    target_include_directories(${test_name} PRIVATE
       "${PROJECT_SOURCE_DIR}"
       "${CMAKE_INSTALL_PREFIX}/include")
     add_dependencies(${test_name} cclient ext_unity)
-    target_link_libraries(${test_name} PUBLIC common unity cclient)
+    target_link_libraries(${test_name} PRIVATE 
+      cclient 
+      ${IOTA_COMMON_LIBS} 
+      unity
+    )
     add_test(${test_name} ${test_name})
   endfunction(add_cclient_test)
 
@@ -212,7 +226,3 @@ if(${CCLIENT_TEST})
   add_cclient_test("test_were_addresses_spent_from.c" "test_were_addresses_spent_from")
   # ==============API test cases================
 endif()
-
-# if(${RPI_CROSS_COMPILATION})
-#   set_property(TARGET cclient PROPERTY C_STANDARD 99)
-# endif()

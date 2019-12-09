@@ -22,8 +22,8 @@ if (NOT __HTTP_PARSER_INCLUDED)
 
   set(http_parser_cmake_dir ${PROJECT_BINARY_DIR}/http_parser/src/ext_http_parser)
   set(http_parser_src_dir ../http_parser_download)
-  set(http_parser_install_include ${PROJECT_BINARY_DIR}/include)
-  set(http_parser_install_lib ${PROJECT_BINARY_DIR}/lib)
+  set(http_parser_install_include ${CMAKE_INSTALL_PREFIX}/include)
+  set(http_parser_install_lib ${CMAKE_INSTALL_PREFIX}/lib)
 
   file(WRITE ${http_parser_cmake_dir}/CMakeLists.txt
     "cmake_minimum_required(VERSION 3.5)\n"
@@ -50,5 +50,4 @@ if (NOT __HTTP_PARSER_INCLUDED)
     # LOG_INSTALL 1
   )
   add_dependencies(ext_http_parser http_parser_download)
-
 endif()
