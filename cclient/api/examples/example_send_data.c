@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019 IOTA Stiftung
- * https://github.com/iotaledger/entangled
+ * https://github.com/iotaledger/iota.c
  *
  * Refer to the LICENSE file for licensing information
  */
