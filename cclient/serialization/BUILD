@@ -9,6 +9,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         ":serializer",
+        "@cJSON",
+        "@com_github_uthash//:uthash",
         "@org_iota_common//utils:logger_helper",
         "@org_iota_common//utils/containers/hash:hash243_queue",
         "@org_iota_common//utils/containers/hash:hash243_stack",
@@ -16,8 +18,6 @@ cc_library(
         "@org_iota_common//utils/containers/hash:hash8019_stack",
         "@org_iota_common//utils/containers/hash:hash81_queue",
         "@org_iota_common//utils/containers/hash:hash_array",
-        "@cJSON",
-        "@com_github_uthash//:uthash",
     ],
     alwayslink = True,
 )

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+buildifier -mode=check $(git ls-files $(git rev-parse --show-toplevel) | grep -E "WORKSPACE|BUILD(\.(bazel|bzl))?\$")
