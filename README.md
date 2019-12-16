@@ -112,3 +112,7 @@ The client API consists of two API sets:
 ## API Documentation  
 
 TODO
+
+## Contributing
+
+Please read [CONTRIBUTING.md](https://github.com/iotaledger/iota.c/blob/master/CONTRIBUTING.md) for details.
