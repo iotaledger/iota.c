@@ -20,7 +20,7 @@ option(CCLIENT_TEST "Enable CClient library test cases" OFF)
 include(FetchContent)
 FetchContent_Declare(
   iota_common
-  GIT_REPOSITORY git@github.com:iotaledger/iota_common.git
+  GIT_REPOSITORY http://github.com/iotaledger/iota_common.git
   GIT_TAG f4959c5b4985135139bfe3e1ab44472e859d065f
 )
 
