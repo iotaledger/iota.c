@@ -92,7 +92,7 @@ Now, you're ready to start coding!
     git_repository(
     name = "org_iota_common",
     commit = "$COMMON_COMMIT_HASH",
-    remote = "git@github.com:iotaledger/iota_common.git",
+     remote = "https://github.com/iotaledger/iota_common.git",
     )
     
     git_repository(
