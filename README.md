@@ -104,7 +104,7 @@ Now, you're ready to start coding!
     # external library build rules
     git_repository(
         name = "rules_iota",
-        commit = "RULES_IOTA_COMMIT_HASH",
+        commit = "$RULES_IOTA_COMMIT_HASH",
         remote = "https://github.com/iotaledger/rules_iota.git",
     )
 
