@@ -29,7 +29,6 @@ static char const *amazon_ca1_pem =
     "rqXRfboQnoZsG4q5WTP468SQvvG5\r\n"
     "-----END CERTIFICATE-----\r\n";
 
-// #define _MAIN_NET_
 // #define _USE_HTTP_
 
 int main() {
@@ -49,7 +48,7 @@ int main() {
   serv.http.path = "/";
   serv.http.content_type = "application/json";
   serv.http.accept = "application/json";
-#ifdef _MAIN_NET_
+#ifdef IOTA_CONFIG_MAINNET
   serv.http.host = "nodes.thetangle.org";
   // serv.http.host = "node02.iotatoken.nl";
   // serv.http.host = "dyn.tangle-nodes.com";

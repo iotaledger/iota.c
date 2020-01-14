@@ -30,7 +30,8 @@ void example_promote_transaction(iota_client_service_t *s) {
     memset(tf.address, '9', NUM_TRYTES_ADDRESS);
     memset(tf.tag, '9', NUM_TRYTES_TAG);
     transfer_array_add(spam_stransfer, &tf);
-    if ((ret = iota_client_promote_transaction(s, tail_hash, 2, 3, 9, spam_stransfer, bundle)) == RC_OK) {
+    if ((ret = iota_client_promote_transaction(s, tail_hash, IOTA_CONFIG_SECURITY_LEVEL, IOTA_CONFIG_NODE_DEPTH,
+                                               IOTA_CONFIG_NODE_MWM, spam_stransfer, bundle)) == RC_OK) {
       printf("transactions has been promoted\n");
 #ifdef DEBUG
       bundle_dump(bundle);
