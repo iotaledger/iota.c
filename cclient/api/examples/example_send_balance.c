@@ -13,9 +13,9 @@ static tryte_t const *const RECEIVER_ADDR =
 void example_send_balance(iota_client_service_t *s) {
   printf("\n [%s]\n", __FUNCTION__);
   retcode_t ret_code = RC_OK;
-  uint32_t depth = 6;
-  uint8_t mwm = 9;
-  uint8_t security = 2;
+  uint32_t depth = IOTA_CONFIG_NODE_DEPTH;
+  uint8_t mwm = IOTA_CONFIG_NODE_MWM;
+  uint8_t security = IOTA_CONFIG_SECURITY_LEVEL;
   bundle_transactions_t *bundle = NULL;
   bundle_transactions_new(&bundle);
   transfer_array_t *transfers = transfer_array_new();

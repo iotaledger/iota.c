@@ -21,7 +21,7 @@ void example_get_account_data(iota_client_service_t *s) {
   account_data_t account = {};
   account_data_init(&account);
 
-  if ((ret = iota_client_get_account_data(s, seed, 2, &account)) == RC_OK) {
+  if ((ret = iota_client_get_account_data(s, seed, IOTA_CONFIG_SECURITY_LEVEL, &account)) == RC_OK) {
 #if 1  // dump transaction hashes
     size_t tx_count = hash243_queue_count(account.transactions);
     for (size_t i = 0; i < tx_count; i++) {

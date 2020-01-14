@@ -7,11 +7,14 @@
 
 #include "cclient/api/examples/cclient_examples.h"
 
+// find an address that balance is greater or equal to EXPECTED_BALANCE
+#define EXPECTED_BALANCE 1000
+
 void example_get_inputs(iota_client_service_t *s) {
   printf("\n[%s]\n", __FUNCTION__);
   retcode_t ret = RC_OK;
   flex_trit_t seed[FLEX_TRIT_SIZE_243];
-  address_opt_t opt = {.security = 2, .start = 0, .total = 0};
+  address_opt_t opt = {.security = IOTA_CONFIG_SECURITY_LEVEL, .start = 0, .total = 0};
 
   if (flex_trits_from_trytes(seed, NUM_TRITS_ADDRESS, MY_SEED, NUM_TRYTES_ADDRESS, NUM_TRYTES_ADDRESS) == 0) {
     printf("Error: converting flex_trit failed\n");
@@ -22,7 +25,7 @@ void example_get_inputs(iota_client_service_t *s) {
   inputs_t inputs = {};
   input_t *in = NULL;
 
-  if ((ret = iota_client_get_inputs(s, seed, opt, 2000, &inputs)) == RC_OK) {
+  if ((ret = iota_client_get_inputs(s, seed, opt, EXPECTED_BALANCE, &inputs)) == RC_OK) {
     INPUTS_FOREACH(inputs.input_array, in) {
       printf("[%" PRIu64 "] ", in->balance);
       flex_trit_print(in->address, NUM_TRITS_ADDRESS);

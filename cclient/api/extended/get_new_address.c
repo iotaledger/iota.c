@@ -179,7 +179,6 @@ retcode_t iota_client_get_unspent_address(iota_client_service_t const* const ser
     if (tmp_addr) {
       if (was_address_spent_from(serv, tmp_addr, &is_spent) != RC_OK) {
         log_error(client_extended_logger_id, "were_address_spent_from failed\n");
-        free(tmp_addr);
         goto done;
       }
 
