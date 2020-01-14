@@ -7,13 +7,21 @@
 
 #include "cclient/api/examples/cclient_examples.h"
 
+// the starting index for address generator
+#define ADDRESS_START_INDEX 0
+// the quantity of addresses, if 0 stopping on an unused address
+#define ADDRESS_TOTAL 0
+
 void example_get_new_address(iota_client_service_t *s) {
   printf("\n[%s]\n", __FUNCTION__);
   retcode_t ret = RC_ERROR;
   flex_trit_t seed[FLEX_TRIT_SIZE_243];
   hash243_queue_t addresses = NULL;
-  // address_opt_t opt = {.security = 2, .start = 0, .total = 5}; //get five addresses.
-  address_opt_t opt = {.security = 2, .start = 0, .total = 0};  // get an unused address and all used addresses.
+  // get five addresses.
+  // address_opt_t opt = {.security = IOTA_CONFIG_SECURITY_LEVEL, .start = 0, .total = 5};
+
+  // get an unused address and all used addresses.
+  address_opt_t opt = {.security = IOTA_CONFIG_SECURITY_LEVEL, .start = ADDRESS_START_INDEX, .total = ADDRESS_TOTAL};
 
   if (flex_trits_from_trytes(seed, NUM_TRITS_ADDRESS, MY_SEED, NUM_TRYTES_ADDRESS, NUM_TRYTES_ADDRESS) == 0) {
     printf("Error: converting flex_trit failed\n");

@@ -118,7 +118,8 @@ void example_send_trytes(iota_client_service_t *s) {
   }
   hash_array_push(raw_trytes, trits_8019);
 
-  if ((ret_code = iota_client_send_trytes(s, raw_trytes, 6, 9, NULL, false, out_tx_objs)) == RC_OK) {
+  if ((ret_code = iota_client_send_trytes(s, raw_trytes, IOTA_CONFIG_NODE_DEPTH, IOTA_CONFIG_NODE_MWM, NULL, false,
+                                          out_tx_objs)) == RC_OK) {
     printf("trytes have been sent\n");
 #ifdef DEBUG
     iota_transaction_t *tx_obj = NULL;
