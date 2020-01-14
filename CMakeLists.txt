@@ -21,7 +21,7 @@ include(FetchContent)
 FetchContent_Declare(
   iota_common
   GIT_REPOSITORY http://github.com/iotaledger/iota_common.git
-  GIT_TAG f4959c5b4985135139bfe3e1ab44472e859d065f
+  GIT_TAG d397637b81a49ae2ebfbe4a9967dc2658fb76395
 )
 
 if(${CMAKE_VERSION} VERSION_LESS 3.14)
@@ -41,6 +41,7 @@ FetchContent_MakeAvailable(iota_common)
 include(ExternalProject)
 include(cmake/cjson.cmake)
 include(cmake/http_parser.cmake)
+include(cmake/mbedtls.cmake)
 
 # libs in the sandbox
 link_directories("${CMAKE_INSTALL_PREFIX}/lib")
@@ -168,7 +169,11 @@ add_library(cclient
   ${JSON_SERIALIZER_SRC}
 )
 
-add_dependencies(cclient "ext_cjson" "ext_http_parser")
+add_dependencies(cclient
+  "ext_cjson"
+  "ext_http_parser"
+  "ext_mbedtls"
+  )
 
 target_include_directories(cclient PUBLIC 
   "${PROJECT_SOURCE_DIR}"
