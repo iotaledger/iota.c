@@ -16,9 +16,9 @@ void example_get_unspent_address(iota_client_service_t *s) {
   memset(unspent_addr, FLEX_TRIT_NULL_VALUE, NUM_FLEX_TRITS_ADDRESS);
 
   // try five addresses
-  // address_opt_t opt = {.security = 2, .start = 0, .total = 5};
+  // address_opt_t opt = {.security = IOTA_CONFIG_SECURITY_LEVEL, .start = 0, .total = 5};
   // try all addresses
-  address_opt_t opt = {.security = 2, .start = 0, .total = UINT64_MAX};
+  address_opt_t opt = {.security = IOTA_CONFIG_SECURITY_LEVEL, .start = 0, .total = UINT64_MAX};
 
   if (flex_trits_from_trytes(seed, NUM_TRITS_ADDRESS, MY_SEED, NUM_TRYTES_ADDRESS, NUM_TRYTES_ADDRESS) == 0) {
     printf("Error: converting flex_trit failed\n");

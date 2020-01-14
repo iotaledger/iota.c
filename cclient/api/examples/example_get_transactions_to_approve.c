@@ -32,7 +32,7 @@ void example_get_transactions_to_approve(iota_client_service_t *s) {
     goto done;
   }
 
-  tx_approve_req->depth = 9;  // 14 for mainnet
+  tx_approve_req->depth = IOTA_CONFIG_NODE_DEPTH;
 
   if ((ret = iota_client_get_transactions_to_approve(s, tx_approve_req, tx_approve_res)) == RC_OK) {
     printf("trunk: ");
