@@ -33,18 +33,21 @@ void example_prepare_transfer(iota_client_service_t *s) {
   transfer_array_add(transfers, &tf);
 
 #if 1  // no remainder and inputs
-  ret_code = iota_client_prepare_transfers(s, seed, 2, transfers, NULL, NULL, false, 0, bundle);
+  ret_code =
+      iota_client_prepare_transfers(s, seed, IOTA_CONFIG_SECURITY_LEVEL, transfers, NULL, NULL, false, 0, bundle);
 #else  // no inputs
   flex_trit_t remainder_addr[FLEX_TRIT_SIZE_243];
-  ret_code = iota_client_prepare_transfers(s, seed, 2, transfers, remainder_addr, NULL, false, 0, bundle);
+  ret_code = iota_client_prepare_transfers(s, seed, IOTA_CONFIG_SECURITY_LEVEL, transfers, remainder_addr, NULL, false,
+                                           0, bundle);
 #endif
 
 #if 0  // send with input
   inputs_t input_list = {};
+  // pick an input from a specific index
   input_t input_a = {
       .balance = 1996,
       .key_index = 6,
-      .security = 2,
+      .security = IOTA_CONFIG_SECURITY_LEVEL,
       .address = {},
   };
   flex_trits_from_trytes(
@@ -53,7 +56,8 @@ void example_prepare_transfer(iota_client_service_t *s) {
       NUM_TRYTES_ADDRESS, NUM_TRYTES_ADDRESS);
 
   inputs_append(&input_list, &input_a);
-  ret_code = iota_client_prepare_transfers(s, seed, 2, transfers, NULL, &input_list, true, 0, bundle);
+  ret_code =
+      iota_client_prepare_transfers(s, seed, IOTA_CONFIG_SECURITY_LEVEL, transfers, NULL, &input_list, true, 0, bundle);
   inputs_clear(&input_list);
 #endif
 
