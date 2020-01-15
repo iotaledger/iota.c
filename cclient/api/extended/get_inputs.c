@@ -31,15 +31,15 @@ retcode_t iota_client_get_inputs(iota_client_service_t const* const serv, flex_t
   }
 
   for (; addr_index < addr_index_end; addr_index++) {
-    balances_req->addresses = NULL;
-
-    log_debug(client_extended_logger_id, "[%s:%d]\n", __func__, __LINE__);
     if (!balances_req || !balances_res) {
       ret_code = RC_OOM;
       log_error(client_extended_logger_id, "%s create get balances request or response object failed: %s\n", __func__,
                 error_2_string(ret_code));
       goto done;
     }
+
+    balances_req->addresses = NULL;
+    log_debug(client_extended_logger_id, "[%s:%d]\n", __func__, __LINE__);
 
     addr = iota_sign_address_gen_flex_trits(seed, addr_index, addr_opt.security);
     if (addr) {
