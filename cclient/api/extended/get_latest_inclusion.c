@@ -54,7 +54,6 @@ retcode_t iota_client_get_latest_inclusion(iota_client_service_t const* const se
 done:
   get_node_info_res_free(&node_info);
   // no need to free it, it should free via caller.
-  inclusion_req->transactions = NULL;
   get_inclusion_states_req_free(&inclusion_req);
   return ret_code;
 }

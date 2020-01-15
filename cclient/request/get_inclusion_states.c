@@ -25,9 +25,11 @@ void get_inclusion_states_req_free(get_inclusion_states_req_t** req) {
 
   if ((*req)->transactions) {
     hash243_queue_free(&(*req)->transactions);
+    (*req)->transactions = NULL;
   }
   if ((*req)->tips) {
     hash243_queue_free(&(*req)->tips);
+    (*req)->tips = NULL;
   }
   free(*req);
   *req = NULL;
