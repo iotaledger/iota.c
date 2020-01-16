@@ -36,12 +36,15 @@ int socket_connect(char const *const hostname, const size_t port) {
     // Successfully connection
     break;
   }
+
+  // Free resources allocated by getaddrinfo
+  freeaddrinfo(serverinfo);
+
   // If no info was found return error
   if (!info) {
     return -1;
   }
-  // Free resources allocated by getaddrinfo
-  freeaddrinfo(serverinfo);
+
   // Return socket fd - 0 or greater
   return sockfd;
 }
