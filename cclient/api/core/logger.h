@@ -32,8 +32,10 @@ extern logger_id_t client_core_logger_id;
 /**
  * @brief init Core API logger
  *
+ * @param[in] level A level of the logger
+ *
  */
-void logger_init_client_core();
+void logger_init_client_core(logger_level_t level);
 
 /**
  * @brief cleanup Core API logger

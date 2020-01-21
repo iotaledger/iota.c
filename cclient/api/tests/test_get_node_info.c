@@ -7,13 +7,13 @@
 
 #include "cclient/api/tests/cclient_test_defs.h"
 
-static iota_client_service_t g_serv;
+static iota_client_service_t *g_serv;
 
 static void test_get_node_info(void) {
   get_node_info_res_t *node_res = get_node_info_res_new();
   TEST_ASSERT_NOT_NULL(node_res);
 
-  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_node_info(&g_serv, node_res));
+  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_node_info(g_serv, node_res));
 
   // node info response
   TEST_ASSERT(strlen(get_node_info_res_app_name(node_res)) > 0);
@@ -33,11 +33,13 @@ static void test_get_node_info(void) {
 int main() {
   UNITY_BEGIN();
 
-  cclient_service_setup(&g_serv);
+  g_serv = cclient_service_setup();
+  TEST_ASSERT_NOT_NULL(g_serv);
 
   RUN_TEST(test_get_node_info);
 
   cclient_service_cleanup(&g_serv);
+  TEST_ASSERT_NULL(g_serv);
 
   return UNITY_END();
 }

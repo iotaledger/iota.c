@@ -32,85 +32,76 @@ static char const *amazon_ca1_pem =
 // #define _USE_HTTP_
 
 int main() {
-  iota_client_service_t serv;
-#ifdef _USE_HTTP_
-  serv.http.path = "/";
-  serv.http.content_type = "application/json";
-  serv.http.accept = "application/json";
-  serv.http.host = "altnodes.devnet.iota.org";
-  // serv.http.host = "node05.iotatokken.nl";
-  serv.http.port = 80;
-  // serv.http.port = 16265;
-  serv.http.api_version = 1;
-  serv.serializer_type = SR_JSON;
-  serv.http.ca_pem = NULL;
-#else  // HTTPS
-  serv.http.path = "/";
-  serv.http.content_type = "application/json";
-  serv.http.accept = "application/json";
-#ifdef IOTA_CONFIG_MAINNET
-  serv.http.host = "nodes.thetangle.org";
-  // serv.http.host = "node02.iotatoken.nl";
-  // serv.http.host = "dyn.tangle-nodes.com";
-  // serv.http.host = "wallet1.iota.town";
-  serv.http.port = 443;
-#else
-  serv.http.host = "nodes.devnet.iota.org";
-  // serv.http.host = "altnodes.devnet.iota.org";
-  serv.http.port = 443;
-#endif
-  serv.http.api_version = 1;
-  serv.serializer_type = SR_JSON;
-  serv.http.ca_pem = amazon_ca1_pem;
-#endif
-  logger_helper_init(LOGGER_DEBUG);
+  iota_client_service_t *serv = NULL;
 
-  iota_client_core_init(&serv);
-  iota_client_extended_init();
+#ifdef _USE_HTTP_
+  serv = iota_client_core_init("altnodes.devnet.iota.org", 80, NULL);
+#else  // HTTPS
+#ifdef IOTA_CONFIG_MAINNET
+  serv = iota_client_core_init("nodes.thetangle.org", 443, amazon_ca1_pem);
+#else
+  serv = iota_client_core_init("nodes.devnet.iota.org", 443, amazon_ca1_pem);
+#endif
+#endif
+
+  if (serv == NULL) {
+    printf("client init failed\n");
+    exit(-1);
+  }
+
+  // init logger
+  logger_helper_init(LOGGER_DEBUG);
+  logger_init_client_core(LOGGER_DEBUG);
+  logger_init_client_extended(LOGGER_DEBUG);
+  logger_init_json_serializer(LOGGER_DEBUG);
 
 #ifdef _USE_HTTP_
   printf("Connecting to node: http://%s:%u\n", serv.http.host, serv.http.port);
 #else
-  printf("Connecting to node: https://%s:%u\n", serv.http.host, serv.http.port);
+  printf("Connecting to node: https://%s:%u\n", serv->http.host, serv->http.port);
 #endif
 
   /* Core APIs */
-  // example_attach_to_tangle(&serv);
-  // example_broadcast_transactions(&serv);
-  // example_check_consistency(&serv);
-  // example_find_transactions(&serv);
-  // example_get_balance(&serv);
-  // example_get_inclusion_states(&serv);
-  // example_get_tips(&serv);
-  // example_get_transactions_to_approve(&serv);
-  // example_get_trytes(&serv);
-  // example_node_api_conf(&serv);
-  example_node_info(&serv);
-  // example_prepare_transfer(&serv);
-  // example_store_transactions(&serv);
-  // example_were_addresses_spent_from(&serv);
+  // example_attach_to_tangle(serv);
+  // example_broadcast_transactions(serv);
+  // example_check_consistency(serv);
+  // example_find_transactions(serv);
+  // example_get_balance(serv);
+  // example_get_inclusion_states(serv);
+  // example_get_tips(serv);
+  // example_get_transactions_to_approve(serv);
+  // example_get_trytes(serv);
+  // example_node_api_conf(serv);
+  example_node_info(serv);
+  // example_prepare_transfer(serv);
+  // example_store_transactions(serv);
+  // example_were_addresses_spent_from(serv);
 
   /* Extended APIs */
-  // example_get_new_address(&serv);
-  // example_get_inputs(&serv);
-  // example_get_account_data(&serv);
-  // example_find_transaction_objects(&serv);
-  // example_is_promotable(&serv);
-  // example_get_latest_inclusion(&serv);
-  // example_send_trytes(&serv);
-  // example_traverse_bundle(&serv);
-  // example_get_bundle(&serv);
-  // example_replay_bundle(&serv);
-  // example_broadcast_bundle(&serv);
-  // example_promote_transaction(&serv);
-  // example_get_unspent_address(&serv);
+  // example_get_new_address(serv);
+  // example_get_inputs(serv);
+  example_get_account_data(serv);
+  // example_find_transaction_objects(serv);
+  example_is_promotable(serv);
+  // example_get_latest_inclusion(serv);
+  // example_send_trytes(serv);
+  // example_traverse_bundle(serv);
+  // example_get_bundle(serv);
+  // example_replay_bundle(serv);
+  // example_broadcast_bundle(serv);
+  // example_promote_transaction(serv);
+  example_get_unspent_address(serv);
 
   /* Send data and balance */
-  // example_send_data(&serv);
-  // example_send_balance(&serv);
+  // example_send_data(serv);
+  // example_send_balance(serv);
 
-  iota_client_extended_destroy();
+  // cleanup client service
   iota_client_core_destroy(&serv);
+  // cleanup logger
+  logger_destroy_client_core();
+  logger_destroy_client_extended();
+  logger_destroy_json_serializer();
   logger_helper_destroy();
   return 0;
 }

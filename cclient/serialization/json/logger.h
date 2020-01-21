@@ -28,8 +28,10 @@ extern logger_id_t json_logger_id;
 /**
  * @brief Initializes logger of json serialization
  *
+ * @param[in] level A level of the logger
+ *
  */
-void logger_init_json_serializer();
+void logger_init_json_serializer(logger_level_t level);
 
 /**
  * @brief destroys logger of json serialization

@@ -11,8 +11,8 @@
 
 logger_id_t json_logger_id;
 
-void logger_init_json_serializer() {
-  json_logger_id = logger_helper_enable(JSON_LOGGER_ID, LOGGER_DEBUG, true);
+void logger_init_json_serializer(logger_level_t level) {
+  json_logger_id = logger_helper_enable(JSON_LOGGER_ID, level, true);
   log_info(json_logger_id, "[%s:%d] enable logger %s.\n", __func__, __LINE__, JSON_LOGGER_ID);
 }
 

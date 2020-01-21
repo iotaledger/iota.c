@@ -7,7 +7,7 @@
 
 #include "cclient/api/tests/cclient_test_defs.h"
 
-static iota_client_service_t g_serv;
+static iota_client_service_t *g_serv;
 
 static void test_get_trytes_empty(void) {
   get_trytes_req_t *trytes_req = get_trytes_req_new();
@@ -17,7 +17,7 @@ static void test_get_trytes_empty(void) {
   get_trytes_res_t *trytes_res = get_trytes_res_new();
   TEST_ASSERT_NOT_NULL(trytes_res);
 
-  TEST_ASSERT_EQUAL_INT16(RC_NULL_PARAM, iota_client_get_trytes(&g_serv, trytes_req, trytes_res));
+  TEST_ASSERT_EQUAL_INT16(RC_NULL_PARAM, iota_client_get_trytes(g_serv, trytes_req, trytes_res));
   TEST_ASSERT_NULL(trytes_res->trytes);
 
   get_trytes_res_free(&trytes_res);
@@ -39,7 +39,7 @@ static void test_get_trytes(void) {
               0);
   TEST_ASSERT_EQUAL_INT16(RC_OK, get_trytes_req_hash_add(trytes_req, flex_hash));
 
-  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_trytes(&g_serv, trytes_req, trytes_res));
+  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_trytes(g_serv, trytes_req, trytes_res));
 
   get_trytes_res_free(&trytes_res);
   TEST_ASSERT_NULL(trytes_res);
@@ -50,12 +50,14 @@ static void test_get_trytes(void) {
 int main() {
   UNITY_BEGIN();
 
-  cclient_service_setup(&g_serv);
+  g_serv = cclient_service_setup();
+  TEST_ASSERT_NOT_NULL(g_serv);
 
   RUN_TEST(test_get_trytes_empty);
   RUN_TEST(test_get_trytes);
 
   cclient_service_cleanup(&g_serv);
+  TEST_ASSERT_NULL(g_serv);
 
   return UNITY_END();
 }

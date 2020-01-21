@@ -137,6 +137,11 @@ retcode_t iota_client_prepare_transfers(iota_client_service_t const* const serv,
   Kerl kerl;
   kerl_init(&kerl);
 
+  if (sign_fragments == NULL) {
+    log_error(client_extended_logger_id, "allocating signature fragments failed\n");
+    return RC_OOM;
+  }
+
   if (timestamp == 0) {
     timestamp = current_timestamp_ms() / 1000;
   }

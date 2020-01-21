@@ -32,22 +32,28 @@ static char const *amazon_ca1_pem =
 static char const *const NODE_HOST = "nodes.devnet.iota.org";
 static uint16_t const NODE_PORT = 443;
 
-void cclient_service_setup(iota_client_service_t *const service) {
-  // init service
-  service->http.path = "/";
-  service->http.content_type = "application/json";
-  service->http.accept = "application/json";
-  service->http.host = NODE_HOST;
-  service->http.port = NODE_PORT;
-  service->http.api_version = 1;
-  service->serializer_type = SR_JSON;
-  service->http.ca_pem = amazon_ca1_pem;
+iota_client_service_t *cclient_service_setup() {
+  iota_client_service_t *service = iota_client_core_init(NODE_HOST, NODE_PORT, amazon_ca1_pem);
 
-  logger_helper_init(LOGGER_DEBUG);
-  iota_client_core_init(service);
+  if (service != NULL) {
+    // init logger
+    logger_helper_init(LOGGER_DEBUG);
+    logger_init_client_core(LOGGER_DEBUG);
+    logger_init_client_extended(LOGGER_DEBUG);
+    logger_init_json_serializer(LOGGER_DEBUG);
+  }
+
+  return service;
 }
 
-void cclient_service_cleanup(iota_client_service_t *const service) {
-  iota_client_core_destroy(service);
-  logger_helper_destroy();
+void cclient_service_cleanup(iota_client_service_t **service) {
+  if (*service && service) {
+    // cleanup client service
+    iota_client_core_destroy(service);
+    // cleanup logger
+    logger_destroy_client_core();
+    logger_destroy_client_extended();
+    logger_destroy_json_serializer();
+    logger_helper_destroy();
+  }
 }

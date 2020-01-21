@@ -28,17 +28,19 @@ extern "C" {
  * @brief This function should be called before using Core APIs.
  *
  *
- * @param[in] serv client service
- * @return #retcode_t
+ * @param[in] host The host of an iota node
+ * @param[in] port The port of the host
+ * @param[in] ca_pem  A Certificate Authority (CA) in PEM format.
+ * @return #iota_client_service_t
  */
-retcode_t iota_client_core_init(iota_client_service_t* const serv);
+iota_client_service_t *iota_client_core_init(char const *host, uint16_t port, char const *ca_pem);
 
 /**
  * @brief This function should be called for cleanup.
  *
- * @param[in] serv client service
+ * @param[in] service A client service
  */
-void iota_client_core_destroy(iota_client_service_t* const serv);
+void iota_client_core_destroy(iota_client_service_t **service);
 
 #ifdef __cplusplus
 }
