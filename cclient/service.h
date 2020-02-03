@@ -28,18 +28,18 @@
 extern "C" {
 #endif
 
-#define HOST_MAX_ELN 256
-#define CONTENT_TYPE_MAX_ELN 128
+#define HOST_MAX_LEN 256
+#define CONTENT_TYPE_MAX_LEN 128
 
 /**
  * @brief HTTP request information
  *
  */
 typedef struct {
-  char host[HOST_MAX_ELN];                 /**< Host name */
-  char content_type[CONTENT_TYPE_MAX_ELN]; /**< Content type of request */
-  char accept[CONTENT_TYPE_MAX_ELN];       /**< Accept content type of response */
-  char path[CONTENT_TYPE_MAX_ELN];         /**< the request path is "/" for an iota client library */
+  char host[HOST_MAX_LEN];                 /**< Host name */
+  char content_type[CONTENT_TYPE_MAX_LEN]; /**< Content type of request */
+  char accept[CONTENT_TYPE_MAX_LEN];       /**< Accept content type of response */
+  char path[CONTENT_TYPE_MAX_LEN];         /**< the request path is "/" for an iota client library */
   uint16_t port;                           /**< Port number of the host*/
   int api_version;                         /**< Number of IOTA API version */
   char const* ca_pem;                      /**< String of root ca */
