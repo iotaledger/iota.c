@@ -11,8 +11,8 @@
 
 logger_id_t client_extended_logger_id;
 
-void logger_init_client_extended() {
-  client_extended_logger_id = logger_helper_enable(CCLIENT_EXTENDED_LOGGER_ID, LOGGER_DEBUG, true);
+void logger_init_client_extended(logger_level_t level) {
+  client_extended_logger_id = logger_helper_enable(CCLIENT_EXTENDED_LOGGER_ID, level, true);
   log_info(client_extended_logger_id, "[%s:%d] enable logger %s.\n", __func__, __LINE__, CCLIENT_EXTENDED_LOGGER_ID);
 }
 

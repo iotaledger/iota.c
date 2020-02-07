@@ -32,8 +32,10 @@ extern logger_id_t client_extended_logger_id;
 /**
  * @brief Init extended API logger
  *
+ * @param[in] level A level of the logger
+ *
  */
-void logger_init_client_extended();
+void logger_init_client_extended(logger_level_t level);
 
 /**
  * @brief Destroy extended API logger

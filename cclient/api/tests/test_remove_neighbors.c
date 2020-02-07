@@ -7,7 +7,7 @@
 
 #include "cclient/api/tests/cclient_test_defs.h"
 
-static iota_client_service_t g_serv;
+static iota_client_service_t *g_serv;
 
 static void test_remove_neighbors_empty(void) {
   remove_neighbors_req_t *nb_req = remove_neighbors_req_new();
@@ -18,7 +18,7 @@ static void test_remove_neighbors_empty(void) {
   TEST_ASSERT_NOT_NULL(nb_res);
   TEST_ASSERT_EQUAL_INT(0, nb_res->removed_neighbors);
 
-  TEST_ASSERT_EQUAL_INT16(RC_NULL_PARAM, iota_client_remove_neighbors(&g_serv, nb_req, nb_res));
+  TEST_ASSERT_EQUAL_INT16(RC_NULL_PARAM, iota_client_remove_neighbors(g_serv, nb_req, nb_res));
 
   remove_neighbors_req_free(&nb_req);
   TEST_ASSERT_NULL(nb_req);
@@ -29,11 +29,13 @@ static void test_remove_neighbors_empty(void) {
 int main() {
   UNITY_BEGIN();
 
-  cclient_service_setup(&g_serv);
+  g_serv = cclient_service_setup();
+  TEST_ASSERT_NOT_NULL(g_serv);
 
   RUN_TEST(test_remove_neighbors_empty);
 
   cclient_service_cleanup(&g_serv);
+  TEST_ASSERT_NULL(g_serv);
 
   return UNITY_END();
 }

@@ -21,7 +21,7 @@ include(FetchContent)
 FetchContent_Declare(
   iota_common
   GIT_REPOSITORY http://github.com/iotaledger/iota_common.git
-  GIT_TAG d397637b81a49ae2ebfbe4a9967dc2658fb76395
+  GIT_TAG f0afbcb6f4ac03982653c9c8350d1ea3b5a8865f
 )
 
 if(${CMAKE_VERSION} VERSION_LESS 3.14)
@@ -72,7 +72,6 @@ set(API_CORE_SRC
 set(API_EXTENDED_DIR "cclient/api/extended")
 set(API_EXTENDED_SRC
   ${API_EXTENDED_DIR}/broadcast_bundle.c
-  ${API_EXTENDED_DIR}/extended_init.c
   ${API_EXTENDED_DIR}/find_transaction_objects.c
   ${API_EXTENDED_DIR}/get_account_data.c
   ${API_EXTENDED_DIR}/get_bundle.c
