@@ -185,7 +185,7 @@ retcode_t get_iota_node_info(iota_client_service_t *iota_client_service, get_nod
         printf("transactionsToRequest %u\n", node_response->transactions_to_request);
         size_t num_features = get_node_info_req_features_num(node_response);
         for (; num_features > 0; num_features--) {
-            printf("%s, ", get_node_info_res_features_at(node_response, num_f$
+            printf("%s, ", get_node_info_res_features_at(node_response, num_features - 1));
             printf("\n");
         }
 
