@@ -153,27 +153,14 @@ retcode_t get_iota_node_info(iota_client_service_t *iota_client_service, get_nod
     // Connect to the node
     ret = iota_client_get_node_info(iota_client_service, node_response);
 
-    // Define variables to determine whether trit conversion succeeds
-    trit_t trytes_out[NUM_TRYTES_HASH + 1];
-    size_t trits_count = 0;
     // If the node returned data, print it to the console
     if (ret == RC_OK) {
         printf("appName %s \n", node_response->app_name->data);
         printf("appVersion %s \n", node_response->app_version->data);
 
-        // Convert the returned trits to trytes
-        // For more information about trits and trytes, see the IOTA documentation portal: https://docs.iota.org/docs/getting-started/0.1/introduction/ternary
-        trits_count = flex_trits_to_trytes(trytes_out, NUM_TRYTES_HASH,
-                                        node_response->latest_milestone, NUM_TRITS_HASH,
-                                        NUM_TRITS_HASH);
-        if (trits_count == 0) {
-            printf("trit converting failed\n");
-            goto done;
-        }
-        // Empty this string: we don't need it anymore
-        trytes_out[NUM_TRYTES_HASH] = '\0';
-
-        printf("latestMilestone %s \n", trytes_out);
+        printf("latestMilestone ");
+        flex_trit_print(node_response->latest_milestone, NUM_TRITS_HASH);
+        printf("\n");
         printf("latestMilestoneIndex %u\n", (uint32_t) node_response->latest_milestone_index);
         printf("latestSolidSubtangleMilestoneIndex %u\n", (uint32_t)
         node_response->latest_solid_subtangle_milestone_index);
@@ -259,7 +246,7 @@ The IOTA C client library consists of two sets of API:
 
 ## Examples
 
-You can find an example project in the [iota_cclient_example](https://github.com/oopsmonk/iota_cclient_example) directory.
+You can find example templates in this [GitHub repository](https://github.com/oopsmonk/iota_c_templates) to help you integrate IOTA into your own applications.
 
 ## Supporting the project
 
