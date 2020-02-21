@@ -11,8 +11,8 @@
 
 logger_id_t client_core_logger_id;
 
-void logger_init_client_core() {
-  client_core_logger_id = logger_helper_enable(CCLIENT_CORE_LOGGER_ID, LOGGER_DEBUG, true);
+void logger_init_client_core(logger_level_t level) {
+  client_core_logger_id = logger_helper_enable(CCLIENT_CORE_LOGGER_ID, level, true);
   log_info(client_core_logger_id, "[%s:%d] enable logger %s.\n", __func__, __LINE__, CCLIENT_CORE_LOGGER_ID);
 }
 

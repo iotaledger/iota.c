@@ -7,7 +7,7 @@
 
 #include "cclient/api/tests/cclient_test_defs.h"
 
-static iota_client_service_t g_serv;
+static iota_client_service_t *g_serv;
 
 static void test_get_transactions_to_approve_empty(void) {
   get_transactions_to_approve_req_t *tx_approve_req = get_transactions_to_approve_req_new();
@@ -19,7 +19,7 @@ static void test_get_transactions_to_approve_empty(void) {
   TEST_ASSERT(flex_trits_are_null(get_transactions_to_approve_res_branch(tx_approve_res), NUM_FLEX_TRITS_HASH));
   TEST_ASSERT(flex_trits_are_null(get_transactions_to_approve_res_trunk(tx_approve_res), NUM_FLEX_TRITS_HASH));
 
-  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_transactions_to_approve(&g_serv, tx_approve_req, tx_approve_res));
+  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_transactions_to_approve(g_serv, tx_approve_req, tx_approve_res));
 
   TEST_ASSERT(!flex_trits_are_null(get_transactions_to_approve_res_branch(tx_approve_res), NUM_FLEX_TRITS_HASH));
   TEST_ASSERT(!flex_trits_are_null(get_transactions_to_approve_res_trunk(tx_approve_res), NUM_FLEX_TRITS_HASH));
@@ -43,7 +43,7 @@ static void test_get_transactions_to_approve_invalid_depth(void) {
   tx_approve_req->depth = UINT32_MAX;
 
   TEST_ASSERT_EQUAL_INT16(RC_CCLIENT_RES_ERROR,
-                          iota_client_get_transactions_to_approve(&g_serv, tx_approve_req, tx_approve_res));
+                          iota_client_get_transactions_to_approve(g_serv, tx_approve_req, tx_approve_res));
 
   TEST_ASSERT(flex_trits_are_null(get_transactions_to_approve_res_branch(tx_approve_res), NUM_FLEX_TRITS_HASH));
   TEST_ASSERT(flex_trits_are_null(get_transactions_to_approve_res_trunk(tx_approve_res), NUM_FLEX_TRITS_HASH));
@@ -74,7 +74,7 @@ static void test_get_transactions_to_approve(void) {
 
   // reference transaction is too old
   TEST_ASSERT_EQUAL_INT16(RC_CCLIENT_RES_ERROR,
-                          iota_client_get_transactions_to_approve(&g_serv, tx_approve_req, tx_approve_res));
+                          iota_client_get_transactions_to_approve(g_serv, tx_approve_req, tx_approve_res));
 
   TEST_ASSERT(flex_trits_are_null(get_transactions_to_approve_res_branch(tx_approve_res), NUM_FLEX_TRITS_HASH));
   TEST_ASSERT(flex_trits_are_null(get_transactions_to_approve_res_trunk(tx_approve_res), NUM_FLEX_TRITS_HASH));
@@ -88,13 +88,15 @@ static void test_get_transactions_to_approve(void) {
 int main() {
   UNITY_BEGIN();
 
-  cclient_service_setup(&g_serv);
+  g_serv = cclient_service_setup();
+  TEST_ASSERT_NOT_NULL(g_serv);
 
   RUN_TEST(test_get_transactions_to_approve_empty);
   RUN_TEST(test_get_transactions_to_approve_invalid_depth);
   RUN_TEST(test_get_transactions_to_approve);
 
   cclient_service_cleanup(&g_serv);
+  TEST_ASSERT_NULL(g_serv);
 
   return UNITY_END();
 }

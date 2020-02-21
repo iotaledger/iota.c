@@ -25,7 +25,8 @@ void example_replay_bundle(iota_client_service_t *s) {
   if (flex_trits_from_trytes(tail_hash, NUM_TRITS_HASH, TAIL_HASH, NUM_TRYTES_HASH, NUM_TRYTES_HASH) == 0) {
     printf("Error: converting flex_trit failed.\n");
   } else {
-    if ((ret = iota_client_replay_bundle(s, tail_hash, 6, 9, NULL, bundle)) == RC_OK) {
+    if ((ret = iota_client_replay_bundle(s, tail_hash, IOTA_CONFIG_NODE_DEPTH, IOTA_CONFIG_NODE_MWM, NULL, bundle)) ==
+        RC_OK) {
       printf("%s done\n", __FUNCTION__);
 #ifdef DEBUG
       bundle_dump(bundle);

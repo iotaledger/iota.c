@@ -36,12 +36,15 @@ int socket_connect(char const *const hostname, const size_t port) {
     // Successfully connection
     break;
   }
+
+  // Free resources allocated by getaddrinfo
+  freeaddrinfo(serverinfo);
+
   // If no info was found return error
   if (!info) {
     return -1;
   }
-  // Free resources allocated by getaddrinfo
-  freeaddrinfo(serverinfo);
+
   // Return socket fd - 0 or greater
   return sockfd;
 }
@@ -143,7 +146,8 @@ int tls_socket_connect(mbedtls_ctx_t *tls_ctx, char const *host, uint16_t port, 
   mbedtls_ssl_set_hostname(&tls_ctx->ssl, host);
 
   // BIO callbacks
-  mbedtls_ssl_set_bio(&tls_ctx->ssl, &tls_ctx->net_ctx, mbedtls_net_send, mbedtls_net_recv, NULL);
+  mbedtls_ssl_conf_read_timeout(&tls_ctx->ssl_conf, 30000);  // timeout 30s
+  mbedtls_ssl_set_bio(&tls_ctx->ssl, &tls_ctx->net_ctx, mbedtls_net_send, NULL, mbedtls_net_recv_timeout);
 
   if (is_client_auth) {
     if (mbedtls_ssl_conf_own_cert(&tls_ctx->ssl_conf, &tls_ctx->client_cacert, &tls_ctx->pk_ctx) != 0) {

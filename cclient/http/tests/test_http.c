@@ -130,20 +130,23 @@ static char const* data =
     "dignissim. Proin malesuada adipiscing lacus.";
 
 void test_http_request(void) {
-  iota_client_service_t service = {};
-  service.http.host = "httpbin.org";
-  service.http.content_type = khttp_ApplicationFormUrlencoded;
-  service.http.accept = khttp_ApplicationJson;
-  service.http.port = 80;
-  service.http.path = "/post";
-  service.http.ca_pem = NULL;
+  iota_client_service_t* service = (iota_client_service_t*)malloc(sizeof(iota_client_service_t));
+  TEST_ASSERT_NOT_NULL(service);
+
+  strcpy(service->http.host, "httpbin.org");
+  strcpy(service->http.content_type, khttp_ApplicationFormUrlencoded);
+  strcpy(service->http.accept, khttp_ApplicationJson);
+  strcpy(service->http.path, "/post");
+  service->http.port = 80;
+  service->http.ca_pem = NULL;
+
   char_buffer_t* req = char_buffer_new();
   char_buffer_t* res = char_buffer_new();
   TEST_ASSERT_NOT_NULL(req);
   TEST_ASSERT_NOT_NULL(res);
   char_buffer_allocate(req, strlen(data));
   memcpy(req->data, data, req->length);
-  TEST_ASSERT(iota_service_query(&service, req, res) == RC_OK);
+  TEST_ASSERT(iota_service_query(service, req, res) == RC_OK);
   cJSON* json_obj = cJSON_Parse(res->data);
   TEST_ASSERT_NOT_NULL(json_obj);
   cJSON* json_item = cJSON_GetObjectItemCaseSensitive(json_obj, "form");
@@ -156,23 +159,27 @@ void test_http_request(void) {
   cJSON_Delete(json_obj);
   char_buffer_free(req);
   char_buffer_free(res);
+  free(service);
 }
 
 void test_https_request(void) {
-  iota_client_service_t service = {};
-  service.http.host = "postman-echo.com";
-  service.http.content_type = khttp_ApplicationFormUrlencoded;
-  service.http.accept = khttp_ApplicationJson;
-  service.http.port = 443;
-  service.http.path = "/post";
-  service.http.ca_pem = amazon_ca1_pem;
+  iota_client_service_t* service = (iota_client_service_t*)malloc(sizeof(iota_client_service_t));
+  TEST_ASSERT_NOT_NULL(service);
+
+  strcpy(service->http.host, "postman-echo.com");
+  strcpy(service->http.content_type, khttp_ApplicationFormUrlencoded);
+  strcpy(service->http.accept, khttp_ApplicationJson);
+  strcpy(service->http.path, "/post");
+  service->http.port = 443;
+  service->http.ca_pem = amazon_ca1_pem;
+
   char_buffer_t* req = char_buffer_new();
   char_buffer_t* res = char_buffer_new();
   TEST_ASSERT_NOT_NULL(req);
   TEST_ASSERT_NOT_NULL(res);
   char_buffer_allocate(req, strlen(data));
   memcpy(req->data, data, req->length);
-  TEST_ASSERT(iota_service_query(&service, req, res) == RC_OK);
+  TEST_ASSERT(iota_service_query(service, req, res) == RC_OK);
   cJSON* json_obj = cJSON_Parse(res->data);
   TEST_ASSERT_NOT_NULL(json_obj);
   cJSON* json_item = cJSON_GetObjectItemCaseSensitive(json_obj, "form");
@@ -185,6 +192,7 @@ void test_https_request(void) {
   cJSON_Delete(json_obj);
   char_buffer_free(req);
   char_buffer_free(res);
+  free(service);
 }
 
 int main(void) {

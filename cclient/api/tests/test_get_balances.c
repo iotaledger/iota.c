@@ -7,7 +7,7 @@
 
 #include "cclient/api/tests/cclient_test_defs.h"
 
-static iota_client_service_t g_serv;
+static iota_client_service_t *g_serv;
 
 static void test_get_balances_empty(void) {
   get_balances_req_t *balance_req = get_balances_req_new();
@@ -19,7 +19,7 @@ static void test_get_balances_empty(void) {
   get_balances_res_t *balance_res = get_balances_res_new();
   TEST_ASSERT_NOT_NULL(balance_res);
 
-  TEST_ASSERT_EQUAL_INT16(RC_NULL_PARAM, iota_client_get_balances(&g_serv, balance_req, balance_res));
+  TEST_ASSERT_EQUAL_INT16(RC_NULL_PARAM, iota_client_get_balances(g_serv, balance_req, balance_res));
 
   TEST_ASSERT_EQUAL_INT(0, get_balances_res_balances_num(balance_res));
   TEST_ASSERT_NULL(balance_res->references);
@@ -44,7 +44,7 @@ static void test_get_balances(void) {
 
   balance_req->threshold = 100;
 
-  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_balances(&g_serv, balance_req, balance_res));
+  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_balances(g_serv, balance_req, balance_res));
 
   TEST_ASSERT_NOT_NULL(balance_res->references);
   TEST_ASSERT(!flex_trits_are_null(balance_res->references->hash, NUM_FLEX_TRITS_HASH));
@@ -74,7 +74,7 @@ static void test_get_balances_with_tip(void) {
 
   balance_req->threshold = 100;
 
-  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_balances(&g_serv, balance_req, balance_res));
+  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_balances(g_serv, balance_req, balance_res));
 
   TEST_ASSERT_NOT_NULL(balance_res->references);
   TEST_ASSERT(!flex_trits_are_null(balance_res->references->hash, NUM_FLEX_TRITS_HASH));
@@ -104,7 +104,7 @@ static void test_get_balances_invalid_tip(void) {
 
   balance_req->threshold = 100;
 
-  TEST_ASSERT_EQUAL_INT16(RC_CCLIENT_RES_ERROR, iota_client_get_balances(&g_serv, balance_req, balance_res));
+  TEST_ASSERT_EQUAL_INT16(RC_CCLIENT_RES_ERROR, iota_client_get_balances(g_serv, balance_req, balance_res));
 
   TEST_ASSERT_EQUAL_INT(0, get_balances_res_balances_num(balance_res));
   TEST_ASSERT_NULL(balance_res->references);
@@ -119,7 +119,8 @@ static void test_get_balances_invalid_tip(void) {
 int main() {
   UNITY_BEGIN();
 
-  cclient_service_setup(&g_serv);
+  g_serv = cclient_service_setup();
+  TEST_ASSERT_NOT_NULL(g_serv);
 
   RUN_TEST(test_get_balances_empty);
   RUN_TEST(test_get_balances);
@@ -127,6 +128,7 @@ int main() {
   RUN_TEST(test_get_balances_invalid_tip);
 
   cclient_service_cleanup(&g_serv);
+  TEST_ASSERT_NULL(g_serv);
 
   return UNITY_END();
 }

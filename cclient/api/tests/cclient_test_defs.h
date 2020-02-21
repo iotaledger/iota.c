@@ -14,12 +14,13 @@
 #include <unity/unity.h>
 
 #include "cclient/api/core/core_api.h"
+#include "cclient/api/extended/extended_api.h"
 #include "common/trinary/flex_trit.h"
 #include "utils/logger_helper.h"
 #include "utils/time.h"
 
-void cclient_service_setup(iota_client_service_t *const service);
-void cclient_service_cleanup(iota_client_service_t *const service);
+iota_client_service_t *cclient_service_setup();
+void cclient_service_cleanup(iota_client_service_t **service);
 
 static uint64_t const STARTING_MILESTONE_INDEX = 1050000;
 static uint64_t const OLDER_TIMESTAMP = 1562581100;

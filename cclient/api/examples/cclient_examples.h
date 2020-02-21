@@ -24,6 +24,18 @@ extern "C" {
 static tryte_t const *const MY_SEED =
     (tryte_t *)"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
+#define IOTA_CONFIG_SECURITY_LEVEL 2
+
+// #define IOTA_CONFIG_MAINNET
+
+#ifdef IOTA_CONFIG_MAINNET
+#define IOTA_CONFIG_NODE_MWM 14
+#define IOTA_CONFIG_NODE_DEPTH 3
+#else  // testnet
+#define IOTA_CONFIG_NODE_MWM 9
+#define IOTA_CONFIG_NODE_DEPTH 6
+#endif
+
 void example_attach_to_tangle(iota_client_service_t *s);
 void example_broadcast_transactions(iota_client_service_t *s);
 void example_check_consistency(iota_client_service_t *s);

@@ -22,6 +22,7 @@
 #include "cclient/api/core/get_tips.h"
 #include "cclient/api/core/get_transactions_to_approve.h"
 #include "cclient/api/core/get_trytes.h"
+#include "cclient/api/core/logger.h"
 #include "cclient/api/core/remove_neighbors.h"
 #include "cclient/api/core/store_transactions.h"
 #include "cclient/api/core/were_addresses_spent_from.h"
