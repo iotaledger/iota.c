@@ -16,7 +16,7 @@ iota_client_service_t *iota_client_core_init(char const *host, uint16_t port, ch
   if (service == NULL) {
     return NULL;
   }
-  strcpy(service->http.host, host);
+  strncpy(service->http.host, host, HOST_MAX_LEN);
   strcpy(service->http.content_type, client_content_type);
   strcpy(service->http.accept, client_content_type);
   strcpy(service->http.path, client_path);
