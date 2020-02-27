@@ -34,7 +34,7 @@ void example_send_balance(iota_client_service_t *s) {
                          NUM_TRYTES_TAG);
 
   // value
-  tf.value = 1;  // send 5i to receiver
+  tf.value = 1;  // send 1i to receiver
 
   // message (optional)
   transfer_message_set_string(&tf, "Sending 1i!!");
