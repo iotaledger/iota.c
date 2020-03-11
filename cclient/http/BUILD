@@ -41,10 +41,7 @@ cc_library(
     srcs = ["socket.c"],
     hdrs = ["socket.h"],
     deps = [
-        "@org_iota_common//common:errors",
         "@mbedtls",
-    ] + select({
-        ":windows_platform": ["//utils:windows"],
-        "//conditions:default": [],
-    }),
+        "@org_iota_common//common:errors",
+    ],
 )
