@@ -68,7 +68,6 @@ int main() {
   // example_find_transactions(serv);
   // example_get_balance(serv);
   // example_get_inclusion_states(serv);
-  // example_get_tips(serv);
   // example_get_transactions_to_approve(serv);
   // example_get_trytes(serv);
   // example_node_api_conf(serv);

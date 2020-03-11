@@ -125,17 +125,6 @@ cc_test(
 )
 
 cc_test(
-    name = "get_tips",
-    timeout = "short",
-    srcs = ["get_tips.c"],
-    deps = [
-        ":shared",
-        "//cclient/serialization:serializer_json",
-        "@unity",
-    ],
-)
-
-cc_test(
     name = "get_transactions_to_approve",
     timeout = "short",
     srcs = ["get_transactions_to_approve.c"],

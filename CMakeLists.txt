@@ -63,7 +63,6 @@ set(API_CORE_SRC
   ${API_CORE_DIR}/get_neighbors.c
   ${API_CORE_DIR}/get_node_api_conf.c
   ${API_CORE_DIR}/get_node_info.c
-  ${API_CORE_DIR}/get_tips.c
   ${API_CORE_DIR}/get_transactions_to_approve.c
   ${API_CORE_DIR}/get_trytes.c
   ${API_CORE_DIR}/logger.c
@@ -126,7 +125,6 @@ set(RES_SRC
   ${RES_DIR}/get_missing_transactions.c
   ${RES_DIR}/get_neighbors.c
   ${RES_DIR}/get_node_info.c
-  ${RES_DIR}/get_tips.c
   ${RES_DIR}/get_transactions_to_approve.c
   ${RES_DIR}/get_trytes.c
   ${RES_DIR}/remove_neighbors.c
@@ -147,7 +145,6 @@ set(JSON_SERIALIZER_SRC
   ${JSON_SERIALIZER_DIR}/get_neighbors.c
   ${JSON_SERIALIZER_DIR}/get_node_api_conf.c
   ${JSON_SERIALIZER_DIR}/get_node_info.c
-  ${JSON_SERIALIZER_DIR}/get_tips.c
   ${JSON_SERIALIZER_DIR}/get_transactions_to_approve.c
   ${JSON_SERIALIZER_DIR}/get_trytes.c
   ${JSON_SERIALIZER_DIR}/helpers.c
@@ -227,7 +224,6 @@ if(${CCLIENT_TEST})
   add_cclient_test("test_get_neighbors.c" "test_get_neighbors")
   add_cclient_test("test_get_node_api_conf.c" "test_get_node_api_conf")
   add_cclient_test("test_get_node_info.c" "test_get_node_info")
-  add_cclient_test("test_get_tips.c" "test_get_tips")
   add_cclient_test("test_get_transactions_to_approve.c" "test_get_transactions_to_approve")
   add_cclient_test("test_get_trytes.c" "test_get_trytes")
   add_cclient_test("test_remove_neighbors.c" "test_remove_neighbors")

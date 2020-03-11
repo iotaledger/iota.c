@@ -19,7 +19,6 @@
 #include "cclient/api/core/get_neighbors.h"
 #include "cclient/api/core/get_node_api_conf.h"
 #include "cclient/api/core/get_node_info.h"
-#include "cclient/api/core/get_tips.h"
 #include "cclient/api/core/get_transactions_to_approve.h"
 #include "cclient/api/core/get_trytes.h"
 #include "cclient/api/core/logger.h"

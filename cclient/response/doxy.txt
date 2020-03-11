@@ -20,7 +20,6 @@
  * - #get_missing_transactions_res_t
  * - #get_neighbors_res_t
  * - #get_node_info_res_t
- * - #get_tips_res_t
  * - #get_transactions_to_approve_res_t
  * - #get_trytes_res_t
  * - #remove_neighbors_res_t

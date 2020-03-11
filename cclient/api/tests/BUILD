@@ -69,20 +69,6 @@ cc_test(
 )
 
 cc_test(
-    name = "test_get_tips",
-    timeout = "short",
-    srcs = [
-        "cclient_service_init.c",
-        "cclient_test_defs.h",
-        "test_get_tips.c",
-    ],
-    deps = [
-        "//cclient/api",
-        "@unity",
-    ],
-)
-
-cc_test(
     name = "test_get_trytes",
     timeout = "short",
     srcs = [

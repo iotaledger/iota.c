@@ -19,7 +19,6 @@
 #include "cclient/response/get_neighbors.h"
 #include "cclient/response/get_node_api_conf.h"
 #include "cclient/response/get_node_info.h"
-#include "cclient/response/get_tips.h"
 #include "cclient/response/get_transactions_to_approve.h"
 #include "cclient/response/get_trytes.h"
 #include "cclient/response/remove_neighbors.h"
