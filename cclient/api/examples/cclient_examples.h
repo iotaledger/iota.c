@@ -42,7 +42,6 @@ void example_check_consistency(iota_client_service_t *s);
 void example_find_transactions(iota_client_service_t *s);
 void example_get_balance(iota_client_service_t *s);
 void example_get_inclusion_states(iota_client_service_t *s);
-void example_get_tips(iota_client_service_t *s);
 void example_get_transactions_to_approve(iota_client_service_t *s);
 void example_get_trytes(iota_client_service_t *s);
 void example_node_api_conf(iota_client_service_t *s);

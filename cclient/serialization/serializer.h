@@ -89,10 +89,6 @@ typedef struct {
   retcode_t (*get_node_info_deserialize_response)(const char* const obj, get_node_info_res_t* out);
   retcode_t (*get_node_info_serialize_response)(const get_node_info_res_t* const obj, char_buffer_t* out);
 
-  retcode_t (*get_tips_serialize_request)(char_buffer_t* out);
-  retcode_t (*get_tips_serialize_response)(get_tips_res_t const* const res, char_buffer_t* out);
-  retcode_t (*get_tips_deserialize_response)(const char* const obj, get_tips_res_t* res);
-
   retcode_t (*get_transactions_to_approve_serialize_request)(get_transactions_to_approve_req_t const* const obj,
                                                              char_buffer_t* out);
   retcode_t (*get_transactions_to_approve_deserialize_request)(char const* const obj,
