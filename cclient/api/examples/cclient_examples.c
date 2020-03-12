@@ -56,7 +56,7 @@ int main() {
   logger_init_json_serializer(LOGGER_DEBUG);
 
 #ifdef _USE_HTTP_
-  printf("Connecting to node: http://%s:%u\n", serv.http.host, serv.http.port);
+  printf("Connecting to node: http://%s:%u\n", serv->http.host, serv->http.port);
 #else
   printf("Connecting to node: https://%s:%u\n", serv->http.host, serv->http.port);
 #endif
@@ -79,9 +79,9 @@ int main() {
   /* Extended APIs */
   // example_get_new_address(serv);
   // example_get_inputs(serv);
-  example_get_account_data(serv);
+  // example_get_account_data(serv);
   // example_find_transaction_objects(serv);
-  example_is_promotable(serv);
+  // example_is_promotable(serv);
   // example_get_latest_inclusion(serv);
   // example_send_trytes(serv);
   // example_traverse_bundle(serv);
@@ -89,7 +89,7 @@ int main() {
   // example_replay_bundle(serv);
   // example_broadcast_bundle(serv);
   // example_promote_transaction(serv);
-  example_get_unspent_address(serv);
+  // example_get_unspent_address(serv);
 
   /* Send data and balance */
   // example_send_data(serv);

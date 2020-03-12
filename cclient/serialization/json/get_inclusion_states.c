@@ -18,7 +18,6 @@ retcode_t json_get_inclusion_states_serialize_request(get_inclusion_states_req_t
     return RC_NULL_PARAM;
   }
 
-  printf("tips = %p, tx = %p \n", req->tips, req->transactions);
   if (!req->transactions) {
     log_error(json_logger_id, "[%s:%d] NULL parameters\n", __func__, __LINE__);
     return RC_NULL_PARAM;
