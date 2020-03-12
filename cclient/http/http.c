@@ -14,6 +14,10 @@
 
 typedef enum { IOTA_REQUEST_STATUS_OK, IOTA_REQUEST_STATUS_DONE, IOTA_REQUEST_STATUS_ERROR } IOTA_REQUEST_STATUS;
 
+/**
+ * @brief response context for http_parser
+ *
+ */
 struct _response_ctx {
   http_parser* parser;
   char_buffer_t* response;
@@ -38,7 +42,7 @@ static int request_parse_header_complete(struct _response_ctx* response);
 static int request_parse_data(struct _response_ctx* response, unsigned char const* at, size_t length);
 static int request_parse_message_complete(struct _response_ctx* response);
 
-// Callback implementation for parser
+// Callback implementations for parser
 static int request_parse_header_complete_cb(http_parser* parser) {
   return request_parse_header_complete((struct _response_ctx*)parser->data);
 }
@@ -51,7 +55,7 @@ static int request_parse_message_complete_cb(http_parser* parser) {
   return request_parse_message_complete((struct _response_ctx*)parser->data);
 }
 
-// Callback implementation for context
+// Callback implementation for response context
 static int request_parse_header_complete(struct _response_ctx* response) {
   uint64_t data_len = response->parser->content_length;
   if (data_len == UINT64_MAX) {
@@ -77,6 +81,14 @@ static int request_parse_message_complete(struct _response_ctx* response) {
   return RC_OK;
 }
 
+/**
+ * @brief sent out http request header
+ *
+ * @param ctx[in] mbedtls context
+ * @param http_settings[in] http configurations
+ * @param data_length[in] number of bytes need to send
+ * @return int number of bytes actually sent
+ */
 static int http_request_header(mbedtls_ctx_t* ctx, http_info_t const* http_settings, size_t data_length) {
   char header[256] = {};
   sprintf(header, header_template, http_settings->path, http_settings->host, http_settings->api_version,
@@ -84,6 +96,14 @@ static int http_request_header(mbedtls_ctx_t* ctx, http_info_t const* http_setti
   return mbedtls_socket_send(ctx, header, strlen(header));
 }
 
+/**
+ * @brief sent out http payload
+ *
+ * @param ctx[in] mbedtls context
+ * @param data[in] the buffer holding data
+ * @param data_length[in] number of bytes should be sent
+ * @return retcode_t error code
+ */
 static retcode_t http_request_data(mbedtls_ctx_t* ctx, char const* const data, size_t data_length) {
   char* ptr = (char*)data;
   while (data_length > 0) {
@@ -97,6 +117,13 @@ static retcode_t http_request_data(mbedtls_ctx_t* ctx, char const* const data, s
   return RC_OK;
 }
 
+/**
+ * @brief read data from server
+ *
+ * @param ctx[in] mbedtls context
+ * @param response[out] buffer that will hold the data
+ * @return retcode_t error code
+ */
 static retcode_t http_response_read(mbedtls_ctx_t* ctx, char_buffer_t* response) {
   char buffer[RECEIVE_BUFFER_SIZE];
   int num_received = 0;
@@ -133,6 +160,14 @@ static retcode_t http_response_read(mbedtls_ctx_t* ctx, char_buffer_t* response)
   return RC_OK;
 }
 
+/**
+ * @brief read/write network socket
+ *
+ * @param service_opaque[in] opaque object of client service
+ * @param obj[in] buffer that holding data
+ * @param response[out] buffer that receiving data
+ * @return retcode_t error code
+ */
 static retcode_t cclient_socket_send(void const* const service_opaque, char_buffer_t const* const obj,
                                      char_buffer_t* const response) {
   int sockfd = -1;

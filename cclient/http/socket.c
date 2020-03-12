@@ -12,7 +12,13 @@
 // socket receiving timeout
 #define MBEDTLS_SOCKET_TIMEOUT 30000
 
-static void mbedtls_conf_init(mbedtls_ctx_t *tls_ctx, bool is_https) {
+/**
+ * @brief Setup mbedtls configurations
+ *
+ * @param tls_ctx[in] mbedtls context
+ * @param is_https[in] true for HTTPS connunication, false for HTTP
+ */
+static void init_mbedtls_conf(mbedtls_ctx_t *tls_ctx, bool is_https) {
   if (is_https) {
     // init tls stuffs
     mbedtls_entropy_init(&tls_ctx->entropy);
@@ -27,7 +33,12 @@ static void mbedtls_conf_init(mbedtls_ctx_t *tls_ctx, bool is_https) {
   tls_ctx->enable_tls = is_https;
 }
 
-static void mbedtls_conf_destroy(mbedtls_ctx_t *tls_ctx) {
+/**
+ * @brief Clean up mbedtls configurations
+ *
+ * @param tls_ctx[in] mbedtls context
+ */
+static void destory_mbedtls_conf(mbedtls_ctx_t *tls_ctx) {
   if (tls_ctx->enable_tls) {
     mbedtls_entropy_free(&tls_ctx->entropy);
     mbedtls_ctr_drbg_free(&tls_ctx->ctr_drbg);
@@ -40,7 +51,7 @@ static void mbedtls_conf_destroy(mbedtls_ctx_t *tls_ctx) {
   mbedtls_net_free(&tls_ctx->net_ctx);
 }
 
-void mbedtls_socket_close(mbedtls_ctx_t *tls_ctx) { mbedtls_conf_destroy(tls_ctx); }
+void mbedtls_socket_close(mbedtls_ctx_t *tls_ctx) { destory_mbedtls_conf(tls_ctx); }
 
 int mbedtls_socket_send(mbedtls_ctx_t *ctx, char const *data, size_t size) {
   if (ctx->enable_tls) {
@@ -63,7 +74,7 @@ int mbedtls_socket_connect(mbedtls_ctx_t *tls_ctx, char const *host, uint16_t po
   char port_string[6];
   sprintf(port_string, "%d", port);
 
-  mbedtls_conf_init(tls_ctx, ca_pem == NULL ? false : true);
+  init_mbedtls_conf(tls_ctx, ca_pem == NULL ? false : true);
   // init http socket
   if (!tls_ctx->enable_tls) {
     // Start the connection
