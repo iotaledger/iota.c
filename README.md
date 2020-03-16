@@ -249,8 +249,9 @@ You can find example templates in this [GitHub repository](https://github.com/oo
 
 ## Supporting the project
 
-If the IOTA C client library has been useful to you and you feel like contributing, consider posting a [bug report](https://github.com/iotaledger/iota.c/issues/new-issue), feature request or a [pull request](https://github.com/iotaledger/iota.c/pulls/).  
-We have some [basic contribution guidelines](CONTRIBUTING.md) to keep our code base stable and consistent.
+If the IOTA C client library has been useful to you and you feel like contributing, consider posting a [bug report](https://github.com/iotaledger/iota.c/issues/new-issue), feature request or a [pull request](https://github.com/iotaledger/iota.c/pulls/). 
+ 
+We have some [basic contribution guidelines](.github/CONTRIBUTING.md) to keep our code base stable and consistent.
 
 ### Running test cases
 
