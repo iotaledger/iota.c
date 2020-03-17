@@ -29,6 +29,12 @@ What hardware are you using?
 - RAM:
 - Number of cores:
 - Device type:
+## Compiler and build tool specification
+
+What compiler are you using?
+
+What build tool are you using? 
+Bazel/Bazelisk/CMake
 
 ## Steps To reproduce the bug
 
