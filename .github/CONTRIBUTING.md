@@ -168,7 +168,7 @@ When creating a pull request, please follow these steps to have your contributio
 
     **Note:** Minor changes such as fixing a typo can but do not need an open issue.
 
-- All code should be well tested
+- All code should be covered in unit tests 
 
 ### Submitting a pull request
 
