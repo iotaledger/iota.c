@@ -14,6 +14,12 @@ static void test_get_transactions_to_approve_empty(void) {
   TEST_ASSERT_NOT_NULL(tx_approve_req);
   TEST_ASSERT_EQUAL_UINT32(0, tx_approve_req->depth);
 
+#ifdef IOTA_MAN_NET
+  tx_approve_req->depth = 3;
+#else
+  tx_approve_req->depth = 6;
+#endif
+
   get_transactions_to_approve_res_t *tx_approve_res = get_transactions_to_approve_res_new();
   TEST_ASSERT_NOT_NULL(tx_approve_res);
   TEST_ASSERT(flex_trits_are_null(get_transactions_to_approve_res_branch(tx_approve_res), NUM_FLEX_TRITS_HASH));

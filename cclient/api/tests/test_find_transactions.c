@@ -188,13 +188,14 @@ int main() {
 
   RUN_TEST(test_find_tx_empty);
   RUN_TEST(test_find_tx_by_bundle);
-  RUN_TEST(test_find_tx_by_empty_bundle);
   RUN_TEST(test_find_tx_by_address);
-  RUN_TEST(test_find_tx_by_empty_address);
   RUN_TEST(test_find_tx_by_tag);
-  RUN_TEST(test_find_tx_by_empty_tag);
   RUN_TEST(test_find_tx_by_approvee);
-  RUN_TEST(test_find_tx_by_empty_approvee);
+  // no needed in IRI v1.8.5
+  // RUN_TEST(test_find_tx_by_empty_bundle);
+  // RUN_TEST(test_find_tx_by_empty_tag);
+  // RUN_TEST(test_find_tx_by_empty_address);
+  // RUN_TEST(test_find_tx_by_empty_approvee);
 
   cclient_service_cleanup(&g_serv);
   TEST_ASSERT_NULL(g_serv);
