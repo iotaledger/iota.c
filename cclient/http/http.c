@@ -90,7 +90,7 @@ static int request_parse_message_complete(struct _response_ctx* response) {
  * @return int number of bytes actually sent
  */
 static int http_request_header(mbedtls_ctx_t* ctx, http_info_t const* http_settings, size_t data_length) {
-  char header[256] = {};
+  char header[1024] = {};
   sprintf(header, header_template, http_settings->path, http_settings->host, http_settings->api_version,
           http_settings->content_type, http_settings->accept, data_length);
   return mbedtls_socket_send(ctx, header, strlen(header));
