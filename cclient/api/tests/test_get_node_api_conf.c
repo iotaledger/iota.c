@@ -16,24 +16,18 @@ static void test_get_node_api_conf(void) {
   TEST_ASSERT(node_conf.max_get_trytes == 0);
   TEST_ASSERT(node_conf.max_body_length == 0);
   TEST_ASSERT(node_conf.milestone_start_index == 0);
-  TEST_ASSERT(node_conf.test_net == 0);
+  TEST_ASSERT(node_conf.test_net == false);
 
-#ifdef IOTA_MAIN_NET
-  TEST_ASSERT_EQUAL_INT16(RC_CCLIENT_RES_ERROR, iota_client_get_node_api_conf(g_serv, &node_conf));
-  TEST_ASSERT(node_conf.max_find_transactions == 0);
-  TEST_ASSERT(node_conf.max_requests_list == 0);
-  TEST_ASSERT(node_conf.max_get_trytes == 0);
-  TEST_ASSERT(node_conf.max_body_length == 0);
-  TEST_ASSERT(node_conf.milestone_start_index == 0);
-  TEST_ASSERT(node_conf.test_net == 0);
-#else
   TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_node_api_conf(g_serv, &node_conf));
   TEST_ASSERT(node_conf.max_find_transactions > 0);
   TEST_ASSERT(node_conf.max_requests_list > 0);
   TEST_ASSERT(node_conf.max_get_trytes > 0);
   TEST_ASSERT(node_conf.max_body_length > 0);
   TEST_ASSERT(node_conf.milestone_start_index > 0);
-  TEST_ASSERT(node_conf.test_net > 0);
+#ifdef IOTA_MAIN_NET
+  TEST_ASSERT(node_conf.test_net == false);
+#else
+  TEST_ASSERT(node_conf.test_net == true);
 #endif
 }
 
