@@ -29,7 +29,7 @@ void example_get_bundle(iota_client_service_t *s) {
     if ((ret = iota_client_get_bundle(s, tail_hash, bundle, &bundle_status)) == RC_OK) {
       if (bundle_status == BUNDLE_VALID) {
         printf("bundle status: %d\n", bundle_status);
-#ifdef DEBUG
+#ifdef EXAMPLE_DUMP_BUNDLE
         bundle_dump(bundle);
 #endif
       } else {

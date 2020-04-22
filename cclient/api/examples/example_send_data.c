@@ -65,7 +65,7 @@ void example_send_data(iota_client_service_t *s) {
     flex_trit_print(bundle_hash, NUM_TRITS_HASH);
     printf("\n");
   }
-#ifdef DEBUG
+#ifdef EXAMPLE_DUMP_BUNDLE
   bundle_dump(bundle);
 #endif
   bundle_transactions_free(&bundle);
