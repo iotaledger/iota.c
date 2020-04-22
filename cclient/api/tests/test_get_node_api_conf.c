@@ -18,7 +18,7 @@ static void test_get_node_api_conf(void) {
   TEST_ASSERT(node_conf.milestone_start_index == 0);
   TEST_ASSERT(node_conf.test_net == 0);
 
-#ifdef IOTA_MAN_NET
+#ifdef IOTA_MAIN_NET
   TEST_ASSERT_EQUAL_INT16(RC_CCLIENT_RES_ERROR, iota_client_get_node_api_conf(g_serv, &node_conf));
   TEST_ASSERT(node_conf.max_find_transactions == 0);
   TEST_ASSERT(node_conf.max_requests_list == 0);

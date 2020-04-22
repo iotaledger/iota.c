@@ -19,7 +19,7 @@
 #include "utils/logger_helper.h"
 #include "utils/time.h"
 
-#define IOTA_MAN_NET
+#define IOTA_MAIN_NET
 
 iota_client_service_t *cclient_service_setup();
 void cclient_service_cleanup(iota_client_service_t **service);
@@ -78,7 +78,7 @@ static tryte_t const *const TEST_TX_HASH = (tryte_t*) "BYSWEAUTWXHXZ9YBZISEK9LUH
   "99IROUICDOXKSYZTDPEDKOQENTJOWJONDEWROCEJIEWFWLUAACVSJFTMCHHXJBJRKAAPUDXX"
   "VXFWP9X9999";
 
-#ifdef IOTA_MAN_NET
+#ifdef IOTA_MAIN_NET
 static tryte_t const *const TEST_BUNDLE_HASH_0 =
     (tryte_t *)"NRCYQZHWDJYYPJWBPBFJDGZDXWEMBLJIHSNUXTHKSYKGIYLZYIAUYVLFH9TJCPGGQGWXQOYJEOKLQAFIW";
 static tryte_t const *const TEST_BUNDLE_TX_0 =
@@ -116,6 +116,6 @@ static tryte_t const *const TEST_TRUNK_HASH =
     (tryte_t *)"RVORZ9SIIP9RCYMREUIXXVPQIPHVCNPQ9HZWYKFWYWZRE9JQKG9REPKIASHUUECPSQO9JT9XNMVKWYGVA";
 static tryte_t const *const TEST_BRANCH_HASH =
     (tryte_t *)"99999999IP9RCYMREUIXXVPQIPHVCNPQ9HZWYKFWYWZRE9JQKG9REPKIASHUUECPSQO9JT9XNMVKWYGVA";
-#endif  // IOTA_MAN_NET
+#endif  // IOTA_MAIN_NET
 
 #endif  // TEST_CCLIENT_TEST_DEFS_H

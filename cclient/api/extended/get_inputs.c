@@ -31,8 +31,6 @@ retcode_t iota_client_get_inputs(iota_client_service_t const* const serv, flex_t
   }
 
   for (; addr_index < addr_index_end; addr_index++) {
-    balances_req->addresses = NULL;
-
     log_debug(client_extended_logger_id, "[%s:%d]\n", __func__, __LINE__);
     if (!balances_req || !balances_res) {
       ret_code = RC_OOM;
@@ -86,6 +84,7 @@ retcode_t iota_client_get_inputs(iota_client_service_t const* const serv, flex_t
 
     free(addr);
     addr = NULL;
+    // free address queue and set the pointer to NULL
     hash243_queue_free(&balances_req->addresses);
     utarray_clear(balances_res->balances);
   }

@@ -29,7 +29,7 @@ static char const *amazon_ca1_pem =
     "rqXRfboQnoZsG4q5WTP468SQvvG5\r\n"
     "-----END CERTIFICATE-----\r\n";
 
-#ifdef IOTA_MAN_NET
+#ifdef IOTA_MAIN_NET
 static char const *const NODE_HOST = "nodes.thetangle.org";
 #else
 static char const *const NODE_HOST = "nodes.devnet.iota.org";
