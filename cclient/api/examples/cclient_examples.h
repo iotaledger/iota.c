@@ -36,6 +36,8 @@ static tryte_t const *const MY_SEED =
 #define IOTA_CONFIG_NODE_DEPTH 6
 #endif
 
+#define EXAMPLE_DUMP_BUNDLE
+
 void example_attach_to_tangle(iota_client_service_t *s);
 void example_broadcast_transactions(iota_client_service_t *s);
 void example_check_consistency(iota_client_service_t *s);

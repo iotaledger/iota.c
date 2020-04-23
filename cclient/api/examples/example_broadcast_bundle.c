@@ -22,7 +22,7 @@ void example_broadcast_bundle(iota_client_service_t *s) {
 
     if ((ret = iota_client_broadcast_bundle(s, tail_hash, bundle)) == RC_OK) {
       printf("broadcast bundle done...\n");
-#ifdef DEBUG
+#ifdef EXAMPLE_DUMP_BUNDLE
       bundle_dump(bundle);
 #endif
     } else {

@@ -14,7 +14,7 @@ static void test_get_transactions_to_approve_empty(void) {
   TEST_ASSERT_NOT_NULL(tx_approve_req);
   TEST_ASSERT_EQUAL_UINT32(0, tx_approve_req->depth);
 
-#ifdef IOTA_MAN_NET
+#ifdef IOTA_MAIN_NET
   tx_approve_req->depth = 3;
 #else
   tx_approve_req->depth = 6;

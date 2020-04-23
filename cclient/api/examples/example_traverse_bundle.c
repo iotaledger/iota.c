@@ -32,7 +32,7 @@ void example_traverse_bundle(iota_client_service_t *s) {
   } else {
     if ((ret = iota_client_traverse_bundle(s, tail_hash, bundle)) == RC_OK) {
       printf("%s done.\n", __FUNCTION__);
-#ifdef DEBUG
+#ifdef EXAMPLE_DUMP_BUNDLE
       bundle_dump(bundle);
 #endif
     } else {

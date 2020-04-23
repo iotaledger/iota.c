@@ -28,7 +28,7 @@ void example_replay_bundle(iota_client_service_t *s) {
     if ((ret = iota_client_replay_bundle(s, tail_hash, IOTA_CONFIG_NODE_DEPTH, IOTA_CONFIG_NODE_MWM, NULL, bundle)) ==
         RC_OK) {
       printf("%s done\n", __FUNCTION__);
-#ifdef DEBUG
+#ifdef EXAMPLE_DUMP_BUNDLE
       bundle_dump(bundle);
 #endif
     } else {

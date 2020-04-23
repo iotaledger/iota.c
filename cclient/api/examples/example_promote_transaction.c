@@ -33,7 +33,7 @@ void example_promote_transaction(iota_client_service_t *s) {
     if ((ret = iota_client_promote_transaction(s, tail_hash, IOTA_CONFIG_SECURITY_LEVEL, IOTA_CONFIG_NODE_DEPTH,
                                                IOTA_CONFIG_NODE_MWM, spam_stransfer, bundle)) == RC_OK) {
       printf("transactions has been promoted\n");
-#ifdef DEBUG
+#ifdef EXAMPLE_DUMP_BUNDLE
       bundle_dump(bundle);
 #endif
     } else {
