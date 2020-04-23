@@ -63,7 +63,7 @@ void example_prepare_transfer(iota_client_service_t *s) {
 
   if (ret_code == RC_OK) {
     printf("%s done\n", __FUNCTION__);
-#ifdef DEBUG
+#ifdef EXAMPLE_DUMP_BUNDLE
     bundle_dump(bundle);
 #endif
   } else {

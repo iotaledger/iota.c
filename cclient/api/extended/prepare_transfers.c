@@ -220,10 +220,6 @@ retcode_t iota_client_prepare_transfers(iota_client_service_t const* const serv,
     ret = RC_OK;
   }
 
-#ifdef DEBUG
-  bundle_dump(out_bundle);
-#endif
-
 end:
   return ret;
 }

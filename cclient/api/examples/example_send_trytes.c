@@ -121,7 +121,7 @@ void example_send_trytes(iota_client_service_t *s) {
   if ((ret_code = iota_client_send_trytes(s, raw_trytes, IOTA_CONFIG_NODE_DEPTH, IOTA_CONFIG_NODE_MWM, NULL, false,
                                           out_tx_objs)) == RC_OK) {
     printf("trytes have been sent\n");
-#ifdef DEBUG
+#ifdef EXAMPLE_DUMP_BUNDLE
     iota_transaction_t *tx_obj = NULL;
     TX_OBJS_FOREACH(out_tx_objs, tx_obj) { transaction_obj_dump(tx_obj); }
 #endif
