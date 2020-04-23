@@ -38,7 +38,7 @@ int main() {
   serv = iota_client_core_init("altnodes.devnet.iota.org", 80, NULL);
 #else  // HTTPS
 #ifdef IOTA_CONFIG_MAINNET
-  serv = iota_client_core_init("nodes.thetangle.org", 443, amazon_ca1_pem);
+  serv = iota_client_core_init("nodes.iota.cafe", 443, amazon_ca1_pem);
 #else
   serv = iota_client_core_init("nodes.devnet.iota.org", 443, amazon_ca1_pem);
 #endif

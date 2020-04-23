@@ -91,9 +91,8 @@ retcode_t json_get_node_api_conf_deserialize_response(char const *const obj, get
     goto end;
   }
 
-  if ((ret = json_get_boolean(json_obj, test_net, &out->test_net)) != RC_OK) {
-    goto end;
-  }
+  // not mandatory
+  json_get_boolean(json_obj, test_net, &out->test_net);
 
 end:
   cJSON_Delete(json_obj);

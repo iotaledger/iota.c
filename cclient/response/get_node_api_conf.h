@@ -57,7 +57,7 @@ typedef struct get_node_api_conf_res_s {
   uint32_t milestone_start_index;
 
   /**
-   * The type of this node, True runs on testnet else mainnet.
+   * The type of this node, True runs on testnet else mainnet. works on IRI
    */
   bool test_net;
 

@@ -58,7 +58,9 @@ void example_broadcast_transactions(iota_client_service_t *s) {
 
   if (flex_trits_from_trytes(tx_trits, NUM_TRITS_SERIALIZED_TRANSACTION, TX_HASH, NUM_TRYTES_SERIALIZED_TRANSACTION,
                              NUM_TRYTES_SERIALIZED_TRANSACTION) != 0) {
-    hash_array_push(req->trytes, tx_trits);
+    if ((ret = broadcast_transactions_req_trytes_add(req, tx_trits)) != RC_OK) {
+      goto done;
+    }
 
     if ((ret = iota_client_broadcast_transactions(s, req)) != RC_OK) {
       printf("broadcast_tx failed: %s\n", error_2_string(ret));

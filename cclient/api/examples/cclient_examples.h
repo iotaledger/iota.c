@@ -26,7 +26,7 @@ static tryte_t const *const MY_SEED =
 
 #define IOTA_CONFIG_SECURITY_LEVEL 2
 
-// #define IOTA_CONFIG_MAINNET
+#define IOTA_CONFIG_MAINNET
 
 #ifdef IOTA_CONFIG_MAINNET
 #define IOTA_CONFIG_NODE_MWM 14

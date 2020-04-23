@@ -23,6 +23,7 @@ static char const *tips = "tips";
 static char const *transactions_to_request = "transactionsToRequest";
 static char const *features = "features";
 static char const *coordinator_address = "coordinatorAddress";
+static char const *is_synced = "isSynced";
 
 retcode_t json_get_node_info_serialize_request(char_buffer_t *out) {
   char const *req_text = "{\"command\":\"getNodeInfo\"}";
@@ -148,10 +149,9 @@ retcode_t json_get_node_info_deserialize_response(char const *const obj, get_nod
     goto end;
   }
 
-  ret = json_get_uint16(json_obj, packets_queue_size, &out->packets_queue_size);
-  if (ret != RC_OK) {
-    goto end;
-  }
+  // it's not mandatory.
+  json_get_uint16(json_obj, packets_queue_size, &out->packets_queue_size);
+  json_get_boolean(json_obj, is_synced, &out->is_synced);
 
   ret = json_get_uint64(json_obj, time, &out->time);
   if (ret != RC_OK) {

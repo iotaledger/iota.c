@@ -147,7 +147,7 @@ retcode_t json_string_array_to_utarray(cJSON const* const obj, char const* const
 retcode_t json_get_int(cJSON const* const json_obj, char const* const obj_name, int* const num) {
   cJSON* json_value = cJSON_GetObjectItemCaseSensitive(json_obj, obj_name);
   if (json_value == NULL) {
-    log_error(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
+    log_warning(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
     return RC_CCLIENT_JSON_KEY;
   }
 
@@ -164,7 +164,7 @@ retcode_t json_get_int(cJSON const* const json_obj, char const* const obj_name, 
 retcode_t json_get_uint8(cJSON const* const json_obj, char const* const obj_name, uint8_t* const num) {
   cJSON* json_value = cJSON_GetObjectItemCaseSensitive(json_obj, obj_name);
   if (json_value == NULL) {
-    log_error(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
+    log_warning(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
     return RC_CCLIENT_JSON_KEY;
   }
 
@@ -181,7 +181,7 @@ retcode_t json_get_uint8(cJSON const* const json_obj, char const* const obj_name
 retcode_t json_get_uint16(cJSON const* const json_obj, char const* const obj_name, uint16_t* const num) {
   cJSON* json_value = cJSON_GetObjectItemCaseSensitive(json_obj, obj_name);
   if (json_value == NULL) {
-    log_error(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
+    log_warning(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
     return RC_CCLIENT_JSON_KEY;
   }
 
@@ -198,7 +198,7 @@ retcode_t json_get_uint16(cJSON const* const json_obj, char const* const obj_nam
 retcode_t json_get_uint32(cJSON const* const json_obj, char const* const obj_name, uint32_t* const num) {
   cJSON* json_value = cJSON_GetObjectItemCaseSensitive(json_obj, obj_name);
   if (json_value == NULL) {
-    log_error(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
+    log_warning(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
     return RC_CCLIENT_JSON_KEY;
   }
 
@@ -215,7 +215,7 @@ retcode_t json_get_uint32(cJSON const* const json_obj, char const* const obj_nam
 retcode_t json_get_uint64(cJSON const* const json_obj, char const* const obj_name, uint64_t* const num) {
   cJSON* json_value = cJSON_GetObjectItemCaseSensitive(json_obj, obj_name);
   if (json_value == NULL) {
-    log_error(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
+    log_warning(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
     return RC_CCLIENT_JSON_KEY;
   }
 
@@ -233,7 +233,7 @@ retcode_t json_get_string(cJSON const* const json_obj, char const* const obj_nam
   retcode_t ret = RC_ERROR;
   cJSON* json_value = cJSON_GetObjectItemCaseSensitive(json_obj, obj_name);
   if (json_value == NULL) {
-    log_error(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
+    log_warning(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
     return RC_CCLIENT_JSON_KEY;
   }
 
@@ -254,7 +254,7 @@ retcode_t json_get_string(cJSON const* const json_obj, char const* const obj_nam
 retcode_t json_get_boolean(cJSON const* const json_obj, char const* const obj_name, bool* const boolean) {
   cJSON* json_value = cJSON_GetObjectItemCaseSensitive(json_obj, obj_name);
   if (json_value == NULL) {
-    log_error(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
+    log_warning(json_logger_id, "[%s:%d] %s %s.\n", __func__, __LINE__, STR_CCLIENT_JSON_KEY, obj_name);
     return RC_CCLIENT_JSON_KEY;
   }
 
