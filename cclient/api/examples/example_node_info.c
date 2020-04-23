@@ -32,10 +32,13 @@ void example_node_info(iota_client_service_t *s) {
 
     printf("latestSolidSubtangleMilestoneIndex %u \n", node_res->latest_solid_subtangle_milestone_index);
     printf("neighbors %d \n", node_res->neighbors);
-    printf("packetsQueueSize %d \n", node_res->packets_queue_size);
     printf("time %" PRIu64 " \n", node_res->time);
     printf("tips %d \n", node_res->tips);
     printf("transactionsToRequest %d \n", node_res->transactions_to_request);
+    // works on IRI
+    printf("packetsQueueSize %d \n", node_res->packets_queue_size);
+    // works on Hornet
+    printf("isSynced %s \n", node_res->is_synced ? "true" : "false");
 
     // print out features
     printf("features: ");

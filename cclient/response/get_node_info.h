@@ -69,9 +69,13 @@ typedef struct get_node_info_res_s {
    */
   uint16_t neighbors;
   /**
-   * Packets which are currently queued up.
+   * Packets which are currently queued up. works on IRI.
    */
   uint16_t packets_queue_size;
+  /**
+   * true: the node is synced. works on Hornet.
+   */
+  bool is_synced;
   /**
    * The hash of the latest transaction that was signed off by the coordinator.
    */

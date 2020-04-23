@@ -63,6 +63,8 @@ void example_attach_to_tangle(iota_client_service_t *s) {
 
   flex_trit_t raw_trits[FLEX_TRIT_SIZE_8019];
 
+  attach_req->mwm = IOTA_CONFIG_NODE_MWM;
+
   // flex_trit and tryte convertion
   if (flex_trits_from_trytes(attach_req->trunk, NUM_TRITS_HASH, TRUNK_HASH, NUM_TRYTES_HASH, NUM_TRYTES_HASH) == 0) {
     printf("Error: converting trunk hash failed.\n");
