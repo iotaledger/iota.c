@@ -8,6 +8,7 @@ cc_library(
     deps = [
         "//cclient:service",
         "//cclient/http",
+        "@org_iota_common//common:version",
         "@org_iota_common//common/helpers",
         "@org_iota_common//common/model:bundle",
         "@org_iota_common//utils:logger_helper",

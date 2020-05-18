@@ -19,10 +19,20 @@
 
 #include "cclient/http/http.h"
 #include "cclient/service.h"
+#include "common/version.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define CCLIENT_VERSION_MAJOR 1
+#define CCLIENT_VERSION_MINOR 0
+#define CCLIENT_VERSION_MICRO 0
+#define CCLIENT_VERSION_SPECIAL "beta"
+
+#define CCLIENT_VERSION          \
+  VER_STR(CCLIENT_VERSION_MAJOR) \
+  "." VER_STR(CCLIENT_VERSION_MINOR) "." VER_STR(CCLIENT_VERSION_MICRO) "-" CCLIENT_VERSION_SPECIAL
 
 /**
  * @brief This function should be called before using Core APIs.
