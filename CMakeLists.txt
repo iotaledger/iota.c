@@ -29,7 +29,7 @@ if(NOT YOCTO)
   FetchContent_Declare(
     iota_common
     GIT_REPOSITORY http://github.com/iotaledger/iota_common.git
-    GIT_TAG 1b56a5282933fb674181001630e7b2e2c33b5eea
+    GIT_TAG c644b7715662dc7b73191ae964f4ede06ee6c975
   )
 
   if(${CMAKE_VERSION} VERSION_LESS 3.14)

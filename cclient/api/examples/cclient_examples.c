@@ -33,6 +33,8 @@ static char const *amazon_ca1_pem =
 
 int main() {
   iota_client_service_t *serv = NULL;
+  printf("IOTA COMMON version: %s\n", IOTA_COMMON_VERSION);
+  printf("IOTA Client version: %s\n", CCLIENT_VERSION);
 
 #ifdef _USE_HTTP_
   serv = iota_client_core_init("altnodes.devnet.iota.org", 80, NULL);
