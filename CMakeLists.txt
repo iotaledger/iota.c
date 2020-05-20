@@ -18,6 +18,7 @@ option(YOCTO "Enable Building in Yocto" OFF)
 option(CCLIENT_TEST "Enable CClient library test cases" OFF)
 option(CCLIENT_EXAMPLE "Enable CClient examples" OFF)
 option(CCLIENT_LOGGER "Enable CClient logger" ON)
+option(ENABLE_ASAN "Enable Address sanitizer" OFF)
 
 if(CCLIENT_LOGGER)
   add_definitions(-DLOGGER_ENABLE)
@@ -50,6 +51,11 @@ if(NOT YOCTO)
   include(cmake/cjson.cmake)
   include(cmake/http_parser.cmake)
   include(cmake/mbedtls.cmake)
+
+  if(ENABLE_ASAN AND (CCLIENT_TEST OR CCLIENT_EXAMPLE))
+    include(cmake/asan.cmake)
+  endif()
+
 endif()
 
 # libs in the sandbox
@@ -195,7 +201,13 @@ set(IOTA_COMMON_LIBS common
   mbedtls
   mbedcrypto
   mbedx509
+  m
 )
+
+if(HAS_ASAN_ENABLED)
+  target_link_libraries(cclient PUBLIC asan)
+endif()
+
 target_link_libraries(cclient PUBLIC
   ${IOTA_COMMON_LIBS}
   cjson http_parser
@@ -212,6 +224,9 @@ if(CCLIENT_TEST)
       "${PROJECT_SOURCE_DIR}"
       "${CMAKE_INSTALL_PREFIX}/include")
     add_dependencies(${test_name} cclient ext_unity)
+    if(HAS_ASAN_ENABLED)
+      target_link_libraries(${test_name} PRIVATE asan)
+    endif()
     target_link_libraries(${test_name} PRIVATE 
       cclient 
       ${IOTA_COMMON_LIBS} 
@@ -277,8 +292,13 @@ if(CCLIENT_EXAMPLE)
     "${PROJECT_SOURCE_DIR}"
     "${CMAKE_INSTALL_PREFIX}/include")
   add_dependencies(client_example cclient)
+  if(HAS_ASAN_ENABLED)
+    target_link_libraries(client_example PRIVATE asan)
+  endif()
   target_link_libraries(client_example PRIVATE
     cclient
     ${IOTA_COMMON_LIBS}
   )
 endif(CCLIENT_EXAMPLE)
+
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
