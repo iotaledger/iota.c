@@ -14,7 +14,6 @@ project(iota_client DESCRIPTION "IOTA Client Library")
 enable_language(C)
 enable_testing()
 
-option(YOCTO "Enable Building in Yocto" OFF)
 option(CCLIENT_TEST "Enable CClient library test cases" OFF)
 option(CCLIENT_EXAMPLE "Enable CClient examples" OFF)
 option(CCLIENT_LOGGER "Enable CClient logger" ON)
@@ -23,34 +22,32 @@ if(CCLIENT_LOGGER)
   add_definitions(-DLOGGER_ENABLE)
 endif()
 
-if(NOT YOCTO)
-  # fetch iota_common
-  include(FetchContent)
-  FetchContent_Declare(
-    iota_common
-    GIT_REPOSITORY http://github.com/iotaledger/iota_common.git
-    GIT_TAG c644b7715662dc7b73191ae964f4ede06ee6c975
-  )
+# fetch iota_common
+include(FetchContent)
+FetchContent_Declare(
+  iota_common
+  GIT_REPOSITORY http://github.com/iotaledger/iota_common.git
+  GIT_TAG c644b7715662dc7b73191ae964f4ede06ee6c975
+)
 
-  if(${CMAKE_VERSION} VERSION_LESS 3.14)
-      macro(FetchContent_MakeAvailable NAME)
-          FetchContent_GetProperties(${NAME})
-          if(NOT ${NAME}_POPULATED)
-              FetchContent_Populate(${NAME})
-              add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
-          endif()
-      endmacro()
-  endif()
-
-  message(STATUS "Fetching iota_common")
-  FetchContent_MakeAvailable(iota_common)
-
-  # fetch external libs
-  include(ExternalProject)
-  include(cmake/cjson.cmake)
-  include(cmake/http_parser.cmake)
-  include(cmake/mbedtls.cmake)
+if(${CMAKE_VERSION} VERSION_LESS 3.14)
+    macro(FetchContent_MakeAvailable NAME)
+        FetchContent_GetProperties(${NAME})
+        if(NOT ${NAME}_POPULATED)
+            FetchContent_Populate(${NAME})
+            add_subdirectory(${${NAME}_SOURCE_DIR} ${${NAME}_BINARY_DIR})
+        endif()
+    endmacro()
 endif()
+
+message(STATUS "Fetching iota_common")
+FetchContent_MakeAvailable(iota_common)
+
+# fetch external libs
+include(ExternalProject)
+include(cmake/cjson.cmake)
+include(cmake/http_parser.cmake)
+include(cmake/mbedtls.cmake)
 
 # libs in the sandbox
 link_directories("${CMAKE_INSTALL_PREFIX}/lib")
@@ -174,13 +171,11 @@ add_library(cclient
   ${JSON_SERIALIZER_SRC}
 )
 
-if(NOT YOCTO)
-  add_dependencies(cclient
-    "ext_cjson"
-    "ext_http_parser"
-    "ext_mbedtls"
-    )
-endif()
+add_dependencies(cclient
+  "ext_cjson"
+  "ext_http_parser"
+  "ext_mbedtls"
+  )
 
 target_include_directories(cclient PUBLIC 
   "${PROJECT_SOURCE_DIR}"
