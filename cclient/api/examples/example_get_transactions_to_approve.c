@@ -7,8 +7,8 @@
 
 #include "cclient/api/examples/cclient_examples.h"
 
-static tryte_t const *const REF_HASH =
-    (tryte_t *)"VOPPIXFBHNNEFAAZJLLKTTFMMVJZPHQCTROSU99KYHYBGLJYMCPGIQGSUW9NQQ9TOVTEOKFDCAJLXA999";
+// static tryte_t const *const REF_HASH =
+//     (tryte_t *)"VOPPIXFBHNNEFAAZJLLKTTFMMVJZPHQCTROSU99KYHYBGLJYMCPGIQGSUW9NQQ9TOVTEOKFDCAJLXA999";
 
 void example_get_transactions_to_approve(iota_client_service_t *s) {
   printf("\n[%s]\n", __FUNCTION__);
@@ -22,15 +22,16 @@ void example_get_transactions_to_approve(iota_client_service_t *s) {
     goto done;
   }
 
-  if (flex_trits_from_trytes(reference, NUM_TRITS_HASH, REF_HASH, NUM_TRYTES_HASH, NUM_TRYTES_HASH) == 0) {
-    printf("Error: converting flex_trit failed\n");
-    goto done;
-  }
+  // Reference parameter is optional
+  // if (flex_trits_from_trytes(reference, NUM_TRITS_HASH, REF_HASH, NUM_TRYTES_HASH, NUM_TRYTES_HASH) == 0) {
+  //   printf("Error: converting flex_trit failed\n");
+  //   goto done;
+  // }
 
-  if ((ret = get_transactions_to_approve_req_set_reference(tx_approve_req, reference)) != RC_OK) {
-    printf("Error: OOM on setting reference\n");
-    goto done;
-  }
+  // if ((ret = get_transactions_to_approve_req_set_reference(tx_approve_req, reference)) != RC_OK) {
+  //   printf("Error: OOM on setting reference\n");
+  //   goto done;
+  // }
 
   tx_approve_req->depth = IOTA_CONFIG_NODE_DEPTH;
 
