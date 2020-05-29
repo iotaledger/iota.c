@@ -100,7 +100,6 @@ static retcode_t check_balances(iota_client_service_t const* const serv, inputs_
     goto end;
   }
 
-  balances_req->threshold = 100;
   INPUTS_FOREACH(inputs->input_array, input_elm) {
     if ((ret = get_balances_req_address_add(balances_req, input_elm->address)) != RC_OK) {
       log_error(client_extended_logger_id, "Adding addresses to request is failed.\n");

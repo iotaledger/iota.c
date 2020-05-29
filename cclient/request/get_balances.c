@@ -14,7 +14,8 @@ get_balances_req_t* get_balances_req_new() {
   if (req) {
     req->addresses = NULL;
     req->tips = NULL;
-    req->threshold = 0;
+    // for backward compatibility, default to 100
+    req->threshold = 100;
   }
   return req;
 }

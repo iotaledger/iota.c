@@ -95,7 +95,6 @@ retcode_t iota_client_get_account_data(iota_client_service_t const* const serv, 
 
     // get balances
     out_account->balance = 0;
-    balances_req->threshold = 100;  // currently `100` should be used
     balances_req->addresses = out_account->addresses;
     if ((ret_code = iota_client_get_balances(serv, balances_req, balances_res)) == RC_OK) {
       // count all balances

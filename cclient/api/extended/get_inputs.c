@@ -62,8 +62,6 @@ retcode_t iota_client_get_inputs(iota_client_service_t const* const serv, flex_t
       }
     }
 
-    balances_req->threshold = 100;  // currently `100` should be used
-
     ret_code = iota_client_get_balances(serv, balances_req, balances_res);
     if (ret_code == RC_OK) {
       // expect balance value is in order.

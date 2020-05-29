@@ -48,6 +48,7 @@ static void test_find_tx_by_bundle(void) {
   TEST_ASSERT_NULL(find_tx_res);
 }
 
+/*
 static void test_find_tx_by_empty_bundle(void) {
   flex_trit_t flex_hash[NUM_FLEX_TRITS_HASH];
   find_transactions_req_t *find_tx_req = find_transactions_req_new();
@@ -66,6 +67,7 @@ static void test_find_tx_by_empty_bundle(void) {
   find_transactions_res_free(&find_tx_res);
   TEST_ASSERT_NULL(find_tx_res);
 }
+*/
 
 static void test_find_tx_by_address(void) {
   flex_trit_t flex_addr[NUM_FLEX_TRITS_ADDRESS];
@@ -86,6 +88,7 @@ static void test_find_tx_by_address(void) {
   TEST_ASSERT_NULL(find_tx_res);
 }
 
+/*
 static void test_find_tx_by_empty_address(void) {
   flex_trit_t flex_addr[NUM_FLEX_TRITS_ADDRESS];
   find_transactions_req_t *find_tx_req = find_transactions_req_new();
@@ -104,6 +107,7 @@ static void test_find_tx_by_empty_address(void) {
   find_transactions_res_free(&find_tx_res);
   TEST_ASSERT_NULL(find_tx_res);
 }
+*/
 
 static void test_find_tx_by_tag(void) {
   flex_trit_t flex_tag[NUM_FLEX_TRITS_TAG];
@@ -123,6 +127,7 @@ static void test_find_tx_by_tag(void) {
   TEST_ASSERT_NULL(find_tx_res);
 }
 
+/*
 static void test_find_tx_by_empty_tag(void) {
   flex_trit_t flex_tag[NUM_FLEX_TRITS_TAG];
   find_transactions_req_t *find_tx_req = find_transactions_req_new();
@@ -141,6 +146,7 @@ static void test_find_tx_by_empty_tag(void) {
   find_transactions_res_free(&find_tx_res);
   TEST_ASSERT_NULL(find_tx_res);
 }
+*/
 
 static void test_find_tx_by_approvee(void) {
   flex_trit_t flex_hash[NUM_FLEX_TRITS_HASH];
@@ -161,6 +167,7 @@ static void test_find_tx_by_approvee(void) {
   TEST_ASSERT_NULL(find_tx_res);
 }
 
+/*
 static void test_find_tx_by_empty_approvee(void) {
   flex_trit_t flex_hash[NUM_FLEX_TRITS_HASH];
   find_transactions_req_t *find_tx_req = find_transactions_req_new();
@@ -179,6 +186,7 @@ static void test_find_tx_by_empty_approvee(void) {
   find_transactions_res_free(&find_tx_res);
   TEST_ASSERT_NULL(find_tx_res);
 }
+*/
 
 int main() {
   UNITY_BEGIN();
@@ -191,7 +199,7 @@ int main() {
   RUN_TEST(test_find_tx_by_address);
   RUN_TEST(test_find_tx_by_tag);
   RUN_TEST(test_find_tx_by_approvee);
-  // no needed in IRI v1.8.5
+  // IRI v1.8.5 accept empty hashes
   // RUN_TEST(test_find_tx_by_empty_bundle);
   // RUN_TEST(test_find_tx_by_empty_tag);
   // RUN_TEST(test_find_tx_by_empty_address);
