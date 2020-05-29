@@ -32,8 +32,6 @@ void example_get_balance(iota_client_service_t *s) {
     goto done;
   }
 
-  balance_req->threshold = 100;
-
   if ((ret_code = iota_client_get_balances(s, balance_req, balance_res)) == RC_OK) {
     hash243_queue_entry_t *q_iter = NULL;
     size_t balance_cnt = get_balances_res_balances_num(balance_res);

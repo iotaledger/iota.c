@@ -30,8 +30,10 @@ extern "C" {
  */
 typedef struct {
   /**
+   * Deprecated since IRI-v1.8.6
+   *
    * The confirmation threshold between 0 and 100(inclusive).
-   *  Should be set to 100 for getting balance by counting only confirmed
+   * Should be set to 100 for getting balance by counting only confirmed
    * transactions.
    */
   uint8_t threshold;

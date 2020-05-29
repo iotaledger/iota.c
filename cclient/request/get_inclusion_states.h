@@ -34,6 +34,8 @@ typedef struct {
    */
   hash243_queue_t transactions;
   /**
+   * Deprecated since IRI-v1.8.6
+   *
    * List of tips (including milestones) you want to search for the inclusion
    * state.
    */
@@ -85,7 +87,7 @@ static inline flex_trit_t* get_inclusion_states_req_hash_get(get_inclusion_state
 }
 
 /**
- * @brief Add a tip transaction to the request object.
+ * @brief Add a tip transaction to the request object. Deprecated since IRI-v1.8.6
  *
  * @param[in] req The request object.
  * @param[in] hash A tip transaction hash.
@@ -100,7 +102,7 @@ static inline retcode_t get_inclusion_states_req_tip_add(get_inclusion_states_re
 }
 
 /**
- * @brief Get a tip hash by index.
+ * @brief Get a tip hash by index. Deprecated since IRI-v1.8.6
  *
  * @param[in] req The request object.
  * @param[in] index An index of the tip transaction hash list.
