@@ -25,15 +25,15 @@ extern "C" {
 #include "cclient/service.h"
 
 // socket buffer can overwrite through the preprocessor macro.
-#ifndef RECEIVE_BUFFER_SIZE
+#ifndef CCLIENT_HTTP_BUFFER_SIZE
 #ifdef __XTENSA__
-#define RECEIVE_BUFFER_SIZE 2 * 1024
+#define CCLIENT_HTTP_BUFFER_SIZE 2 * 1024
 #else
 /**
  * @name The size of HTTP/HTTPS receive buffer
  * @{
  */
-#define RECEIVE_BUFFER_SIZE 4 * 1024
+#define CCLIENT_HTTP_BUFFER_SIZE 4 * 1024
 /** @} */
 #endif
 #endif
@@ -47,12 +47,12 @@ extern char const* khttp_ApplicationFormUrlencoded;
  * @brief HTTP/HTTPS Client implementation
  *
  * @param service_opaque an opaque object
- * @param obj http data to send
- * @param response the response from server
+ * @param req_data http data to send
+ * @param res_data the response from server
  * @return An error code
  */
-retcode_t iota_service_query(void const* const service_opaque, char_buffer_t const* const obj,
-                             char_buffer_t* const response);
+retcode_t iota_service_query(void const* const service_opaque, char_buffer_t const* const req_data,
+                             char_buffer_t* res_data);
 
 #ifdef __cplusplus
 }

@@ -13,7 +13,7 @@
 void example_get_transactions_to_approve(iota_client_service_t *s) {
   printf("\n[%s]\n", __FUNCTION__);
   retcode_t ret = RC_ERROR;
-  flex_trit_t reference[FLEX_TRIT_SIZE_243];
+  // flex_trit_t reference[FLEX_TRIT_SIZE_243];
   get_transactions_to_approve_req_t *tx_approve_req = get_transactions_to_approve_req_new();
   get_transactions_to_approve_res_t *tx_approve_res = get_transactions_to_approve_res_new();
 
