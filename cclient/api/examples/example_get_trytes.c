@@ -8,7 +8,7 @@
 #include "cclient/api/examples/cclient_examples.h"
 
 static tryte_t const *const GET_TRYTES_HASH =
-    (tryte_t *)"KFJKAEPEVABBATAZKSDEKZS9KTIMS9CRELLBLLODHDDWRSWUBFAGHTQXEWCJQUEBQKVVNDLPUENMMR999";
+    (tryte_t *)"UNAETEFWAKILKBSAXXNTRMZVAAX9RCZAVSDJUTNGVNHYOHNVOBQWXSQHGBIXI9NQEVWAVEV9BJZJZ9999";
 
 void example_get_trytes(iota_client_service_t *s) {
   printf("\n[%s]\n", __FUNCTION__);
