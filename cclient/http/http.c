@@ -167,9 +167,8 @@ static int http_buffer_append(http_buffer_t* buf, char const* data, int len) {
       return -1;
     }
   }
-  // copy curent data to new buffer
-  memcpy(buf->data, buf->data, buf->len);
-  // copy new data to new buffer
+
+  // copy new data to buffer
   memcpy(buf->data + buf->len, data, len);
   buf->len = required_len;
   return buf->len;
