@@ -28,7 +28,7 @@ include(FetchContent)
 FetchContent_Declare(
   iota_common
   GIT_REPOSITORY http://github.com/iotaledger/iota_common.git
-  GIT_TAG c644b7715662dc7b73191ae964f4ede06ee6c975
+  GIT_TAG cf649803757abf48432d4fa60e9f27ac119bae5f
 )
 
 if(${CMAKE_VERSION} VERSION_LESS 3.14)
@@ -296,4 +296,4 @@ if(CCLIENT_EXAMPLE)
   )
 endif(CCLIENT_EXAMPLE)
 
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
+add_custom_target(check_cclient COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)

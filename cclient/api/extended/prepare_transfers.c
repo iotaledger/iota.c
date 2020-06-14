@@ -186,7 +186,7 @@ retcode_t iota_client_prepare_transfers(iota_client_service_t const* const serv,
     total_value += elm->value;
   }
 
-  bundle_set_messages(out_bundle, sign_fragments);
+  bundle_set_message_fragment(out_bundle, sign_fragments);
   signature_fragments_free(sign_fragments);
 
   if (total_value != 0) {
