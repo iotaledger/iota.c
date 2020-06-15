@@ -120,7 +120,7 @@ static http_buffer_t* http_buffer_new(int len) {
  * @param buf a http_buffer_t object
  */
 static void http_buffer_free(http_buffer_t** buf) {
-  if (buf != NULL) {
+  if (buf != NULL && (*buf) != NULL) {
     if ((*buf)->data) {
       free((*buf)->data);
     }
