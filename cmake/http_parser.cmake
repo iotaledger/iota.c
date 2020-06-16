@@ -12,9 +12,9 @@ if (NOT __HTTP_PARSER_INCLUDED)
     http_parser_download
     PREFIX ${PROJECT_BINARY_DIR}/http_parser
     DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/download
-    DOWNLOAD_NAME http_parser_v2.9.2.tar.gz
-    URL https://github.com/nodejs/http-parser/archive/v2.9.2.tar.gz
-    URL_HASH SHA256=5199500e352584852c95c13423edc5f0cb329297c81dd69c3c8f52a75496da08
+    DOWNLOAD_NAME http_parser_v2.9.4.tar.gz
+    URL https://github.com/nodejs/http-parser/archive/v2.9.4.tar.gz
+    URL_HASH SHA256=467b9e30fd0979ee301065e70f637d525c28193449e1b13fbcb1b1fab3ad224f
     CONFIGURE_COMMAND ""
     INSTALL_COMMAND ""
     BUILD_COMMAND ""

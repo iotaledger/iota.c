@@ -246,6 +246,23 @@ if(CCLIENT_TEST)
   add_cclient_test("test_store_transactions.c" "test_store_transactions")
   add_cclient_test("test_were_addresses_spent_from.c" "test_were_addresses_spent_from")
   # ==============API test cases================
+
+  add_executable(test_http "cclient/http/tests/test_http.c")
+  target_include_directories(test_http PRIVATE
+    "${PROJECT_SOURCE_DIR}"
+    "${CMAKE_INSTALL_PREFIX}/include")
+  add_dependencies(test_http cclient ext_unity)
+  if(HAS_ASAN_ENABLED)
+    target_link_libraries(test_http PRIVATE asan)
+  endif()
+  target_link_libraries(test_http PRIVATE
+    cclient
+    cjson
+    http_parser
+    ${IOTA_COMMON_LIBS}
+    unity
+  )
+  add_test(test_http test_http)
 endif()
 
 if(CCLIENT_EXAMPLE)
