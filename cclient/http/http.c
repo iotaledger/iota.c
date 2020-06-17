@@ -270,9 +270,11 @@ static int parser_on_chunk_header(http_parser* parser) {
   client->response->is_chunked = true;
 
   // there is no content_length in chunked transfer
-  if ((client->res_data = http_buffer_new(CCLIENT_HTTP_BUFFER_SIZE)) == NULL) {
-    client->state = HTTP_STATE_OOM;
-    return -1;
+  if (!client->res_data) {
+    if ((client->res_data = http_buffer_new(CCLIENT_HTTP_BUFFER_SIZE)) == NULL) {
+      client->state = HTTP_STATE_OOM;
+      return -1;
+    }
   }
   return 0;
 }
