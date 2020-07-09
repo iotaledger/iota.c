@@ -80,12 +80,3 @@ jobs:
 
     - name: Bazel test bootlin i686 toolchains
       run: bazel test --build_tests_only --test_output=all --config=bootlin_i686 //cclient/... 
-
-    - name: Coding style check
-      run: ./tools/ci_format_check cclient
-
-    - name: Coding style check
-      run: ./tools/ci_format_check cclient
-
-    - name: Coding style check
-      run: ./tools/ci_format_check cclient
