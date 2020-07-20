@@ -454,9 +454,7 @@ static retcode_t cclient_socket_send(void const* const service_opaque, char_buff
     // falls through
     case HTTP_STATE_RES_COMPLETE_HEADER:
       // TODO: check response data
-      if (http_client->response->status_code == 500) {
-        goto err;
-      } else if (http_client->response->status_code == 301 || http_client->response->status_code == 401) {
+      if (http_client->response->status_code == 301 || http_client->response->status_code == 401) {
         printf("TODO: unsupported http request\n");
       }
 

@@ -98,11 +98,9 @@ static void test_get_balances_invalid_tip(void) {
               0);
   TEST_ASSERT_EQUAL_INT16(RC_OK, get_balances_req_tip_add(balance_req, flex_tip));
 
-  TEST_ASSERT_EQUAL_INT16(RC_CCLIENT_RES_ERROR, iota_client_get_balances(g_serv, balance_req, balance_res));
-
-  TEST_ASSERT_EQUAL_INT(0, get_balances_res_balances_num(balance_res));
-  TEST_ASSERT_NULL(balance_res->references);
-  TEST_ASSERT_EQUAL_UINT64(0, balance_res->milestone_index);
+  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_get_balances(g_serv, balance_req, balance_res));
+  TEST_ASSERT_EQUAL_INT(1, get_balances_res_balances_num(balance_res));
+  TEST_ASSERT_NOT_NULL(balance_res->references);
 
   get_balances_req_free(&balance_req);
   TEST_ASSERT_NULL(balance_req);

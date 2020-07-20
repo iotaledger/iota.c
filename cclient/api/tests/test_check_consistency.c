@@ -36,9 +36,8 @@ static void test_check_consistency_not_tail(void) {
   TEST_ASSERT(flex_trits_from_trytes(flex_tx, NUM_TRITS_HASH, TEST_BUNDLE_TX_1, NUM_TRYTES_HASH, NUM_TRYTES_HASH) != 0);
   TEST_ASSERT_EQUAL_INT16(RC_OK, check_consistency_req_tails_add(consistency_req, flex_tx));
 
-  TEST_ASSERT_EQUAL_INT16(RC_CCLIENT_RES_ERROR,
-                          iota_client_check_consistency(g_serv, consistency_req, consistency_res));
-  TEST_ASSERT_NULL(consistency_res->info);
+  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_check_consistency(g_serv, consistency_req, consistency_res));
+  TEST_ASSERT_FALSE(consistency_res->state);
 
   check_consistency_req_free(&consistency_req);
   TEST_ASSERT_NULL(consistency_req);
@@ -56,9 +55,8 @@ static void test_check_consistency_empty_tail(void) {
   memset(flex_tx, FLEX_TRIT_NULL_VALUE, NUM_FLEX_TRITS_HASH);
   TEST_ASSERT_EQUAL_INT16(RC_OK, check_consistency_req_tails_add(consistency_req, flex_tx));
 
-  TEST_ASSERT_EQUAL_INT16(RC_CCLIENT_RES_ERROR,
-                          iota_client_check_consistency(g_serv, consistency_req, consistency_res));
-  TEST_ASSERT_NULL(consistency_res->info);
+  TEST_ASSERT_EQUAL_INT16(RC_OK, iota_client_check_consistency(g_serv, consistency_req, consistency_res));
+  TEST_ASSERT_FALSE(consistency_res->state);
 
   check_consistency_req_free(&consistency_req);
   TEST_ASSERT_NULL(consistency_req);
