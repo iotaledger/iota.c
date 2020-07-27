@@ -13,9 +13,9 @@ if (NOT __MBEDTLS_INCLUDED)
     PREFIX ${PROJECT_BINARY_DIR}/mbedtls
     SOURCE_DIR ${PROJECT_BINARY_DIR}/mbedtls/src/ext_mbedtls
     DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/download
-    DOWNLOAD_NAME mbedtls_v2.22.0.tar.gz
-    URL https://github.com/ARMmbed/mbedtls/archive/mbedtls-2.22.0.tar.gz
-    URL_HASH SHA256=94ac6bdd209248028bd94b20bfac769e7922dda15c40c67a6170b0a58e7982f4
+    DOWNLOAD_NAME mbedtls_v2.23.0.tar.gz
+    URL https://github.com/ARMmbed/mbedtls/archive/mbedtls-2.23.0.tar.gz
+    URL_HASH SHA256=5c8998217402aa1fc734f4afaeac38fad2421470fac4b3abc112bd46391054fe
     CONFIGURE_COMMAND ""
     INSTALL_COMMAND ""
     BUILD_COMMAND ""
