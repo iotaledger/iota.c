@@ -31,6 +31,6 @@ iota_client_service_t *iota_client_core_init(char const *host, uint16_t port, ch
 void iota_client_core_destroy(iota_client_service_t **service) {
   if (service && *service) {
     free(*service);
+    *service = NULL;
   }
-  *service = NULL;
 }
