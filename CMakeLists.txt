@@ -14,10 +14,10 @@ project(iota_client DESCRIPTION "IOTA Client Library")
 enable_language(C)
 enable_testing()
 
-option(CCLIENT_TEST "Enable CClient library test cases" OFF)
-option(CCLIENT_EXAMPLE "Enable CClient examples" OFF)
-option(CCLIENT_ASAN "Enable Address sanitizer" OFF)
+option(CCLIENT_TESTS "Enable CClient library test cases" ON)
+option(CCLIENT_EXAMPLES "Enable CClient examples" OFF)
 
+find_package(CURL REQUIRED)
 
 # fetch iota_common
 include(FetchContent)
@@ -40,17 +40,28 @@ endif()
 message(STATUS "Fetching iota_common")
 FetchContent_MakeAvailable(iota_common)
 
-
 # fetch external libs
 include(ExternalProject)
 
-if(ENABLE_ASAN AND (CCLIENT_TEST OR CCLIENT_EXAMPLE))
-  include(cmake/asan.cmake)
-endif()
+include(cmake/cjson.cmake)
+
+set(IOTA_CLIENT_EXTERNAL_HEADERS 
+  "${CMAKE_INSTALL_PREFIX}/include"
+  "${CURL_INCLUDE_DIRS}"
+)
+
+set(IOTA_CLIENT_EXT_LIBS 
+  "${CURL_LIBRARIES}"
+)
+
+# message(STATUS "libs: ${IOTA_CLIENT_EXT_LIBS}")
+# message(STATUS "headers: ${IOTA_CLIENT_EXTERNAL_HEADERS}")
 
 # libs in the sandbox
 link_directories("${CMAKE_INSTALL_PREFIX}/lib")
 
-if(HAS_ASAN_ENABLED)
-  target_link_libraries(cclient PUBLIC asan)
+add_subdirectory(src)
+
+if(CCLIENT_TESTS)
+  add_subdirectory(tests)
 endif()
