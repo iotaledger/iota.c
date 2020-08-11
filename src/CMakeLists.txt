@@ -1,6 +1,7 @@
+
 add_library(iota_cclient
-	"network/http_linux.c"
 	"network/http_buffer.c"
+	"network/http_curl.c"
 )
 
 target_include_directories(iota_cclient PUBLIC 
@@ -10,9 +11,9 @@ target_include_directories(iota_cclient PUBLIC
 
 add_dependencies(iota_cclient iota_common)
 
-set(IOTA_CLIENT_EXT_LIBS 
-  iota_common
-)
+# set(IOTA_CLIENT_EXT_LIBS 
+#   iota_common
+# )
 
 target_link_libraries(iota_cclient PUBLIC ${IOTA_CLIENT_EXT_LIBS})
 

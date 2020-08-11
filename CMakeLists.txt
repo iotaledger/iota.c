@@ -17,8 +17,6 @@ enable_testing()
 option(CCLIENT_TESTS "Enable CClient library test cases" ON)
 option(CCLIENT_EXAMPLES "Enable CClient examples" OFF)
 
-find_package(CURL REQUIRED)
-
 # fetch iota_common
 include(FetchContent)
 FetchContent_Declare(
@@ -45,12 +43,14 @@ include(ExternalProject)
 
 include(cmake/cjson.cmake)
 
+find_package(CURL REQUIRED)
 set(IOTA_CLIENT_EXTERNAL_HEADERS 
   "${CMAKE_INSTALL_PREFIX}/include"
   "${CURL_INCLUDE_DIRS}"
 )
 
 set(IOTA_CLIENT_EXT_LIBS 
+  iota_common
   "${CURL_LIBRARIES}"
 )
 
