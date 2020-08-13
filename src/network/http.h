@@ -1,11 +1,21 @@
 #ifndef __NETWORK_HTTP_H__
 #define __NETWORK_HTTP_H__
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "network/http_buffer.h"
 
-typedef void http_client_ctx;
+typedef struct {
+  char* url;
+  char* host;
+  char* path;
+  char* query;
+  char* username;
+  char* password;
+  char const* cert_pem;
+  int port;
+} http_client_config_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,7 +43,8 @@ void http_client_clean();
  * @param[in] url The server url
  * @param[in] request The request of body
  */
-void http_client_post(http_buf_t* const response, char const* const url, http_buf_t const* const request);
+void http_client_post(http_buf_t* const response, http_client_config_t const* const config,
+                      http_buf_t const* const request);
 
 /**
  * @brief Performs http GET
@@ -41,7 +52,7 @@ void http_client_post(http_buf_t* const response, char const* const url, http_bu
  * @param[out] response The response data
  * @param[in] url The server url
  */
-void http_client_get(http_buf_t* const response, char const* const url);
+void http_client_get(http_buf_t* const response, http_client_config_t const* const config);
 
 #ifdef __cplusplus
 }

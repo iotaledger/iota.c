@@ -14,10 +14,5 @@
         "maintainer": true
     },
     "frameworks": "*",
-    "platforms": "espressif32",
-    "build":{
-        "srcFilter":[
-            "-<network/http_curl.c>"
-        ]
-    }
+    "platforms": "espressif32"
 }

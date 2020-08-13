@@ -4,7 +4,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "models/types.h"
+// #include "models/types.h"
+// TODO: use byte_t in models/types.h
+#include <stdint.h>
+typedef uint8_t byte_t;
 
 typedef struct {
   size_t len;
