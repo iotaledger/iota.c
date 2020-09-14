@@ -62,3 +62,13 @@ void http_buf_free(http_buf_t* buf) {
     free(buf);
   }
 }
+
+void http_buf2str(http_buf_t* buf) {
+  if (buf && buf->data) {
+    if (buf->data[buf->len - 1] != '\0') {
+      buf->data = realloc(buf->data, buf->len + 1);
+      buf->data[buf->len] = '\0';
+      buf->len += 1;
+    }
+  }
+}

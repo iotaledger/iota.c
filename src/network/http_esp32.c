@@ -13,8 +13,6 @@
 
 #include "http.h"
 
-#define MAX_HTTP_RECV_BUFFER 512
-#define MAX_HTTP_OUTPUT_BUFFER 2048
 #define HTTP_TIMEPUT_MS 30000  // timeout in ms
 static const char* TAG = "HTTP_CLIENT";
 

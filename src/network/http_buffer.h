@@ -52,6 +52,16 @@ bool http_buf_append(http_buf_t* buf, byte_t data[], size_t len);
  */
 void http_buf_free(http_buf_t* buf);
 
+/**
+ * @brief Converts data of http buffer to string
+ *
+ * In general, the data from http response is binary data,
+ * we append the null terminator to it and treat it as a string.
+ *
+ * @param buf
+ */
+void http_buf2str(http_buf_t* buf);
+
 #ifdef __cplusplus
 }
 #endif
