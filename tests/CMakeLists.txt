@@ -5,7 +5,8 @@ function(add_client_test test_src test_name)
   if(HAS_ASAN_ENABLED)
     target_link_libraries(${test_name} PRIVATE asan)
   endif()
-  target_link_libraries(${test_name} PUBLIC iota_cclient iota_common ${IOTA_COMMON_EXT_LIBS} unity ${IOTA_CLIENT_EXT_LIBS})
+  target_link_libraries(${test_name} PUBLIC iota_cclient iota_common ${IOTA_COMMON_EXT_LIBS} unity
+                                            ${IOTA_CLIENT_EXT_LIBS})
   add_test(${test_name} ${test_name})
 endfunction(add_client_test)
 

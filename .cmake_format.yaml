@@ -1,0 +1,8 @@
+_help_format: Options affecting formatting.
+format:
+  _help_line_width:
+  - How wide to allow formatted cmake files
+  line_width: 120
+  _help_tab_size:
+  - How many spaces to tab for indent
+  tab_size: 2

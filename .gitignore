@@ -2,3 +2,5 @@
 bazel-*
 user.bazelrc
 
+# CMake
+build/*

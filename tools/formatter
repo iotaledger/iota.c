@@ -1,6 +1,11 @@
 #!/bin/bash
 
-for file in $(find $(git rev-parse --show-toplevel) | grep -E "\.(c|cc|cpp|h|hh|hpp|m|mm)\$")
+for file in $(find $(git rev-parse --show-toplevel) ! -path "*/build/*" | grep -E "\.(c|cc|cpp|h|hh|hpp|m|mm)\$")
 do
-  clang-format -style=file -fallback-style=none -i $file
+  clang-format -style=file -fallback-style=none -i ${file}
+done
+
+for file in $(find $(git rev-parse --show-toplevel) ! -path "*/build/*"| grep -E "CMakeLists.txt")
+do
+  cmake-format -c $(git rev-parse --show-toplevel)/.cmake_format.yaml -i ${file}
 done
