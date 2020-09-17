@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "network/http_buffer.h"
+#include "client/network/http_buffer.h"
 
 typedef struct {
   char* url;

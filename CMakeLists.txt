@@ -12,36 +12,47 @@ project(iota_client DESCRIPTION "IOTA Client Library")
 enable_language(C)
 enable_testing()
 
-option(CCLIENT_TESTS "Enable CClient library test cases" ON)
-option(CCLIENT_EXAMPLES "Enable CClient examples" OFF)
-
-# fetch iota_common
-include(FetchContent)
-FetchContent_Declare(
-  iota_common
-  GIT_REPOSITORY http://github.com/oopsmonk/iota_common.git
-  GIT_TAG dev_chrysalis)
-
-message(STATUS "Fetching iota_common")
-FetchContent_MakeAvailable(iota_common)
+option(IOTA_TESTS "Enable IOTA Client library test cases" ON)
+# option(CCLIENT_EXAMPLES "Enable Client examples" OFF)
+option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 
 # fetch external libs
 include(ExternalProject)
 
+include(cmake/unity.cmake)
 include(cmake/cjson.cmake)
+include(cmake/uthash.cmake)
+include(cmake/sodium.cmake)
+include(cmake/base58.cmake)
+
+if(IOTA_ASAN_ENABLED)
+  if(UNIX AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR NOT CMAKE_BUILD_TYPE))
+    include(CheckCCompilerFlag)
+    set(CMAKE_REQUIRED_LIBRARIES "asan")
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_C_COMPILER_ID MATCHES "GNU")
+      check_c_compiler_flag("-fsanitize=address" HAS_ASAN)
+      if(HAS_ASAN)
+        add_compile_options("-fsanitize=address" "-fno-omit-frame-pointer")
+        set(HAS_ASAN_ENABLED
+            ON
+            CACHE BOOL "Asan has enabled on target" FORCE)
+      else()
+        message(WARNING "ASan is not supported")
+      endif()
+
+    endif()
+  else()
+    message(WARNING "ASan is not supported on Windows or Release build")
+  endif()
+endif()
 
 find_package(CURL REQUIRED)
-set(IOTA_CLIENT_EXTERNAL_HEADERS "${CMAKE_INSTALL_PREFIX}/include" "${CURL_INCLUDE_DIRS}")
 
-set(IOTA_CLIENT_EXT_LIBS iota_common "${CURL_LIBRARIES}")
-
-# message(STATUS "libs: ${IOTA_CLIENT_EXT_LIBS}") message(STATUS "headers: ${IOTA_CLIENT_EXTERNAL_HEADERS}")
-
-# libs in the sandbox
+# links libraries in the sandbox
 link_directories("${CMAKE_INSTALL_PREFIX}/lib")
 
 add_subdirectory(src)
 
-if(CCLIENT_TESTS)
+if(IOTA_TESTS)
   add_subdirectory(tests)
 endif()

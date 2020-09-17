@@ -11,7 +11,7 @@
 
 #include "esp_http_client.h"
 
-#include "http.h"
+#include "client/network/http.h"
 
 #define HTTP_TIMEPUT_MS 30000  // timeout in ms
 static const char* TAG = "HTTP_CLIENT";

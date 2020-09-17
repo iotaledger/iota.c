@@ -5,7 +5,8 @@
 #ifndef __XTENSA__  // workaround: srcFilter is not working in PlatformIO
 #include <curl/curl.h>
 
-#include "http.h"
+#include "client/network/http.h"
+
 void http_client_clean() { curl_global_cleanup(); }
 
 void http_client_init() { curl_global_init(CURL_GLOBAL_DEFAULT); }

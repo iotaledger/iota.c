@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "network/http.h"
+#include "client/network/http.h"
 #include "unity/unity.h"
 
 void test_http() {

@@ -1,21 +1,57 @@
-add_library(iota_cclient "network/http_buffer.c" "network/http_curl.c")
+# ########## IOTA Core library ################
+add_library(iota_core STATIC)
 
-target_include_directories(iota_cclient PUBLIC ${PROJECT_SOURCE_DIR}/src ${IOTA_CLIENT_EXTERNAL_HEADERS})
+target_sources(
+  iota_core
+  PRIVATE "core/address.c" "core/balance.c" "core/models/inputs/utxo_input.c"
+          "core/models/outputs/sig_unlocked_single_deposit.c" "core/models/payloads/signed_transaction.c"
+  PUBLIC "core/address.h" "core/balance.h" "core/models/inputs/utxo_input.h"
+         "core/models/outputs/sig_unlocked_single_deposit.h" "core/models/payloads/signed_transaction.h")
 
-add_dependencies(iota_cclient iota_common)
+target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 
-# set(IOTA_CLIENT_EXT_LIBS iota_common )
+add_dependencies(iota_core sodium ext_base58 ext_uthash)
 
-target_link_libraries(iota_cclient PUBLIC ${IOTA_CLIENT_EXT_LIBS})
+target_link_libraries(iota_core INTERFACE base58 sodium)
 
 if(HAS_ASAN_ENABLED)
-  target_link_libraries(iota_cclient PUBLIC asan)
+  target_link_libraries(iota_core PRIVATE asan)
 endif()
 
-# install
-install(TARGETS iota_common DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
+# install client lib and headers
+install(TARGETS iota_core DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
 install(
-  DIRECTORY "${PROJECT_SOURCE_DIR}/src/"
-  DESTINATION "${CMAKE_INSTALL_PREFIX}/include"
+  DIRECTORY "${PROJECT_SOURCE_DIR}/src/core/"
+  DESTINATION "${CMAKE_INSTALL_PREFIX}/include/core"
+  FILES_MATCHING
+  PATTERN "*.h")
+
+# ########## IOTA Client library ################
+
+add_library(iota_client STATIC)
+
+target_sources(
+  iota_client
+  PRIVATE "client/network/http_buffer.c" "client/network/http_curl.c"
+  PUBLIC "client/network/http_buffer.h" "client/network/http.h")
+
+target_include_directories(iota_client PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CURL_INCLUDE_DIRS}")
+
+# add_dependencies(iota_client iota_common)
+
+target_link_libraries(
+  iota_client
+  INTERFACE ${CURL_LIBRARIES}
+  PUBLIC iota_core)
+
+if(HAS_ASAN_ENABLED)
+  target_link_libraries(iota_client PRIVATE asan)
+endif()
+
+# install client lib and headers
+install(TARGETS iota_client DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
+install(
+  DIRECTORY "${PROJECT_SOURCE_DIR}/src/client/"
+  DESTINATION "${CMAKE_INSTALL_PREFIX}/include/client"
   FILES_MATCHING
   PATTERN "*.h")
