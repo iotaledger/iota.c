@@ -1,5 +1,5 @@
-#ifndef __MODELS_MESSAGE_H__
-#define __MODELS_MESSAGE_H__
+#ifndef __CORE_MODELS_MESSAGE_H__
+#define __CORE_MODELS_MESSAGE_H__
 
 #include <stdint.h>
 #include <stdlib.h>

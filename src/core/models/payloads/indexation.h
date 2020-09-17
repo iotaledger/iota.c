@@ -1,5 +1,5 @@
-#ifndef __MODELS_PAYLOADS_INDEXATION_H__
-#define __MODELS_PAYLOADS_INDEXATION_H__
+#ifndef __CORE_MODELS_PL_INDEXATION_H__
+#define __CORE_MODELS_PL_INDEXATION_H__
 
 #include <stdint.h>
 

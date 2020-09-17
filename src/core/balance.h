@@ -1,5 +1,5 @@
-#ifndef __MODELS_BALANCE_H__
-#define __MODELS_BALANCE_H__
+#ifndef __CORE_BALANCE_H__
+#define __CORE_BALANCE_H__
 
 #include <stdbool.h>
 #include <stdint.h>

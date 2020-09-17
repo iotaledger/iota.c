@@ -1,5 +1,5 @@
-#ifndef __MODELS_OUTPUTS_SIG_UNLOCK_H__
-#define __MODELS_OUTPUTS_SIG_UNLOCK_H__
+#ifndef __CORE_MODELS_OUTPUTS_SIG_UNLOCK_H__
+#define __CORE_MODELS_OUTPUTS_SIG_UNLOCK_H__
 
 #include <stdint.h>
 

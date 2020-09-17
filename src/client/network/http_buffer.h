@@ -1,5 +1,5 @@
-#ifndef __NETWORK_HTTP_BUFFER_H__
-#define __NETWORK_HTTP_BUFFER_H__
+#ifndef __CLIENT_NETWORK_HTTP_BUFFER_H__
+#define __CLIENT_NETWORK_HTTP_BUFFER_H__
 
 #include <stdbool.h>
 #include <stdlib.h>

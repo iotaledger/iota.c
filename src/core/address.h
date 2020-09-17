@@ -1,5 +1,5 @@
-#ifndef __MODELS_ADDRESS_H__
-#define __MODELS_ADDRESS_H__
+#ifndef __CORE_ADDRESS_H__
+#define __CORE_ADDRESS_H__
 
 #include <stdbool.h>
 

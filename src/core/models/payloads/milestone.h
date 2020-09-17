@@ -1,5 +1,5 @@
-#ifndef __MODELS_PAYLOADS_MILESTONE_H__
-#define __MODELS_PAYLOADS_MILESTONE_H__
+#ifndef __CORE_MODELS_PL_MILESTONE_H__
+#define __CORE_MODELS_PL_MILESTONE_H__
 
 #include <stdint.h>
 

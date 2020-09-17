@@ -1,5 +1,5 @@
-#ifndef __MODELS_PAYLOADS_SIGNED_TX_H__
-#define __MODELS_PAYLOADS_SIGNED_TX_H__
+#ifndef __CORE_MODELS_PL_SIGNED_TX_H__
+#define __CORE_MODELS_PL_SIGNED_TX_H__
 
 #include <stdint.h>
 #include <stdlib.h>

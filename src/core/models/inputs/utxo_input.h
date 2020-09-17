@@ -1,5 +1,5 @@
-#ifndef __MODELS_INPUTS_UTXO_INPUT_H__
-#define __MODELS_INPUTS_UTXO_INPUT_H__
+#ifndef __CORE_MODELS_INPUTS_UTXO_INPUT_H__
+#define __CORE_MODELS_INPUTS_UTXO_INPUT_H__
 
 #include <stdint.h>
 

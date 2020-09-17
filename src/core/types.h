@@ -1,5 +1,5 @@
-#ifndef __MODELS_TYPES_H__
-#define __MODELS_TYPES_H__
+#ifndef __CORE_TYPES_H__
+#define __CORE_TYPES_H__
 
 #include <stdint.h>
 
