@@ -19,6 +19,7 @@ add_iota_test("core/test_address.c" core_address)
 add_iota_test("core/test_balance.c" core_balance)
 add_iota_test("core/test_inputs.c" core_inputs)
 add_iota_test("core/test_outputs.c" core_outputs)
+add_iota_test("core/test_iota_str.c" core_iota_str)
 
 # client test cases #######
 add_iota_test("client/test_http.c" client_http)

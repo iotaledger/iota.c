@@ -6,10 +6,18 @@ set_target_properties(iota_core PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 99)
 
 target_sources(
   iota_core
-  PRIVATE "core/address.c" "core/balance.c" "core/models/inputs/utxo_input.c"
-          "core/models/outputs/sig_unlocked_single_deposit.c" "core/models/payloads/signed_transaction.c"
-  PUBLIC "core/address.h" "core/balance.h" "core/models/inputs/utxo_input.h"
-         "core/models/outputs/sig_unlocked_single_deposit.h" "core/models/payloads/signed_transaction.h")
+  PRIVATE "core/address.c"
+          "core/balance.c"
+          "core/iota_str.c"
+          "core/models/inputs/utxo_input.c"
+          "core/models/outputs/sig_unlocked_single_deposit.c"
+          "core/models/payloads/signed_transaction.c"
+  PUBLIC  "core/address.h"
+          "core/balance.h"
+          "core/iota_str.h"
+          "core/models/inputs/utxo_input.h"
+          "core/models/outputs/sig_unlocked_single_deposit.h"
+          "core/models/payloads/signed_transaction.h")
 
 target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 
@@ -37,16 +45,18 @@ set_target_properties(iota_client PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 9
 
 target_sources(
   iota_client
-  PRIVATE "client/network/http_buffer.c" "client/network/http_curl.c"
-  PUBLIC "client/network/http_buffer.h" "client/network/http.h")
+  PRIVATE "client/network/http_buffer.c"
+          "client/network/http_curl.c"
+  PUBLIC  "client/network/http_buffer.h"
+          "client/network/http.h")
 
 target_include_directories(iota_client PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CURL_INCLUDE_DIRS}")
 
-# add_dependencies(iota_client iota_common)
+add_dependencies(iota_client iota_core ext_cjson)
 
 target_link_libraries(
   iota_client
-  INTERFACE ${CURL_LIBRARIES}
+  INTERFACE ${CURL_LIBRARIES} cjson
   PUBLIC iota_core)
 
 if(HAS_ASAN_ENABLED)
