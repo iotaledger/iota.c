@@ -1,5 +1,8 @@
 # ########## IOTA Core library ################
+
 add_library(iota_core STATIC)
+# the required minimum C standard
+set_target_properties(iota_core PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 99)
 
 target_sources(
   iota_core
@@ -29,6 +32,8 @@ install(
 # ########## IOTA Client library ################
 
 add_library(iota_client STATIC)
+# the required minimum C standard
+set_target_properties(iota_client PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 99)
 
 target_sources(
   iota_client
