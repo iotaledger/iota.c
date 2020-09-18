@@ -50,11 +50,13 @@ target_sources(
           "client/api/get_node_info.c"
           "client/api/json_utils.c"
           "client/api/response_error.c"
+          "client/api/get_message_hash.c"
   PUBLIC "client/network/http_buffer.h"
          "client/network/http.h"
          "client/api/get_node_info.h"
          "client/api/json_utils.h"
          "client/api/response_error.h"
+         "client/api/get_message_hash.h"
          "client/client_service.h")
 
 target_include_directories(iota_client PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CURL_INCLUDE_DIRS}")
