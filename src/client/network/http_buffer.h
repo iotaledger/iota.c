@@ -4,10 +4,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-// #include "models/types.h"
-// TODO: use byte_t in models/types.h
-#include <stdint.h>
-typedef uint8_t byte_t;
+#include "core/types.h"
 
 typedef struct {
   size_t len;
@@ -55,8 +52,10 @@ void http_buf_free(http_buf_t* buf);
 /**
  * @brief Converts data of http buffer to string
  *
- * In general, the data from http response is binary data,
- * we append the null terminator to it and treat it as a string.
+ * In general, the data from http response is binary data, we append the null terminator to it and treat it as a string.
+ *
+ * We need some string operations on the response data, especially json object, that we need make sure the response
+ * containts '/0' at the end.
  *
  * @param buf
  */

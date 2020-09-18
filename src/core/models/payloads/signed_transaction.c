@@ -60,4 +60,5 @@ bool signed_tx_validation(signed_tx_payload_t* payload) {
   if (payload->unlock_blocks_count > 0) {
     // TODO
   }
+  return true;
 }
