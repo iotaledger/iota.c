@@ -6,3 +6,7 @@ format:
   _help_tab_size:
   - How many spaces to tab for indent
   tab_size: 2
+  _help_max_pargs_hwrap:
+  - If a positional argument group contains more than this many
+  - arguments, then force it to a vertical layout.
+  max_pargs_hwrap: 4

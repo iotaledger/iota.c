@@ -12,12 +12,12 @@ target_sources(
           "core/models/inputs/utxo_input.c"
           "core/models/outputs/sig_unlocked_single_deposit.c"
           "core/models/payloads/signed_transaction.c"
-  PUBLIC  "core/address.h"
-          "core/balance.h"
-          "core/iota_str.h"
-          "core/models/inputs/utxo_input.h"
-          "core/models/outputs/sig_unlocked_single_deposit.h"
-          "core/models/payloads/signed_transaction.h")
+  PUBLIC "core/address.h"
+         "core/balance.h"
+         "core/iota_str.h"
+         "core/models/inputs/utxo_input.h"
+         "core/models/outputs/sig_unlocked_single_deposit.h"
+         "core/models/payloads/signed_transaction.h")
 
 target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 
@@ -50,12 +50,12 @@ target_sources(
           "client/api/get_node_info.c"
           "client/api/json_utils.c"
           "client/api/response_error.c"
-  PUBLIC  "client/network/http_buffer.h"
-          "client/network/http.h"
-          "client/api/get_node_info.h"
-          "client/api/json_utils.h"
-          "client/api/response_error.h"
-          "client/client_service.h")
+  PUBLIC "client/network/http_buffer.h"
+         "client/network/http.h"
+         "client/api/get_node_info.h"
+         "client/api/json_utils.h"
+         "client/api/response_error.h"
+         "client/client_service.h")
 
 target_include_directories(iota_client PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CURL_INCLUDE_DIRS}")
 
