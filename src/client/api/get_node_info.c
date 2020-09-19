@@ -7,24 +7,9 @@
 #include "client/network/http_buffer.h"
 #include "core/iota_str.h"
 
-static char const *const cmd_info = "info";
-static char const *const key_name = "name";
-static char const *const key_version = "version";
-static char const *const key_healthy = "isHealthy";
-static char const *const key_net = "operatingNetwork";
-static char const *const key_peers = "peers";
-static char const *const key_coo_addr = "coordinatorAddress";
-static char const *const key_synced = "isSynced";
-static char const *const key_lm = "latestMilestoneHash";
-static char const *const key_lm_index = "latestMilestoneIndex";
-static char const *const key_lsm = "latestSolidMilestoneHash";
-static char const *const key_lsm_index = "latestSolidMilestoneIndex";
-static char const *const key_pruning = "pruningIndex";
-static char const *const key_time = "time";
-static char const *const key_features = "features";
-
 int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   int ret = 0;
+  char const *const cmd_info = "info";
   // compose restful api command
   iota_str_t *cmd = iota_str_new(conf->url);
   if (cmd == NULL) {
@@ -68,6 +53,20 @@ done:
 }
 
 int deser_node_info(char const *const j_str, res_node_info_t *res) {
+  char const *const key_name = "name";
+  char const *const key_version = "version";
+  char const *const key_healthy = "isHealthy";
+  char const *const key_net = "operatingNetwork";
+  char const *const key_peers = "peers";
+  char const *const key_coo_addr = "coordinatorAddress";
+  char const *const key_synced = "isSynced";
+  char const *const key_lm = "latestMilestoneHash";
+  char const *const key_lm_index = "latestMilestoneIndex";
+  char const *const key_lsm = "latestSolidMilestoneHash";
+  char const *const key_lsm_index = "latestSolidMilestoneIndex";
+  char const *const key_pruning = "pruningIndex";
+  char const *const key_time = "time";
+  char const *const key_features = "features";
   int ret = 0;
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {

@@ -32,6 +32,7 @@ int deser_message_payload(char const *const j_str, res_msg_t *msg) {
     // got an error response
     msg->is_error = true;
     msg->msg_u.error = res_err;
+    ret = 0;
     goto end;
   }
 
