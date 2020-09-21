@@ -1,4 +1,7 @@
+#include <stdio.h>
+
 #include "client/api/get_tips.h"
+#include "client/api/json_utils.h"
 #include "core/iota_str.h"
 
 int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
@@ -84,14 +87,14 @@ int deser_get_tips(char const *const j_str, res_tips_t *res) {
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
     // gets tip1
-    if ((ret = json_get_string(data_obj, key_tip1, res->tips_u.tips.tip1, TIP_HASH_BYTES)) != 0) {
+    if ((ret = json_get_string(data_obj, key_tip1, (char *)res->tips_u.tips.tip1, TIP_HASH_BYTES)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_tip1);
       ret = -1;
       goto end;
     }
 
     // gets tip2
-    if ((ret = json_get_string(data_obj, key_tip2, res->tips_u.tips.tip2, TIP_HASH_BYTES)) != 0) {
+    if ((ret = json_get_string(data_obj, key_tip2, (char *)res->tips_u.tips.tip2, TIP_HASH_BYTES)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_tip2);
       ret = -1;
       goto end;

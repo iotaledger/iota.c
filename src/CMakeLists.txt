@@ -61,7 +61,11 @@ target_sources(
          "client/api/get_tips.h"
          "client/client_service.h")
 
-target_include_directories(iota_client PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CURL_INCLUDE_DIRS}")
+target_include_directories(iota_client PUBLIC
+  "${PROJECT_SOURCE_DIR}/src"
+  "${CURL_INCLUDE_DIRS}"
+  "${CMAKE_INSTALL_PREFIX}/include/cjson" # for esp32 compatibility
+)
 
 add_dependencies(iota_client iota_core ext_cjson)
 

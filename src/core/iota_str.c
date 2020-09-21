@@ -3,7 +3,7 @@
 
 #include "core/iota_str.h"
 
-iota_str_t *iota_str_new(char const *s) {
+iota_str_t *iota_str_new(char const s[]) {
   iota_str_t *istr = malloc(sizeof(iota_str_t));
   if (!istr) {
     return NULL;
@@ -31,7 +31,7 @@ void iota_str_destroy(iota_str_t *istr) {
   }
 }
 
-int iota_str_appendn(iota_str_t *istr, char const *s, size_t len) {
+int iota_str_appendn(iota_str_t *istr, char const s[], size_t len) {
   // needed capacity
   size_t needed_cap = istr->len + len + 1;
 

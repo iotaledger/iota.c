@@ -34,7 +34,7 @@ iota_str_t *iota_str_new(char const *s);
  * @param[in] len the size of characters
  * @return int 0 on success
  */
-int iota_str_appendn(iota_str_t *istr, char const *s, size_t len);
+int iota_str_appendn(iota_str_t *istr, char const s[], size_t len);
 
 /**
  * @brief Appends a c_string
@@ -43,7 +43,7 @@ int iota_str_appendn(iota_str_t *istr, char const *s, size_t len);
  * @param[in] s A c_string
  * @return int 0 on success
  */
-static inline int iota_str_append(iota_str_t *istr, char const *s) { return iota_str_appendn(istr, s, strlen(s)); }
+static inline int iota_str_append(iota_str_t *istr, char const s[]) { return iota_str_appendn(istr, s, strlen(s)); }
 
 /**
  * @brief Appends a char

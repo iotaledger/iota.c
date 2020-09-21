@@ -37,6 +37,9 @@ int deser_message_payload(char const *const j_str, res_msg_t *msg) {
   }
 
   // TODO: deser message
+  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
+  if (data_obj) {
+  }
 
 end:
   cJSON_Delete(json_obj);

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "cjson/cJSON.h"
+#include "cJSON.h"
 
 // the key of data object in json
 static char const *const key_data = "data";

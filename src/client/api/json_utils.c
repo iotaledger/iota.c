@@ -4,7 +4,7 @@
 
 #include "client/api/json_utils.h"
 
-int json_get_string(cJSON const* const json_obj, char const* const key, char* str, size_t max) {
+int json_get_string(cJSON const* const json_obj, char const key[], char str[], size_t str_len) {
   if (json_obj == NULL || key == NULL || str == NULL) {
     // invalid parameters
     printf("[%s:%d invalid parameters\n", __func__, __LINE__);
@@ -18,7 +18,7 @@ int json_get_string(cJSON const* const json_obj, char const* const key, char* st
   }
 
   if (cJSON_IsString(json_value) && (json_value->valuestring != NULL)) {
-    strncpy(str, json_value->valuestring, max);
+    strncpy(str, json_value->valuestring, str_len);
   } else {
     printf("[%s:%d] %s not string\n", __func__, __LINE__, key);
     return -1;
