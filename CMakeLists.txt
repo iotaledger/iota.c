@@ -15,6 +15,7 @@ enable_testing()
 option(IOTA_TESTS "Enable IOTA Client library test cases" ON)
 # option(CCLIENT_EXAMPLES "Enable Client examples" OFF)
 option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
+option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
 
 # fetch external libs
 include(ExternalProject)
@@ -24,6 +25,10 @@ include(cmake/cjson.cmake)
 include(cmake/uthash.cmake)
 include(cmake/sodium.cmake)
 include(cmake/base58.cmake)
+
+if(ENABLED_JEMALLOC)
+  include(cmake/jemalloc.cmake)
+endif()
 
 if(IOTA_ASAN_ENABLED)
   if(UNIX AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR NOT CMAKE_BUILD_TYPE))
@@ -36,10 +41,10 @@ if(IOTA_ASAN_ENABLED)
         set(HAS_ASAN_ENABLED
             ON
             CACHE BOOL "Asan has enabled on target" FORCE)
+        message("AddressSanitizer is enabled")
       else()
         message(WARNING "ASan is not supported")
       endif()
-
     endif()
   else()
     message(WARNING "ASan is not supported on Windows or Release build")

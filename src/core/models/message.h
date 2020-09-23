@@ -12,7 +12,7 @@
 
 typedef union {
   indexation_t indexation;
-  milestion_t milestion;
+  milestone_t milestone;
 } payload_u;
 
 typedef struct {

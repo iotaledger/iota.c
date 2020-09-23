@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "core/iota_str.h"
+#include "core/utils/iota_str.h"
 #include "unity/unity.h"
 
 void test_iota_str() {

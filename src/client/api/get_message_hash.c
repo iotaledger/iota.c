@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "client/api/get_message_hash.h"
+#include "core/utils/allocator.h"
 
 res_msg_t *res_msg_new() {
   res_msg_t *msg = malloc(sizeof(res_msg_t));

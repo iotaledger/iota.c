@@ -1,6 +1,11 @@
 #ifndef __CLIENT_NETWORK_HTTP_H__
 #define __CLIENT_NETWORK_HTTP_H__
 
+/**
+ * @brief Abstract layer of http client for IOTA client
+ *
+ */
+
 #include <stdbool.h>
 #include <stdlib.h>
 

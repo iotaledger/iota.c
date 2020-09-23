@@ -12,6 +12,14 @@ void test_deser_message() {
       "\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\",\"parent2\":"
       "\"CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC\",\"payloadLength\":1,\"payload\":{\"type\":"
       "2,\"index\":\"5350414d\",\"data\":\"SGVsbG8gd29ybGQh\"}}}}]}";
+
+  res_msg_t* res_msg = res_msg_new();
+  TEST_ASSERT_NOT_NULL(res_msg);
+
+  int ret = deser_message_payload(json_msg, res_msg);
+  TEST_ASSERT(ret == 0);
+
+  res_msg_free(res_msg);
 }
 
 void test_deser_msg_err() {

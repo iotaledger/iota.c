@@ -35,12 +35,13 @@ typedef struct {
   uint16_t reference;   // Represents the index of a previous unlock block.
 } reference_unlock_block_t;
 
-/*
-A Signed Transaction payload is made up of two parts:
-  * The Unsigned Transaction part which contains the inputs, outputs and an optional embedded payload.
-  * The Unlock Blocks which unlock the Unsigned Transaction's inputs. In case the unlock block contains a signature, it
-    signs the entire Unsigned Transaction part.
-*/
+/**
+ * @brief A Signed Transaction payload is made up of two parts:
+ * The Unsigned Transaction part which contains the inputs, outputs and an optional embedded payload.
+ * The Unlock Blocks which unlock the Unsigned Transaction's inputs. In case the unlock block contains a signature, it
+ * signs the entire Unsigned Transaction part.
+ *
+ */
 typedef struct {
   payload_t type;                // Set to value 0 to denote a Signed Transaction payload.
   uint32_t unlock_blocks_count;  // The count of unlock blocks proceeding. Must match count of inputs specified.

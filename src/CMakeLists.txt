@@ -8,13 +8,13 @@ target_sources(
   iota_core
   PRIVATE "core/address.c"
           "core/balance.c"
-          "core/iota_str.c"
+          "core/utils/iota_str.c"
           "core/models/inputs/utxo_input.c"
           "core/models/outputs/sig_unlocked_single_deposit.c"
           "core/models/payloads/signed_transaction.c"
   PUBLIC "core/address.h"
          "core/balance.h"
-         "core/iota_str.h"
+         "core/utils/iota_str.h"
          "core/models/inputs/utxo_input.h"
          "core/models/outputs/sig_unlocked_single_deposit.h"
          "core/models/payloads/signed_transaction.h")
@@ -24,6 +24,13 @@ target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE
 add_dependencies(iota_core sodium ext_base58 ext_uthash)
 
 target_link_libraries(iota_core INTERFACE base58 sodium)
+
+if(__JEMALLOC_INCLUDED)
+  add_dependencies(iota_core jemalloc)
+  target_link_libraries(iota_core PUBLIC jemalloc${CMAKE_STATIC_LIBRARY_SUFFIX} Threads::Threads)
+  target_compile_definitions(iota_core PUBLIC USE_JEMALLOC)
+  target_link_options(iota_core PUBLIC -Wl,--no-as-needed -ldl)
+endif()
 
 if(HAS_ASAN_ENABLED)
   target_link_libraries(iota_core PRIVATE asan)

@@ -1,7 +1,5 @@
-
-#include <stdlib.h>
-
-#include "core/iota_str.h"
+#include "core/utils/allocator.h"
+#include "core/utils/iota_str.h"
 
 iota_str_t *iota_str_new(char const s[]) {
   iota_str_t *istr = malloc(sizeof(iota_str_t));

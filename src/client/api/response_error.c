@@ -1,8 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 #include "client/api/response_error.h"
+#include "core/utils/allocator.h"
 
 static char const *const key_err_code = "code";
 static char const *const key_err_msg = "message";

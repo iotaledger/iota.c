@@ -1,6 +1,5 @@
-#include <string.h>
-
 #include "client/network/http_buffer.h"
+#include "core/utils/allocator.h"
 
 http_buf_t* http_buf_new() {
   http_buf_t* buf = malloc(sizeof(http_buf_t));

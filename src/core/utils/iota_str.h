@@ -1,6 +1,7 @@
-#ifndef __CORE_IOTA_STR_H__
-#define __CORE_IOTA_STR_H__
+#ifndef __CORE_UTILS_IOTA_STR_H__
+#define __CORE_UTILS_IOTA_STR_H__
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 

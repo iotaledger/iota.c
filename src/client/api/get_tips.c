@@ -2,7 +2,7 @@
 
 #include "client/api/get_tips.h"
 #include "client/api/json_utils.h"
-#include "core/iota_str.h"
+#include "core/utils/iota_str.h"
 
 int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
   int ret = 0;

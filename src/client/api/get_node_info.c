@@ -5,7 +5,7 @@
 #include "client/api/json_utils.h"
 #include "client/network/http.h"
 #include "client/network/http_buffer.h"
-#include "core/iota_str.h"
+#include "core/utils/iota_str.h"
 
 int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   int ret = 0;

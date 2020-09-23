@@ -13,7 +13,7 @@ typedef struct {
   byte_t inclusion_merkle_proof[64];  // Specifies the merkle proof which is computed out of all the tail transaction
                                       // hashes of all the newly confirmed state-mutating bundles.
   byte_t signature[64];  // The signature signing the entire message excluding the nonce and the signature itself.
-} milestion_t;
+} milestone_t;
 
 #ifdef __cplusplus
 extern "C" {
