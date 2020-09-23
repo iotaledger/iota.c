@@ -4,3 +4,7 @@ user.bazelrc
 
 # CMake
 build/*
+
+# VS Code 
+.vscode/*
+

@@ -1,0 +1,13 @@
+{
+    "editor.tabSize": 2,
+    "cmake.installPrefix": "${workspaceFolder}/build",
+    "cmake.buildDirectory": "${workspaceFolder}/build",
+    "cmake.configureArgs": [
+        "-DIOTA_TESTS:BOOL=TRUE",
+        "-DIOTA_ASAN_ENABLED:BOOL=TRUE"
+    ],
+    "cmakeFormat.args": [
+        "--config-file",
+        ".cmake_format.yaml"
+    ]
+}

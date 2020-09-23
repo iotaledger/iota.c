@@ -44,7 +44,15 @@ This is beta software, so there may be performance and stability issues.
 Please report any issues in our [issue tracker](https://github.com/iotaledger/iota.c/issues/new/choose).
 
 ## Prerequisites
-TODO
+
+* pkg-config
+* curl
+
+Ubuntu
+
+```shell
+sudo apt install curl pkg-config
+```
 
 ## Installation
 
@@ -53,6 +61,12 @@ TODO
 ## Getting Started
 
 TODO
+
+## Visual Studio Code Integration
+
+This template includes launch configurations for debugging test cases with Visual Studio Code located in the .vscode/ directory.
+See [.vscode/README.md](./.vscode/README.md) for more information.
+If you're not using VS Code, you can safely delete or ignore the directory.
 
 ## Supporting the project
 
