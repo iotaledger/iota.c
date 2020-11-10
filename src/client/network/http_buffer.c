@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "client/network/http_buffer.h"
 #include "core/utils/allocator.h"
 

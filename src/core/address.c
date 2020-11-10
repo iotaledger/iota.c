@@ -7,13 +7,6 @@
 
 #include "core/address.h"
 
-void dump_hex(byte_t const data[], size_t len) {
-  for (int i = 0; i < len; i++) {
-    printf("0x%x, ", data[i]);
-  }
-  printf("\n");
-}
-
 /**
  * @brief hexadecimal text to a string, ex: "48656c6c6f" -> "Hello"
  *

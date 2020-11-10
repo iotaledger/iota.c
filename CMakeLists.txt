@@ -13,7 +13,6 @@ enable_language(C)
 enable_testing()
 
 option(IOTA_TESTS "Enable IOTA Client library test cases" ON)
-# option(CCLIENT_EXAMPLES "Enable Client examples" OFF)
 option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
 

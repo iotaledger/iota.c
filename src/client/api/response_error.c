@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "client/api/response_error.h"
 #include "core/utils/allocator.h"
