@@ -1,18 +1,18 @@
-#ifndef __CLIENT_API_TIPS_H__
-#define __CLIENT_API_TIPS_H__
+#ifndef __CLIENT_API_V1_TIPS_H__
+#define __CLIENT_API_V1_TIPS_H__
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "client/api/response_error.h"
+#include "client/api/v1/response_error.h"
 #include "client/client_service.h"
 #include "client/network/http.h"
 
-#define TIP_HASH_BYTES 64
+#define STR_TIP_MSG_LEN 64
 
 typedef struct {
-  char *tip1[TIP_HASH_BYTES];
-  char *tip2[TIP_HASH_BYTES];
+  char tip1[STR_TIP_MSG_LEN];
+  char tip2[STR_TIP_MSG_LEN];
 } get_tips_t;
 
 typedef struct {

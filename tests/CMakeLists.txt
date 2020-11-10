@@ -29,7 +29,6 @@ add_iota_test("core/test_byte_buffer.c" core_byte_buffer)
 
 # client test cases
 add_iota_test("client/test_http.c" client_http)
-add_iota_test("client/test_get_info.c" client_get_info)
-add_iota_test("client/test_response_error.c" client_res_error)
-add_iota_test("client/test_get_message_hash.c" client_get_msg_hash)
-add_iota_test("client/test_get_tips.c" client_get_tips)
+add_iota_test("client/api_v1/test_get_info.c" client_get_info)
+add_iota_test("client/api_v1/test_response_error.c" client_res_error)
+add_iota_test("client/api_v1/test_get_tips.c" client_get_tips)

@@ -1,26 +1,23 @@
-#ifndef __CLIENT_API_INFO_H__
-#define __CLIENT_API_INFO_H__
+#ifndef __CLIENT_API_V1_INFO_H__
+#define __CLIENT_API_V1_INFO_H__
 
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "client/api/response_error.h"
+#include "client/api/v1/response_error.h"
 #include "client/client_service.h"
+#include "core/types.h"
 
 typedef struct {
   char name[32];
   char version[32];
-  char net[32];
   bool is_healthy;
-  bool is_synced;
-  uint32_t peers;
-  char coo_address[81];
-  char lm[81];
-  uint64_t lm_index;
-  char lsm[81];
-  uint64_t lsm_index;
-  uint64_t pruning_index;
-  uint64_t time;
+  uint8_t network_id;
+  byte_t latest_milestone_id[32];
+  uint64_t latest_milestone_index;
+  byte_t solid_milestone_id[32];
+  uint64_t solid_milestone_index;
+  uint64_t pruning_milestone_index;
   char features[128];
 } res_node_info_t;
 

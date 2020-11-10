@@ -1,5 +1,5 @@
-#ifndef __CLIENT_API_RES_ERR_H__
-#define __CLIENT_API_RES_ERR_H__
+#ifndef __CLIENT_API_V1_RES_ERR_H__
+#define __CLIENT_API_V1_RES_ERR_H__
 
 #include <stdint.h>
 
@@ -11,7 +11,7 @@ static char const *const key_data = "data";
 static char const *const key_error = "error";
 
 typedef struct {
-  uint32_t code;
+  char *code;
   char *msg;
 } res_err_t;
 

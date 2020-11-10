@@ -6,18 +6,16 @@ target_sources(
   iota_client
   PRIVATE "network/http_buffer.c"
           "network/http_curl.c"
-          "api/get_node_info.c"
           "api/json_utils.c"
-          "api/response_error.c"
-          "api/get_message_hash.c"
-          "api/get_tips.c"
+          "api/v1/get_node_info.c"
+          "api/v1/response_error.c"
+          "api/v1/get_tips.c"
   PUBLIC "network/http_buffer.h"
          "network/http.h"
-         "api/get_node_info.h"
          "api/json_utils.h"
-         "api/response_error.h"
-         "api/get_message_hash.h"
-         "api/get_tips.h"
+         "api/v1/get_node_info.h"
+         "api/v1/response_error.h"
+         "api/v1/get_tips.h"
          "client_service.h")
 
 target_include_directories(iota_client PUBLIC

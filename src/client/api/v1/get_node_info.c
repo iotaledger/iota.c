@@ -1,15 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "client/api/get_node_info.h"
 #include "client/api/json_utils.h"
+#include "client/api/v1/get_node_info.h"
 #include "client/network/http.h"
 #include "client/network/http_buffer.h"
 #include "core/utils/iota_str.h"
 
 int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   int ret = 0;
-  char const *const cmd_info = "info";
+  char const *const cmd_info = "api/v1/info";
   // compose restful api command
   iota_str_t *cmd = iota_str_new(conf->url);
   if (cmd == NULL) {
@@ -56,16 +56,12 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
   char const *const key_name = "name";
   char const *const key_version = "version";
   char const *const key_healthy = "isHealthy";
-  char const *const key_net = "operatingNetwork";
-  char const *const key_peers = "peers";
-  char const *const key_coo_addr = "coordinatorAddress";
-  char const *const key_synced = "isSynced";
-  char const *const key_lm = "latestMilestoneHash";
+  char const *const key_net = "networkId";
+  char const *const key_lm = "latestMilestoneId";
   char const *const key_lm_index = "latestMilestoneIndex";
-  char const *const key_lsm = "latestSolidMilestoneHash";
-  char const *const key_lsm_index = "latestSolidMilestoneIndex";
+  char const *const key_sm = "solidMilestoneId";
+  char const *const key_sm_index = "solidMilestoneIndex";
   char const *const key_pruning = "pruningIndex";
-  char const *const key_time = "time";
   char const *const key_features = "features";
   int ret = 0;
   cJSON *json_obj = cJSON_Parse(j_str);
@@ -92,6 +88,12 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     // gets version
     if ((ret = json_get_string(data_obj, key_version, res->version, sizeof(res->version))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_version);
+      ret = -1;
+      goto end;
+    }
+
+    if ((ret = json_get_boolean(data_obj, key_healthy, &res->is_healthy)) != 0) {
+      printf("[%s:%d]: gets %s json boolean failed\n", __func__, __LINE__, key_healthy);
       ret = -1;
       goto end;
     }
