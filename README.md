@@ -46,12 +46,12 @@ Please report any issues in our [issue tracker](https://github.com/iotaledger/io
 ## Prerequisites
 
 * pkg-config
-* curl
+* libcurl4-openssl-dev 
 
 Ubuntu
 
 ```shell
-sudo apt install curl pkg-config
+sudo apt install libcurl4-openssl-dev pkg-config
 ```
 
 ## Installation
