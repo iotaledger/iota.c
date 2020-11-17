@@ -1,3 +1,0 @@
-#!/bin/bash
-
-buildifier -mode=check $(find . -type f | grep -E "WORKSPACE|BUILD(\.(bazel|bzl))?\$")

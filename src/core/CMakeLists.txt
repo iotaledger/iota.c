@@ -47,5 +47,4 @@ install(
   DIRECTORY "${PROJECT_SOURCE_DIR}/src/core/"
   DESTINATION "${CMAKE_INSTALL_PREFIX}/include/core"
   FILES_MATCHING
-  PATTERN "*.h"
-)
+  PATTERN "*.h")

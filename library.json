@@ -5,7 +5,7 @@
     "description": "IOTA C client library",
     "repository": {
         "type": "git",
-        "url": "https://github.com/oopsmonk/iota.c.git",
+        "url": "https://github.com/iotaledger/iota.c.git",
         "branch": "dev_chrysalis"
     },
     "authors": {
