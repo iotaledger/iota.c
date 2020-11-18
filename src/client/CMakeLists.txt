@@ -6,14 +6,12 @@ add_dependencies(iota_client iota_core)
 
 target_sources(
   iota_client
-  PRIVATE "network/http_buffer.c"
-          "network/http_curl.c"
+  PRIVATE "network/http_curl.c"
           "api/json_utils.c"
           "api/v1/get_node_info.c"
           "api/v1/response_error.c"
           "api/v1/get_tips.c"
-  PUBLIC "network/http_buffer.h"
-         "network/http.h"
+  PUBLIC "network/http.h"
          "api/json_utils.h"
          "api/v1/get_node_info.h"
          "api/v1/response_error.h"

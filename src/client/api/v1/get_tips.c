@@ -26,7 +26,7 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
     http_conf.port = conf->port;
   }
 
-  http_buf_t *http_res = http_buf_new();
+  byte_buf_t *http_res = byte_buf_new();
   if (http_res == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
     ret = -1;
@@ -34,8 +34,8 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
   }
 
   // send request via http client
-  http_client_get(http_res, &http_conf);
-  http_buf2str(http_res);
+  http_client_get(&http_conf, http_res);
+  byte_buf2str(http_res);
 
   // json deserialization
   deser_get_tips((char const *const)http_res->data, res);
@@ -43,7 +43,7 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
 done:
   // cleanup command
   iota_str_destroy(cmd);
-  http_buf_free(http_res);
+  byte_buf_free(http_res);
 
   return ret;
 }

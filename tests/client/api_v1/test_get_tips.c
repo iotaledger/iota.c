@@ -5,7 +5,7 @@
 
 void test_get_tips() {
   iota_client_conf_t ctx = {
-      .url = "https://virtserver.swaggerhub.com/oopsmonk/mytest/0.0.1/",
+      .url = "https://iota-node/",
       .port = 0  // use default port number
   };
   res_tips_t* res_tips = res_tips_new();

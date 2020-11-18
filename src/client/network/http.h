@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include "client/network/http_buffer.h"
+#include "core/utils/byte_buffer.h"
 
 typedef struct {
   char* url;
@@ -29,9 +29,6 @@ extern "C" {
 /**
  * @brief Inits http client instance
  *
- * @param[out] ctx http instance context
- * @return true
- * @return false
  */
 void http_client_init();
 
@@ -44,20 +41,22 @@ void http_client_clean();
 /**
  * @brief Performs http POST
  *
- * @param[out] response The response data
  * @param[in] url The server url
  * @param[in] request The request of body
+ * @param[out] response The response data
+ * @return int 0 on success
  */
-void http_client_post(http_buf_t* const response, http_client_config_t const* const config,
-                      http_buf_t const* const request);
+int http_client_post(http_client_config_t const* const config, byte_buf_t const* const request,
+                     byte_buf_t* const response);
 
 /**
  * @brief Performs http GET
  *
- * @param[out] response The response data
  * @param[in] url The server url
+ * @param[out] response The response data
+ * @return int 0 on success
  */
-void http_client_get(http_buf_t* const response, http_client_config_t const* const config);
+int http_client_get(http_client_config_t const* const config, byte_buf_t* const response);
 
 #ifdef __cplusplus
 }
