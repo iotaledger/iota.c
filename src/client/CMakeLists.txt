@@ -9,11 +9,13 @@ target_sources(
   PRIVATE "network/http_curl.c"
           "api/json_utils.c"
           "api/v1/get_node_info.c"
+          "api/v1/get_balance.c"
           "api/v1/response_error.c"
           "api/v1/get_tips.c"
   PUBLIC "network/http.h"
          "api/json_utils.h"
          "api/v1/get_node_info.h"
+         "api/v1/get_balance.h"
          "api/v1/response_error.h"
          "api/v1/get_tips.h"
          "client_service.h")

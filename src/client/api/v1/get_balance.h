@@ -1,0 +1,4 @@
+#ifndef __CLIENT_API_V1_BALANCE_H__
+#define __CLIENT_API_V1_BALANCE_H__
+
+#endif  // __CLIENT_API_V1_BALANCE_H__
