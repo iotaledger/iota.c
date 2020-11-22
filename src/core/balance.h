@@ -6,22 +6,27 @@
 
 #include "core/types.h"
 
+// Note: colored coins are not yet included to Chrysalis, only Pollen
+
 // Color represents a marker that is associated to a token balance and that gives it a certain "meaning". The zero value
 // represents "vanilla" IOTA tokens but it is also possible to define tokens that represent i.e. real world assets.
 
-#define BALANCE_COLOR_BYTES 32
-#define BALANCE_COLOR_BASE58_LEN 48
+// #define BALANCE_COLOR_BYTES 32
+// #define BALANCE_COLOR_BASE58_LEN 48
 
 // Balance represents a balance in the IOTA ledger. It consists out of a numeric value and a color.
 typedef struct {
   int64_t value;
-  byte_t color[BALANCE_COLOR_BYTES];
+
+  // Note: colored coins are not yet included to Chrysalis, only Pollen
+  // byte_t color[BALANCE_COLOR_BYTES];
 } balance_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+// Note: colored coins are not yet included to Chrysalis, only Pollen
 /**
  * @brief Inits a balance object by given value and color.
  *
@@ -29,7 +34,8 @@ extern "C" {
  * @param[in] color The color is optional, NULL for a default value.
  * @param[in] value The value
  */
-void balance_init(balance_t* balance, byte_t color[], int64_t value);
+// void balance_init(balance_t* balance, byte_t color[], int64_t value);
+void balance_init(balance_t* balance, int64_t value);
 
 /**
  * @brief Inits a balance object from the given bytes.
@@ -47,13 +53,16 @@ void balance_from_bytes(balance_t* balance, byte_t balance_bytes[]);
  */
 void balance_2_bytes(byte_t balance_bytes[], balance_t* balance);
 
+// Note: color coins are not yet included to Chrysalis, only Pollen
 /**
  * @brief Sets color to a balance object.
  *
  * @param[out] balance the balance object
  * @param[in] color The color bytes to be set
  */
-void balance_set_color(balance_t* balance, byte_t color[]);
+// void balance_set_color(balance_t* balance, byte_t color[]);
+
+// Note: colored coins are not yet included to Chrysalis, only Pollen
 
 /**
  * @brief Gets a human readable color string (base58 encoded).
@@ -63,7 +72,7 @@ void balance_set_color(balance_t* balance, byte_t color[]);
  * @return true
  * @return false
  */
-bool balance_color_2_base58(char color_str[], byte_t color[]);
+//bool balance_color_2_base58(char color_str[], byte_t color[]);
 
 /**
  * @brief print out a balance object
