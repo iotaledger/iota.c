@@ -26,6 +26,7 @@ if(__JEMALLOC_INCLUDED)
   add_iota_test("core/test_allocator.c" core_allocator)
 endif()
 add_iota_test("core/test_byte_buffer.c" core_byte_buffer)
+add_iota_test("core/test_slip10.c" core_slip10)
 
 # client test cases
 add_iota_test("client/test_http.c" client_http)

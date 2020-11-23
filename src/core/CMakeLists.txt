@@ -11,6 +11,7 @@ target_sources(
           "seed.c"
           "utils/iota_str.c"
           "utils/byte_buffer.c"
+          "utils/slip10.c"
           "models/inputs/utxo_input.c"
           "models/outputs/sig_unlocked_single_deposit.c"
           "models/payloads/signed_transaction.c"
@@ -19,6 +20,7 @@ target_sources(
          "seed.c"
          "utils/iota_str.h"
          "utils/byte_buffer.h"
+         "utils/slip10.h"
          "models/inputs/utxo_input.h"
          "models/outputs/sig_unlocked_single_deposit.h"
          "models/payloads/signed_transaction.h")
