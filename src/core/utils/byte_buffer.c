@@ -48,6 +48,23 @@ int string2hex(char str[], byte_t hex[], size_t hex_len) {
   return 0;
 }
 
+int hex2bin(char const str[], byte_t bin[], size_t bin_len) {
+  size_t str_len = strlen(str);
+  size_t expected_bin_len = str_len / 2;
+  if (bin_len < expected_bin_len) {
+    // buffer size is not sufficient
+    return -1;
+  }
+
+  char* pos = str;
+  for (size_t i = 0; i < expected_bin_len; i++) {
+    sscanf(pos, "%2hhx", &bin[i]);
+    pos += 2;
+  }
+
+  return 0;
+}
+
 byte_buf_t* byte_buf_new() {
   byte_buf_t* buf = malloc(sizeof(byte_buf_t));
   if (buf) {

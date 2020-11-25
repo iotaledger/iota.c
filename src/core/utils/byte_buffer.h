@@ -138,6 +138,16 @@ int hex2string(char const str[], uint8_t array[], size_t arr_len);
  */
 int string2hex(char str[], byte_t hex[], size_t hex_len);
 
+/**
+ * @brief Converts hex string to a byte array
+ *
+ * @param[in] str A hex string
+ * @param[out] bin A byte array buffer
+ * @param[in] bin_len The length of byte array
+ * @return int 0 on successful
+ */
+int hex2bin(char const str[], byte_t bin[], size_t bin_len);
+
 #ifdef __cplusplus
 }
 #endif
