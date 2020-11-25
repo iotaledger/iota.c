@@ -1,82 +1,37 @@
-name: Test
+name: dev-ci
 on:
   push:
-    branches: [ master ]
+    branches: [ dev ]
   pull_request:
-    branches: [ master ]
+    branches: [ dev ]
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-18.04
+    if: "! contains(toJSON(github.event.commits.*.message), '[skip-ci]')"
 
     steps:
     - uses: actions/checkout@v2
+    - uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
   
-    - name: Set up env
+    - name: install ninja and libcurl
       run: |
         sudo apt update
-        sudo apt install -y cppcheck
-  
-    - name: Install buildifier
-      run: |
-        sudo wget -q https://github.com/bazelbuild/buildtools/releases/download/0.29.0/buildifier -O /usr/local/bin/buildifier
-        sudo chmod +x /usr/local/bin/buildifier
+        sudo apt upgrade -y
+        sudo apt install -y cppcheck ninja-build libcurl4-openssl-dev clang-format build-essential
 
     - name: Coding style check
-      run: ./tools/ci_format_check cclient
-
-    - name: Buildifier check
-      run: ./tools/ci_buildifier_check
+      run: ./tools/ci_format_check src
 
     - name: Static analysis check
-      run: cppcheck --force --error-exitcode=1 -q cclient
+      run: cppcheck --force --error-exitcode=1 -q src
 
-    - name: TE=1 bazel test opt ASAN
-      run: bazel test --build_tests_only -c opt --test_output=all --config asan --define trit_encoding=1 //cclient/...
-
-    - name: TE=1 bazel test dbg ASAN
-      run: bazel test --build_tests_only -c dbg --test_output=all --config asan --define trit_encoding=1 //cclient/... 
-
-    - name: TE=1 bazel test opt TSAN
-      run: bazel test --build_tests_only -c opt --test_output=all --config tsan --define trit_encoding=1 //cclient/... 
-
-    - name: TE=1 bazel test dbg TSAN
-      run: bazel test --build_tests_only -c dbg --test_output=all --config tsan --define trit_encoding=1 //cclient/...
-
-    - name: TE=1 bazel test opt UBSAN
-      run: bazel test --build_tests_only -c opt --test_output=all --config ubsan --define trit_encoding=1 //cclient/... 
-
-    - name: TE=1 bazel test dbg UBSAN
-      run: bazel test --build_tests_only -c dbg --test_output=all --config ubsan --define trit_encoding=1 //cclient/... 
-
-    - name: TE=3 bazel test opt
-      run: bazel test --build_tests_only -c opt --test_output=all --define trit_encoding=3 //cclient/... 
-
-    - name: TE=3 bazel test debug
-      run: bazel test --build_tests_only -c dbg --test_output=all --define trit_encoding=3 //cclient/... 
-
-    - name: TE=4 bazel test opt
-      run: bazel test --build_tests_only -c opt --test_output=all --define trit_encoding=4 //cclient/... 
-
-    - name: TE=4 bazel test debug
-      run: bazel test --build_tests_only -c dbg --test_output=all --define trit_encoding=4 //cclient/... 
-
-    - name: TE=5 bazel test opt
-      run: bazel test --build_tests_only -c opt --test_output=all --define trit_encoding=5 //cclient/... 
-
-    - name: TE=5 bazel test debug
-      run: bazel test --build_tests_only -c dbg --test_output=all --define trit_encoding=5 //cclient/... 
-
-    - name: CMake script
+    - name: CMake build
       run: |
+        cmake --version
         mkdir build
         cd build
-        cmake -DCMAKE_INSTALL_PREFIX=. -DCCLIENT_TEST=ON .. 
-        make -j16 
-        make test
-
-    - name: Bazel test bootlin x86_64 toolchains
-      run: bazel test --build_tests_only --test_output=all --config=bootlin_x86_64_core_i7  //cclient/... 
-
-    - name: Bazel test bootlin i686 toolchains
-      run: bazel test --build_tests_only --test_output=all --config=bootlin_i686 //cclient/... 
+        cmake -G Ninja -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON ..
+        ninja -v && ninja test

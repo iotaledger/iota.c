@@ -108,7 +108,45 @@ void byte_buf_print(byte_buf_t* buf);
  * @param[in] buf A byte buffer
  * @return byte_buf_t*
  */
-byte_buf_t* byte_buf2hex_string(byte_buf_t* buf);
+byte_buf_t* byte_buf_str2hex(byte_buf_t* buf);
+
+/**
+ * @brief Duplicates and converts the data from hex to text, the returned object need to be freed.
+ *
+ * @param[in] hex A byte buffer
+ * @return byte_buf_t*
+ */
+byte_buf_t* byte_buf_hex2str(byte_buf_t* hex);
+
+/**
+ * @brief Converts a hex string to C string, "48656c6c6f" -> "Hello"
+ *
+ * @param[in] str A hex string
+ * @param[out] array An output buffer holds text data
+ * @param[in] arr_len The length of text buffer
+ * @return int 0 on successful
+ */
+int hex2string(char const str[], uint8_t array[], size_t arr_len);
+
+/**
+ * @brief Converts a text to hex string, "Hello" -> "48656c6c6f"
+ *
+ * @param[in] str A text string
+ * @param[out] hex The hex string from text
+ * @param[in] hex_len The length of hex buffer
+ * @return int 0 on successful
+ */
+int string2hex(char str[], byte_t hex[], size_t hex_len);
+
+/**
+ * @brief Converts hex string to a byte array
+ *
+ * @param[in] str A hex string
+ * @param[out] bin A byte array buffer
+ * @param[in] bin_len The length of byte array
+ * @return int 0 on successful
+ */
+int hex2bin(char const str[], byte_t bin[], size_t bin_len);
 
 #ifdef __cplusplus
 }

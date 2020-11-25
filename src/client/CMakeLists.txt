@@ -1,3 +1,8 @@
+#[[
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+]]
+
 add_library(iota_client STATIC)
 # the required minimum C standard
 set_target_properties(iota_client PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 99)

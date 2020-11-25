@@ -1,8 +1,6 @@
 #[[
-Copyright (c) 2019 IOTA Stiftung
-https://github.com/iotaledger/iota.c
-
-Refer to the LICENSE file for licensing information
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
 ]]
 
 if (NOT __CJSON_INCLUDED)
