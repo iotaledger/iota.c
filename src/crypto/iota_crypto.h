@@ -1,3 +1,6 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef __CRYPTO_IOTA_H__
 #define __CRYPTO_IOTA_H__
 
@@ -45,7 +48,7 @@ void iota_crypto_keypair(uint8_t const seed[], iota_keypair_t *keypair);
 int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, uint8_t signature[]);
 
 /**
- * @brief A a simplified interface for message authentication
+ * @brief HMAC-SHA-256 interface
  *
  * @param[in] secret_key The private/secret key
  * @param[in] msg A buffer holds message data
@@ -54,6 +57,17 @@ int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, ui
  * @return int 0 on successful
  */
 int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]);
+
+/**
+ * @brief HMAC-SHA-512 interface
+ *
+ * @param[in] secret_key The private/secret key
+ * @param[in] msg A buffer holds message data
+ * @param[in] msg_len The length of message
+ * @param[out] auth The output authentication
+ * @return int 0 on successful
+ */
+int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]);
 
 #ifdef __cplusplus
 }

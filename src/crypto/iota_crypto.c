@@ -1,3 +1,6 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #include <sodium.h>
 
 #include "crypto/iota_crypto.h"
@@ -16,4 +19,8 @@ int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, ui
 
 int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]) {
   return crypto_auth_hmacsha256(auth, msg, msg_len, secret_key);
+}
+
+int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]) {
+  return crypto_auth_hmacsha512(auth, msg, msg_len, secret_key);
 }
