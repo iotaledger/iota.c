@@ -3,10 +3,11 @@
 
 #include <stdint.h>
 
+#include "core/address.h"
 #include "core/types.h"
 
 typedef struct {
-  byte_t addr[32];
+  byte_t addr[IOTA_ADDRESS_BYTES];
   uint16_t maxResults;
   uint16_t count;
   int64_t balance;
