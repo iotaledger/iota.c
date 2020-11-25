@@ -33,7 +33,7 @@ void test_byte_buf() {
   byte_buf2str(buf);
   TEST_ASSERT(buf->cap == 10);
   TEST_ASSERT(buf->len == 6);
-  printf("%s\n", buf->data);
+  // printf("%s\n", buf->data);
 
   // reserve size smaller than capacity
   TEST_ASSERT_TRUE(byte_buf_reserve(buf, 5));
@@ -59,10 +59,29 @@ void test_byte_buf() {
   byte_buf_free(c);
 }
 
+void test_hex_convertor() {
+  char const *exp_str = "Hello world!";
+  char const *exp_hex = "48656C6C6F20776F726C6421";
+
+  byte_buf_t *buf = byte_buf_new_with_data((byte_t *)exp_str, strlen(exp_str));
+  byte_buf_t *hex = byte_buf_str2hex(buf);
+  TEST_ASSERT_EQUAL_STRING(exp_hex, hex->data);
+  byte_buf_free(buf);
+  buf = NULL;
+  byte_buf_free(hex);
+
+  buf = byte_buf_new_with_data((byte_t *)exp_hex, strlen(exp_hex));
+  byte_buf_t *str = byte_buf_hex2str(buf);
+  TEST_ASSERT_EQUAL_STRING(exp_str, str->data);
+  byte_buf_free(buf);
+  byte_buf_free(str);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_byte_buf);
+  RUN_TEST(test_hex_convertor);
 
   return UNITY_END();
 }

@@ -3,6 +3,51 @@
 #include "core/utils/allocator.h"
 #include "core/utils/byte_buffer.h"
 
+static char const* const hex_table = "0123456789ABCDEF";
+
+int hex2string(char const str[], uint8_t array[], size_t arr_len) {
+  size_t len = strlen(str) / 2;
+  if (arr_len < len) {
+    // buffer size is not sufficient
+    return -1;
+  }
+
+  for (size_t i = 0; i < len; i++) {
+    uint8_t c = 0;
+    if (str[i * 2] >= '0' && str[i * 2] <= '9') {
+      c += (str[i * 2] - '0') << 4;
+    }
+    if ((str[i * 2] & ~0x20) >= 'A' && (str[i * 2] & ~0x20) <= 'F') {
+      c += (10 + (str[i * 2] & ~0x20) - 'A') << 4;
+    }
+    if (str[i * 2 + 1] >= '0' && str[i * 2 + 1] <= '9') {
+      c += (str[i * 2 + 1] - '0');
+    }
+    if ((str[i * 2 + 1] & ~0x20) >= 'A' && (str[i * 2 + 1] & ~0x20) <= 'F') {
+      c += (10 + (str[i * 2 + 1] & ~0x20) - 'A');
+    }
+    array[i] = c;
+  }
+  return 0;
+}
+
+int string2hex(char str[], byte_t hex[], size_t hex_len) {
+  size_t required_size = strlen(str) * 2 + 1;
+  if (hex_len < required_size) {
+    // hex buffer size is not sufficient
+    return -1;
+  }
+
+  size_t hex_index = 0;
+  for (size_t i = 0; i < strlen(str); i++) {
+    hex[i * 2 + 0] = hex_table[(str[i] >> 4) & 0x0F];
+    hex[i * 2 + 1] = hex_table[(str[i]) & 0x0F];
+    hex_index += 2;
+  }
+  hex[hex_index] = '\0';
+  return 0;
+}
+
 byte_buf_t* byte_buf_new() {
   byte_buf_t* buf = malloc(sizeof(byte_buf_t));
   if (buf) {
@@ -104,17 +149,28 @@ void byte_buf2str(byte_buf_t* buf) {
   }
 }
 
-byte_buf_t* byte_buf2hex_string(byte_buf_t* buf) {
-  char const* hex_table = "0123456789ABCDEF";
+byte_buf_t* byte_buf_str2hex(byte_buf_t* buf) {
   byte_buf_t* hex_str = byte_buf_new();
   byte_buf_reserve(hex_str, (buf->len * 2) + 1);
-  for (size_t i = 0; i < buf->len; i++) {
-    hex_str->data[i * 2 + 0] = hex_table[(buf->data[i] >> 4) & 0x0F];
-    hex_str->data[i * 2 + 1] = hex_table[(buf->data[i]) & 0x0F];
-    hex_str->len += 2;
+  byte_buf2str(buf);
+  if (string2hex((char*)buf->data, hex_str->data, hex_str->cap) != 0) {
+    byte_buf_free(hex_str);
+    return NULL;
   }
-  hex_str->data[hex_str->len] = '\0';
+
+  // the data length includes string terminator
+  hex_str->len = strlen((char*)hex_str->data) + 1;
   return hex_str;
+}
+
+byte_buf_t* byte_buf_hex2str(byte_buf_t* hex) {
+  byte_buf_t* str = byte_buf_new();
+  byte_buf2str(hex);
+  byte_buf_reserve(str, (hex->len / 2) + 1);
+  hex2string((char*)hex->data, str->data, str->cap);
+  str->len = hex->len / 2;
+  byte_buf2str(str);
+  return str;
 }
 
 byte_buf_t* byte_buf_clonen(byte_buf_t* buf, size_t len) {
