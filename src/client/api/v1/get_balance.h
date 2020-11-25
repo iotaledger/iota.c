@@ -12,4 +12,13 @@ typedef struct {
   int64_t balance;
 } res_balance_t;
 
+/**
+ * @brief Gets balance from address
+ *
+ * @param[in] addr The address
+ * @param[out] res A response object of balance info
+ * @return int 0 on success
+ */
+int get_balance(byte_t addr[32], res_balance_t *res);
+
 #endif  // __CLIENT_API_V1_BALANCE_H__
