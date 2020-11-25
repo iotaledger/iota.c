@@ -5,14 +5,11 @@
 
 #include "core/types.h"
 
-// should we use balance_t? it supports colored coins but it seems Chrysalis still doesn't
-//#include "core/balance.h"
-
 typedef struct {
   byte_t addr[32];
   uint16_t maxResults;
   uint16_t count;
-  uint64_t balance; //should we use balance_t?
+  int64_t balance;
 } res_balance_t;
 
 #endif  // __CLIENT_API_V1_BALANCE_H__
