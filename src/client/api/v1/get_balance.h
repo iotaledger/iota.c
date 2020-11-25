@@ -12,6 +12,10 @@ typedef struct {
   int64_t balance;
 } res_balance_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Gets balance from address
  *
@@ -20,5 +24,9 @@ typedef struct {
  * @return int 0 on success
  */
 int get_balance(byte_t addr[32], res_balance_t *res);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __CLIENT_API_V1_BALANCE_H__
