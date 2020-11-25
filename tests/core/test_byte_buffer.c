@@ -77,11 +77,20 @@ void test_hex_convertor() {
   byte_buf_free(str);
 }
 
+void test_hex_bin() {
+  char const *hex_str = "48656C6C6F20776F726C6421";
+  byte_t exp_bin[12] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, 0x21};
+  byte_t bin[12] = {};
+  TEST_ASSERT(hex2bin(hex_str, bin, 12) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(exp_bin, bin, 12);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_byte_buf);
   RUN_TEST(test_hex_convertor);
+  RUN_TEST(test_hex_bin);
 
   return UNITY_END();
 }
