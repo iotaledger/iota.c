@@ -19,6 +19,8 @@ void test_get_balance() {
     byte_t addr[IOTA_ADDRESS_BYTES];
 
     // test null cases
+    TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, NULL, NULL));
+    TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, NULL, res));
     TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, NULL, NULL));
     TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, NULL, res));
     TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, "", NULL));
