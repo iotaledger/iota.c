@@ -9,10 +9,9 @@
 #define ADDR_HEX "7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006"
 
 void test_get_balance() {
-
     iota_client_conf_t conf = {
-            .url = "https://iota-node/",
-            .port = 0  // use default port number
+            .url = "http://0.0.0.0",
+            .port = 14268  // use default port number
     };
 
     res_balance_t *res = calloc(1, sizeof(res_balance_t));
