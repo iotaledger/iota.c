@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include "client/client_service.h"
 #include "core/address.h"
 #include "core/types.h"
 
@@ -20,11 +21,12 @@ extern "C" {
 /**
  * @brief Gets balance from address
  *
+ * @param[in] ctx IOTA Client conf
  * @param[in] addr The address
  * @param[out] res A response object of balance info
  * @return int 0 on success
  */
-int get_balance(byte_t addr[32], res_balance_t *res);
+int get_balance(iota_client_conf_t const *ctx, byte_t addr[32], res_balance_t *res);
 
 #ifdef __cplusplus
 }
