@@ -18,23 +18,20 @@ void test_get_balance() {
     res_balance_t *res = calloc(1, sizeof(res_balance_t));
     byte_t addr[IOTA_ADDRESS_BYTES];
 
+    // convert hex2bin
+    TEST_ASSERT_EQUAL_INT(0, hex2bin(ADDR_HEX, addr + 1, IOTA_ADDRESS_BYTES - 1));
+
+    // Ed25519 address
+    addr[0] = 0x0001;
+
     // test null cases
     TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, NULL, NULL));
     TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, NULL, res));
     TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, NULL, NULL));
     TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, NULL, res));
 
-    // test W-OTS
-    addr[IOTA_ADDRESS_BYTES-1] = 0;
-
-    // convert hex2bin
-    // TEST_ASSERT_EQUAL_INT(0, hex2bin(ADDR_HEX, addr, IOTA_ADDRESS_BYTES));
-
-    // test ed25519
-    addr[IOTA_ADDRESS_BYTES-1] = 1;
-
     // test for success
-    // TEST_ASSERT_EQUAL_INT(0, get_balance(addr, res));
+    TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, addr, res));
 }
 
 int main() {
