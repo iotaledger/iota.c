@@ -94,7 +94,7 @@ int get_balance(iota_client_conf_t const *conf, byte_t addr[IOTA_ADDRESS_BYTES],
   byte_buf2str(http_res);
 
   // json deserialization
-  // deser_node_info((char const *const)http_res->data, res);
+  deser_balance_info((char const *const)http_res->data, res);
 
 done:
   // cleanup command
