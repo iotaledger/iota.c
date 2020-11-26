@@ -23,8 +23,6 @@ void test_get_balance() {
     TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, NULL, res));
     TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, NULL, NULL));
     TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, NULL, res));
-    TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, "", NULL));
-    TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, "", res));
 
     // test W-OTS
     addr[IOTA_ADDRESS_BYTES-1] = 0;

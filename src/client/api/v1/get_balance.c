@@ -15,11 +15,6 @@ int get_balance(iota_client_conf_t const *conf, byte_t addr[IOTA_ADDRESS_BYTES],
     return -1;
   }
 
-  if(sizeof(addr) != IOTA_ADDRESS_BYTES) {
-    printf("[%s:%d]: get_balance failed (invalid address size)\n", __func__, __LINE__);
-    return -1;
-  }
-
   memcpy(res->addr, addr, strlen(addr)+1);
 
   // compose restful api command
