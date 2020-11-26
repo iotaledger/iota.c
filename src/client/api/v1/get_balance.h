@@ -19,6 +19,15 @@ extern "C" {
 #endif
 
 /**
+ * @brief balance info JSON deserialization
+ *
+ * @param[in] j_str A string of json object
+ * @param[out] res A response object of balance info
+ * @return int 0 on success
+ */
+int deser_balance_info(char const *const j_str, res_balance_t *res);
+
+/**
  * @brief Gets balance from address
  *
  * @param[in] ctx IOTA Client conf
