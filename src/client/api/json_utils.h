@@ -31,6 +31,15 @@ int json_get_string(cJSON const* const json_obj, char const key[], char str[], s
  */
 int json_get_boolean(cJSON const* const json_obj, char const key[], bool* const boolean);
 
+/**
+ * @brief Gets an integer from a JSON object.
+ * @param[in] json_obj A JSON object.
+ * @param[in] key A key of a JSON element.
+ * @param[out] integer int.
+ * @return
+ */
+int json_get_number(cJSON const* const json_obj, char const key[], double* const number);
+
 #ifdef __cplusplus
 }
 #endif
