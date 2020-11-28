@@ -52,12 +52,28 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
 
-    // gets addr
-    if ((ret = json_get_string(data_obj, key_addr, res->addr, sizeof(res->addr))) != 0) {
+    // gets addr (81 chars worst case)
+    char *tmp = calloc(81, sizeof(char));
+    if ((ret = json_get_string(data_obj, key_addr, tmp, 81)) != 0) {
       printf("[%s:%d]: gets %s json addr failed\n", __func__, __LINE__, key_addr);
       ret = -1;
       goto end;
     }
+
+    if (strlen(tmp) == 81) {
+      // ToDo add case for W-OTS
+    } else if (strlen(tmp) == 64) {
+      byte_t addr_bytes[IOTA_ADDRESS_BYTES];
+      hex2bin(tmp, addr_bytes + 1, IOTA_ADDRESS_BYTES - 1);
+      addr_bytes[0] = 0x0001;
+      memcpy(res->addr, addr_bytes, IOTA_ADDRESS_BYTES);
+    } else {
+      printf("[%s:%d]: gets %s json addr failed\n", __func__, __LINE__, key_addr);
+      ret = -1;
+      goto end;
+    }
+
+    free(tmp);
 
     // gets maxResults
     if ((ret = json_get_number(data_obj, key_maxResults, number)) != 0) {
@@ -95,7 +111,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
   }
 }
 
-int get_balance(iota_client_conf_t const *conf, byte_t *addr, res_balance_t *res) {
+int get_balance(iota_client_conf_t const *conf, char *addr, res_balance_t *res) {
   int ret = 0;
   char const *const cmd_info = "api/v1/address";
 
@@ -104,7 +120,10 @@ int get_balance(iota_client_conf_t const *conf, byte_t *addr, res_balance_t *res
     return -1;
   }
 
-  memcpy(res->addr, addr, strlen(addr) + 1);
+  if (strlen(addr) != 64 && strlen(addr) != 81) {
+    printf("[%s:%d]: get_balance failed (invalid addr length)\n", __func__, __LINE__);
+    return -1;
+  }
 
   // compose restful api command
   iota_str_t *cmd = iota_str_new(conf->url);

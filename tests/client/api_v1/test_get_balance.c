@@ -13,18 +13,11 @@
 
 void test_get_balance() {
   iota_client_conf_t conf = {
-      .url = "http://0.0.0.0",
+      .url = "http://0.0.0.0/",
       .port = 14265  // use default port number
   };
 
   res_balance_t *res = calloc(1, sizeof(res_balance_t));
-  byte_t addr[IOTA_ADDRESS_BYTES];
-
-  // convert hex2bin
-  TEST_ASSERT_EQUAL_INT(0, hex2bin(ADDR_HEX, addr + 1, IOTA_ADDRESS_BYTES - 1));
-
-  // Ed25519 address
-  addr[0] = 0x0001;
 
   // test null cases
   TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, NULL, NULL));
@@ -33,7 +26,7 @@ void test_get_balance() {
   TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, NULL, res));
 
   // test for success
-  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, addr, res));
+  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, ADDR_HEX, res));
 }
 
 void test_deser_balance_info() {
