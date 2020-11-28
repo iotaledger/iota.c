@@ -15,6 +15,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
   char const *const key_maxResults = "maxResults";
   char const *const key_count = "count";
   char const *const key_balance = "balance";
+  double *number;
   int ret = 0;
 
   cJSON *json_obj = cJSON_Parse(j_str);
@@ -26,31 +27,37 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
   if (data_obj) {
     // gets addr
     if ((ret = json_get_string(data_obj, key_addr, res->addr, sizeof(res->addr))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_addr);
+      printf("[%s:%d]: gets %s json addr failed\n", __func__, __LINE__, key_addr);
       ret = -1;
       goto end;
     }
 
     // gets maxResults
-    if ((ret = json_get_string(data_obj, key_maxResults, res->maxResults, sizeof(res->maxResults))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_maxResults);
+    if ((ret = json_get_number(data_obj, key_maxResults, number)) != 0) {
+      printf("[%s:%d]: gets %s json maxResults failed\n", __func__, __LINE__, key_maxResults);
       ret = -1;
       goto end;
     }
+
+    res->maxResults = (uint16_t) *number;
 
     // gets count
-    if ((ret = json_get_boolean(data_obj, key_count, &res->count)) != 0) {
-      printf("[%s:%d]: gets %s json boolean failed\n", __func__, __LINE__, key_count);
+    if ((ret = json_get_number(data_obj, key_count, number)) != 0) {
+      printf("[%s:%d]: gets %s json count failed\n", __func__, __LINE__, key_count);
       ret = -1;
       goto end;
     }
 
+    res->count = (uint16_t) *number;
+
     // gets balance
-    if ((ret = json_get_boolean(data_obj, key_balance, &res->balance)) != 0) {
-      printf("[%s:%d]: gets %s json boolean failed\n", __func__, __LINE__, key_balance);
+    if ((ret = json_get_number(data_obj, key_balance, number)) != 0) {
+      printf("[%s:%d]: gets %s json balance failed\n", __func__, __LINE__, key_balance);
       ret = -1;
       goto end;
     }
+
+    res->balance = (int64_t) *number;
 
   end:
     cJSON_Delete(json_obj);
