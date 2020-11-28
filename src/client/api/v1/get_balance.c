@@ -102,6 +102,11 @@ int get_balance(iota_client_conf_t const *conf, byte_t *addr, res_balance_t *res
   // compose restful api command
   iota_str_t *cmd = iota_str_new(conf->url);
 
+  if (iota_str_append(cmd, cmd_info)) {
+    printf("[%s:%d]: string append failed\n", __func__, __LINE__);
+    return -1;
+  }
+
   // http client configuration
   http_client_config_t http_conf = {0};
   http_conf.url = cmd->buf;
