@@ -102,8 +102,4 @@ done:
   byte_buf_free(http_res);
 
   return ret;
-
-  // ...
-
-  return ret;
 }
