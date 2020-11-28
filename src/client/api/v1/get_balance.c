@@ -87,8 +87,8 @@ int get_balance(iota_client_conf_t const *conf, byte_t addr[IOTA_ADDRESS_BYTES],
   // send request via http client
   int http_err = http_client_get(&http_conf, http_res);
   if (http_err != 0) {
-      ret = -1;
-      goto done;
+    ret = -1;
+    goto done;
   }
 
   byte_buf2str(http_res);
