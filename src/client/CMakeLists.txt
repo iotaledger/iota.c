@@ -37,10 +37,6 @@ target_link_libraries(
   INTERFACE ${CURL_LIBRARIES} cjson
   PUBLIC iota_core)
 
-if(HAS_ASAN_ENABLED)
-  target_link_libraries(iota_client PRIVATE asan)
-endif()
-
 # install client lib and headers
 install(TARGETS iota_client DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
 install(

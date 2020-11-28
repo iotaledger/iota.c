@@ -31,22 +31,23 @@ endif()
 
 if(IOTA_ASAN_ENABLED)
   if(UNIX AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR NOT CMAKE_BUILD_TYPE))
-    include(CheckCCompilerFlag)
-    set(CMAKE_REQUIRED_LIBRARIES "asan")
-    if(CMAKE_C_COMPILER_ID MATCHES "Clang" OR CMAKE_C_COMPILER_ID MATCHES "GNU")
-      check_c_compiler_flag("-fsanitize=address" HAS_ASAN)
-      if(HAS_ASAN)
-        add_compile_options("-fsanitize=address" "-fno-omit-frame-pointer")
-        set(HAS_ASAN_ENABLED
-            ON
-            CACHE BOOL "Asan has enabled on target" FORCE)
-        message("AddressSanitizer is enabled")
-      else()
-        message(WARNING "ASan is not supported")
-      endif()
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+      add_compile_options("-fsanitize=address,undefined,unsigned-integer-overflow"
+        "-fno-omit-frame-pointer"
+        "-fsanitize-address-use-after-scope"
+        "-fno-sanitize-recover=undefined,unsigned-integer-overflow"
+      )
+      add_link_options("-fsanitize=address,undefined")
+    elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
+      add_compile_options("-fsanitize=address,undefined"
+        "-fno-omit-frame-pointer"
+        "-fsanitize-address-use-after-scope"
+        "-fno-sanitize-recover=undefined"
+      )
+      add_link_options("-fsanitize=address,undefined")
     endif()
   else()
-    message(WARNING "ASan is not supported on Windows or Release build")
+    message(WARNING "Sanitizer is not supported on Windows or Release build")
   endif()
 endif()
 

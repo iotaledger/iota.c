@@ -41,10 +41,6 @@ if(__JEMALLOC_INCLUDED)
   target_link_options(iota_core PUBLIC -Wl,--no-as-needed -ldl)
 endif()
 
-if(HAS_ASAN_ENABLED)
-  target_link_libraries(iota_core PRIVATE asan)
-endif()
-
 # install client lib and headers
 install(TARGETS iota_core DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
 install(
