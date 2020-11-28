@@ -7,16 +7,13 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     if: "! contains(toJSON(github.event.commits.*.message), '[skip-ci]')"
 
     steps:
     - uses: actions/checkout@v2
-    - uses: jwlawson/actions-setup-cmake@v1.4
-      with:
-        cmake-version: '3.16.x'
   
-    - name: install ninja and libcurl
+    - name: install requirements
       run: |
         sudo apt update
         sudo apt upgrade -y
@@ -31,7 +28,7 @@ jobs:
     - name: CMake build
       run: |
         cmake --version
-        mkdir build
-        cd build
-        cmake -G Ninja -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON ..
+        clang --version
+        mkdir build && cd build
+        cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON ..
         ninja -v && ninja test

@@ -189,15 +189,10 @@ void test_json_uint32() {
   } json_test_case_t;
 
   json_test_case_t test_elm[] = {
-      {"{\"key\": 100}", 0, JSON_KEY_NOT_FOUND},
-      {"{\"num\": \"hello\"}", 0, JSON_NOT_NUMBER},
-      {"{\"num\": \"true\"}", 0, JSON_NOT_NUMBER},
-      {"{\"num\": true}", 1, JSON_NOT_NUMBER},
-      {"{\"num\": false}", 0, JSON_NOT_NUMBER},
-      {"{\"num\": 100}", 100, JSON_OK},
-      {"{\"num\": -100}", 0, JSON_NOT_UNSIGNED},
-      {"{\"num\": 4294967295}", UINT32_MAX, JSON_OK},
-      {"{\"num\": 5000000000}", (uint32_t)5000000000, JSON_OK},
+      {"{\"key\": 100}", 0, JSON_KEY_NOT_FOUND},   {"{\"num\": \"hello\"}", 0, JSON_NOT_NUMBER},
+      {"{\"num\": \"true\"}", 0, JSON_NOT_NUMBER}, {"{\"num\": true}", 1, JSON_NOT_NUMBER},
+      {"{\"num\": false}", 0, JSON_NOT_NUMBER},    {"{\"num\": 100}", 100, JSON_OK},
+      {"{\"num\": -100}", 0, JSON_NOT_UNSIGNED},   {"{\"num\": 4294967295}", UINT32_MAX, JSON_OK},
   };
 
   TEST_ASSERT(json_get_uint32(NULL, " ", NULL) == JSON_INVALID_PARAMS);
@@ -250,7 +245,7 @@ void test_json_uint64() {
     TEST_ASSERT(ret == test_elm[i].err);
     // check value
     if (ret == JSON_OK) {
-      TEST_ASSERT_EQUAL_UINT64(test_elm[i].value, value);
+      TEST_ASSERT(test_elm[i].value == value);
     }
     cJSON_Delete(json_obj);
     json_obj = NULL;

@@ -20,10 +20,6 @@ if(__JEMALLOC_INCLUDED)
   target_link_options(iota_crypto PUBLIC -Wl,--no-as-needed -ldl)
 endif()
 
-if(HAS_ASAN_ENABLED)
-  target_link_libraries(iota_crypto PRIVATE asan)
-endif()
-
 # install headers
 install(TARGETS iota_crypto DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
 install(FILES "${PROJECT_SOURCE_DIR}/src/crypto/iota_crypto.h" DESTINATION "${CMAKE_INSTALL_PREFIX}/include/crypto")
