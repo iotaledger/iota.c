@@ -52,6 +52,13 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
 
+    // gets addr
+    if ((ret = json_get_string(data_obj, key_addr, res->addr, sizeof(res->addr))) != 0) {
+      printf("[%s:%d]: gets %s json addr failed\n", __func__, __LINE__, key_addr);
+      ret = -1;
+      goto end;
+    }
+
     // gets maxResults
     if ((ret = json_get_number(data_obj, key_maxResults, number)) != 0) {
       printf("[%s:%d]: gets %s json maxResults failed\n", __func__, __LINE__, key_maxResults);
