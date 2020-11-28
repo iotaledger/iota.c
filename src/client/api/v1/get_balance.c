@@ -58,7 +58,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
   }
 }
 
-int get_balance(iota_client_conf_t const *conf, byte_t addr[IOTA_ADDRESS_BYTES], res_balance_t *res) {
+int get_balance(iota_client_conf_t const *conf, byte_t *addr, res_balance_t *res) {
   int ret = 0;
   char const *const cmd_info = "api/v1/address";
 
