@@ -113,7 +113,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
 
 int get_balance(iota_client_conf_t const *conf, char *addr, res_balance_t *res) {
   int ret = 0;
-  char const *const cmd_info = "api/v1/address";
+  char const *const cmd_info = "api/v1/address/";
 
   if (addr == NULL || res == NULL || conf == NULL) {
     printf("[%s:%d]: get_balance failed (null parameter)\n", __func__, __LINE__);
@@ -129,7 +129,12 @@ int get_balance(iota_client_conf_t const *conf, char *addr, res_balance_t *res) 
   iota_str_t *cmd = iota_str_new(conf->url);
 
   if (iota_str_append(cmd, cmd_info)) {
-    printf("[%s:%d]: string append failed\n", __func__, __LINE__);
+    printf("[%s:%d]: cmd_info append failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (iota_str_append(cmd, addr)) {
+    printf("[%s:%d]: addr append failed\n", __func__, __LINE__);
     return -1;
   }
 
