@@ -15,6 +15,8 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
   char const *const key_maxResults = "maxResults";
   char const *const key_count = "count";
   char const *const key_balance = "balance";
+  char const *const key_code = "code";
+  char const *const key_message = "message";
   double *number;
   int ret = 0;
 
@@ -23,8 +25,33 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     return -1;
   }
 
+  cJSON *error_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_error);
+  if (error_obj) {
+    char *tmp = calloc(32, sizeof(char));
+
+    // gets err code
+    if ((ret = json_get_string(error_obj, key_code, tmp, 32)) != 0) {
+      printf("[%s:%d]: gets %s json error code failed\n", __func__, __LINE__, key_addr);
+      ret = -1;
+      free(tmp);
+      goto end;
+    }
+
+    if (strcmp(tmp, "invalid_data") == 0) {
+      res->http_status = 400;
+    } else if (strcmp(tmp, "not_found") == 0)  {
+      res->http_status = 404;
+    } else {
+      res->http_status = -1;
+    }
+
+    res->err = true;
+    free(tmp);
+  }
+
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
+
     // gets addr
     if ((ret = json_get_string(data_obj, key_addr, res->addr, sizeof(res->addr))) != 0) {
       printf("[%s:%d]: gets %s json addr failed\n", __func__, __LINE__, key_addr);
@@ -58,6 +85,9 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     }
 
     res->balance = (int64_t) *number;
+
+    res->err = false;
+    res->http_status = 200;
 
   end:
     cJSON_Delete(json_obj);

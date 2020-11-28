@@ -15,6 +15,8 @@ typedef struct {
   uint16_t maxResults;
   uint16_t count;
   int64_t balance;
+  int16_t http_status;
+  bool err;
 } res_balance_t;
 
 #ifdef __cplusplus
