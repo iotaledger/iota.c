@@ -129,33 +129,7 @@ Before submitting a pull request, do the following:
 
 - Install the following requirements for the Git hooks 
 
-    - [Buildifier](https://github.com/bazelbuild/buildtools/tree/master/buildifier) 
-
     - [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) 
-
-    Buildifier can be installed with Bazel or Go.  
-
-    To install Buildifier with Bazel:
-
-    1. Clone `bazelbuild/buildtools` repository
-   `$ git clone https://github.com/bazelbuild/buildtools.git`
-
-    2. Change into the `buildtools` directory
-
-    3. build it with bazel command, `$ bazel build //buildifier`
-    The executable file will be located under `path/to/buildtools/bazel-bin`
-
-    4. create a soft link
-
-    To install Buildifier with Go:
-
-    1. Change into the `$GOPATH` directory
-
-    2. Run `$ go get github.com/bazelbuild/buildtools/buildifier`
-    The executable file will be located under `$GOPATH/bin`
-
-    3. create a soft link for global usage, run
-    `$ sudo ln -s $HOME/go/bin/buildifier /usr/bin/buildifier`
 
     To install ClangFormat on a Debian/Ubuntu-based operating system: `$ sudo apt-get install clang-format`
     To install ClangFormat on macOS operating system:`$ brew install clang-format`
