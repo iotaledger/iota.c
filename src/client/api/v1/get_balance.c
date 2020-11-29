@@ -39,7 +39,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
 
     if (strcmp(tmp, "invalid_data") == 0) {
       res->http_status = 400;
-    } else if (strcmp(tmp, "not_found") == 0)  {
+    } else if (strcmp(tmp, "not_found") == 0) {
       res->http_status = 404;
     } else {
       res->http_status = -1;
@@ -51,7 +51,6 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
 
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
-
     // gets addr (81 chars worst case)
     char *tmp = calloc(81, sizeof(char));
     if ((ret = json_get_string(data_obj, key_addr, tmp, 81)) != 0) {
@@ -82,7 +81,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
       goto end;
     }
 
-    res->maxResults = (uint16_t) *number;
+    res->maxResults = (uint16_t)*number;
 
     // gets count
     if ((ret = json_get_number(data_obj, key_count, number)) != 0) {
@@ -91,7 +90,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
       goto end;
     }
 
-    res->count = (uint16_t) *number;
+    res->count = (uint16_t)*number;
 
     // gets balance
     if ((ret = json_get_number(data_obj, key_balance, number)) != 0) {
@@ -100,7 +99,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
       goto end;
     }
 
-    res->balance = (int64_t) *number;
+    res->balance = (int64_t)*number;
 
     res->err = false;
     res->http_status = 200;
