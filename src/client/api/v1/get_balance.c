@@ -27,44 +27,42 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
 
   cJSON *error_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_error);
   if (error_obj) {
-    char *tmp = calloc(32, sizeof(char));
+    char *code = calloc(32, sizeof(char));
 
     // gets err code
-    if ((ret = json_get_string(error_obj, key_code, tmp, 32)) != 0) {
+    if ((ret = json_get_string(error_obj, key_code, code, 32)) != 0) {
       printf("[%s:%d]: gets %s json error code failed\n", __func__, __LINE__, key_addr);
       ret = -1;
-      free(tmp);
+      free(code);
       goto end;
     }
 
-    if (strcmp(tmp, "invalid_data") == 0) {
+    if (strcmp(code, "invalid_data") == 0) {
       res->http_status = 400;
-    } else if (strcmp(tmp, "not_found") == 0) {
+    } else if (strcmp(code, "not_found") == 0) {
       res->http_status = 404;
     } else {
       res->http_status = -1;
     }
 
     res->err = true;
-    free(tmp);
+    free(code);
   }
 
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
-    // gets addr (81 chars worst case)
-    char *tmp = calloc(81, sizeof(char));
-    if ((ret = json_get_string(data_obj, key_addr, tmp, 81)) != 0) {
+    // gets addr
+    char *addr = calloc(64, sizeof(char));
+    if ((ret = json_get_string(data_obj, key_addr, addr, 64)) != 0) {
       printf("[%s:%d]: gets %s json addr failed\n", __func__, __LINE__, key_addr);
       ret = -1;
       goto end;
     }
 
-    if (strlen(tmp) == 81) {
-      // ToDo add case for W-OTS
-    } else if (strlen(tmp) == 64) {
+    if (strlen(addr) == 64) {
       byte_t addr_bytes[IOTA_ADDRESS_BYTES];
-      hex2bin(tmp, addr_bytes + 1, IOTA_ADDRESS_BYTES - 1);
-      addr_bytes[0] = 0x0001;
+      hex2bin(addr, addr_bytes + 1, IOTA_ADDRESS_BYTES - 1);
+      addr_bytes[0] = 0x0001;  // Ed25519
       memcpy(res->addr, addr_bytes, IOTA_ADDRESS_BYTES);
     } else {
       printf("[%s:%d]: gets %s json addr failed\n", __func__, __LINE__, key_addr);
@@ -72,7 +70,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
       goto end;
     }
 
-    free(tmp);
+    free(addr);
 
     // gets maxResults
     if ((ret = json_get_number(data_obj, key_maxResults, number)) != 0) {
