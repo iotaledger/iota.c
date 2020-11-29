@@ -16,7 +16,6 @@ jobs:
     - name: install requirements
       run: |
         sudo apt update
-        sudo apt upgrade -y
         sudo apt install -y cppcheck ninja-build libcurl4-openssl-dev clang-format build-essential
 
     - name: Coding style check
