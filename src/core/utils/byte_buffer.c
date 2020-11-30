@@ -56,7 +56,7 @@ int hex2bin(char const str[], byte_t bin[], size_t bin_len) {
     return -1;
   }
 
-  char* pos = str;
+  char* pos = (char*)str;
   for (size_t i = 0; i < expected_bin_len; i++) {
     sscanf(pos, "%2hhx", &bin[i]);
     pos += 2;
