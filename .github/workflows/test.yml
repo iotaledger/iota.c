@@ -30,4 +30,4 @@ jobs:
         clang --version
         mkdir build && cd build
         cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON ..
-        ninja -v && ninja test
+        ninja -v && CTEST_OUTPUT_ON_FAILURE=1 ninja test
