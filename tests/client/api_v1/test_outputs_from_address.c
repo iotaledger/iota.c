@@ -64,11 +64,28 @@ void test_deser_outputs_err() {
   res_outputs_address_free(res);
 }
 
+void test_get_output_ids() {
+  char addr1[] = "017ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f0";
+  iota_client_conf_t ctx = {
+      .url = "http://localhost:14265/",
+      .port = 0  // use default port number
+  };
+
+  res_outputs_address_t* res = res_outputs_address_new();
+  TEST_ASSERT_NOT_NULL(res);
+  int ret = get_outputs_from_address(&ctx, addr1, res);
+  TEST_ASSERT(ret == 0);
+  TEST_ASSERT(res->is_error == false);
+  TEST_ASSERT_EQUAL_STRING(addr1, res->u.output_ids->address);
+  res_outputs_address_free(res);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_deser_outputs);
   RUN_TEST(test_deser_outputs_err);
+  // RUN_TEST(test_get_output_ids);
 
   return UNITY_END();
 }

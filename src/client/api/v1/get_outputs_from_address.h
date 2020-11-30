@@ -12,7 +12,7 @@
 #include "core/types.h"
 
 typedef struct {
-  char address[IOTA_ADDRESS_BYTES + 1];  // a string of the address
+  char address[IOTA_ADDRESS_HEX_BYTES + 1];  // a string of the hex address
   uint32_t max_results;
   uint32_t count;
   UT_array *outputs;
@@ -70,7 +70,15 @@ size_t res_outputs_address_output_id_count(res_outputs_address_t *res);
  */
 int deser_outputs_from_address(char const *const j_str, res_outputs_address_t *res);
 
-int get_outputs_from_address(iota_client_conf_t const *conf, char addr[], res_outputs_address_t *res);
+/**
+ * @brief Gets output IDs from a given address
+ *
+ * @param[in] conf The client endpoint configuration
+ * @param[in] addr An address in hex string format
+ * @param[out] res A response object
+ * @return int 0 on successful
+ */
+int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], res_outputs_address_t *res);
 
 #ifdef __cplusplus
 }

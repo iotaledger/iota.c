@@ -3,6 +3,8 @@
 
 #include "client/api/v1/get_outputs_from_address.h"
 #include "client/api/json_utils.h"
+#include "client/network/http.h"
+#include "core/utils/iota_str.h"
 
 static get_outputs_address_t *outputs_new() {
   get_outputs_address_t *ids = malloc(sizeof(get_outputs_address_t));
@@ -120,7 +122,51 @@ end:
   return ret;
 }
 
-int get_outputs_from_address(iota_client_conf_t const *conf, char addr[], res_outputs_address_t *res) {
-  // TODO
-  return -1;
+int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], res_outputs_address_t *res) {
+  int ret = 0;
+  if (conf == NULL || addr == NULL || res == NULL) {
+    // invalid parameters
+    return -1;
+  }
+
+  // compose restful api command
+  iota_str_t *cmd = iota_str_new(conf->url);
+  if (cmd == NULL) {
+    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+    return -1;
+  }
+
+  char cmd_buf[100] = {};
+  sprintf(cmd_buf, "api/v1/addresses/%s/outputs", addr);
+  if (iota_str_append(cmd, cmd_buf)) {
+    printf("[%s:%d]: cmd append failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // http client configuration
+  http_client_config_t http_conf = {0};
+  http_conf.url = cmd->buf;
+  if (conf->port) {
+    http_conf.port = conf->port;
+  }
+
+  byte_buf_t *http_res = byte_buf_new();
+  if (http_res == NULL) {
+    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+    ret = -1;
+    goto done;
+  }
+
+  // send request via http client
+  if ((ret = http_client_get(&http_conf, http_res)) == 0) {
+    byte_buf2str(http_res);
+    // json deserialization
+    ret = deser_outputs_from_address((char const *const)http_res->data, res);
+  }
+
+done:
+  // cleanup command
+  iota_str_destroy(cmd);
+  byte_buf_free(http_res);
+  return ret;
 }
