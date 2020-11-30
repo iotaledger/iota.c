@@ -9,6 +9,7 @@
 
 // the length of an address
 #define IOTA_ADDRESS_BYTES (1 + ED_PUBLIC_KEY_BYTES)  // address version + address data
+#define IOTA_ADDRESS_HEX_BYTES (IOTA_ADDRESS_BYTES * 2)
 
 // address signature version
 typedef enum { ADDRESS_VER_WOTS = 0, ADDRESS_VER_ED25519 = 1 } address_version_t;
