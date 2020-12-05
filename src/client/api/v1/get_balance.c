@@ -38,14 +38,18 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     }
 
     if (strcmp(code, "invalid_data") == 0) {
-      res->http_status = 400;
+      printf("[%s:%d]: http code 400\n", __func__, __LINE__, key_addr);
+      ret = -1;
+      free(code);
+      goto end;
+
     } else if (strcmp(code, "not_found") == 0) {
-      res->http_status = 404;
-    } else {
-      res->http_status = -1;
+      printf("[%s:%d]: http code 404\n", __func__, __LINE__, key_addr);
+      ret = -1;
+      free(code);
+      goto end;
     }
 
-    res->err = true;
     free(code);
   }
 
@@ -98,9 +102,6 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     }
 
     res->balance = (int64_t)*number;
-
-    res->err = false;
-    res->http_status = 200;
 
   end:
     cJSON_Delete(json_obj);

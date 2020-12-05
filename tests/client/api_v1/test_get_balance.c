@@ -17,7 +17,7 @@ void test_get_balance() {
       .port = 14265  // use default port number
   };
 
-  res_balance_t *res = calloc(1, sizeof(res_balance_t));
+  res_balance_t* res = calloc(1, sizeof(res_balance_t));
 
   // test null cases
   TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, NULL, NULL));
@@ -47,23 +47,17 @@ void test_deser_balance_info() {
       "\"message\": \"could not find data\"}}";
 
   // test http status code 200
-  res_balance_t *res = calloc(1, sizeof(res_balance_t));
+  res_balance_t* res = calloc(1, sizeof(res_balance_t));
   TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_200, res));
   TEST_ASSERT_EQUAL_INT(1000, res->maxResults);
   TEST_ASSERT_EQUAL_INT(25, res->count);
   TEST_ASSERT_EQUAL_INT(1338263, res->balance);
-  TEST_ASSERT_EQUAL_INT(200, res->http_status);
-  TEST_ASSERT(!res->err);
 
   // test http status code 400
-  TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_400, res));
-  TEST_ASSERT_EQUAL_INT(400, res->http_status);
-  TEST_ASSERT(res->err);
+  TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_400, res));
 
   // test http status code 404
-  TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_404, res));
-  TEST_ASSERT_EQUAL_INT(404, res->http_status);
-  TEST_ASSERT(res->err);
+  TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_404, res));
 
   free(res);
 }
