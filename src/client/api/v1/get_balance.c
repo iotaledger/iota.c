@@ -64,10 +64,8 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     }
 
     if (strlen(addr) == 64) {
-      byte_t addr_bytes[IOTA_ADDRESS_BYTES];
-      hex2bin(addr, addr_bytes + 1, IOTA_ADDRESS_BYTES - 1);
-      addr_bytes[0] = 0x0001;  // Ed25519
-      memcpy(res->addr, addr_bytes, IOTA_ADDRESS_BYTES);
+      hex2bin(addr, res->addr + 1, IOTA_ADDRESS_BYTES - 1);
+      res->addr[0] = ADDRESS_VER_ED25519;  // Ed25519
     } else {
       printf("[%s:%d]: gets %s json addr failed\n", __func__, __LINE__, key_addr);
       ret = -1;
