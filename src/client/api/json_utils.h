@@ -108,13 +108,13 @@ json_error_t json_get_uint32(cJSON const* const obj, char const key[], uint32_t*
 json_error_t json_get_uint64(cJSON const* const obj, char const key[], uint64_t* const num);
 
 /**
- * @brief Gets an integer from a JSON object.
+ * @brief Gets a double from a JSON object.
  * @param[in] json_obj A JSON object.
  * @param[in] key A key of a JSON element.
- * @param[out] integer int.
+ * @param[out] double double.
  * @return
  */
-int json_get_number(cJSON const* const json_obj, char const key[], double* const number);
+int json_get_double(cJSON const* const json_obj, char const key[], double* const number);
 
 #ifdef __cplusplus
 }

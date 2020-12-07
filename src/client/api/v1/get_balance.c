@@ -77,7 +77,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     free(addr);
 
     // gets maxResults
-    if ((ret = json_get_number(data_obj, key_maxResults, number)) != 0) {
+    if ((ret = json_get_uint16(data_obj, key_maxResults, res->maxResults)) != 0) {
       printf("[%s:%d]: gets %s json maxResults failed\n", __func__, __LINE__, key_maxResults);
       ret = -1;
       goto end;
@@ -86,7 +86,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     res->maxResults = (uint16_t)*number;
 
     // gets count
-    if ((ret = json_get_number(data_obj, key_count, number)) != 0) {
+    if ((ret = json_get_uint16(data_obj, key_count, res->count)) != 0) {
       printf("[%s:%d]: gets %s json count failed\n", __func__, __LINE__, key_count);
       ret = -1;
       goto end;
@@ -95,7 +95,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     res->count = (uint16_t)*number;
 
     // gets balance
-    if ((ret = json_get_number(data_obj, key_balance, number)) != 0) {
+    if ((ret = json_get_uint64(data_obj, key_balance, res->balance)) != 0) {
       printf("[%s:%d]: gets %s json balance failed\n", __func__, __LINE__, key_balance);
       ret = -1;
       goto end;
