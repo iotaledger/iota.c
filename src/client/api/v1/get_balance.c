@@ -76,14 +76,14 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
 
     free(addr);
 
-    // gets maxResults
-    if ((ret = json_get_uint16(data_obj, key_maxResults, res->maxResults)) != 0) {
-      printf("[%s:%d]: gets %s json maxResults failed\n", __func__, __LINE__, key_maxResults);
+    // gets max_results
+    if ((ret = json_get_uint16(data_obj, key_maxResults, res->max_results)) != 0) {
+      printf("[%s:%d]: gets %s json max_results failed\n", __func__, __LINE__, key_maxResults);
       ret = -1;
       goto end;
     }
 
-    res->maxResults = (uint16_t)*number;
+    res->max_results = (uint16_t)*number;
 
     // gets count
     if ((ret = json_get_uint16(data_obj, key_count, res->count)) != 0) {

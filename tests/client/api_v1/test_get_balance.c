@@ -49,7 +49,7 @@ void test_deser_balance_info() {
   // test http status code 200
   res_balance_t* res = calloc(1, sizeof(res_balance_t));
   TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_200, res));
-  TEST_ASSERT_EQUAL_INT(1000, res->maxResults);
+  TEST_ASSERT_EQUAL_INT(1000, res->max_results);
   TEST_ASSERT_EQUAL_INT(25, res->count);
   TEST_ASSERT_EQUAL_INT(1338263, res->balance);
 

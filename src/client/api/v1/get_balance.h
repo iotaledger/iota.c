@@ -12,7 +12,7 @@
 
 typedef struct {
   byte_t addr[IOTA_ADDRESS_BYTES];
-  uint16_t maxResults;
+  uint16_t max_results;
   uint16_t count;
   int64_t balance;
 } res_balance_t;
