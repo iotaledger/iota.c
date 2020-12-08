@@ -34,6 +34,7 @@ jobs:
 
     - name: Release build
       run: |
-        rm -rf !(download)
+        rm -rf build
+        mkdir build && cd build
         cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON ..
         ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
