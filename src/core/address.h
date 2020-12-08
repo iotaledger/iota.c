@@ -9,6 +9,7 @@
 
 // the length of an address
 #define IOTA_ADDRESS_BYTES (1 + ED_PUBLIC_KEY_BYTES)  // address version + address data
+#define IOTA_ADDRESS_HEX_BYTES (IOTA_ADDRESS_BYTES * 2)
 
 // the hex address is used in node API, it's a string of 64 characters, the version field is excluded
 #define IOTA_ADDRESS_HEX_BYTES (ED_PUBLIC_KEY_BYTES * 2)

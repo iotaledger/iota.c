@@ -51,6 +51,24 @@ json_error_t json_get_boolean(cJSON const* const obj, char const key[], bool* co
   return JSON_OK;
 }
 
+int json_get_double(cJSON const* const json_obj, char const key[], double* const number) {
+  cJSON* json_value = cJSON_GetObjectItemCaseSensitive(json_obj, key);
+
+  if (json_value == NULL) {
+    printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, key);
+    return JSON_KEY_NOT_FOUND;
+  }
+
+  if (cJSON_IsNumber(json_value)) {
+    *number = json_value->valuedouble;
+  } else {
+    printf("[%s:%d] %s is not a boolean\n", __func__, __LINE__, key);
+    return JSON_NOT_BOOL;
+  }
+
+  return JSON_OK;
+}
+
 json_error_t json_string_array_to_utarray(cJSON const* const obj, char const key[], UT_array* ut) {
   if (obj == NULL || key == NULL) {
     // invalid parameters
