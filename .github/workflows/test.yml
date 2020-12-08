@@ -24,10 +24,16 @@ jobs:
     - name: Static analysis check
       run: cppcheck --force --error-exitcode=1 -q src
 
-    - name: CMake build
+    - name: Debug build
       run: |
         cmake --version
         clang --version
         mkdir build && cd build
         cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON ..
         ninja -v && CTEST_OUTPUT_ON_FAILURE=1 ninja test
+
+    - name: Release build
+      run: |
+        rm -rf !(download)
+        cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON ..
+        ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
