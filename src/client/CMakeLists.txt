@@ -16,12 +16,14 @@ target_sources(
           "api/v1/get_node_info.c"
           "api/v1/response_error.c"
           "api/v1/get_tips.c"
+          "api/v1/get_output.c"
           "api/v1/get_outputs_from_address.c"
   PUBLIC "network/http.h"
          "api/json_utils.h"
          "api/v1/get_node_info.h"
          "api/v1/response_error.h"
          "api/v1/get_tips.h"
+         "api/v1/get_output.h"
          "api/v1/get_outputs_from_address.h"
          "client_service.h")
 
