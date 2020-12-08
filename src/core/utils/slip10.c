@@ -13,15 +13,18 @@
 
 // creates a new master private extended key for the curve from a seed.
 static void master_key_generation(byte_t seed[], size_t seed_len, slip10_curve_t curve, slip10_key_t* key) {
-  byte_t I[64];
+  byte_t I[CRYPTO_SHA512_HASH_BYTES];
+  char curve_key[CRYPTO_SHA512_KEY_BYTES] = {};
   // Calculate I = HMAC-SHA512(Key = Curve, Data = seed)
   if (curve == SECP256K1_CURVE) {
-    iota_crypto_hmacsha512((uint8_t const*)"Bitcoin seed", seed, seed_len, I);
+    strcpy(curve_key, "Bitcoin seed");
   } else if (curve == NIST_P256_CURVE) {
-    iota_crypto_hmacsha512((uint8_t const*)"Nist256p1 seed", seed, seed_len, I);
+    strcpy(curve_key, "Nist256p1 seed");
   } else {
-    iota_crypto_hmacsha512((uint8_t const*)"ed25519 seed", seed, seed_len, I);
+    strcpy(curve_key, "ed25519 seed");
   }
+
+  iota_crypto_hmacsha512((uint8_t const*)curve_key, seed, seed_len, I);
 
   // Split I into two 32-byte sequences, I_L and I_R.
   memcpy(key->key, I, 32);
