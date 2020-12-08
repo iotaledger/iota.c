@@ -47,16 +47,39 @@ Please report any issues in our [issue tracker](https://github.com/iotaledger/io
 
 * pkg-config
 * libcurl4-openssl-dev 
+* GCC or Clang
+* [CMake](https://cmake.org/) 3.15 and above
+* [ninja-build](https://ninja-build.org/) (optional)
 
 Ubuntu
 
 ```shell
-sudo apt install libcurl4-openssl-dev pkg-config
+sudo apt install build-essential libcurl4-openssl-dev pkg-config
 ```
 
-## Installation
+## Building IOTA C Client Library
 
-TODO
+Compiling and testing library with Clang11 and Ninja
+
+```shell
+git clone https://github.com/iotaledger/iota.c.git
+cd iota.c
+mkdir build && cd build
+cmake -G Ninja -DCMAKE_C_COMPILER=clang-11 -DCMAKE_CXX_COMPILER=clang++-11 -DIOTA_TESTS:BOOL=TRUE -DCMAKE_INSTALL_PREFIX=$PWD ..
+ninja && ninja test
+```
+
+Compiling and testing library with Make and GCC
+
+```shell
+git clone https://github.com/iotaledger/iota.c.git
+cd iota.c
+mkdir build && cd build
+cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DIOTA_TESTS:BOOL=TRUE -DCMAKE_INSTALL_PREFIX=$PWD ..
+make -j8 && make test
+```
+
+The default build type is Debug mode with debug symbols, for Release mode you can add `-DCMAKE_BUILD_TYPE=Release` during the CMake configuration stage.
 
 ## Getting Started
 

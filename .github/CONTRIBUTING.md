@@ -94,7 +94,7 @@ Otherwise, your feature may not be approved at all.
 
 ### Building a new feature
 
-To build a new feature, check out a new branch based on the `master` branch, and be sure to consider the following:
+To build a new feature, check out a new branch based on the `dev` branch, and be sure to consider the following:
 
 - If the feature has a public facing API, make sure to document it, using code comments
 
@@ -151,7 +151,7 @@ The following is a typical workflow for submitting a new pull request:
 1. Fork this repository
 2. Create a new branch based on your fork
 3. Commit changes and push them to your fork
-4. Create a pull request against the `master` branch
+4. Create a pull request against the `dev` branch
 
 If all [status checks](https://help.github.com/articles/about-status-checks/) pass, and the maintainer approves the PR, it will be merged.
 
