@@ -11,6 +11,9 @@
 #define ED_PRIVATE_KEY_BYTES 64  // ed25519 secret/private key bytes
 #define ED_SIGNATURE_BYTES 64    // ed25519 signature bytes
 
+#define CRYPTO_SHA512_KEY_BYTES 32   // crypto_auth_hmacsha512_KEYBYTES
+#define CRYPTO_SHA512_HASH_BYTES 64  // crypto_auth_hmacsha512_BYTES
+
 typedef struct {
   uint8_t pub[ED_PUBLIC_KEY_BYTES];
   uint8_t priv[ED_PRIVATE_KEY_BYTES];
