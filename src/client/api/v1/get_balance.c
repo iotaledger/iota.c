@@ -26,52 +26,39 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
 
   cJSON *error_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_error);
   if (error_obj) {
-    char *code = calloc(32, sizeof(char));
+    char code[32];
 
     // gets err code
-    if ((ret = json_get_string(error_obj, key_code, code, 32)) != 0) {
+    if ((ret = json_get_string(error_obj, key_code, &code, 32)) != 0) {
       printf("[%s:%d]: gets %s json error code failed\n", __func__, __LINE__, key_addr);
       ret = -1;
-      free(code);
       goto end;
     }
 
     if (strcmp(code, "invalid_data") == 0) {
       printf("[%s:%d]: http code 400\n", __func__, __LINE__, key_addr);
       ret = -1;
-      free(code);
       goto end;
 
     } else if (strcmp(code, "not_found") == 0) {
       printf("[%s:%d]: http code 404\n", __func__, __LINE__, key_addr);
       ret = -1;
-      free(code);
       goto end;
     }
-
-    free(code);
   }
 
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
     // gets addr
-    char *addr = calloc(64, sizeof(char));
-    if ((ret = json_get_string(data_obj, key_addr, addr, 64)) != 0) {
+    char addr[64];
+    if ((ret = json_get_string(data_obj, key_addr, &addr, 64)) != 0) {
       printf("[%s:%d]: gets %s json addr failed\n", __func__, __LINE__, key_addr);
       ret = -1;
       goto end;
     }
 
-    if (strlen(addr) == 64) {
-      hex2bin(addr, res->addr + 1, IOTA_ADDRESS_BYTES - 1);
-      res->addr[0] = ADDRESS_VER_ED25519;  // Ed25519
-    } else {
-      printf("[%s:%d]: gets %s json addr failed\n", __func__, __LINE__, key_addr);
-      ret = -1;
-      goto end;
-    }
-
-    free(addr);
+    hex2bin(&addr, res->addr + 1, IOTA_ADDRESS_BYTES - 1);
+    res->addr[0] = ADDRESS_VER_ED25519;  // Ed25519
 
     // gets max_results
     if ((ret = json_get_uint16(data_obj, key_maxResults, &res->max_results)) != 0) {

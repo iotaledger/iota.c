@@ -47,19 +47,17 @@ void test_deser_balance_info() {
       "\"message\": \"could not find data\"}}";
 
   // test http status code 200
-  res_balance_t* res = calloc(1, sizeof(res_balance_t));
-  TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_200, res));
-  TEST_ASSERT_EQUAL_INT(1000, res->max_results);
-  TEST_ASSERT_EQUAL_INT(25, res->count);
-  TEST_ASSERT_EQUAL_INT(1338263, res->balance);
+  res_balance_t res = {};
+  TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_200, &res));
+  TEST_ASSERT_EQUAL_INT(1000, res.max_results);
+  TEST_ASSERT_EQUAL_INT(25, res.count);
+  TEST_ASSERT_EQUAL_INT(1338263, res.balance);
 
   // test http status code 400
-  TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_400, res));
+  TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_400, &res));
 
   // test http status code 404
-  TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_404, res));
-
-  free(res);
+  TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_404, &res));
 }
 
 int main() {
