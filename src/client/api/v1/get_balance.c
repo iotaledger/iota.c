@@ -55,11 +55,15 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
 
     if (strcmp(code, "invalid_data") == 0) {
       printf("[%s:%d]: http code 400\n", __func__, __LINE__, key_addr);
+      res->is_error = true;
+      res->u.error = 400;
       ret = -1;
       goto end;
 
     } else if (strcmp(code, "not_found") == 0) {
       printf("[%s:%d]: http code 404\n", __func__, __LINE__, key_addr);
+      res->is_error = true;
+      res->u.error = 404;
       ret = -1;
       goto end;
     }

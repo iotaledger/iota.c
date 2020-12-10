@@ -13,7 +13,7 @@
 
 void test_get_balance() {
   iota_client_conf_t conf = {
-      .url = "http://0.0.0.0",
+      .url = "http://0.0.0.0/",
       .port = 14265  // use default port number
   };
 
@@ -54,10 +54,17 @@ void test_deser_balance_info() {
   TEST_ASSERT_EQUAL_INT(1338263, res->u.output_balance->balance);
 
   // test http status code 400
-  TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_400, &res));
+  TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_400, res));
+  TEST_ASSERT(res->is_error);
+  TEST_ASSERT_EQUAL_INT(400, res->u.error);
+
+  // reset res->is_error to false;
+  res->is_error;
 
   // test http status code 404
-  TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_404, &res));
+  TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_404, res));
+  TEST_ASSERT(res->is_error);
+  TEST_ASSERT_EQUAL_INT(404, res->u.error);
 }
 
 int main() {
