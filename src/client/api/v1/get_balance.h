@@ -6,20 +6,40 @@
 
 #include <stdint.h>
 
+#include "client/api/v1/response_error.h"
 #include "client/client_service.h"
 #include "core/address.h"
 #include "core/types.h"
 
 typedef struct {
-  byte_t addr[IOTA_ADDRESS_BYTES];
+  byte_t addr[IOTA_ADDRESS_HEX_BYTES];
   uint16_t max_results;
   uint16_t count;
   int64_t balance;
+} get_balance_t;
+
+typedef struct {
+  bool is_error;
+  union {
+    res_err_t *error;
+    get_balance_t *output_balance;
+  } u;
 } res_balance_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+/**
+ * @brief Allocates balance response object
+ * @return res_balance_t*
+ */
+res_balance_t *res_balance_new();
+
+/**
+ * @brief Frees an balance response object
+ * @param[in] res A response object
+ */
+void res_balance_free(res_balance_t *res);
 
 /**
  * @brief balance info JSON deserialization

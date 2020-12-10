@@ -10,6 +10,24 @@
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 
+res_balance_t *res_balance_new() {
+  res_balance_t *res = malloc(sizeof(res_balance_t));
+  res->u.output_balance = malloc(sizeof(get_balance_t));
+  res->is_error = false;
+  return res;
+}
+
+void res_outputs_address_free(res_balance_t *res) {
+  if (res) {
+    if (res->is_error) {
+      res_err_free(res->u.error);
+    } else {
+      free(res->u.output_balance);
+    }
+    free(res);
+  }
+}
+
 int deser_balance_info(char const *const j_str, res_balance_t *res) {
   char const *const key_addr = "address";
   char const *const key_maxResults = "maxResults";
@@ -57,25 +75,25 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
       goto end;
     }
 
-    hex2bin(&addr, res->addr + 1, IOTA_ADDRESS_BYTES - 1);
-    res->addr[0] = ADDRESS_VER_ED25519;  // Ed25519
+    hex2bin(&addr, res->u.output_balance->addr + 1, IOTA_ADDRESS_BYTES - 1);
+    res->u.output_balance->addr[0] = ADDRESS_VER_ED25519;  // Ed25519
 
     // gets max_results
-    if ((ret = json_get_uint16(data_obj, key_maxResults, &res->max_results)) != 0) {
+    if ((ret = json_get_uint16(data_obj, key_maxResults, &res->u.output_balance->max_results)) != 0) {
       printf("[%s:%d]: gets %s json max_results failed\n", __func__, __LINE__, key_maxResults);
       ret = -1;
       goto end;
     }
 
     // gets count
-    if ((ret = json_get_uint16(data_obj, key_count, &res->count)) != 0) {
+    if ((ret = json_get_uint16(data_obj, key_count, &res->u.output_balance->count)) != 0) {
       printf("[%s:%d]: gets %s json count failed\n", __func__, __LINE__, key_count);
       ret = -1;
       goto end;
     }
 
     // gets balance
-    if ((ret = json_get_uint64(data_obj, key_balance, &res->balance)) != 0) {
+    if ((ret = json_get_uint64(data_obj, key_balance, &res->u.output_balance->balance)) != 0) {
       printf("[%s:%d]: gets %s json balance failed\n", __func__, __LINE__, key_balance);
       ret = -1;
       goto end;
@@ -124,7 +142,6 @@ int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res)
   byte_buf_t *http_res = byte_buf_new();
   if (http_res == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    // TODO
     ret = -1;
     goto done;
   }

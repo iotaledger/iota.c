@@ -13,7 +13,7 @@
 
 void test_get_balance() {
   iota_client_conf_t conf = {
-      .url = "http://0.0.0.0/",
+      .url = "http://0.0.0.0",
       .port = 14265  // use default port number
   };
 
@@ -47,11 +47,11 @@ void test_deser_balance_info() {
       "\"message\": \"could not find data\"}}";
 
   // test http status code 200
-  res_balance_t res = {};
-  TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_200, &res));
-  TEST_ASSERT_EQUAL_INT(1000, res.max_results);
-  TEST_ASSERT_EQUAL_INT(25, res.count);
-  TEST_ASSERT_EQUAL_INT(1338263, res.balance);
+  res_balance_t* res = res_balance_new();
+  TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_200, res));
+  TEST_ASSERT_EQUAL_INT(1000, res->u.output_balance->max_results);
+  TEST_ASSERT_EQUAL_INT(25, res->u.output_balance->count);
+  TEST_ASSERT_EQUAL_INT(1338263, res->u.output_balance->balance);
 
   // test http status code 400
   TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_400, &res));
