@@ -158,7 +158,8 @@ int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], 
   }
 
   // send request via http client
-  if ((ret = http_client_get(&http_conf, http_res)) == 0) {
+  long st = 0;
+  if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
     ret = deser_outputs_from_address((char const *const)http_res->data, res);
