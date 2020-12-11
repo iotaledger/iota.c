@@ -18,6 +18,7 @@ target_sources(
           "api/v1/get_tips.c"
           "api/v1/get_output.c"
           "api/v1/get_health.c"
+          "api/v1/get_message.c"
           "api/v1/get_outputs_from_address.c"
   PUBLIC "network/http.h"
          "api/json_utils.h"
@@ -26,6 +27,7 @@ target_sources(
          "api/v1/get_tips.h"
          "api/v1/get_output.h"
          "api/v1/get_health.h"
+         "api/v1/get_message.h"
          "api/v1/get_outputs_from_address.h"
          "client_service.h")
 

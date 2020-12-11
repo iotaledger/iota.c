@@ -10,6 +10,8 @@
 #include "cJSON.h"
 #include "utarray.h"
 
+#include "core/utils/byte_buffer.h"
+
 typedef enum {
   JSON_OK = 0,
   JSON_INVALID_PARAMS,
@@ -36,6 +38,16 @@ extern "C" {
  * @return json_error_t
  */
 json_error_t json_get_string(cJSON const* const obj, char const key[], char str[], size_t str_len);
+
+/**
+ * @brief Gets A string from a JSON object by key
+ *
+ * @param[in] obj A JSON object
+ * @param[in] key The key of elememt
+ * @param[out] buf A buffer holds the string
+ * @return json_error_t
+ */
+json_error_t json_get_byte_buf_str(cJSON const* const obj, char const key[], byte_buf_t* buf);
 
 /**
  * @brief Gets a boolean value from a JSON object.
