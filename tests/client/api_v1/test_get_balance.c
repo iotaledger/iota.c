@@ -56,7 +56,8 @@ void test_deser_balance_info() {
   // test http status code 400
   TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_400, res));
   TEST_ASSERT(res->is_error);
-  TEST_ASSERT_EQUAL_INT(400, res->u.error);
+  TEST_ASSERT_EQUAL_STRING("invalid_data", res->u.error->code);
+  TEST_ASSERT_EQUAL_STRING("invalid data provided", res->u.error->msg);
 
   // reset res->is_error to false;
   res->is_error;
@@ -64,7 +65,10 @@ void test_deser_balance_info() {
   // test http status code 404
   TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_404, res));
   TEST_ASSERT(res->is_error);
-  TEST_ASSERT_EQUAL_INT(404, res->u.error);
+  TEST_ASSERT_EQUAL_STRING("not_found", res->u.error->code);
+  TEST_ASSERT_EQUAL_STRING("could not find data", res->u.error->msg);
+
+  res_balance_free(res);
 }
 
 int main() {

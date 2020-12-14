@@ -17,7 +17,7 @@ res_balance_t *res_balance_new() {
   return res;
 }
 
-void res_outputs_address_free(res_balance_t *res) {
+void res_balance_free(res_balance_t *res) {
   if (res) {
     if (res->is_error) {
       res_err_free(res->u.error);
@@ -42,31 +42,13 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     return -1;
   }
 
-  cJSON *error_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_error);
-  if (error_obj) {
-    char code[32];
-
-    // gets err code
-    if ((ret = json_get_string(error_obj, key_code, &code, 32)) != 0) {
-      printf("[%s:%d]: gets %s json error code failed\n", __func__, __LINE__, key_addr);
-      ret = -1;
-      goto end;
-    }
-
-    if (strcmp(code, "invalid_data") == 0) {
-      printf("[%s:%d]: http code 400\n", __func__, __LINE__, key_addr);
-      res->is_error = true;
-      res->u.error = 400;
-      ret = -1;
-      goto end;
-
-    } else if (strcmp(code, "not_found") == 0) {
-      printf("[%s:%d]: http code 404\n", __func__, __LINE__, key_addr);
-      res->is_error = true;
-      res->u.error = 404;
-      ret = -1;
-      goto end;
-    }
+  res_err_t *res_err = deser_error(json_obj);
+  if (res_err) {
+    // got an error response
+    res->is_error = true;
+    res->u.error = res_err;
+    ret = -1;
+    goto end;
   }
 
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
