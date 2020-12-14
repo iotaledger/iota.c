@@ -9,15 +9,24 @@
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 
-static get_message_t *get_message_new() {
-  get_message_t *msg = malloc(sizeof(get_message_t));
-  memset(msg->net_id, 0, sizeof(msg->net_id));
-  memset(msg->parent1, 0, sizeof(msg->parent1));
-  memset(msg->parent2, 0, sizeof(msg->parent2));
-  memset(msg->nonce, 0, sizeof(msg->nonce));
-  msg->payload = NULL;
-  msg->type = 255;  // invalid payload type
-  return msg;
+static payload_milestone_t *payload_milestone_new() {
+  payload_milestone_t *ms = malloc(sizeof(payload_milestone_t));
+  if (ms) {
+    utarray_new(ms->signatures, &ut_str_icd);
+    ms->index = 0;
+    ms->timestamp = 0;
+    memset(ms->inclusion_merkle_proof, 0, sizeof(ms->inclusion_merkle_proof));
+  }
+  return ms;
+}
+
+static void payload_milestone_free(payload_milestone_t *ms) {
+  if (ms) {
+    if (ms->signatures) {
+      utarray_free(ms->signatures);
+    }
+    free(ms);
+  }
 }
 
 static payload_index_t *payload_index_new() {
@@ -47,6 +56,17 @@ static void payload_index_free(payload_index_t *idx) {
   }
 }
 
+static get_message_t *get_message_new() {
+  get_message_t *msg = malloc(sizeof(get_message_t));
+  memset(msg->net_id, 0, sizeof(msg->net_id));
+  memset(msg->parent1, 0, sizeof(msg->parent1));
+  memset(msg->parent2, 0, sizeof(msg->parent2));
+  memset(msg->nonce, 0, sizeof(msg->nonce));
+  msg->payload = NULL;
+  msg->type = 255;  // invalid payload type
+  return msg;
+}
+
 static void get_message_free(get_message_t *msg) {
   if (msg) {
     switch (msg->type) {
@@ -54,7 +74,7 @@ static void get_message_free(get_message_t *msg) {
         // TODO
         break;
       case MSG_MILESTONE:
-        // TODO
+        payload_milestone_free((payload_milestone_t *)msg->payload);
         break;
       case MSG_INDEXATION:
         payload_index_free((payload_index_t *)msg->payload);
@@ -65,6 +85,57 @@ static void get_message_free(get_message_t *msg) {
     }
     free(msg);
   }
+}
+
+static int deser_milestone(cJSON *milestone, res_message_t *res) {
+  char const *const key_index = "index";
+  char const *const key_timestamp = "timestamp";
+  char const *const key_inclusion = "inclusionMerkleProof";
+  char const *const key_signatures = "signatures";
+  int ret = 0;
+  payload_milestone_t *ms = payload_milestone_new();
+  if (ms == NULL) {
+    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // parsing index
+  if ((ret = json_get_uint32(milestone, key_index, &ms->index)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_index);
+    ret = -1;
+    goto end;
+  }
+
+  // parsing timestamp
+  if ((ret = json_get_uint64(milestone, key_timestamp, &ms->timestamp)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_timestamp);
+    ret = -1;
+    goto end;
+  }
+
+  // parsing inclusion Merkle proof
+  if ((ret = json_get_string(milestone, key_inclusion, ms->inclusion_merkle_proof,
+                             sizeof(ms->inclusion_merkle_proof))) != 0) {
+    printf("[%s:%d]: parsing %s string failed\n", __func__, __LINE__, key_inclusion);
+    ret = -1;
+    goto end;
+  }
+
+  // parsing signatures
+  if ((ret = json_string_array_to_utarray(milestone, key_signatures, ms->signatures)) != 0) {
+    printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, key_signatures);
+    ret = -1;
+  }
+
+end:
+  if (ret != 0) {
+    payload_milestone_free(ms);
+    res->u.msg->payload = NULL;
+  } else {
+    res->u.msg->payload = (void *)ms;
+  }
+
+  return ret;
 }
 
 static int deser_indexation(cJSON *idx_obj, res_message_t *res) {
@@ -192,7 +263,7 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
           // TODO
           break;
         case MSG_MILESTONE:
-          // TODO
+          deser_milestone(payload, res);
           break;
         case MSG_INDEXATION:
           deser_indexation(payload, res);
@@ -272,4 +343,27 @@ done:
   iota_str_destroy(cmd);
   byte_buf_free(http_res);
   return ret;
+}
+
+size_t get_message_milestone_signature_count(res_message_t const *const res) {
+  if (res) {
+    if (!res->is_error && res->u.msg->type == MSG_MILESTONE) {
+      payload_milestone_t *milestone = (payload_milestone_t *)res->u.msg->payload;
+      return utarray_len(milestone->signatures);
+    }
+  }
+  return 0;
+}
+
+char *get_message_milestone_signature(res_message_t const *const res, size_t index) {
+  if (res) {
+    if (!res->is_error && res->u.msg->type == MSG_MILESTONE) {
+      payload_milestone_t *milestone = (payload_milestone_t *)res->u.msg->payload;
+      if (utarray_len(milestone->signatures)) {
+        char **p = (char **)utarray_eltptr(milestone->signatures, index);
+        return *p;
+      }
+    }
+  }
+  return NULL;
 }

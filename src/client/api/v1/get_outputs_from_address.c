@@ -16,10 +16,12 @@ static get_outputs_address_t *outputs_new() {
 }
 
 static void outputs_free(get_outputs_address_t *ids) {
-  if (ids->outputs) {
-    utarray_free(ids->outputs);
+  if (ids) {
+    if (ids->outputs) {
+      utarray_free(ids->outputs);
+    }
+    free(ids);
   }
-  free(ids);
 }
 
 res_outputs_address_t *res_outputs_address_new() {
