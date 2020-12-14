@@ -15,8 +15,6 @@ void test_get_balance() {
   iota_client_conf_t conf = {
       .url = "http://0.0.0.0/",
       .port = 14265  // use default port number
-
-
   };
 
   res_balance_t* res = calloc(1, sizeof(res_balance_t));
