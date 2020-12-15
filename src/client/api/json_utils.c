@@ -52,6 +52,12 @@ json_error_t json_get_boolean(cJSON const* const obj, char const key[], bool* co
 }
 
 int json_get_double(cJSON const* const json_obj, char const key[], double* const number) {
+  if (json_obj == NULL || key == NULL || number == NULL) {
+    // invalid parameters
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return JSON_INVALID_PARAMS;
+  }
+
   cJSON* json_value = cJSON_GetObjectItemCaseSensitive(json_obj, key);
 
   if (json_value == NULL) {
