@@ -15,7 +15,7 @@ typedef struct {
   byte_t addr[IOTA_ADDRESS_HEX_BYTES];
   uint16_t max_results;
   uint16_t count;
-  int64_t balance;
+  uint64_t balance;
 } get_balance_t;
 
 typedef struct {
