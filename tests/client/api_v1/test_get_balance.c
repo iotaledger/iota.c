@@ -75,7 +75,7 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_deser_balance_info);
-  RUN_TEST(test_get_balance);
+  // RUN_TEST(test_get_balance);
 
   return UNITY_END();
 }
