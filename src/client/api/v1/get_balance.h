@@ -12,7 +12,7 @@
 #include "core/types.h"
 
 typedef struct {
-  byte_t addr[IOTA_ADDRESS_HEX_BYTES];
+  char address[IOTA_ADDRESS_HEX_BYTES + 1];  // with null terminator
   uint16_t max_results;
   uint16_t count;
   uint64_t balance;

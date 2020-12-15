@@ -54,16 +54,14 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
 
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
-    // gets addr
-    char addr[64];
-    if ((ret = json_get_string(data_obj, key_addr, &addr, 64)) != 0) {
-      printf("[%s:%d]: gets %s json addr failed\n", __func__, __LINE__, key_addr);
+
+    // gets address
+    if ((ret = json_get_string(data_obj, key_addr, res->u.output_balance->address,
+                               sizeof(res->u.output_balance->address))) != 0) {
+      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, key_addr);
       ret = -1;
       goto end;
     }
-
-    hex2bin(&addr, res->u.output_balance->addr + 1, IOTA_ADDRESS_BYTES - 1);
-    res->u.output_balance->addr[0] = ADDRESS_VER_ED25519;  // Ed25519
 
     // gets max_results
     if ((ret = json_get_uint16(data_obj, key_maxResults, &res->u.output_balance->max_results)) != 0) {
