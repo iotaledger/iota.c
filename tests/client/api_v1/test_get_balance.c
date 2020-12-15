@@ -60,7 +60,7 @@ void test_deser_balance_info() {
   TEST_ASSERT_EQUAL_STRING("invalid data provided", res->u.error->msg);
 
   // reset res->is_error to false;
-  res->is_error;
+  res->is_error = false;
 
   // test http status code 404
   TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_404, res));
