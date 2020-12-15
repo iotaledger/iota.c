@@ -17,7 +17,7 @@ void test_get_balance() {
       .port = 14265  // use default port number
   };
 
-  res_balance_t* res = calloc(1, sizeof(res_balance_t));
+  res_balance_t* res = res_balance_new();
 
   // test null cases
   TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, NULL, NULL));
