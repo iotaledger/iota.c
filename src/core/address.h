@@ -9,9 +9,9 @@
 
 // the length of an address
 #define IOTA_ADDRESS_BYTES (1 + ED_PUBLIC_KEY_BYTES)  // address version + address data
-
+#define ED25519_ADDRESS_BYTES ED_PUBLIC_KEY_BYTES     // ed25519 address schema
 // the hex address is used in node API, it's a string of 64 characters, the version field is excluded
-#define IOTA_ADDRESS_HEX_BYTES (ED_PUBLIC_KEY_BYTES * 2)
+#define IOTA_ADDRESS_HEX_BYTES (ED25519_ADDRESS_BYTES * 2)
 
 // address signature version
 typedef enum { ADDRESS_VER_WOTS = 0, ADDRESS_VER_ED25519 = 1 } address_version_t;
