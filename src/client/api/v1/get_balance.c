@@ -12,8 +12,6 @@
 
 res_balance_t *res_balance_new() {
   res_balance_t *res = malloc(sizeof(res_balance_t));
-  res->u.output_balance = malloc(sizeof(get_balance_t));
-  res->is_error = false;
   return res;
 }
 
@@ -50,6 +48,9 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     ret = -1;
     goto end;
   }
+
+  res->u.output_balance = malloc(sizeof(get_balance_t));
+  res->is_error = false;
 
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
