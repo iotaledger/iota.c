@@ -9,6 +9,40 @@
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 
+static const UT_icd ut_tx_intputs_icd = {sizeof(payload_tx_input_t), NULL, NULL, NULL};
+static const UT_icd ut_tx_outputs_icd = {sizeof(payload_tx_output_t), NULL, NULL, NULL};
+static const UT_icd ut_tx_blocks_icd = {sizeof(payload_unlock_block_t), NULL, NULL, NULL};
+
+static payload_tx_t *payload_tx_new() {
+  payload_tx_t *tx = (payload_tx_t *)malloc(sizeof(payload_tx_t));
+  if (tx) {
+    memset(tx, 0, sizeof(payload_tx_t));
+    utarray_new(tx->intputs, &ut_tx_intputs_icd);
+    utarray_new(tx->outputs, &ut_tx_outputs_icd);
+    utarray_new(tx->unlock_blocks, &ut_tx_blocks_icd);
+    return tx;
+  }
+  return NULL;
+}
+
+static void payload_tx_free(payload_tx_t *tx) {
+  if (tx) {
+    if (tx->intputs) {
+      utarray_free(tx->intputs);
+    }
+    if (tx->outputs) {
+      utarray_free(tx->outputs);
+    }
+    if (tx->unlock_blocks) {
+      utarray_free(tx->unlock_blocks);
+    }
+    if (tx->payload) {
+      // TODO
+    }
+    free(tx);
+  }
+}
+
 static payload_milestone_t *payload_milestone_new() {
   payload_milestone_t *ms = malloc(sizeof(payload_milestone_t));
   if (ms) {
@@ -70,13 +104,13 @@ static get_message_t *get_message_new() {
 static void get_message_free(get_message_t *msg) {
   if (msg) {
     switch (msg->type) {
-      case MSG_UNSIGNED_TX:
-        // TODO
+      case MSG_PAYLOAD_TRANSACTION:
+        payload_tx_free((payload_tx_t *)msg->payload);
         break;
-      case MSG_MILESTONE:
+      case MSG_PAYLOAD_MILESTONE:
         payload_milestone_free((payload_milestone_t *)msg->payload);
         break;
-      case MSG_INDEXATION:
+      case MSG_PAYLOAD_INDEXATION:
         payload_index_free((payload_index_t *)msg->payload);
         break;
       default:
@@ -165,6 +199,236 @@ end:
     res->u.msg->payload = NULL;
   } else {
     res->u.msg->payload = (void *)idx;
+  }
+
+  return ret;
+}
+
+static int deser_tx_inputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
+  char const *const key_inputs = "inputs";
+  char const *const key_tx_id = "transactionId";
+  char const *const key_tx_out_idx = "transactionOutputIndex";
+
+  cJSON *in_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, key_inputs);
+  if (!in_obj) {
+    printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, key_inputs);
+    return -1;
+  }
+
+  /*
+  "inputs": [
+      {
+        "type": 0,
+        "transactionId": "2bfbf7463b008c0298103121874f64b59d2b6172154aa14205db2ce0ba553b03",
+        "transactionOutputIndex": 0
+      }
+    ],
+  */
+  if (cJSON_IsArray(in_obj)) {
+    cJSON *elm = NULL;
+    cJSON_ArrayForEach(elm, in_obj) {
+      cJSON *tx_id_obj = cJSON_GetObjectItemCaseSensitive(elm, key_tx_id);
+      cJSON *tx_out_idx = cJSON_GetObjectItemCaseSensitive(elm, key_tx_out_idx);
+      if (tx_id_obj && tx_out_idx) {
+        payload_tx_input_t input = {};
+        char *str = cJSON_GetStringValue(tx_id_obj);
+        if (str) {
+          memcpy(input.tx_id, str, sizeof(input.tx_id));
+        } else {
+          printf("[%s:%d] encountered non-string array member", __func__, __LINE__);
+          return -1;
+        }
+
+        if (cJSON_IsNumber(tx_out_idx)) {
+          input.tx_output_index = tx_out_idx->valueint;
+        } else {
+          printf("[%s:%d] %s is not an number\n", __func__, __LINE__, key_tx_out_idx);
+          return -1;
+        }
+
+        // add the input element to payload
+        utarray_push_back(payload_tx->intputs, &input);
+
+      } else {
+        printf("[%s:%d] parsing inputs array failed\n", __func__, __LINE__);
+        return -1;
+      }
+    }
+  } else {
+    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, key_inputs);
+    return -1;
+  }
+
+  return 0;
+}
+
+static int deser_tx_outputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
+  char const *const key_outputs = "outputs";
+  char const *const key_address = "address";
+  char const *const key_addr_type = "type";
+  char const *const key_amount = "amount";
+
+  cJSON *out_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, key_outputs);
+  if (!out_obj) {
+    printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, key_outputs);
+    return -1;
+  }
+
+  /*
+  "outputs": [
+    { "type": 0,
+      "address": {
+        "type": 1,
+        "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
+      },
+      "amount": 1000 } ],
+  */
+  if (cJSON_IsArray(out_obj)) {
+    cJSON *elm = NULL;
+    cJSON_ArrayForEach(elm, out_obj) {
+      cJSON *tx_address_obj = cJSON_GetObjectItemCaseSensitive(elm, key_address);
+      cJSON *tx_amount_obj = cJSON_GetObjectItemCaseSensitive(elm, key_amount);
+      // check outputs/address and output/amount
+      if (tx_address_obj && tx_amount_obj) {
+        cJSON *addr_type = cJSON_GetObjectItemCaseSensitive(tx_address_obj, key_addr_type);
+        if (addr_type) {
+          // check outputs/address/type
+          if (cJSON_IsNumber(addr_type) && addr_type->valueint == 1) {
+            cJSON *addr = cJSON_GetObjectItemCaseSensitive(tx_address_obj, key_address);
+            if (cJSON_IsString(addr) && cJSON_IsNumber(tx_amount_obj)) {
+              payload_tx_output_t output = {};
+              memcpy(output.address, addr->valuestring, sizeof(output.address));
+              output.amount = (uint64_t)tx_amount_obj->valuedouble;
+              // add the output element to payload
+              utarray_push_back(payload_tx->outputs, &output);
+            } else {
+              printf("[%s:%d] address is not a string or ammount is not an number\n", __func__, __LINE__);
+              return -1;
+            }
+
+          } else {
+            printf("[%s:%d] only support ed25519 address\n", __func__, __LINE__);
+            return -1;
+          }
+
+        } else {
+          printf("[%s:%d] parsing address type failed\n", __func__, __LINE__);
+          return -1;
+        }
+      } else {
+        printf("[%s:%d] parsing outputs array failed\n", __func__, __LINE__);
+        return -1;
+      }
+    }
+  } else {
+    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, key_outputs);
+    return -1;
+  }
+  return 0;
+}
+
+static int deser_tx_blocks(cJSON *blocks_obj, payload_tx_t *payload_tx) {
+  char const *const key_blocks_sig = "signature";
+  char const *const key_blocks_pub = "publicKey";
+  char const *const key_blocks_sig_type = "type";
+
+  /*
+  "unlockBlocks": [{ "type": 0,
+    "signature": {
+      "type": 1,
+      "publicKey": "dd2fb44b9809782af5f31fdbf767a39303365449308f78d6c2652ac9766dbf1a",
+      "signature":
+  "e625a71351bbccf87eeaad7e98f6a545306423b2aaf444792a1be8ccfdfe50b358583483c3dbc536b5842eeec381750c6b4495c14932be47c439a1a8ad242606"
+  }}]
+  */
+  cJSON *elm = NULL;
+  cJSON_ArrayForEach(elm, blocks_obj) {
+    cJSON *sig_obj = cJSON_GetObjectItemCaseSensitive(elm, key_blocks_sig);
+    if (sig_obj) {
+      cJSON *sig_type = cJSON_GetObjectItemCaseSensitive(sig_obj, key_blocks_sig_type);
+      if (cJSON_IsNumber(sig_type)) {
+        if (sig_type->valueint == 1) {
+          cJSON *pub = cJSON_GetObjectItemCaseSensitive(sig_obj, key_blocks_pub);
+          cJSON *sig = cJSON_GetObjectItemCaseSensitive(sig_obj, key_blocks_sig);
+          if (cJSON_IsString(pub) && cJSON_IsString(sig)) {
+            payload_unlock_block_t block = {};
+            memcpy(block.pub_key, pub->valuestring, sizeof(block.pub_key));
+            memcpy(block.signature, sig->valuestring, sizeof(block.signature));
+            // add to unlockBlocks
+            utarray_push_back(payload_tx->unlock_blocks, &block);
+          } else {
+            printf("[%s:%d] publicKey or signature is not a string\n", __func__, __LINE__);
+            return -1;
+          }
+        } else {
+          printf("[%s:%d] only suppport ed25519 signature\n", __func__, __LINE__);
+          return -1;
+        }
+      } else {
+        printf("[%s:%d] signature type is not an number\n", __func__, __LINE__);
+        return -1;
+      }
+    } else {
+      printf("[%s:%d] %s is not found\n", __func__, __LINE__, key_blocks_sig);
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
+  char const *const key_essence = "essence";
+  char const *const key_payload = "payload";
+  char const *const key_blocks = "unlockBlocks";
+  int ret = 0;
+
+  payload_tx_t *tx = payload_tx_new();
+  if (tx == NULL) {
+    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // parsing essence
+  cJSON *essence_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, key_essence);
+  if (essence_obj) {
+    // inputs array
+    if ((ret = deser_tx_inputs(essence_obj, tx)) != 0) {
+      goto end;
+    }
+
+    // outputs array
+    if ((ret = deser_tx_outputs(essence_obj, tx)) != 0) {
+      goto end;
+    }
+
+    // payload
+    cJSON *payload_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, key_payload);
+    if (!cJSON_IsNull(payload_obj)) {
+      // TODO;
+      printf("[%s:%d]: TODO parsing payload in a transaction\n", __func__, __LINE__);
+    }
+
+    // unlock blocks
+    cJSON *blocks_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, key_blocks);
+    if (cJSON_IsArray(blocks_obj)) {
+      ret = deser_tx_blocks(blocks_obj, tx);
+    } else {
+      printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, key_blocks);
+      ret = -1;
+    }
+
+  } else {
+    printf("[%s:%d]: %s not found in the message\n", __func__, __LINE__, key_essence);
+    ret = -1;
+  }
+
+end:
+  if (ret != 0) {
+    payload_tx_free(tx);
+    res->u.msg->payload = NULL;
+  } else {
+    res->u.msg->payload = (void *)tx;
   }
 
   return ret;
@@ -259,13 +523,13 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
       }
 
       switch (res->u.msg->type) {
-        case MSG_UNSIGNED_TX:
-          // TODO
+        case MSG_PAYLOAD_TRANSACTION:
+          deser_transaction(payload, res);
           break;
-        case MSG_MILESTONE:
+        case MSG_PAYLOAD_MILESTONE:
           deser_milestone(payload, res);
           break;
-        case MSG_INDEXATION:
+        case MSG_PAYLOAD_INDEXATION:
           deser_indexation(payload, res);
           break;
         default:
@@ -347,7 +611,7 @@ done:
 
 size_t get_message_milestone_signature_count(res_message_t const *const res) {
   if (res) {
-    if (!res->is_error && res->u.msg->type == MSG_MILESTONE) {
+    if (!res->is_error && res->u.msg->type == MSG_PAYLOAD_MILESTONE) {
       payload_milestone_t *milestone = (payload_milestone_t *)res->u.msg->payload;
       return utarray_len(milestone->signatures);
     }
@@ -357,12 +621,100 @@ size_t get_message_milestone_signature_count(res_message_t const *const res) {
 
 char *get_message_milestone_signature(res_message_t const *const res, size_t index) {
   if (res) {
-    if (!res->is_error && res->u.msg->type == MSG_MILESTONE) {
+    if (!res->is_error && res->u.msg->type == MSG_PAYLOAD_MILESTONE) {
       payload_milestone_t *milestone = (payload_milestone_t *)res->u.msg->payload;
       if (utarray_len(milestone->signatures)) {
         char **p = (char **)utarray_eltptr(milestone->signatures, index);
         return *p;
       }
+    }
+  }
+  return NULL;
+}
+
+msg_payload_type_t get_message_payload_type(res_message_t const *const res) {
+  if (res) {
+    if (!res->is_error) {
+      return res->u.msg->type;
+    }
+  }
+  return MSG_PAYLOAD_UNKNOW;
+}
+
+size_t payload_tx_inputs_count(payload_tx_t const *const tx) {
+  if (tx) {
+    return utarray_len(tx->intputs);
+  }
+  return 0;
+}
+
+char *payload_tx_inputs_tx_id(payload_tx_t const *const tx, size_t index) {
+  if (tx) {
+    payload_tx_input_t *input = (payload_tx_input_t *)utarray_eltptr(tx->intputs, index);
+    if (input) {
+      return input->tx_id;
+    }
+  }
+  return NULL;
+}
+
+uint32_t payload_tx_inputs_tx_output_index(payload_tx_t const *const tx, size_t index) {
+  if (tx) {
+    payload_tx_input_t *input = (payload_tx_input_t *)utarray_eltptr(tx->intputs, index);
+    return input->tx_output_index;
+  }
+  return 0;
+}
+
+size_t payload_tx_outputs_count(payload_tx_t const *const tx) {
+  if (tx) {
+    return utarray_len(tx->outputs);
+  }
+  return 0;
+}
+
+char *payload_tx_outputs_address(payload_tx_t const *const tx, size_t index) {
+  if (tx) {
+    payload_tx_output_t *out = (payload_tx_output_t *)utarray_eltptr(tx->outputs, index);
+    if (out) {
+      return out->address;
+    }
+  }
+  return NULL;
+}
+
+uint64_t payload_tx_outputs_amount(payload_tx_t const *const tx, size_t index) {
+  if (tx) {
+    payload_tx_output_t *out = (payload_tx_output_t *)utarray_eltptr(tx->outputs, index);
+    if (out) {
+      return out->amount;
+    }
+  }
+  return 0;
+}
+
+size_t payload_tx_blocks_count(payload_tx_t const *const tx) {
+  if (tx) {
+    return utarray_len(tx->unlock_blocks);
+  }
+  return 0;
+}
+
+char *payload_tx_blocks_public_key(payload_tx_t const *const tx, size_t index) {
+  if (tx) {
+    payload_unlock_block_t *b = (payload_unlock_block_t *)utarray_eltptr(tx->unlock_blocks, index);
+    if (b) {
+      return b->pub_key;
+    }
+  }
+  return NULL;
+}
+
+char *payload_tx_blocks_signature(payload_tx_t const *const tx, size_t index) {
+  if (tx) {
+    payload_unlock_block_t *b = (payload_unlock_block_t *)utarray_eltptr(tx->unlock_blocks, index);
+    if (b) {
+      return b->signature;
     }
   }
   return NULL;

@@ -15,9 +15,10 @@
 #include "core/utils/byte_buffer.h"
 
 typedef enum {
-  MSG_UNSIGNED_TX = 0,
-  MSG_MILESTONE,
-  MSG_INDEXATION,
+  MSG_PAYLOAD_TRANSACTION = 0,
+  MSG_PAYLOAD_MILESTONE,
+  MSG_PAYLOAD_INDEXATION,
+  MSG_PAYLOAD_UNKNOW = -1,
 } msg_payload_type_t;
 
 typedef struct {
@@ -31,6 +32,32 @@ typedef struct {
   byte_buf_t *index;
   byte_buf_t *data;
 } payload_index_t;
+
+typedef struct {
+  uint32_t tx_output_index;
+  char tx_id[64];
+} payload_tx_input_t;
+
+typedef struct {
+  uint64_t amount;
+  char address[64];
+} payload_tx_output_t;
+
+typedef struct {
+  char pub_key[64];
+  char signature[128];
+} payload_unlock_block_t;
+
+typedef UT_array utxo_inputs_t;
+typedef UT_array utxo_outputs_t;
+typedef UT_array unlock_blocks_t;
+
+typedef struct {
+  utxo_inputs_t *intputs;
+  utxo_outputs_t *outputs;
+  unlock_blocks_t *unlock_blocks;
+  void *payload;
+} payload_tx_t;
 
 typedef struct {
   char net_id[32];  // string of uint64_t
@@ -102,6 +129,92 @@ size_t get_message_milestone_signature_count(res_message_t const *const res);
  * @return char* NULL on failed.
  */
 char *get_message_milestone_signature(res_message_t const *const res, size_t index);
+
+/**
+ * @brief Get the message payload type
+ *
+ * @param[in] res The message object
+ * @return msg_payload_type_t
+ */
+msg_payload_type_t get_message_payload_type(res_message_t const *const res);
+
+/**
+ * @brief Get inputs count from transaction payload
+ *
+ * @param[in] tx A transaction payload object
+ * @return size_t
+ */
+size_t payload_tx_inputs_count(payload_tx_t const *const tx);
+
+/**
+ * @brief Get the transaction ID from transaction payload
+ *
+ * @param[in] tx A transaction payload object
+ * @param[in] index The index of input element
+ * @return char*
+ */
+char *payload_tx_inputs_tx_id(payload_tx_t const *const tx, size_t index);
+
+/**
+ * @brief Get output index from transaction payload
+ *
+ * @param[in] tx A transaction payload object
+ * @param[in] index The index of input element
+ * @return uint32_t
+ */
+uint32_t payload_tx_inputs_tx_output_index(payload_tx_t const *const tx, size_t index);
+
+/**
+ * @brief Get outputs count
+ *
+ * @param[in] tx A transaction payload object
+ * @return size_t
+ */
+size_t payload_tx_outputs_count(payload_tx_t const *const tx);
+
+/**
+ * @brief Get address from outputs
+ *
+ * @param[in] tx A transaction payload object
+ * @param[in] index The index of the output
+ * @return char*
+ */
+char *payload_tx_outputs_address(payload_tx_t const *const tx, size_t index);
+
+/**
+ * @brief Get amount from outputs
+ *
+ * @param[in] tx A transaction payload object
+ * @param[in] index The index of the output
+ * @return uint64_t
+ */
+uint64_t payload_tx_outputs_amount(payload_tx_t const *const tx, size_t index);
+
+/**
+ * @brief Get unlocked block size
+ *
+ * @param[in] tx A transaction payload object
+ * @return size_t
+ */
+size_t payload_tx_blocks_count(payload_tx_t const *const tx);
+
+/**
+ * @brief Get public key from unlocked block
+ *
+ * @param[in] tx A transaction payload object
+ * @param[in] index The index of unlocked block
+ * @return char*
+ */
+char *payload_tx_blocks_public_key(payload_tx_t const *const tx, size_t index);
+
+/**
+ * @brief Get signature from unlocked block
+ *
+ * @param[in] tx A transaction payload object
+ * @param[in] index The index of unlocked block
+ * @return char*
+ */
+char *payload_tx_blocks_signature(payload_tx_t const *const tx, size_t index);
 
 #ifdef __cplusplus
 }
