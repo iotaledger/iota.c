@@ -26,9 +26,6 @@ void test_get_balance() {
   TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, NULL, NULL));
   TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, NULL, res));
 
-  // reset
-  res->is_error = false;
-
   // test invalid address
   TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, ADDR_INV, res));
   TEST_ASSERT_EQUAL_STRING(
@@ -36,11 +33,14 @@ void test_get_balance() {
       "encoding/hex: invalid byte: U+0078 'x': invalid parameter",
       res->u.error->msg);
 
-  // reset
-  res->is_error = false;
+  // reset res
+  res_balance_free(res);
+  res = res_balance_new();
 
   // test for success
   TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, ADDR_HEX, res));
+
+  res_balance_free(res);
 }
 
 void test_deser_balance_info() {
@@ -63,6 +63,10 @@ void test_deser_balance_info() {
   TEST_ASSERT_EQUAL_INT(25, res->u.output_balance->count);
   TEST_ASSERT_EQUAL_INT(1338263, res->u.output_balance->balance);
 
+  // reset res
+  res_balance_free(res);
+  res = res_balance_new();
+
   // test http status code 400
   TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_400, res));
   TEST_ASSERT(res->is_error);
@@ -70,9 +74,6 @@ void test_deser_balance_info() {
   TEST_ASSERT_EQUAL_STRING(
       "bad request, error: invalid address: 0, error: encoding/hex: odd length hex string: invalid parameter",
       res->u.error->msg);
-
-  // reset res->is_error to false;
-  res->is_error = false;
 
   res_balance_free(res);
 }
