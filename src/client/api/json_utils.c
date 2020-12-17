@@ -42,7 +42,8 @@ json_error_t json_get_byte_buf_str(cJSON const* const obj, char const key[], byt
   }
 
   if (cJSON_IsString(json_value) && (json_value->valuestring != NULL)) {
-    byte_buf_append(buf, json_value->valuestring, strlen(json_value->valuestring) + 1);
+    // append the string with null terminator to byte_buf
+    byte_buf_append(buf, (byte_t const*)json_value->valuestring, strlen((char const*)json_value->valuestring) + 1);
   } else {
     printf("[%s:%d] %s is not a string\n", __func__, __LINE__, key);
     return JSON_NOT_STRING;

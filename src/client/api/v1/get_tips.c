@@ -1,3 +1,6 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #include <stdio.h>
 
 #include "client/api/json_utils.h"
@@ -58,7 +61,7 @@ res_tips_t *res_tips_new() {
 void res_tips_free(res_tips_t *tips) {
   if (tips) {
     if (tips->is_error) {
-      res_err_free(tips->tips_u.error);
+      res_err_free(tips->u.error);
     }
     free(tips);
   }
@@ -78,7 +81,7 @@ int deser_get_tips(char const *const j_str, res_tips_t *res) {
   if (res_err) {
     // got an error response
     res->is_error = true;
-    res->tips_u.error = res_err;
+    res->u.error = res_err;
     ret = 0;
     goto end;
   }
@@ -86,14 +89,14 @@ int deser_get_tips(char const *const j_str, res_tips_t *res) {
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
     // gets tip1
-    if ((ret = json_get_string(data_obj, key_tip1, res->tips_u.tips.tip1, STR_TIP_MSG_LEN)) != 0) {
+    if ((ret = json_get_string(data_obj, key_tip1, res->u.tips.tip1, STR_TIP_MSG_LEN)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_tip1);
       ret = -1;
       goto end;
     }
 
     // gets tip2
-    if ((ret = json_get_string(data_obj, key_tip2, res->tips_u.tips.tip2, STR_TIP_MSG_LEN)) != 0) {
+    if ((ret = json_get_string(data_obj, key_tip2, res->u.tips.tip2, STR_TIP_MSG_LEN)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_tip2);
       ret = -1;
       goto end;

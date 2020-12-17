@@ -1,3 +1,6 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef __CLIENT_API_V1_TIPS_H__
 #define __CLIENT_API_V1_TIPS_H__
 
@@ -20,7 +23,7 @@ typedef struct {
   union {
     res_err_t *error;
     get_tips_t tips;
-  } tips_u;
+  } u;
 } res_tips_t;
 
 #ifdef __cplusplus
