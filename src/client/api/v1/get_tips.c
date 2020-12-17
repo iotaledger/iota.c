@@ -34,7 +34,8 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
   }
 
   // send request via http client
-  http_client_get(&http_conf, http_res);
+  long st = 0;
+  http_client_get(&http_conf, http_res, &st);
   byte_buf2str(http_res);
 
   // json deserialization

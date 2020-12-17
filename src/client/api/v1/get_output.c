@@ -51,7 +51,8 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
   }
 
   // send request via http client
-  if ((ret = http_client_get(&http_conf, http_res)) == 0) {
+  long st = 0;
+  if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
     ret = deser_get_output((char const *const)http_res->data, res);

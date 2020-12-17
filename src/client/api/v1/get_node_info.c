@@ -31,17 +31,17 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   byte_buf_t *http_res = byte_buf_new();
   if (http_res == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    // TODO
     ret = -1;
     goto done;
   }
 
   // send request via http client
-  http_client_get(&http_conf, http_res);
-  byte_buf2str(http_res);
-
-  // json deserialization
-  deser_node_info((char const *const)http_res->data, res);
+  long st = 0;
+  if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
+    byte_buf2str(http_res);
+    // json deserialization
+    deser_node_info((char const *const)http_res->data, res);
+  }
 
 done:
   // cleanup command

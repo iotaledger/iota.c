@@ -19,7 +19,7 @@ static size_t cb_write_fn(void* data, size_t size, size_t nmemb, void* userp) {
 }
 
 int http_client_post(http_client_config_t const* const config, byte_buf_t const* const request,
-                     byte_buf_t* const response) {
+                     byte_buf_t* const response, long* status) {
   int ret = 0;
   CURL* curl = curl_easy_init();
   struct curl_slist* headers = NULL;
@@ -42,6 +42,9 @@ int http_client_post(http_client_config_t const* const config, byte_buf_t const*
       printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
       ret = -1;
     }
+
+    // get http status code
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, status);
     /* always cleanup */
     curl_easy_cleanup(curl);
     curl_slist_free_all(headers);
@@ -50,7 +53,7 @@ int http_client_post(http_client_config_t const* const config, byte_buf_t const*
   return -1;
 }
 
-int http_client_get(http_client_config_t const* const config, byte_buf_t* const response) {
+int http_client_get(http_client_config_t const* const config, byte_buf_t* const response, long* status) {
   int ret = 0;
   CURL* curl = curl_easy_init();
   struct curl_slist* headers = NULL;
@@ -74,6 +77,8 @@ int http_client_get(http_client_config_t const* const config, byte_buf_t* const 
       ret = -1;
     }
 
+    // get http status code
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, status);
     /* always cleanup */
     curl_easy_cleanup(curl);
     curl_slist_free_all(headers);

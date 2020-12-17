@@ -28,6 +28,29 @@ json_error_t json_get_string(cJSON const* const obj, char const key[], char str[
   return JSON_OK;
 }
 
+json_error_t json_get_byte_buf_str(cJSON const* const obj, char const key[], byte_buf_t* buf) {
+  if (obj == NULL || key == NULL || buf == NULL) {
+    // invalid parameters
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return JSON_INVALID_PARAMS;
+  }
+
+  cJSON* json_value = cJSON_GetObjectItemCaseSensitive(obj, key);
+  if (json_value == NULL) {
+    printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, key);
+    return JSON_KEY_NOT_FOUND;
+  }
+
+  if (cJSON_IsString(json_value) && (json_value->valuestring != NULL)) {
+    byte_buf_append(buf, json_value->valuestring, strlen(json_value->valuestring) + 1);
+  } else {
+    printf("[%s:%d] %s is not a string\n", __func__, __LINE__, key);
+    return JSON_NOT_STRING;
+  }
+
+  return JSON_OK;
+}
+
 json_error_t json_get_boolean(cJSON const* const obj, char const key[], bool* const boolean) {
   if (obj == NULL || key == NULL || boolean == NULL) {
     // invalid parameters

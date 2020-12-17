@@ -44,19 +44,21 @@ void http_client_clean();
  * @param[in] url The server url
  * @param[in] request The request of body
  * @param[out] response The response data
+ * @param[out] status HTTP status code
  * @return int 0 on success
  */
 int http_client_post(http_client_config_t const* const config, byte_buf_t const* const request,
-                     byte_buf_t* const response);
+                     byte_buf_t* const response, long* status);
 
 /**
  * @brief Performs http GET
  *
  * @param[in] url The server url
  * @param[out] response The response data
+ * @param[out] status HTTP status code
  * @return int 0 on success
  */
-int http_client_get(http_client_config_t const* const config, byte_buf_t* const response);
+int http_client_get(http_client_config_t const* const config, byte_buf_t* const response, long* status);
 
 #ifdef __cplusplus
 }
