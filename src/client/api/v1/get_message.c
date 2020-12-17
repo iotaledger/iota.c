@@ -9,118 +9,6 @@
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 
-static const UT_icd ut_tx_intputs_icd = {sizeof(payload_tx_input_t), NULL, NULL, NULL};
-static const UT_icd ut_tx_outputs_icd = {sizeof(payload_tx_output_t), NULL, NULL, NULL};
-static const UT_icd ut_tx_blocks_icd = {sizeof(payload_unlock_block_t), NULL, NULL, NULL};
-
-static payload_tx_t *payload_tx_new() {
-  payload_tx_t *tx = (payload_tx_t *)malloc(sizeof(payload_tx_t));
-  if (tx) {
-    memset(tx, 0, sizeof(payload_tx_t));
-    utarray_new(tx->intputs, &ut_tx_intputs_icd);
-    utarray_new(tx->outputs, &ut_tx_outputs_icd);
-    utarray_new(tx->unlock_blocks, &ut_tx_blocks_icd);
-    return tx;
-  }
-  return NULL;
-}
-
-static void payload_tx_free(payload_tx_t *tx) {
-  if (tx) {
-    if (tx->intputs) {
-      utarray_free(tx->intputs);
-    }
-    if (tx->outputs) {
-      utarray_free(tx->outputs);
-    }
-    if (tx->unlock_blocks) {
-      utarray_free(tx->unlock_blocks);
-    }
-    if (tx->payload) {
-      // TODO
-    }
-    free(tx);
-  }
-}
-
-static payload_milestone_t *payload_milestone_new() {
-  payload_milestone_t *ms = malloc(sizeof(payload_milestone_t));
-  if (ms) {
-    utarray_new(ms->signatures, &ut_str_icd);
-    ms->index = 0;
-    ms->timestamp = 0;
-    memset(ms->inclusion_merkle_proof, 0, sizeof(ms->inclusion_merkle_proof));
-  }
-  return ms;
-}
-
-static void payload_milestone_free(payload_milestone_t *ms) {
-  if (ms) {
-    if (ms->signatures) {
-      utarray_free(ms->signatures);
-    }
-    free(ms);
-  }
-}
-
-static payload_index_t *payload_index_new() {
-  payload_index_t *idx = malloc(sizeof(payload_index_t));
-  if (idx) {
-    idx->data = byte_buf_new();
-    if (idx->data) {
-      idx->index = byte_buf_new();
-      if (idx->index) {
-        return idx;
-      }
-      byte_buf_free(idx->data);
-      free(idx);
-      return NULL;
-    }
-    free(idx);
-    return NULL;
-  }
-  return NULL;
-}
-
-static void payload_index_free(payload_index_t *idx) {
-  if (idx) {
-    byte_buf_free(idx->data);
-    byte_buf_free(idx->index);
-    free(idx);
-  }
-}
-
-static get_message_t *get_message_new() {
-  get_message_t *msg = malloc(sizeof(get_message_t));
-  memset(msg->net_id, 0, sizeof(msg->net_id));
-  memset(msg->parent1, 0, sizeof(msg->parent1));
-  memset(msg->parent2, 0, sizeof(msg->parent2));
-  memset(msg->nonce, 0, sizeof(msg->nonce));
-  msg->payload = NULL;
-  msg->type = 255;  // invalid payload type
-  return msg;
-}
-
-static void get_message_free(get_message_t *msg) {
-  if (msg) {
-    switch (msg->type) {
-      case MSG_PAYLOAD_TRANSACTION:
-        payload_tx_free((payload_tx_t *)msg->payload);
-        break;
-      case MSG_PAYLOAD_MILESTONE:
-        payload_milestone_free((payload_milestone_t *)msg->payload);
-        break;
-      case MSG_PAYLOAD_INDEXATION:
-        payload_index_free((payload_index_t *)msg->payload);
-        break;
-      default:
-        // do nothing
-        break;
-    }
-    free(msg);
-  }
-}
-
 static int deser_milestone(cJSON *milestone, res_message_t *res) {
   char const *const key_index = "index";
   char const *const key_timestamp = "timestamp";
@@ -448,7 +336,7 @@ void res_message_free(res_message_t *msg) {
     if (msg->is_error) {
       res_err_free(msg->u.error);
     } else {
-      get_message_free(msg->u.msg);
+      api_message_free(msg->u.msg);
     }
     free(msg);
   }
@@ -479,7 +367,7 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
     // new message object
-    res->u.msg = get_message_new();
+    res->u.msg = api_message_new();
     if (!res->u.msg) {
       printf("[%s:%d]: OOM\n", __func__, __LINE__);
       ret = -1;
@@ -639,83 +527,4 @@ msg_payload_type_t get_message_payload_type(res_message_t const *const res) {
     }
   }
   return MSG_PAYLOAD_UNKNOW;
-}
-
-size_t payload_tx_inputs_count(payload_tx_t const *const tx) {
-  if (tx) {
-    return utarray_len(tx->intputs);
-  }
-  return 0;
-}
-
-char *payload_tx_inputs_tx_id(payload_tx_t const *const tx, size_t index) {
-  if (tx) {
-    payload_tx_input_t *input = (payload_tx_input_t *)utarray_eltptr(tx->intputs, index);
-    if (input) {
-      return input->tx_id;
-    }
-  }
-  return NULL;
-}
-
-uint32_t payload_tx_inputs_tx_output_index(payload_tx_t const *const tx, size_t index) {
-  if (tx) {
-    payload_tx_input_t *input = (payload_tx_input_t *)utarray_eltptr(tx->intputs, index);
-    return input->tx_output_index;
-  }
-  return 0;
-}
-
-size_t payload_tx_outputs_count(payload_tx_t const *const tx) {
-  if (tx) {
-    return utarray_len(tx->outputs);
-  }
-  return 0;
-}
-
-char *payload_tx_outputs_address(payload_tx_t const *const tx, size_t index) {
-  if (tx) {
-    payload_tx_output_t *out = (payload_tx_output_t *)utarray_eltptr(tx->outputs, index);
-    if (out) {
-      return out->address;
-    }
-  }
-  return NULL;
-}
-
-uint64_t payload_tx_outputs_amount(payload_tx_t const *const tx, size_t index) {
-  if (tx) {
-    payload_tx_output_t *out = (payload_tx_output_t *)utarray_eltptr(tx->outputs, index);
-    if (out) {
-      return out->amount;
-    }
-  }
-  return 0;
-}
-
-size_t payload_tx_blocks_count(payload_tx_t const *const tx) {
-  if (tx) {
-    return utarray_len(tx->unlock_blocks);
-  }
-  return 0;
-}
-
-char *payload_tx_blocks_public_key(payload_tx_t const *const tx, size_t index) {
-  if (tx) {
-    payload_unlock_block_t *b = (payload_unlock_block_t *)utarray_eltptr(tx->unlock_blocks, index);
-    if (b) {
-      return b->pub_key;
-    }
-  }
-  return NULL;
-}
-
-char *payload_tx_blocks_signature(payload_tx_t const *const tx, size_t index) {
-  if (tx) {
-    payload_unlock_block_t *b = (payload_unlock_block_t *)utarray_eltptr(tx->unlock_blocks, index);
-    if (b) {
-      return b->signature;
-    }
-  }
-  return NULL;
 }

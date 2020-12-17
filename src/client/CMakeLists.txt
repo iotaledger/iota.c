@@ -13,6 +13,7 @@ target_sources(
   iota_client
   PRIVATE "network/http_curl.c"
           "api/json_utils.c"
+          "api/message.c"
           "api/v1/get_node_info.c"
           "api/v1/get_balance.c"
           "api/v1/response_error.c"
@@ -23,6 +24,7 @@ target_sources(
           "api/v1/get_outputs_from_address.c"
   PUBLIC "network/http.h"
          "api/json_utils.h"
+         "api/message.h"
          "api/v1/get_node_info.h"
          "api/v1/get_balance.h"
          "api/v1/response_error.h"
