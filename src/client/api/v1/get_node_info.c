@@ -94,6 +94,8 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     goto end;
   }
 
+  res->u.output_node_info = malloc(sizeof(get_node_info_t));
+
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
     // gets name
