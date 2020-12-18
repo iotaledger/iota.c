@@ -14,13 +14,14 @@ void test_get_info() {
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_EQUAL_STRING("HORNET", info->u.output_node_info->name);
   // TEST_ASSERT_EQUAL_STRING("0.6.0-alpha", info->u.output_node_info->version);
+  // TEST_ASSERT_EQUAL_STRING("alphanet1", info->u.output_node_info->network_id);
 
   res_node_info_free(info);
 }
 
 void test_deser_node_info() {
   char const* const json_info =
-      "{\"data\":{\"name\":\"HORNET\",\"version\":\"0.6.0-alpha\",\"isHealthy\":true,\"networkId\":234,"
+      "{\"data\":{\"name\":\"HORNET\",\"version\":\"0.6.0-alpha\",\"isHealthy\":true,\"networkId\":\"alphanet1\","
       "\"latestMilestoneId\":"
       "\"1a4a9199997db6ec0d6c798040e057df2b505616e5e887257b0600eee49f6345\",\"latestMilestoneIndex\":82847,"
       "\"solidMilestoneId\":\"1a4a9199997db6ec0d6c798040e057df2b505616e5e887257b0600eee49f6345\","
@@ -33,6 +34,7 @@ void test_deser_node_info() {
   TEST_ASSERT_EQUAL_STRING("HORNET", info->u.output_node_info->name);
   TEST_ASSERT_EQUAL_STRING("0.6.0-alpha", info->u.output_node_info->version);
   TEST_ASSERT_TRUE(info->u.output_node_info->is_healthy);
+  TEST_ASSERT_EQUAL_STRING("alphanet1", info->u.output_node_info->network_id);
 
   res_node_info_free(info);
 }

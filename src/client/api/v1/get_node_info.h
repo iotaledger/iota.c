@@ -12,7 +12,7 @@ typedef struct {
   char name[32];
   char version[32];
   bool is_healthy;
-  uint8_t network_id;
+  char network_id[32];
   byte_t latest_milestone_id[32];
   uint64_t latest_milestone_index;
   byte_t solid_milestone_id[32];
