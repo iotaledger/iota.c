@@ -19,11 +19,30 @@ typedef struct {
   uint64_t solid_milestone_index;
   uint64_t pruning_milestone_index;
   char features[128];
+} get_node_info_t;
+
+typedef struct {
+  bool is_error;
+  union {
+    res_err_t *error;
+    get_node_info_t *output_node_info;
+  } u;
 } res_node_info_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+/**
+ * @brief Allocates node info response object
+ * @return res_node_info_t*
+ */
+res_node_info_t *res_node_info_new();
+
+/**
+ * @brief Frees a node info response object
+ * @param[in] res A response object
+ */
+void res_node_info_free(res_node_info_t *res);
 
 /**
  * @brief Gets info API

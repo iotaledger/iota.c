@@ -8,12 +8,14 @@ void test_get_info() {
       .url = "https://iota-node/",
       .port = 14265  // use default port number
   };
-  res_node_info_t info;
+  res_node_info_t* info = res_node_info_new();
 
-  int ret = get_node_info(&ctx, &info);
+  int ret = get_node_info(&ctx, info);
   TEST_ASSERT_EQUAL_INT(0, ret);
-  TEST_ASSERT_EQUAL_STRING("HORNET", info.name);
-  TEST_ASSERT_EQUAL_STRING("0.5.3", info.version);
+  TEST_ASSERT_EQUAL_STRING("HORNET", info->u.output_node_info->name);
+  TEST_ASSERT_EQUAL_STRING("0.5.3", info->u.output_node_info->version);
+
+  res_node_info_free(info);
 }
 
 void test_deser_node_info() {
@@ -23,12 +25,15 @@ void test_deser_node_info() {
       "\"solidMilestoneId\":\"1a4a9199997db6ec0d6c798040e057df2b505616e5e887257b0600eee49f6345\","
       "\"solidMilestoneIndex\":82847,\"pruningIndex\":82325,\"features\":[]}}}}";
 
-  res_node_info_t info = {};
-  int ret = deser_node_info(json_info, &info);
+  res_node_info_t* info = res_node_info_new();
+  int ret = deser_node_info(json_info, info);
+
   TEST_ASSERT_EQUAL_INT(0, ret);
-  TEST_ASSERT_EQUAL_STRING("HORNET", info.name);
-  TEST_ASSERT_EQUAL_STRING("0.5.3", info.version);
+  TEST_ASSERT_EQUAL_STRING("HORNET", info->u.output_node_info->name);
+  TEST_ASSERT_EQUAL_STRING("0.5.3", info->u.output_node_info->version);
   // TODO
+
+  res_node_info_free(info);
 }
 
 int main() {

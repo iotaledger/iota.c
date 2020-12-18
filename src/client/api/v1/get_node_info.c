@@ -6,6 +6,23 @@
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 
+res_node_info_t *res_node_info_new() {
+  res_node_info_t *res = malloc(sizeof(res_node_info_t));
+  res->is_error = false;
+  return res;
+}
+
+void res_node_info_free(res_node_info_t *res) {
+  if (res) {
+    if (res->is_error) {
+      res_err_free(res->u.error);
+    } else {
+      free(res->u.output_node_info);
+    }
+    free(res);
+  }
+}
+
 int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   int ret = 0;
   char const *const cmd_info = "api/v1/info";
@@ -78,20 +95,22 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
     // gets name
-    if ((ret = json_get_string(data_obj, key_name, res->name, sizeof(res->name))) != 0) {
+    if ((ret = json_get_string(data_obj, key_name, res->u.output_node_info->name,
+                               sizeof(res->u.output_node_info->name))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_name);
       ret = -1;
       goto end;
     }
 
     // gets version
-    if ((ret = json_get_string(data_obj, key_version, res->version, sizeof(res->version))) != 0) {
+    if ((ret = json_get_string(data_obj, key_version, res->u.output_node_info->version,
+                               sizeof(res->u.output_node_info->version))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_version);
       ret = -1;
       goto end;
     }
 
-    if ((ret = json_get_boolean(data_obj, key_healthy, &res->is_healthy)) != 0) {
+    if ((ret = json_get_boolean(data_obj, key_healthy, &res->u.output_node_info->is_healthy)) != 0) {
       printf("[%s:%d]: gets %s json boolean failed\n", __func__, __LINE__, key_healthy);
       ret = -1;
       goto end;
