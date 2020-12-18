@@ -17,6 +17,7 @@ void test_get_info() {
   // TEST_ASSERT_EQUAL_STRING("alphanet1", info->u.output_node_info->network_id);
   // TEST_ASSERT_EQUAL_UINT64(87389, info->u.output_node_info->latest_milestone_index);
   // TEST_ASSERT_EQUAL_UINT64(87389, info->u.output_node_info->solid_milestone_index);
+  // TEST_ASSERT_EQUAL_UINT64(0, info->u.output_node_info->pruning_milestone_index);
 
   res_node_info_free(info);
 }
@@ -37,6 +38,7 @@ void test_deser_node_info() {
   TEST_ASSERT_EQUAL_STRING("alphanet1", info->u.output_node_info->network_id);
   TEST_ASSERT_EQUAL_UINT64(82847, info->u.output_node_info->latest_milestone_index);
   TEST_ASSERT_EQUAL_UINT64(82847, info->u.output_node_info->solid_milestone_index);
+  TEST_ASSERT_EQUAL_UINT64(82325, info->u.output_node_info->pruning_milestone_index);
 
   res_node_info_free(info);
 }
