@@ -82,11 +82,11 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
       ret = -1;
       goto end;
     }
-
-  end:
-    cJSON_Delete(json_obj);
-    return ret;
   }
+
+end:
+  cJSON_Delete(json_obj);
+  return ret;
 }
 
 int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res) {
