@@ -85,12 +85,14 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     return -1;
   }
 
-  // FIXME: dose node info have error?
-  // res_err_t *res_err = deser_error(json_obj);
-  // if (res_err) {
-  //   // got an error response
-  //   return -1;
-  // }
+  res_err_t *res_err = deser_error(json_obj);
+  if (res_err) {
+    // got an error response
+    res->is_error = true;
+    res->u.error = res_err;
+    ret = -1;
+    goto end;
+  }
 
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
