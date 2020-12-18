@@ -22,8 +22,7 @@ void test_get_info() {
 void test_deser_node_info() {
   char const* const json_info =
       "{\"data\":{\"name\":\"HORNET\",\"version\":\"0.6.0-alpha\",\"isHealthy\":true,\"networkId\":\"alphanet1\","
-      "\"latestMilestoneId\":"
-      "\"1a4a9199997db6ec0d6c798040e057df2b505616e5e887257b0600eee49f6345\",\"latestMilestoneIndex\":82847,"
+      "\"latestMilestoneIndex\":82847,"
       "\"solidMilestoneId\":\"1a4a9199997db6ec0d6c798040e057df2b505616e5e887257b0600eee49f6345\","
       "\"solidMilestoneIndex\":82847,\"pruningIndex\":82325,\"features\":[]}}}}";
 
