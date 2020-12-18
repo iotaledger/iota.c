@@ -74,7 +74,6 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
   char const *const key_healthy = "isHealthy";
   char const *const key_net = "networkId";
   char const *const key_lm_index = "latestMilestoneIndex";
-  char const *const key_sm = "solidMilestoneId";
   char const *const key_sm_index = "solidMilestoneIndex";
   char const *const key_pruning = "pruningIndex";
   char const *const key_features = "features";
