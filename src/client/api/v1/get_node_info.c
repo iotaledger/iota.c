@@ -114,6 +114,7 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
       goto end;
     }
 
+    // gets isHealthy
     if ((ret = json_get_boolean(data_obj, key_healthy, &res->u.output_node_info->is_healthy)) != 0) {
       printf("[%s:%d]: gets %s json boolean failed\n", __func__, __LINE__, key_healthy);
       ret = -1;

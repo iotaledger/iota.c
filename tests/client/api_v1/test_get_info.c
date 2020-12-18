@@ -32,7 +32,7 @@ void test_deser_node_info() {
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_EQUAL_STRING("HORNET", info->u.output_node_info->name);
   TEST_ASSERT_EQUAL_STRING("0.6.0-alpha", info->u.output_node_info->version);
-  // TODO
+  TEST_ASSERT_TRUE(info->u.output_node_info->is_healthy);
 
   res_node_info_free(info);
 }
