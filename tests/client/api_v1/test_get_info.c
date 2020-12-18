@@ -6,7 +6,7 @@
 void test_get_info() {
   iota_client_conf_t ctx = {
       .url = "https://iota-node/",
-      .port = 0  // use default port number
+      .port = 14265  // use default port number
   };
   res_node_info_t info;
 
