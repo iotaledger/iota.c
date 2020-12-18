@@ -11,6 +11,12 @@
 #include "core/utils/byte_buffer.h"
 #include "utarray.h"
 
+#define API_MSG_ID_HEX_BYTES 64
+#define API_TX_ID_HEX_BYTES 64
+#define API_ADDR_HEX_BYTES 64
+#define API_PUB_KEY_HEX_BYTES 64
+#define API_SIGNATURE_HEX_BYTES 128
+
 typedef enum {
   MSG_PAYLOAD_TRANSACTION = 0,
   MSG_PAYLOAD_MILESTONE,
@@ -32,17 +38,17 @@ typedef struct {
 
 typedef struct {
   uint32_t tx_output_index;
-  char tx_id[64];
+  char tx_id[API_TX_ID_HEX_BYTES];
 } payload_tx_input_t;
 
 typedef struct {
   uint64_t amount;
-  char address[64];
+  char address[API_ADDR_HEX_BYTES];
 } payload_tx_output_t;
 
 typedef struct {
-  char pub_key[64];
-  char signature[128];
+  char pub_key[API_PUB_KEY_HEX_BYTES];
+  char signature[API_SIGNATURE_HEX_BYTES];
 } payload_unlock_block_t;
 
 typedef UT_array utxo_inputs_t;
@@ -58,8 +64,8 @@ typedef struct {
 
 typedef struct {
   char net_id[32];  // string of uint64_t
-  char parent1[64];
-  char parent2[64];
+  char parent1[API_MSG_ID_HEX_BYTES + 1];
+  char parent2[API_MSG_ID_HEX_BYTES + 1];
   char nonce[32];  // string of uint64_t
   payload_t type;
   void *payload;

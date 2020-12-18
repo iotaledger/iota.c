@@ -190,7 +190,7 @@ static int deser_tx_outputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
               // add the output element to payload
               utarray_push_back(payload_tx->outputs, &output);
             } else {
-              printf("[%s:%d] address is not a string or ammount is not an number\n", __func__, __LINE__);
+              printf("[%s:%d] address is not a string or amount is not an number\n", __func__, __LINE__);
               return -1;
             }
 
@@ -349,6 +349,7 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
   char const *const key_nonce = "nonce";
   char const *const key_payload = "payload";
   char const *const key_type = "type";
+  char const *const key_data = "data";
 
   int ret = 0;
   cJSON *json_obj = cJSON_Parse(j_str);

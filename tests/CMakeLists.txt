@@ -41,3 +41,4 @@ add_iota_test("client/api_v1/test_outputs_from_address.c" client_output_from_add
 add_iota_test("client/api_v1/test_get_output.c" client_get_output)
 add_iota_test("client/api_v1/test_get_health.c" client_get_health)
 add_iota_test("client/api_v1/test_get_message.c" client_get_message)
+add_iota_test("client/api_v1/test_send_message.c" client_send_message)

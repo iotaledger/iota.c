@@ -38,11 +38,14 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
 
   // send request via http client
   long st = 0;
-  http_client_get(&http_conf, http_res, &st);
-  byte_buf2str(http_res);
-
-  // json deserialization
-  deser_get_tips((char const *const)http_res->data, res);
+  if (http_client_get(&http_conf, http_res, &st) == 0) {
+    byte_buf2str(http_res);
+    // json deserialization
+    deser_get_tips((char const *const)http_res->data, res);
+  } else {
+    printf("[%s:%d] network error\n", __func__, __LINE__);
+    ret = -1;
+  }
 
 done:
   // cleanup command
