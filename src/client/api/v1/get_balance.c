@@ -131,7 +131,8 @@ int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res)
   }
 
   // send request via http client
-  int http_err = http_client_get(&http_conf, http_res);
+  long st = 0;
+  int http_err = http_client_get(&http_conf, http_res, &st);
   if (http_err != 0) {
     ret = -1;
     goto done;
