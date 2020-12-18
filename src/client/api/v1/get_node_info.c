@@ -127,6 +127,13 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
       ret = -1;
       goto end;
     }
+
+    // gets latestMilestoneIndex
+    if ((ret = json_get_uint64(data_obj, key_lm_index, &res->u.output_node_info->latest_milestone_index)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_lm_index);
+      ret = -1;
+      goto end;
+    }
   }
 
 end:
