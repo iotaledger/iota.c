@@ -133,6 +133,13 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
       ret = -1;
       goto end;
     }
+
+    // gets solidMilestoneIndex
+    if ((ret = json_get_uint64(data_obj, key_sm_index, &res->u.output_node_info->solid_milestone_index)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_sm_index);
+      ret = -1;
+      goto end;
+    }
   }
 
 end:

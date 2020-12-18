@@ -16,6 +16,7 @@ void test_get_info() {
   // TEST_ASSERT_EQUAL_STRING("0.6.0-alpha", info->u.output_node_info->version);
   // TEST_ASSERT_EQUAL_STRING("alphanet1", info->u.output_node_info->network_id);
   // TEST_ASSERT_EQUAL_UINT64(87389, info->u.output_node_info->latest_milestone_index);
+  // TEST_ASSERT_EQUAL_UINT64(87389, info->u.output_node_info->solid_milestone_index);
 
   res_node_info_free(info);
 }
@@ -35,6 +36,7 @@ void test_deser_node_info() {
   TEST_ASSERT_TRUE(info->u.output_node_info->is_healthy);
   TEST_ASSERT_EQUAL_STRING("alphanet1", info->u.output_node_info->network_id);
   TEST_ASSERT_EQUAL_UINT64(82847, info->u.output_node_info->latest_milestone_index);
+  TEST_ASSERT_EQUAL_UINT64(82847, info->u.output_node_info->solid_milestone_index);
 
   res_node_info_free(info);
 }
