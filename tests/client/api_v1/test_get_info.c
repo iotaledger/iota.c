@@ -26,7 +26,7 @@ void test_deser_node_info() {
   char const* const json_info =
       "{\"data\":{\"name\":\"HORNET\",\"version\":\"0.6.0-alpha\",\"isHealthy\":true,\"networkId\":\"alphanet1\","
       "\"latestMilestoneIndex\":82847,"
-      "\"solidMilestoneIndex\":82847,\"pruningIndex\":82325,\"features\":[]}}}}";
+      "\"solidMilestoneIndex\":82847,\"pruningIndex\":82325,\"features\":[\"PoW\"]}}}}";
 
   res_node_info_t* info = res_node_info_new();
   int ret = deser_node_info(json_info, info);

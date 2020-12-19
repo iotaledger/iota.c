@@ -147,6 +147,13 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
       ret = -1;
       goto end;
     }
+
+    // TODO: gets features
+    // if ((ret = json_string_array_to_utarray(data_obj, key_features, res->u.output_node_info->features)) != 0) {
+    //   printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_features);
+    //   ret = -1;
+    //   goto end;
+    // }
   }
 
 end:
