@@ -9,6 +9,7 @@ void test_get_info() {
       .port = 14265  // use default port number
   };
   res_node_info_t* info = res_node_info_new();
+  TEST_ASSERT_NOT_NULL(info);
 
   int ret = get_node_info(&ctx, info);
   TEST_ASSERT_EQUAL_INT(0, ret);
@@ -29,6 +30,8 @@ void test_deser_node_info() {
       "\"solidMilestoneIndex\":82847,\"pruningIndex\":82325,\"features\":[\"PoW\"]}}}}";
 
   res_node_info_t* info = res_node_info_new();
+  TEST_ASSERT_NOT_NULL(info);
+
   int ret = deser_node_info(json_info, info);
 
   TEST_ASSERT_EQUAL_INT(0, ret);
