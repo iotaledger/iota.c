@@ -26,6 +26,7 @@ void res_node_info_free(res_node_info_t *res) {
 int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   int ret = 0;
   char const *const cmd_info = "api/v1/info";
+
   // compose restful api command
   iota_str_t *cmd = iota_str_new(conf->url);
   if (cmd == NULL) {
@@ -54,10 +55,18 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
 
   // send request via http client
   long st = 0;
-  if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
-    byte_buf2str(http_res);
-    // json deserialization
-    deser_node_info((char const *const)http_res->data, res);
+  int http_ret = http_client_get(&http_conf, http_res, &st);
+  if (http_ret != 0) {
+    ret = -1;
+    goto done;
+  }
+
+  byte_buf2str(http_res);
+
+  // json deserialization
+  deser_node_info((char const *const)http_res->data, res);
+  if (res->is_error) {
+    ret = -1;
   }
 
 done:
