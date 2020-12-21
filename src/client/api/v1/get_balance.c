@@ -95,7 +95,7 @@ end:
 
 int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res) {
   int ret = 0;
-  char const *const cmd_info = "api/v1/addresses/ed25519/";
+  char const *const cmd_balance = "api/v1/addresses/ed25519/";
 
   if (addr == NULL || res == NULL || conf == NULL) {
     printf("[%s:%d]: get_balance failed (null parameter)\n", __func__, __LINE__);
@@ -110,8 +110,8 @@ int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res)
   // compose restful api command
   iota_str_t *cmd = iota_str_new(conf->url);
 
-  if (iota_str_append(cmd, cmd_info)) {
-    printf("[%s:%d]: cmd_info append failed\n", __func__, __LINE__);
+  if (iota_str_append(cmd, cmd_balance)) {
+    printf("[%s:%d]: cmd_balance append failed\n", __func__, __LINE__);
     return -1;
   }
 
