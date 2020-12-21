@@ -88,7 +88,7 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     // got an error response
     res->is_error = true;
     res->u.error = res_err;
-    ret = -1;
+    ret = 0;
     goto end;
   }
 
