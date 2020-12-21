@@ -46,7 +46,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     // got an error response
     res->is_error = true;
     res->u.error = res_err;
-    ret = -1;
+    ret = 0;
     goto end;
   }
 

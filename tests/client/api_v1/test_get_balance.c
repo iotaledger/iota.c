@@ -68,7 +68,7 @@ void test_deser_balance_info() {
   res = res_balance_new();
 
   // test http status code 400
-  TEST_ASSERT_EQUAL_INT(-1, deser_balance_info(json_info_400, res));
+  TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_400, res));
   TEST_ASSERT(res->is_error);
   TEST_ASSERT_EQUAL_STRING("400", res->u.error->code);
   TEST_ASSERT_EQUAL_STRING(
