@@ -27,6 +27,11 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   int ret = 0;
   char const *const cmd_info = "api/v1/info";
 
+  if (conf == NULL || res == NULL) {
+    printf("[%s:%d]: get_node_info failed (null parameter)\n", __func__, __LINE__);
+    return -1;
+  }
+
   // compose restful api command
   iota_str_t *cmd = iota_str_new(conf->url);
   if (cmd == NULL) {

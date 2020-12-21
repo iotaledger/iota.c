@@ -11,6 +11,11 @@ void test_get_info() {
   res_node_info_t* info = res_node_info_new();
   TEST_ASSERT_NOT_NULL(info);
 
+  // test null cases
+  TEST_ASSERT_EQUAL_INT(-1, get_node_info(NULL, NULL));
+  TEST_ASSERT_EQUAL_INT(-1, get_node_info(&ctx, NULL));
+  TEST_ASSERT_EQUAL_INT(-1, get_node_info(NULL, info));
+
   int ret = get_node_info(&ctx, info);
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_EQUAL_STRING("HORNET", info->u.output_node_info->name);
