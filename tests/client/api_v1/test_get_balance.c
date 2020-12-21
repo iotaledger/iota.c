@@ -35,7 +35,9 @@ void test_get_balance() {
 
   // reset res
   res_balance_free(res);
+  res = NULL;
   res = res_balance_new();
+  TEST_ASSERT_NOT_NULL(res);
 
   // test for success
   TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, ADDR_HEX, res));
@@ -65,7 +67,9 @@ void test_deser_balance_info() {
 
   // reset res
   res_balance_free(res);
+  res = NULL;
   res = res_balance_new();
+  TEST_ASSERT_NOT_NULL(res);
 
   // test http status code 400
   TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_400, res));
