@@ -19,6 +19,7 @@ void test_get_balance() {
   };
 
   res_balance_t* res = res_balance_new();
+  TEST_ASSERT_NOT_NULL(res);
 
   // test null cases
   TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, NULL, NULL));
@@ -60,6 +61,7 @@ void test_deser_balance_info() {
 
   // test http status code 200
   res_balance_t* res = res_balance_new();
+  TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_200, res));
   TEST_ASSERT_EQUAL_INT(1000, res->u.output_balance->max_results);
   TEST_ASSERT_EQUAL_INT(25, res->u.output_balance->count);
