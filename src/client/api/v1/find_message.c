@@ -8,10 +8,13 @@
 
 static find_msg_t *find_msg_new() {
   find_msg_t *ids = malloc(sizeof(find_msg_t));
-  ids->count = 0;
-  ids->max_results = 0;
-  utarray_new(ids->msg_ids, &ut_str_icd);
-  return ids;
+  if (ids) {
+    ids->count = 0;
+    ids->max_results = 0;
+    utarray_new(ids->msg_ids, &ut_str_icd);
+    return ids;
+  }
+  return NULL;
 }
 
 static void find_msg_free(find_msg_t *ids) {
@@ -25,8 +28,11 @@ static void find_msg_free(find_msg_t *ids) {
 
 res_find_msg_t *res_find_msg_new() {
   res_find_msg_t *res = malloc(sizeof(res_find_msg_t));
-  res->is_error = false;
-  return res;
+  if (res) {
+    res->is_error = false;
+    return res;
+  }
+  return NULL;
 }
 
 void res_find_msg_free(res_find_msg_t *res) {
@@ -68,7 +74,7 @@ int deser_find_message(char const *const j_str, res_find_msg_t *res) {
   char const *const key_count = "count";
   char const *const key_msg_id = "messageIds";
 
-  int ret = 0;
+  int ret = -1;
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
     return -1;
@@ -79,6 +85,7 @@ int deser_find_message(char const *const j_str, res_find_msg_t *res) {
     // got an error response
     res->is_error = true;
     res->u.error = res_err;
+    ret = 0;
     goto end;
   }
 
@@ -88,7 +95,6 @@ int deser_find_message(char const *const j_str, res_find_msg_t *res) {
     res->u.msg_ids = find_msg_new();
     if (res->u.msg_ids == NULL) {
       printf("[%s:%d]: find_msg_t object allocation filaed\n", __func__, __LINE__);
-      ret = -1;
       goto end;
     }
     // TODO index element?
@@ -96,26 +102,22 @@ int deser_find_message(char const *const j_str, res_find_msg_t *res) {
     // maxResults
     if ((ret = json_get_uint32(data_obj, key_max_results, &res->u.msg_ids->max_results)) != 0) {
       printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_max_results);
-      ret = -1;
       goto end;
     }
 
     // count
     if ((ret = json_get_uint32(data_obj, key_count, &res->u.msg_ids->count)) != 0) {
       printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_count);
-      ret = -1;
       goto end;
     }
 
     // message IDs
     if ((ret = json_string_array_to_utarray(data_obj, key_msg_id, res->u.msg_ids->msg_ids)) != 0) {
       printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_msg_id);
-      ret = -1;
     }
 
   } else {
     printf("[%s:%d]: JSON parsing failed\n", __func__, __LINE__);
-    ret = -1;
   }
 
 end:
@@ -124,7 +126,7 @@ end:
 }
 
 int find_message_by_index(iota_client_conf_t const *conf, char index[], res_find_msg_t *res) {
-  int ret = 0;
+  int ret = -1;
   iota_str_t *cmd = NULL;
   byte_buf_t *http_res = NULL;
   long st = 0;
@@ -135,21 +137,18 @@ int find_message_by_index(iota_client_conf_t const *conf, char index[], res_find
   }
 
   // compose restful api command
-  cmd = iota_str_new(conf->url);
-  if (cmd == NULL) {
+  if ((cmd = iota_str_new(conf->url)) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
     return -1;
   }
 
   if (iota_str_append(cmd, "api/v1/messages?index=")) {
     printf("[%s:%d]: cmd append failed\n", __func__, __LINE__);
-    ret = -1;
     goto done;
   }
 
   if (iota_str_append(cmd, index)) {
     printf("[%s:%d]: index append failed\n", __func__, __LINE__);
-    ret = -1;
     goto done;
   }
 
@@ -162,7 +161,6 @@ int find_message_by_index(iota_client_conf_t const *conf, char index[], res_find
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    ret = -1;
     goto done;
   }
 
