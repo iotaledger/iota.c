@@ -117,11 +117,13 @@ int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res)
 
   if (iota_str_append(cmd, cmd_balance)) {
     printf("[%s:%d]: cmd_balance append failed\n", __func__, __LINE__);
+    iota_str_destroy(cmd);
     return -1;
   }
 
   if (iota_str_append(cmd, addr)) {
     printf("[%s:%d]: addr append failed\n", __func__, __LINE__);
+    iota_str_destroy(cmd);
     return -1;
   }
 
