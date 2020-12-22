@@ -70,10 +70,7 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   byte_buf2str(http_res);
 
   // json deserialization
-  deser_node_info((char const *const)http_res->data, res);
-  if (res->is_error) {
-    ret = -1;
-  }
+  ret = deser_node_info((char const *const)http_res->data, res);
 
 done:
   // cleanup command
