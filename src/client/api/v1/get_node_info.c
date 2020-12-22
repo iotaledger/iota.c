@@ -41,6 +41,7 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
 
   if (iota_str_append(cmd, cmd_info)) {
     printf("[%s:%d]: string append failed\n", __func__, __LINE__);
+    iota_str_destroy(cmd);
     return -1;
   }
 
