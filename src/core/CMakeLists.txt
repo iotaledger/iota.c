@@ -18,8 +18,8 @@ target_sources(
           "utils/slip10.c"
           "utils/bech32.c"
           "models/inputs/utxo_input.c"
-          "models/outputs/sig_unlocked_single_deposit.c"
-          "models/payloads/signed_transaction.c"
+          "models/outputs/sig_unlocked_single_output.c"
+          "models/payloads/transaction.c"
   PUBLIC "address.h"
          "seed.c"
          "utils/iota_str.h"
@@ -27,8 +27,8 @@ target_sources(
          "utils/slip10.h"
          "utils/bech32.h"
          "models/inputs/utxo_input.h"
-         "models/outputs/sig_unlocked_single_deposit.h"
-         "models/payloads/signed_transaction.h")
+         "models/outputs/sig_unlocked_single_output.h"
+         "models/payloads/transaction.h")
 
 target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 

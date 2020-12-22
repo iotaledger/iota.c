@@ -9,6 +9,7 @@
 #include "core/types.h"
 
 #define IOTA_MESSAGE_ID_BYTES 32  // message hash ID
+#define IOTA_MESSAGE_ID_HEX_BYTES (IOTA_MESSAGE_ID_BYTES * 2)
 
 typedef union {
   indexation_t indexation;
