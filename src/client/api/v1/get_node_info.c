@@ -110,7 +110,8 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
   res->u.output_node_info = malloc(sizeof(get_node_info_t));
   if (res->u.output_node_info == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return -1;
+    ret = -1;
+    goto end;
   }
 
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
