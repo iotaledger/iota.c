@@ -440,7 +440,12 @@ end:
 }
 
 int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_message_t *res) {
-  int ret = 0;
+  int ret = -1;
+  iota_str_t *cmd = NULL;
+  byte_buf_t *http_res = NULL;
+  long st = 0;
+  http_client_config_t http_conf = {0};
+
   if (conf == NULL || msg_id == NULL || res == NULL) {
     // invalid parameters
     return -1;
@@ -453,38 +458,33 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
   }
 
   // compose restful api command
-  iota_str_t *cmd = iota_str_new(conf->url);
-  if (cmd == NULL) {
+  if ((cmd = iota_str_new(conf->url)) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
     return -1;
   }
 
   if (iota_str_append(cmd, "api/v1/messages/")) {
     printf("[%s:%d]: cmd append failed\n", __func__, __LINE__);
-    return -1;
+    goto done;
   }
 
   if (iota_str_append(cmd, msg_id)) {
-    printf("[%s:%d]: output id append failed\n", __func__, __LINE__);
-    return -1;
+    printf("[%s:%d]: message id append failed\n", __func__, __LINE__);
+    goto done;
   }
 
   // http client configuration
-  http_client_config_t http_conf = {0};
   http_conf.url = cmd->buf;
   if (conf->port) {
     http_conf.port = conf->port;
   }
 
-  byte_buf_t *http_res = byte_buf_new();
-  if (http_res == NULL) {
+  if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    ret = -1;
     goto done;
   }
 
   // send request via http client
-  long st = 0;
   if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
