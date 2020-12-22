@@ -53,7 +53,8 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
   res->u.output_balance = malloc(sizeof(get_balance_t));
   if (res->u.output_balance == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return -1;
+    ret = -1;
+    goto end;
   }
 
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
