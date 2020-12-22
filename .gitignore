@@ -8,3 +8,5 @@ build/*
 # VS Code 
 .vscode/*
 
+# CLion
+.idea/*
