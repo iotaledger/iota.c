@@ -109,6 +109,10 @@ int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res)
 
   // compose restful api command
   iota_str_t *cmd = iota_str_new(conf->url);
+  if (cmd == NULL) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
+  }
 
   if (iota_str_append(cmd, cmd_balance)) {
     printf("[%s:%d]: cmd_balance append failed\n", __func__, __LINE__);
