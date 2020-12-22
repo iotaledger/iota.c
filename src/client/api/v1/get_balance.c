@@ -145,10 +145,7 @@ int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res)
   byte_buf2str(http_res);
 
   // json deserialization
-  deser_balance_info((char const *const)http_res->data, res);
-  if (res->is_error) {
-    ret = -1;
-  }
+  ret = deser_balance_info((char const *const)http_res->data, res);
 
 done:
   // cleanup command

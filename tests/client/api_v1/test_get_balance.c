@@ -28,7 +28,8 @@ void test_get_balance() {
   TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, NULL, res));
 
   // test invalid address
-  TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, ADDR_INV, res));
+  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, ADDR_INV, res));
+  TEST_ASSERT(res->is_error);
   TEST_ASSERT_EQUAL_STRING(
       "bad request, error: invalid address: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx, error: "
       "encoding/hex: invalid byte: U+0078 'x': invalid parameter",
