@@ -144,8 +144,8 @@ int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], 
     return -1;
   }
 
-  char cmd_buf[100] = {};
-  sprintf(cmd_buf, "api/v1/addresses/%s/outputs", addr);
+  char cmd_buf[128] = {};
+  sprintf(cmd_buf, "api/v1/addresses/ed25519/%s/outputs", addr);
   if (iota_str_append(cmd, cmd_buf)) {
     printf("[%s:%d]: cmd append failed\n", __func__, __LINE__);
     goto done;
