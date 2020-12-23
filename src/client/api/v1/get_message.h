@@ -11,6 +11,8 @@
 #include "client/api/v1/response_error.h"
 #include "client/client_service.h"
 
+#define IOTA_MESSAGE_ID_HEX_BYTES 64
+
 typedef struct {
   bool is_error;
   union {

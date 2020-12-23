@@ -60,9 +60,11 @@ size_t res_find_msg_get_id_len(res_find_msg_t *res) {
 }
 
 char *res_find_msg_get_id(res_find_msg_t *res, size_t index) {
-  if (index < res_find_msg_get_id_len(res)) {
-    char **p = (char **)utarray_eltptr(res->u.msg_ids->msg_ids, index);
-    return *p;
+  if (res) {
+    if (index < res_find_msg_get_id_len(res)) {
+      char **p = (char **)utarray_eltptr(res->u.msg_ids->msg_ids, index);
+      return *p;
+    }
   }
   return NULL;
 }

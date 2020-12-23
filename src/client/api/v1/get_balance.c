@@ -12,8 +12,11 @@
 
 res_balance_t *res_balance_new() {
   res_balance_t *res = malloc(sizeof(res_balance_t));
-  res->is_error = false;
-  return res;
+  if (res) {
+    res->is_error = false;
+    return res;
+  }
+  return NULL;
 }
 
 void res_balance_free(res_balance_t *res) {
@@ -34,7 +37,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
   char const *const key_balance = "balance";
   char const *const key_code = "code";
   char const *const key_message = "message";
-  int ret = 0;
+  int ret = -1;
 
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
@@ -53,7 +56,6 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
   res->u.output_balance = malloc(sizeof(get_balance_t));
   if (res->u.output_balance == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
-    ret = -1;
     goto end;
   }
 
@@ -63,28 +65,24 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     if ((ret = json_get_string(data_obj, key_addr, res->u.output_balance->address,
                                sizeof(res->u.output_balance->address))) != 0) {
       printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, key_addr);
-      ret = -1;
       goto end;
     }
 
     // gets max_results
     if ((ret = json_get_uint16(data_obj, key_maxResults, &res->u.output_balance->max_results)) != 0) {
       printf("[%s:%d]: gets %s json max_results failed\n", __func__, __LINE__, key_maxResults);
-      ret = -1;
       goto end;
     }
 
     // gets count
     if ((ret = json_get_uint16(data_obj, key_count, &res->u.output_balance->count)) != 0) {
       printf("[%s:%d]: gets %s json count failed\n", __func__, __LINE__, key_count);
-      ret = -1;
       goto end;
     }
 
     // gets balance
     if ((ret = json_get_uint64(data_obj, key_balance, &res->u.output_balance->balance)) != 0) {
       printf("[%s:%d]: gets %s json balance failed\n", __func__, __LINE__, key_balance);
-      ret = -1;
       goto end;
     }
   }
@@ -95,8 +93,10 @@ end:
 }
 
 int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res) {
-  int ret = 0;
+  int ret = -1;
   char const *const cmd_balance = "api/v1/addresses/ed25519/";
+  byte_buf_t *http_res = NULL;
+  long http_st = 0;
 
   if (addr == NULL || res == NULL || conf == NULL) {
     printf("[%s:%d]: get_balance failed (null parameter)\n", __func__, __LINE__);
@@ -117,14 +117,12 @@ int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res)
 
   if (iota_str_append(cmd, cmd_balance)) {
     printf("[%s:%d]: cmd_balance append failed\n", __func__, __LINE__);
-    iota_str_destroy(cmd);
-    return -1;
+    goto done;
   }
 
   if (iota_str_append(cmd, addr)) {
     printf("[%s:%d]: addr append failed\n", __func__, __LINE__);
-    iota_str_destroy(cmd);
-    return -1;
+    goto done;
   }
 
   // http client configuration
@@ -134,25 +132,17 @@ int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res)
     http_conf.port = conf->port;
   }
 
-  byte_buf_t *http_res = byte_buf_new();
-  if (http_res == NULL) {
+  if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    ret = -1;
     goto done;
   }
 
   // send request via http client
-  long st = 0;
-  int http_err = http_client_get(&http_conf, http_res, &st);
-  if (http_err != 0) {
-    ret = -1;
-    goto done;
+  if ((ret = http_client_get(&http_conf, http_res, &http_st)) == 0) {
+    byte_buf2str(http_res);
+    // json deserialization
+    ret = deser_balance_info((char const *const)http_res->data, res);
   }
-
-  byte_buf2str(http_res);
-
-  // json deserialization
-  ret = deser_balance_info((char const *const)http_res->data, res);
 
 done:
   // cleanup command

@@ -8,11 +8,14 @@
 
 static get_outputs_address_t *outputs_new() {
   get_outputs_address_t *ids = malloc(sizeof(get_outputs_address_t));
-  memset(ids->address, 0, sizeof(ids->address));
-  ids->count = 0;
-  ids->max_results = 0;
-  utarray_new(ids->outputs, &ut_str_icd);
-  return ids;
+  if (ids) {
+    memset(ids->address, 0, sizeof(ids->address));
+    ids->count = 0;
+    ids->max_results = 0;
+    utarray_new(ids->outputs, &ut_str_icd);
+    return ids;
+  }
+  return NULL;
 }
 
 static void outputs_free(get_outputs_address_t *ids) {
@@ -26,8 +29,11 @@ static void outputs_free(get_outputs_address_t *ids) {
 
 res_outputs_address_t *res_outputs_address_new() {
   res_outputs_address_t *res = malloc(sizeof(res_outputs_address_t));
-  res->is_error = false;
-  return res;
+  if (res) {
+    res->is_error = false;
+    return res;
+  }
+  return NULL;
 }
 
 void res_outputs_address_free(res_outputs_address_t *res) {
@@ -65,7 +71,7 @@ int deser_outputs_from_address(char const *const j_str, res_outputs_address_t *r
   char const *const key_count = "count";
   char const *const key_outputs = "outputIds";
 
-  int ret = 0;
+  int ret = -1;
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
     return -1;
@@ -76,6 +82,7 @@ int deser_outputs_from_address(char const *const j_str, res_outputs_address_t *r
     // got an error response
     res->is_error = true;
     res->u.error = res_err;
+    ret = 0;
     goto end;
   }
 
@@ -84,38 +91,34 @@ int deser_outputs_from_address(char const *const j_str, res_outputs_address_t *r
     res->u.output_ids = outputs_new();
     if (res->u.output_ids == NULL) {
       // OOM
-      ret = -1;
+      printf("[%s:%d]: allocate output object failed\n", __func__, __LINE__);
       goto end;
     }
 
     if ((ret = json_get_string(data_obj, key_address, res->u.output_ids->address,
                                sizeof(res->u.output_ids->address))) != 0) {
       printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, key_address);
-      ret = -1;
       goto end;
     }
 
     if ((ret = json_get_uint32(data_obj, key_result, &res->u.output_ids->max_results) != 0)) {
       printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, key_result);
-      ret = -1;
       goto end;
     }
 
     if ((ret = json_get_uint32(data_obj, key_count, &res->u.output_ids->count) != 0)) {
       printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, key_count);
-      ret = -1;
       goto end;
     }
 
     if ((ret = json_string_array_to_utarray(data_obj, key_outputs, res->u.output_ids->outputs)) != 0) {
       printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, key_outputs);
-      ret = -1;
       goto end;
     }
 
   } else {
     // JSON format mismatched.
-    ret = -1;
+    printf("[%s:%d]: parsing JSON object failed\n", __func__, __LINE__);
   }
 
 end:
@@ -125,7 +128,10 @@ end:
 }
 
 int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], res_outputs_address_t *res) {
-  int ret = 0;
+  int ret = -1;
+  long st = 0;
+  byte_buf_t *http_res = NULL;
+
   if (conf == NULL || addr == NULL || res == NULL) {
     // invalid parameters
     return -1;
@@ -142,7 +148,7 @@ int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], 
   sprintf(cmd_buf, "api/v1/addresses/%s/outputs", addr);
   if (iota_str_append(cmd, cmd_buf)) {
     printf("[%s:%d]: cmd append failed\n", __func__, __LINE__);
-    return -1;
+    goto done;
   }
 
   // http client configuration
@@ -152,15 +158,12 @@ int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], 
     http_conf.port = conf->port;
   }
 
-  byte_buf_t *http_res = byte_buf_new();
-  if (http_res == NULL) {
+  if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    ret = -1;
     goto done;
   }
 
   // send request via http client
-  long st = 0;
   if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
     // json deserialization

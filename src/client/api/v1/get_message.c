@@ -14,7 +14,7 @@ static int deser_milestone(cJSON *milestone, res_message_t *res) {
   char const *const key_timestamp = "timestamp";
   char const *const key_inclusion = "inclusionMerkleProof";
   char const *const key_signatures = "signatures";
-  int ret = 0;
+  int ret = -1;
   payload_milestone_t *ms = payload_milestone_new();
   if (ms == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
@@ -24,14 +24,12 @@ static int deser_milestone(cJSON *milestone, res_message_t *res) {
   // parsing index
   if ((ret = json_get_uint32(milestone, key_index, &ms->index)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_index);
-    ret = -1;
     goto end;
   }
 
   // parsing timestamp
   if ((ret = json_get_uint64(milestone, key_timestamp, &ms->timestamp)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_timestamp);
-    ret = -1;
     goto end;
   }
 
@@ -39,14 +37,12 @@ static int deser_milestone(cJSON *milestone, res_message_t *res) {
   if ((ret = json_get_string(milestone, key_inclusion, ms->inclusion_merkle_proof,
                              sizeof(ms->inclusion_merkle_proof))) != 0) {
     printf("[%s:%d]: parsing %s string failed\n", __func__, __LINE__, key_inclusion);
-    ret = -1;
     goto end;
   }
 
   // parsing signatures
   if ((ret = json_string_array_to_utarray(milestone, key_signatures, ms->signatures)) != 0) {
     printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, key_signatures);
-    ret = -1;
   }
 
 end:
@@ -63,7 +59,7 @@ end:
 static int deser_indexation(cJSON *idx_obj, res_message_t *res) {
   char const *const key_index = "index";
   char const *const key_data = "data";
-  int ret = 0;
+  int ret = -1;
   payload_index_t *idx = payload_index_new();
   if (idx == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
@@ -72,13 +68,11 @@ static int deser_indexation(cJSON *idx_obj, res_message_t *res) {
 
   if ((ret = json_get_byte_buf_str(idx_obj, key_index, idx->index)) != 0) {
     printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_index);
-    ret = -1;
     goto end;
   }
 
   if ((ret = json_get_byte_buf_str(idx_obj, key_data, idx->data)) != 0) {
     printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_data);
-    ret = -1;
   }
 
 end:
@@ -269,7 +263,7 @@ static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
   char const *const key_essence = "essence";
   char const *const key_payload = "payload";
   char const *const key_blocks = "unlockBlocks";
-  int ret = 0;
+  int ret = -1;
 
   payload_tx_t *tx = payload_tx_new();
   if (tx == NULL) {
@@ -303,12 +297,10 @@ static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
       ret = deser_tx_blocks(blocks_obj, tx);
     } else {
       printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, key_blocks);
-      ret = -1;
     }
 
   } else {
     printf("[%s:%d]: %s not found in the message\n", __func__, __LINE__, key_essence);
-    ret = -1;
   }
 
 end:
@@ -351,7 +343,7 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
   char const *const key_type = "type";
   char const *const key_data = "data";
 
-  int ret = 0;
+  int ret = -1;
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
     return -1;
@@ -362,6 +354,7 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
     // got an error response
     res->is_error = true;
     res->u.error = res_err;
+    ret = 0;
     goto end;
   }
 
@@ -371,35 +364,30 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
     res->u.msg = api_message_new();
     if (!res->u.msg) {
       printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      ret = -1;
       goto end;
     }
 
     // network ID
     if ((ret = json_get_string(data_obj, key_net, res->u.msg->net_id, sizeof(res->u.msg->net_id))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_net);
-      ret = -1;
       goto end;
     }
 
     // parent1MessageId
     if ((ret = json_get_string(data_obj, key_p1_id, res->u.msg->parent1, sizeof(res->u.msg->parent1))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_p1_id);
-      ret = -1;
       goto end;
     }
 
     // parent2MessageId
     if ((ret = json_get_string(data_obj, key_p2_id, res->u.msg->parent2, sizeof(res->u.msg->parent2))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_p2_id);
-      ret = -1;
       goto end;
     }
 
     // nonce
     if ((ret = json_get_string(data_obj, key_nonce, res->u.msg->nonce, sizeof(res->u.msg->nonce))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_nonce);
-      ret = -1;
       goto end;
     }
 
@@ -407,19 +395,18 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
     if (payload) {
       if ((ret = json_get_uint32(payload, key_type, &res->u.msg->type) != 0)) {
         printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, key_type);
-        ret = -1;
         goto end;
       }
 
       switch (res->u.msg->type) {
         case MSG_PAYLOAD_TRANSACTION:
-          deser_transaction(payload, res);
+          ret = deser_transaction(payload, res);
           break;
         case MSG_PAYLOAD_MILESTONE:
-          deser_milestone(payload, res);
+          ret = deser_milestone(payload, res);
           break;
         case MSG_PAYLOAD_INDEXATION:
-          deser_indexation(payload, res);
+          ret = deser_indexation(payload, res);
           break;
         default:
           // do nothing
@@ -428,8 +415,6 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
 
     } else {
       printf("[%s:%d]: invalid message: payload not found\n", __func__, __LINE__);
-      ret = -1;
-      goto end;
     }
   }
 
@@ -451,9 +436,9 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
     return -1;
   }
 
-  if (strlen(msg_id) != 64) {
-    // invalid output id length
-    printf("[%s:%d]: invalid output id length: %zu\n", __func__, __LINE__, strlen(msg_id));
+  if (strlen(msg_id) != IOTA_MESSAGE_ID_HEX_BYTES) {
+    // invalid message id length
+    printf("[%s:%d]: invalid message id length: %zu\n", __func__, __LINE__, strlen(msg_id));
     return -1;
   }
 

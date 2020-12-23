@@ -10,7 +10,7 @@
 
 // create JSON object and put the JSON string in byte_buf_t that can send by http client.
 int serialize_indexation(message_t* msg, byte_buf_t* buf) {
-  int ret = 0;
+  int ret = -1;
   cJSON* json_root = cJSON_CreateObject();
   byte_buf_t* hex_data = NULL;
   char* json_string = NULL;
@@ -26,19 +26,16 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
   */
   if (!cJSON_AddStringToObject(json_root, "networkId", "")) {
     printf("[%s:%d] networkId object failed\n", __func__, __LINE__);
-    ret = -1;
     goto end;
   }
 
   if (!cJSON_AddStringToObject(json_root, "parent1MessageId", msg->parent1)) {
     printf("[%s:%d] parent1MessageId object failed\n", __func__, __LINE__);
-    ret = -1;
     goto end;
   }
 
   if (!cJSON_AddStringToObject(json_root, "parent2MessageId", msg->parent2)) {
     printf("[%s:%d] parent2MessageId object failed\n", __func__, __LINE__);
-    ret = -1;
     goto end;
   }
 
@@ -54,25 +51,21 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
     payload_index_t* payload = (payload_index_t*)msg->payload;
     if (!cJSON_AddNumberToObject(json_payload, "type", 2)) {
       printf("[%s:%d] payload/type object failed\n", __func__, __LINE__);
-      ret = -1;
       goto end;
     }
 
     if (!cJSON_AddStringToObject(json_payload, "index", (char const* const)payload->index->data)) {
       printf("[%s:%d] payload/index object failed\n", __func__, __LINE__);
-      ret = -1;
       goto end;
     }
 
     if ((hex_data = byte_buf_str2hex(payload->data)) != NULL) {
       if (!cJSON_AddStringToObject(json_payload, "data", (char const* const)hex_data->data)) {
         printf("[%s:%d] payload/data object failed\n", __func__, __LINE__);
-        ret = -1;
         goto end;
       }
     } else {
       printf("[%s:%d] payload/data serialization failed\n", __func__, __LINE__);
-      ret = -1;
       goto end;
     }
 
@@ -81,25 +74,20 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
     */
     if (!cJSON_AddStringToObject(json_root, "nonce", "")) {
       printf("[%s:%d] nonce object failed\n", __func__, __LINE__);
-      ret = -1;
       goto end;
     }
 
     // dump json object to a string
     if ((json_string = cJSON_PrintUnformatted(json_root)) == NULL) {
       printf("[%s:%d] json string print failed\n", __func__, __LINE__);
-      ret = -1;
       goto end;
     }
 
     if (byte_buf_append(buf, (byte_t*)json_string, strlen(json_string) + 1) == false) {
       printf("[%s:%d] append json to buffer failed\n", __func__, __LINE__);
-      ret = -1;
       goto end;
     }
-
-  } else {
-    ret = -1;
+    ret = 0;
   }
 
 end:
@@ -112,7 +100,7 @@ end:
 }
 
 int deser_send_message_response(char const* json_str, res_send_message_t* res) {
-  int ret = 0;
+  int ret = -1;
   char const* const key_data = "data";
   char const* const key_msg_id = "messageId";
 
@@ -127,6 +115,7 @@ int deser_send_message_response(char const* json_str, res_send_message_t* res) {
     // got an error response
     res->is_error = true;
     res->u.error = res_err;
+    ret = 0;
     goto end;
   }
 
@@ -135,11 +124,11 @@ int deser_send_message_response(char const* json_str, res_send_message_t* res) {
     // message ID
     if ((ret = json_get_string(data_obj, key_msg_id, res->u.msg_id, sizeof(res->u.msg_id))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_msg_id);
-      ret = -1;
+      goto end;
     }
+    ret = 0;
   } else {
     printf("[%s:%d]: %s not found failed\n", __func__, __LINE__, key_data);
-    ret = -1;
   }
 
 end:
@@ -148,7 +137,7 @@ end:
 }
 
 int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_message_t* res) {
-  int ret = 0;
+  int ret = -1;
   long http_st_code = 0;
   iota_str_t* cmd = NULL;
   http_client_config_t http = {0};
@@ -173,7 +162,6 @@ int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_
       break;
     default:
       printf("[%s:%d] UNKNOW message payload type\n", __func__, __LINE__);
-      ret = -1;
       break;
   }
 
@@ -182,16 +170,13 @@ int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_
   }
 
   // post message
-  cmd = iota_str_new(conf->url);
-  if (cmd == NULL) {
+  if ((cmd = iota_str_new(conf->url)) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    ret = -1;
     goto end;
   }
 
   if (iota_str_append(cmd, "api/v1/messages")) {
     printf("[%s:%d]: string append failed\n", __func__, __LINE__);
-    ret = -1;
     goto end;
   }
 
@@ -217,15 +202,15 @@ end:
 
 int send_indexation_msg(iota_client_conf_t const* const conf, char const index[], char const data[],
                         res_send_message_t* res) {
-  int ret = 0;
+  int ret = -1;
   // get tips
   res_tips_t tips = {};
   message_t* msg = NULL;
   payload_index_t* idx = NULL;
 
-  if (get_tips(conf, &tips) != 0) {
+  if ((ret = get_tips(conf, &tips)) != 0) {
     printf("[%s:%d] get tips message failed\n", __func__, __LINE__);
-    return -1;
+    return ret;
   }
 
   if (tips.is_error) {
@@ -242,14 +227,12 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
   if (!byte_buf_append(idx->data, (byte_t const*)data, strlen(data) + 1) ||
       !byte_buf_append(idx->index, (byte_t const*)index, strlen(index) + 1)) {
     printf("[%s:%d] append data and index to payload failed\n", __func__, __LINE__);
-    ret = -1;
     payload_index_free(idx);
     goto done;
   }
 
   if ((msg = api_message_new()) == NULL) {
     printf("[%s:%d] allocate message failed\n", __func__, __LINE__);
-    ret = -1;
     goto done;
   }
 
@@ -267,5 +250,5 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
 done:
   api_message_free(msg);
 
-  return 0;
+  return ret;
 }
