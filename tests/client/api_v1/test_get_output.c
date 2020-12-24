@@ -20,6 +20,7 @@ void test_get_output() {
   // output id not found from node
   TEST_ASSERT(get_output(&ctx, output_id, &res) == 0);
   TEST_ASSERT(res.is_error == true);
+  res_err_free(res.u.error);
 }
 
 void test_deser_response_error() {

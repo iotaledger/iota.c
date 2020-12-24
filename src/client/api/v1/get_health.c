@@ -9,8 +9,11 @@
 #include "core/utils/iota_str.h"
 
 int get_health(iota_client_conf_t const *conf, bool *health) {
-  int ret = 0;
+  int ret = -1;
+  long st = 0;
   char const *const cmd_info = "health";
+  byte_buf_t *http_res = NULL;
+
   // compose restful api command
   iota_str_t *cmd = iota_str_new(conf->url);
   if (cmd == NULL) {
@@ -20,7 +23,7 @@ int get_health(iota_client_conf_t const *conf, bool *health) {
 
   if (iota_str_append(cmd, cmd_info)) {
     printf("[%s:%d]: string append failed\n", __func__, __LINE__);
-    return -1;
+    goto done;
   }
 
   // http client configuration
@@ -30,16 +33,13 @@ int get_health(iota_client_conf_t const *conf, bool *health) {
     http_conf.port = conf->port;
   }
 
-  byte_buf_t *http_res = byte_buf_new();
-  if (http_res == NULL) {
+  if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    ret = -1;
     goto done;
   }
 
-  long st = 0;
-  http_client_get(&http_conf, http_res, &st);
-  if (st == 200) {
+  ret = http_client_get(&http_conf, http_res, &st);
+  if (st == 200 && ret == 0) {
     *health = true;
   } else {
     *health = false;

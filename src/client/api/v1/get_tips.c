@@ -8,8 +8,11 @@
 #include "core/utils/iota_str.h"
 
 int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
-  int ret = 0;
+  int ret = -1;
+  long st = 0;
+  byte_buf_t *http_res = NULL;
   char const *const cmd_tips = "api/v1/tips";
+
   // compose restful api command
   iota_str_t *cmd = iota_str_new(conf->url);
   if (cmd == NULL) {
@@ -19,7 +22,7 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
 
   if (iota_str_append(cmd, cmd_tips)) {
     printf("[%s:%d]: string append failed\n", __func__, __LINE__);
-    return -1;
+    goto done;
   }
 
   // http client configuration
@@ -29,22 +32,18 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
     http_conf.port = conf->port;
   }
 
-  byte_buf_t *http_res = byte_buf_new();
-  if (http_res == NULL) {
+  if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    ret = -1;
     goto done;
   }
 
   // send request via http client
-  long st = 0;
-  if (http_client_get(&http_conf, http_res, &st) == 0) {
+  if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
-    deser_get_tips((char const *const)http_res->data, res);
+    ret = deser_get_tips((char const *const)http_res->data, res);
   } else {
     printf("[%s:%d] network error\n", __func__, __LINE__);
-    ret = -1;
   }
 
 done:
@@ -57,8 +56,11 @@ done:
 
 res_tips_t *res_tips_new() {
   res_tips_t *tips = malloc(sizeof(res_tips_t));
-  tips->is_error = false;
-  return tips;
+  if (tips) {
+    tips->is_error = false;
+    return tips;
+  }
+  return NULL;
 }
 
 void res_tips_free(res_tips_t *tips) {
@@ -73,7 +75,7 @@ void res_tips_free(res_tips_t *tips) {
 int deser_get_tips(char const *const j_str, res_tips_t *res) {
   char const *const key_tip1 = "tip1MessageId";
   char const *const key_tip2 = "tip2MessageId";
-  int ret = 0;
+  int ret = -1;
 
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
@@ -94,15 +96,12 @@ int deser_get_tips(char const *const j_str, res_tips_t *res) {
     // gets tip1
     if ((ret = json_get_string(data_obj, key_tip1, res->u.tips.tip1, STR_TIP_MSG_LEN)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_tip1);
-      ret = -1;
       goto end;
     }
 
     // gets tip2
     if ((ret = json_get_string(data_obj, key_tip2, res->u.tips.tip2, STR_TIP_MSG_LEN)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_tip2);
-      ret = -1;
-      goto end;
     }
   }
 

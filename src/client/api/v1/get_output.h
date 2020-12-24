@@ -10,6 +10,8 @@
 #include "client/client_service.h"
 #include "client/network/http.h"
 
+#define IOTA_OUTPUT_ID_HEX_BYTES 68
+
 /**
  * @brief The output object of get_output
  *
