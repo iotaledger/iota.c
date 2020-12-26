@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
+#include "utarray.h"
+
 #include "client/api/v1/get_node_info.h"
 
 void test_get_info() {
@@ -24,6 +26,10 @@ void test_get_info() {
   // TEST_ASSERT_EQUAL_UINT64(87389, info->u.output_node_info->latest_milestone_index);
   // TEST_ASSERT_EQUAL_UINT64(87389, info->u.output_node_info->solid_milestone_index);
   // TEST_ASSERT_EQUAL_UINT64(0, info->u.output_node_info->pruning_milestone_index);
+  // char **p;
+  // p = NULL;
+  // p = (char**)utarray_next(info->u.output_node_info->features, p);
+  // TEST_ASSERT_EQUAL_STRING("PoW", *p);
 
   res_node_info_free(info);
 }
@@ -32,7 +38,7 @@ void test_deser_node_info() {
   char const* const json_info =
       "{\"data\":{\"name\":\"HORNET\",\"version\":\"0.6.0-alpha\",\"isHealthy\":true,\"networkId\":\"alphanet1\","
       "\"latestMilestoneIndex\":82847,"
-      "\"solidMilestoneIndex\":82847,\"pruningIndex\":82325,\"features\":[\"PoW\"]}}}}";
+      "\"solidMilestoneIndex\":82847,\"pruningIndex\":82325,\"features\":[\"feature1\", \"feature2\"]}}}}";
 
   res_node_info_t* info = res_node_info_new();
   TEST_ASSERT_NOT_NULL(info);
@@ -47,6 +53,12 @@ void test_deser_node_info() {
   TEST_ASSERT_EQUAL_UINT64(82847, info->u.output_node_info->latest_milestone_index);
   TEST_ASSERT_EQUAL_UINT64(82847, info->u.output_node_info->solid_milestone_index);
   TEST_ASSERT_EQUAL_UINT64(82325, info->u.output_node_info->pruning_milestone_index);
+  char** p;
+  p = NULL;
+  p = (char**)utarray_next(info->u.output_node_info->features, p);
+  TEST_ASSERT_EQUAL_STRING("feature1", *p);
+  p = (char**)utarray_next(info->u.output_node_info->features, p);
+  TEST_ASSERT_EQUAL_STRING("feature2", *p);
 
   res_node_info_free(info);
 }

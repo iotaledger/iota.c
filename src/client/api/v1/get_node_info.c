@@ -17,6 +17,7 @@ void res_node_info_free(res_node_info_t *res) {
     if (res->is_error) {
       res_err_free(res->u.error);
     } else {
+      if (res->u.output_node_info->features) utarray_free(res->u.output_node_info->features);
       free(res->u.output_node_info);
     }
     free(res);
@@ -165,12 +166,12 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
       goto end;
     }
 
-    // TODO: gets features
-    // if ((ret = json_string_array_to_utarray(data_obj, key_features, res->u.output_node_info->features)) != 0) {
-    //   printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_features);
-    //   ret = -1;
-    //   goto end;
-    // }
+    utarray_new(res->u.output_node_info->features, &ut_str_icd);
+    if ((ret = json_string_array_to_utarray(data_obj, key_features, res->u.output_node_info->features)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_features);
+      ret = -1;
+      goto end;
+    }
   }
 
 end:

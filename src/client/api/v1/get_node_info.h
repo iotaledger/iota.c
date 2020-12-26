@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "utarray.h"
+
 #include "client/api/v1/response_error.h"
 #include "client/client_service.h"
 #include "core/types.h"
@@ -16,7 +18,7 @@ typedef struct {
   uint64_t latest_milestone_index;
   uint64_t solid_milestone_index;
   uint64_t pruning_milestone_index;
-  char features[128];
+  UT_array *features;
 } get_node_info_t;
 
 typedef struct {
