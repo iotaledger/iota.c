@@ -21,7 +21,9 @@ void res_node_info_free(res_node_info_t *res) {
     if (res->is_error) {
       res_err_free(res->u.error);
     } else {
-      if (res->u.output_node_info->features) utarray_free(res->u.output_node_info->features);
+      if (res->u.output_node_info->features) {
+        utarray_free(res->u.output_node_info->features);
+      }
       free(res->u.output_node_info);
     }
     free(res);
