@@ -26,6 +26,7 @@ void test_get_info() {
   // TEST_ASSERT_EQUAL_UINT64(87389, info->u.output_node_info->latest_milestone_index);
   // TEST_ASSERT_EQUAL_UINT64(87389, info->u.output_node_info->solid_milestone_index);
   // TEST_ASSERT_EQUAL_UINT64(0, info->u.output_node_info->pruning_milestone_index);
+  // TEST_ASSERT_EQUAL_UINT64(4000, info->u.output_node_info->minPowScore);
   // char **p;
   // p = NULL;
   // p = (char**)utarray_next(info->u.output_node_info->features, p);
@@ -37,6 +38,7 @@ void test_get_info() {
 void test_deser_node_info() {
   char const* const json_info =
       "{\"data\":{\"name\":\"HORNET\",\"version\":\"0.6.0-alpha\",\"isHealthy\":true,\"networkId\":\"alphanet1\","
+      "\"minPowScore\":4000,"
       "\"latestMilestoneIndex\":82847,"
       "\"solidMilestoneIndex\":82847,\"pruningIndex\":82325,\"features\":[\"feature1\", \"feature2\"]}}}}";
 
@@ -50,6 +52,7 @@ void test_deser_node_info() {
   TEST_ASSERT_EQUAL_STRING("0.6.0-alpha", info->u.output_node_info->version);
   TEST_ASSERT_TRUE(info->u.output_node_info->is_healthy);
   TEST_ASSERT_EQUAL_STRING("alphanet1", info->u.output_node_info->network_id);
+  TEST_ASSERT_EQUAL_UINT64(4000, info->u.output_node_info->minPowScore);
   TEST_ASSERT_EQUAL_UINT64(82847, info->u.output_node_info->latest_milestone_index);
   TEST_ASSERT_EQUAL_UINT64(82847, info->u.output_node_info->solid_milestone_index);
   TEST_ASSERT_EQUAL_UINT64(82325, info->u.output_node_info->pruning_milestone_index);

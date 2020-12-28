@@ -86,6 +86,7 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
   char const *const key_version = "version";
   char const *const key_healthy = "isHealthy";
   char const *const key_net = "networkId";
+  char const *const key_min_pow_score = "minPowScore";
   char const *const key_lm_index = "latestMilestoneIndex";
   char const *const key_sm_index = "solidMilestoneIndex";
   char const *const key_pruning = "pruningIndex";
@@ -141,6 +142,13 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     if ((ret = json_get_string(data_obj, key_net, res->u.output_node_info->network_id,
                                sizeof(res->u.output_node_info->network_id))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_net);
+      ret = -1;
+      goto end;
+    }
+
+    // gets minPowScore
+    if ((ret = json_get_uint64(data_obj, key_min_pow_score, &res->u.output_node_info->minPowScore)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_min_pow_score);
       ret = -1;
       goto end;
     }
