@@ -46,6 +46,14 @@ res_node_info_t *res_node_info_new();
 void res_node_info_free(res_node_info_t *res);
 
 /**
+ * @brief Gets strings with node features
+ * @param[in] info Object with node info
+ * @return char** with features
+ */
+
+char **get_features(res_node_info_t *info);
+
+/**
  * @brief Gets info API
  *
  * @param[in] conf The client endpoint configuration
