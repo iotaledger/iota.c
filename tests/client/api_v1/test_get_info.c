@@ -28,10 +28,7 @@ void test_get_info() {
   // TEST_ASSERT_EQUAL_UINT64(0, info->u.output_node_info->pruning_milestone_index);
   // TEST_ASSERT_EQUAL_UINT64(4000, info->u.output_node_info->min_pow_score);
 
-  // char** features = get_features(info);
-  // TEST_ASSERT_EQUAL_STRING("PoW", features[0]);
-  // free(features[0]);
-  // free(features);
+  // TEST_ASSERT_EQUAL_STRING("PoW", get_node_features_at(info, 0));
 
   res_node_info_free(info);
 }
@@ -59,15 +56,9 @@ void test_deser_node_info() {
   TEST_ASSERT_EQUAL_UINT64(82847, info->u.output_node_info->solid_milestone_index);
   TEST_ASSERT_EQUAL_UINT64(82325, info->u.output_node_info->pruning_milestone_index);
 
-  char** features = get_features(info);
-  TEST_ASSERT_EQUAL_STRING("feature_A", features[0]);
-  TEST_ASSERT_EQUAL_STRING("feature_B", features[1]);
-  TEST_ASSERT_EQUAL_STRING("feature_C", features[2]);
-
-  free(features[0]);
-  free(features[1]);
-  free(features[2]);
-  free(features);
+  TEST_ASSERT_EQUAL_STRING("feature_A", get_node_features_at(info, 0));
+  TEST_ASSERT_EQUAL_STRING("feature_B", get_node_features_at(info, 1));
+  TEST_ASSERT_EQUAL_STRING("feature_C", get_node_features_at(info, 2));
 
   res_node_info_free(info);
 }

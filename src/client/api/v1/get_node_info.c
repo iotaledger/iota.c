@@ -30,42 +30,19 @@ void res_node_info_free(res_node_info_t *res) {
   }
 }
 
-char **get_features(res_node_info_t *info) {
+char *get_node_features_at(res_node_info_t *info, size_t idx) {
   if (info == NULL) {
     printf("[%s:%d]: get_features failed (null parameter)\n", __func__, __LINE__);
     return NULL;
   }
 
   int len = utarray_len(info->u.output_node_info->features);
-  char **res = (char **)malloc(sizeof(char *) * len);
-  if (res == NULL) {
-    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+  if (idx < 0 || idx >= len) {
+    printf("[%s:%d]: get_features failed (invalid index)\n", __func__, __LINE__);
     return NULL;
   }
 
-  char **p = NULL;
-  for (int i = 0; i < len; i++) {
-    // utarray_next(UT_array *a,void *e) returns element of a following e (front if e is NULL)
-    p = (char **)utarray_next(info->u.output_node_info->features, p);
-
-    // make a copy of each feature
-    res[i] = (char *)malloc(1 + strlen(*p));
-    if (res[i] == NULL) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      goto err;
-    }
-    strcpy(res[i], *p);
-  }
-
-  return res;
-
-err:
-  for (int i = 0; i < len; i++) {
-    if (res[i]) {
-      free(res[i]);
-    }
-  }
-  return NULL;
+  return *(const char **)utarray_eltptr(info->u.output_node_info->features, idx);
 }
 
 int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {

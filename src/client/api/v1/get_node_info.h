@@ -48,10 +48,11 @@ void res_node_info_free(res_node_info_t *res);
 /**
  * @brief Gets strings with node features
  * @param[in] info Object with node info
- * @return char** with features
+ * @param[in] idx Feature index
+ * @return char* with features
  */
 
-char **get_features(res_node_info_t *info);
+char *get_node_features_at(res_node_info_t *info, size_t idx);
 
 /**
  * @brief Gets info API
