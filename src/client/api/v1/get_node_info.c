@@ -182,7 +182,7 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     }
 
     // gets minPowScore
-    if (ret = json_get_uint64(data_obj, key_min_pow_score, &res->u.output_node_info->minPowScore) != 0) {
+    if (ret = json_get_uint64(data_obj, key_min_pow_score, &res->u.output_node_info->min_pow_score) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_min_pow_score);
       goto end;
     }

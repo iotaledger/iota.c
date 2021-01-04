@@ -15,7 +15,7 @@ typedef struct {
   char version[32];
   bool is_healthy;
   char network_id[32];
-  uint64_t minPowScore;
+  uint64_t min_pow_score;
   uint64_t latest_milestone_index;
   uint64_t solid_milestone_index;
   uint64_t pruning_milestone_index;
