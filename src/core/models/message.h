@@ -6,24 +6,26 @@
 
 #include "core/models/payloads/indexation.h"
 #include "core/models/payloads/milestone.h"
+#include "core/models/payloads/transaction.h"
 #include "core/types.h"
 
 #define IOTA_MESSAGE_ID_BYTES 32  // message hash ID
 #define IOTA_MESSAGE_ID_HEX_BYTES (IOTA_MESSAGE_ID_BYTES * 2)
 
 typedef union {
-  indexation_t indexation;
-  milestone_t milestone;
+  indexation_t *indexation;
+  milestone_t *milestone;
+  transaction_payload_t *tx;
 } payload_u;
 
 typedef struct {
-  uint8_t version;                       // The message version. The schema specified in this RFC is for version 1 only.
-  byte_t trunk[IOTA_MESSAGE_ID_BYTES];   // The Message ID of the first Message we reference.
-  byte_t branch[IOTA_MESSAGE_ID_BYTES];  // The Message ID of the second Message we reference.
-  uint32_t payload_length;               // The length of the Payload.
-  payload_u payload;                     // One of payload type
-  uint64_t nonce;                        // The nonce which lets this message fulfill the Proof-of-Work requirement.
-} message_t;
+  uint64_t network_id;  // Network identifier. It is first 8 bytes of the `BLAKE2b-256` hash of the concatenation of the
+                        // network type and the protocol version string.
+  byte_t parent1[IOTA_MESSAGE_ID_BYTES];  // The 1st parent the message references.
+  byte_t parent2[IOTA_MESSAGE_ID_BYTES];  // The 2nd parent the message references.
+  payload_u pyaload;                      // One of payload type
+  uint64_t nonce;                         // The nonce which lets this message fulfill the Proof-of-Work requirement.
+} core_message_t;
 
 #ifdef __cplusplus
 extern "C" {
