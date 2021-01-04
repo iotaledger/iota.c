@@ -29,6 +29,7 @@ void test_get_info() {
   // TEST_ASSERT_EQUAL_UINT64(4000, info->u.output_node_info->min_pow_score);
 
   // TEST_ASSERT_EQUAL_STRING("PoW", get_node_features_at(info, 0));
+  // TEST_ASSERT_EQUAL_INT(1, get_node_features_num(info));
 
   res_node_info_free(info);
 }
@@ -59,6 +60,8 @@ void test_deser_node_info() {
   TEST_ASSERT_EQUAL_STRING("feature_A", get_node_features_at(info, 0));
   TEST_ASSERT_EQUAL_STRING("feature_B", get_node_features_at(info, 1));
   TEST_ASSERT_EQUAL_STRING("feature_C", get_node_features_at(info, 2));
+
+  TEST_ASSERT_EQUAL_INT(3, get_node_features_num(info));
 
   res_node_info_free(info);
 }

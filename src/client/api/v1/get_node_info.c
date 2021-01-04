@@ -45,6 +45,15 @@ char *get_node_features_at(res_node_info_t *info, size_t idx) {
   return *(const char **)utarray_eltptr(info->u.output_node_info->features, idx);
 }
 
+size_t get_node_features_num(res_node_info_t *info) {
+  if (info == NULL) {
+    printf("[%s:%d]: get_features failed (null parameter)\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  return utarray_len(info->u.output_node_info->features);
+}
+
 int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   int ret = 0;
   char const *const cmd_info = "api/v1/info";

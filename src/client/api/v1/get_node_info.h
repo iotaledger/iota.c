@@ -46,6 +46,13 @@ res_node_info_t *res_node_info_new();
 void res_node_info_free(res_node_info_t *res);
 
 /**
+ * @brief Gets number of node features
+ * @param[in] info Object with node info
+ * @return The number of features
+ */
+size_t get_node_features_num(res_node_info_t *info);
+
+/**
  * @brief Gets strings with node features
  * @param[in] info Object with node info
  * @param[in] idx Feature index
