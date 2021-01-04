@@ -10,7 +10,7 @@ res_node_info_t *res_node_info_new() {
   res_node_info_t *res = malloc(sizeof(res_node_info_t));
   if (res == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    return -1;
+    return NULL;
   }
   res->is_error = false;
   return res;
