@@ -31,6 +31,11 @@ void res_node_info_free(res_node_info_t *res) {
 }
 
 char **get_features(res_node_info_t *info) {
+  if (info == NULL) {
+    printf("[%s:%d]: get_features failed (null parameter)\n", __func__, __LINE__);
+    return NULL;
+  }
+
   int len = utarray_len(info->u.output_node_info->features);
   char **res = (char **)malloc(sizeof(char *) * len);
   if (res == NULL) {
