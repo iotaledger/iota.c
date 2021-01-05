@@ -48,7 +48,7 @@ char *get_node_features_at(res_node_info_t *info, size_t idx) {
 size_t get_node_features_num(res_node_info_t *info) {
   if (info == NULL) {
     printf("[%s:%d]: get_features failed (null parameter)\n", __func__, __LINE__);
-    return NULL;
+    return -1;
   }
 
   return utarray_len(info->u.output_node_info->features);
