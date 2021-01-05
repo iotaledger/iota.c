@@ -42,7 +42,7 @@ char *get_node_features_at(res_node_info_t *info, size_t idx) {
     return NULL;
   }
 
-  return *(const char **)utarray_eltptr(info->u.output_node_info->features, idx);
+  return *(char **)utarray_eltptr(info->u.output_node_info->features, idx);
 }
 
 size_t get_node_features_num(res_node_info_t *info) {
