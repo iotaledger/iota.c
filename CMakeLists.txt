@@ -32,12 +32,20 @@ endif()
 if(IOTA_ASAN_ENABLED)
   if(UNIX AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR NOT CMAKE_BUILD_TYPE))
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-      add_compile_options("-fsanitize=address,undefined,unsigned-integer-overflow"
+      # uthash causes runtime error if enable the unsigned-integer-overflow sanitizer in clang.
+      # see: https://github.com/pmodels/mpich/issues/3322
+      # add_compile_options("-fsanitize=address,undefined,unsigned-integer-overflow"
+      #   "-fno-omit-frame-pointer"
+      #   "-fsanitize-address-use-after-scope"
+      #   "-fno-sanitize-recover=undefined,unsigned-integer-overflow"
+      # )
+      add_compile_options("-fsanitize=address,undefined,integer"
         "-fno-omit-frame-pointer"
+        "-fno-sanitize=unsigned-integer-overflow"
         "-fsanitize-address-use-after-scope"
-        "-fno-sanitize-recover=undefined,unsigned-integer-overflow"
+        "-fno-sanitize-recover=undefined"
       )
-      add_link_options("-fsanitize=address,undefined")
+      add_link_options("-fsanitize=address,undefined,integer")
     elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
       add_compile_options("-fsanitize=address,undefined"
         "-fno-omit-frame-pointer"
