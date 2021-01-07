@@ -4,54 +4,46 @@
 #include "sodium.h"
 #include "unity/unity.h"
 
-void test_output_suso() {
-  sig_unlocked_single_output_t out = {0};
-  uint64_t value = UINT64_MAX - 1;
-  byte_t expect_addr[ED25519_ADDRESS_BYTES];
-  randombytes_buf((void *const)expect_addr, ED25519_ADDRESS_BYTES);
-  memcpy(&out.addr, expect_addr, ED25519_ADDRESS_BYTES);
-  out.amount = value;
-  output_suso_print(&out);
-  TEST_ASSERT_EQUAL_UINT64(value, out.amount);
+void test_utxo_outputs() {
+  byte_t addr1[ED25519_ADDRESS_BYTES] = {};
+  byte_t addr2[ED25519_ADDRESS_BYTES] = {};
+  randombytes_buf((void* const)addr1, ED25519_ADDRESS_BYTES);
+  randombytes_buf((void* const)addr2, ED25519_ADDRESS_BYTES);
 
-  output_suso_array_t *list = outputs_suso_new();
-  TEST_ASSERT_NOT_NULL(list);
+  sig_unlocked_outputs_ht* outputs = utxo_outputs_new();
+  TEST_ASSERT_NULL(outputs);
 
-  TEST_ASSERT_EQUAL_UINT32(0, outputs_suso_len(list));
+  TEST_ASSERT_EQUAL_UINT32(0, utxo_outputs_count(&outputs));
+  // add address1
+  TEST_ASSERT(utxo_outputs_add(&outputs, addr1, 1000) == 0);
+  TEST_ASSERT_EQUAL_UINT32(1, utxo_outputs_count(&outputs));
 
-  outputs_suso_push(list, &out);
-  TEST_ASSERT_EQUAL_UINT32(1, outputs_suso_len(list));
+  // address doesn't exist.
+  TEST_ASSERT_NULL(utxo_outputs_find_by_addr(&outputs, addr2));
 
-  sig_unlocked_single_output_t *elm = outputs_suso_at(list, 0);
+  // add address1 again
+  TEST_ASSERT(utxo_outputs_add(&outputs, addr1, 1000) == -1);
+  TEST_ASSERT_EQUAL_UINT32(1, utxo_outputs_count(&outputs));
+
+  // add address2
+  TEST_ASSERT(utxo_outputs_add(&outputs, addr2, 9000000) == 0);
+  TEST_ASSERT_EQUAL_UINT32(2, utxo_outputs_count(&outputs));
+
+  // find and validate an output
+  sig_unlocked_outputs_ht* elm = utxo_outputs_find_by_addr(&outputs, addr1);
   TEST_ASSERT_NOT_NULL(elm);
-  TEST_ASSERT_EQUAL_UINT64(UINT64_MAX - 1, elm->amount);
-  TEST_ASSERT_EQUAL_MEMORY(elm->addr, expect_addr, ED25519_ADDRESS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(addr1, elm->address, ED25519_ADDRESS_BYTES);
+  TEST_ASSERT(1000 == elm->amount);
 
-  outputs_suso_pop(list);
-  TEST_ASSERT_EQUAL_UINT32(0, outputs_suso_len(list));
+  utxo_outputs_print(&outputs);
 
-  for (int i = 0; i < 100; i++) {
-    out.amount = i;
-    out.addr[ED25519_ADDRESS_BYTES - 1] = i;
-    outputs_suso_push(list, &out);
-  }
-
-  elm = outputs_suso_at(list, 200);
-  TEST_ASSERT_NULL(elm);
-  elm = outputs_suso_at(list, 99);
-  TEST_ASSERT_NOT_NULL(elm);
-  TEST_ASSERT_EQUAL_UINT32(99, elm->amount);
-  TEST_ASSERT_EQUAL_MEMORY(elm->addr, expect_addr, ED25519_ADDRESS_BYTES - 1);
-
-  outputs_suso_array_print(list);
-
-  outputs_suso_free(list);
+  utxo_outputs_free(&outputs);
 }
 
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_output_suso);
+  RUN_TEST(test_utxo_outputs);
 
   return UNITY_END();
 }

@@ -3,23 +3,38 @@
 
 #include "core/models/outputs/sig_unlocked_single_output.h"
 
-static UT_icd const suso_icd = {sizeof(sig_unlocked_single_output_t), NULL, NULL, NULL};
+#define UTXO_OUTPUT_MIN_COUNT 0
+#define UTXO_OUTPUT_MAX_COUNT 126
 
-void output_suso_print(sig_unlocked_single_output_t *output) {
-  printf("output addr: [");
-  for (size_t i = 0; i < ED25519_ADDRESS_BYTES; i++) {
-    printf("%d,", output->addr[i]);
+int utxo_outputs_add(sig_unlocked_outputs_ht **ht, byte_t addr[], uint64_t amount) {
+  if (utxo_outputs_count(ht) >= UTXO_OUTPUT_MAX_COUNT) {
+    printf("[%s:%d] output count must be < 127\n", __func__, __LINE__);
+    return -1;
   }
-  printf("], amount: %" PRIu64 "\n", output->amount);
+
+  sig_unlocked_outputs_ht *elm = utxo_outputs_find_by_addr(ht, addr);
+  if (elm) {
+    printf("[%s:%d] address exists\n", __func__, __LINE__);
+    return -1;
+  }
+
+  elm = malloc(sizeof(sig_unlocked_outputs_ht));
+  if (elm == NULL) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
+  }
+  memcpy(elm->address, addr, ED25519_ADDRESS_BYTES);
+  elm->amount = amount;
+  HASH_ADD(hh, *ht, address, ED25519_ADDRESS_BYTES, elm);
+  return 0;
 }
 
-output_suso_array_t *outputs_suso_new() {
-  output_suso_array_t *outs = NULL;
-  utarray_new(outs, &suso_icd);
-  return outs;
-}
-
-void outputs_suso_array_print(output_suso_array_t *outs) {
-  sig_unlocked_single_output_t *elm = NULL;
-  OUTPUTS_SUSO_FOREACH(outs, elm) { output_suso_print(elm); }
+void utxo_outputs_print(sig_unlocked_outputs_ht **ht) {
+  sig_unlocked_outputs_ht *elm, *tmp;
+  printf("utxo_outputs: [\n");
+  HASH_ITER(hh, *ht, elm, tmp) {
+    printf("[%" PRIu64 "] ", elm->amount);
+    dump_hex(elm->address, ED25519_ADDRESS_BYTES);
+  }
+  printf("]\n");
 }
