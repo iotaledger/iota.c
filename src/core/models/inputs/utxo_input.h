@@ -7,10 +7,12 @@
 #include "uthash.h"
 
 #define TRANSACTION_ID_BYTES 32
+// Serialized bytes = input type(uint8_t) + transaction id(32bytes) + index(uint16_t)
+#define UTXO_INPUT_SERIALIZED_BYTES (1 + TRANSACTION_ID_BYTES + 2)
 
 typedef struct {
   byte_t tx_id[TRANSACTION_ID_BYTES];  // The transaction reference from which the UTXO comes from.
-  uint8_t output_index;                // The index of the output on the referenced transaction to consume 0<= x < 127.
+  uint16_t output_index;               // The index of the output on the referenced transaction to consume 0<= x < 127.
   UT_hash_handle hh;
 } utxo_input_ht;
 
@@ -67,7 +69,16 @@ static void utxo_inputs_free(utxo_input_ht **ht) {
  * @param[in] index An index
  * @return int 0 on success
  */
-int utxo_inputs_add(utxo_input_ht **inputs, byte_t tx_id[], uint8_t index);
+int utxo_inputs_add(utxo_input_ht **inputs, byte_t tx_id[], uint16_t index);
+
+/**
+ * @brief Serialize inputs to a buffer
+ *
+ * @param[in] inputs An utxo input hash table
+ * @param[out] buf A buffer for serialization
+ * @return size_t number of bytes write to the buffer
+ */
+size_t utxo_inputs_serialization(utxo_input_ht **inputs, byte_t buf[]);
 
 /**
  * @brief Print an utxo input hash table.

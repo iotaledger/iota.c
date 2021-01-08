@@ -29,6 +29,34 @@ int utxo_outputs_add(sig_unlocked_outputs_ht **ht, byte_t addr[], uint64_t amoun
   return 0;
 }
 
+size_t utxo_outputs_serialization(sig_unlocked_outputs_ht **ht, byte_t buf[]) {
+  sig_unlocked_outputs_ht *elm, *tmp;
+  size_t byte_count = 0;
+  uint8_t elm_count = 0;
+  HASH_ITER(hh, *ht, elm, tmp) {
+    // output type, set to value 0 to denote a SigLockedSingleOutput.
+    memset(buf + byte_count, 0, sizeof(byte_t));
+    byte_count += sizeof(byte_t);
+
+    // ed25519 address
+    memcpy(buf + byte_count, elm->address, ED25519_ADDRESS_BYTES);
+    byte_count += ED25519_ADDRESS_BYTES;
+
+    // amount
+    memcpy(buf + byte_count, &elm->amount, sizeof(elm->amount));
+    byte_count += sizeof(elm->amount);
+
+    elm_count++;
+  }
+
+  if (byte_count != (elm_count * UTXO_OUTPUT_SERIALIZED_BYTES)) {
+    printf("[%s:%d] offset error\n", __func__, __LINE__);
+    return 0;
+  }
+
+  return byte_count;
+}
+
 void utxo_outputs_print(sig_unlocked_outputs_ht **ht) {
   sig_unlocked_outputs_ht *elm, *tmp;
   printf("utxo_outputs: [\n");
