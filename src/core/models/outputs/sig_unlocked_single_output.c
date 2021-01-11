@@ -61,7 +61,7 @@ void utxo_outputs_print(sig_unlocked_outputs_ht **ht) {
   sig_unlocked_outputs_ht *elm, *tmp;
   printf("utxo_outputs: [\n");
   HASH_ITER(hh, *ht, elm, tmp) {
-    printf("[%" PRIu64 "] ", elm->amount);
+    printf("\t[%" PRIu64 "] ", elm->amount);
     dump_hex(elm->address, ED25519_ADDRESS_BYTES);
   }
   printf("]\n");

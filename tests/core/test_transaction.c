@@ -38,11 +38,9 @@ static byte_t exp_essence[233] = {
     0x0,  0x0,  0x0,  0x0,  0x0,  0xb8, 0xb,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0};
 
 void test_tx_essence_serialization() {
-  size_t essence_buf_len = 0;
-  byte_t* essence_buf = NULL;
   transaction_essence_t* essence = tx_essence_new();
   TEST_ASSERT_NOT_NULL(essence);
-  TEST_ASSERT_NULL(tx_essence_serialize(essence, &essence_buf_len));
+  TEST_ASSERT(tx_essence_serialize_length(essence) == 0);
 
   // add inputs
   TEST_ASSERT(tx_essence_add_input(essence, tx_id2, 0) == 0);
@@ -56,11 +54,15 @@ void test_tx_essence_serialization() {
   TEST_ASSERT(tx_essence_add_output(essence, addr2, 2000) == 0);
   TEST_ASSERT_EQUAL_UINT32(3, utxo_outputs_count(&essence->outputs));
 
-  tx_essence_print(essence);
+  // tx_essence_print(essence);
   tx_essence_sort_input_output(essence);
   tx_essence_print(essence);
-  essence_buf = tx_essence_serialize(essence, &essence_buf_len);
+  size_t essence_buf_len = tx_essence_serialize_length(essence);
+  TEST_ASSERT(essence_buf_len != 0);
+
+  byte_t* essence_buf = malloc(essence_buf_len);
   TEST_ASSERT_NOT_NULL(essence_buf);
+  TEST_ASSERT(tx_essence_serialize(essence, essence_buf) == essence_buf_len);
   TEST_ASSERT_EQUAL_MEMORY(exp_essence, essence_buf, sizeof(exp_essence));
   // dump_hex(essence_buf, essence_buf_len);
   free(essence_buf);
@@ -84,28 +86,75 @@ static byte_t exp_block[101] = {
     0xd2, 0x2a, 0xf3, 0xab, 0xe4, 0x6e, 0x99, 0x21, 0x56, 0x25, 0x73, 0xf2, 0x62, 0x1,  0x0,  0x0};
 
 void test_tx_unlocked_block() {
-  unlock_blocks_t* blocks = tx_block_new();
+  unlock_blocks_t* blocks = tx_blocks_new();
   TEST_ASSERT_NULL(blocks);
-  TEST_ASSERT_EQUAL_UINT16(0, tx_block_count(blocks));
+  TEST_ASSERT_EQUAL_UINT16(0, tx_blocks_count(blocks));
 
   // add a signature block
   ed25519_signature_t sig = {};
   sig.type = 1;
   memcpy(sig.pub_key, test_pub_key, ED_PUBLIC_KEY_BYTES);
   memcpy(sig.signature, test_sig, ED_SIGNATURE_BYTES);
-  tx_block_add_signature(&blocks, &sig);
-  TEST_ASSERT_EQUAL_UINT16(1, tx_block_count(blocks));
+  tx_blocks_add_signature(&blocks, &sig);
+  TEST_ASSERT_EQUAL_UINT16(1, tx_blocks_count(blocks));
 
   // add a reference block that reverence to the 0 index of blocks.
-  tx_block_add_reference(&blocks, 0);
-  size_t len = 0;
-  byte_t* block_buf = tx_block_serialize(blocks, &len);
+  tx_blocks_add_reference(&blocks, 0);
+
+  tx_blocks_print(blocks);
+
+  // serialization
+  size_t len = tx_blocks_serialize_length(blocks);
+  TEST_ASSERT(len != 0);
+  byte_t* block_buf = malloc(len);
+  TEST_ASSERT(tx_blocks_serialize(blocks, block_buf) == len);
   TEST_ASSERT_EQUAL_MEMORY(exp_block, block_buf, sizeof(exp_block));
   // dump_hex(block_buf, len);
 
   free(block_buf);
 
-  tx_block_free(blocks);
+  tx_blocks_free(blocks);
+}
+
+static exp_serialized_tx[183] = {
+    0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x7e, 0x7f, 0x5f, 0xf9, 0x97, 0x2c, 0xf3, 0x96, 0x28, 0x27, 0x2e, 0xbe, 0x36,
+    0x31, 0x49, 0xab, 0xa5, 0x58, 0x8b, 0xdd, 0x19, 0xc7, 0x5a, 0xac, 0xfc, 0x8e, 0x5b, 0xb3, 0x71, 0x2,  0xb1, 0x3a,
+    0x0,  0x0,  0x0,  0x1,  0x1,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,
+    0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0xe8, 0x3,  0x0,
+    0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x0,  0x1,  0xe7, 0x45, 0x3d, 0x64, 0x4d, 0x7b, 0xe6, 0x70,
+    0x64, 0x80, 0x15, 0x74, 0x28, 0xd9, 0x68, 0x87, 0x2e, 0x38, 0x9c, 0x7b, 0x27, 0x62, 0xd1, 0x4b, 0xbe, 0xc,  0xa4,
+    0x6b, 0x91, 0xde, 0xa4, 0xc4, 0x74, 0x9,  0x52, 0x4c, 0xa4, 0x4,  0xfb, 0x5e, 0x51, 0xe3, 0xc6, 0x65, 0xf1, 0x1f,
+    0xa6, 0x61, 0x4,  0xc3, 0xe,  0x8,  0xe9, 0x0,  0x38, 0x4f, 0xdd, 0xeb, 0x5b, 0x93, 0xb6, 0xed, 0xa0, 0x54, 0xc5,
+    0x3,  0x3e, 0xbd, 0xd4, 0xd8, 0xa7, 0xa,  0x7b, 0xa8, 0xbb, 0xcc, 0x7a, 0x34, 0x4d, 0x56, 0xe2, 0xba, 0x11, 0xd2,
+    0x2a, 0xf3, 0xab, 0xe4, 0x6e, 0x99, 0x21, 0x56, 0x25, 0x73, 0xf2, 0x62};
+
+void test_tx_payload() {
+  transaction_payload_t* tx = tx_payload_new();
+  TEST_ASSERT_NOT_NULL(tx);
+
+  // add input
+  TEST_ASSERT(tx_payload_add_input(tx, tx_id2, 0) == 0);
+  // add output
+  TEST_ASSERT(tx_payload_add_output(tx, addr3, 1000) == 0);
+
+  // add signature
+  ed25519_signature_t sig = {};
+  sig.type = 1;
+  memcpy(sig.pub_key, test_pub_key, ED_PUBLIC_KEY_BYTES);
+  memcpy(sig.signature, test_sig, ED_SIGNATURE_BYTES);
+  TEST_ASSERT(tx_payload_add_sig_block(tx, &sig) == 0);
+
+  tx_payload_print(tx);
+
+  // serialization
+  size_t tx_len = tx_payload_serialize_length(tx);
+  TEST_ASSERT(tx_len != 0);
+  byte_t* tx_buf = malloc(tx_len);
+  TEST_ASSERT(tx_payload_serialize(tx, tx_buf) == tx_len);
+  TEST_ASSERT_EQUAL_MEMORY(exp_serialized_tx, tx_buf, sizeof(exp_serialized_tx));
+  // dump_hex(tx_buf, tx_len);
+  free(tx_buf);
+  tx_payload_free(tx);
 }
 
 int main() {
@@ -113,6 +162,7 @@ int main() {
 
   RUN_TEST(test_tx_essence_serialization);
   RUN_TEST(test_tx_unlocked_block);
+  RUN_TEST(test_tx_payload);
 
   return UNITY_END();
 }

@@ -67,7 +67,7 @@ void utxo_inputs_print(utxo_input_ht **inputs) {
   utxo_input_ht *elm, *tmp;
   printf("utxo_inputs: [\n");
   HASH_ITER(hh, *inputs, elm, tmp) {
-    printf("[%d] ", elm->output_index);
+    printf("\t[%d] ", elm->output_index);
     dump_hex(elm->tx_id, TRANSACTION_ID_BYTES);
   }
   printf("]\n");

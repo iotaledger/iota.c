@@ -57,10 +57,9 @@ typedef struct {
  */
 typedef struct {
   payload_t type;                  // Set to value 0 to denote a Transaction payload.
-  uint32_t unlock_blocks_count;    // The count of unlock blocks proceeding. Must match count of inputs specified.
   transaction_essence_t* essence;  // Describes the essence data making up a transaction by defining its inputs and
                                    // outputs and an optional payload.
-  void* unlock_blocks;             // Defines an unlock block containing signature(s) unlocking input(s).
+  unlock_blocks_t* unlock_blocks;  // Defines an unlock block containing signature(s) unlocking input(s).
 } transaction_payload_t;
 
 #ifdef __cplusplus
@@ -103,13 +102,21 @@ int tx_essence_add_output(transaction_essence_t* es, byte_t addr[], uint64_t amo
 int tx_essence_add_payload(transaction_essence_t* es);
 
 /**
+ * @brief Get the serialized length of the essence
+ *
+ * @param[in] es An essence object
+ * @return size_t 0 on failed
+ */
+size_t tx_essence_serialize_length(transaction_essence_t* es);
+
+/**
  * @brief Serialize essence object
  *
  * @param[in] es An essence object
- * @param[out] len The length of serialized essence data
- * @return byte_t* serialized essence data, free is needed.
+ * @param[out] buf A buffer holds serialized data
+ * @return size_t number of bytes written to the buffer
  */
-byte_t* tx_essence_serialize(transaction_essence_t* es, size_t* len);
+size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[]);
 
 /**
  * @brief Free an essence object
@@ -137,7 +144,7 @@ void tx_essence_sort_input_output(transaction_essence_t* es);
  *
  * @return unlock_blocks_t* a NULL pointer
  */
-unlock_blocks_t* tx_block_new();
+unlock_blocks_t* tx_blocks_new();
 
 /**
  * @brief Add a signature block
@@ -146,7 +153,7 @@ unlock_blocks_t* tx_block_new();
  * @param[in] sig A ed25519 signature object
  * @return int 0 on success
  */
-int tx_block_add_signature(unlock_blocks_t** blocks, ed25519_signature_t* sig);
+int tx_blocks_add_signature(unlock_blocks_t** blocks, ed25519_signature_t* sig);
 
 /**
  * @brief Add a reference block
@@ -155,7 +162,7 @@ int tx_block_add_signature(unlock_blocks_t** blocks, ed25519_signature_t* sig);
  * @param[in] ref The index of reference
  * @return int 0 on success.
  */
-int tx_block_add_reference(unlock_blocks_t** blocks, uint16_t ref);
+int tx_blocks_add_reference(unlock_blocks_t** blocks, uint16_t ref);
 
 /**
  * @brief Get the length of unlock blocks
@@ -163,30 +170,114 @@ int tx_block_add_reference(unlock_blocks_t** blocks, uint16_t ref);
  * @param[in] blocks The head of list
  * @return uint16_t
  */
-uint16_t tx_block_count(unlock_blocks_t* blocks);
+uint16_t tx_blocks_count(unlock_blocks_t* blocks);
+
+/**
+ * @brief Get the serialized length of unlocked blocks
+ *
+ * @param[in] blocks The head of list
+ * @return size_t 0 on failed
+ */
+size_t tx_blocks_serialize_length(unlock_blocks_t* blocks);
 
 /**
  * @brief Serialize unlock blocks
  *
  * @param[in] blocks The head of list
- * @param[out] len The length of serialized data
- * @return byte_t* A pointer to serialized data, free is needed.
+ * @param[out] buf A buffer holds serialized data
+ * @return size_t number of bytes written to the buffer
  */
-byte_t* tx_block_serialize(unlock_blocks_t* blocks, size_t* len);
+size_t tx_blocks_serialize(unlock_blocks_t* blocks, byte_t buf[]);
 
 /**
  * @brief Free an unlock block list
  *
- * @param blocks An unlock block object
+ * @param[in] blocks An unlock block object
  */
-void tx_block_free(unlock_blocks_t* blocks);
+void tx_blocks_free(unlock_blocks_t* blocks);
 
-void tx_payload_new();
-void tx_payload_add_input();
-void tx_payload_add_output();
-void tx_payload_add_unlock_block();
-void tx_payload_serialize();
-void tx_payload_free();
+/**
+ * @brief Print out unlocked blocks object
+ *
+ * @param[in] blocks An unlock block object
+ */
+void tx_blocks_print(unlock_blocks_t* blocks);
+
+/**
+ * @brief Allocate a tansaction payload object
+ *
+ * @return transaction_payload_t*
+ */
+transaction_payload_t* tx_payload_new();
+
+/**
+ * @brief Add an input to the transaction payload
+ *
+ * @param[in] tx A transaction payload object
+ * @param[in] tx_id A transaction ID
+ * @param[in] index The index of the output on the referenced transaction to consume
+ * @return int 0 on success
+ */
+int tx_payload_add_input(transaction_payload_t* tx, byte_t tx_id[], uint8_t index);
+
+/**
+ * @brief Add an output to the transaction payload
+ *
+ * @param[in] tx A transaction payload
+ * @param[in] addr An ed25519 address
+ * @param[in] amount The amount of tokens to deposit with this SigLockedSingleOutput output
+ * @return int 0 on success
+ */
+int tx_payload_add_output(transaction_payload_t* tx, byte_t addr[], uint64_t amount);
+
+/**
+ * @brief Add a signature unlocked block to the transaction
+ *
+ * @param[in] tx A transaction payload
+ * @param[in] sig An ed25519  signature block
+ * @return int 0 on success
+ */
+int tx_payload_add_sig_block(transaction_payload_t* tx, ed25519_signature_t* sig);
+
+/**
+ * @brief Add a reference unlocked block to the transaction
+ *
+ * @param[in] tx A transaction payload
+ * @param[in] ref The index of reference
+ * @return int 0 on success
+ */
+int tx_payload_add_ref_block(transaction_payload_t* tx, uint16_t ref);
+
+/**
+ * @brief Get the length of a transaction payload
+ *
+ * @param[in] tx A transaction payload
+ * @return size_t The number of bytes of serialized data
+ */
+size_t tx_payload_serialize_length(transaction_payload_t* tx);
+
+/**
+ * @brief Serialize a transaction payload
+ *
+ * @param[in] tx A transaction payload
+ * @param[out] buf A buffer holds the serialized data
+ * @return size_t number of bytes written to the buffer
+ */
+size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[]);
+
+/**
+ * @brief Free a transaction payload object
+ *
+ * @param[in] tx A transaction payload
+ */
+void tx_payload_free(transaction_payload_t* tx);
+
+/**
+ * @brief Print out a transaction payload
+ *
+ * @param[in] tx A transaction payload
+ */
+void tx_payload_print(transaction_payload_t* tx);
 
 #ifdef __cplusplus
 }
