@@ -1,7 +1,16 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include "utlist.h"
+
 #include "core/models/payloads/transaction.h"
+
+#define UNLOCKED_BLOCKS_MAX_COUNT 126
+
+// unlock_block_t + reference = 1 + 2
+#define REFERENCE_SERIALIZE_BYTES (1 + sizeof(uint16_t))
+//  unlock_block_t + signature type + pub_key + signature
+#define SIGNATURE_SERIALIZE_BYTES (1 + (1 + ED_PUBLIC_KEY_BYTES + ED_SIGNATURE_BYTES))
 
 static int byte_cmp(const byte_t* p1, const byte_t* p2, size_t len) {
   byte_t b1, b2;
@@ -135,4 +144,117 @@ void tx_essence_print(transaction_essence_t* es) {
   utxo_inputs_print(&es->inputs);
   utxo_outputs_print(&es->outputs);
   printf("\n");
+}
+
+unlock_blocks_t* tx_block_new() { return NULL; }
+
+int tx_block_add_signature(unlock_blocks_t** blocks, ed25519_signature_t* sig) {
+  if (sig == NULL) {
+    printf("[%s:%d] invalid amount\n", __func__, __LINE__);
+    return -1;
+  }
+  unlock_blocks_t* b = malloc(sizeof(unlock_blocks_t));
+  if (b == NULL) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
+  }
+
+  b->type = 0;  // signature block
+  b->reference = 0;
+  memcpy(&b->signature, sig, sizeof(ed25519_signature_t));
+  DL_APPEND(*blocks, b);
+  return 0;
+}
+
+int tx_block_add_reference(unlock_blocks_t** blocks, uint16_t ref) {
+  // Unlock Blocks Count must match the amount of inputs. Must be 0 < x < 127.
+  if (ref > UNLOCKED_BLOCKS_MAX_COUNT) {
+    printf("[%s:%d] reference out of range \n", __func__, __LINE__);
+    return -1;
+  }
+
+  unlock_blocks_t* b = malloc(sizeof(unlock_blocks_t));
+  if (b == NULL) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
+  }
+
+  b->type = 1;  // reference block
+  b->reference = ref;
+  memset(&b->signature, 0, sizeof(ed25519_signature_t));
+  DL_APPEND(*blocks, b);
+  return 0;
+}
+
+byte_t* tx_block_serialize(unlock_blocks_t* blocks, size_t* len) {
+  size_t serialized_size = 0;
+  size_t bytes_write = 0;
+  unlock_blocks_t* elm = NULL;
+
+  // empty unlocked blocks
+  if (blocks == NULL) {
+    return NULL;
+  }
+
+  // calculate serialized bytes of unlocked blocks
+  DL_FOREACH(blocks, elm) {
+    if (elm->type == 0) {
+      serialized_size += SIGNATURE_SERIALIZE_BYTES;
+    } else if (elm->type == 1) {
+      serialized_size += REFERENCE_SERIALIZE_BYTES;
+    } else {
+      printf("[%s:%d] Unkown unlocked block type\n", __func__, __LINE__);
+      return NULL;
+    }
+  }
+
+  // allocating buffer
+  byte_t* serialized_data = malloc(serialized_size);
+  if (serialized_data == NULL) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  // serializing unlocked blocks
+  DL_FOREACH(blocks, elm) {
+    if (elm->type == 0) {  // signature block
+      memcpy(serialized_data + bytes_write, &elm->type, sizeof(elm->type));
+      bytes_write += sizeof(elm->type);
+      memcpy(serialized_data + bytes_write, &elm->signature, sizeof(ed25519_signature_t));
+      bytes_write += sizeof(elm->signature);
+    } else if (elm->type == 1) {  // reference block
+      memcpy(serialized_data + bytes_write, &elm->type, sizeof(elm->type));
+      bytes_write += sizeof(elm->type);
+      memcpy(serialized_data + bytes_write, &elm->reference, sizeof(elm->reference));
+      bytes_write += sizeof(elm->reference);
+    }
+  }
+
+  if (bytes_write != serialized_size) {
+    printf("[%s:%d] Unkown unlocked block type\n", __func__, __LINE__);
+    free(serialized_data);
+    return NULL;
+  }
+
+  *len = bytes_write;
+  return serialized_data;
+}
+
+uint16_t tx_block_count(unlock_blocks_t* blocks) {
+  unlock_blocks_t* elm = NULL;
+  uint16_t count = 0;
+  if (blocks) {
+    DL_COUNT(blocks, elm, count);
+  }
+  return count;
+}
+
+void tx_block_free(unlock_blocks_t* blocks) {
+  unlock_blocks_t *elm, *tmp;
+  if (blocks) {
+    DL_FOREACH_SAFE(blocks, elm, tmp) {
+      DL_DELETE(blocks, elm);
+      free(elm);
+    }
+  }
 }

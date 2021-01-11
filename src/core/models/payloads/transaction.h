@@ -15,20 +15,22 @@
 static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
 
 typedef struct {
-  signature_t type;                      // Set to value 0 to denote an Ed25519 Signature
+  signature_t type;                      // Set to value 1 to denote an Ed25519 Signature
   byte_t pub_key[ED_PUBLIC_KEY_BYTES];   // The public key of the Ed25519 keypair which is used to verify the signature.
   byte_t signature[ED_SIGNATURE_BYTES];  // The signature signing the serialized Unsigned Transaction.
 } ed25519_signature_t;
 
-typedef struct {
-  unlock_block_t type;            // Set to value 0 to denote a Signature Unlock Block.
-  ed25519_signature_t signature;  // Ed25519 signature
-} signature_unlock_block_t;
-
-typedef struct {
-  unlock_block_t type;  // Set to value 1 to denote a Reference Unlock Block.
-  uint16_t reference;   // Represents the index of a previous unlock block.
-} reference_unlock_block_t;
+/**
+ * @brief An unlock block list object
+ *
+ */
+typedef struct unlock_blocks {
+  unlock_block_t type;            // 0 to denote a Signature Unlock Block, 1 for a Reference Unlock Block.
+  ed25519_signature_t signature;  // For signature unlock block, public key and signature for a specific input.
+  uint16_t reference;             // For reverence unlock block, the index of a previous unlock block.
+  struct unlock_blocks* prev;
+  struct unlock_blocks* next;
+} unlock_blocks_t;
 
 /**
  * @brief Transaction Essence, the essence data making up a transaction by defining its inputs and outputs and an
@@ -130,12 +132,59 @@ void tx_essence_print(transaction_essence_t* es);
  */
 void tx_essence_sort_input_output(transaction_essence_t* es);
 
-void tx_block_new();
-void tx_block_add();
-void tx_block_serialize();
-void tx_block_free();
+/**
+ * @brief Initialize a block list object
+ *
+ * @return unlock_blocks_t* a NULL pointer
+ */
+unlock_blocks_t* tx_block_new();
+
+/**
+ * @brief Add a signature block
+ *
+ * @param[in] blocks The head of list
+ * @param[in] sig A ed25519 signature object
+ * @return int 0 on success
+ */
+int tx_block_add_signature(unlock_blocks_t** blocks, ed25519_signature_t* sig);
+
+/**
+ * @brief Add a reference block
+ *
+ * @param[in] blocks The head of list
+ * @param[in] ref The index of reference
+ * @return int 0 on success.
+ */
+int tx_block_add_reference(unlock_blocks_t** blocks, uint16_t ref);
+
+/**
+ * @brief Get the length of unlock blocks
+ *
+ * @param[in] blocks The head of list
+ * @return uint16_t
+ */
+uint16_t tx_block_count(unlock_blocks_t* blocks);
+
+/**
+ * @brief Serialize unlock blocks
+ *
+ * @param[in] blocks The head of list
+ * @param[out] len The length of serialized data
+ * @return byte_t* A pointer to serialized data, free is needed.
+ */
+byte_t* tx_block_serialize(unlock_blocks_t* blocks, size_t* len);
+
+/**
+ * @brief Free an unlock block list
+ *
+ * @param blocks An unlock block object
+ */
+void tx_block_free(unlock_blocks_t* blocks);
 
 void tx_payload_new();
+void tx_payload_add_input();
+void tx_payload_add_output();
+void tx_payload_add_unlock_block();
 void tx_payload_serialize();
 void tx_payload_free();
 
