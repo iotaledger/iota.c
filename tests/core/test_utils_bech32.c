@@ -61,10 +61,33 @@ void test_bech32_decode_encode() {
   }
 }
 
+void test_bech32_iota_decode_encode() {
+  char const *const exp_bech32 = "iot1qxrazekjt3x0720cnvwl9usnf2tmery36hlpl95kpmwedxhss0u5cwx3txe";
+  // address verion + address data = 33 bytes
+  byte_t exp_addr[33] = {0x01, 0x87, 0xd1, 0x66, 0xd2, 0x5c, 0x4c, 0xff, 0x29, 0xf8, 0x9b,
+                         0x1d, 0xf2, 0xf2, 0x13, 0x4a, 0x97, 0xbc, 0x8c, 0x91, 0xd5, 0xfe,
+                         0x1f, 0x96, 0x96, 0x0e, 0xdd, 0x96, 0x9a, 0xf0, 0x83, 0xf9, 0x4c};
+
+  // decode
+  byte_t tmp_addr[33] = {};
+  size_t len = 0;
+  TEST_ASSERT(iota_addr_bech32_decode(tmp_addr, &len, "iot", exp_bech32) == 1);
+  TEST_ASSERT_EQUAL_UINT32(sizeof(exp_addr), len);
+  TEST_ASSERT_EQUAL_MEMORY(exp_addr, tmp_addr, sizeof(exp_addr));
+  // dump_hex(tmp_addr, len);
+
+  // encode
+  char tmp_bech32_addr[64] = {};
+  TEST_ASSERT(iota_addr_bech32_encode(tmp_bech32_addr, "iot", exp_addr, sizeof(exp_addr)) == 1);
+  TEST_ASSERT_EQUAL_STRING(exp_bech32, tmp_bech32_addr);
+  // printf("%s\n", tmp_bech32_addr);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_bech32_decode_encode);
+  RUN_TEST(test_bech32_iota_decode_encode);
 
   return UNITY_END();
 }
