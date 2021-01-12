@@ -39,13 +39,13 @@ if(IOTA_ASAN_ENABLED)
       #   "-fsanitize-address-use-after-scope"
       #   "-fno-sanitize-recover=undefined,unsigned-integer-overflow"
       # )
-      add_compile_options("-fsanitize=address,undefined,integer"
+      add_compile_options("-fsanitize=address,undefined"
         "-fno-omit-frame-pointer"
         "-fno-sanitize=unsigned-integer-overflow"
         "-fsanitize-address-use-after-scope"
         "-fno-sanitize-recover=undefined"
       )
-      add_link_options("-fsanitize=address,undefined,integer")
+      add_link_options("-fsanitize=address,undefined")
     elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
       add_compile_options("-fsanitize=address,undefined"
         "-fno-omit-frame-pointer"
