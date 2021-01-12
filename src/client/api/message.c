@@ -86,12 +86,14 @@ void payload_index_free(payload_index_t *idx) {
 
 message_t *api_message_new() {
   message_t *msg = malloc(sizeof(message_t));
-  memset(msg->net_id, 0, sizeof(msg->net_id));
-  memset(msg->parent1, 0, sizeof(msg->parent1));
-  memset(msg->parent2, 0, sizeof(msg->parent2));
-  memset(msg->nonce, 0, sizeof(msg->nonce));
-  msg->payload = NULL;
-  msg->type = 255;  // invalid payload type
+  if (msg) {
+    memset(msg->net_id, 0, sizeof(msg->net_id));
+    memset(msg->parent1, 0, sizeof(msg->parent1));
+    memset(msg->parent2, 0, sizeof(msg->parent2));
+    memset(msg->nonce, 0, sizeof(msg->nonce));
+    msg->payload = NULL;
+    msg->type = 255;  // invalid payload type
+  }
   return msg;
 }
 

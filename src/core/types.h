@@ -19,7 +19,7 @@ typedef uint8_t signature_t;
  * @param[in] len The length of data
  */
 static inline void dump_hex(byte_t const data[], size_t len) {
-  for (int i = 0; i < len; i++) {
+  for (size_t i = 0; i < len; i++) {
     printf("0x%x, ", data[i]);
   }
   printf("\n");
