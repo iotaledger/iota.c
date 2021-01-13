@@ -24,3 +24,7 @@ int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg
 int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]) {
   return crypto_auth_hmacsha512(auth, msg, msg_len, secret_key);
 }
+
+int iota_blake2b_sum(uint8_t const msg[], size_t msg_len, uint8_t out[], size_t out_len) {
+  return crypto_generichash_blake2b(out, out_len, msg, msg_len, NULL, 0);
+}

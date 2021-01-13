@@ -72,6 +72,17 @@ int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg
  */
 int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]);
 
+/**
+ * @brief Blake2b hash function
+ *
+ * @param[in] msg The message to hash
+ * @param[in] msg_len The length of message
+ * @param[out] out An output hash
+ * @param[out] out_len  The length of output hash
+ * @return int 0 on success
+ */
+int iota_blake2b_sum(uint8_t const msg[], size_t msg_len, uint8_t out[], size_t out_len);
+
 #ifdef __cplusplus
 }
 #endif

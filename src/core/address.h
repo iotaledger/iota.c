@@ -1,3 +1,6 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef __CORE_ADDRESS_H__
 #define __CORE_ADDRESS_H__
 
@@ -21,47 +24,55 @@ extern "C" {
 #endif
 
 /**
- * @brief Get the address from seed
+ * @brief Get address from ed25519 public key
  *
- * @param[in] seed The seed for genrating address
- * @param[in] version The address version(address_version_t)
- * @param[in] index The index of address
- * @param[out] addr_out The output address
+ * @param[in] pub_key An ed25519 public key
+ * @param[out] addr Output address with length of 32 bytes
+ * @return int 0 on success
  */
-void get_address_from_seed(seed_ctx_t const* const seed, address_version_t version, uint64_t index, byte_t addr_out[]);
+int address_from_ed25519_pub(byte_t const pub_key[], byte_t addr[]);
 
 /**
- * @brief signs data/message and returns the signature.
+ * @brief Get Ed25519 keypair from given seed and path
  *
- * @param[in] seed The seed
- * @param[in] index The index of address
- * @param[in] data The message or data
- * @param[in] data_len The length of data
- * @param[out] signature The signed signature.
+ * @param[in] seed A seed
+ * @param[in] path A string of path, ex: "m/0H/1H/2H" or "m/0'/1'/2'"
+ * @param[out] keypair The ed25519 keypair
+ * @return int 0 on success
  */
-void sign_signature(byte_t const seed[], uint64_t index, byte_t const data[], uint64_t data_len, byte_t signature[]);
+int address_keypair_from_path(byte_t seed[], char path[], iota_keypair_t* keypair);
 
 /**
- * @brief Validates signature
+ * @brief Get address from seed and slip10 path
  *
- * @param[in] seed The seed
- * @param[in] index An address index
- * @param[in] signature The signature
- * @param[in] data The expected data
- * @param[in] data_len The length of data
- * @return true
- * @return false
+ * @param[in] seed An IOTA seed
+ * @param[in] path A string of path, ex: "m/0H/1H/2H" or "m/0'/1'/2'"
+ * @param[out] out_addr
+ * @return int 0 on success
  */
-bool sign_verify_signature(byte_t const seed[], uint64_t index, byte_t signature[], byte_t const data[],
-                           size_t data_len);
+int address_from_path(byte_t seed[], char path[], byte_t out_addr[]);
 
 /**
- * @brief print out hexmal value in a byte array.
+ * @brief Get an IOTA address from a given bech32 string
  *
- * @param[in] data A byte array.
- * @param[in] len The size of the byte array.
+ * The address is 33 bytes which is a version byte + ed25519 address bytes
+ *
+ * @param[in] hrp The human readable prefix
+ * @param[in] bech32_str An address string
+ * @param[out] out_addr an ed25519 address with the version byte
+ * @return int 0 on success;
  */
-void dump_hex(byte_t const data[], size_t len);
+int address_from_bech32(char const* hrp, char const* bech32_str, byte_t out_addr[]);
+
+/**
+ * @brief Get a bech32 string from a given address
+ *
+ * @param[in] addr An ed25519 address with the version byte
+ * @param[in] hrp The human readable prefix
+ * @param[out] bech32_addr An address string
+ * @return int 0 on success
+ */
+int address_2_bech32(byte_t const addr[], char const* hrp, char* bech32_addr);
 
 #ifdef __cplusplus
 }
