@@ -1,3 +1,6 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef __CORE_MODELS_PL_INDEXATION_H__
 #define __CORE_MODELS_PL_INDEXATION_H__
 
@@ -6,8 +9,8 @@
 #include "core/types.h"
 #include "core/utils/byte_buffer.h"
 
+// the payload type of indexation is 2
 typedef struct {
-  payload_t type;     // Must be set to 2
   byte_buf_t *index;  // The index key of the message
   byte_buf_t *data;   // Data we are attaching
 } indexation_t;
@@ -33,12 +36,11 @@ void indexation_free(indexation_t *idx);
 /**
  * @brief Create an indexation payload with index and data
  *
- * @param[in] index The index string
- * @param[in] data The data in bytes
- * @param[in] data_size The length of data
- * @return indexation_t*
+ * @param[in] index An ASCII string
+ * @param[in] data A hex string
+ * @return indexation_t* A pointer to indexation payload object
  */
-indexation_t *indexation_create(char index[], byte_t *data, size_t data_size);
+indexation_t *indexation_create(char const *index, char const *data);
 
 #ifdef __cplusplus
 }

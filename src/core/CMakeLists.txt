@@ -20,6 +20,7 @@ target_sources(
           "models/inputs/utxo_input.c"
           "models/outputs/sig_unlocked_single_output.c"
           "models/payloads/transaction.c"
+          "models/payloads/indexation.c"
   PUBLIC "address.h"
          "seed.c"
          "utils/iota_str.h"
@@ -28,7 +29,9 @@ target_sources(
          "utils/bech32.h"
          "models/inputs/utxo_input.h"
          "models/outputs/sig_unlocked_single_output.h"
-         "models/payloads/transaction.h")
+         "models/payloads/transaction.h"
+         "models/payloads/indexation.h"
+         "models/message.h")
 
 target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 
