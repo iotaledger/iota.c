@@ -86,7 +86,7 @@ static byte_t exp_block[101] = {
     0xd2, 0x2a, 0xf3, 0xab, 0xe4, 0x6e, 0x99, 0x21, 0x56, 0x25, 0x73, 0xf2, 0x62, 0x1,  0x0,  0x0};
 
 void test_tx_unlocked_block() {
-  unlock_blocks_t* blocks = tx_blocks_new();
+  tx_unlock_blocks_t* blocks = tx_blocks_new();
   TEST_ASSERT_NULL(blocks);
   TEST_ASSERT_EQUAL_UINT16(0, tx_blocks_count(blocks));
 

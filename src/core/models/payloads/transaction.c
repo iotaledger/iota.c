@@ -131,7 +131,11 @@ void tx_essence_free(transaction_essence_t* es) {
   if (es) {
     utxo_inputs_free(&es->inputs);
     utxo_outputs_free(&es->outputs);
-    // TODO: payload
+
+    if (es->payload) {
+      // TODO support other payloads
+      indexation_free(es->payload);
+    }
     free(es);
   }
 }
@@ -143,14 +147,14 @@ void tx_essence_print(transaction_essence_t* es) {
   printf("]\n");
 }
 
-unlock_blocks_t* tx_blocks_new() { return NULL; }
+tx_unlock_blocks_t* tx_blocks_new() { return NULL; }
 
-int tx_blocks_add_signature(unlock_blocks_t** blocks, ed25519_signature_t* sig) {
+int tx_blocks_add_signature(tx_unlock_blocks_t** blocks, ed25519_signature_t* sig) {
   if (sig == NULL) {
     printf("[%s:%d] invalid amount\n", __func__, __LINE__);
     return -1;
   }
-  unlock_blocks_t* b = malloc(sizeof(unlock_blocks_t));
+  tx_unlock_blocks_t* b = malloc(sizeof(tx_unlock_blocks_t));
   if (b == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return -1;
@@ -163,14 +167,14 @@ int tx_blocks_add_signature(unlock_blocks_t** blocks, ed25519_signature_t* sig) 
   return 0;
 }
 
-int tx_blocks_add_reference(unlock_blocks_t** blocks, uint16_t ref) {
+int tx_blocks_add_reference(tx_unlock_blocks_t** blocks, uint16_t ref) {
   // Unlock Blocks Count must match the amount of inputs. Must be 0 < x < 127.
   if (ref > UNLOCKED_BLOCKS_MAX_COUNT) {
     printf("[%s:%d] reference out of range \n", __func__, __LINE__);
     return -1;
   }
 
-  unlock_blocks_t* b = malloc(sizeof(unlock_blocks_t));
+  tx_unlock_blocks_t* b = malloc(sizeof(tx_unlock_blocks_t));
   if (b == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return -1;
@@ -183,8 +187,8 @@ int tx_blocks_add_reference(unlock_blocks_t** blocks, uint16_t ref) {
   return 0;
 }
 
-size_t tx_blocks_serialize_length(unlock_blocks_t* blocks) {
-  unlock_blocks_t* elm = NULL;
+size_t tx_blocks_serialize_length(tx_unlock_blocks_t* blocks) {
+  tx_unlock_blocks_t* elm = NULL;
   size_t serialized_size = 0;
 
   // empty unlocked blocks
@@ -207,8 +211,8 @@ size_t tx_blocks_serialize_length(unlock_blocks_t* blocks) {
   return serialized_size;
 }
 
-size_t tx_blocks_serialize(unlock_blocks_t* blocks, byte_t buf[]) {
-  unlock_blocks_t* elm = NULL;
+size_t tx_blocks_serialize(tx_unlock_blocks_t* blocks, byte_t buf[]) {
+  tx_unlock_blocks_t* elm = NULL;
   byte_t* offset = buf;
 
   // serializing unlocked blocks
@@ -229,8 +233,8 @@ size_t tx_blocks_serialize(unlock_blocks_t* blocks, byte_t buf[]) {
   return (offset - buf) / sizeof(byte_t);
 }
 
-uint16_t tx_blocks_count(unlock_blocks_t* blocks) {
-  unlock_blocks_t* elm = NULL;
+uint16_t tx_blocks_count(tx_unlock_blocks_t* blocks) {
+  tx_unlock_blocks_t* elm = NULL;
   uint16_t count = 0;
   if (blocks) {
     DL_COUNT(blocks, elm, count);
@@ -238,8 +242,8 @@ uint16_t tx_blocks_count(unlock_blocks_t* blocks) {
   return count;
 }
 
-void tx_blocks_free(unlock_blocks_t* blocks) {
-  unlock_blocks_t *elm, *tmp;
+void tx_blocks_free(tx_unlock_blocks_t* blocks) {
+  tx_unlock_blocks_t *elm, *tmp;
   if (blocks) {
     DL_FOREACH_SAFE(blocks, elm, tmp) {
       DL_DELETE(blocks, elm);
@@ -248,8 +252,8 @@ void tx_blocks_free(unlock_blocks_t* blocks) {
   }
 }
 
-void tx_blocks_print(unlock_blocks_t* blocks) {
-  unlock_blocks_t* elm;
+void tx_blocks_print(tx_unlock_blocks_t* blocks) {
+  tx_unlock_blocks_t* elm;
   if (blocks) {
     printf("unlocked blocks[\n");
     DL_FOREACH(blocks, elm) {

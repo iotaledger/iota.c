@@ -21,6 +21,7 @@ target_sources(
           "models/outputs/sig_unlocked_single_output.c"
           "models/payloads/transaction.c"
           "models/payloads/indexation.c"
+          "models/message.c"
   PUBLIC "address.h"
          "seed.c"
          "utils/iota_str.h"

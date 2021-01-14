@@ -1,8 +1,10 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/v1/get_output.h"
+#include <inttypes.h>
+
 #include "client/api/json_utils.h"
+#include "client/api/v1/get_output.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 
@@ -150,4 +152,23 @@ end:
   cJSON_Delete(json_obj);
 
   return ret;
+}
+
+void dump_output_response(res_output_t *res) {
+  if (!res) {
+    return;
+  }
+  if (res->is_error) {
+    printf("Error: %s\n", res->u.error->msg);
+  } else {
+    get_output_t *output = &res->u.output;
+    printf("output:[\n");
+    printf("\t%s addr: %.64s\n", output->address_type ? "ED25519" : "WOTS", output->addr);
+    printf("\tmsg id: %.64s\n", output->msg_id);
+    printf("\ttx id: %.64s\n", output->tx_id);
+    printf("\tamount: %" PRIu64 "\n", output->amount);
+    printf("\toutput_idx: %" PRIu16 "\n", output->output_idx);
+    printf("\tis spent: %s\n", output->is_spent ? "True" : "False");
+    printf("]\n");
+  }
 }

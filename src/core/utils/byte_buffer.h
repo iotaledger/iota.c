@@ -65,8 +65,10 @@ void byte_buf_free(byte_buf_t* buf);
  * @brief Converts byte buffer to string
  *
  * @param[out] buf A byte buffer object
+ * @return true
+ * @return false
  */
-void byte_buf2str(byte_buf_t* buf);
+bool byte_buf2str(byte_buf_t* buf);
 
 /**
  * @brief Duplicates N bytes from buffer
@@ -142,11 +144,23 @@ int string2hex(char str[], byte_t hex[], size_t hex_len);
  * @brief Converts hex string to a byte array
  *
  * @param[in] str A hex string
+ * @param[in] str_len The length of the hex string
  * @param[out] bin A byte array buffer
  * @param[in] bin_len The length of byte array
  * @return int 0 on successful
  */
-int hex2bin(char const str[], byte_t bin[], size_t bin_len);
+int hex2bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len);
+
+/**
+ * @brief Converts a byte array to hex string
+ *
+ * @param[in] bin A byte array
+ * @param[in] bin_len The length of byte array
+ * @param[out] str_buf A buffer holds hex string data
+ * @param[in] buf_len The length of the buffer
+ * @return int
+ */
+int bin2hex(byte_t const bin[], size_t bin_len, char str_buf[], size_t buf_len);
 
 #ifdef __cplusplus
 }

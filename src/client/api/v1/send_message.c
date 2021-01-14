@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "client/api/json_utils.h"
+#include "client/api/message_builder.h"
 #include "client/api/v1/get_tips.h"
 #include "client/api/v1/send_message.h"
 #include "core/utils/iota_str.h"
@@ -250,5 +251,75 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
 done:
   api_message_free(msg);
 
+  return ret;
+}
+
+int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg, res_send_message_t* res) {
+  int ret = -1;
+  long http_st_code = 0;
+  iota_str_t* cmd = NULL;
+  http_client_config_t http = {0};
+  byte_buf_t* json_data = byte_buf_new();
+  byte_buf_t* node_res = byte_buf_new();
+  res_tips_t tips = {};
+
+  if (!json_data || !node_res) {
+    printf("[%s:%d] allocate http buffer failed\n", __func__, __LINE__);
+    goto end;
+  }
+
+  // get tips
+  if ((ret = get_tips(conf, &tips)) != 0) {
+    printf("[%s:%d] get tips failed\n", __func__, __LINE__);
+    goto end;
+  }
+
+  if (tips.is_error) {
+    printf("[%s:%d] get tips failed: %s\n", __func__, __LINE__, tips.u.error->msg);
+    res_err_free(tips.u.error);
+    goto end;
+  }
+
+  hex2bin(tips.u.tips.tip1, STR_TIP_MSG_LEN, msg->parent1, sizeof(msg->parent1));
+  hex2bin(tips.u.tips.tip2, STR_TIP_MSG_LEN, msg->parent2, sizeof(msg->parent2));
+
+  char* msg_str = message_to_json(msg);
+  if (!msg_str) {
+    printf("[%s:%d] build message failed\n", __func__, __LINE__);
+    goto end;
+  }
+
+  // put json string into byte_buf_t
+  json_data->data = (byte_t*)msg_str;
+  json_data->cap = json_data->len = strlen(msg_str) + 1;
+
+  // post message
+  if ((cmd = iota_str_new(conf->url)) == NULL) {
+    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+    goto end;
+  }
+
+  if (iota_str_append(cmd, "api/v1/messages")) {
+    printf("[%s:%d]: string append failed\n", __func__, __LINE__);
+    goto end;
+  }
+
+  http.url = cmd->buf;
+  if (conf->port) {
+    http.port = conf->port;
+  }
+
+  if ((ret = http_client_post(&http, json_data, node_res, &http_st_code)) == 0) {
+    // deserialize node response
+    byte_buf2str(node_res);
+    ret = deser_send_message_response((char const*)node_res->data, res);
+  } else {
+    printf("[%s:%d]: http client post failed\n", __func__, __LINE__);
+  }
+
+end:
+  byte_buf_free(json_data);
+  byte_buf_free(node_res);
+  iota_str_destroy(cmd);
   return ret;
 }

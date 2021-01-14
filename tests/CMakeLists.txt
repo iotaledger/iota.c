@@ -35,6 +35,7 @@ add_iota_test("core/test_indexation.c" core_indexation)
 # client test cases
 add_iota_test("client/test_http.c" client_http)
 add_iota_test("client/test_json.c" client_json)
+add_iota_test("client/test_message_builder.c" client_message_builder)
 add_iota_test("client/api_v1/test_get_info.c" client_get_info)
 add_iota_test("client/api_v1/test_get_balance.c" client_get_balance)
 add_iota_test("client/api_v1/test_response_error.c" client_res_error)

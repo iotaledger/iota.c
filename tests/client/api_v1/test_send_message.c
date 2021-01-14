@@ -4,11 +4,16 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
+#include "client/api/v1/get_output.h"
+#include "client/api/v1/get_outputs_from_address.h"
 #include "client/api/v1/send_message.h"
+#include "core/utils/byte_buffer.h"
+
+#include "core/address.h"
 
 void test_send_indexation() {
   iota_client_conf_t ctx = {
-      .url = "https://iota-node/",
+      .url = "http://0.0.0.0:14265/",
       .port = 0  // use default port number
   };
 
@@ -16,6 +21,27 @@ void test_send_indexation() {
   TEST_ASSERT(send_indexation_msg(&ctx, "iota.c", "Hello IOTA", &res) == 0);
   TEST_ASSERT_FALSE(res.is_error);
   printf("message ID: %s\n", res.u.msg_id);
+}
+
+void test_send_core_message() {
+  iota_client_conf_t ctx = {
+      .url = "http://0.0.0.0:14265/",
+      .port = 0  // use default port number
+  };
+
+  indexation_t* idx = indexation_create("iota.c", "48656C6C6F20776F726C6421");
+  TEST_ASSERT_NOT_NULL(idx);
+  core_message_t* msg = core_message_new();
+  TEST_ASSERT_NOT_NULL(msg);
+  msg->payload_type = 2;
+  msg->pyaload = idx;
+
+  res_send_message_t res = {};
+  TEST_ASSERT(send_core_message(&ctx, msg, &res) == 0);
+  TEST_ASSERT_FALSE(res.is_error);
+  printf("message ID: %s\n", res.u.msg_id);
+
+  core_message_free(msg);
 }
 
 void test_serialize_indexation() {
@@ -67,6 +93,7 @@ int main() {
   RUN_TEST(test_serialize_indexation);
   RUN_TEST(test_deser_send_msg_response);
   // RUN_TEST(test_send_indexation);
+  // RUN_TEST(test_send_core_message);
 
   return UNITY_END();
 }
