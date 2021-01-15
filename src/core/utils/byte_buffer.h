@@ -126,7 +126,7 @@ byte_buf_t* byte_buf_hex2str(byte_buf_t* hex);
  * @param[in] str A hex string
  * @param[out] array An output buffer holds text data
  * @param[in] arr_len The length of text buffer
- * @return int 0 on successful
+ * @return int 0 on success
  */
 int hex2string(char const str[], uint8_t array[], size_t arr_len);
 
@@ -136,7 +136,7 @@ int hex2string(char const str[], uint8_t array[], size_t arr_len);
  * @param[in] str A text string
  * @param[out] hex The hex string from text
  * @param[in] hex_len The length of hex buffer
- * @return int 0 on successful
+ * @return int 0 on success
  */
 int string2hex(char str[], byte_t hex[], size_t hex_len);
 
@@ -147,7 +147,7 @@ int string2hex(char str[], byte_t hex[], size_t hex_len);
  * @param[in] str_len The length of the hex string
  * @param[out] bin A byte array buffer
  * @param[in] bin_len The length of byte array
- * @return int 0 on successful
+ * @return int 0 on success
  */
 int hex2bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len);
 
@@ -158,7 +158,7 @@ int hex2bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len);
  * @param[in] bin_len The length of byte array
  * @param[out] str_buf A buffer holds hex string data
  * @param[in] buf_len The length of the buffer
- * @return int
+ * @return int 0 on success
  */
 int bin2hex(byte_t const bin[], size_t bin_len, char str_buf[], size_t buf_len);
 

@@ -83,7 +83,7 @@ extern "C" {
 payload_tx_t *payload_tx_new();
 
 /**
- * @brief Free a transaction pyaload object
+ * @brief Free a transaction payload object
  *
  * @param[in] tx A transaction payload
  */

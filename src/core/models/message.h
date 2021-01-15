@@ -20,8 +20,8 @@ typedef struct {
                         // network type and the protocol version string.
   byte_t parent1[IOTA_MESSAGE_ID_BYTES];  // The 1st parent the message references.
   byte_t parent2[IOTA_MESSAGE_ID_BYTES];  // The 2nd parent the message references.
-  payload_t payload_type;                 // pyaload type
-  void* pyaload;                          // One of payload type
+  payload_t payload_type;                 // payload type
+  void* payload;                          // One of payload type
   uint64_t nonce;                         // The nonce which lets this message fulfill the Proof-of-Work requirement.
 } core_message_t;
 
