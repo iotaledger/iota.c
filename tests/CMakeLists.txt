@@ -31,6 +31,7 @@ add_iota_test("core/test_slip10.c" core_slip10)
 add_iota_test("core/test_utils_bech32.c" core_utils_bech32)
 add_iota_test("core/test_transaction.c" core_transaction)
 add_iota_test("core/test_indexation.c" core_indexation)
+add_iota_test("core/test_message.c" core_message)
 
 # client test cases
 add_iota_test("client/test_http.c" client_http)

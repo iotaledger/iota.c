@@ -37,6 +37,14 @@ extern "C" {
 core_message_t* core_message_new();
 
 /**
+ * @brief Sign a transaction message
+ *
+ * @param[in] msg A message with transaction payload
+ * @return int 0 on success
+ */
+int core_message_sign_transaction(core_message_t* msg);
+
+/**
  * @brief Free a core message object
  *
  * @param[in] msg message object
