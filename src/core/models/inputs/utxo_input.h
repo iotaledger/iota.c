@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "core/types.h"
+#include "crypto/iota_crypto.h"
 #include "uthash.h"
 
 #define TRANSACTION_ID_BYTES 32
@@ -11,8 +12,14 @@
 #define UTXO_INPUT_SERIALIZED_BYTES (1 + TRANSACTION_ID_BYTES + 2)
 
 typedef struct {
+  byte_t pub_key[ED_PUBLIC_KEY_BYTES];  // The public key of the Ed25519 keypair which is used to verify the signature.
+  byte_t priv[ED_PRIVATE_KEY_BYTES];    // The private key for signing the serialized Unsigned Transaction.
+} ed25519_keypair_t;
+
+typedef struct {
   byte_t tx_id[TRANSACTION_ID_BYTES];  // The transaction reference from which the UTXO comes from.
   uint16_t output_index;               // The index of the output on the referenced transaction to consume 0<= x < 127.
+  ed25519_keypair_t keypair;
   UT_hash_handle hh;
 } utxo_input_ht;
 
@@ -34,7 +41,7 @@ static utxo_input_ht *utxo_inputs_new() { return NULL; }
  * @param[in] tx_id A transaction ID
  * @return utxo_input_ht*
  */
-static utxo_input_ht *utxo_inputs_find_by_id(utxo_input_ht **inputs, byte_t tx_id[]) {
+static utxo_input_ht *utxo_inputs_find_by_id(utxo_input_ht **inputs, byte_t const tx_id[]) {
   utxo_input_ht *in = NULL;
   HASH_FIND(hh, *inputs, tx_id, TRANSACTION_ID_BYTES, in);
   return in;
@@ -44,9 +51,9 @@ static utxo_input_ht *utxo_inputs_find_by_id(utxo_input_ht **inputs, byte_t tx_i
  * @brief Get the size of utxo inputs
  *
  * @param[in] ht An utxo input hash table.
- * @return uint8_t
+ * @return uint16_t
  */
-static uint8_t utxo_inputs_count(utxo_input_ht **ht) { return (uint8_t)HASH_COUNT(*ht); }
+static uint16_t utxo_inputs_count(utxo_input_ht **ht) { return (uint16_t)HASH_COUNT(*ht); }
 
 /**
  * @brief Free an utxo input hash table.
@@ -70,6 +77,19 @@ static void utxo_inputs_free(utxo_input_ht **ht) {
  * @return int 0 on success
  */
 int utxo_inputs_add(utxo_input_ht **inputs, byte_t tx_id[], uint16_t index);
+
+/**
+ * @brief Append an utxo input with keypair to hash table
+ *
+ * @param[in] inputs An input hash table
+ * @param[in] tx_id A transaction ID
+ * @param[in] index An index
+ * @param[in] pub An ed25519 public key
+ * @param[in] priv An ed25519 private key
+ * @return int 0 on success
+ */
+int utxo_inputs_add_with_key(utxo_input_ht **inputs, byte_t const tx_id[], uint16_t index, byte_t const pub[],
+                             byte_t const priv[]);
 
 /**
  * @brief Serialize inputs to a buffer
