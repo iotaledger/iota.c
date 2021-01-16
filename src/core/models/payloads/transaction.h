@@ -84,6 +84,9 @@ transaction_essence_t* tx_essence_new();
  */
 int tx_essence_add_input(transaction_essence_t* es, byte_t tx_id[], uint8_t index);
 
+int tx_essence_add_input_with_key(transaction_essence_t* es, byte_t const tx_id[], uint8_t index, byte_t const pub[],
+                                  byte_t const priv[]);
+
 /**
  * @brief Add an output element to the essence
  *
@@ -220,6 +223,19 @@ transaction_payload_t* tx_payload_new();
  * @return int 0 on success
  */
 int tx_payload_add_input(transaction_payload_t* tx, byte_t tx_id[], uint8_t index);
+
+/**
+ * @brief Add an input with ed25519 keypair to the transaction payload
+ *
+ * @param[in] tx A transaction payload object
+ * @param[in] tx_id A transaction ID
+ * @param[in] index The index of the output on the referenced transaction to consume
+ * @param[in] pub The public key
+ * @param[in] priv The private key
+ * @return int 0 on success
+ */
+int tx_payload_add_input_with_key(transaction_payload_t* tx, byte_t tx_id[], uint8_t index, byte_t const pub[],
+                                  byte_t const priv[]);
 
 /**
  * @brief Add an output to the transaction payload

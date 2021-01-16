@@ -55,6 +55,15 @@ int tx_essence_add_input(transaction_essence_t* es, byte_t tx_id[], uint8_t inde
   return utxo_inputs_add(&es->inputs, tx_id, index);
 }
 
+int tx_essence_add_input_with_key(transaction_essence_t* es, byte_t const tx_id[], uint8_t index, byte_t const pub[],
+                                  byte_t const priv[]) {
+  if (!es || !tx_id || !pub || !priv) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+  return utxo_inputs_add_with_key(&es->inputs, tx_id, index, pub, priv);
+}
+
 int tx_essence_add_output(transaction_essence_t* es, byte_t addr[], uint64_t amount) {
   if (es == NULL || addr == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -81,6 +90,7 @@ void tx_essence_sort_input_output(transaction_essence_t* es) {
 }
 
 size_t tx_essence_serialize_length(transaction_essence_t* es) {
+  size_t length = 0;
   uint8_t input_counts = utxo_inputs_count(&es->inputs);
   uint8_t output_counts = utxo_outputs_count(&es->outputs);
   // at least one input and one output
@@ -94,10 +104,16 @@ size_t tx_essence_serialize_length(transaction_essence_t* es) {
     return 0;
   }
 
+  // transaction type(uint8_t)
+  length += sizeof(uint8_t);
+  // input count (uint16_t) + serialized input
+  length += sizeof(uint16_t) + (UTXO_INPUT_SERIALIZED_BYTES * input_counts);
+  // output count(uint16_t) + serialized output
+  length += sizeof(uint16_t) + (UTXO_OUTPUT_SERIALIZED_BYTES * output_counts);
+  // payload length (uint32_t) + serialized payload
   // TODO: transaction with a payload
-
-  return sizeof(uint8_t) + (UTXO_INPUT_SERIALIZED_BYTES * input_counts) +
-         (UTXO_OUTPUT_SERIALIZED_BYTES * output_counts) + sizeof(uint32_t);
+  length += sizeof(uint32_t);
+  return length;
 }
 
 size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[]) {
@@ -105,18 +121,26 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[]) {
     printf("[%s:%d] NULL parameter\n", __func__, __LINE__);
     return 0;
   }
+  uint16_t input_counts = utxo_inputs_count(&es->inputs);
+  uint16_t output_counts = utxo_outputs_count(&es->outputs);
 
   byte_t* offset = buf;
-  // fill-in transaction type, set to value 0 to denote a transaction essence.
+  // fill-in essence type, set to value 0 to denote a transaction essence.
   memset(offset, 0, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
   // Inputs and Ouputs must be in lexicographical order of their serialized form
   tx_essence_sort_input_output(es);
 
+  // input counts
+  memcpy(offset, &input_counts, sizeof(uint16_t));
+  offset += sizeof(uint16_t);
   // serialize inputs
   offset += utxo_inputs_serialization(&es->inputs, offset);
 
+  // output counts
+  memcpy(offset, &output_counts, sizeof(uint16_t));
+  offset += sizeof(uint16_t);
   // serialize outputs
   offset += utxo_outputs_serialization(&es->outputs, offset);
 
@@ -196,6 +220,9 @@ size_t tx_blocks_serialize_length(tx_unlock_blocks_t* blocks) {
     return 0;
   }
 
+  // bytes of Unlock Blocks Count
+  serialized_size += sizeof(uint16_t);
+
   // calculate serialized bytes of unlocked blocks
   DL_FOREACH(blocks, elm) {
     if (elm->type == 0) {
@@ -214,6 +241,12 @@ size_t tx_blocks_serialize_length(tx_unlock_blocks_t* blocks) {
 size_t tx_blocks_serialize(tx_unlock_blocks_t* blocks, byte_t buf[]) {
   tx_unlock_blocks_t* elm = NULL;
   byte_t* offset = buf;
+
+  uint16_t block_count = tx_blocks_count(blocks);
+
+  // unlocked block count
+  memcpy(offset, &block_count, sizeof(block_count));
+  offset += sizeof(block_count);
 
   // serializing unlocked blocks
   DL_FOREACH(blocks, elm) {
@@ -294,6 +327,14 @@ transaction_payload_t* tx_payload_new() {
 int tx_payload_add_input(transaction_payload_t* tx, byte_t tx_id[], uint8_t index) {
   if (tx) {
     return tx_essence_add_input(tx->essence, tx_id, index);
+  }
+  return -1;
+}
+
+int tx_payload_add_input_with_key(transaction_payload_t* tx, byte_t tx_id[], uint8_t index, byte_t const pub[],
+                                  byte_t const priv[]) {
+  if (tx) {
+    return tx_essence_add_input_with_key(tx->essence, tx_id, index, pub, priv);
   }
   return -1;
 }
