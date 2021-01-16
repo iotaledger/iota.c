@@ -31,7 +31,7 @@ res_err_t *deser_error(cJSON *j_obj) {
   cJSON *err_obj = cJSON_GetObjectItemCaseSensitive(j_obj, key_error);
   if (err_obj == NULL) {
     // it is not exactly an error
-    printf("INFO [%s:%d]: error object not found in this response\n", __func__, __LINE__);
+    // printf("INFO [%s:%d]: error object not found in this response\n", __func__, __LINE__);
     return NULL;
   }
 
