@@ -23,8 +23,13 @@ void indexation_free(indexation_t *idx) {
   }
 }
 
-indexation_t *indexation_create(char const *index, char const *data) {
+indexation_t *indexation_create(char const *index, byte_t data[], uint32_t data_len) {
   indexation_t *idx = NULL;
+
+  if ((strlen(index) * 2) > MAX_INDEXCATION_INDEX_BYTES) {
+    printf("[%s:%d] invalid index", __func__, __LINE__);
+    return NULL;
+  }
 
   if ((idx = indexation_new()) != NULL) {
     // add index string
@@ -35,8 +40,8 @@ indexation_t *indexation_create(char const *index, char const *data) {
       return NULL;
     }
 
-    // add a hex string to data
-    idx->data = byte_buf_new_with_data((byte_t *)data, strlen(data) + 1);
+    // add a binary array to data
+    idx->data = byte_buf_new_with_data(data, data_len);
     if (!idx->data) {
       printf("[%s:%d] append data failed", __func__, __LINE__);
       indexation_free(idx);
@@ -44,4 +49,44 @@ indexation_t *indexation_create(char const *index, char const *data) {
     }
   }
   return idx;
+}
+
+size_t indexaction_serialize_length(indexation_t *idx) {
+  // payload type
+  size_t len = sizeof(uint32_t);
+  // index length
+  len += sizeof(uint16_t);
+  len += strlen(idx->index->data);
+  // data length
+  len += sizeof(uint32_t);
+  len += idx->data->len;
+  return len;
+}
+
+size_t indexation_payload_serialize(indexation_t *idx, byte_t buf[]) {
+  if (!idx) {
+    printf("[%s:%d] NULL parameter\n", __func__, __LINE__);
+    return 0;
+  }
+
+  byte_t *offset = buf;
+  // payload type, set to value 2 to denote an indexaction payload.
+  uint32_t idx_type = 2;
+  memcpy(offset, &idx_type, sizeof(uint32_t));
+  offset += sizeof(uint32_t);
+
+  // index
+  uint16_t index_len = strlen((char const *)idx->index->data);
+  memcpy(offset, &index_len, sizeof(uint16_t));
+  offset += sizeof(uint16_t);
+  memcpy(offset, idx->index->data, index_len);
+  offset += index_len;
+
+  // data
+  uint32_t data_len = (uint32_t)idx->data->len;
+  memcpy(offset, &data_len, sizeof(uint32_t));
+  offset += sizeof(uint32_t);
+  memcpy(offset, idx->data->data, idx->data->len);
+  offset += idx->data->len;
+  return (offset - buf) / sizeof(byte_t);
 }

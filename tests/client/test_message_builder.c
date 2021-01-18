@@ -12,7 +12,8 @@ void test_msg_indexation() {
       "\"parent2MessageId\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"payload\":{\"type\":"
       "2,\"index\":\"HELLO\",\"data\":\"48454C4C4F\"},\"nonce\":null}";
 
-  indexation_t* idx = indexation_create("HELLO", "48454C4C4F");
+  byte_t idx_data[5] = {0x48, 0x45, 0x4C, 0x4C, 0x4F};
+  indexation_t* idx = indexation_create("HELLO", idx_data, sizeof(idx_data));
   TEST_ASSERT_NOT_NULL(idx);
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);

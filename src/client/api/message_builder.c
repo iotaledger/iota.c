@@ -45,13 +45,29 @@ static cJSON* indexation_to_json(indexation_t* index) {
     return NULL;
   }
 
-  byte_buf2str(index->data);
-  if (!cJSON_AddStringToObject(payload_obj, "data", (char const*)index->data->data)) {
-    printf("[%s:%d] creating data failed\n", __func__, __LINE__);
+  size_t data_str_len = index->data->len * 2 + 1;
+  char* data_str = malloc(data_str_len);
+  if (!data_str) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
     cJSON_Delete(payload_obj);
     return NULL;
   }
 
+  if (bin2hex(index->data->data, index->data->len, data_str, data_str_len) == 0) {
+    // add data object
+    if (!cJSON_AddStringToObject(payload_obj, "data", data_str)) {
+      printf("[%s:%d] creating data failed\n", __func__, __LINE__);
+      cJSON_Delete(payload_obj);
+      payload_obj = NULL;
+    }
+  } else {
+    printf("[%s:%d] convert bin to hex string failed\n", __func__, __LINE__);
+    free(data_str);
+    cJSON_Delete(payload_obj);
+    return NULL;
+  }
+
+  free(data_str);
   return payload_obj;
 }
 

@@ -70,12 +70,7 @@ int hex2bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len) {
 
 int bin2hex(byte_t const bin[], size_t bin_len, char str_buf[], size_t buf_len) {
   size_t index = 0;
-  if (bin_len % 2) {
-    // invalid length
-    return -1;
-  }
-
-  if ((bin_len * 2) + 1 > buf_len) {
+  if (buf_len < ((bin_len * 2) + 1)) {
     // buffer too small
     return -1;
   }
