@@ -29,7 +29,8 @@ void test_send_core_message_indexation() {
       .port = 0  // use default port number
   };
 
-  indexation_t* idx = indexation_create("iota.c", "48656C6C6F20776F726C6421");
+  byte_t idx_data[12] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, 0x21};
+  indexation_t* idx = indexation_create("iota.c", idx_data, sizeof(idx_data));
   TEST_ASSERT_NOT_NULL(idx);
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);
@@ -156,11 +157,13 @@ void test_send_core_message_tx() {
 
   // create output for sending 1Ki out
   uint64_t token_send = 1000;
-  tx_payload_add_output(tx_payload, wallet_addr, token_send);
-  tx_payload_add_output(tx_payload, genesis_addr, total - token_send);
+  TEST_ASSERT(tx_payload_add_output(tx_payload, wallet_addr, token_send) == 0);
+  TEST_ASSERT(tx_payload_add_output(tx_payload, genesis_addr, total - token_send) == 0);
 
   // add indexation to tx payload
-  // tx_payload->essence->payload = indexation_create("iota.c", "48656C6C6F20776F726C6421");
+  byte_t idx_data[] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, 0x21};
+  TEST_ASSERT(tx_essence_add_payload(tx_payload->essence, 2,
+                                     (void*)indexation_create("iota.c", idx_data, sizeof(idx_data))) == 0);
 
   // create message and put tx payload in message
   core_message_t* msg = core_message_new();
@@ -187,6 +190,7 @@ int main() {
   RUN_TEST(test_deser_send_msg_response);
   // RUN_TEST(test_send_indexation);
   // RUN_TEST(test_send_core_message_indexation);
+  // send transaction on alphanet
   // RUN_TEST(test_send_core_message_tx);
 
   return UNITY_END();

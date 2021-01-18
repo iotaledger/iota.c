@@ -77,16 +77,25 @@ int tx_essence_add_output(transaction_essence_t* es, byte_t addr[], uint64_t amo
   return utxo_outputs_add(&es->outputs, addr, amount);
 }
 
-int tx_essence_add_payload(transaction_essence_t* es) {
-  // TODO: support transaction with a payload
-  return -1;
-}
-
 void tx_essence_sort_input_output(transaction_essence_t* es) {
   if (es) {
     HASH_SORT(es->inputs, sort_input_tx_id);
     HASH_SORT(es->outputs, sort_output_address);
   }
+}
+
+int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* payload) {
+  if (!es || !payload) {
+    return -1;
+  }
+  // TODO: support indexation payload at this moment
+  if (type == 2) {
+    es->payload = payload;
+    es->payload_len = indexaction_serialize_length(payload);
+  } else {
+    return -1;
+  }
+  return 0;
 }
 
 size_t tx_essence_serialize_length(transaction_essence_t* es) {
@@ -110,9 +119,12 @@ size_t tx_essence_serialize_length(transaction_essence_t* es) {
   length += sizeof(uint16_t) + (UTXO_INPUT_SERIALIZED_BYTES * input_counts);
   // output count(uint16_t) + serialized output
   length += sizeof(uint16_t) + (UTXO_OUTPUT_SERIALIZED_BYTES * output_counts);
+
   // payload length (uint32_t) + serialized payload
-  // TODO: transaction with a payload
   length += sizeof(uint32_t);
+  if (es->payload) {
+    length += es->payload_len;
+  }
   return length;
 }
 
@@ -144,10 +156,15 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[]) {
   // serialize outputs
   offset += utxo_outputs_serialization(&es->outputs, offset);
 
-  // TODO: serialize non-empty payload
-  memset(offset, 0, sizeof(uint32_t));
-  offset += sizeof(uint32_t);
-
+  if (es->payload) {
+    // serialize indexation payload
+    memcpy(offset, &es->payload_len, sizeof(es->payload_len));
+    offset += sizeof(es->payload_len);
+    offset += indexation_payload_serialize((indexation_t*)es->payload, offset);
+  } else {
+    memset(offset, 0, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
+  }
   return (offset - buf) / sizeof(byte_t);
 }
 

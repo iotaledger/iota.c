@@ -98,12 +98,16 @@ int tx_essence_add_input_with_key(transaction_essence_t* es, byte_t const tx_id[
 int tx_essence_add_output(transaction_essence_t* es, byte_t addr[], uint64_t amount);
 
 /**
- * @brief TODO: Add a payload to essence
+ * @brief Add a payload to essence
  *
- * @param[in] es
- * @return int
+ * support indexation payload at this moment, type = 2
+ *
+ * @param[in] es An essence object
+ * @param[in] type A payload type
+ * @param[in] payload A pointer to a payload object
+ * @return int 0 on success
  */
-int tx_essence_add_payload(transaction_essence_t* es);
+int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* payload);
 
 /**
  * @brief Get the serialized length of the essence
