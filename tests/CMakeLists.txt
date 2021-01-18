@@ -47,3 +47,10 @@ add_iota_test("client/api_v1/test_get_health.c" client_get_health)
 add_iota_test("client/api_v1/test_get_message.c" client_get_message)
 add_iota_test("client/api_v1/test_send_message.c" client_send_message)
 add_iota_test("client/api_v1/test_find_message.c" client_find_message)
+
+# for higher level APIs
+add_executable(test_wallet_api "wallet/test_wallet.c")
+target_include_directories(test_wallet_api PRIVATE ${PROJECT_SOURCE_DIR}/src ${CMAKE_INSTALL_PREFIX}/include)
+add_dependencies(test_wallet_api ext_unity iota_wallet)
+target_link_libraries(test_wallet_api PRIVATE iota_wallet unity)
+add_test(test_wallet_api test_wallet_api)

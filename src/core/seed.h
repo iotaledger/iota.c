@@ -5,6 +5,7 @@
 #define __CORE_SEED_H__
 
 #include "core/types.h"
+#include "crypto/iota_crypto.h"
 
 #define IOTA_SEED_BYTES ED_SEED_BYTES
 

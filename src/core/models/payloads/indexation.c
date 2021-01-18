@@ -56,7 +56,7 @@ size_t indexaction_serialize_length(indexation_t *idx) {
   size_t len = sizeof(uint32_t);
   // index length
   len += sizeof(uint16_t);
-  len += strlen(idx->index->data);
+  len += strlen((char const *)idx->index->data);
   // data length
   len += sizeof(uint32_t);
   len += idx->data->len;

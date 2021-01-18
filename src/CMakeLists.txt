@@ -6,3 +6,4 @@
 add_subdirectory(core)
 add_subdirectory(client)
 add_subdirectory(crypto)
+add_subdirectory(wallet)
