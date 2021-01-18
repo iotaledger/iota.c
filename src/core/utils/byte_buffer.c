@@ -48,8 +48,11 @@ int string2hex(char str[], byte_t hex[], size_t hex_len) {
   return 0;
 }
 
-int hex2bin(char const str[], byte_t bin[], size_t bin_len) {
-  size_t str_len = strlen(str);
+int hex2bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len) {
+  if (!str || !bin) {
+    return -1;
+  }
+
   size_t expected_bin_len = str_len / 2;
   if (bin_len < expected_bin_len) {
     // buffer size is not sufficient
@@ -62,6 +65,20 @@ int hex2bin(char const str[], byte_t bin[], size_t bin_len) {
     pos += 2;
   }
 
+  return 0;
+}
+
+int bin2hex(byte_t const bin[], size_t bin_len, char str_buf[], size_t buf_len) {
+  size_t index = 0;
+  if (buf_len < ((bin_len * 2) + 1)) {
+    // buffer too small
+    return -1;
+  }
+
+  for (size_t i = 0; i < bin_len; i++) {
+    index += sprintf(&str_buf[index], "%02X", bin[i]);
+  }
+  str_buf[buf_len - 1] = '\0';
   return 0;
 }
 
@@ -157,13 +174,15 @@ void byte_buf_free(byte_buf_t* buf) {
   }
 }
 
-void byte_buf2str(byte_buf_t* buf) {
+bool byte_buf2str(byte_buf_t* buf) {
+  bool ret = true;
   byte_t null_char = '\0';
   if (buf && buf->data) {
     if (buf->data[buf->len - 1] != null_char) {
-      byte_buf_append(buf, &null_char, 1);
+      ret = byte_buf_append(buf, &null_char, 1);
     }
   }
+  return ret;
 }
 
 byte_buf_t* byte_buf_str2hex(byte_buf_t* buf) {

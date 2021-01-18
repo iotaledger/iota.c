@@ -10,6 +10,7 @@
 #include "client/api/message.h"
 #include "client/api/v1/response_error.h"
 #include "client/client_service.h"
+#include "core/models/message.h"
 #include "core/types.h"
 
 typedef struct {
@@ -63,6 +64,16 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
  * @return int 0 on success
  */
 int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_message_t* res);
+
+/**
+ * @brief Send message thought core message object
+ *
+ * @param[in] conf The client endpoint configuration
+ * @param[in] msg A core message
+ * @param[out] res An error or message ID
+ * @return int 0 on success
+ */
+int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg, res_send_message_t* res);
 
 #ifdef __cplusplus
 }

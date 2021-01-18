@@ -1,3 +1,6 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef __CORE_MODELS_MESSAGE_H__
 #define __CORE_MODELS_MESSAGE_H__
 
@@ -12,24 +15,41 @@
 #define IOTA_MESSAGE_ID_BYTES 32  // message hash ID
 #define IOTA_MESSAGE_ID_HEX_BYTES (IOTA_MESSAGE_ID_BYTES * 2)
 
-typedef union {
-  indexation_t *indexation;
-  milestone_t *milestone;
-  transaction_payload_t *tx;
-} payload_u;
-
 typedef struct {
   uint64_t network_id;  // Network identifier. It is first 8 bytes of the `BLAKE2b-256` hash of the concatenation of the
                         // network type and the protocol version string.
   byte_t parent1[IOTA_MESSAGE_ID_BYTES];  // The 1st parent the message references.
   byte_t parent2[IOTA_MESSAGE_ID_BYTES];  // The 2nd parent the message references.
-  payload_u pyaload;                      // One of payload type
+  payload_t payload_type;                 // payload type
+  void* payload;                          // One of payload type
   uint64_t nonce;                         // The nonce which lets this message fulfill the Proof-of-Work requirement.
 } core_message_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @brief Allocate a core message object
+ *
+ * @return core_message_t*
+ */
+core_message_t* core_message_new();
+
+/**
+ * @brief Sign a transaction message
+ *
+ * @param[in] msg A message with transaction payload
+ * @return int 0 on success
+ */
+int core_message_sign_transaction(core_message_t* msg);
+
+/**
+ * @brief Free a core message object
+ *
+ * @param[in] msg message object
+ */
+void core_message_free(core_message_t* msg);
 
 #ifdef __cplusplus
 }

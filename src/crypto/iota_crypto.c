@@ -14,7 +14,7 @@ void iota_crypto_keypair(uint8_t const seed[], iota_keypair_t *keypair) {
 
 int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, uint8_t signature[]) {
   unsigned long long sign_len = ED_SIGNATURE_BYTES;
-  return crypto_sign(signature, &sign_len, msg, msg_len, priv_key);
+  return crypto_sign_ed25519_detached(signature, &sign_len, msg, msg_len, priv_key);
 }
 
 int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]) {

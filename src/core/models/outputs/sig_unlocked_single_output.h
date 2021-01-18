@@ -7,8 +7,8 @@
 #include "core/types.h"
 #include "uthash.h"
 
-// Serialized bytes = output type(uint8_t) + ed25519 address(32bytes) + amount(uint64_t)
-#define UTXO_OUTPUT_SERIALIZED_BYTES (1 + ED25519_ADDRESS_BYTES + 8)
+// Serialized bytes = output type(uint8_t) + address type(uint8_t) + ed25519 address(32bytes) + amount(uint64_t)
+#define UTXO_OUTPUT_SERIALIZED_BYTES (1 + 1 + ED25519_ADDRESS_BYTES + 8)
 
 /**
  * @brief stores deposit outputs in a hash table
@@ -48,9 +48,9 @@ static sig_unlocked_outputs_ht *utxo_outputs_find_by_addr(sig_unlocked_outputs_h
  * @brief Get the size of utxo outputs
  *
  * @param[in] ht An utxo output hash table.
- * @return uint8_t
+ * @return uint16_t
  */
-static uint8_t utxo_outputs_count(sig_unlocked_outputs_ht **ht) { return (uint8_t)HASH_COUNT(*ht); }
+static uint16_t utxo_outputs_count(sig_unlocked_outputs_ht **ht) { return (uint16_t)HASH_COUNT(*ht); }
 
 /**
  * @brief Free an utxo output hash table.

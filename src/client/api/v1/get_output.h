@@ -1,5 +1,6 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef __CLIENT_API_V1_OUTPUT_H__
 #define __CLIENT_API_V1_OUTPUT_H__
 
@@ -61,6 +62,13 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
  * @return int 0 on success
  */
 int deser_get_output(char const *const j_str, res_output_t *res);
+
+/**
+ * @brief Print out an output response object
+ *
+ * @param[in] res An output response
+ */
+void dump_output_response(res_output_t *res);
 
 #ifdef __cplusplus
 }

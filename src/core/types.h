@@ -23,7 +23,20 @@ typedef uint8_t signature_t;
  */
 static inline void dump_hex(byte_t const data[], size_t len) {
   for (size_t i = 0; i < len; i++) {
-    printf("0x%x, ", data[i]);
+    printf("0x%X, ", data[i]);
+  }
+  printf("\n");
+}
+
+/**
+ * @brief Prints out hexmal value in a string.
+ *
+ * @param[in] data A byte_t buffer
+ * @param[in] len The length of data
+ */
+static inline void dump_hex_str(byte_t const data[], size_t len) {
+  for (size_t i = 0; i < len; i++) {
+    printf("%.2X", data[i]);
   }
   printf("\n");
 }
