@@ -4,8 +4,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define IOTA_ENDPOINT_MAX_LEN 256
+
 typedef struct {
-  char url[256];
+  char url[IOTA_ENDPOINT_MAX_LEN];
   uint16_t port;
 } iota_client_conf_t;
 
