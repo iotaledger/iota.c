@@ -29,24 +29,28 @@ static const addr_validater_t exp_addresses[] = {
 
 void test_wallet_api() {
   // path validation
-  iota_wallet_t* wallet = wallet_create(seed, "");
+  iota_wallet_t* wallet = wallet_create(seed, "", 0, 0);
   TEST_ASSERT_NULL(wallet);
   // invalid parameter
-  wallet = wallet_create(NULL, "m/44'/4218'");
+  wallet = wallet_create(NULL, "m/44'/4218'", 0, 0);
   TEST_ASSERT_NULL(wallet);
   // invalid path format
-  wallet = wallet_create(seed, "m/44'/4218'");
+  wallet = wallet_create(seed, "m/44'/4218'", 0, 0);
   TEST_ASSERT_NULL(wallet);
-  wallet = wallet_create(seed, "m/44'/4218'/0");
+  wallet = wallet_create(seed, "m/44'/4218'/0", 0, 0);
   TEST_ASSERT_NULL(wallet);
-  wallet = wallet_create(seed, "m/44'/4218'/0'");
+  wallet = wallet_create(seed, "m/44'/4218'/0'", 0, 0);
   TEST_ASSERT_NULL(wallet);
-  wallet = wallet_create(seed, "m/44'/4218'/0'/");
+  wallet = wallet_create(seed, "m/44'/4218'/0'/", 0, 0);
   TEST_ASSERT_NULL(wallet);
-  wallet = wallet_create(seed, "m/44'/4218'/0'/0");
+  wallet = wallet_create(seed, "m/44'/4218'/0'/0", 0, 0);
+  TEST_ASSERT_NULL(wallet);
+  // invalid start/end index
+  wallet = wallet_create(seed, "m/44'/4218'/0'/0'", 5, 0);
   TEST_ASSERT_NULL(wallet);
   // Bip44 path format: 44,4128,Account,Change
-  wallet = wallet_create(seed, "m/44'/4218'/0'/0'");
+  // 2 addresses will be used in this wallet
+  wallet = wallet_create(seed, "m/44'/4218'/0'/0'", 0, 1);
   TEST_ASSERT_NOT_NULL(wallet);
 
   // address validation
@@ -65,7 +69,7 @@ void test_wallet_api() {
 
 void test_wallet_api_with_node() {
   // create a wallet account
-  iota_wallet_t* wallet = wallet_create(seed, "m/44'/4218'/0'/0'");
+  iota_wallet_t* wallet = wallet_create(seed, "m/44'/4218'/0'/0'", 0, 3);
   TEST_ASSERT_NOT_NULL(wallet);
 
   // get address of index 0
@@ -79,6 +83,20 @@ void test_wallet_api_with_node() {
   // printf("balance by addr: %"PRIu64"\n", balance_addr);
   TEST_ASSERT(balance_addr == balance_index);
 
+  // send indexation message
+  byte_t recv_addr[ED25519_ADDRESS_BYTES] = {};
+  TEST_ASSERT(wallet_address_by_index(wallet, 1, recv_addr) == 0);
+  byte_t index_data[] = {0x73, 0x65, 0x6e, 0x64, 0x20, 0x66, 0x72, 0x6f,
+                         0x6d, 0x20, 0x69, 0x6f, 0x74, 0x61, 0x2e, 0x63};
+  TEST_ASSERT(wallet_send(wallet, NULL, 0, "iota.c", index_data, sizeof(index_data)) == 0);
+
+  // send transaction with unsificent balance
+  TEST_ASSERT(wallet_send(wallet, recv_addr, 2779530283277760, NULL, NULL, 0) != 0);
+  // send transaction without indexation
+  TEST_ASSERT(wallet_send(wallet, recv_addr, 1000, NULL, NULL, 0) == 0);
+  // send transaction with indexation
+  TEST_ASSERT(wallet_send(wallet, recv_addr, 1000, "iota.c", index_data, sizeof(index_data)) == 0);
+
   wallet_destroy(wallet);
 }
 
@@ -86,6 +104,7 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_wallet_api);
+  // tested on alphanet
   // RUN_TEST(test_wallet_api_with_node);
 
   return UNITY_END();
