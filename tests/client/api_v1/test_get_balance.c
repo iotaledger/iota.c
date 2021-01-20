@@ -9,14 +9,11 @@
 #include "client/api/v1/get_balance.h"
 #include "core/utils/byte_buffer.h"
 
-#define ADDR_HEX "7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006"
-#define ADDR_INV "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+char const* const addr_hex = "7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006";
+char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
 void test_get_balance() {
-  iota_client_conf_t conf = {
-      .url = "http://0.0.0.0/",
-      .port = 14265  // use default port number
-  };
+  iota_client_conf_t conf = {.url = "https://api.lb-0.testnet.chrysalis2.com/", .port = 0};
 
   res_balance_t* res = res_balance_new();
   TEST_ASSERT_NOT_NULL(res);
@@ -28,7 +25,7 @@ void test_get_balance() {
   TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, NULL, res));
 
   // test invalid address
-  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, ADDR_INV, res));
+  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, addr_hex_invalid, res));
   TEST_ASSERT(res->is_error);
   TEST_ASSERT_EQUAL_STRING(
       "bad request, error: invalid address: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx, error: "
@@ -42,46 +39,51 @@ void test_get_balance() {
   TEST_ASSERT_NOT_NULL(res);
 
   // test for success
-  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, ADDR_HEX, res));
+  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, addr_hex, res));
+  // validate address type
+  TEST_ASSERT(1 == res->u.output_balance->address_type);
+  // validate address string
+  TEST_ASSERT_EQUAL_STRING(addr_hex, res->u.output_balance->address);
 
   res_balance_free(res);
 }
 
 void test_deser_balance_info() {
   char const* json_info_200 =
-      "{\"data\":{\"address\": \"7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006\","
-      "\"maxResults\": 1000,"
-      "\"count\": 25,"
-      "\"balance\": 1338263}}";
-
+      "{\"data\":{\"addressType\":1,\"address\":\"7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006\","
+      "\"balance\":1338263}}";
   char const* json_info_400 =
-      "{\"error\": {"
-      "\"code\": \"400\", "
-      "\"message\": \"bad request, error: invalid address: 0, error: encoding/hex: odd length hex string: invalid "
-      "parameter\"}}";
+      "{\"error\":{\"code\":\"400\",\"message\":\"bad request, error: invalid address: "
+      "iot1qxknyfvz2hnulyn6fqelg4ljyzm3sl8ewh5z4mhzuglu4eg9d26lg0h78ec, error: encoding\\/hex: invalid byte: U+0069 "
+      "'i': invalid parameter\"}}";
 
   // test http status code 200
   res_balance_t* res = res_balance_new();
   TEST_ASSERT_NOT_NULL(res);
+  TEST_ASSERT(res->is_error == false);
   TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_200, res));
-  TEST_ASSERT_EQUAL_INT(1000, res->u.output_balance->max_results);
-  TEST_ASSERT_EQUAL_INT(25, res->u.output_balance->count);
-  TEST_ASSERT_EQUAL_INT(1338263, res->u.output_balance->balance);
+  TEST_ASSERT(1 == res->u.output_balance->address_type);
+  TEST_ASSERT_EQUAL_STRING(addr_hex, res->u.output_balance->address);
+  TEST_ASSERT_EQUAL_STRING(res->u.output_balance->address, addr_hex);
+  TEST_ASSERT(1338263 == res->u.output_balance->balance);
 
-  // reset res
+  // clean up
   res_balance_free(res);
   res = NULL;
+
+  // test http status code 400
   res = res_balance_new();
   TEST_ASSERT_NOT_NULL(res);
 
-  // test http status code 400
   TEST_ASSERT_EQUAL_INT(0, deser_balance_info(json_info_400, res));
-  TEST_ASSERT(res->is_error);
+  TEST_ASSERT(res->is_error == true);
   TEST_ASSERT_EQUAL_STRING("400", res->u.error->code);
   TEST_ASSERT_EQUAL_STRING(
-      "bad request, error: invalid address: 0, error: encoding/hex: odd length hex string: invalid parameter",
+      "bad request, error: invalid address: iot1qxknyfvz2hnulyn6fqelg4ljyzm3sl8ewh5z4mhzuglu4eg9d26lg0h78ec, error: "
+      "encoding/hex: invalid byte: U+0069 'i': invalid parameter",
       res->u.error->msg);
 
+  // clean up
   res_balance_free(res);
 }
 

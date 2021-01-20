@@ -32,8 +32,7 @@ void res_balance_free(res_balance_t *res) {
 
 int deser_balance_info(char const *const j_str, res_balance_t *res) {
   char const *const key_addr = "address";
-  char const *const key_maxResults = "maxResults";
-  char const *const key_count = "count";
+  char const *const key_addr_type = "addressType";
   char const *const key_balance = "balance";
   char const *const key_code = "code";
   char const *const key_message = "message";
@@ -41,6 +40,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
 
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
     return -1;
   }
 
@@ -61,22 +61,16 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
 
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
   if (data_obj) {
+    // gets address type
+    if ((ret = json_get_uint8(data_obj, key_addr_type, &res->u.output_balance->address_type)) != 0) {
+      printf("[%s:%d]: gets %s json max_results failed\n", __func__, __LINE__, key_addr_type);
+      goto end;
+    }
+
     // gets address
     if ((ret = json_get_string(data_obj, key_addr, res->u.output_balance->address,
                                sizeof(res->u.output_balance->address))) != 0) {
       printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, key_addr);
-      goto end;
-    }
-
-    // gets max_results
-    if ((ret = json_get_uint16(data_obj, key_maxResults, &res->u.output_balance->max_results)) != 0) {
-      printf("[%s:%d]: gets %s json max_results failed\n", __func__, __LINE__, key_maxResults);
-      goto end;
-    }
-
-    // gets count
-    if ((ret = json_get_uint16(data_obj, key_count, &res->u.output_balance->count)) != 0) {
-      printf("[%s:%d]: gets %s json count failed\n", __func__, __LINE__, key_count);
       goto end;
     }
 
@@ -92,7 +86,7 @@ end:
   return ret;
 }
 
-int get_balance(iota_client_conf_t const *conf, char addr[], res_balance_t *res) {
+int get_balance(iota_client_conf_t const *conf, char const addr[], res_balance_t *res) {
   int ret = -1;
   char const *const cmd_balance = "api/v1/addresses/ed25519/";
   byte_buf_t *http_res = NULL;

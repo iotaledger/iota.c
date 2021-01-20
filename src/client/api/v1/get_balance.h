@@ -12,10 +12,9 @@
 #include "core/types.h"
 
 typedef struct {
-  uint16_t max_results;
-  uint16_t count;
+  uint8_t address_type;  // 0 = WOTS, 1 = Ed25519
   uint64_t balance;
-  char address[IOTA_ADDRESS_HEX_BYTES + 1];  // with null terminator
+  char address[IOTA_ADDRESS_HEX_BYTES];  // with null terminator
 } get_balance_t;
 
 typedef struct {
@@ -58,7 +57,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res);
  * @param[out] res A response object of balance info
  * @return int 0 on success
  */
-int get_balance(iota_client_conf_t const *ctx, char *addr, res_balance_t *res);
+int get_balance(iota_client_conf_t const *ctx, char const addr[], res_balance_t *res);
 
 #ifdef __cplusplus
 }
