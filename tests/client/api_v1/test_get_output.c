@@ -9,7 +9,7 @@
 void test_get_output() {
   char const* const output_id = "1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0003";
   iota_client_conf_t ctx = {
-      .url = "http://localhost/",
+      .url = "https://api.lb-0.testnet.chrysalis2.com/",
       .port = 0  // use default port number
   };
 

@@ -1,3 +1,6 @@
+// Copyright 2020 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #include <stdio.h>
 #include <unity/unity.h>
 
@@ -7,8 +10,8 @@
 
 void test_get_info() {
   iota_client_conf_t ctx = {
-      .url = "https://iota-node/",
-      .port = 14265  // use default port number
+      .url = "https://api.lb-0.testnet.chrysalis2.com/",
+      .port = 0  // use default port number
   };
   res_node_info_t* info = res_node_info_new();
   TEST_ASSERT_NOT_NULL(info);

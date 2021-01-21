@@ -8,7 +8,7 @@
 
 void test_get_tips() {
   iota_client_conf_t ctx = {
-      .url = "https://iota-node/",
+      .url = "https://api.lb-0.testnet.chrysalis2.com/",
       .port = 0  // use default port number
   };
 
