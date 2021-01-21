@@ -15,8 +15,7 @@
 #define SIGNATURE_SERIALIZE_BYTES (1 + (1 + ED_PUBLIC_KEY_BYTES + ED_SIGNATURE_BYTES))
 
 static int byte_cmp(const byte_t* p1, const byte_t* p2, size_t len) {
-  byte_t b1, b2;
-  size_t count = 0;
+  byte_t b1 = 0, b2 = 0;
   for (size_t i = 0; i <= len; i++) {
     b1 = p1[i];
     b2 = p2[i];

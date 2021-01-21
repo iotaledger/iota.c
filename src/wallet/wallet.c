@@ -71,10 +71,14 @@ static int validate_pib44_path(char const path[]) {
 
 // get path from address
 static char* wallet_path_from_index(iota_wallet_t* w, uint32_t index) {
+  int ret_size = 0;
   char* path = malloc(IOTA_ACCOUNT_PATH_MAX);
   if (path) {
     // Bip44 Paths: m/44'/4128'/Account'/Change'/Index'
-    snprintf(path, IOTA_ACCOUNT_PATH_MAX, "%s/%" PRIu32 "'", w->account, index);
+    ret_size = snprintf(path, IOTA_ACCOUNT_PATH_MAX, "%s/%" PRIu32 "'", w->account, index);
+    if (ret_size >= IOTA_ACCOUNT_PATH_MAX) {
+      path[IOTA_ACCOUNT_PATH_MAX - 1] = '\0';
+    }
   }
   return path;
 }
