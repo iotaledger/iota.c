@@ -67,7 +67,7 @@ void test_deser_outputs_err() {
 void test_get_output_ids() {
   char addr1[] = "017ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f0";
   iota_client_conf_t ctx = {
-      .url = "http://localhost:14265/",
+      .url = "https://api.lb-0.testnet.chrysalis2.com/",
       .port = 0  // use default port number
   };
 
