@@ -15,6 +15,7 @@ enable_testing()
 option(IOTA_TESTS "Enable IOTA Client library test cases" ON)
 option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
+option(IOTA_EXAMPLES "Build example application" ON)
 
 # fetch external libs
 include(ExternalProject)
@@ -68,4 +69,8 @@ add_subdirectory(src)
 
 if(IOTA_TESTS)
   add_subdirectory(tests)
+endif()
+
+if(IOTA_EXAMPLES)
+  add_subdirectory(examples)
 endif()

@@ -79,8 +79,9 @@ static char* wallet_path_from_index(iota_wallet_t* w, uint32_t index) {
   return path;
 }
 
-static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, byte_t receiver[], uint64_t balance,
-                                                       char const index[], byte_t data[], size_t data_len) {
+static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, uint32_t sender, byte_t receiver[],
+                                                       uint64_t balance, char const index[], byte_t data[],
+                                                       size_t data_len) {
   char tmp_addr[IOTA_ADDRESS_HEX_BYTES + 1] = {};
   byte_t send_addr[ED25519_ADDRESS_BYTES] = {};
   byte_t tmp_tx_id[TRANSACTION_ID_BYTES] = {};
@@ -92,7 +93,7 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, byte_t 
 
   // TODO loop over start and end addresses
   // get address keypair and address
-  addr_path = wallet_path_from_index(w, 0);
+  addr_path = wallet_path_from_index(w, sender);
   if (!addr_path) {
     printf("[%s:%d] Cannot get address path\n", __func__, __LINE__);
     goto done;
@@ -195,14 +196,9 @@ done:
   return tx_payload;
 }
 
-iota_wallet_t* wallet_create(byte_t const seed[], char const path[], uint32_t start, uint32_t end) {
+iota_wallet_t* wallet_create(byte_t const seed[], char const path[]) {
   if (!seed || !path) {
     printf("[%s:%d] Err: invalid parameters\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  if (start > end) {
-    printf("[%s:%d] Err: start index must smaller than end index\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -216,8 +212,6 @@ iota_wallet_t* wallet_create(byte_t const seed[], char const path[], uint32_t st
     memcpy(w->account, path, strlen(path) + 1);
     strcpy(w->endpoint.url, "http://localhost:14265/");
     w->endpoint.port = 0;
-    w->addr_start_index = start;
-    w->addr_end_index = end;
   }
   return w;
 }
@@ -292,8 +286,8 @@ int wallet_balance_by_index(iota_wallet_t* w, uint32_t index, uint64_t* balance)
   return ret;
 }
 
-int wallet_send(iota_wallet_t* w, byte_t receiver[], uint64_t balance, char const index[], byte_t data[],
-                size_t data_len) {
+int wallet_send(iota_wallet_t* w, uint32_t sender_index, byte_t receiver[], uint64_t balance, char const index[],
+                byte_t data[], size_t data_len) {
   core_message_t* msg = NULL;
   indexation_t* idx = NULL;
   transaction_payload_t* tx = NULL;
@@ -305,7 +299,7 @@ int wallet_send(iota_wallet_t* w, byte_t receiver[], uint64_t balance, char cons
   }
 
   // build payload
-  if (!receiver) {
+  if (!receiver || balance == 0) {
     if (!index || !data) {
       printf("[%s:%d] Err: index and data parameters are needed\n", __func__, __LINE__);
       return -1;
@@ -316,7 +310,7 @@ int wallet_send(iota_wallet_t* w, byte_t receiver[], uint64_t balance, char cons
     }
   } else {
     // transaction
-    if ((tx = wallet_build_transaction(w, receiver, balance, index, data, data_len)) == NULL) {
+    if ((tx = wallet_build_transaction(w, sender_index, receiver, balance, index, data, data_len)) == NULL) {
       printf("[%s:%d] Err: create transaction payload failed\n", __func__, __LINE__);
       return -1;
     }

@@ -32,8 +32,6 @@ typedef struct {
   byte_t seed[IOTA_SEED_BYTES];
   char account[IOTA_ACCOUNT_PATH_MAX];  // store Bip44 Paths: m/44'/4128'/Account'/Change'
   iota_client_conf_t endpoint;
-  uint32_t addr_start_index;  // TODO: start index of addresses
-  uint32_t addr_end_index;    // TODO: end index of addresses
 } iota_wallet_t;
 
 /**
@@ -47,11 +45,9 @@ typedef struct {
  *
  * @param[in] seed An IOTA seed
  * @param[in] path A string of BIP44 path
- * @param[in] start The start index of address
- * @param[in] end The end index of address
  * @return iota_wallet_t* A pointer to a wallet instance
  */
-iota_wallet_t* wallet_create(byte_t const seed[], char const path[], uint32_t start, uint32_t end);
+iota_wallet_t* wallet_create(byte_t const seed[], char const path[]);
 
 /**
  * @brief Set a node endpoint, if not calling this method default is "http://localhost:14265/"
@@ -97,14 +93,15 @@ int wallet_balance_by_index(iota_wallet_t* w, uint32_t index, uint64_t* balance)
  * @brief Send message to the Tangle
  *
  * @param[in] w A wallet instance
- * @param[in] A receiver address, NULL for an indexation message
+ * @param[in] sender_index The address index of this wallet
+ * @param[in] receiver The receiver address in ed25519 format
  * @param[in] balance The balance to send
  * @param[in] index An optional indexation
  * @param[in] data An optional indexation data, it's ignored if the index parameter is NULL
  * @return int 0 on success
  */
-int wallet_send(iota_wallet_t* w, byte_t receiver[], uint64_t balance, char const index[], byte_t data[],
-                size_t data_len);
+int wallet_send(iota_wallet_t* w, uint32_t sender_index, byte_t receiver[], uint64_t balance, char const index[],
+                byte_t data[], size_t data_len);
 
 /**
  * @brief Destory the wallet account
