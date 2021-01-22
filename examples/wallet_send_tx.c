@@ -17,10 +17,10 @@
 
 #define Mi 1000000
 
-char const *const my_seed = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+char const *const my_seed = "seed_with_64_char";
 char const *const account_path = "m/44'/4218'/0'/0'";
 char const *const node_url = "https://api.lb-0.testnet.chrysalis2.com/";
-char const *const receiver = "atoi1q8dxnfl99slmsakun7pvqmcf5s5ctmzds3f38ehsygkuch4e5jymxuwr09p";
+char const *const receiver = "a_bech32_address";
 char const *const my_data = "sent from iota.c";
 
 void dump_addresses(iota_wallet_t *w, uint32_t start, uint32_t end) {
@@ -46,6 +46,11 @@ int main(int argc, char *argv[]) {
   // address with a version byte
   byte_t recv[IOTA_ADDRESS_BYTES] = {};
   iota_wallet_t *wallet = NULL;
+
+  if (strlen(my_seed) != 64) {
+    printf("invalid seed string, it should be a 64-character-string..\n");
+    return -1;
+  }
 
   // convert seed from hex string to binary
   if ((err = hex2bin(my_seed, strlen(my_seed), seed, sizeof(seed)))) {
