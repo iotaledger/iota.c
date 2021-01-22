@@ -125,7 +125,6 @@ int core_message_sign_transaction(core_message_t* msg) {
     }
   }
 
-end:
   if (unlocked_sig) {
     unlock_sig_free(&unlocked_sig);
   }

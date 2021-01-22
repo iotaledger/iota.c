@@ -70,6 +70,7 @@ static esp_err_t http_event_handler(esp_http_client_event_t* evt) {
   return ESP_OK;
 }
 
+#if 0
 static void http_download_chunk(void) {
   esp_http_client_config_t config = {
       .url = "http://httpbin.org/stream-bytes/8912",
@@ -83,6 +84,7 @@ static void http_download_chunk(void) {
   }
   esp_http_client_cleanup(client);
 }
+#endif
 
 static void init_config(esp_http_client_config_t* esp, http_client_config_t const* const conf) {
   esp->url = conf->url;
@@ -102,7 +104,7 @@ void http_client_init() {}
 void http_client_clean() {}
 
 int http_client_post(http_client_config_t const* const config, byte_buf_t const* const request,
-                     byte_buf_t* const response) {
+                     byte_buf_t* const response, long* status) {
   int ret = 0;
   esp_http_client_config_t esp_client_conf = {0};
   init_config(&esp_client_conf, config);
@@ -118,11 +120,12 @@ int http_client_post(http_client_config_t const* const config, byte_buf_t const*
     ESP_LOGE(TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
     ret = -1;
   }
+  *status = esp_http_client_get_status_code(client);
   esp_http_client_cleanup(client);
   return ret;
 }
 
-int http_client_get(http_client_config_t const* const config, byte_buf_t* const response) {
+int http_client_get(http_client_config_t const* const config, byte_buf_t* const response, long* status) {
   int ret = 0;
   esp_http_client_config_t esp_client_conf = {0};
   init_config(&esp_client_conf, config);
@@ -136,6 +139,7 @@ int http_client_get(http_client_config_t const* const config, byte_buf_t* const 
     ret = -1;
   }
 
+  *status = esp_http_client_get_status_code(client);
   esp_http_client_cleanup(client);
   return ret;
 }
