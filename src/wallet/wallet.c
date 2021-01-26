@@ -364,6 +364,7 @@ int wallet_send(iota_wallet_t* w, uint32_t sender_index, byte_t receiver[], uint
 
 void wallet_destroy(iota_wallet_t* w) {
   if (w) {
+    sodium_memzero(w->seed, IOTA_ADDRESS_BYTES);
     free(w);
   }
 }

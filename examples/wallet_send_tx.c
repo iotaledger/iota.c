@@ -4,6 +4,25 @@
 /**
  * @brief A simple example of sending a transaction to the Tangle use wallet APIs.
  *
+ * Hierarchical Deterministic (HD) Wallets are defined by BIP32 and BIP44.
+ * iota.c follows these specifications for generating wallets under the m/44/4218/0/0 path
+ * and its underlying ed25199 addresses (bech32 format).
+ *
+ * The seed is the most important piece of information, and keeping it safe is essential
+ * to identify oneself as owner of the specific amount of tokens stored in the specific wallet
+ * in the context of a Distributed Ledger.
+ *
+ * Therefore, it is important that we educate users of the iota.c library about the dangers of
+ * not handling seeds properly. Whenever the target hardware platform is supported by the Rust
+ * compiler, the IOTA Foundation strongly suggests that all secret management is done via
+ * Stronghold.
+ *
+ * If the project requires to rely purely on C source code, the use of a Hardware Security Module
+ * (HSM) is strongly encouraged. Examples of HSMs are:
+ * - STSAFE by STMicroelectronics
+ * - ST33 by STMicroelectronics
+ * - ATECC608B by Microchip
+ *
  */
 
 #include <getopt.h>
@@ -17,10 +36,9 @@
 
 #define Mi 1000000
 
-char const *const my_seed = "seed_with_64_char";
 char const *const account_path = "m/44'/4218'/0'/0'";
 char const *const node_url = "https://api.lb-0.testnet.chrysalis2.com/";
-char const *const receiver = "a_bech32_address";
+char const *const receiver = "atoi1q8dxnfl99slmsakun7pvqmcf5s5ctmzds3f38ehsygkuch4e5jymxuwr09p";
 char const *const my_data = "sent from iota.c";
 
 void dump_addresses(iota_wallet_t *w, uint32_t start, uint32_t end) {
@@ -47,33 +65,33 @@ int main(int argc, char *argv[]) {
   byte_t recv[IOTA_ADDRESS_BYTES] = {};
   iota_wallet_t *wallet = NULL;
 
-  if (strlen(my_seed) != 64) {
-    printf("invalid seed string, it should be a 64-character-string..\n");
-    return -1;
-  }
+  /*
+   * Seed proves ownership of tokens!!! Therefore it must be **safely** retrieved
+   * from some form of **secure storage**!!! We will generate a random seed for illustration.
+   */
+  randombytes_buf(seed, IOTA_ADDRESS_BYTES);
 
-  // convert seed from hex string to binary
-  if ((err = hex2bin(my_seed, strlen(my_seed), seed, sizeof(seed)))) {
-    printf("convert seed failed\n");
-    goto done;
-  }
-
-  // convert receiver to binary
-  if ((err = address_from_bech32("atoi", receiver, recv))) {
-    printf("convert receiver address failed\n");
-    goto done;
-  }
-
+  // derive wallet from seed (BIP44)
   if ((wallet = wallet_create(seed, account_path)) == NULL) {
     printf("create wallet failed\n");
   }
+
+  // erase seed variable from memory to reduce attack surface
+  // however it remains inside wallet struct
+  sodium_memzero(seed, IOTA_ADDRESS_BYTES);
 
   // set connected node
   wallet_set_endpoint(wallet, node_url, 0);
 
   dump_addresses(wallet, 0, 5);
 
-  // send none-valued transaction with indexaction payload
+  // convert receiver from bech32 to binary
+  if ((err = address_from_bech32("atoi", receiver, recv))) {
+    printf("convert receiver address failed\n");
+    goto done;
+  }
+
+  // send none-valued transaction with indexation payload
   if ((err = wallet_send(wallet, 0, NULL, 0, "iota.c\xF0\x9F\x80\x84", (byte_t *)my_data, strlen(my_data)))) {
     printf("send indexation failed\n");
   }
@@ -89,6 +107,7 @@ int main(int argc, char *argv[]) {
   }
 
 done:
+  // remove last reference to seed from memory
   wallet_destroy(wallet);
   return 0;
 }
