@@ -70,12 +70,6 @@ char *res_find_msg_get_id(res_find_msg_t *res, size_t index) {
 }
 
 int deser_find_message(char const *const j_str, res_find_msg_t *res) {
-  char const *const key_data = "data";
-  char const *const key_index = "index";
-  char const *const key_max_results = "maxResults";
-  char const *const key_count = "count";
-  char const *const key_msg_id = "messageIds";
-
   int ret = -1;
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
@@ -91,7 +85,7 @@ int deser_find_message(char const *const j_str, res_find_msg_t *res) {
     goto end;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
+  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
   if (data_obj) {
     // allocate find_msg_t after parsing json object.
     res->u.msg_ids = find_msg_new();
@@ -102,20 +96,20 @@ int deser_find_message(char const *const j_str, res_find_msg_t *res) {
     // TODO index element?
 
     // maxResults
-    if ((ret = json_get_uint32(data_obj, key_max_results, &res->u.msg_ids->max_results)) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_max_results);
+    if ((ret = json_get_uint32(data_obj, JSON_KEY_MAX_RESULTS, &res->u.msg_ids->max_results)) != 0) {
+      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MAX_RESULTS);
       goto end;
     }
 
     // count
-    if ((ret = json_get_uint32(data_obj, key_count, &res->u.msg_ids->count)) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_count);
+    if ((ret = json_get_uint32(data_obj, JSON_KEY_COUNT, &res->u.msg_ids->count)) != 0) {
+      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_COUNT);
       goto end;
     }
 
     // message IDs
-    if ((ret = json_string_array_to_utarray(data_obj, key_msg_id, res->u.msg_ids->msg_ids)) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_msg_id);
+    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_MSG_IDS, res->u.msg_ids->msg_ids)) != 0) {
+      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_IDS);
     }
 
   } else {

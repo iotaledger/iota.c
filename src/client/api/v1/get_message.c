@@ -10,10 +10,6 @@
 #include "core/utils/iota_str.h"
 
 static int deser_milestone(cJSON *milestone, res_message_t *res) {
-  char const *const key_index = "index";
-  char const *const key_timestamp = "timestamp";
-  char const *const key_inclusion = "inclusionMerkleProof";
-  char const *const key_signatures = "signatures";
   int ret = -1;
   payload_milestone_t *ms = payload_milestone_new();
   if (ms == NULL) {
@@ -22,27 +18,27 @@ static int deser_milestone(cJSON *milestone, res_message_t *res) {
   }
 
   // parsing index
-  if ((ret = json_get_uint32(milestone, key_index, &ms->index)) != 0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_index);
+  if ((ret = json_get_uint32(milestone, JSON_KEY_INDEX, &ms->index)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_INDEX);
     goto end;
   }
 
   // parsing timestamp
-  if ((ret = json_get_uint64(milestone, key_timestamp, &ms->timestamp)) != 0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, key_timestamp);
+  if ((ret = json_get_uint64(milestone, JSON_KEY_TIMESTAMP, &ms->timestamp)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TIMESTAMP);
     goto end;
   }
 
   // parsing inclusion Merkle proof
-  if ((ret = json_get_string(milestone, key_inclusion, ms->inclusion_merkle_proof,
+  if ((ret = json_get_string(milestone, JSON_KEY_INCLUSION_MKL, ms->inclusion_merkle_proof,
                              sizeof(ms->inclusion_merkle_proof))) != 0) {
-    printf("[%s:%d]: parsing %s string failed\n", __func__, __LINE__, key_inclusion);
+    printf("[%s:%d]: parsing %s string failed\n", __func__, __LINE__, JSON_KEY_INCLUSION_MKL);
     goto end;
   }
 
   // parsing signatures
-  if ((ret = json_string_array_to_utarray(milestone, key_signatures, ms->signatures)) != 0) {
-    printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, key_signatures);
+  if ((ret = json_string_array_to_utarray(milestone, JSON_KEY_SIGNATURES, ms->signatures)) != 0) {
+    printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_SIGNATURES);
   }
 
 end:
@@ -57,8 +53,6 @@ end:
 }
 
 static int deser_indexation(cJSON *idx_obj, res_message_t *res) {
-  char const *const key_index = "index";
-  char const *const key_data = "data";
   int ret = -1;
   payload_index_t *idx = payload_index_new();
   if (idx == NULL) {
@@ -66,13 +60,13 @@ static int deser_indexation(cJSON *idx_obj, res_message_t *res) {
     return -1;
   }
 
-  if ((ret = json_get_byte_buf_str(idx_obj, key_index, idx->index)) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_index);
+  if ((ret = json_get_byte_buf_str(idx_obj, JSON_KEY_INDEX, idx->index)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_INDEX);
     goto end;
   }
 
-  if ((ret = json_get_byte_buf_str(idx_obj, key_data, idx->data)) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_data);
+  if ((ret = json_get_byte_buf_str(idx_obj, JSON_KEY_DATA, idx->data)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_DATA);
   }
 
 end:
@@ -87,13 +81,9 @@ end:
 }
 
 static int deser_tx_inputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
-  char const *const key_inputs = "inputs";
-  char const *const key_tx_id = "transactionId";
-  char const *const key_tx_out_idx = "transactionOutputIndex";
-
-  cJSON *in_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, key_inputs);
+  cJSON *in_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_INPUTS);
   if (!in_obj) {
-    printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, key_inputs);
+    printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, JSON_KEY_INPUTS);
     return -1;
   }
 
@@ -109,8 +99,8 @@ static int deser_tx_inputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
   if (cJSON_IsArray(in_obj)) {
     cJSON *elm = NULL;
     cJSON_ArrayForEach(elm, in_obj) {
-      cJSON *tx_id_obj = cJSON_GetObjectItemCaseSensitive(elm, key_tx_id);
-      cJSON *tx_out_idx = cJSON_GetObjectItemCaseSensitive(elm, key_tx_out_idx);
+      cJSON *tx_id_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_ID);
+      cJSON *tx_out_idx = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_OUT_INDEX);
       if (tx_id_obj && tx_out_idx) {
         payload_tx_input_t input = {};
         char *str = cJSON_GetStringValue(tx_id_obj);
@@ -124,7 +114,7 @@ static int deser_tx_inputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
         if (cJSON_IsNumber(tx_out_idx)) {
           input.tx_output_index = tx_out_idx->valueint;
         } else {
-          printf("[%s:%d] %s is not an number\n", __func__, __LINE__, key_tx_out_idx);
+          printf("[%s:%d] %s is not an number\n", __func__, __LINE__, JSON_KEY_TX_OUT_INDEX);
           return -1;
         }
 
@@ -137,7 +127,7 @@ static int deser_tx_inputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
       }
     }
   } else {
-    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, key_inputs);
+    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, JSON_KEY_INPUTS);
     return -1;
   }
 
@@ -145,14 +135,9 @@ static int deser_tx_inputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
 }
 
 static int deser_tx_outputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
-  char const *const key_outputs = "outputs";
-  char const *const key_address = "address";
-  char const *const key_addr_type = "type";
-  char const *const key_amount = "amount";
-
-  cJSON *out_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, key_outputs);
+  cJSON *out_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_OUTPUTS);
   if (!out_obj) {
-    printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, key_outputs);
+    printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, JSON_KEY_OUTPUTS);
     return -1;
   }
 
@@ -168,15 +153,15 @@ static int deser_tx_outputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
   if (cJSON_IsArray(out_obj)) {
     cJSON *elm = NULL;
     cJSON_ArrayForEach(elm, out_obj) {
-      cJSON *tx_address_obj = cJSON_GetObjectItemCaseSensitive(elm, key_address);
-      cJSON *tx_amount_obj = cJSON_GetObjectItemCaseSensitive(elm, key_amount);
+      cJSON *tx_address_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_ADDR);
+      cJSON *tx_amount_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_AMOUNT);
       // check outputs/address and output/amount
       if (tx_address_obj && tx_amount_obj) {
-        cJSON *addr_type = cJSON_GetObjectItemCaseSensitive(tx_address_obj, key_addr_type);
+        cJSON *addr_type = cJSON_GetObjectItemCaseSensitive(tx_address_obj, JSON_KEY_TYPE);
         if (addr_type) {
           // check outputs/address/type
           if (cJSON_IsNumber(addr_type) && addr_type->valueint == 1) {
-            cJSON *addr = cJSON_GetObjectItemCaseSensitive(tx_address_obj, key_address);
+            cJSON *addr = cJSON_GetObjectItemCaseSensitive(tx_address_obj, JSON_KEY_ADDR);
             if (cJSON_IsString(addr) && cJSON_IsNumber(tx_amount_obj)) {
               payload_tx_output_t output = {};
               memcpy(output.address, addr->valuestring, sizeof(output.address));
@@ -203,17 +188,13 @@ static int deser_tx_outputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
       }
     }
   } else {
-    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, key_outputs);
+    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, JSON_KEY_OUTPUTS);
     return -1;
   }
   return 0;
 }
 
 static int deser_tx_blocks(cJSON *blocks_obj, payload_tx_t *payload_tx) {
-  char const *const key_blocks_sig = "signature";
-  char const *const key_blocks_pub = "publicKey";
-  char const *const key_blocks_sig_type = "type";
-
   /*
   "unlockBlocks": [{ "type": 0,
     "signature": {
@@ -225,13 +206,13 @@ static int deser_tx_blocks(cJSON *blocks_obj, payload_tx_t *payload_tx) {
   */
   cJSON *elm = NULL;
   cJSON_ArrayForEach(elm, blocks_obj) {
-    cJSON *sig_obj = cJSON_GetObjectItemCaseSensitive(elm, key_blocks_sig);
+    cJSON *sig_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_SIG);
     if (sig_obj) {
-      cJSON *sig_type = cJSON_GetObjectItemCaseSensitive(sig_obj, key_blocks_sig_type);
+      cJSON *sig_type = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_TYPE);
       if (cJSON_IsNumber(sig_type)) {
         if (sig_type->valueint == 1) {
-          cJSON *pub = cJSON_GetObjectItemCaseSensitive(sig_obj, key_blocks_pub);
-          cJSON *sig = cJSON_GetObjectItemCaseSensitive(sig_obj, key_blocks_sig);
+          cJSON *pub = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_PUB_KEY);
+          cJSON *sig = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_SIG);
           if (cJSON_IsString(pub) && cJSON_IsString(sig)) {
             payload_unlock_block_t block = {};
             memcpy(block.pub_key, pub->valuestring, sizeof(block.pub_key));
@@ -251,7 +232,7 @@ static int deser_tx_blocks(cJSON *blocks_obj, payload_tx_t *payload_tx) {
         return -1;
       }
     } else {
-      printf("[%s:%d] %s is not found\n", __func__, __LINE__, key_blocks_sig);
+      printf("[%s:%d] %s is not found\n", __func__, __LINE__, JSON_KEY_SIG);
       return -1;
     }
   }
@@ -260,9 +241,6 @@ static int deser_tx_blocks(cJSON *blocks_obj, payload_tx_t *payload_tx) {
 }
 
 static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
-  char const *const key_essence = "essence";
-  char const *const key_payload = "payload";
-  char const *const key_blocks = "unlockBlocks";
   int ret = -1;
 
   payload_tx_t *tx = payload_tx_new();
@@ -272,7 +250,7 @@ static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
   }
 
   // parsing essence
-  cJSON *essence_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, key_essence);
+  cJSON *essence_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, JSON_KEY_ESSENCE);
   if (essence_obj) {
     // inputs array
     if ((ret = deser_tx_inputs(essence_obj, tx)) != 0) {
@@ -285,22 +263,22 @@ static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
     }
 
     // payload
-    cJSON *payload_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, key_payload);
+    cJSON *payload_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_PAYLOAD);
     if (!cJSON_IsNull(payload_obj)) {
       // TODO;
       printf("[%s:%d]: TODO parsing payload in a transaction\n", __func__, __LINE__);
     }
 
     // unlock blocks
-    cJSON *blocks_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, key_blocks);
+    cJSON *blocks_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, JSON_KEY_UNLOCK_BLOCKS);
     if (cJSON_IsArray(blocks_obj)) {
       ret = deser_tx_blocks(blocks_obj, tx);
     } else {
-      printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, key_blocks);
+      printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_UNLOCK_BLOCKS);
     }
 
   } else {
-    printf("[%s:%d]: %s not found in the message\n", __func__, __LINE__, key_essence);
+    printf("[%s:%d]: %s not found in the message\n", __func__, __LINE__, JSON_KEY_ESSENCE);
   }
 
 end:
@@ -335,14 +313,6 @@ void res_message_free(res_message_t *msg) {
 }
 
 int deser_get_message(char const *const j_str, res_message_t *res) {
-  char const *const key_net = "networkId";
-  char const *const key_p1_id = "parent1MessageId";
-  char const *const key_p2_id = "parent2MessageId";
-  char const *const key_nonce = "nonce";
-  char const *const key_payload = "payload";
-  char const *const key_type = "type";
-  char const *const key_data = "data";
-
   int ret = -1;
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
@@ -358,7 +328,7 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
     goto end;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
+  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
   if (data_obj) {
     // new message object
     res->u.msg = api_message_new();
@@ -368,33 +338,33 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
     }
 
     // network ID
-    if ((ret = json_get_string(data_obj, key_net, res->u.msg->net_id, sizeof(res->u.msg->net_id))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_net);
+    if ((ret = json_get_string(data_obj, JSON_KEY_NET_ID, res->u.msg->net_id, sizeof(res->u.msg->net_id))) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
       goto end;
     }
 
     // parent1MessageId
-    if ((ret = json_get_string(data_obj, key_p1_id, res->u.msg->parent1, sizeof(res->u.msg->parent1))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_p1_id);
+    if ((ret = json_get_string(data_obj, JSON_KEY_P1_ID, res->u.msg->parent1, sizeof(res->u.msg->parent1))) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_P1_ID);
       goto end;
     }
 
     // parent2MessageId
-    if ((ret = json_get_string(data_obj, key_p2_id, res->u.msg->parent2, sizeof(res->u.msg->parent2))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_p2_id);
+    if ((ret = json_get_string(data_obj, JSON_KEY_P2_ID, res->u.msg->parent2, sizeof(res->u.msg->parent2))) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_P2_ID);
       goto end;
     }
 
     // nonce
-    if ((ret = json_get_string(data_obj, key_nonce, res->u.msg->nonce, sizeof(res->u.msg->nonce))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_nonce);
+    if ((ret = json_get_string(data_obj, JSON_KEY_NONCE, res->u.msg->nonce, sizeof(res->u.msg->nonce))) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NONCE);
       goto end;
     }
 
-    cJSON *payload = cJSON_GetObjectItemCaseSensitive(data_obj, key_payload);
+    cJSON *payload = cJSON_GetObjectItemCaseSensitive(data_obj, JSON_KEY_PAYLOAD);
     if (payload) {
-      if ((ret = json_get_uint32(payload, key_type, &res->u.msg->type) != 0)) {
-        printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, key_type);
+      if ((ret = json_get_uint32(payload, JSON_KEY_TYPE, &res->u.msg->type) != 0)) {
+        printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
         goto end;
       }
 

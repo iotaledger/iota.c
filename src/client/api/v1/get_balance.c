@@ -31,11 +31,6 @@ void res_balance_free(res_balance_t *res) {
 }
 
 int deser_balance_info(char const *const j_str, res_balance_t *res) {
-  char const *const key_addr = "address";
-  char const *const key_addr_type = "addressType";
-  char const *const key_balance = "balance";
-  char const *const key_code = "code";
-  char const *const key_message = "message";
   int ret = -1;
 
   cJSON *json_obj = cJSON_Parse(j_str);
@@ -59,24 +54,24 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
     goto end;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
+  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
   if (data_obj) {
     // gets address type
-    if ((ret = json_get_uint8(data_obj, key_addr_type, &res->u.output_balance->address_type)) != 0) {
-      printf("[%s:%d]: gets %s json max_results failed\n", __func__, __LINE__, key_addr_type);
+    if ((ret = json_get_uint8(data_obj, JSON_KEY_ADDR_TYPE, &res->u.output_balance->address_type)) != 0) {
+      printf("[%s:%d]: gets %s json max_results failed\n", __func__, __LINE__, JSON_KEY_ADDR_TYPE);
       goto end;
     }
 
     // gets address
-    if ((ret = json_get_string(data_obj, key_addr, res->u.output_balance->address,
+    if ((ret = json_get_string(data_obj, JSON_KEY_ADDR, res->u.output_balance->address,
                                sizeof(res->u.output_balance->address))) != 0) {
-      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, key_addr);
+      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_ADDR);
       goto end;
     }
 
     // gets balance
-    if ((ret = json_get_uint64(data_obj, key_balance, &res->u.output_balance->balance)) != 0) {
-      printf("[%s:%d]: gets %s json balance failed\n", __func__, __LINE__, key_balance);
+    if ((ret = json_get_uint64(data_obj, JSON_KEY_BALANCE, &res->u.output_balance->balance)) != 0) {
+      printf("[%s:%d]: gets %s json balance failed\n", __func__, __LINE__, JSON_KEY_BALANCE);
       goto end;
     }
   }

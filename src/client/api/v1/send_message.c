@@ -25,17 +25,17 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
     "parent1MessageId": "7f471d9bb0985e114d78489cfbaf1fb3896931bdc03c89935bacde5b9fbc86ff",
     "parent2MessageId": "3b4354521ade76145b5616a414fa283fcdb7635ee627a42ecb2f75135e18f10f",
   */
-  if (!cJSON_AddStringToObject(json_root, "networkId", "")) {
+  if (!cJSON_AddStringToObject(json_root, JSON_KEY_NET_ID, "")) {
     printf("[%s:%d] networkId object failed\n", __func__, __LINE__);
     goto end;
   }
 
-  if (!cJSON_AddStringToObject(json_root, "parent1MessageId", msg->parent1)) {
+  if (!cJSON_AddStringToObject(json_root, JSON_KEY_P1_ID, msg->parent1)) {
     printf("[%s:%d] parent1MessageId object failed\n", __func__, __LINE__);
     goto end;
   }
 
-  if (!cJSON_AddStringToObject(json_root, "parent2MessageId", msg->parent2)) {
+  if (!cJSON_AddStringToObject(json_root, JSON_KEY_P2_ID, msg->parent2)) {
     printf("[%s:%d] parent2MessageId object failed\n", __func__, __LINE__);
     goto end;
   }
@@ -47,21 +47,21 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
       "data": "48656c6c6f"
     },
   */
-  cJSON* json_payload = cJSON_AddObjectToObject(json_root, "payload");
+  cJSON* json_payload = cJSON_AddObjectToObject(json_root, JSON_KEY_PAYLOAD);
   if (json_payload) {
     payload_index_t* payload = (payload_index_t*)msg->payload;
-    if (!cJSON_AddNumberToObject(json_payload, "type", 2)) {
+    if (!cJSON_AddNumberToObject(json_payload, JSON_KEY_TYPE, 2)) {
       printf("[%s:%d] payload/type object failed\n", __func__, __LINE__);
       goto end;
     }
 
-    if (!cJSON_AddStringToObject(json_payload, "index", (char const* const)payload->index->data)) {
+    if (!cJSON_AddStringToObject(json_payload, JSON_KEY_INDEX, (char const* const)payload->index->data)) {
       printf("[%s:%d] payload/index object failed\n", __func__, __LINE__);
       goto end;
     }
 
     if ((hex_data = byte_buf_str2hex(payload->data)) != NULL) {
-      if (!cJSON_AddStringToObject(json_payload, "data", (char const* const)hex_data->data)) {
+      if (!cJSON_AddStringToObject(json_payload, JSON_KEY_DATA, (char const* const)hex_data->data)) {
         printf("[%s:%d] payload/data object failed\n", __func__, __LINE__);
         goto end;
       }
@@ -73,7 +73,7 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
     /*
     "nonce": "" }
     */
-    if (!cJSON_AddStringToObject(json_root, "nonce", "")) {
+    if (!cJSON_AddStringToObject(json_root, JSON_KEY_NONCE, "")) {
       printf("[%s:%d] nonce object failed\n", __func__, __LINE__);
       goto end;
     }
@@ -102,8 +102,6 @@ end:
 
 int deser_send_message_response(char const* json_str, res_send_message_t* res) {
   int ret = -1;
-  char const* const key_data = "data";
-  char const* const key_msg_id = "messageId";
 
   // {"data":{"messageId":"322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5"}}
   cJSON* json_obj = cJSON_Parse(json_str);
@@ -120,16 +118,16 @@ int deser_send_message_response(char const* json_str, res_send_message_t* res) {
     goto end;
   }
 
-  cJSON* data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
+  cJSON* data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
   if (data_obj) {
     // message ID
-    if ((ret = json_get_string(data_obj, key_msg_id, res->u.msg_id, sizeof(res->u.msg_id))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_msg_id);
+    if ((ret = json_get_string(data_obj, JSON_KEY_MSG_ID, res->u.msg_id, sizeof(res->u.msg_id))) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
       goto end;
     }
     ret = 0;
   } else {
-    printf("[%s:%d]: %s not found failed\n", __func__, __LINE__, key_data);
+    printf("[%s:%d]: %s not found failed\n", __func__, __LINE__, JSON_KEY_DATA);
   }
 
 end:
