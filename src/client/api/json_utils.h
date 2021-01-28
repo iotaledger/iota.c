@@ -10,6 +10,7 @@
 #include "cJSON.h"
 #include "utarray.h"
 
+#include "client/api/json_keys.h"
 #include "core/utils/byte_buffer.h"
 
 typedef enum {

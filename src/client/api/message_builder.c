@@ -31,7 +31,7 @@ static cJSON* indexation_to_json(indexation_t* index) {
   }
 
   // type 2 denote as an indexation payload
-  if (!cJSON_AddNumberToObject(payload_obj, "type", 2)) {
+  if (!cJSON_AddNumberToObject(payload_obj, JSON_KEY_TYPE, 2)) {
     printf("[%s:%d] add payload type failed\n", __func__, __LINE__);
     cJSON_Delete(payload_obj);
     return NULL;
@@ -39,7 +39,7 @@ static cJSON* indexation_to_json(indexation_t* index) {
 
   // make sure index is a string
   byte_buf2str(index->index);
-  if (!cJSON_AddStringToObject(payload_obj, "index", (char const*)index->index->data)) {
+  if (!cJSON_AddStringToObject(payload_obj, JSON_KEY_INDEX, (char const*)index->index->data)) {
     printf("[%s:%d] add index failed\n", __func__, __LINE__);
     cJSON_Delete(payload_obj);
     return NULL;
@@ -55,7 +55,7 @@ static cJSON* indexation_to_json(indexation_t* index) {
 
   if (bin2hex(index->data->data, index->data->len, data_str, data_str_len) == 0) {
     // add data object
-    if (!cJSON_AddStringToObject(payload_obj, "data", data_str)) {
+    if (!cJSON_AddStringToObject(payload_obj, JSON_KEY_DATA, data_str)) {
       printf("[%s:%d] creating data failed\n", __func__, __LINE__);
       cJSON_Delete(payload_obj);
       payload_obj = NULL;
@@ -105,7 +105,7 @@ static cJSON* tx_inputs_to_json(transaction_essence_t* es) {
     }
 
     // add type
-    if (!cJSON_AddNumberToObject(item, "type", 0)) {
+    if (!cJSON_AddNumberToObject(item, JSON_KEY_TYPE, 0)) {
       printf("[%s:%d] add input type failed\n", __func__, __LINE__);
       cJSON_Delete(item);
       cJSON_Delete(input_arr);
@@ -120,7 +120,7 @@ static cJSON* tx_inputs_to_json(transaction_essence_t* es) {
       return NULL;
     }
 
-    if (!cJSON_AddStringToObject(item, "transactionId", tx_id_str)) {
+    if (!cJSON_AddStringToObject(item, JSON_KEY_TX_ID, tx_id_str)) {
       printf("[%s:%d] add tx id to item failed\n", __func__, __LINE__);
       cJSON_Delete(item);
       cJSON_Delete(input_arr);
@@ -128,7 +128,7 @@ static cJSON* tx_inputs_to_json(transaction_essence_t* es) {
     }
 
     // add index
-    if (!cJSON_AddNumberToObject(item, "transactionOutputIndex", elm->output_index)) {
+    if (!cJSON_AddNumberToObject(item, JSON_KEY_TX_OUT_INDEX, elm->output_index)) {
       printf("[%s:%d] add input type failed\n", __func__, __LINE__);
       cJSON_Delete(item);
       cJSON_Delete(input_arr);
@@ -179,7 +179,7 @@ static cJSON* tx_outputs_to_json(transaction_essence_t* es) {
     }
 
     // add type
-    if (!cJSON_AddNumberToObject(item, "type", 0)) {
+    if (!cJSON_AddNumberToObject(item, JSON_KEY_TYPE, 0)) {
       printf("[%s:%d] add output type failed\n", __func__, __LINE__);
       cJSON_Delete(item);
       cJSON_Delete(output_arr);
@@ -196,7 +196,7 @@ static cJSON* tx_outputs_to_json(transaction_essence_t* es) {
     }
 
     // add address type, using ed25519 address schema
-    if (!cJSON_AddNumberToObject(addr_obj, "type", 1)) {
+    if (!cJSON_AddNumberToObject(addr_obj, JSON_KEY_TYPE, 1)) {
       printf("[%s:%d] creating output address object failed\n", __func__, __LINE__);
       cJSON_Delete(item);
       cJSON_Delete(output_arr);
@@ -213,7 +213,7 @@ static cJSON* tx_outputs_to_json(transaction_essence_t* es) {
       return NULL;
     }
 
-    if (!cJSON_AddStringToObject(addr_obj, "address", addr_str)) {
+    if (!cJSON_AddStringToObject(addr_obj, JSON_KEY_ADDR, addr_str)) {
       printf("[%s:%d] add address hash failed\n", __func__, __LINE__);
       cJSON_Delete(item);
       cJSON_Delete(output_arr);
@@ -221,10 +221,10 @@ static cJSON* tx_outputs_to_json(transaction_essence_t* es) {
       return NULL;
     }
     // add address object to item
-    cJSON_AddItemToObject(item, "address", addr_obj);
+    cJSON_AddItemToObject(item, JSON_KEY_ADDR, addr_obj);
 
     // add amount
-    if (!cJSON_AddNumberToObject(item, "amount", elm->amount)) {
+    if (!cJSON_AddNumberToObject(item, JSON_KEY_AMOUNT, elm->amount)) {
       printf("[%s:%d] add amount failed\n", __func__, __LINE__);
       cJSON_Delete(item);
       cJSON_Delete(output_arr);
@@ -265,7 +265,7 @@ static cJSON* tx_essence_to_json(transaction_essence_t* es) {
   }
 
   // "type": 0,
-  if (!cJSON_AddNumberToObject(es_obj, "type", 0)) {
+  if (!cJSON_AddNumberToObject(es_obj, JSON_KEY_TYPE, 0)) {
     printf("[%s:%d] add tx type failed\n", __func__, __LINE__);
     cJSON_Delete(es_obj);
     return NULL;
@@ -277,7 +277,7 @@ static cJSON* tx_essence_to_json(transaction_essence_t* es) {
     cJSON_Delete(es_obj);
     return NULL;
   }
-  cJSON_AddItemToObject(es_obj, "inputs", input_arr);
+  cJSON_AddItemToObject(es_obj, JSON_KEY_INPUTS, input_arr);
 
   // output array
   if ((output_arr = tx_outputs_to_json(es)) == NULL) {
@@ -285,7 +285,7 @@ static cJSON* tx_essence_to_json(transaction_essence_t* es) {
     cJSON_Delete(es_obj);
     return NULL;
   }
-  cJSON_AddItemToObject(es_obj, "outputs", output_arr);
+  cJSON_AddItemToObject(es_obj, JSON_KEY_OUTPUTS, output_arr);
 
   // optional payload
   if (es->payload) {
@@ -293,7 +293,7 @@ static cJSON* tx_essence_to_json(transaction_essence_t* es) {
     cJSON* idx_payload = indexation_to_json((indexation_t*)es->payload);
     if (idx_payload) {
       // add a indexation payload to essence
-      cJSON_AddItemToObject(es_obj, "payload", idx_payload);
+      cJSON_AddItemToObject(es_obj, JSON_KEY_PAYLOAD, idx_payload);
     } else {
       printf("[%s:%d] add indexation payload failed\n", __func__, __LINE__);
       cJSON_Delete(es_obj);
@@ -301,7 +301,7 @@ static cJSON* tx_essence_to_json(transaction_essence_t* es) {
     }
   } else {
     // add a null payload to essence
-    if (!cJSON_AddNullToObject(es_obj, "payload")) {
+    if (!cJSON_AddNullToObject(es_obj, JSON_KEY_PAYLOAD)) {
       printf("[%s:%d] add null payload failed\n", __func__, __LINE__);
       cJSON_Delete(es_obj);
       return NULL;
@@ -355,7 +355,7 @@ static cJSON* tx_blocks_to_json(tx_unlock_blocks_t* blocks) {
       }
 
       // add type to item, 0 denote as a signature block
-      if (!cJSON_AddNumberToObject(sig_block, "type", 0)) {
+      if (!cJSON_AddNumberToObject(sig_block, JSON_KEY_TYPE, 0)) {
         printf("[%s:%d] add reference type failed\n", __func__, __LINE__);
         cJSON_Delete(sig_block);
         cJSON_Delete(block_arr);
@@ -370,7 +370,7 @@ static cJSON* tx_blocks_to_json(tx_unlock_blocks_t* blocks) {
       }
 
       // add signature type to item, 1 denote as an ed25519 signature
-      if (!cJSON_AddNumberToObject(sig_obj, "type", 1)) {
+      if (!cJSON_AddNumberToObject(sig_obj, JSON_KEY_TYPE, 1)) {
         printf("[%s:%d] add reference type failed\n", __func__, __LINE__);
         cJSON_Delete(sig_obj);
         cJSON_Delete(block_arr);
@@ -379,7 +379,7 @@ static cJSON* tx_blocks_to_json(tx_unlock_blocks_t* blocks) {
 
       // convert signature to string
       bin2hex(elm->signature.pub_key, ED_PUBLIC_KEY_BYTES, pub_str, sizeof(pub_str));
-      if (!cJSON_AddStringToObject(sig_obj, "publicKey", pub_str)) {
+      if (!cJSON_AddStringToObject(sig_obj, JSON_KEY_PUB_KEY, pub_str)) {
         printf("[%s:%d] add public key failed\n", __func__, __LINE__);
         cJSON_Delete(sig_obj);
         cJSON_Delete(block_arr);
@@ -387,7 +387,7 @@ static cJSON* tx_blocks_to_json(tx_unlock_blocks_t* blocks) {
       }
 
       bin2hex(elm->signature.signature, ED_PRIVATE_KEY_BYTES, sig_str, sizeof(sig_str));
-      if (!cJSON_AddStringToObject(sig_obj, "signature", sig_str)) {
+      if (!cJSON_AddStringToObject(sig_obj, JSON_KEY_SIG, sig_str)) {
         printf("[%s:%d] add signature failed\n", __func__, __LINE__);
         cJSON_Delete(sig_obj);
         cJSON_Delete(block_arr);
@@ -395,7 +395,7 @@ static cJSON* tx_blocks_to_json(tx_unlock_blocks_t* blocks) {
       }
 
       // add signature to array
-      cJSON_AddItemToObject(sig_block, "signature", sig_obj);
+      cJSON_AddItemToObject(sig_block, JSON_KEY_SIG, sig_obj);
       cJSON_AddItemToArray(block_arr, sig_block);
 
     } else if (elm->type == 1) {  // reference block
@@ -408,7 +408,7 @@ static cJSON* tx_blocks_to_json(tx_unlock_blocks_t* blocks) {
       }
 
       // add type to item, 1 denote as a reference block
-      if (!cJSON_AddNumberToObject(ref, "type", 1)) {
+      if (!cJSON_AddNumberToObject(ref, JSON_KEY_TYPE, 1)) {
         printf("[%s:%d] add reference type failed\n", __func__, __LINE__);
         cJSON_Delete(ref);
         cJSON_Delete(block_arr);
@@ -416,7 +416,7 @@ static cJSON* tx_blocks_to_json(tx_unlock_blocks_t* blocks) {
       }
 
       // add reference to array
-      if (!cJSON_AddNumberToObject(ref, "reference", elm->reference)) {
+      if (!cJSON_AddNumberToObject(ref, JSON_KEY_REFERENCE, elm->reference)) {
         printf("[%s:%d] add reference failed\n", __func__, __LINE__);
         cJSON_Delete(ref);
         cJSON_Delete(block_arr);
@@ -457,7 +457,7 @@ static cJSON* tx_payload_to_json(transaction_payload_t* tx) {
   }
 
   // "type": 0,
-  if (!cJSON_AddNumberToObject(tx_payload, "type", 0)) {
+  if (!cJSON_AddNumberToObject(tx_payload, JSON_KEY_TYPE, 0)) {
     printf("[%s:%d] add payload type failed\n", __func__, __LINE__);
     cJSON_Delete(tx_payload);
     return NULL;
@@ -469,7 +469,7 @@ static cJSON* tx_payload_to_json(transaction_payload_t* tx) {
     cJSON_Delete(tx_payload);
     return NULL;
   }
-  cJSON_AddItemToObject(tx_payload, "essence", essence);
+  cJSON_AddItemToObject(tx_payload, JSON_KEY_ESSENCE, essence);
 
   // unlocked blocks
   if ((blocks = tx_blocks_to_json(tx->unlock_blocks)) == NULL) {
@@ -477,7 +477,7 @@ static cJSON* tx_payload_to_json(transaction_payload_t* tx) {
     cJSON_Delete(tx_payload);
     return NULL;
   }
-  cJSON_AddItemToObject(tx_payload, "unlockBlocks", blocks);
+  cJSON_AddItemToObject(tx_payload, JSON_KEY_UNLOCK_BLOCKS, blocks);
 
   return tx_payload;
 }
@@ -511,13 +511,13 @@ char* message_to_json(core_message_t* msg) {
 
   // add network ID
   if (msg->network_id > 0) {
-    if (!cJSON_AddNumberToObject(msg_obj, "networkId", msg->network_id)) {
+    if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_NET_ID, msg->network_id)) {
       printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
       cJSON_Delete(msg_obj);
       return NULL;
     }
   } else {
-    if (!cJSON_AddNullToObject(msg_obj, "networkId")) {
+    if (!cJSON_AddNullToObject(msg_obj, JSON_KEY_NET_ID)) {
       printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
       cJSON_Delete(msg_obj);
       return NULL;
@@ -526,7 +526,7 @@ char* message_to_json(core_message_t* msg) {
 
   // add parent1
   bin2hex(msg->parent1, IOTA_MESSAGE_ID_BYTES, tmp_str, sizeof(tmp_str));
-  if (!cJSON_AddStringToObject(msg_obj, "parent1MessageId", tmp_str)) {
+  if (!cJSON_AddStringToObject(msg_obj, JSON_KEY_P1_ID, tmp_str)) {
     printf("[%s:%d] creating parent1 failed\n", __func__, __LINE__);
     cJSON_Delete(msg_obj);
     return NULL;
@@ -534,7 +534,7 @@ char* message_to_json(core_message_t* msg) {
 
   // add parent1
   bin2hex(msg->parent2, IOTA_MESSAGE_ID_BYTES, tmp_str, sizeof(tmp_str));
-  if (!cJSON_AddStringToObject(msg_obj, "parent2MessageId", tmp_str)) {
+  if (!cJSON_AddStringToObject(msg_obj, JSON_KEY_P2_ID, tmp_str)) {
     printf("[%s:%d] creating parent2 failed\n", __func__, __LINE__);
     cJSON_Delete(msg_obj);
     return NULL;
@@ -561,17 +561,17 @@ char* message_to_json(core_message_t* msg) {
     cJSON_Delete(msg_obj);
     return NULL;
   }
-  cJSON_AddItemToObject(msg_obj, "payload", payload);
+  cJSON_AddItemToObject(msg_obj, JSON_KEY_PAYLOAD, payload);
 
   // add nonce
   if (msg->nonce > 0) {
-    if (!cJSON_AddNumberToObject(msg_obj, "nonce", msg->nonce)) {
+    if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_NONCE, msg->nonce)) {
       printf("[%s:%d] creating nonce failed\n", __func__, __LINE__);
       cJSON_Delete(msg_obj);
       return NULL;
     }
   } else {
-    if (!cJSON_AddNullToObject(msg_obj, "nonce")) {
+    if (!cJSON_AddNullToObject(msg_obj, JSON_KEY_NONCE)) {
       printf("[%s:%d] creating nonce failed\n", __func__, __LINE__);
       cJSON_Delete(msg_obj);
       return NULL;

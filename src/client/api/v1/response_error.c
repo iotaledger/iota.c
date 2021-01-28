@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "client/api/json_keys.h"
 #include "client/api/v1/response_error.h"
 #include "core/utils/allocator.h"
-
-static char const *const key_err_code = "code";
-static char const *const key_err_msg = "message";
 
 void res_err_free(res_err_t *err) {
   if (err) {
@@ -28,14 +26,14 @@ res_err_t *deser_error(cJSON *j_obj) {
   }
 
   // check if it is an error response;
-  cJSON *err_obj = cJSON_GetObjectItemCaseSensitive(j_obj, key_error);
+  cJSON *err_obj = cJSON_GetObjectItemCaseSensitive(j_obj, JSON_KEY_ERROR);
   if (err_obj == NULL) {
     // it is not exactly an error
     // printf("INFO [%s:%d]: error object not found in this response\n", __func__, __LINE__);
     return NULL;
   }
 
-  cJSON *err_code = cJSON_GetObjectItemCaseSensitive(err_obj, key_err_code);
+  cJSON *err_code = cJSON_GetObjectItemCaseSensitive(err_obj, JSON_KEY_CODE);
   if (!err_code) {
     printf("[%s:%d]: error code found\n", __func__, __LINE__);
     return NULL;
@@ -45,7 +43,7 @@ res_err_t *deser_error(cJSON *j_obj) {
     return NULL;
   }
 
-  cJSON *err_msg = cJSON_GetObjectItemCaseSensitive(err_obj, key_err_msg);
+  cJSON *err_msg = cJSON_GetObjectItemCaseSensitive(err_obj, JSON_KEY_MSG);
   if (err_msg == NULL) {
     printf("[%s:%d] error message not found\n", __func__, __LINE__);
     return NULL;

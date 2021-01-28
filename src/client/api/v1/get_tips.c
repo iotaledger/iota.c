@@ -73,8 +73,6 @@ void res_tips_free(res_tips_t *tips) {
 }
 
 int deser_get_tips(char const *const j_str, res_tips_t *res) {
-  char const *const key_tip1 = "tip1MessageId";
-  char const *const key_tip2 = "tip2MessageId";
   int ret = -1;
 
   cJSON *json_obj = cJSON_Parse(j_str);
@@ -91,17 +89,17 @@ int deser_get_tips(char const *const j_str, res_tips_t *res) {
     goto end;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
+  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
   if (data_obj) {
     // gets tip1
-    if ((ret = json_get_string(data_obj, key_tip1, res->u.tips.tip1, STR_TIP_MSG_LEN)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_tip1);
+    if ((ret = json_get_string(data_obj, JSON_KEY_TIP1_ID, res->u.tips.tip1, STR_TIP_MSG_LEN)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TIP1_ID);
       goto end;
     }
 
     // gets tip2
-    if ((ret = json_get_string(data_obj, key_tip2, res->u.tips.tip2, STR_TIP_MSG_LEN)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_tip2);
+    if ((ret = json_get_string(data_obj, JSON_KEY_TIP2_ID, res->u.tips.tip2, STR_TIP_MSG_LEN)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TIP2_ID);
     }
   }
 

@@ -5,11 +5,6 @@
 
 #include "cJSON.h"
 
-// the key of data object in json
-static char const *const key_data = "data";
-// the key of error object in json
-static char const *const key_error = "error";
-
 typedef struct {
   char *code;
   char *msg;

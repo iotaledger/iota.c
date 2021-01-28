@@ -112,15 +112,6 @@ done:
 }
 
 int deser_node_info(char const *const j_str, res_node_info_t *res) {
-  char const *const key_name = "name";
-  char const *const key_version = "version";
-  char const *const key_healthy = "isHealthy";
-  char const *const key_net = "networkId";
-  char const *const key_min_pow_score = "minPowScore";
-  char const *const key_lm_index = "latestMilestoneIndex";
-  char const *const key_sm_index = "solidMilestoneIndex";
-  char const *const key_pruning = "pruningIndex";
-  char const *const key_features = "features";
   int ret = 0;
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
@@ -143,62 +134,63 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     goto end;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
+  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
   if (data_obj) {
     // gets name
-    if ((ret = json_get_string(data_obj, key_name, res->u.output_node_info->name,
+    if ((ret = json_get_string(data_obj, JSON_KEY_NAME, res->u.output_node_info->name,
                                sizeof(res->u.output_node_info->name))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_name);
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NAME);
       goto end;
     }
 
     // gets version
-    if ((ret = json_get_string(data_obj, key_version, res->u.output_node_info->version,
+    if ((ret = json_get_string(data_obj, JSON_KEY_VER, res->u.output_node_info->version,
                                sizeof(res->u.output_node_info->version))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_version);
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_VER);
       goto end;
     }
 
     // gets isHealthy
-    if ((ret = json_get_boolean(data_obj, key_healthy, &res->u.output_node_info->is_healthy)) != 0) {
-      printf("[%s:%d]: gets %s json boolean failed\n", __func__, __LINE__, key_healthy);
+    if ((ret = json_get_boolean(data_obj, JSON_KEY_IS_HEALTHY, &res->u.output_node_info->is_healthy)) != 0) {
+      printf("[%s:%d]: gets %s json boolean failed\n", __func__, __LINE__, JSON_KEY_IS_HEALTHY);
       goto end;
     }
 
     // gets networkId
-    if ((ret = json_get_string(data_obj, key_net, res->u.output_node_info->network_id,
+    if ((ret = json_get_string(data_obj, JSON_KEY_NET_ID, res->u.output_node_info->network_id,
                                sizeof(res->u.output_node_info->network_id))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_net);
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
       goto end;
     }
 
     // gets minPowScore
-    if ((ret = json_get_uint64(data_obj, key_min_pow_score, &res->u.output_node_info->min_pow_score)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_min_pow_score);
+    if ((ret = json_get_uint64(data_obj, JSON_KEY_MIN_POW, &res->u.output_node_info->min_pow_score)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MIN_POW);
       goto end;
     }
 
     // gets latestMilestoneIndex
-    if ((ret = json_get_uint64(data_obj, key_lm_index, &res->u.output_node_info->latest_milestone_index)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_lm_index);
+    if ((ret = json_get_uint64(data_obj, JSON_KEY_LM_IDX, &res->u.output_node_info->latest_milestone_index)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_LM_IDX);
       goto end;
     }
 
     // gets solidMilestoneIndex
-    if ((ret = json_get_uint64(data_obj, key_sm_index, &res->u.output_node_info->solid_milestone_index)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_sm_index);
+    if ((ret = json_get_uint64(data_obj, JSON_KEY_SM_IDX, &res->u.output_node_info->solid_milestone_index)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_SM_IDX);
       goto end;
     }
 
     // gets pruningIndex
-    if ((ret = json_get_uint64(data_obj, key_pruning, &res->u.output_node_info->pruning_milestone_index)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_pruning);
+    if ((ret = json_get_uint64(data_obj, JSON_KEY_PRUNING_IDX, &res->u.output_node_info->pruning_milestone_index)) !=
+        0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_PRUNING_IDX);
       goto end;
     }
 
     utarray_new(res->u.output_node_info->features, &ut_str_icd);
-    if ((ret = json_string_array_to_utarray(data_obj, key_features, res->u.output_node_info->features)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_features);
+    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_FEATURES, res->u.output_node_info->features)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_FEATURES);
       goto end;
     }
   }

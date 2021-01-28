@@ -27,6 +27,7 @@ target_sources(
           "api/v1/get_outputs_from_address.c"
   PUBLIC "network/http.h"
          "api/json_utils.h"
+         "api/json_keys.h"
          "api/message.h"
          "api/message_builder.h"
          "api/v1/get_node_info.h"

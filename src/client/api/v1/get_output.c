@@ -68,15 +68,6 @@ done:
 }
 
 int deser_get_output(char const *const j_str, res_output_t *res) {
-  char const *const key_msg_id = "messageId";
-  char const *const key_tx_id = "transactionId";
-  char const *const key_output_idx = "outputIndex";
-  char const *const key_output = "output";
-  char const *const key_is_spent = "isSpent";
-  char const *const key_addr = "address";
-  char const *const key_type = "type";
-  char const *const key_amount = "amount";
-
   int ret = -1;
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
@@ -92,56 +83,56 @@ int deser_get_output(char const *const j_str, res_output_t *res) {
     goto end;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, key_data);
+  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
   if (data_obj) {
     // message ID
-    if ((ret = json_get_string(data_obj, key_msg_id, res->u.output.msg_id, sizeof(res->u.output.msg_id))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_msg_id);
+    if ((ret = json_get_string(data_obj, JSON_KEY_MSG_ID, res->u.output.msg_id, sizeof(res->u.output.msg_id))) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
       goto end;
     }
 
     // transaction ID
-    if ((ret = json_get_string(data_obj, key_tx_id, res->u.output.tx_id, sizeof(res->u.output.tx_id))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, key_tx_id);
+    if ((ret = json_get_string(data_obj, JSON_KEY_TX_ID, res->u.output.tx_id, sizeof(res->u.output.tx_id))) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TX_ID);
       goto end;
     }
 
     // output index
-    if ((ret = json_get_uint16(data_obj, key_output_idx, &res->u.output.output_idx)) != 0) {
-      printf("[%s:%d]: gets %s json uint16 failed\n", __func__, __LINE__, key_output_idx);
+    if ((ret = json_get_uint16(data_obj, JSON_KEY_OUTPUT_IDX, &res->u.output.output_idx)) != 0) {
+      printf("[%s:%d]: gets %s json uint16 failed\n", __func__, __LINE__, JSON_KEY_OUTPUT_IDX);
       goto end;
     }
 
     // is spent
-    if ((ret = json_get_boolean(data_obj, key_is_spent, &res->u.output.is_spent)) != 0) {
-      printf("[%s:%d]: gets %s json bool failed\n", __func__, __LINE__, key_is_spent);
+    if ((ret = json_get_boolean(data_obj, JSON_KEY_IS_SPENT, &res->u.output.is_spent)) != 0) {
+      printf("[%s:%d]: gets %s json bool failed\n", __func__, __LINE__, JSON_KEY_IS_SPENT);
       goto end;
     }
 
-    cJSON *output_obj = cJSON_GetObjectItemCaseSensitive(data_obj, key_output);
+    cJSON *output_obj = cJSON_GetObjectItemCaseSensitive(data_obj, JSON_KEY_OUTPUT);
     if (output_obj) {
       // output type
-      if ((ret = json_get_uint32(output_obj, key_type, &res->u.output.output_type)) != 0) {
-        printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, key_type);
+      if ((ret = json_get_uint32(output_obj, JSON_KEY_TYPE, &res->u.output.output_type)) != 0) {
+        printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
         goto end;
       }
       // amount
-      if ((ret = json_get_uint64(output_obj, key_amount, &res->u.output.amount)) != 0) {
-        printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, key_amount);
+      if ((ret = json_get_uint64(output_obj, JSON_KEY_AMOUNT, &res->u.output.amount)) != 0) {
+        printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
         goto end;
       }
 
-      cJSON *addr_obj = cJSON_GetObjectItemCaseSensitive(output_obj, key_addr);
+      cJSON *addr_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_ADDR);
       if (addr_obj) {
         // address type
-        if ((ret = json_get_uint32(addr_obj, key_type, &res->u.output.address_type)) != 0) {
-          printf("[%s:%d]: gets address %s failed\n", __func__, __LINE__, key_type);
+        if ((ret = json_get_uint32(addr_obj, JSON_KEY_TYPE, &res->u.output.address_type)) != 0) {
+          printf("[%s:%d]: gets address %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
           goto end;
         }
 
         // address
-        if ((ret = json_get_string(addr_obj, key_addr, res->u.output.addr, sizeof(res->u.output.addr))) != 0) {
-          printf("[%s:%d]: gets %s string failed\n", __func__, __LINE__, key_addr);
+        if ((ret = json_get_string(addr_obj, JSON_KEY_ADDR, res->u.output.addr, sizeof(res->u.output.addr))) != 0) {
+          printf("[%s:%d]: gets %s string failed\n", __func__, __LINE__, JSON_KEY_ADDR);
           goto end;
         }
       }
