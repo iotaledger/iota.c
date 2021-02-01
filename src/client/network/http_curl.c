@@ -1,3 +1,6 @@
+// Copyright 2021 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef __XTENSA__  // workaround: srcFilter is not working in PlatformIO
 #include <curl/curl.h>
 
