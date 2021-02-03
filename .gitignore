@@ -10,3 +10,7 @@ build/*
 
 # CLion
 .idea/*
+
+# Sphinx build dir
+docs/_build
+docs/doxygen_build
