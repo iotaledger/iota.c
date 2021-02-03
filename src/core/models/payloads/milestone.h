@@ -1,3 +1,6 @@
+// Copyright 2021 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef __CORE_MODELS_PL_MILESTONE_H__
 #define __CORE_MODELS_PL_MILESTONE_H__
 

@@ -1,3 +1,6 @@
+// Copyright 2021 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef __CORE_MODELS_INPUTS_UTXO_INPUT_H__
 #define __CORE_MODELS_INPUTS_UTXO_INPUT_H__
 

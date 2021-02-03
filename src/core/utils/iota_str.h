@@ -1,3 +1,6 @@
+// Copyright 2021 IOTA Stiftung
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef __CORE_UTILS_IOTA_STR_H__
 #define __CORE_UTILS_IOTA_STR_H__
 
