@@ -11,12 +11,18 @@ function(add_iota_test test_src test_name)
   if(${test_src} MATCHES "^core")
     add_dependencies(${test_name} iota_core)
     target_link_libraries(${test_name} PRIVATE iota_core unity)
+  elseif(${test_src} MATCHES "^crypto")
+    add_dependencies(${test_name} iota_crypto)
+    target_link_libraries(${test_name} PRIVATE iota_crypto unity)
   else()
     add_dependencies(${test_name} iota_client)
     target_link_libraries(${test_name} PRIVATE iota_client unity)
   endif()
   add_test(${test_name} ${test_name})
 endfunction(add_iota_test)
+
+# crypto test cases
+add_iota_test("crypto/test_crypto.c" crypto_crypto)
 
 # core test cases
 add_iota_test("core/test_address.c" core_address)
