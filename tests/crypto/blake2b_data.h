@@ -1,8 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __TERST_CRYPTO_BLAKE2B_KAT_H__
-#define __TERST_CRYPTO_BLAKE2B_KAT_H__
+#ifndef __TERST_CRYPTO_BLAKE2B_DATA_H__
+#define __TERST_CRYPTO_BLAKE2B_DATA_H__
 
 #include <stdint.h>
 

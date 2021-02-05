@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#include "blake2b-kat.h"
+#include "blake2b_data.h"
 #include "crypto/iota_crypto.h"
 #include "unity/unity.h"
 
@@ -76,8 +77,98 @@ void test_hmacsha() {
   TEST_ASSERT_EQUAL_MEMORY(exp_sha512_out2, tmp_sha512_out, sizeof(exp_sha512_out2));
 }
 
+typedef struct {
+  uint8_t sk[64];
+  uint8_t signature[64];
+  uint8_t* msg;
+  size_t msg_len;
+} ed25519_vector_t;
+
+static ed25519_vector_t* ed25519_vector_new() {
+  ed25519_vector_t* v = malloc(sizeof(ed25519_vector_t));
+  if (!v) {
+    return NULL;
+  }
+  memset(v->sk, 0, sizeof(v->sk));
+  memset(v->signature, 0, sizeof(v->signature));
+  v->msg = NULL;
+  v->msg_len = 0;
+  return v;
+}
+
+static void ed25519_vector_free(ed25519_vector_t* v) {
+  if (v) {
+    if (v->msg) {
+      free(v->msg);
+    }
+    free(v);
+  }
+}
+
+static void hex2bin(char const str[], size_t str_len, uint8_t bin[], size_t bin_len) {
+  size_t expected_bin_len = str_len / 2;
+  char* pos = (char*)str;
+  for (size_t i = 0; i < expected_bin_len; i++) {
+    sscanf(pos, "%2hhx", &bin[i]);
+    pos += 2;
+  }
+}
+
+static ed25519_vector_t* parsing_vector(char* line) {
+  ed25519_vector_t* vector = ed25519_vector_new();
+  TEST_ASSERT_NOT_NULL(vector);
+
+  char* pch = strtok(line, ":");
+  int post = 0;
+  while (pch != NULL) {
+    switch (post) {
+      case 0:  // sk
+        // printf("sk: %s\n", pch);
+        hex2bin(pch, 128, vector->sk, sizeof(vector->sk));
+        break;
+      case 1:  // pk
+        // printf("pk: %s\n", pch);
+        break;
+      case 2:  // msg
+        if (strcmp(pch, "NULL") != 0) {
+          // printf("mg: %s\n", pch);
+          vector->msg_len = strlen(pch) / 2;
+          vector->msg = malloc(vector->msg_len);
+          hex2bin(pch, strlen(pch), vector->msg, vector->msg_len);
+        }
+        break;
+      case 3:  // signature with msg
+        // printf("sg: %s\n", pch);
+        hex2bin(pch, 128, vector->signature, sizeof(vector->signature));
+        break;
+      default:
+        break;
+    }
+    pch = strtok(NULL, ":");
+    post++;
+  }
+  return vector;
+}
+
 // ed25519 signature
-void test_ed25519_signature() {}
+// test vectors: https://ed25519.cr.yp.to/python/sign.input
+void test_ed25519_signature() {
+  FILE* fp;
+  char line[1024 * 5];
+  uint8_t out_signature[64] = {};
+  fp = fopen("./ed25519_sign.input", "r");
+  if (!fp) {
+    return;
+  }
+  while (fgets(line, sizeof(line), fp) != NULL) {
+    ed25519_vector_t* v = parsing_vector(line);
+    TEST_ASSERT_NOT_NULL(v);
+    iota_crypto_sign(v->sk, v->msg, v->msg_len, out_signature);
+    TEST_ASSERT_EQUAL_MEMORY(v->signature, out_signature, sizeof(v->signature));
+    ed25519_vector_free(v);
+  }
+  fclose(fp);
+}
 
 int main() {
   UNITY_BEGIN();
