@@ -126,6 +126,12 @@ size_t api_message_parent_count(message_t *msg) {
   return 0;
 }
 
+void api_message_add_parent(message_t *msg, char const *const msg_id) {
+  if (msg) {
+    utarray_push_back(msg->parent_msg_ids, &msg_id);
+  }
+}
+
 char *api_message_parent_id(message_t *msg, size_t index) {
   if (msg) {
     if (msg->parent_msg_ids) {

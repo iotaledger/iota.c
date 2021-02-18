@@ -13,7 +13,7 @@
 
 void test_send_indexation() {
   iota_client_conf_t ctx = {
-      .url = "http://0.0.0.0:14265/",
+      .url = "https://api.lb-0.testnet.chrysalis2.com/",
       .port = 0  // use default port number
   };
 
@@ -25,7 +25,7 @@ void test_send_indexation() {
 
 void test_send_core_message_indexation() {
   iota_client_conf_t ctx = {
-      .url = "http://0.0.0.0:14265/",
+      .url = "https://api.lb-0.testnet.chrysalis2.com/",
       .port = 0  // use default port number
   };
 
@@ -51,9 +51,9 @@ void test_serialize_indexation() {
   char const* const data = "Hello";
   char const* const index = "iota.c";
   char const* const exp_msg =
-      "{\"networkId\":\"\",\"parent1MessageId\":\"7f471d9bb0985e114d78489cfbaf1fb3896931bdc03c89935bacde5b9fbc86ff\","
-      "\"parent2MessageId\":\"3b4354521ade76145b5616a414fa283fcdb7635ee627a42ecb2f75135e18f10f\",\"payload\":{\"type\":"
-      "2,\"index\":\"iota.c\",\"data\":\"48656C6C6F\"},\"nonce\":\"\"}";
+      "{\"networkId\":\"\",\"parentMessageIds\":[\"7f471d9bb0985e114d78489cfbaf1fb3896931bdc03c89935bacde5b9fbc86ff\","
+      "\"3b4354521ade76145b5616a414fa283fcdb7635ee627a42ecb2f75135e18f10f\"],\"payload\":{\"type\":2,\"index\":\"iota."
+      "c\",\"data\":\"48656C6C6F\"},\"nonce\":\"\"}";
 
   message_t* msg = api_message_new();
   TEST_ASSERT_NOT_NULL(msg);
@@ -63,10 +63,10 @@ void test_serialize_indexation() {
   TEST_ASSERT_TRUE(byte_buf_append(idx->index, (byte_t const*)index, strlen(index) + 1));
   msg->type = MSG_PAYLOAD_INDEXATION;
   msg->payload = idx;
-  memcpy(msg->parent1, p1, sizeof(msg->parent1));
-  memcpy(msg->parent2, p2, sizeof(msg->parent2));
-  TEST_ASSERT_EQUAL_STRING(p1, msg->parent1);
-  TEST_ASSERT_EQUAL_STRING(p2, msg->parent2);
+
+  api_message_add_parent(msg, p1);
+  api_message_add_parent(msg, p2);
+  TEST_ASSERT_EQUAL_INT(2, api_message_parent_count(msg));
 
   byte_buf_t* message_string = byte_buf_new();
   TEST_ASSERT_NOT_NULL(message_string);

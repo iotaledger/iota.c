@@ -142,11 +142,19 @@ size_t api_message_parent_count(message_t *msg);
 /**
  * @brief Gets a parent ID by a given index
  *
- * @param[in] msg A response object
+ * @param[in] msg A message object
  * @param[in] index A index of a message ID
  * @return char*
  */
 char *api_message_parent_id(message_t *msg, size_t index);
+
+/**
+ * @brief Adds a reference message id to the message
+ *
+ * @param[in] msg A message object
+ * @param[in] msg_id A message id string
+ */
+void api_message_add_parent(message_t *msg, char const msg_id[]);
 
 /**
  * @brief Get inputs count from transaction payload

@@ -9,6 +9,8 @@
 
 #include "core/models/message.h"
 
+static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
+
 typedef struct {
   byte_t pub_key[ED_PUBLIC_KEY_BYTES];  // The public key of the Ed25519 keypair which is used to verify the signature.
   byte_t signature[ED_SIGNATURE_BYTES];
@@ -57,8 +59,7 @@ core_message_t* core_message_new() {
   core_message_t* msg = malloc(sizeof(core_message_t));
   if (msg) {
     msg->network_id = 0;
-    memset(msg->parent1, 0, sizeof(msg->parent1));
-    memset(msg->parent2, 0, sizeof(msg->parent2));
+    utarray_new(msg->parents, &ut_msg_id_icd);
     msg->payload_type = UINT32_MAX - 1;  // invalid payload type
     msg->payload = NULL;
     msg->nonce = 0;
@@ -145,6 +146,20 @@ void core_message_free(core_message_t* msg) {
       }
       // TODO support other payload
     }
+    utarray_free(msg->parents);
     free(msg);
   }
+}
+
+void core_message_add_parent(core_message_t* msg, byte_t const msg_id[]) {
+  if (msg) {
+    utarray_push_back(msg->parents, msg_id);
+  }
+}
+
+size_t core_message_parent_len(core_message_t* msg) {
+  if (msg) {
+    return utarray_len(msg->parents);
+  }
+  return 0;
 }

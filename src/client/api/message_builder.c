@@ -487,8 +487,12 @@ char* message_to_json(core_message_t* msg) {
   /*
   {
   "networkId": "6530425480034647824",
-  "parent1MessageId": "0b80adc0ca06b21842ac50d32e8132cf369d5e6a556e8454fdc846fd821d0fa2",
-  "parent2MessageId": "32105f6889424d264774ce7d086ffd3629719b909f64737708c6a9e719389072",
+  "parentMessageIds": [
+      "7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
+      "9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c",
+      "ccf9bf6b76a2659f332e17bfdc20f278ce25bc45e807e89cc2ab526cd2101c52",
+      "fe63a9194eadb45e456a3c618d970119dbcac25221dbf5f53e5a838ef6ef518a"
+  ],
   "payload": payload object
   "nonce": "2695978"
   }
@@ -496,7 +500,8 @@ char* message_to_json(core_message_t* msg) {
   char* json_str = NULL;
   cJSON* msg_obj = NULL;
   cJSON* payload = NULL;
-  char tmp_str[IOTA_MESSAGE_ID_BYTES * 2 + 1] = {};
+  cJSON* parents = NULL;
+  char tmp_id_str[IOTA_MESSAGE_ID_BYTES * 2 + 1] = {};
 
   if (!msg) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
@@ -524,20 +529,18 @@ char* message_to_json(core_message_t* msg) {
     }
   }
 
-  // add parent1
-  bin2hex(msg->parent1, IOTA_MESSAGE_ID_BYTES, tmp_str, sizeof(tmp_str));
-  if (!cJSON_AddStringToObject(msg_obj, JSON_KEY_P1_ID, tmp_str)) {
-    printf("[%s:%d] creating parent1 failed\n", __func__, __LINE__);
+  // add parents
+  if ((parents = cJSON_CreateArray()) == NULL) {
+    printf("[%s:%d] creating parent array failed\n", __func__, __LINE__);
     cJSON_Delete(msg_obj);
     return NULL;
   }
 
-  // add parent1
-  bin2hex(msg->parent2, IOTA_MESSAGE_ID_BYTES, tmp_str, sizeof(tmp_str));
-  if (!cJSON_AddStringToObject(msg_obj, JSON_KEY_P2_ID, tmp_str)) {
-    printf("[%s:%d] creating parent2 failed\n", __func__, __LINE__);
-    cJSON_Delete(msg_obj);
-    return NULL;
+  cJSON_AddItemToObject(msg_obj, JSON_KEY_PARENT_IDS, parents);
+  byte_t* p = NULL;
+  while ((p = (byte_t*)utarray_next(msg->parents, p))) {
+    bin2hex(p, IOTA_MESSAGE_ID_BYTES, tmp_id_str, sizeof(tmp_id_str));
+    cJSON_AddItemToArray(parents, cJSON_CreateString(tmp_id_str));
   }
 
   // add payload
