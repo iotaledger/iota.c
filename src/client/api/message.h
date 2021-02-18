@@ -24,10 +24,11 @@ typedef enum {
   MSG_PAYLOAD_UNKNOW = -1,
 } msg_payload_type_t;
 
+// TODO update mileestone structure: https://github.com/iotaledger/protocol-rfcs/pull/19
 typedef struct {
   uint64_t timestamp;
   uint32_t index;
-  char inclusion_merkle_proof[128];  // hex string with 128 length
+  char inclusion_merkle_proof[64];  // hex string with 64 length
   UT_array *signatures;
 } payload_milestone_t;
 
@@ -64,9 +65,8 @@ typedef struct {
 
 typedef struct {
   char net_id[32];  // string of uint64_t
-  char parent1[API_MSG_ID_HEX_BYTES + 1];
-  char parent2[API_MSG_ID_HEX_BYTES + 1];
-  char nonce[32];  // string of uint64_t
+  char nonce[32];   // string of uint64_t
+  UT_array *parent_msg_ids;
   payload_t type;
   void *payload;
 } message_t;
@@ -130,6 +130,23 @@ message_t *api_message_new();
  * @param[in] msg A message object
  */
 void api_message_free(message_t *msg);
+
+/**
+ * @brief Gets the number of parent IDs
+ *
+ * @param[in] msg A message object
+ * @return size_t
+ */
+size_t api_message_parent_count(message_t *msg);
+
+/**
+ * @brief Gets a parent ID by a given index
+ *
+ * @param[in] msg A response object
+ * @param[in] index A index of a message ID
+ * @return char*
+ */
+char *api_message_parent_id(message_t *msg, size_t index);
 
 /**
  * @brief Get inputs count from transaction payload
