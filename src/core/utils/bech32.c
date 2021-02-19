@@ -185,8 +185,8 @@ int iota_addr_bech32_decode(uint8_t *addr_data, size_t *addr_len, const char *hr
     return 0;
   }
 
-  // 0 for WOTS, 1 for ED25519
-  if (data[0] > 1) {
+  // 0 is denoted as ED25519 address type
+  if (data[0] != 0) {
     return 0;
   }
 

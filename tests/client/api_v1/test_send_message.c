@@ -140,14 +140,14 @@ void test_send_core_message_tx() {
 
     // add input to transaction essence
     if (!res_out.u.output.is_spent) {
-      if (res_out.u.output.address_type == 1) {
+      if (res_out.u.output.address_type == ADDRESS_VER_ED25519) {
         byte_t tx_id[TRANSACTION_ID_BYTES] = {};
         hex2bin(res_out.u.output.tx_id, TRANSACTION_ID_BYTES * 2, tx_id, sizeof(tx_id));
         tx_payload_add_input_with_key(tx_payload, tx_id, res_out.u.output.output_idx, genesis_seed_keypair.pub,
                                       genesis_seed_keypair.priv);
         total += res_out.u.output.amount;
       } else {
-        printf("WOTS address is not supported\n");
+        printf("Unknow address type\n");
       }
     }
   }

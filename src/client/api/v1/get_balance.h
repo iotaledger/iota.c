@@ -12,9 +12,9 @@
 #include "core/types.h"
 
 typedef struct {
-  uint8_t address_type;  // 0 = WOTS, 1 = Ed25519
+  uint8_t address_type;  // 0 = ED25519
   uint64_t balance;
-  char address[IOTA_ADDRESS_HEX_BYTES];  // with null terminator
+  char address[IOTA_ADDRESS_HEX_BYTES];
 } get_balance_t;
 
 typedef struct {

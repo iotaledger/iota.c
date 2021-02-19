@@ -140,7 +140,7 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[]) {
   memset(offset, 0, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
-  // Inputs and Ouputs must be in lexicographical order of their serialized form
+  // Inputs and Outputs must be in lexicographical order of their serialized form
   tx_essence_sort_input_output(es);
 
   // input counts
@@ -308,7 +308,7 @@ void tx_blocks_print(tx_unlock_blocks_t* blocks) {
     DL_FOREACH(blocks, elm) {
       if (elm->type == 0) {  // signature block
         printf("\tSignautre block[ ");
-        printf("Type: %s\n", elm->signature.type ? "Ed25519" : "WOTS");
+        printf("Type: %s\n", elm->signature.type ? "UNKNOW" : "ED25519");
         printf("\tPub key: ");
         dump_hex(elm->signature.pub_key, ED_PUBLIC_KEY_BYTES);
         printf("\tSignature: ");

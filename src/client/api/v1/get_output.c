@@ -154,7 +154,7 @@ void dump_output_response(res_output_t *res) {
   } else {
     get_output_t *output = &res->u.output;
     printf("output:[\n");
-    printf("\t%s addr: %.64s\n", output->address_type ? "ED25519" : "WOTS", output->addr);
+    printf("\t%s addr: %.64s\n", output->address_type ? "UNKNOW" : "ED25519", output->addr);
     printf("\tmsg id: %.64s\n", output->msg_id);
     printf("\ttx id: %.64s\n", output->tx_id);
     printf("\tamount: %" PRIu64 "\n", output->amount);

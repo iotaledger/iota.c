@@ -7,6 +7,7 @@
 #include "client/api/json_utils.h"
 #include "client/api/v1/get_message.h"
 #include "client/network/http.h"
+#include "core/address.h"
 #include "core/utils/iota_str.h"
 
 static int deser_milestone(cJSON *milestone, res_message_t *res) {
@@ -145,10 +146,10 @@ static int deser_tx_outputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
   "outputs": [
     { "type": 0,
       "address": {
-        "type": 1,
+        "type": 0,
         "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
       },
-      "amount": 1000 } ],
+      "amount": 10000000 } ],
   */
   if (cJSON_IsArray(out_obj)) {
     cJSON *elm = NULL;
@@ -160,7 +161,7 @@ static int deser_tx_outputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
         cJSON *addr_type = cJSON_GetObjectItemCaseSensitive(tx_address_obj, JSON_KEY_TYPE);
         if (addr_type) {
           // check outputs/address/type
-          if (cJSON_IsNumber(addr_type) && addr_type->valueint == 1) {
+          if (cJSON_IsNumber(addr_type) && addr_type->valueint == ADDRESS_VER_ED25519) {
             cJSON *addr = cJSON_GetObjectItemCaseSensitive(tx_address_obj, JSON_KEY_ADDR);
             if (cJSON_IsString(addr) && cJSON_IsNumber(tx_amount_obj)) {
               payload_tx_output_t output = {};
@@ -210,7 +211,7 @@ static int deser_tx_blocks(cJSON *blocks_obj, payload_tx_t *payload_tx) {
     if (sig_obj) {
       cJSON *sig_type = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_TYPE);
       if (cJSON_IsNumber(sig_type)) {
-        if (sig_type->valueint == 1) {
+        if (sig_type->valueint == ADDRESS_VER_ED25519) {
           cJSON *pub = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_PUB_KEY);
           cJSON *sig = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_SIG);
           if (cJSON_IsString(pub) && cJSON_IsString(sig)) {

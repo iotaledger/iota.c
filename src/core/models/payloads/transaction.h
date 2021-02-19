@@ -16,7 +16,7 @@
 static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
 
 typedef struct {
-  signature_t type;                      // Set to value 1 to denote an Ed25519 Signature
+  signature_t type;                      // Set to value 0 to denote an Ed25519 Signature
   byte_t pub_key[ED_PUBLIC_KEY_BYTES];   // The public key of the Ed25519 keypair which is used to verify the signature.
   byte_t signature[ED_SIGNATURE_BYTES];  // The signature signing the serialized Unsigned Transaction.
 } ed25519_signature_t;
