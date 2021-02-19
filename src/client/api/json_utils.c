@@ -107,6 +107,28 @@ json_error_t json_string_array_to_utarray(cJSON const* const obj, char const key
   return JSON_OK;
 }
 
+json_error_t utarray_to_json_string_array(UT_array const* const ut, cJSON* const json_obj, char const* const key) {
+  cJSON* array_obj = cJSON_CreateArray();
+  char** p = NULL;
+
+  if (!ut || !json_obj || !key) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return JSON_INVALID_PARAMS;
+  }
+
+  if (array_obj == NULL) {
+    printf("[%s:%d] create json array failed\n", __func__, __LINE__);
+    return JSON_CREATE_FAILED;
+  }
+
+  cJSON_AddItemToObject(json_obj, key, array_obj);
+
+  while ((p = (char**)utarray_next(ut, p))) {
+    cJSON_AddItemToArray(array_obj, cJSON_CreateString(*p));
+  }
+  return JSON_OK;
+}
+
 json_error_t json_get_int(cJSON const* const obj, char const key[], int* const num) {
   if (obj == NULL || key == NULL || num == NULL) {
     // invalid parameters

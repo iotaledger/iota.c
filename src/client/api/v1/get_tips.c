@@ -57,6 +57,7 @@ done:
 res_tips_t *res_tips_new() {
   res_tips_t *tips = malloc(sizeof(res_tips_t));
   if (tips) {
+    tips->u.tips = NULL;
     tips->is_error = false;
     return tips;
   }
@@ -67,6 +68,8 @@ void res_tips_free(res_tips_t *tips) {
   if (tips) {
     if (tips->is_error) {
       res_err_free(tips->u.error);
+    } else {
+      utarray_free(tips->u.tips);
     }
     free(tips);
   }
@@ -91,19 +94,35 @@ int deser_get_tips(char const *const j_str, res_tips_t *res) {
 
   cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
   if (data_obj) {
-    // gets tip1
-    if ((ret = json_get_string(data_obj, JSON_KEY_TIP1_ID, res->u.tips.tip1, STR_TIP_MSG_LEN)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TIP1_ID);
-      goto end;
-    }
+    utarray_new(res->u.tips, &ut_str_icd);
 
-    // gets tip2
-    if ((ret = json_get_string(data_obj, JSON_KEY_TIP2_ID, res->u.tips.tip2, STR_TIP_MSG_LEN)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TIP2_ID);
+    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_TIP_MSG_IDS, res->u.tips)) != 0) {
+      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TIP_MSG_IDS);
+      utarray_free(res->u.tips);
+      res->u.tips = NULL;
+      goto end;
     }
   }
 
 end:
   cJSON_Delete(json_obj);
   return ret;
+}
+
+size_t get_tips_id_count(res_tips_t *tips) {
+  if (tips) {
+    if (!tips->is_error && tips->u.tips) {
+      return utarray_len(tips->u.tips);
+    }
+  }
+  return 0;
+}
+
+char *get_tips_id(res_tips_t *tips, size_t index) {
+  if (tips) {
+    if (!tips->is_error && tips->u.tips) {
+      return *(char **)utarray_eltptr(tips->u.tips, index);
+    }
+  }
+  return NULL;
 }

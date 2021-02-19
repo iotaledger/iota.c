@@ -8,17 +8,23 @@
 
 void test_msg_indexation() {
   char const* const exp_str =
-      "{\"networkId\":null,\"parent1MessageId\":\"0000000000000000000000000000000000000000000000000000000000000000\","
-      "\"parent2MessageId\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"payload\":{\"type\":"
-      "2,\"index\":\"HELLO\",\"data\":\"48454C4C4F\"},\"nonce\":null}";
+      "{\"networkId\":null,\"parentMessageIds\":[\"0000000000000000000000000000000000000000000000000000000000000000\","
+      "\"0000000000000000000000000000000000000000000000000000000000000000\","
+      "\"0000000000000000000000000000000000000000000000000000000000000000\"],\"payload\":{\"type\":2,\"index\":"
+      "\"HELLO\",\"data\":\"48454C4C4F\"},\"nonce\":null}";
 
   byte_t idx_data[5] = {0x48, 0x45, 0x4C, 0x4C, 0x4F};
+  byte_t empty_parent[IOTA_MESSAGE_ID_BYTES] = {};
   indexation_t* idx = indexation_create("HELLO", idx_data, sizeof(idx_data));
   TEST_ASSERT_NOT_NULL(idx);
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);
   msg->payload_type = 2;
   msg->payload = idx;
+  core_message_add_parent(msg, empty_parent);
+  core_message_add_parent(msg, empty_parent);
+  core_message_add_parent(msg, empty_parent);
+  TEST_ASSERT_EQUAL_INT(3, core_message_parent_len(msg));
 
   char* str = message_to_json(msg);
   // printf("%s\n", str);
@@ -31,9 +37,9 @@ void test_msg_indexation() {
 
 void test_msg_tx() {
   char const* const exp_str =
-      "{\"networkId\":null,\"parent1MessageId\":\"0000000000000000000000000000000000000000000000000000000000000000\","
-      "\"parent2MessageId\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"payload\":{\"type\":"
-      "0,\"essence\":{\"type\":0,\"inputs\":[{\"type\":0,\"transactionId\":"
+      "{\"networkId\":null,\"parentMessageIds\":[\"0000000000000000000000000000000000000000000000000000000000000000\","
+      "\"0000000000000000000000000000000000000000000000000000000000000000\"],\"payload\":{\"type\":0,\"essence\":{"
+      "\"type\":0,\"inputs\":[{\"type\":0,\"transactionId\":"
       "\"2BFBF7463B008C0298103121874F64B59D2B6172154AA14205DB2CE0BA553B03\",\"transactionOutputIndex\":0},{\"type\":0,"
       "\"transactionId\":\"0000000000000000000000000000000000000000000000000000000000000000\","
       "\"transactionOutputIndex\":1}],\"outputs\":[{\"type\":0,\"address\":{\"type\":1,\"address\":"
@@ -52,9 +58,13 @@ void test_msg_tx() {
                                          0xf4, 0x57, 0xf2, 0x20, 0xb7, 0x18, 0x7c, 0xf9, 0x75, 0xe8, 0x2a,
                                          0xee, 0xe2, 0xe2, 0x3f, 0xca, 0xe5, 0x05, 0x6a, 0xb5, 0xf4};
   byte_t addr1[ED25519_ADDRESS_BYTES] = {};
+  byte_t empty_parent[IOTA_MESSAGE_ID_BYTES] = {};
 
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);
+  core_message_add_parent(msg, empty_parent);
+  core_message_add_parent(msg, empty_parent);
+  TEST_ASSERT_EQUAL_INT(2, core_message_parent_len(msg));
 
   transaction_payload_t* tx = tx_payload_new();
   TEST_ASSERT_NOT_NULL(tx);

@@ -22,21 +22,18 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
 
   /*
   { "networkId": "",
-    "parent1MessageId": "7f471d9bb0985e114d78489cfbaf1fb3896931bdc03c89935bacde5b9fbc86ff",
-    "parent2MessageId": "3b4354521ade76145b5616a414fa283fcdb7635ee627a42ecb2f75135e18f10f",
+    "parentMessageIds": [
+        "7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
+        "9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c"
+    ],
   */
   if (!cJSON_AddStringToObject(json_root, JSON_KEY_NET_ID, "")) {
     printf("[%s:%d] networkId object failed\n", __func__, __LINE__);
     goto end;
   }
 
-  if (!cJSON_AddStringToObject(json_root, JSON_KEY_P1_ID, msg->parent1)) {
-    printf("[%s:%d] parent1MessageId object failed\n", __func__, __LINE__);
-    goto end;
-  }
-
-  if (!cJSON_AddStringToObject(json_root, JSON_KEY_P2_ID, msg->parent2)) {
-    printf("[%s:%d] parent2MessageId object failed\n", __func__, __LINE__);
+  if (utarray_to_json_string_array(msg->parent_msg_ids, json_root, JSON_KEY_PARENT_IDS) != JSON_OK) {
+    printf("[%s:%d] add parents failed\n", __func__, __LINE__);
     goto end;
   }
 
@@ -203,23 +200,28 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
                         res_send_message_t* res) {
   int ret = -1;
   // get tips
-  res_tips_t tips = {};
+  res_tips_t* tips = NULL;
   message_t* msg = NULL;
   payload_index_t* idx = NULL;
 
-  if ((ret = get_tips(conf, &tips)) != 0) {
+  if ((tips = res_tips_new()) == NULL) {
+    printf("[%s:%d] allocate tips response failed\n", __func__, __LINE__);
+    return ret;
+  }
+
+  if ((ret = get_tips(conf, tips)) != 0) {
     printf("[%s:%d] get tips message failed\n", __func__, __LINE__);
     return ret;
   }
 
-  if (tips.is_error) {
-    printf("[%s:%d] get_tips response error: %s\n", __func__, __LINE__, tips.u.error->msg);
-    return -1;
+  if (tips->is_error) {
+    printf("[%s:%d] get_tips response error: %s\n", __func__, __LINE__, tips->u.error->msg);
+    goto done;
   }
 
   if ((idx = payload_index_new()) == NULL) {
     printf("[%s:%d] allocate indexation payload failed\n", __func__, __LINE__);
-    return -1;
+    goto done;
   }
 
   // add data and index to indexation payload
@@ -238,8 +240,7 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
   // this is an indexation payload
   msg->type = MSG_PAYLOAD_INDEXATION;
   msg->payload = idx;
-  memcpy(msg->parent1, tips.u.tips.tip1, API_MSG_ID_HEX_BYTES);
-  memcpy(msg->parent2, tips.u.tips.tip2, API_MSG_ID_HEX_BYTES);
+  utarray_concat(msg->parent_msg_ids, tips->u.tips);
 
   // send message to a node
   if ((ret = send_message(conf, msg, res)) != 0) {
@@ -247,6 +248,7 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
   }
 
 done:
+  res_tips_free(tips);
   api_message_free(msg);
 
   return ret;
@@ -259,27 +261,35 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
   http_client_config_t http = {0};
   byte_buf_t* json_data = byte_buf_new();
   byte_buf_t* node_res = byte_buf_new();
-  res_tips_t tips = {};
+  res_tips_t* tips = NULL;
+  byte_t tmp_msg_parent[IOTA_MESSAGE_ID_BYTES] = {};
 
   if (!json_data || !node_res) {
     printf("[%s:%d] allocate http buffer failed\n", __func__, __LINE__);
     goto end;
   }
 
+  if ((tips = res_tips_new()) == NULL) {
+    printf("[%s:%d] allocate tips response failed\n", __func__, __LINE__);
+    goto end;
+  }
+
   // get tips
-  if ((ret = get_tips(conf, &tips)) != 0) {
+  if ((ret = get_tips(conf, tips)) != 0) {
     printf("[%s:%d] get tips failed\n", __func__, __LINE__);
     goto end;
   }
 
-  if (tips.is_error) {
-    printf("[%s:%d] get tips failed: %s\n", __func__, __LINE__, tips.u.error->msg);
-    res_err_free(tips.u.error);
+  if (tips->is_error) {
+    printf("[%s:%d] get tips failed: %s\n", __func__, __LINE__, tips->u.error->msg);
     goto end;
   }
 
-  hex2bin(tips.u.tips.tip1, STR_TIP_MSG_LEN, msg->parent1, sizeof(msg->parent1));
-  hex2bin(tips.u.tips.tip2, STR_TIP_MSG_LEN, msg->parent2, sizeof(msg->parent2));
+  char** p = NULL;
+  while ((p = (char**)utarray_next(tips->u.tips, p))) {
+    hex2bin(*p, STR_TIP_MSG_ID_LEN, tmp_msg_parent, sizeof(tmp_msg_parent));
+    utarray_push_back(msg->parents, tmp_msg_parent);
+  }
 
   char* msg_str = message_to_json(msg);
   if (!msg_str) {
@@ -319,5 +329,6 @@ end:
   byte_buf_free(json_data);
   byte_buf_free(node_res);
   iota_str_destroy(cmd);
+  res_tips_free(tips);
   return ret;
 }

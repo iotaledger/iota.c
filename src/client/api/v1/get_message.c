@@ -343,15 +343,11 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
       goto end;
     }
 
-    // parent1MessageId
-    if ((ret = json_get_string(data_obj, JSON_KEY_P1_ID, res->u.msg->parent1, sizeof(res->u.msg->parent1))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_P1_ID);
-      goto end;
-    }
-
-    // parent2MessageId
-    if ((ret = json_get_string(data_obj, JSON_KEY_P2_ID, res->u.msg->parent2, sizeof(res->u.msg->parent2))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_P2_ID);
+    // parentMessageIds
+    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_PARENT_IDS, res->u.msg->parent_msg_ids)) != 0) {
+      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
+      utarray_free(res->u.msg->parent_msg_ids);
+      res->u.msg->parent_msg_ids = NULL;
       goto end;
     }
 

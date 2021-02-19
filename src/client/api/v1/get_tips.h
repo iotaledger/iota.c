@@ -7,22 +7,21 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "utarray.h"
+
 #include "client/api/v1/response_error.h"
 #include "client/client_service.h"
 #include "client/network/http.h"
 
-#define STR_TIP_MSG_LEN 64
+#define STR_TIP_MSG_ID_LEN 64  // the length of message id string
 
-typedef struct {
-  char tip1[STR_TIP_MSG_LEN];
-  char tip2[STR_TIP_MSG_LEN];
-} get_tips_t;
+typedef UT_array get_tips_t;
 
 typedef struct {
   bool is_error;
   union {
     res_err_t *error;
-    get_tips_t tips;
+    get_tips_t *tips;
   } u;
 } res_tips_t;
 
@@ -42,6 +41,23 @@ extern "C" {
 int get_tips(iota_client_conf_t const *conf, res_tips_t *res);
 
 /**
+ * @brief Gets the number of message IDs
+ *
+ * @param[in] tips A response object
+ * @return size_t
+ */
+size_t get_tips_id_count(res_tips_t *tips);
+
+/**
+ * @brief Gets a message ID by a given index
+ *
+ * @param[in] tips A response object
+ * @param[in] index A index of a message ID
+ * @return char*
+ */
+char *get_tips_id(res_tips_t *tips, size_t index);
+
+/**
  * @brief tips response deserialization
  *
  * @param[in] j_str A string of json object
@@ -50,8 +66,18 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res);
  */
 int deser_get_tips(char const *const j_str, res_tips_t *res);
 
+/**
+ * @brief Allocate a get_tips response object
+ *
+ * @return res_tips_t*
+ */
 res_tips_t *res_tips_new();
 
+/**
+ * @brief Free a get_tips response object
+ *
+ * @param tips a response object
+ */
 void res_tips_free(res_tips_t *tips);
 
 #ifdef __cplusplus

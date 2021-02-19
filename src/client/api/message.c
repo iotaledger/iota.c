@@ -88,8 +88,7 @@ message_t *api_message_new() {
   message_t *msg = malloc(sizeof(message_t));
   if (msg) {
     memset(msg->net_id, 0, sizeof(msg->net_id));
-    memset(msg->parent1, 0, sizeof(msg->parent1));
-    memset(msg->parent2, 0, sizeof(msg->parent2));
+    utarray_new(msg->parent_msg_ids, &ut_str_icd);
     memset(msg->nonce, 0, sizeof(msg->nonce));
     msg->payload = NULL;
     msg->type = 255;  // invalid payload type
@@ -113,8 +112,33 @@ void api_message_free(message_t *msg) {
         // do nothing
         break;
     }
+    utarray_free(msg->parent_msg_ids);
     free(msg);
   }
+}
+
+size_t api_message_parent_count(message_t *msg) {
+  if (msg) {
+    if (msg->parent_msg_ids) {
+      return utarray_len(msg->parent_msg_ids);
+    }
+  }
+  return 0;
+}
+
+void api_message_add_parent(message_t *msg, char const *const msg_id) {
+  if (msg) {
+    utarray_push_back(msg->parent_msg_ids, &msg_id);
+  }
+}
+
+char *api_message_parent_id(message_t *msg, size_t index) {
+  if (msg) {
+    if (msg->parent_msg_ids) {
+      return *(char **)utarray_eltptr(msg->parent_msg_ids, index);
+    }
+  }
+  return NULL;
 }
 
 size_t payload_tx_inputs_count(payload_tx_t const *const tx) {
