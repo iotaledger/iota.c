@@ -17,7 +17,7 @@
 #define IOTA_ADDRESS_HEX_BYTES (ED25519_ADDRESS_BYTES * 2)
 
 // address signature version
-typedef enum { ADDRESS_VER_WOTS = 0, ADDRESS_VER_ED25519 = 1 } address_version_t;
+typedef enum { ADDRESS_VER_ED25519 = 0, ADDRESS_VER_UNKNOW = 1 } address_version_t;
 
 #ifdef __cplusplus
 extern "C" {

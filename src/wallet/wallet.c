@@ -149,13 +149,13 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, uint32_
 
     // add input to transaction essence
     if (!out_id_res.u.output.is_spent) {
-      if (out_id_res.u.output.address_type == 1) {
+      if (out_id_res.u.output.address_type == ADDRESS_VER_ED25519) {
         hex2bin(out_id_res.u.output.tx_id, TRANSACTION_ID_BYTES * 2, tmp_tx_id, sizeof(tmp_tx_id));
         ret = tx_payload_add_input_with_key(tx_payload, tmp_tx_id, out_id_res.u.output.output_idx, addr_keypair.pub,
                                             addr_keypair.priv);
         total_balance += out_id_res.u.output.amount;
       } else {
-        printf("WOTS address is not supported\n");
+        printf("Unknow address type\n");
       }
     }
   }

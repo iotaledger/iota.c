@@ -41,8 +41,8 @@ size_t utxo_outputs_serialization(sig_unlocked_outputs_ht **ht, byte_t buf[]) {
     memset(buf + byte_count, 0, sizeof(byte_t));
     byte_count += sizeof(byte_t);
 
-    // address type, set to value 1 to denote an ed25519.
-    memset(buf + byte_count, 1, sizeof(byte_t));
+    // address type, set to value 0 to denote an ed25519.
+    memset(buf + byte_count, ADDRESS_VER_ED25519, sizeof(byte_t));
     byte_count += sizeof(byte_t);
 
     // ed25519 address
