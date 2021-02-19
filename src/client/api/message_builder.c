@@ -14,7 +14,7 @@ static cJSON* indexation_to_json(indexation_t* index) {
   An indexation payload structure
   "payload": {
       "type": 2,
-      "index": "Foo",
+      "index": "696F74612E63",
       "data": "426172"
   }
   */
@@ -37,13 +37,21 @@ static cJSON* indexation_to_json(indexation_t* index) {
     return NULL;
   }
 
-  // make sure index is a string
-  byte_buf2str(index->index);
-  if (!cJSON_AddStringToObject(payload_obj, JSON_KEY_INDEX, (char const*)index->index->data)) {
-    printf("[%s:%d] add index failed\n", __func__, __LINE__);
+  // make sure index is a hex string
+  byte_buf_t* idx_hex = byte_buf_str2hex(index->index);
+  if (!idx_hex) {
+    printf("[%s:%d] convert index to hex failed\n", __func__, __LINE__);
     cJSON_Delete(payload_obj);
     return NULL;
   }
+
+  if (!cJSON_AddStringToObject(payload_obj, JSON_KEY_INDEX, (char const*)idx_hex->data)) {
+    printf("[%s:%d] add index failed\n", __func__, __LINE__);
+    cJSON_Delete(payload_obj);
+    byte_buf_free(idx_hex);
+    return NULL;
+  }
+  byte_buf_free(idx_hex);  // no needed
 
   size_t data_str_len = index->data->len * 2 + 1;
   char* data_str = malloc(data_str_len);
@@ -149,7 +157,7 @@ static cJSON* tx_outputs_to_json(transaction_essence_t* es) {
     {
       "type": 0,
       "address": {
-        "type": 1,
+        "type": 0,
         "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
       },
       "amount": 1000
@@ -196,7 +204,7 @@ static cJSON* tx_outputs_to_json(transaction_essence_t* es) {
     }
 
     // add address type, using ed25519 address schema
-    if (!cJSON_AddNumberToObject(addr_obj, JSON_KEY_TYPE, 1)) {
+    if (!cJSON_AddNumberToObject(addr_obj, JSON_KEY_TYPE, ADDRESS_VER_ED25519)) {
       printf("[%s:%d] creating output address object failed\n", __func__, __LINE__);
       cJSON_Delete(item);
       cJSON_Delete(output_arr);
@@ -318,7 +326,7 @@ static cJSON* tx_blocks_to_json(tx_unlock_blocks_t* blocks) {
     {
       "type": 0,
       "signature": {
-        "type": 1,
+        "type": 0,
         "publicKey": "dd2fb44b9809782af5f31fdbf767a39303365449308f78d6c2652ac9766dbf1a",
         "signature": "e625a71351bbccf87c14932be47c43......493c14932be47c432be47c439a1a8ad242606"
       }
@@ -369,8 +377,8 @@ static cJSON* tx_blocks_to_json(tx_unlock_blocks_t* blocks) {
         return NULL;
       }
 
-      // add signature type to item, 1 denote as an ed25519 signature
-      if (!cJSON_AddNumberToObject(sig_obj, JSON_KEY_TYPE, 1)) {
+      // add signature type to item, 0 denote as an ed25519 signature
+      if (!cJSON_AddNumberToObject(sig_obj, JSON_KEY_TYPE, ADDRESS_VER_ED25519)) {
         printf("[%s:%d] add reference type failed\n", __func__, __LINE__);
         cJSON_Delete(sig_obj);
         cJSON_Delete(block_arr);

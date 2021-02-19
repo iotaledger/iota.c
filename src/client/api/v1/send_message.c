@@ -14,6 +14,7 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
   int ret = -1;
   cJSON* json_root = cJSON_CreateObject();
   byte_buf_t* hex_data = NULL;
+  byte_buf_t* hex_index = NULL;
   char* json_string = NULL;
   if (!json_root) {
     printf("[%s:%d] create json root object failed\n", __func__, __LINE__);
@@ -52,8 +53,13 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
       goto end;
     }
 
-    if (!cJSON_AddStringToObject(json_payload, JSON_KEY_INDEX, (char const* const)payload->index->data)) {
-      printf("[%s:%d] payload/index object failed\n", __func__, __LINE__);
+    if ((hex_index = byte_buf_str2hex(payload->index)) != NULL) {
+      if (!cJSON_AddStringToObject(json_payload, JSON_KEY_INDEX, (char const* const)hex_index->data)) {
+        printf("[%s:%d] payload/index object failed\n", __func__, __LINE__);
+        goto end;
+      }
+    } else {
+      printf("[%s:%d] payload/index serialization failed\n", __func__, __LINE__);
       goto end;
     }
 
@@ -91,6 +97,7 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
 end:
   cJSON_Delete(json_root);
   byte_buf_free(hex_data);
+  byte_buf_free(hex_index);
   if (json_string) {
     free(json_string);
   }
