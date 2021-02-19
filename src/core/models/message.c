@@ -69,6 +69,7 @@ core_message_t* core_message_new() {
 
 int core_message_sign_transaction(core_message_t* msg) {
   int ret = -1;
+  byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
   if (!msg) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
@@ -95,6 +96,13 @@ int core_message_sign_transaction(core_message_t* msg) {
     return -1;
   }
 
+  // essence hash
+  if (iota_blake2b_sum(b_essence, serialized_size, essence_hash, sizeof(essence_hash)) != 0) {
+    printf("[%s:%d] get essence hash failed\n", __func__, __LINE__);
+    free(b_essence);
+    return -1;
+  }
+
   unlock_sig_ht* unlocked_sig = unlock_sig_new();
   // create unlocked blocks and sign tx essence
   utxo_input_ht *elm, *tmp;
@@ -108,8 +116,8 @@ int core_message_sign_transaction(core_message_t* msg) {
     } else {
       // sign transaction
       ed25519_signature_t signature = {};
-      signature.type = 1;
-      if ((ret = iota_crypto_sign(elm->keypair.priv, b_essence, serialized_size, signature.signature))) {
+      signature.type = ADDRESS_VER_ED25519;
+      if ((ret = iota_crypto_sign(elm->keypair.priv, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES, signature.signature))) {
         break;
       }
       memcpy(signature.pub_key, elm->keypair.pub_key, ED_PUBLIC_KEY_BYTES);

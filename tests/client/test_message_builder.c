@@ -11,7 +11,7 @@ void test_msg_indexation() {
       "{\"networkId\":null,\"parentMessageIds\":[\"0000000000000000000000000000000000000000000000000000000000000000\","
       "\"0000000000000000000000000000000000000000000000000000000000000000\","
       "\"0000000000000000000000000000000000000000000000000000000000000000\"],\"payload\":{\"type\":2,\"index\":"
-      "\"HELLO\",\"data\":\"48454C4C4F\"},\"nonce\":null}";
+      "\"48454C4C4F\",\"data\":\"48454C4C4F\"},\"nonce\":null}";
 
   byte_t idx_data[5] = {0x48, 0x45, 0x4C, 0x4C, 0x4F};
   byte_t empty_parent[IOTA_MESSAGE_ID_BYTES] = {};
@@ -42,10 +42,10 @@ void test_msg_tx() {
       "\"type\":0,\"inputs\":[{\"type\":0,\"transactionId\":"
       "\"2BFBF7463B008C0298103121874F64B59D2B6172154AA14205DB2CE0BA553B03\",\"transactionOutputIndex\":0},{\"type\":0,"
       "\"transactionId\":\"0000000000000000000000000000000000000000000000000000000000000000\","
-      "\"transactionOutputIndex\":1}],\"outputs\":[{\"type\":0,\"address\":{\"type\":1,\"address\":"
+      "\"transactionOutputIndex\":1}],\"outputs\":[{\"type\":0,\"address\":{\"type\":0,\"address\":"
       "\"AD32258255E7CF927A4833F457F220B7187CF975E82AEEE2E23FCAE5056AB5F4\"},\"amount\":1000},{\"type\":0,\"address\":{"
-      "\"type\":1,\"address\":\"0000000000000000000000000000000000000000000000000000000000000000\"},\"amount\":9999}],"
-      "\"payload\":null},\"unlockBlocks\":[{\"type\":0,\"signature\":{\"type\":1,\"publicKey\":"
+      "\"type\":0,\"address\":\"0000000000000000000000000000000000000000000000000000000000000000\"},\"amount\":9999}],"
+      "\"payload\":null},\"unlockBlocks\":[{\"type\":0,\"signature\":{\"type\":0,\"publicKey\":"
       "\"0000000000000000000000000000000000000000000000000000000000000000\",\"signature\":"
       "\"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
       "000000000000000000\"}},{\"type\":1,\"reference\":0}]},\"nonce\":null}";

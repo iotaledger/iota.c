@@ -52,8 +52,8 @@ void test_serialize_indexation() {
   char const* const index = "iota.c";
   char const* const exp_msg =
       "{\"networkId\":\"\",\"parentMessageIds\":[\"7f471d9bb0985e114d78489cfbaf1fb3896931bdc03c89935bacde5b9fbc86ff\","
-      "\"3b4354521ade76145b5616a414fa283fcdb7635ee627a42ecb2f75135e18f10f\"],\"payload\":{\"type\":2,\"index\":\"iota."
-      "c\",\"data\":\"48656C6C6F\"},\"nonce\":\"\"}";
+      "\"3b4354521ade76145b5616a414fa283fcdb7635ee627a42ecb2f75135e18f10f\"],\"payload\":{\"type\":2,\"index\":"
+      "\"696F74612E63\",\"data\":\"48656C6C6F\"},\"nonce\":\"\"}";
 
   message_t* msg = api_message_new();
   TEST_ASSERT_NOT_NULL(msg);
@@ -155,8 +155,8 @@ void test_send_core_message_tx() {
   // no needed
   res_outputs_address_free(res);
 
-  // create output for sending 1Ki out
-  uint64_t token_send = 1000;
+  // create output for sending 10Mi out
+  uint64_t token_send = 10000000;
   TEST_ASSERT(tx_payload_add_output(tx_payload, wallet_addr, token_send) == 0);
   TEST_ASSERT(tx_payload_add_output(tx_payload, genesis_addr, total - token_send) == 0);
 

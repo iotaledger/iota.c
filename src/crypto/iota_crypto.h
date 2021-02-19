@@ -14,6 +14,8 @@
 #define CRYPTO_SHA512_KEY_BYTES 32   // crypto_auth_hmacsha512_KEYBYTES
 #define CRYPTO_SHA512_HASH_BYTES 64  // crypto_auth_hmacsha512_BYTES
 
+#define CRYPTO_BLAKE2B_HASH_BYTES 32  // crypto_generichash_blake2b_BYTES
+
 typedef struct {
   uint8_t pub[ED_PUBLIC_KEY_BYTES];
   uint8_t priv[ED_PRIVATE_KEY_BYTES];
