@@ -15,7 +15,12 @@ void test_find_msg_by_index() {
   res_find_msg_t* res = res_find_msg_new();
   TEST_ASSERT(find_message_by_index(&ctx, "iota.c", res) == 0);
   TEST_ASSERT(res->is_error == false);
+  res_find_msg_free(res);
+  res = NULL;
 
+  res = res_find_msg_new();
+  TEST_ASSERT(find_message_by_index(&ctx, "iota.c\xF0\x9F\x80\x84", res) == 0);
+  TEST_ASSERT(res->is_error == false);
   res_find_msg_free(res);
 }
 
