@@ -17,11 +17,15 @@
 
 typedef UT_array get_tips_t;
 
+/**
+ * @brief The response of get tips
+ *
+ */
 typedef struct {
-  bool is_error;
+  bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;
-    get_tips_t *tips;
+    res_err_t *error;  ///< Error message if is_error is True
+    get_tips_t *tips;  ///< list of tips if is_error is False
   } u;
 } res_tips_t;
 

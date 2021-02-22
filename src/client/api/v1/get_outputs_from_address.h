@@ -11,18 +11,26 @@
 #include "core/address.h"
 #include "core/types.h"
 
+/**
+ * @brief An output object
+ *
+ */
 typedef struct {
-  char address[IOTA_ADDRESS_HEX_BYTES + 1];  // with null terminator
-  uint32_t max_results;
-  uint32_t count;
-  UT_array *outputs;
+  char address[IOTA_ADDRESS_HEX_BYTES + 1];  ///< hex-encoded string with null terminator.
+  uint32_t max_results;                      ///< The number of results it can return at most.
+  uint32_t count;                            ///< The actual number of found results.
+  UT_array *outputs;                         ///< output IDs
 } get_outputs_address_t;
 
+/**
+ * @brief The response of get outputs from address
+ *
+ */
 typedef struct {
-  bool is_error;
+  bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;
-    get_outputs_address_t *output_ids;
+    res_err_t *error;                   ///< Error message if is_error is True
+    get_outputs_address_t *output_ids;  ///< an output object if is_error is False
   } u;
 } res_outputs_address_t;
 

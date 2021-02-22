@@ -9,9 +9,13 @@
 
 #define IOTA_ENDPOINT_MAX_LEN 256
 
+/**
+ * @brief Client endpoint configuration
+ *
+ */
 typedef struct {
-  char url[IOTA_ENDPOINT_MAX_LEN];
-  uint16_t port;
+  char url[IOTA_ENDPOINT_MAX_LEN];  ///< The URL string of the endpoint
+  uint16_t port;                    ///< The port number of the endpoint
 } iota_client_conf_t;
 
 #ifdef __cplusplus

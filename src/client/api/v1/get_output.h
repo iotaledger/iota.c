@@ -14,18 +14,18 @@
 #define IOTA_OUTPUT_ID_HEX_BYTES 68
 
 /**
- * @brief The output object of get_output
+ * @brief An output object
  *
  */
 typedef struct {
-  char msg_id[64];
-  char tx_id[64];
-  char addr[64];
-  uint32_t output_type;
-  uint32_t address_type;
-  uint64_t amount;
-  uint16_t output_idx;
-  bool is_spent;
+  char msg_id[64];        ///< the message IDs that references the output
+  char tx_id[64];         ///< the transaction ID
+  char addr[64];          ///< the address in hex string
+  uint32_t output_type;   ///< the output type
+  uint32_t address_type;  ///< the address type
+  uint64_t amount;        ///< the amount of this output
+  uint16_t output_idx;    ///< the index of this output
+  bool is_spent;          ///< is spent or not
 } get_output_t;
 
 /**
@@ -33,10 +33,10 @@ typedef struct {
  *
  */
 typedef struct {
-  bool is_error;
+  bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;
-    get_output_t output;
+    res_err_t *error;     ///< Error message if is_error is True
+    get_output_t output;  ///< an output object if is_error is False
   } u;
 } res_output_t;
 

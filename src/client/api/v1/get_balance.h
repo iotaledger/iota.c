@@ -11,17 +11,26 @@
 #include "core/address.h"
 #include "core/types.h"
 
+/**
+ * @brief Stores address string and amount of balance
+ *
+ */
 typedef struct {
-  uint8_t address_type;  // 0 = ED25519
-  uint64_t balance;
-  char address[IOTA_ADDRESS_HEX_BYTES];
+  uint8_t address_type;                  ///< 0 = ED25519 address
+  uint64_t balance;                      ///< amount of balance
+  char address[IOTA_ADDRESS_HEX_BYTES];  ///< hex address string, ex:
+                                         ///< 7ED3D67FC7B619E72E588F51FEF2379E43E6E9A856635843B3F29AA3A3F1F006
 } get_balance_t;
 
+/**
+ * @brief The response of get balance API call
+ *
+ */
 typedef struct {
-  bool is_error;
+  bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;
-    get_balance_t *output_balance;
+    res_err_t *error;               ///< Error message if is_error is True
+    get_balance_t *output_balance;  ///< a balance object if is_error is False
   } u;
 } res_balance_t;
 
@@ -50,7 +59,7 @@ void res_balance_free(res_balance_t *res);
 int deser_balance_info(char const *const j_str, res_balance_t *res);
 
 /**
- * @brief Gets balance from address
+ * @brief Gets balance from an address
  *
  * @param[in] ctx IOTA Client conf
  * @param[in] addr The address
