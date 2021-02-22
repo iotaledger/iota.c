@@ -5,12 +5,10 @@
 #include <unity/unity.h>
 
 #include "client/api/v1/find_message.h"
+#include "test_config.h"
 
 void test_find_msg_by_index() {
-  iota_client_conf_t ctx = {
-      .url = "https://api.lb-0.testnet.chrysalis2.com/",
-      .port = 0  // use default port number
-  };
+  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
 
   res_find_msg_t* res = res_find_msg_new();
   TEST_ASSERT(find_message_by_index(&ctx, "iota.c", res) == 0);
@@ -56,7 +54,8 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_deser_find_msg);
-  // RUN_TEST(test_find_msg_by_index);
-
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(test_find_msg_by_index);
+#endif
   return UNITY_END();
 }

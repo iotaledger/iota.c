@@ -4,13 +4,12 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
+#include "test_config.h"
+
 #include "client/api/v1/get_health.h"
 
 void test_get_health() {
-  iota_client_conf_t ctx = {
-      .url = "https://api.lb-0.testnet.chrysalis2.com/",
-      .port = 0  // use default port number
-  };
+  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
   bool health = false;
   TEST_ASSERT(get_health(&ctx, &health) == 0);
 }
@@ -18,7 +17,9 @@ void test_get_health() {
 int main() {
   UNITY_BEGIN();
 
-  // RUN_TEST(test_get_health);
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(test_get_health);
+#endif
 
   return UNITY_END();
 }

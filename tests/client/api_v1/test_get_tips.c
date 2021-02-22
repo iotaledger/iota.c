@@ -4,13 +4,12 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
+#include "test_config.h"
+
 #include "client/api/v1/get_tips.h"
 
 void test_get_tips() {
-  iota_client_conf_t ctx = {
-      .url = "https://api.lb-0.testnet.chrysalis2.com/",
-      .port = 0  // use default port number
-  };
+  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
 
   res_tips_t* res_tips = res_tips_new();
   TEST_ASSERT_NOT_NULL(res_tips);
@@ -59,7 +58,9 @@ void test_deser_tips_err() {
 int main() {
   UNITY_BEGIN();
 
-  // RUN_TEST(test_get_tips);
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(test_get_tips);
+#endif
   RUN_TEST(test_deser_get_tips);
   RUN_TEST(test_deser_tips_err);
 

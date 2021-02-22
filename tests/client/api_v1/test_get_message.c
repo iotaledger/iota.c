@@ -4,19 +4,36 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
+#include "test_config.h"
+
 #include "client/api/v1/get_message.h"
 
-void test_get_indexation() {
+void test_get_msg_by_id() {
   char const* const msg_id = "7c58a5bab90219de0231293f40ff65ee7d42e64ae917cc5560f7becdcf6cb158";
-  iota_client_conf_t ctx = {
-      .url = "https://api.lb-0.testnet.chrysalis2.com/",
-      .port = 0  // use default port number
-  };
+  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
 
   res_message_t* msg = res_message_new();
   TEST_ASSERT_NOT_NULL(msg);
   TEST_ASSERT(get_message_by_id(&ctx, msg_id, msg) == 0);
-  TEST_ASSERT(msg->is_error == false);
+  if (msg->is_error) {
+    printf("API response: %s\n", msg->u.error->msg);
+  } else {
+    switch (msg->u.msg->type) {
+      case MSG_PAYLOAD_TRANSACTION:
+        printf("it's a transaction message\n");
+        break;
+      case MSG_PAYLOAD_INDEXATION:
+        printf("it's an indexation message\n");
+        break;
+      case MSG_PAYLOAD_MILESTONE:
+        printf("it's a milestone message\n");
+        break;
+      case MSG_PAYLOAD_UNKNOW:
+      default:
+        printf("Unknow message\n");
+        break;
+    }
+  }
   res_message_free(msg);
 }
 
@@ -242,7 +259,8 @@ int main() {
   RUN_TEST(test_deser_indexation);
   RUN_TEST(test_deser_milestone);
   RUN_TEST(test_deser_transaction);
-  // RUN_TEST(test_get_indexation);
-
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(test_get_msg_by_id);
+#endif
   return UNITY_END();
 }

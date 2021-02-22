@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
+#include "test_config.h"
+
 #include "client/api/v1/get_output.h"
 #include "client/api/v1/get_outputs_from_address.h"
 #include "client/api/v1/send_message.h"
@@ -12,10 +14,7 @@
 #include "core/address.h"
 
 void test_send_indexation() {
-  iota_client_conf_t ctx = {
-      .url = "https://api.lb-0.testnet.chrysalis2.com/",
-      .port = 0  // use default port number
-  };
+  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
 
   res_send_message_t res = {};
   TEST_ASSERT(send_indexation_msg(&ctx, "iota.c", "Hello IOTA", &res) == 0);
@@ -24,10 +23,7 @@ void test_send_indexation() {
 }
 
 void test_send_core_message_indexation() {
-  iota_client_conf_t ctx = {
-      .url = "https://api.lb-0.testnet.chrysalis2.com/",
-      .port = 0  // use default port number
-  };
+  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
 
   byte_t idx_data[12] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, 0x21};
   indexation_t* idx = indexation_create("iota.c", idx_data, sizeof(idx_data));
@@ -188,8 +184,10 @@ int main() {
 
   RUN_TEST(test_serialize_indexation);
   RUN_TEST(test_deser_send_msg_response);
-  // RUN_TEST(test_send_indexation);
-  // RUN_TEST(test_send_core_message_indexation);
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(test_send_indexation);
+  RUN_TEST(test_send_core_message_indexation);
+#endif
   // send transaction on alphanet
   // RUN_TEST(test_send_core_message_tx);
 
