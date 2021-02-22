@@ -47,5 +47,6 @@ static char const* const JSON_KEY_TX_OUT_INDEX = "transactionOutputIndex";
 static char const* const JSON_KEY_TYPE = "type";
 static char const* const JSON_KEY_UNLOCK_BLOCKS = "unlockBlocks";
 static char const* const JSON_KEY_VER = "version";
+static char const* const JSON_KEY_BECH32HRP = "bech32HRP";
 
 #endif

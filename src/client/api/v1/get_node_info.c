@@ -166,6 +166,13 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
       goto end;
     }
 
+    // parsing bech32HRP
+    if ((ret = json_get_string(data_obj, JSON_KEY_BECH32HRP, res->u.output_node_info->bech32hrp,
+                               sizeof(res->u.output_node_info->bech32hrp))) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_BECH32HRP);
+      goto end;
+    }
+
     // gets minPowScore
     if ((ret = json_get_uint64(data_obj, JSON_KEY_MIN_POW, &res->u.output_node_info->min_pow_score)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MIN_POW);
@@ -191,6 +198,7 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
       goto end;
     }
 
+    // features
     utarray_new(res->u.output_node_info->features, &ut_str_icd);
     if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_FEATURES, res->u.output_node_info->features)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_FEATURES);
