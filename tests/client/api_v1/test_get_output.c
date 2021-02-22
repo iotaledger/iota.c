@@ -4,14 +4,13 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
+#include "test_config.h"
+
 #include "client/api/v1/get_output.h"
 
 void test_get_output() {
   char const* const output_id = "1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0003";
-  iota_client_conf_t ctx = {
-      .url = "https://api.lb-0.testnet.chrysalis2.com/",
-      .port = 0  // use default port number
-  };
+  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
 
   res_output_t res = {};
   // invalid output id
@@ -72,7 +71,8 @@ int main() {
 
   RUN_TEST(test_deser_response_error);
   RUN_TEST(test_deser_response);
-  // RUN_TEST(test_get_output);
-
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(test_get_output);
+#endif
   return UNITY_END();
 }

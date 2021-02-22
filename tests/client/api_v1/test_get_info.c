@@ -4,15 +4,13 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
+#include "test_config.h"
 #include "utarray.h"
 
 #include "client/api/v1/get_node_info.h"
 
 void test_get_info() {
-  iota_client_conf_t ctx = {
-      .url = "https://api.lb-0.testnet.chrysalis2.com/",
-      .port = 0  // use default port number
-  };
+  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
   res_node_info_t* info = res_node_info_new();
   TEST_ASSERT_NOT_NULL(info);
 
@@ -62,7 +60,8 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_deser_node_info);
-  // RUN_TEST(test_get_info);
-
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(test_get_info);
+#endif
   return UNITY_END();
 }

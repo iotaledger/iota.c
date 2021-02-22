@@ -6,6 +6,8 @@
 #include <string.h>
 #include <unity/unity.h>
 
+#include "test_config.h"
+
 #include "client/api/v1/get_balance.h"
 #include "core/utils/byte_buffer.h"
 
@@ -13,7 +15,7 @@ char const* const addr_hex = "7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3
 char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
 void test_get_balance() {
-  iota_client_conf_t conf = {.url = "https://api.lb-0.testnet.chrysalis2.com/", .port = 0};
+  iota_client_conf_t conf = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
 
   res_balance_t* res = res_balance_new();
   TEST_ASSERT_NOT_NULL(res);
@@ -91,7 +93,8 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_deser_balance_info);
-  // RUN_TEST(test_get_balance);
-
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(test_get_balance);
+#endif
   return UNITY_END();
 }

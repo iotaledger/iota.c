@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
+#include "test_config.h"
+
 #include "client/api/v1/get_outputs_from_address.h"
 
 void test_deser_outputs() {
@@ -66,10 +68,7 @@ void test_deser_outputs_err() {
 
 void test_get_output_ids() {
   char addr1[] = "017ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f0";
-  iota_client_conf_t ctx = {
-      .url = "https://api.lb-0.testnet.chrysalis2.com/",
-      .port = 0  // use default port number
-  };
+  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
 
   res_outputs_address_t* res = res_outputs_address_new();
   TEST_ASSERT_NOT_NULL(res);
@@ -85,7 +84,9 @@ int main() {
 
   RUN_TEST(test_deser_outputs);
   RUN_TEST(test_deser_outputs_err);
-  // RUN_TEST(test_get_output_ids);
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(test_get_output_ids);
+#endif
 
   return UNITY_END();
 }
