@@ -16,13 +16,14 @@
 typedef struct {
   char name[32];
   char version[32];
-  bool is_healthy;
   char network_id[32];
+  char bech32hrp[16];  // `atoi` for testnet, `iota` for mainnet
   uint64_t min_pow_score;
   uint64_t latest_milestone_index;
   uint64_t solid_milestone_index;
   uint64_t pruning_milestone_index;
   UT_array *features;
+  bool is_healthy;
 } get_node_info_t;
 
 typedef struct {
