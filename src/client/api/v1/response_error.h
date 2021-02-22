@@ -8,9 +8,13 @@
 
 #include "cJSON.h"
 
+/**
+ * @brief Node API error response
+ *
+ */
 typedef struct {
-  char *code;
-  char *msg;
+  char *code;  ///< an error code from node response
+  char *msg;   ///< a error message from node response
 } res_err_t;
 
 #ifdef __cplusplus

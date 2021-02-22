@@ -17,13 +17,17 @@
 #define IOTA_MESSAGE_ID_BYTES 32  // message hash ID
 #define IOTA_MESSAGE_ID_HEX_BYTES (IOTA_MESSAGE_ID_BYTES * 2)
 
+/**
+ * @brief A message object
+ *
+ */
 typedef struct {
-  uint64_t network_id;  // Network identifier. It is first 8 bytes of the `BLAKE2b-256` hash of the concatenation of the
-                        // network type and the protocol version string.
-  UT_array* parents;    // the message references.
-  payload_t payload_type;  // payload type
-  void* payload;           // One of payload type
-  uint64_t nonce;          // The nonce which lets this message fulfill the Proof-of-Work requirement.
+  uint64_t network_id;  ///< Network identifier. It is first 8 bytes of the `BLAKE2b-256` hash of the concatenation of
+                        ///< the network type and the protocol version string.
+  UT_array* parents;    ///< parents of this message
+  payload_t payload_type;  ///< payload type
+  void* payload;           ///< payload object, NULL is no payload
+  uint64_t nonce;          ///< The nonce which lets this message fulfill the Proof-of-Work requirement.
 } core_message_t;
 
 #ifdef __cplusplus

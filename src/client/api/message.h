@@ -63,12 +63,16 @@ typedef struct {
   void *payload;
 } payload_tx_t;
 
+/**
+ * @brief A message object
+ *
+ */
 typedef struct {
-  char net_id[32];  // string of uint64_t
-  char nonce[32];   // string of uint64_t
-  UT_array *parent_msg_ids;
-  payload_t type;
-  void *payload;
+  char net_id[32];           ///< string of network ID hash
+  char nonce[32];            ///< string of nonce
+  UT_array *parent_msg_ids;  ///< a list of parent IDs
+  payload_t type;            ///< payload type
+  void *payload;             ///< NULL if no payload
 } message_t;
 
 #ifdef __cplusplus

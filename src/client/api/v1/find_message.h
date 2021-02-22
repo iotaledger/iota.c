@@ -12,17 +12,25 @@
 #include "client/client_service.h"
 #include "core/types.h"
 
+/**
+ * @brief Stores message IDs from the response object
+ *
+ */
 typedef struct {
-  uint32_t max_results;
-  uint32_t count;
-  UT_array *msg_ids;
+  uint32_t max_results;  ///< The MAX results
+  uint32_t count;        ///< The number of message IDs in this response
+  UT_array *msg_ids;     ///< message IDs
 } find_msg_t;
 
+/**
+ * @brief API response of find message
+ *
+ */
 typedef struct {
-  bool is_error;
+  bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;
-    find_msg_t *msg_ids;
+    res_err_t *error;     ///< Error message if is_error is True
+    find_msg_t *msg_ids;  ///< Message IDs if is_error is False
   } u;
 } res_find_msg_t;
 

@@ -13,11 +13,15 @@
 #include "client/client_service.h"
 #include "core/types.h"
 
+/**
+ * @brief The general information about the node
+ *
+ */
 typedef struct {
-  char name[32];
-  char version[32];
-  char network_id[32];
-  char bech32hrp[16];  // `atoi` for testnet, `iota` for mainnet
+  char name[32];        ///< name of this node
+  char version[32];     ///< version of this node
+  char network_id[32];  ///< network ID of this node
+  char bech32hrp[16];   ///< bech32 HRP, `atoi` for testnet and `iota` for mainnet
   uint64_t min_pow_score;
   uint64_t latest_milestone_index;
   uint64_t solid_milestone_index;
@@ -26,11 +30,15 @@ typedef struct {
   bool is_healthy;
 } get_node_info_t;
 
+/**
+ * @brief The response of get node info
+ *
+ */
 typedef struct {
-  bool is_error;
+  bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;
-    get_node_info_t *output_node_info;
+    res_err_t *error;                   ///< Error message if is_error is True
+    get_node_info_t *output_node_info;  ///< node info if is_error is False
   } u;
 } res_node_info_t;
 

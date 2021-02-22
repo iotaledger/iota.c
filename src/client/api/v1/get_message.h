@@ -13,11 +13,15 @@
 
 #define IOTA_MESSAGE_ID_HEX_BYTES 64
 
+/**
+ * @brief The response of get message
+ *
+ */
 typedef struct {
-  bool is_error;
+  bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;
-    message_t *msg;
+    res_err_t *error;  ///< Error message if is_error is True
+    message_t *msg;    ///< a message object if is_error is False
   } u;
 } res_message_t;
 
