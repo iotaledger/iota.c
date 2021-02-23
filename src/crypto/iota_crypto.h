@@ -16,9 +16,13 @@
 
 #define CRYPTO_BLAKE2B_HASH_BYTES 32  // crypto_generichash_blake2b_BYTES
 
+/**
+ * @brief Ed25519 Keypair
+ *
+ */
 typedef struct {
-  uint8_t pub[ED_PUBLIC_KEY_BYTES];
-  uint8_t priv[ED_PRIVATE_KEY_BYTES];
+  uint8_t pub[ED_PUBLIC_KEY_BYTES];    ///< 32 bytes public key
+  uint8_t priv[ED_PRIVATE_KEY_BYTES];  ///< 64 bytes private key
 } iota_keypair_t;
 
 #ifdef __cplusplus
