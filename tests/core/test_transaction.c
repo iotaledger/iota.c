@@ -32,8 +32,8 @@ void test_tx_essence_serialization() {
   TEST_ASSERT_EQUAL_UINT32(1, utxo_inputs_count(&essence->inputs));
 
   // add outputs
-  TEST_ASSERT(tx_essence_add_output(essence, addr_a, 1000) == 0);
-  TEST_ASSERT(tx_essence_add_output(essence, addr_b, 2779530283276761) == 0);
+  TEST_ASSERT(tx_essence_add_output(essence, OUTPUT_SINGLE_OUTPUT, addr_a, 1000) == 0);
+  TEST_ASSERT(tx_essence_add_output(essence, OUTPUT_SINGLE_OUTPUT, addr_b, 2779530283276761) == 0);
   TEST_ASSERT_EQUAL_UINT32(2, utxo_outputs_count(&essence->outputs));
 
   // get serialized length
@@ -121,7 +121,7 @@ void test_tx_payload() {
   // add input
   TEST_ASSERT(tx_payload_add_input(tx, tx_id0, 0) == 0);
   // add output
-  TEST_ASSERT(tx_payload_add_output(tx, addr0, 1000) == 0);
+  TEST_ASSERT(tx_payload_add_output(tx, OUTPUT_SINGLE_OUTPUT, addr0, 1000) == 0);
 
   // add signature
   ed25519_signature_t sig = {};

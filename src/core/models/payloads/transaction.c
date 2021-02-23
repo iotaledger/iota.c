@@ -30,7 +30,7 @@ static int sort_input_tx_id(utxo_input_ht* a, utxo_input_ht* b) {
   return byte_cmp(a->tx_id, b->tx_id, TRANSACTION_ID_BYTES);
 }
 
-static int sort_output_address(sig_unlocked_outputs_ht* a, sig_unlocked_outputs_ht* b) {
+static int sort_output_address(outputs_ht* a, outputs_ht* b) {
   return byte_cmp(a->address, b->address, ED25519_ADDRESS_BYTES);
 }
 
@@ -63,7 +63,7 @@ int tx_essence_add_input_with_key(transaction_essence_t* es, byte_t const tx_id[
   return utxo_inputs_add_with_key(&es->inputs, tx_id, index, pub, priv);
 }
 
-int tx_essence_add_output(transaction_essence_t* es, byte_t addr[], uint64_t amount) {
+int tx_essence_add_output(transaction_essence_t* es, output_type_t type, byte_t addr[], uint64_t amount) {
   if (es == NULL || addr == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -73,7 +73,7 @@ int tx_essence_add_output(transaction_essence_t* es, byte_t addr[], uint64_t amo
     printf("[%s:%d] invalid amount\n", __func__, __LINE__);
     return -1;
   }
-  return utxo_outputs_add(&es->outputs, addr, amount);
+  return utxo_outputs_add(&es->outputs, type, addr, amount);
 }
 
 void tx_essence_sort_input_output(transaction_essence_t* es) {
@@ -355,9 +355,9 @@ int tx_payload_add_input_with_key(transaction_payload_t* tx, byte_t tx_id[], uin
   return -1;
 }
 
-int tx_payload_add_output(transaction_payload_t* tx, byte_t addr[], uint64_t amount) {
+int tx_payload_add_output(transaction_payload_t* tx, output_type_t type, byte_t addr[], uint64_t amount) {
   if (tx) {
-    return tx_essence_add_output(tx->essence, addr, amount);
+    return tx_essence_add_output(tx->essence, type, addr, amount);
   }
   return -1;
 }

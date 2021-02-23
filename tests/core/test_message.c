@@ -31,8 +31,8 @@ void test_message_with_tx() {
   TEST_ASSERT_NOT_NULL(tx);
 
   TEST_ASSERT(tx_payload_add_input_with_key(tx, tx_id0, 0, seed_keypair.pub, seed_keypair.priv) == 0);
-  TEST_ASSERT(tx_payload_add_output(tx, addr0, 1000) == 0);
-  TEST_ASSERT(tx_payload_add_output(tx, addr1, 2779530283276761) == 0);
+  TEST_ASSERT(tx_payload_add_output(tx, OUTPUT_SINGLE_OUTPUT, addr0, 1000) == 0);
+  TEST_ASSERT(tx_payload_add_output(tx, OUTPUT_SINGLE_OUTPUT, addr1, 2779530283276761) == 0);
 
   // put tx payload into message
   msg->payload_type = 0;

@@ -153,8 +153,8 @@ void test_send_core_message_tx() {
 
   // create output for sending 10Mi out
   uint64_t token_send = 10000000;
-  TEST_ASSERT(tx_payload_add_output(tx_payload, wallet_addr, token_send) == 0);
-  TEST_ASSERT(tx_payload_add_output(tx_payload, genesis_addr, total - token_send) == 0);
+  TEST_ASSERT(tx_payload_add_output(tx_payload, OUTPUT_SINGLE_OUTPUT, wallet_addr, token_send) == 0);
+  TEST_ASSERT(tx_payload_add_output(tx_payload, OUTPUT_SINGLE_OUTPUT, genesis_addr, total - token_send) == 0);
 
   // add indexation to tx payload
   byte_t idx_data[] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, 0x21};

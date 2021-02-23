@@ -9,7 +9,7 @@
 
 #include "core/address.h"
 #include "core/models/inputs/utxo_input.h"
-#include "core/models/outputs/sig_unlocked_single_output.h"
+#include "core/models/outputs/outputs.h"
 #include "core/models/payloads/indexation.h"
 #include "core/types.h"
 
@@ -42,11 +42,11 @@ typedef struct unlock_blocks {
  *
  */
 typedef struct {
-  uint8_t tx_type;                   // Set to value 0 to denote a Transaction Essence.
-  uint32_t payload_len;              // The length in bytes of the optional payload.
-  utxo_input_ht* inputs;             // any of UTXO input
-  sig_unlocked_outputs_ht* outputs;  // any of UTXO output
-  void* payload;                     // an indexation payload at this moment
+  uint8_t tx_type;        // Set to value 0 to denote a Transaction Essence.
+  uint32_t payload_len;   // The length in bytes of the optional payload.
+  utxo_input_ht* inputs;  // any of UTXO input
+  outputs_ht* outputs;    // any of UTXO output
+  void* payload;          // an indexation payload at this moment
 } transaction_essence_t;
 
 /**
@@ -91,11 +91,12 @@ int tx_essence_add_input_with_key(transaction_essence_t* es, byte_t const tx_id[
  * @brief Add an output element to the essence
  *
  * @param[in] es An essence object
+ * @param[in] type The output type
  * @param[in] addr An ed25519 address
  * @param[in] amount The amount of tokens to deposit with this SigLockedSingleOutput output
  * @return int 0 on success
  */
-int tx_essence_add_output(transaction_essence_t* es, byte_t addr[], uint64_t amount);
+int tx_essence_add_output(transaction_essence_t* es, output_type_t type, byte_t addr[], uint64_t amount);
 
 /**
  * @brief Add a payload to essence
@@ -245,11 +246,12 @@ int tx_payload_add_input_with_key(transaction_payload_t* tx, byte_t tx_id[], uin
  * @brief Add an output to the transaction payload
  *
  * @param[in] tx A transaction payload
+ * @param[in] type The output type
  * @param[in] addr An ed25519 address
  * @param[in] amount The amount of tokens to deposit with this SigLockedSingleOutput output
  * @return int 0 on success
  */
-int tx_payload_add_output(transaction_payload_t* tx, byte_t addr[], uint64_t amount);
+int tx_payload_add_output(transaction_payload_t* tx, output_type_t type, byte_t addr[], uint64_t amount);
 
 /**
  * @brief Add a signature unlocked block to the transaction

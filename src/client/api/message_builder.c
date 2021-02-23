@@ -177,7 +177,7 @@ static cJSON* tx_outputs_to_json(transaction_essence_t* es) {
     return NULL;
   }
 
-  sig_unlocked_outputs_ht *elm, *tmp;
+  outputs_ht *elm, *tmp;
   HASH_ITER(hh, es->outputs, elm, tmp) {
     cJSON* item = cJSON_CreateObject();
     if (!item) {
@@ -187,7 +187,7 @@ static cJSON* tx_outputs_to_json(transaction_essence_t* es) {
     }
 
     // add type
-    if (!cJSON_AddNumberToObject(item, JSON_KEY_TYPE, 0)) {
+    if (!cJSON_AddNumberToObject(item, JSON_KEY_TYPE, elm->output_type)) {
       printf("[%s:%d] add output type failed\n", __func__, __LINE__);
       cJSON_Delete(item);
       cJSON_Delete(output_arr);

@@ -18,7 +18,7 @@ target_sources(
           "utils/slip10.c"
           "utils/bech32.c"
           "models/inputs/utxo_input.c"
-          "models/outputs/sig_unlocked_single_output.c"
+          "models/outputs/outputs.c"
           "models/payloads/transaction.c"
           "models/payloads/indexation.c"
           "models/message.c"
@@ -29,7 +29,7 @@ target_sources(
          "utils/slip10.h"
          "utils/bech32.h"
          "models/inputs/utxo_input.h"
-         "models/outputs/sig_unlocked_single_output.h"
+         "models/outputs/outputs.h"
          "models/payloads/transaction.h"
          "models/payloads/indexation.h"
          "models/message.h")
