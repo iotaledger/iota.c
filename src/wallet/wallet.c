@@ -175,10 +175,10 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, uint32_
 
   uint64_t remainder = total_balance - balance;
   if (remainder > 0) {
-    ret = tx_payload_add_output(tx_payload, receiver, balance);
-    ret = tx_payload_add_output(tx_payload, send_addr, total_balance - balance);
+    ret = tx_payload_add_output(tx_payload, OUTPUT_SINGLE_OUTPUT, receiver, balance);
+    ret = tx_payload_add_output(tx_payload, OUTPUT_SINGLE_OUTPUT, send_addr, total_balance - balance);
   } else {
-    ret = tx_payload_add_output(tx_payload, receiver, balance);
+    ret = tx_payload_add_output(tx_payload, OUTPUT_SINGLE_OUTPUT, receiver, balance);
   }
 
   // with indexation?

@@ -71,8 +71,8 @@ void test_msg_tx() {
 
   TEST_ASSERT(tx_payload_add_input(tx, tx_id0, 0) == 0);
   TEST_ASSERT(tx_payload_add_input(tx, tx_id1, 1) == 0);
-  TEST_ASSERT(tx_payload_add_output(tx, addr0, 1000) == 0);
-  TEST_ASSERT(tx_payload_add_output(tx, addr1, 9999) == 0);
+  TEST_ASSERT(tx_payload_add_output(tx, OUTPUT_SINGLE_OUTPUT, addr0, 1000) == 0);
+  TEST_ASSERT(tx_payload_add_output(tx, OUTPUT_SINGLE_OUTPUT, addr1, 9999) == 0);
 
   ed25519_signature_t sig = {};
   TEST_ASSERT(tx_payload_add_sig_block(tx, &sig) == 0);
