@@ -1,0 +1,6 @@
+cmake/*
+docs/*
+examples/*
+tests/*
+tools/*
+library.json
