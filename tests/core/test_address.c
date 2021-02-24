@@ -9,6 +9,10 @@
 #include "core/address.h"
 #include "core/utils/byte_buffer.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_address_gen() {
   char const* const exp_iot_bech32 = "iot1qpg4tqh7vj9s7y9zk2smj8t4qgvse9um42l7apdkhw6syp5ju4w3v6ffg6n";
   char const* const exp_iota_bech32 = "iota1qpg4tqh7vj9s7y9zk2smj8t4qgvse9um42l7apdkhw6syp5ju4w3v79tf3l";

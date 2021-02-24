@@ -13,6 +13,10 @@
 
 #include "core/address.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_send_indexation() {
   iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
 

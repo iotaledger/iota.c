@@ -43,6 +43,10 @@ static test_bip32path_t bip32path_set[] = {
     {"m/44'/0H'", {0}, 1, -1},
 };
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_bip32path() {
   bip32_path_t path = {};
   size_t test_cases = sizeof(bip32path_set) / sizeof(test_bip32path_t);

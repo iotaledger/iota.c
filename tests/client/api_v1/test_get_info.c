@@ -9,6 +9,10 @@
 
 #include "client/api/v1/get_node_info.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_get_info() {
   iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
   res_node_info_t* info = res_node_info_new();

@@ -10,8 +10,8 @@ if (NOT __UTHASH_INCLUDED)
     ext_uthash
     PREFIX ${PROJECT_BINARY_DIR}/uthash
     DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/download
-    URL https://github.com/troydhanson/uthash/archive/8e67ced1d1c5bd8141c542a22630e6de78aa6b90.tar.gz
-    URL_HASH SHA256=192792686335eb9c55a917259e3bd553ea56a15cf3374a9d093bbf31f810dab4
+    URL https://github.com/troydhanson/uthash/archive/v2.2.0.tar.gz
+    URL_HASH SHA256=51e31e9e349c3466c7cea25077a9bb5bc722eff2a2915410763d3616099a4b34
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory

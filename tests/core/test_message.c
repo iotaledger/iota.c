@@ -8,6 +8,10 @@
 
 #include "core/models/message.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_message_with_tx() {
   byte_t tx_id0[TRANSACTION_ID_BYTES] = {};
   byte_t addr0[ED25519_ADDRESS_BYTES] = {0x51, 0x55, 0x82, 0xfe, 0x64, 0x8b, 0x0f, 0x10, 0xa2, 0xb2, 0xa1,

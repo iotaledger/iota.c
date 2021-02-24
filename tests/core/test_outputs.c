@@ -7,6 +7,10 @@
 #include "sodium.h"
 #include "unity/unity.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_utxo_outputs() {
   byte_t addr1[ED25519_ADDRESS_BYTES] = {};
   byte_t addr2[ED25519_ADDRESS_BYTES] = {};

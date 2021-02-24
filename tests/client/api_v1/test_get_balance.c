@@ -14,6 +14,10 @@
 char const* const addr_hex = "7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006";
 char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_get_balance() {
   iota_client_conf_t conf = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
 

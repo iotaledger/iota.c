@@ -8,6 +8,10 @@
 
 #include "client/api/v1/get_outputs_from_address.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_deser_outputs() {
   // empty output ids
   char const* const data_empty =
