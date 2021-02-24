@@ -7,6 +7,10 @@
 
 #include "core/utils/allocator.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_allocator() {
   char *str = "Hello";
   char *m = malloc(strlen(str) + 1);

@@ -10,6 +10,10 @@
 #include "crypto/iota_crypto.h"
 #include "unity/unity.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 // BLAKE2 hash function
 // test vectors: https://github.com/BLAKE2/BLAKE2/tree/master/testvectors
 void test_blake2b_hash() {

@@ -6,6 +6,10 @@
 #include "core/utils/iota_str.h"
 #include "unity/unity.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_iota_str() {
   char* c_str1 = "hello";
   // test new

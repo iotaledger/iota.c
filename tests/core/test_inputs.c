@@ -16,6 +16,10 @@ static byte_t tx_id2[TRANSACTION_ID_BYTES] = {126, 127, 95,  249, 151, 44,  243,
                                               190, 54,  49,  73,  171, 165, 88,  139, 221, 25, 199,
                                               90,  172, 252, 142, 91,  179, 113, 2,   177, 58};
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_utxo_input() {
   utxo_input_ht* inputs = utxo_inputs_new();
   TEST_ASSERT_NULL(inputs);

@@ -42,6 +42,10 @@ static int my_strncasecmp(const char *s1, const char *s2, size_t n) {
   return 0;
 }
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_bech32_decode_encode() {
   for (size_t i = 0; i < sizeof(valid_checksum) / sizeof(valid_checksum[0]); ++i) {
     uint8_t data[82] = {};

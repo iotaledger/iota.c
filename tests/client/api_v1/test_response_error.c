@@ -6,6 +6,10 @@
 
 #include "client/api/v1/response_error.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_deser_res_err() {
   char const* const json_err =
       "{\"error\":{\"code\":\"service_unavailable\",\"message\":\"unable to handle the request\"}}";

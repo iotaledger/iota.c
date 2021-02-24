@@ -8,6 +8,10 @@
 
 #include "core/models/payloads/indexation.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_indexation() {
   char const* const exp_index = "HELLO";
   byte_t exp_data[12] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, 0x21};

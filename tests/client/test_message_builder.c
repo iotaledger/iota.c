@@ -6,6 +6,10 @@
 
 #include "client/api/message_builder.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_msg_indexation() {
   char const* const exp_str =
       "{\"networkId\":null,\"parentMessageIds\":[\"0000000000000000000000000000000000000000000000000000000000000000\","

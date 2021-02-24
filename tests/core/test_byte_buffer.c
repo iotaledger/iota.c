@@ -7,6 +7,10 @@
 #include "core/utils/byte_buffer.h"
 #include "unity/unity.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_byte_buf() {
   // create a byte buffer
   byte_buf_t *buf = byte_buf_new();

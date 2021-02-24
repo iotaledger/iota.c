@@ -8,6 +8,10 @@
 #include "client/network/http.h"
 #include "unity/unity.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_http() {
   static char* str = "Hello!!";
   http_client_init();
@@ -18,7 +22,7 @@ void test_http() {
   byte_buf_t* req = byte_buf_new_with_data((byte_t*)str, strlen(str) + 1);
   conf.url = "https://httpbin.org/post";
   long st = 0;
-  TEST_ASSERT(http_client_post(&conf, req, response, &st) == 0)
+  TEST_ASSERT(http_client_post(&conf, req, response, &st) == 0);
   TEST_ASSERT(st == 200);
   TEST_ASSERT_NOT_NULL(response->data);
   // byte_buf2str(response);  // convert data to string for printf debugging.

@@ -7,6 +7,10 @@
 #include "client/api/v1/find_message.h"
 #include "test_config.h"
 
+void setUp(void) {}
+
+void tearDown(void) {}
+
 void test_find_msg_by_index() {
   iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
 
