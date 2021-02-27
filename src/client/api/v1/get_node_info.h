@@ -24,7 +24,7 @@ typedef struct {
   char bech32hrp[16];   ///< bech32 HRP, `atoi` for testnet and `iota` for mainnet
   uint64_t min_pow_score;
   uint64_t latest_milestone_index;
-  uint64_t solid_milestone_index;
+  uint64_t confirmed_milestone_index;
   uint64_t pruning_milestone_index;
   UT_array *features;
   bool is_healthy;

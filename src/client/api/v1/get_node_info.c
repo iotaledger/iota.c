@@ -185,9 +185,9 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
       goto end;
     }
 
-    // gets solidMilestoneIndex
-    if ((ret = json_get_uint64(data_obj, JSON_KEY_SM_IDX, &res->u.output_node_info->solid_milestone_index)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_SM_IDX);
+    // gets confirmedMilestoneIndex
+    if ((ret = json_get_uint64(data_obj, JSON_KEY_CM_IDX, &res->u.output_node_info->confirmed_milestone_index)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_CM_IDX);
       goto end;
     }
 
