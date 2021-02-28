@@ -17,8 +17,8 @@ extern "C" {
 /**
  * @brief Returns the health of the node.
  *
- * A node considers itself healthy if its solid milestone is at most two delta away from the latest known milestone, has
- * at least one ongoing gossip stream and the latest known milestone is newer than 5 minutes.
+ * A node considers itself healthy if its current confirmed milestone is at most two delta away from the latest known
+ * milestone, has at least one ongoing gossip stream and the latest known milestone is newer than 5 minutes.
  *
  * @param[in] conf The endpoint configuration
  * @param[out] health Is node health?

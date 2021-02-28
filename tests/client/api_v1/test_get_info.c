@@ -34,7 +34,7 @@ void test_get_info() {
 void test_deser_node_info() {
   char const* const json_info =
       "{\"data\":{\"name\":\"HORNET\",\"version\":\"0.6.0-alpha\",\"isHealthy\":true,\"networkId\":\"testnet5\","
-      "\"bech32HRP\":\"atoi\",\"minPowScore\":4000,\"latestMilestoneIndex\":22463,\"solidMilestoneIndex\":22463,"
+      "\"bech32HRP\":\"atoi\",\"minPowScore\":4000,\"latestMilestoneIndex\":22463,\"confirmedMilestoneIndex\":22463,"
       "\"pruningIndex\":0,\"features\":[\"PoW\"]}}";
 
   res_node_info_t* info = res_node_info_new();
@@ -51,7 +51,7 @@ void test_deser_node_info() {
   TEST_ASSERT_EQUAL_STRING("atoi", info->u.output_node_info->bech32hrp);
   TEST_ASSERT_EQUAL_UINT64(4000, info->u.output_node_info->min_pow_score);
   TEST_ASSERT_EQUAL_UINT64(22463, info->u.output_node_info->latest_milestone_index);
-  TEST_ASSERT_EQUAL_UINT64(22463, info->u.output_node_info->solid_milestone_index);
+  TEST_ASSERT_EQUAL_UINT64(22463, info->u.output_node_info->confirmed_milestone_index);
   TEST_ASSERT_EQUAL_UINT64(0, info->u.output_node_info->pruning_milestone_index);
 
   TEST_ASSERT_EQUAL_STRING("PoW", get_node_features_at(info, 0));
