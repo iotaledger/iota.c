@@ -1,5 +1,7 @@
 # Crypto API Reference
 
+The Crypto API provides an abstraction layer with the cryptography implementation.
+
 ## ED25519 Keypair
 
 ```{eval-rst}
@@ -40,5 +42,5 @@
 ## Blake2b Sum
 
 ```{eval-rst}
-.. doxygenfunction::iota_blake2b_sum
+.. doxygenfunction:: iota_blake2b_sum
 ```

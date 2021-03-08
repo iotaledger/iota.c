@@ -21,7 +21,7 @@ if os.environ.get('READTHEDOCS', None) == 'True':
 
 project = 'IOTA C Client'
 copyright = '2021, IOTA Stiftung'
-author = 'IOTA Stiftung'
+author = 'Sam Chen'
 
 master_doc = "index"
 highlight_language = 'c'
@@ -34,6 +34,9 @@ language = "en"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['myst_parser', 'breathe']
+
+# Auto-generated header anchors
+myst_heading_anchors = 2
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

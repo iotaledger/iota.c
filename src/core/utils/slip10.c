@@ -1,6 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+// Reference: https://github.com/satoshilabs/slips/blob/master/slip-0010.md
+
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <stdio.h>

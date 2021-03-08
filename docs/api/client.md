@@ -1,5 +1,7 @@
 # Client API Reference
 
+The Client API is low level client implementation based on [RFC: REST Node API](https://github.com/iotaledger/protocol-rfcs/pull/27), it enables communications with the Node on the Tangle.
+
 ## [Endpoint Setting](https://github.com/iotaledger/iota.c/blob/dev/src/client/client_service.h)
 
 ```{eval-rst}
@@ -167,12 +169,5 @@
 
 ```{eval-rst}
 .. doxygenstruct:: res_send_message_t
-  :members:
-```
-
-### Core Message object
-
-```{eval-rst}
-.. doxygenstruct:: core_message_t
   :members:
 ```

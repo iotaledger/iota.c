@@ -28,10 +28,14 @@ extern "C" {
 #define IOTA_ACCOUNT_PATH_MAX 128
 static char const* const iota_bip44_prefix = "m/44'/4218'";
 
+/**
+ * @brief IOTA wallet setting
+ *
+ */
 typedef struct {
-  byte_t seed[IOTA_SEED_BYTES];
-  char account[IOTA_ACCOUNT_PATH_MAX];  // store Bip44 Paths: m/44'/4128'/Account'/Change'
-  iota_client_conf_t endpoint;
+  byte_t seed[IOTA_SEED_BYTES];         ///< the seed of this wallet
+  char account[IOTA_ACCOUNT_PATH_MAX];  ///< store Bip44 Paths: m/44'/4128'/Account'/Change'
+  iota_client_conf_t endpoint;          ///< IOTA node endpoint
 } iota_wallet_t;
 
 /**

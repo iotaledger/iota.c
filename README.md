@@ -20,10 +20,9 @@
 <p align="center">
   <a href="#about">About</a> ◈
   <a href="#prerequisites">Prerequisites</a> ◈
-  <a href="#installation">Installation</a> ◈
-  <a href="#getting-started">Getting started</a> ◈
-  <a href="#api-reference">API reference</a> ◈
-  <a href="#examples">Examples</a> ◈
+  <a href="#building-iota-c-client-library">Building Client Library</a> ◈
+  <a href="#building-documentation">Building Document</a> ◈
+  <a href="#visual-studio-code-integration">Visual Studio Code Integration</a> ◈
   <a href="#supporting-the-project">Supporting the project</a> ◈
   <a href="#joining-the-discussion">Joining the discussion</a> 
 </p>
@@ -32,15 +31,16 @@
 
 ## About
 
-WIP for Chrysalis
-
 This is the **official** C client library, which allows you to do the following:
-* Create transactions
-* Read transactions
+* Create messages
+* Read messages
 * Sign transactions
 * Generate addresses
+* Implement a wallet application
 
-This is beta software, so there may be performance and stability issues.
+The documentation is host on [IOTA C Client Documentation](https://iota-c-client.readthedocs.io/en/latest/index.html)
+
+This is in highly development, so there may be performance and stability issues.
 Please report any issues in our [issue tracker](https://github.com/iotaledger/iota.c/issues/new/choose).
 
 ## Prerequisites
@@ -79,11 +79,35 @@ cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DIOTA_TESTS:BOOL=TRUE -DC
 make -j8 && make test
 ```
 
+Compiling and testing library with default compiler
+
+```shell
+git clone https://github.com/iotaledger/iota.c.git
+cd iota.c
+mkdir build && cd build
+cmake -DIOTA_TESTS:BOOL=TRUE -DCMAKE_INSTALL_PREFIX=$PWD ..
+make && make test
+```
+
 The default build type is Debug mode with debug symbols, for Release mode you can add `-DCMAKE_BUILD_TYPE=Release` during the CMake configuration stage.
 
-## Getting Started
+## Building Documentation
 
-TODO
+The documentation is automatically generated thought Doxygen and Sphinx tools.
+
+This steps are tsted on Ubuntu, for different platform please refer to installation guides:
+* [Install sphinx](https://www.sphinx-doc.org/en/master/usage/installation.html)
+* [Install Doxygen](https://www.doxygen.nl/manual/install.html)
+
+```shell
+sudo apt install doxygen python3-sphinx python3-pip
+git clone https://github.com/iotaledger/iota.c.git
+cd iota.c/docs
+pip3 install -r requirements.txt
+doxygen Doxyfile && make html
+```
+
+The documentation will locate at `docs/_build/html/index.html` in the project root directory.
 
 ## Visual Studio Code Integration
 

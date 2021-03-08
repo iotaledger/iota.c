@@ -14,15 +14,24 @@
 // Serialized bytes = input type(uint8_t) + transaction id(32bytes) + index(uint16_t)
 #define UTXO_INPUT_SERIALIZED_BYTES (1 + TRANSACTION_ID_BYTES + 2)
 
+/**
+ * @brief ED25519 keypair structure
+ *
+ */
 typedef struct {
-  byte_t pub_key[ED_PUBLIC_KEY_BYTES];  // The public key of the Ed25519 keypair which is used to verify the signature.
-  byte_t priv[ED_PRIVATE_KEY_BYTES];    // The private key for signing the serialized Unsigned Transaction.
+  byte_t
+      pub_key[ED_PUBLIC_KEY_BYTES];   ///< The public key of the Ed25519 keypair which is used to verify the signature.
+  byte_t priv[ED_PRIVATE_KEY_BYTES];  ///< The private key for signing the serialized Unsigned Transaction.
 } ed25519_keypair_t;
 
+/**
+ * @brief UTXO input structure
+ *
+ */
 typedef struct {
-  byte_t tx_id[TRANSACTION_ID_BYTES];  // The transaction reference from which the UTXO comes from.
-  uint16_t output_index;               // The index of the output on the referenced transaction to consume 0<= x < 127.
-  ed25519_keypair_t keypair;
+  byte_t tx_id[TRANSACTION_ID_BYTES];  ///< The transaction reference from which the UTXO comes from.
+  uint16_t output_index;      ///< The index of the output on the referenced transaction to consume 0<= x < 127.
+  ed25519_keypair_t keypair;  ///< ed25519 keypair of this input
   UT_hash_handle hh;
 } utxo_input_ht;
 
