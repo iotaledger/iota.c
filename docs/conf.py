@@ -35,6 +35,9 @@ language = "en"
 # ones.
 extensions = ['myst_parser', 'breathe']
 
+# Auto-generated header anchors
+myst_heading_anchors = 2
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
