@@ -13,7 +13,7 @@
 
 int main(int argc, char *argv[]) {
   int err = 0;
-  iota_client_conf_t ctx = {.url = "https://api.lb-0.testnet.chrysalis2.com/", .port = 0};
+  iota_client_conf_t ctx = {.url = "https://api.lb-0.testnet.chrysalis2.com/", .port = 443};
   res_send_message_t res = {};
 
   // send out index
