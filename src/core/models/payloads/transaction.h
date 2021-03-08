@@ -16,9 +16,10 @@
 static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
 
 typedef struct {
-  signature_t type;                      // Set to value 0 to denote an Ed25519 Signature
-  byte_t pub_key[ED_PUBLIC_KEY_BYTES];   // The public key of the Ed25519 keypair which is used to verify the signature.
-  byte_t signature[ED_SIGNATURE_BYTES];  // The signature signing the serialized Unsigned Transaction.
+  signature_t type;  ///< Set to value 0 to denote an Ed25519 Signature
+  byte_t
+      pub_key[ED_PUBLIC_KEY_BYTES];  ///< The public key of the Ed25519 keypair which is used to verify the signature.
+  byte_t signature[ED_SIGNATURE_BYTES];  ///< The signature signing the serialized Unsigned Transaction.
 } ed25519_signature_t;
 
 /**
@@ -26,11 +27,11 @@ typedef struct {
  *
  */
 typedef struct unlock_blocks {
-  unlock_block_t type;            // 0 to denote a Signature Unlock Block, 1 for a Reference Unlock Block.
-  ed25519_signature_t signature;  // For signature unlock block, public key and signature for a specific input.
-  uint16_t reference;             // For reverence unlock block, the index of a previous unlock block.
-  struct unlock_blocks* prev;
-  struct unlock_blocks* next;
+  unlock_block_t type;            ///< 0 to denote a Signature Unlock Block, 1 for a Reference Unlock Block.
+  ed25519_signature_t signature;  ///< For signature unlock block, public key and signature for a specific input.
+  uint16_t reference;             ///< For reverence unlock block, the index of a previous unlock block.
+  struct unlock_blocks* prev;     ///< point to previous block
+  struct unlock_blocks* next;     ///< point to next block
 } tx_unlock_blocks_t;
 
 /**
@@ -42,11 +43,11 @@ typedef struct unlock_blocks {
  *
  */
 typedef struct {
-  uint8_t tx_type;        // Set to value 0 to denote a Transaction Essence.
-  uint32_t payload_len;   // The length in bytes of the optional payload.
-  utxo_input_ht* inputs;  // any of UTXO input
-  outputs_ht* outputs;    // any of UTXO output
-  void* payload;          // an indexation payload at this moment
+  uint8_t tx_type;        ///< Set to value 0 to denote a Transaction Essence.
+  uint32_t payload_len;   ///< The length in bytes of the optional payload.
+  utxo_input_ht* inputs;  ///< any of UTXO input
+  outputs_ht* outputs;    ///< any of UTXO output
+  void* payload;          ///< an indexation payload at this moment
 } transaction_essence_t;
 
 /**
@@ -57,10 +58,10 @@ typedef struct {
  *
  */
 typedef struct {
-  payload_t type;                     // Set to value 0 to denote a Transaction payload.
-  transaction_essence_t* essence;     // Describes the essence data making up a transaction by defining its inputs and
-                                      // outputs and an optional payload.
-  tx_unlock_blocks_t* unlock_blocks;  // Defines an unlock block containing signature(s) unlocking input(s).
+  payload_t type;                     ///< Set to value 0 to denote a Transaction payload.
+  transaction_essence_t* essence;     ///< Describes the essence data making up a transaction by defining its inputs and
+                                      ///< outputs and an optional payload.
+  tx_unlock_blocks_t* unlock_blocks;  ///< Defines an unlock block containing signature(s) unlocking input(s).
 } transaction_payload_t;
 
 #ifdef __cplusplus

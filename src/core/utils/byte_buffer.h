@@ -9,10 +9,14 @@
 
 #include "core/types.h"
 
+/**
+ * @brief byte buffer object
+ *
+ */
 typedef struct {
-  size_t len;
-  size_t cap;
-  byte_t* data;
+  size_t len;    ///< the length of data
+  size_t cap;    ///< the capacity of this object
+  byte_t* data;  ///< a pointer to the data
 } byte_buf_t;
 
 #ifdef __cplusplus

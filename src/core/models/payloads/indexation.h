@@ -11,10 +11,14 @@
 
 #define MAX_INDEXCATION_INDEX_BYTES 64
 
-// the payload type of indexation is 2
+/**
+ * @brief Indexation data structure
+ *
+ * The payload type of indexation is 2
+ */
 typedef struct {
-  byte_buf_t *index;  // The index key of the message
-  byte_buf_t *data;   // Data we are attaching
+  byte_buf_t *index;  ///< The index key of the message
+  byte_buf_t *data;   ///< Data we are attaching
 } indexation_t;
 
 #ifdef __cplusplus

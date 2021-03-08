@@ -21,7 +21,7 @@ if os.environ.get('READTHEDOCS', None) == 'True':
 
 project = 'IOTA C Client'
 copyright = '2021, IOTA Stiftung'
-author = 'IOTA Stiftung'
+author = 'Sam Chen'
 
 master_doc = "index"
 highlight_language = 'c'
