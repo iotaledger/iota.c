@@ -20,10 +20,9 @@
 <p align="center">
   <a href="#about">About</a> ◈
   <a href="#prerequisites">Prerequisites</a> ◈
-  <a href="#installation">Installation</a> ◈
-  <a href="#getting-started">Getting started</a> ◈
-  <a href="#api-reference">API reference</a> ◈
-  <a href="#examples">Examples</a> ◈
+  <a href="#building-iota-c-client-library">Building Client Library</a> ◈
+  <a href="#building-documentation">Building Document</a> ◈
+  <a href="#visual-studio-code-integration">Visual Studio Code Integration</a> ◈
   <a href="#supporting-the-project">Supporting the project</a> ◈
   <a href="#joining-the-discussion">Joining the discussion</a> 
 </p>
