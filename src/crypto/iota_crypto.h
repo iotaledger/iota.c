@@ -4,7 +4,8 @@
 #ifndef __CRYPTO_IOTA_H__
 #define __CRYPTO_IOTA_H__
 
-#include "sodium.h"
+#include <stdint.h>
+#include <stdlib.h>
 
 #define ED_SEED_BYTES 32         // ed25519 seed bytes
 #define ED_PUBLIC_KEY_BYTES 32   // ed2519 public key bytes
