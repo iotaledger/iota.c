@@ -2,7 +2,7 @@
 
 root=$(git rev-parse --show-toplevel)
 status=0
-for file in $(find "${@}" -type f ! -path "*/build/*" | grep -E "\.(c|cc|cpp|h|hh|hpp)\$")
+for file in $(find "${@}" -type f -path "*/src/*" -type f -path "*/tets/*" -type f -path "*/examples/*" | grep -E "\.(c|cc|cpp|h|hh|hpp)\$")
 do
   filepath="$root/$file"
   output=$(diff <(cat $filepath) <(clang-format -style=file -fallback-style=none $filepath))

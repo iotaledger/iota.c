@@ -1,6 +1,6 @@
 #!/bin/bash
 project_root=$(git rev-parse --show-toplevel)
-for file in $(find ${project_root} ! -path "*/build/*" | grep -E "\.(c|cc|cpp|h|hh|hpp|m|mm)\$")
+for file in $(find ${project_root} -type f -path "*/src/*" -type f -path "*/tets/*" -type f -path "*/examples/*" | grep -E "\.(c|cc|cpp|h|hh|hpp|m|mm)\$")
 do
   clang-format -style=file -fallback-style=none -i ${file}
 done
