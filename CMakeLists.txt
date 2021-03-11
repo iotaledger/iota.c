@@ -16,6 +16,14 @@ option(IOTA_TESTS "Enable IOTA Client library test cases" ON)
 option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
 option(IOTA_EXAMPLES "Build example application" ON)
+##### Notice #####
+# USE_REF_CRYPTO only support GCC compiler and Openssl is required.
+# ed25519-donna has a compiling issue with clang 11
+# ed25519-donna-64bit-x86.h:14:3: error: inline assembly requires more registers than available
+#                  "movq %0, %%rax                  ;\n"
+#                  ^
+option(USE_REF_CRYPTO "Use ed25519_donna, blake2, openssl as crypto implementation" OFF)
+
 
 # fetch external libs
 include(ExternalProject)
@@ -23,8 +31,14 @@ include(ExternalProject)
 include(cmake/unity.cmake)
 include(cmake/cjson.cmake)
 include(cmake/uthash.cmake)
-include(cmake/sodium.cmake)
-include(cmake/base58.cmake)
+if(USE_REF_CRYPTO)
+  find_package(OpenSSL REQUIRED)
+  include(cmake/blake2.cmake)
+  include(cmake/ed25519_donna.cmake)
+else()
+  include(cmake/sodium.cmake)
+endif()
+# include(cmake/base58.cmake)
 
 if(ENABLED_JEMALLOC)
   include(cmake/jemalloc.cmake)
