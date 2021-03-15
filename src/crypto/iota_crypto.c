@@ -3,7 +3,12 @@
 
 #ifdef CRYPTO_USE_SODIUM
 #include <sodium.h>
-#else
+#elif __MBED__  // mbed os with mbedtls
+#include <string.h>
+#include "blake2.h"
+#include "ed25519.h"
+#include "mbedtls/md.h"
+#else  // linux with openssl
 #include <openssl/hmac.h>
 #include <string.h>
 #include <sys/random.h>
@@ -16,6 +21,12 @@
 void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
 #if CRYPTO_USE_SODIUM
   randombytes_buf((void *const)buf, len);
+#elif __MBED__
+  // TODO use (T)RNG or mbed PSA
+  srand((unsigned int)time(NULL));
+  for (size_t l = 0; l < len; l++) {
+    buf[l] = (uint8_t)rand();
+  }
 #else
   ssize_t ret = -1;
   while (ret == -1) {
@@ -50,6 +61,13 @@ int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, ui
 int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]) {
 #if CRYPTO_USE_SODIUM
   return crypto_auth_hmacsha256(auth, msg, msg_len, secret_key);
+#elif __MBED__
+  int ret = -1;
+  const mbedtls_md_info_t *md_info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA256);
+  if (md_info) {
+    ret = mbedtls_md_hmac(md_info, secret_key, 32, msg, msg_len, auth);
+  }
+  return ret;
 #else
   uint8_t *hash = HMAC(EVP_sha256(), secret_key, 32, (const unsigned char *)msg, msg_len, NULL, NULL);
   memcpy(auth, hash, 32);
@@ -60,6 +78,14 @@ int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg
 int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]) {
 #if CRYPTO_USE_SODIUM
   return crypto_auth_hmacsha512(auth, msg, msg_len, secret_key);
+#elif __MBED__
+  int ret = -1;
+  const mbedtls_md_info_t *md_info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA512);
+  if (md_info) {
+    ret = mbedtls_md_hmac(md_info, secret_key, 32, msg, msg_len, auth);
+  }
+  return ret;
+  return 0;
 #else
   uint8_t *hash = HMAC(EVP_sha512(), secret_key, 32, (const unsigned char *)msg, msg_len, NULL, NULL);
   memcpy(auth, hash, 64);

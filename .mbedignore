@@ -1,0 +1,8 @@
+cmake/*
+docs/*
+examples/*
+tests/*
+tools/*
+src/client/*
+src/wallet/*
+library.json
