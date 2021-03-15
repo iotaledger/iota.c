@@ -6,6 +6,7 @@
 #elif __MBED__  // mbed os with mbedtls
 #include <string.h>
 #include "blake2.h"
+#include "ed25519.h"
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/md.h"
 #else  // linux with openssl
@@ -39,8 +40,6 @@ void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
 void iota_crypto_keypair(uint8_t const seed[], iota_keypair_t *keypair) {
 #if CRYPTO_USE_SODIUM
   crypto_sign_seed_keypair(keypair->pub, keypair->priv, seed);
-#elif __MBED__
-  // TODO
 #else
   ed25519_public_key pub;
   ed25519_publickey(seed, pub);
@@ -54,9 +53,6 @@ int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, ui
 #if CRYPTO_USE_SODIUM
   unsigned long long sign_len = ED_SIGNATURE_BYTES;
   return crypto_sign_ed25519_detached(signature, &sign_len, msg, msg_len, priv_key);
-#elif __MBED__
-  // TODO
-  return 0;
 #else
   ed25519_sign(msg, msg_len, priv_key, priv_key + 32, signature);
   return 0;
