@@ -7,7 +7,6 @@
 #include <string.h>
 #include "blake2.h"
 #include "ed25519.h"
-#include "mbedtls/ctr_drbg.h"
 #include "mbedtls/md.h"
 #else  // linux with openssl
 #include <openssl/hmac.h>
@@ -97,8 +96,6 @@ int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg
 int iota_blake2b_sum(uint8_t const msg[], size_t msg_len, uint8_t out[], size_t out_len) {
 #if CRYPTO_USE_SODIUM
   return crypto_generichash_blake2b(out, out_len, msg, msg_len, NULL, 0);
-#elif __MBED__
-  return blake2b(out, out_len, msg, msg_len, NULL, 0);
 #else
   return blake2b(out, out_len, msg, msg_len, NULL, 0);
 #endif
