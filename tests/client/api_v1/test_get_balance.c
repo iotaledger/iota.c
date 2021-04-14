@@ -33,10 +33,6 @@ void test_get_balance() {
   // test invalid address
   TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, addr_hex_invalid, res));
   TEST_ASSERT(res->is_error);
-  TEST_ASSERT_EQUAL_STRING(
-      "bad request, error: invalid address: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx, error: "
-      "encoding/hex: invalid byte: U+0078 'x': invalid parameter",
-      res->u.error->msg);
 
   // reset res
   res_balance_free(res);

@@ -57,12 +57,6 @@ int main(int argc, char *argv[]) {
     goto done;
   }
 
-  // convert receiver to binary
-  if ((err = address_from_bech32("atoi", receiver, recv))) {
-    printf("convert receiver address failed\n");
-    goto done;
-  }
-
   if ((wallet = wallet_create(seed, account_path)) == NULL) {
     printf("create wallet failed\n");
   }
@@ -81,7 +75,21 @@ int main(int argc, char *argv[]) {
     printf("send indexation with address failed\n");
   }
 
+  // check balance at address 0
+  uint64_t value = 0;
+  if ((err = wallet_balance_by_index(wallet, 0, &value))) {
+    printf("wallet get balance failed\n");
+    goto done;
+  }
+  printf("balance: %" PRIu64 "\n", value);
+
   // send out 1Mi to recever address
+  // convert receiver to binary
+  if ((err = address_from_bech32("atoi", receiver, recv))) {
+    printf("convert receiver address failed\n");
+    goto done;
+  }
+
   // wallet_send take ed25519 address without the version field.
   if ((err = wallet_send(wallet, 0, recv + 1, 1 * Mi, "iota.c\xF0\x9F\x80\x84", (byte_t *)my_data, strlen(my_data)))) {
     printf("send tx to %s failed\n", receiver);
