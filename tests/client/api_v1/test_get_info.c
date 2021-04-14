@@ -34,7 +34,7 @@ void test_get_info() {
 void test_deser_node_info() {
   char const* const json_info =
       "{\"data\":{\"name\":\"HORNET\",\"version\":\"0.6.0-alpha\",\"isHealthy\":true,\"networkId\":\"testnet5\","
-      "\"bech32HRP\":\"atoi\",\"minPowScore\":4000,\"latestMilestoneIndex\":22463,\"confirmedMilestoneIndex\":22463,"
+      "\"bech32HRP\":\"atoi\",\"minPoWScore\":4000,\"latestMilestoneIndex\":22463,\"confirmedMilestoneIndex\":22463,"
       "\"pruningIndex\":0,\"features\":[\"PoW\"]}}";
 
   res_node_info_t* info = res_node_info_new();
