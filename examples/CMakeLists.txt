@@ -14,3 +14,4 @@ endfunction(add_iota_example)
 
 add_iota_example(wallet_send_tx "wallet_send_tx.c")
 add_iota_example(send_index "send_indexation_msg.c")
+add_iota_example(wallet_get_balance "wallet_get_balance.c")
