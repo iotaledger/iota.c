@@ -44,8 +44,8 @@ void test_get_balance() {
   TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, addr_hex, res));
   // validate address type
   TEST_ASSERT(ADDRESS_VER_ED25519 == res->u.output_balance->address_type);
-  // validate address string
-  TEST_ASSERT_EQUAL_STRING(addr_hex, res->u.output_balance->address);
+  // validate address data
+  TEST_ASSERT_EQUAL_MEMORY(addr_hex, res->u.output_balance->address, IOTA_ADDRESS_HEX_BYTES);
 
   res_balance_free(res);
 }

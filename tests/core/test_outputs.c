@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include "core/models/outputs/outputs.h"
-#include "sodium.h"
 #include "unity/unity.h"
 
 void setUp(void) {}

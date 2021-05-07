@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include "core/models/inputs/utxo_input.h"
-#include "sodium.h"
 #include "unity/unity.h"
 
 static byte_t tx_id0[TRANSACTION_ID_BYTES] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

@@ -6,9 +6,8 @@ on:
     branches: [ dev ]
 
 jobs:
-  test:
+  ninja_clang:
     runs-on: ubuntu-20.04
-    if: "! contains(toJSON(github.event.commits.*.message), '[skip-ci]')"
 
     steps:
     - uses: actions/checkout@v2
@@ -34,7 +33,33 @@ jobs:
 
     - name: Release build
       run: |
-        rm -rf build
+        rm -rf build && sync
         mkdir build && cd build
         cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON ..
         ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
+
+  make_gcc:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: install requirements
+      run: |
+        sudo apt update
+        sudo apt install -y libcurl4-openssl-dev clang-format build-essential
+
+    - name: Debug build
+      run: |
+        cmake --version
+        gcc --version
+        mkdir build && cd build
+        cmake -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON -DUSE_REF_CRYPTO=ON ..
+        make -j8 && make test
+
+    - name: Release build
+      run: |
+        rm -rf build && sync
+        mkdir build && cd build
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DUSE_REF_CRYPTO=ON ..
+        make -j8 && make test
