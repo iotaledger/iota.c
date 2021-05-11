@@ -48,5 +48,11 @@ static char const* const JSON_KEY_TYPE = "type";
 static char const* const JSON_KEY_UNLOCK_BLOCKS = "unlockBlocks";
 static char const* const JSON_KEY_VER = "version";
 static char const* const JSON_KEY_BECH32HRP = "bech32HRP";
+static char const* const JSON_KEY_IS_SOLID = "isSolid";
+static char const* const JSON_KEY_REF_MILESTONE_IDX = "referencedByMilestoneIndex";
+static char const* const JSON_KEY_MILESTONE_IDX = "milestoneIndex";
+static char const* const JSON_KEY_LEDGER_ST = "ledgerInclusionState";
+static char const* const JSON_KEY_SHOULD_PROMOTE = "shouldPromote";
+static char const* const JSON_KEY_SHOULD_REATTACH = "shouldReattach";
 
 #endif

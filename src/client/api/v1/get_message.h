@@ -10,8 +10,7 @@
 #include "client/api/message.h"
 #include "client/api/v1/response_error.h"
 #include "client/client_service.h"
-
-#define IOTA_MESSAGE_ID_HEX_BYTES 64
+#include "core/models/message.h"
 
 /**
  * @brief The response of get message
