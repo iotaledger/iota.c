@@ -131,6 +131,16 @@ json_error_t json_get_uint32(cJSON const* const obj, char const key[], uint32_t*
  */
 json_error_t json_get_uint64(cJSON const* const obj, char const key[], uint64_t* const num);
 
+/**
+ * @brief Gets a float from a JSON object
+ *
+ * @param obj A JSON object
+ * @param key The key of a JSON element
+ * @param f The output float
+ * @return json_error_t
+ */
+json_error_t json_get_float(cJSON const* const obj, char const key[], float* const f);
+
 #ifdef __cplusplus
 }
 #endif

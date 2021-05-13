@@ -54,5 +54,9 @@ static char const* const JSON_KEY_MILESTONE_IDX = "milestoneIndex";
 static char const* const JSON_KEY_LEDGER_ST = "ledgerInclusionState";
 static char const* const JSON_KEY_SHOULD_PROMOTE = "shouldPromote";
 static char const* const JSON_KEY_SHOULD_REATTACH = "shouldReattach";
+static char const* const JSON_KEY_MPS = "messagesPerSecond";
+static char const* const JSON_KEY_REF_MPS = "referencedMessagesPerSecond";
+static char const* const JSON_KEY_REF_RATE = "referencedRate";
+static char const* const JSON_KEY_LMT = "latestMilestoneTimestamp";
 
 #endif

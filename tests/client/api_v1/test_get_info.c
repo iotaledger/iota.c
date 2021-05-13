@@ -18,24 +18,33 @@ void test_get_info() {
   res_node_info_t* info = res_node_info_new();
   TEST_ASSERT_NOT_NULL(info);
 
-  // test null cases
-  TEST_ASSERT_EQUAL_INT(-1, get_node_info(NULL, NULL));
-  TEST_ASSERT_EQUAL_INT(-1, get_node_info(&ctx, NULL));
-  TEST_ASSERT_EQUAL_INT(-1, get_node_info(NULL, info));
-
   int ret = get_node_info(&ctx, info);
   TEST_ASSERT_EQUAL_INT(0, ret);
-  TEST_ASSERT_FALSE(info->is_error);
-  TEST_ASSERT_EQUAL_STRING("HORNET", info->u.output_node_info->name);
+  if (info->is_error == false) {
+    TEST_ASSERT(strlen(info->u.output_node_info->name) > 0);
+    TEST_ASSERT(strlen(info->u.output_node_info->version) > 0);
+    TEST_ASSERT(strlen(info->u.output_node_info->bech32hrp) > 0);
+    TEST_ASSERT(info->u.output_node_info->min_pow_score > 0);
+    TEST_ASSERT(info->u.output_node_info->msg_pre_sec >= 0.0);
+    TEST_ASSERT(info->u.output_node_info->referenced_msg_pre_sec >= 0.0);
+    TEST_ASSERT(info->u.output_node_info->referenced_rate >= 0.0);
+    TEST_ASSERT(info->u.output_node_info->latest_milestone_timestamp > 390326400);
+    TEST_ASSERT(info->u.output_node_info->confirmed_milestone_index > 0);
+    TEST_ASSERT(info->u.output_node_info->pruning_milestone_index >= 0);
+  } else {
+    TEST_ASSERT(strlen(info->u.error->msg) > 0);
+    printf("Err: %s\n", info->u.error->msg);
+  }
 
   res_node_info_free(info);
 }
 
 void test_deser_node_info() {
   char const* const json_info =
-      "{\"data\":{\"name\":\"HORNET\",\"version\":\"0.6.0-alpha\",\"isHealthy\":true,\"networkId\":\"testnet5\","
-      "\"bech32HRP\":\"atoi\",\"minPoWScore\":4000,\"latestMilestoneIndex\":22463,\"confirmedMilestoneIndex\":22463,"
-      "\"pruningIndex\":0,\"features\":[\"PoW\"]}}";
+      "{\"data\":{\"name\":\"HORNET\",\"version\":\"1.0.0-alpha\",\"isHealthy\":true,\"networkId\":\"testnet7\","
+      "\"bech32HRP\":\"atoi\",\"minPoWScore\":4000,\"messagesPerSecond\":6.1,\"referencedMessagesPerSecond\":5.3,"
+      "\"referencedRate\":86.88524590163934,\"latestMilestoneTimestamp\":1620881772,\"latestMilestoneIndex\":308379,"
+      "\"confirmedMilestoneIndex\":308379,\"pruningIndex\":290861,\"features\":[\"PoW\"]}}";
 
   res_node_info_t* info = res_node_info_new();
   TEST_ASSERT_NOT_NULL(info);
@@ -45,14 +54,18 @@ void test_deser_node_info() {
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_FALSE(info->is_error);
   TEST_ASSERT_EQUAL_STRING("HORNET", info->u.output_node_info->name);
-  TEST_ASSERT_EQUAL_STRING("0.6.0-alpha", info->u.output_node_info->version);
+  TEST_ASSERT_EQUAL_STRING("1.0.0-alpha", info->u.output_node_info->version);
   TEST_ASSERT_TRUE(info->u.output_node_info->is_healthy);
-  TEST_ASSERT_EQUAL_STRING("testnet5", info->u.output_node_info->network_id);
+  TEST_ASSERT_EQUAL_STRING("testnet7", info->u.output_node_info->network_id);
   TEST_ASSERT_EQUAL_STRING("atoi", info->u.output_node_info->bech32hrp);
   TEST_ASSERT_EQUAL_UINT64(4000, info->u.output_node_info->min_pow_score);
-  TEST_ASSERT_EQUAL_UINT64(22463, info->u.output_node_info->latest_milestone_index);
-  TEST_ASSERT_EQUAL_UINT64(22463, info->u.output_node_info->confirmed_milestone_index);
-  TEST_ASSERT_EQUAL_UINT64(0, info->u.output_node_info->pruning_milestone_index);
+  TEST_ASSERT_EQUAL_UINT64(308379, info->u.output_node_info->latest_milestone_index);
+  TEST_ASSERT_EQUAL_UINT64(308379, info->u.output_node_info->confirmed_milestone_index);
+  TEST_ASSERT_EQUAL_UINT64(290861, info->u.output_node_info->pruning_milestone_index);
+  TEST_ASSERT_EQUAL_FLOAT(6.1, info->u.output_node_info->msg_pre_sec);
+  TEST_ASSERT_EQUAL_FLOAT(5.3, info->u.output_node_info->referenced_msg_pre_sec);
+  TEST_ASSERT_EQUAL_FLOAT(86.88524590163934, info->u.output_node_info->referenced_rate);
+  TEST_ASSERT_EQUAL_UINT64(1620881772, info->u.output_node_info->latest_milestone_timestamp);
 
   TEST_ASSERT_EQUAL_STRING("PoW", get_node_features_at(info, 0));
   TEST_ASSERT_EQUAL_INT(1, get_node_features_num(info));
