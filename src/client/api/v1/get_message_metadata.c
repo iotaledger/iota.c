@@ -177,7 +177,7 @@ int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res
     printf("[%s:%d]: cmd append failed\n", __func__, __LINE__);
     goto done;
   }
-  printf("cmd: %s\n", cmd->buf);
+
   // http client configuration
   http_client_config_t http_conf = {0};
   http_conf.url = cmd->buf;

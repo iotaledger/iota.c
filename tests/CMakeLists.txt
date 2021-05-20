@@ -58,6 +58,7 @@ add_iota_test("client/api_v1/test_get_message.c" client_get_message)
 add_iota_test("client/api_v1/test_send_message.c" client_send_message)
 add_iota_test("client/api_v1/test_find_message.c" client_find_message)
 add_iota_test("client/api_v1/test_message_meta.c" client_message_meta)
+add_iota_test("client/api_v1/test_message_children.c" client_message_children)
 
 # for higher level APIs
 add_executable(test_wallet_api "wallet/test_wallet.c")

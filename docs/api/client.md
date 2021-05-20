@@ -171,3 +171,39 @@ The Client API is low level client implementation based on [RFC: REST Node API](
 .. doxygenstruct:: res_send_message_t
   :members:
 ```
+
+## [Get Message Metadata](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_message_metadata.h)
+
+```{eval-rst}
+.. doxygenfunction:: get_message_metadata
+```
+
+### Response
+
+```{eval-rst}
+.. doxygenstruct:: res_msg_meta_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenstruct:: msg_meta_t
+  :members:
+```
+
+## [Get Message Children](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_message_children.h)
+
+```{eval-rst}
+.. doxygenfunction:: get_message_children
+```
+
+### Response
+
+```{eval-rst}
+.. doxygenstruct:: res_msg_children_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenstruct:: msg_children_t
+  :members:
+```
