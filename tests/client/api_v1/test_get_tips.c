@@ -18,8 +18,11 @@ void test_get_tips() {
   res_tips_t* res_tips = res_tips_new();
   TEST_ASSERT_NOT_NULL(res_tips);
   TEST_ASSERT(get_tips(&ctx, res_tips) == 0);
-  TEST_ASSERT(res_tips->is_error == false);
-  TEST_ASSERT(get_tips_id_count(res_tips) > 0);
+  if (res_tips->is_error == true) {
+    printf("Error: %s\n", res_tips->u.error->msg);
+  } else {
+    TEST_ASSERT(get_tips_id_count(res_tips) > 0);
+  }
   res_tips_free(res_tips);
 }
 

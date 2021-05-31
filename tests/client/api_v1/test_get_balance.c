@@ -33,6 +33,9 @@ void test_get_balance() {
   // test invalid address
   TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, addr_hex_invalid, res));
   TEST_ASSERT(res->is_error);
+  if (res->is_error == true) {
+    printf("Error: %s\n", res->u.error->msg);
+  }
 
   // reset res
   res_balance_free(res);
@@ -42,10 +45,14 @@ void test_get_balance() {
 
   // test for success
   TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, addr_hex, res));
-  // validate address type
-  TEST_ASSERT(ADDRESS_VER_ED25519 == res->u.output_balance->address_type);
-  // validate address data
-  TEST_ASSERT_EQUAL_MEMORY(addr_hex, res->u.output_balance->address, IOTA_ADDRESS_HEX_BYTES);
+  if (res->is_error == true) {
+    printf("Error: %s\n", res->u.error->msg);
+  } else {
+    // validate address type
+    TEST_ASSERT(ADDRESS_VER_ED25519 == res->u.output_balance->address_type);
+    // validate address data
+    TEST_ASSERT_EQUAL_MEMORY(addr_hex, res->u.output_balance->address, IOTA_ADDRESS_HEX_BYTES);
+  }
 
   res_balance_free(res);
 }
