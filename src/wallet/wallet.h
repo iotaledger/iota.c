@@ -26,6 +26,7 @@ extern "C" {
 
 // max length of m/44'/4218'/Account'/Change'
 #define IOTA_ACCOUNT_PATH_MAX 128
+#define DEFAULT_NODE_URL "http://localhost:14265/"
 static char const* const iota_bip44_prefix = "m/44'/4218'";
 
 /**

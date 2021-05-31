@@ -70,38 +70,30 @@ static int validate_pib44_path(char const path[]) {
 }
 
 // get path from address
-static char* wallet_path_from_index(iota_wallet_t* w, uint32_t index) {
+static void wallet_path_from_index(iota_wallet_t* w, uint32_t index, char* buf, size_t buf_len) {
   int ret_size = 0;
-  char* path = malloc(IOTA_ACCOUNT_PATH_MAX);
-  if (path) {
-    // Bip44 Paths: m/44'/4128'/Account'/Change'/Index'
-    ret_size = snprintf(path, IOTA_ACCOUNT_PATH_MAX, "%s/%" PRIu32 "'", w->account, index);
-    if (ret_size >= IOTA_ACCOUNT_PATH_MAX) {
-      path[IOTA_ACCOUNT_PATH_MAX - 1] = '\0';
-    }
+  // Bip44 Paths: m/44'/4128'/Account'/Change'/Index'
+  ret_size = snprintf(buf, buf_len, "%s/%" PRIu32 "'", w->account, index);
+  if (ret_size >= buf_len) {
+    buf[buf_len - 1] = '\0';
   }
-  return path;
 }
 
 static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, uint32_t sender, byte_t receiver[],
                                                        uint64_t balance, char const index[], byte_t data[],
                                                        size_t data_len) {
   char tmp_addr[IOTA_ADDRESS_HEX_BYTES + 1] = {};
+  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
   byte_t send_addr[ED25519_ADDRESS_BYTES] = {};
   byte_t tmp_tx_id[TRANSACTION_ID_BYTES] = {};
   iota_keypair_t addr_keypair = {};
   res_outputs_address_t* outputs_res = NULL;
   transaction_payload_t* tx_payload = NULL;
-  char* addr_path = NULL;
   int ret = -1;
 
   // TODO loop over start and end addresses
   // get address keypair and address
-  addr_path = wallet_path_from_index(w, sender);
-  if (!addr_path) {
-    printf("[%s:%d] Cannot get address path\n", __func__, __LINE__);
-    goto done;
-  }
+  wallet_path_from_index(w, sender, addr_path, IOTA_ACCOUNT_PATH_MAX);
 
   if (address_keypair_from_path(w->seed, addr_path, &addr_keypair) != 0) {
     printf("[%s:%d] Cannot get address keypair\n", __func__, __LINE__);
@@ -188,9 +180,6 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, uint32_
 
 done:
   res_outputs_address_free(outputs_res);
-  if (addr_path) {
-    free(addr_path);
-  }
 
   if (ret == -1) {
     tx_payload_free(tx_payload);
@@ -214,7 +203,7 @@ iota_wallet_t* wallet_create(byte_t const seed[], char const path[]) {
   if (w) {
     memcpy(w->seed, seed, IOTA_SEED_BYTES);
     memcpy(w->account, path, strlen(path) + 1);
-    strcpy(w->endpoint.url, "http://localhost:14265/");
+    strcpy(w->endpoint.url, DEFAULT_NODE_URL);
     w->endpoint.port = 0;
   }
   return w;
@@ -237,19 +226,15 @@ int wallet_set_endpoint(iota_wallet_t* w, char const url[], uint16_t port) {
 }
 
 int wallet_address_by_index(iota_wallet_t* w, uint32_t index, byte_t addr[]) {
-  int ret = -1;
-  char* path_buf = NULL;
+  char path_buf[IOTA_ACCOUNT_PATH_MAX] = {};
+
   if (!w || !addr) {
     printf("[%s:%d] Err: invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  if ((path_buf = wallet_path_from_index(w, index))) {
-    ret = address_from_path(w->seed, path_buf, addr);
-    free(path_buf);
-  }
-
-  return ret;
+  wallet_path_from_index(w, index, path_buf, IOTA_ACCOUNT_PATH_MAX);
+  return address_from_path(w->seed, path_buf, addr);
 }
 
 int wallet_balance_by_address(iota_wallet_t* w, byte_t const addr[], uint64_t* balance) {
