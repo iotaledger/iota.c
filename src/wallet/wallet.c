@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "client/api/v1/get_balance.h"
+#include "client/api/v1/get_node_info.h"
 #include "client/api/v1/get_output.h"
 #include "client/api/v1/get_outputs_from_address.h"
 #include "client/api/v1/send_message.h"
@@ -201,6 +202,7 @@ iota_wallet_t* wallet_create(byte_t const seed[], char const path[]) {
 
   iota_wallet_t* w = malloc(sizeof(iota_wallet_t));
   if (w) {
+    memset(w->bech32HRP, 0, sizeof(w->bech32HRP));
     memcpy(w->seed, seed, IOTA_SEED_BYTES);
     memcpy(w->account, path, strlen(path) + 1);
     strcpy(w->endpoint.url, DEFAULT_NODE_URL);
@@ -252,16 +254,18 @@ int wallet_balance_by_address(iota_wallet_t* w, byte_t const addr[], uint64_t* b
     return -1;
   }
 
-  if (get_balance(&w->endpoint, hex_addr, bal_res)) {
+  if (get_balance(&w->endpoint, hex_addr, bal_res) != 0) {
     printf("[%s:%d] Err: ge balance API failed\n", __func__, __LINE__);
-    if (bal_res->is_error) {
-      printf("Err response: %s\n", bal_res->u.error->msg);
-    }
     res_balance_free(bal_res);
     return -1;
   }
 
-  *balance = bal_res->u.output_balance->balance;
+  if (bal_res->is_error) {
+    printf("Err response: %s\n", bal_res->u.error->msg);
+  } else {
+    *balance = bal_res->u.output_balance->balance;
+  }
+
   res_balance_free(bal_res);
   return 0;
 }
@@ -319,11 +323,11 @@ int wallet_send(iota_wallet_t* w, uint32_t sender_index, byte_t receiver[], uint
   if (!tx) {
     // indexation payload only
     msg->payload = idx;
-    msg->payload_type = 2;
+    msg->payload_type = MSG_PAYLOAD_INDEXATION;
   } else {
     // transaction payload
     msg->payload = tx;
-    msg->payload_type = 0;
+    msg->payload_type = MSG_PAYLOAD_TRANSACTION;
     if (core_message_sign_transaction(msg) != 0) {
       printf("[%s:%d] Err: sign transaction failed\n", __func__, __LINE__);
       core_message_free(msg);
@@ -351,4 +355,24 @@ void wallet_destroy(iota_wallet_t* w) {
   if (w) {
     free(w);
   }
+}
+
+int wallet_update_bech32HRP(iota_wallet_t* w) {
+  res_node_info_t* info = res_node_info_new();
+  if (!info) {
+    // OOM?
+    return -1;
+  }
+
+  int ret = get_node_info(&w->endpoint, info);
+  if (ret == 0) {
+    if (info->is_error == false) {
+      strncpy(w->bech32HRP, info->u.output_node_info->bech32hrp, sizeof(w->bech32HRP));
+    } else {
+      ret = -2;
+      printf("Error: %s\n", info->u.error->msg);
+    }
+  }
+  res_node_info_free(info);
+  return ret;
 }

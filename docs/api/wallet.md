@@ -46,3 +46,9 @@ This is reference implementation as wallet APIs. Users are able to implement wal
 ```{eval-rst}
 .. doxygenfunction:: wallet_send
 ```
+
+## Update bech32HRP
+
+```{eval-rst}
+.. doxygenfunction:: wallet_update_bech32HRP
+```
