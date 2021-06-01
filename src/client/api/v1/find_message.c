@@ -30,6 +30,7 @@ res_find_msg_t *res_find_msg_new() {
   res_find_msg_t *res = malloc(sizeof(res_find_msg_t));
   if (res) {
     res->is_error = false;
+    res->u.msg_ids = NULL;
     return res;
   }
   return NULL;
@@ -71,6 +72,11 @@ char *res_find_msg_get_id(res_find_msg_t *res, size_t index) {
 
 int deser_find_message(char const *const j_str, res_find_msg_t *res) {
   int ret = -1;
+  if (j_str == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
     return -1;

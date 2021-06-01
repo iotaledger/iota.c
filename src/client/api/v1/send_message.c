@@ -12,10 +12,16 @@
 // create JSON object and put the JSON string in byte_buf_t that can send by http client.
 int serialize_indexation(message_t* msg, byte_buf_t* buf) {
   int ret = -1;
-  cJSON* json_root = cJSON_CreateObject();
   byte_buf_t* hex_data = NULL;
   byte_buf_t* hex_index = NULL;
   char* json_string = NULL;
+
+  if (msg == NULL || buf == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
+  cJSON* json_root = cJSON_CreateObject();
   if (!json_root) {
     printf("[%s:%d] create json root object failed\n", __func__, __LINE__);
     return -1;

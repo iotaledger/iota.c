@@ -69,7 +69,9 @@ void res_tips_free(res_tips_t *tips) {
     if (tips->is_error) {
       res_err_free(tips->u.error);
     } else {
-      utarray_free(tips->u.tips);
+      if (tips->u.tips) {
+        utarray_free(tips->u.tips);
+      }
     }
     free(tips);
   }
@@ -77,6 +79,10 @@ void res_tips_free(res_tips_t *tips) {
 
 int deser_get_tips(char const *const j_str, res_tips_t *res) {
   int ret = -1;
+  if (j_str == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
 
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {

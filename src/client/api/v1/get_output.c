@@ -69,6 +69,11 @@ done:
 
 int deser_get_output(char const *const j_str, res_output_t *res) {
   int ret = -1;
+  if (j_str == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
     return -1;

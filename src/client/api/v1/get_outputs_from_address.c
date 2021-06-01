@@ -31,6 +31,7 @@ res_outputs_address_t *res_outputs_address_new() {
   res_outputs_address_t *res = malloc(sizeof(res_outputs_address_t));
   if (res) {
     res->is_error = false;
+    res->u.output_ids = NULL;
     return res;
   }
   return NULL;
@@ -41,7 +42,9 @@ void res_outputs_address_free(res_outputs_address_t *res) {
     if (res->is_error) {
       res_err_free(res->u.error);
     } else {
-      outputs_free(res->u.output_ids);
+      if (res->u.output_ids) {
+        outputs_free(res->u.output_ids);
+      }
     }
     free(res);
   }
@@ -67,6 +70,11 @@ size_t res_outputs_address_output_id_count(res_outputs_address_t *res) {
 }
 int deser_outputs_from_address(char const *const j_str, res_outputs_address_t *res) {
   int ret = -1;
+  if (j_str == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
     return -1;

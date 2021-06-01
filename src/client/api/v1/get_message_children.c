@@ -34,6 +34,7 @@ res_msg_children_t *res_msg_children_new() {
   res_msg_children_t *res = malloc(sizeof(res_msg_children_t));
   if (res) {
     res->is_error = false;
+    res->u.data = NULL;
     return res;
   }
   return NULL;
@@ -75,6 +76,11 @@ char *res_msg_children_get(res_msg_children_t *res, size_t index) {
 
 int deser_msg_children(char const *const j_str, res_msg_children_t *res) {
   int ret = -1;
+  if (j_str == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
     return -1;

@@ -297,6 +297,7 @@ res_message_t *res_message_new() {
   res_message_t *msg = malloc(sizeof(res_message_t));
   if (msg) {
     msg->is_error = false;
+    msg->u.msg = NULL;
     return msg;
   }
   return NULL;
@@ -307,7 +308,9 @@ void res_message_free(res_message_t *msg) {
     if (msg->is_error) {
       res_err_free(msg->u.error);
     } else {
-      api_message_free(msg->u.msg);
+      if (msg->u.msg) {
+        api_message_free(msg->u.msg);
+      }
     }
     free(msg);
   }
@@ -315,6 +318,11 @@ void res_message_free(res_message_t *msg) {
 
 int deser_get_message(char const *const j_str, res_message_t *res) {
   int ret = -1;
+  if (j_str == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
     return -1;

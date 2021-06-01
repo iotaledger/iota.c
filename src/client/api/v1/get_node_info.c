@@ -16,6 +16,7 @@ res_node_info_t *res_node_info_new() {
     return NULL;
   }
   res->is_error = false;
+  res->u.output_node_info = NULL;
   return res;
 }
 
@@ -24,10 +25,12 @@ void res_node_info_free(res_node_info_t *res) {
     if (res->is_error) {
       res_err_free(res->u.error);
     } else {
-      if (res->u.output_node_info->features) {
-        utarray_free(res->u.output_node_info->features);
+      if (res->u.output_node_info) {
+        if (res->u.output_node_info->features) {
+          utarray_free(res->u.output_node_info->features);
+        }
+        free(res->u.output_node_info);
       }
-      free(res->u.output_node_info);
     }
     free(res);
   }
@@ -40,7 +43,7 @@ char *get_node_features_at(res_node_info_t *info, size_t idx) {
   }
 
   int len = utarray_len(info->u.output_node_info->features);
-  if (idx < 0 || idx >= len) {
+  if (idx >= len) {
     printf("[%s:%d]: get_features failed (invalid index)\n", __func__, __LINE__);
     return NULL;
   }
@@ -96,7 +99,8 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   // send request via http client
   long st = 0;
   int http_ret = http_client_get(&http_conf, http_res, &st);
-  if (http_ret != 0) {
+  if (http_ret != 0 || http_res->len == 0) {
+    // request failed or no response data
     ret = -1;
     goto done;
   }
@@ -116,8 +120,14 @@ done:
 
 int deser_node_info(char const *const j_str, res_node_info_t *res) {
   int ret = 0;
+  if (j_str == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
+    printf("[%s:%d] NULL json object\n", __func__, __LINE__);
     return -1;
   }
 

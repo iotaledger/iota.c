@@ -14,6 +14,7 @@ res_balance_t *res_balance_new() {
   res_balance_t *res = malloc(sizeof(res_balance_t));
   if (res) {
     res->is_error = false;
+    res->u.output_balance = NULL;
     return res;
   }
   return NULL;
@@ -24,7 +25,9 @@ void res_balance_free(res_balance_t *res) {
     if (res->is_error) {
       res_err_free(res->u.error);
     } else {
-      free(res->u.output_balance);
+      if (res->u.output_balance) {
+        free(res->u.output_balance);
+      }
     }
     free(res);
   }
