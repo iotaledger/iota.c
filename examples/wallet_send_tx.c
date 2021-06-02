@@ -41,6 +41,7 @@ void dump_addresses(iota_wallet_t *w, uint32_t start, uint32_t end) {
 
 int main(int argc, char *argv[]) {
   int err = 0;
+  char msg_id[IOTA_MESSAGE_ID_HEX_BYTES + 1] = {};
   byte_t seed[IOTA_SEED_BYTES] = {};
   // address with a version byte
   byte_t recv[IOTA_ADDRESS_BYTES] = {};
@@ -67,13 +68,17 @@ int main(int argc, char *argv[]) {
   dump_addresses(wallet, 0, 5);
 
   // send none-valued transaction with indexaction payload
-  if ((err = wallet_send(wallet, 0, NULL, 0, "iota.c\xF0\x9F\x80\x84", (byte_t *)my_data, strlen(my_data)))) {
+  if ((err = wallet_send(wallet, 0, NULL, 0, "iota.c\xF0\x9F\x80\x84", (byte_t *)my_data, strlen(my_data), msg_id,
+                         sizeof(msg_id)))) {
     printf("send indexation failed\n");
   }
+  printf("Message ID: %s\n", msg_id);
 
-  if ((err = wallet_send(wallet, 0, recv + 1, 0, "iota.c\xF0\x9F\x80\x84", (byte_t *)my_data, strlen(my_data)))) {
+  if ((err = wallet_send(wallet, 0, recv + 1, 0, "iota.c\xF0\x9F\x80\x84", (byte_t *)my_data, strlen(my_data), msg_id,
+                         sizeof(msg_id)))) {
     printf("send indexation with address failed\n");
   }
+  printf("Message ID: %s\n", msg_id);
 
   // check balance at address 0
   uint64_t value = 0;
@@ -91,9 +96,11 @@ int main(int argc, char *argv[]) {
   }
 
   // wallet_send take ed25519 address without the version field.
-  if ((err = wallet_send(wallet, 0, recv + 1, 1 * Mi, "iota.c\xF0\x9F\x80\x84", (byte_t *)my_data, strlen(my_data)))) {
+  if ((err = wallet_send(wallet, 0, recv + 1, 1 * Mi, "iota.c\xF0\x9F\x80\x84", (byte_t *)my_data, strlen(my_data),
+                         msg_id, sizeof(msg_id)))) {
     printf("send tx to %s failed\n", receiver);
   }
+  printf("Message ID: %s\n", msg_id);
 
 done:
   wallet_destroy(wallet);

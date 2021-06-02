@@ -17,6 +17,7 @@
 
 #include "client/client_service.h"
 #include "core/address.h"
+#include "core/models/message.h"
 #include "core/seed.h"
 #include "core/types.h"
 
@@ -104,10 +105,12 @@ int wallet_balance_by_index(iota_wallet_t* w, uint32_t index, uint64_t* balance)
  * @param[in] balance The balance to send
  * @param[in] index An optional indexation
  * @param[in] data An optional indexation data, it's ignored if the index parameter is NULL
+ * @param[out] msg_id A buffer holds the message ID string that returned from the node.
+ * @param[in] msg_id_len The length of msg_id buffer.
  * @return int 0 on success
  */
 int wallet_send(iota_wallet_t* w, uint32_t sender_index, byte_t receiver[], uint64_t balance, char const index[],
-                byte_t data[], size_t data_len);
+                byte_t data[], size_t data_len, char msg_id[], size_t msg_id_len);
 
 /**
  * @brief Destory the wallet account

@@ -69,6 +69,7 @@ void test_wallet_api() {
 }
 
 void test_wallet_api_with_node() {
+  char msg_id[IOTA_MESSAGE_ID_HEX_BYTES + 1] = {};
   // create a wallet account
   iota_wallet_t* wallet = wallet_create(seed, "m/44'/4218'/0'/0'");
   TEST_ASSERT_NOT_NULL(wallet);
@@ -89,14 +90,15 @@ void test_wallet_api_with_node() {
   TEST_ASSERT(wallet_address_by_index(wallet, 1, recv_addr) == 0);
   byte_t index_data[] = {0x73, 0x65, 0x6e, 0x64, 0x20, 0x66, 0x72, 0x6f,
                          0x6d, 0x20, 0x69, 0x6f, 0x74, 0x61, 0x2e, 0x63};
-  TEST_ASSERT(wallet_send(wallet, 0, NULL, 0, "iota.c", index_data, sizeof(index_data)) == 0);
+  TEST_ASSERT(wallet_send(wallet, 0, NULL, 0, "iota.c", index_data, sizeof(index_data), msg_id, sizeof(msg_id)) == 0);
 
   // send transaction with unsificent balance
-  TEST_ASSERT(wallet_send(wallet, 0, recv_addr, 2779530283277760, NULL, NULL, 0) != 0);
+  TEST_ASSERT(wallet_send(wallet, 0, recv_addr, 2779530283277760, NULL, NULL, 0, msg_id, sizeof(msg_id)) != 0);
   // send transaction without indexation
-  TEST_ASSERT(wallet_send(wallet, 0, recv_addr, 1000, NULL, NULL, 0) == 0);
+  TEST_ASSERT(wallet_send(wallet, 0, recv_addr, 1000000, NULL, NULL, 0, msg_id, sizeof(msg_id)) == 0);
   // send transaction with indexation
-  TEST_ASSERT(wallet_send(wallet, 0, recv_addr, 1000, "iota.c", index_data, sizeof(index_data)) == 0);
+  TEST_ASSERT(wallet_send(wallet, 0, recv_addr, 1000000, "iota.c", index_data, sizeof(index_data), msg_id,
+                          sizeof(msg_id)) == 0);
 
   wallet_destroy(wallet);
 }

@@ -20,8 +20,8 @@
 typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t* error;                       ///< Error message if is_error is True
-    char msg_id[API_MSG_ID_HEX_BYTES + 1];  ///< a message IDs string if is_error is False
+    res_err_t* error;                            ///< Error message if is_error is True
+    char msg_id[IOTA_MESSAGE_ID_HEX_BYTES + 1];  ///< a message IDs string if is_error is False
   } u;
 } res_send_message_t;
 

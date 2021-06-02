@@ -280,7 +280,7 @@ int wallet_balance_by_index(iota_wallet_t* w, uint32_t index, uint64_t* balance)
 }
 
 int wallet_send(iota_wallet_t* w, uint32_t sender_index, byte_t receiver[], uint64_t balance, char const index[],
-                byte_t data[], size_t data_len) {
+                byte_t data[], size_t data_len, char msg_id[], size_t msg_id_len) {
   core_message_t* msg = NULL;
   indexation_t* idx = NULL;
   transaction_payload_t* tx = NULL;
@@ -288,6 +288,11 @@ int wallet_send(iota_wallet_t* w, uint32_t sender_index, byte_t receiver[], uint
 
   if (!w) {
     printf("[%s:%d] Err: invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (msg_id_len < IOTA_MESSAGE_ID_HEX_BYTES + 1) {
+    printf("[%s:%d] Err: msg_id buffer is too small\n", __func__, __LINE__);
     return -1;
   }
 
@@ -337,7 +342,7 @@ int wallet_send(iota_wallet_t* w, uint32_t sender_index, byte_t receiver[], uint
 
   // send message
   if (send_core_message(&w->endpoint, msg, &msg_res) == 0) {
-    printf("[%s:%d] message ID: %s\n", __func__, __LINE__, msg_res.u.msg_id);
+    strncpy(msg_id, msg_res.u.msg_id, msg_id_len);
     core_message_free(msg);
     return 0;
   } else {
