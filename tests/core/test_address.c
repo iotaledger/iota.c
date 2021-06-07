@@ -1,8 +1,10 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include <unity/unity.h>
 
@@ -69,10 +71,63 @@ void test_address_gen() {
   // dump_hex(ed_addr, ED25519_ADDRESS_BYTES);
 }
 
+//=========Benchmarks========
+#define ADDR_NUMS 1000
+
+static int64_t time_in_ms() {
+  struct timeval tv_now;
+  gettimeofday(&tv_now, NULL);
+  return ((int64_t)tv_now.tv_sec * 1000000L + (int64_t)tv_now.tv_usec) / 1000;
+}
+
+static int64_t time_in_us() {
+  struct timeval tv_now;
+  gettimeofday(&tv_now, NULL);
+  return (int64_t)tv_now.tv_sec * 1000000L + (int64_t)tv_now.tv_usec;
+};
+
+void addr_bench() {
+  char path_buf[128] = {};
+  byte_t seed[IOTA_SEED_BYTES] = {};
+  byte_t ed_addr[IOTA_ADDRESS_BYTES] = {};
+  char bech32_addr[IOTA_ADDRESS_HEX_BYTES + 1] = {};
+  size_t ret_size = 0;
+  static int64_t start_time = 0, time_spent = 0;
+  static int64_t min = 0, max = 0, sum = 0;
+  random_seed(seed);
+
+  for (size_t idx = 0; idx < ADDR_NUMS; idx++) {
+    ret_size = snprintf(path_buf, 128, "m/44'/4218'/0'/0'/%zu'", idx);
+    if (ret_size >= 128) {
+      path_buf[128 - 1] = '\0';
+    }
+    ed_addr[0] = 0;
+    start_time = time_in_us();
+    if (address_from_path(seed, path_buf, ed_addr + 1) == 0) {
+      if (address_2_bech32(ed_addr, "iota", bech32_addr) != 0) {
+        printf("convert to bech32 failed\n");
+        break;
+      }
+      time_spent = time_in_us() - start_time;
+      max = (idx == 0 || time_spent > max) ? time_spent : max;
+      min = (idx == 0 || time_spent < min) ? time_spent : min;
+      sum += time_spent;
+      // printf("%zu: %"PRId64", max %"PRId64", min %"PRId64"\n", idx, time_spent, max, min);
+    } else {
+      printf("drive from path failed\n");
+      break;
+    }
+  }
+
+  printf("Bench %d address generation\n\tmin(ms)\tmax(ms)\tavg(ms)\ttotal(ms)\n", ADDR_NUMS);
+  printf("\t%.3f\t%.3f\t%.3f\t%.3f\n", min / 1000.0, (max / 1000.0), (sum / ADDR_NUMS) / 1000.0, sum / 1000.0);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_address_gen);
+  RUN_TEST(addr_bench);
 
   return UNITY_END();
 }
