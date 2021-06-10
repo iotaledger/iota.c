@@ -15,6 +15,7 @@ target_sources(
 target_include_directories(iota_crypto PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 
 if(USE_REF_CRYPTO)
+  target_compile_definitions(iota_crypto PUBLIC CRYPTO_USE_OPENSSL)
   target_include_directories(iota_crypto PUBLIC "${OPENSSL_INCLUDE_DIR}")
   add_dependencies(iota_crypto ext_blake2 ext_ed25519)
   target_link_libraries(iota_crypto INTERFACE blake2 ed25519_donna ${OPENSSL_LIBRARIES})
