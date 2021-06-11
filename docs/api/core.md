@@ -286,11 +286,11 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: hex2bin
+.. doxygenfunction:: hex_2_bin
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: bin2hex
+.. doxygenfunction:: bin_2_hex
 ```
 
 ```{eval-rst}

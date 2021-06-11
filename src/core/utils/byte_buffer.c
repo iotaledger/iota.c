@@ -8,6 +8,19 @@
 
 static char const* const hex_table = "0123456789ABCDEF";
 
+static int char2int(char input) {
+  if (input >= '0' && input <= '9') return input - '0';
+  if (input >= 'A' && input <= 'F') return input - 'A' + 10;
+  if (input >= 'a' && input <= 'f') return input - 'a' + 10;
+  return -1;  // invalid char
+}
+
+static int int2char(uint8_t input) {
+  if (input <= 9) return input + '0';
+  if (input <= 15) return input - 10 + 'A';
+  return -1;  // invalid value
+}
+
 int hex2string(char const str[], uint8_t array[], size_t arr_len) {
   size_t len = strlen(str) / 2;
   if (arr_len < len) {
@@ -51,7 +64,7 @@ int string2hex(char str[], byte_t hex[], size_t hex_len) {
   return 0;
 }
 
-int hex2bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len) {
+int hex_2_bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len) {
   if (!str || !bin) {
     return -1;
   }
@@ -59,19 +72,24 @@ int hex2bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len) {
   size_t expected_bin_len = str_len / 2;
   if (bin_len < expected_bin_len) {
     // buffer size is not sufficient
-    return -1;
+    return -2;
   }
 
   char* pos = (char*)str;
   for (size_t i = 0; i < expected_bin_len; i++) {
-    sscanf(pos, "%2hhx", &bin[i]);
+    int v_h = char2int(pos[0]);
+    int v_l = char2int(pos[1]);
+    if (v_h < 0 || v_l < 0) {
+      // invalid char
+      return -3;
+    }
+    bin[i] = v_h * 16 + v_l;
     pos += 2;
   }
-
   return 0;
 }
 
-int bin2hex(byte_t const bin[], size_t bin_len, char str_buf[], size_t buf_len) {
+int bin_2_hex(byte_t const bin[], size_t bin_len, char str_buf[], size_t buf_len) {
   size_t index = 0;
   if (buf_len < ((bin_len * 2) + 1)) {
     // buffer too small
@@ -79,9 +97,17 @@ int bin2hex(byte_t const bin[], size_t bin_len, char str_buf[], size_t buf_len) 
   }
 
   for (size_t i = 0; i < bin_len; i++) {
-    index += sprintf(&str_buf[index], "%02X", bin[i]);
+    int v_h = int2char((bin[i] >> 4) & 0x0F);
+    int v_l = int2char(bin[i] & 0x0F);
+    if (v_h < 0 || v_l < 0) {
+      // invalid value
+      return -2;
+    }
+    str_buf[index] = v_h;
+    str_buf[index + 1] = v_l;
+    index += 2;
   }
-  str_buf[buf_len - 1] = '\0';
+  str_buf[index] = '\0';
   return 0;
 }
 

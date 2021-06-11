@@ -99,11 +99,12 @@ void test_send_core_message_tx() {
                                                0xb9, 0x1d, 0x75, 0x02, 0x19, 0x0c, 0x97, 0x9b, 0xaa, 0xbf, 0xee,
                                                0x85, 0xb6, 0xbb, 0xb5, 0x02, 0x06, 0x92, 0xe5, 0x5d, 0x16};
   iota_keypair_t genesis_seed_keypair = {};
-  TEST_ASSERT(hex2bin("f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44", 64, genesis_seed_keypair.pub,
-                      ED_PUBLIC_KEY_BYTES) == 0);
-  TEST_ASSERT(hex2bin("256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2f7868ab6bb55800b77b8b74191ad8285"
-                      "a9bf428ace579d541fda47661803ff44",
-                      128, genesis_seed_keypair.priv, ED_PRIVATE_KEY_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44", 64,
+                        genesis_seed_keypair.pub, ED_PUBLIC_KEY_BYTES) == 0);
+  TEST_ASSERT(
+      hex_2_bin("256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2f7868ab6bb55800b77b8b74191ad8285"
+                "a9bf428ace579d541fda47661803ff44",
+                128, genesis_seed_keypair.priv, ED_PRIVATE_KEY_BYTES) == 0);
 
   byte_t genesis_addr[ED25519_ADDRESS_BYTES] = {};
   // address of genesis seed from ed25519
@@ -142,7 +143,7 @@ void test_send_core_message_tx() {
     if (!res_out.u.output.is_spent) {
       if (res_out.u.output.address_type == ADDRESS_VER_ED25519) {
         byte_t tx_id[TRANSACTION_ID_BYTES] = {};
-        hex2bin(res_out.u.output.tx_id, TRANSACTION_ID_BYTES * 2, tx_id, sizeof(tx_id));
+        hex_2_bin(res_out.u.output.tx_id, TRANSACTION_ID_BYTES * 2, tx_id, sizeof(tx_id));
         tx_payload_add_input_with_key(tx_payload, tx_id, res_out.u.output.output_idx, genesis_seed_keypair.pub,
                                       genesis_seed_keypair.priv);
         total += res_out.u.output.amount;

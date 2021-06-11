@@ -90,12 +90,12 @@ void test_hex_bin() {
   byte_t bin[12] = {};
 
   // hex2bin
-  TEST_ASSERT(hex2bin(exp_hex, strlen(exp_hex), bin, 12) == 0);
+  TEST_ASSERT(hex_2_bin(exp_hex, strlen(exp_hex), bin, 12) == 0);
   TEST_ASSERT_EQUAL_MEMORY(exp_bin, bin, 12);
 
   // bin2hex
   char hex_str[(12 * 2) + 1] = {};
-  TEST_ASSERT(bin2hex(bin, 12, hex_str, sizeof(hex_str)) == 0);
+  TEST_ASSERT(bin_2_hex(bin, 12, hex_str, sizeof(hex_str)) == 0);
   TEST_ASSERT_EQUAL_STRING(exp_hex, hex_str);
 }
 

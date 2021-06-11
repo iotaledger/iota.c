@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
   }
 
   // convert seed from hex string to binary
-  if ((err = hex2bin(my_seed, strlen(my_seed), seed, sizeof(seed)))) {
+  if ((err = hex_2_bin(my_seed, strlen(my_seed), seed, sizeof(seed)))) {
     printf("convert seed failed\n");
     goto done;
   }

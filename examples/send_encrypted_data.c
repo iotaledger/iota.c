@@ -65,7 +65,7 @@ static int validation(iota_client_conf_t *ctx, char const *const src, char msg_i
 
     printf("Data on the Tangle: %s\n", index->data->data);
     // index->data is hex string, it needs to convert to binary.
-    hex2bin((char *)index->data->data, strlen((char *)index->data->data), (byte_t *)decrypted, sizeof(decrypted));
+    hex_2_bin((char *)index->data->data, strlen((char *)index->data->data), (byte_t *)decrypted, sizeof(decrypted));
 
     // decrypt data
     xor_encrypt_decrypt(decrypted, strlen(decrypted), decrypted, sizeof(decrypted));

@@ -300,7 +300,7 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
 
   char** p = NULL;
   while ((p = (char**)utarray_next(tips->u.tips, p))) {
-    hex2bin(*p, STR_TIP_MSG_ID_LEN, tmp_msg_parent, sizeof(tmp_msg_parent));
+    hex_2_bin(*p, STR_TIP_MSG_ID_LEN, tmp_msg_parent, sizeof(tmp_msg_parent));
     utarray_push_back(msg->parents, tmp_msg_parent);
   }
 

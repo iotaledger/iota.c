@@ -194,7 +194,7 @@ void test_derive_key_from_path() {
     byte_t *b_seed = malloc(seed_len);
     if (b_seed) {
       // hex seed to bin seed
-      TEST_ASSERT(hex2bin(slip10_set[i].seed, strlen(slip10_set[i].seed), b_seed, seed_len) == 0);
+      TEST_ASSERT(hex_2_bin(slip10_set[i].seed, strlen(slip10_set[i].seed), b_seed, seed_len) == 0);
 
       // key derivation
       int ret = slip10_key_from_path(b_seed, seed_len, slip10_set[i].path, ED25519_CURVE, &key);

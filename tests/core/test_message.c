@@ -22,11 +22,12 @@ void test_message_with_tx() {
                                          0x7c, 0x3d, 0xb7, 0x81, 0x98, 0x14, 0x7d, 0x5f, 0x1f, 0x92};
 
   iota_keypair_t seed_keypair = {};
-  TEST_ASSERT(hex2bin("f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44", 64, seed_keypair.pub,
-                      ED_PUBLIC_KEY_BYTES) == 0);
-  TEST_ASSERT(hex2bin("256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2f7868ab6bb55800b77b8b74191ad8285"
-                      "a9bf428ace579d541fda47661803ff44",
-                      128, seed_keypair.priv, ED_PRIVATE_KEY_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44", 64, seed_keypair.pub,
+                        ED_PUBLIC_KEY_BYTES) == 0);
+  TEST_ASSERT(
+      hex_2_bin("256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2f7868ab6bb55800b77b8b74191ad8285"
+                "a9bf428ace579d541fda47661803ff44",
+                128, seed_keypair.priv, ED_PRIVATE_KEY_BYTES) == 0);
 
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);
