@@ -32,8 +32,9 @@ void test_address_gen() {
   byte_t addr_from_bech32[IOTA_ADDRESS_BYTES] = {};
 
   // convert seed from hex string to binary
-  TEST_ASSERT(hex2bin("e57fb750f3a3a67969ece5bd9ae7eef5b2256a818b2aac458941f7274985a410", IOTA_SEED_BYTES * 2, seed,
-                      IOTA_SEED_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("e57fb750f3a3a67969ece5bd9ae7eef5b2256a818b2aac458941f7274985a410", IOTA_SEED_BYTES * 2, seed,
+                        IOTA_SEED_BYTES) == 0);
+  dump_hex(seed, IOTA_SEED_BYTES);
 
   TEST_ASSERT(address_from_path(seed, "m/44'/4218'/0'/0'/0'", addr_from_path) == 0);
   // dump_hex(addr_from_path, ED25519_ADDRESS_BYTES);

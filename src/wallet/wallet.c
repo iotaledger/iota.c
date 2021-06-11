@@ -107,7 +107,7 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, uint32_
   }
 
   // get outputs
-  bin2hex(send_addr, sizeof(send_addr), tmp_addr, sizeof(tmp_addr));
+  bin_2_hex(send_addr, sizeof(send_addr), tmp_addr, sizeof(tmp_addr));
   if (!(outputs_res = res_outputs_address_new())) {
     printf("[%s:%d] Err: invalid length of path\n", __func__, __LINE__);
     return NULL;
@@ -143,7 +143,7 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, uint32_
     // add input to transaction essence
     if (!out_id_res.u.output.is_spent) {
       if (out_id_res.u.output.address_type == ADDRESS_VER_ED25519) {
-        hex2bin(out_id_res.u.output.tx_id, TRANSACTION_ID_BYTES * 2, tmp_tx_id, sizeof(tmp_tx_id));
+        hex_2_bin(out_id_res.u.output.tx_id, TRANSACTION_ID_BYTES * 2, tmp_tx_id, sizeof(tmp_tx_id));
         ret = tx_payload_add_input_with_key(tx_payload, tmp_tx_id, out_id_res.u.output.output_idx, addr_keypair.pub,
                                             addr_keypair.priv);
         total_balance += out_id_res.u.output.amount;
@@ -244,7 +244,7 @@ int wallet_balance_by_address(iota_wallet_t* w, byte_t const addr[], uint64_t* b
   res_balance_t* bal_res = NULL;
 
   // binary address to hex string
-  if (bin2hex(addr, ED25519_ADDRESS_BYTES, hex_addr, sizeof(hex_addr))) {
+  if (bin_2_hex(addr, ED25519_ADDRESS_BYTES, hex_addr, sizeof(hex_addr))) {
     printf("[%s:%d] Err: Convert binary address to hex string failed\n", __func__, __LINE__);
     return -1;
   }
