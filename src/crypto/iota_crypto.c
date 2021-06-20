@@ -34,12 +34,13 @@ void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
     buf[l] = (uint8_t)rand();
   }
 #elif defined(CRYPTO_USE_MBEDTLS) && defined(__ZEPHYR__)
-  sys_csrand_get(buf, len);
+#ifdef CONFIG_ARCH_POSIX
+  sys_rand_get(buf, len);
 #else
-  ssize_t ret = -1;
-  while (ret == -1) {
-    ret = getrandom(buf, len, GRND_NONBLOCK);
-  }
+  sys_csrand_get(buf, len);
+#endif
+#else
+#error iota_crypto_randombytes must be implemented
 #endif
 }
 
