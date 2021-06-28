@@ -34,7 +34,7 @@ void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
     buf[l] = (uint8_t)rand();
   }
 #elif defined(CRYPTO_USE_MBEDTLS) && defined(__ZEPHYR__)
-#ifdef CONFIG_ARCH_POSIX
+#if defined(CONFIG_TEST_RANDOM_GENERATOR)
   sys_rand_get(buf, len);
 #else
   sys_csrand_get(buf, len);
