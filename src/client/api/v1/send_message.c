@@ -9,6 +9,8 @@
 #include "client/api/v1/send_message.h"
 #include "core/utils/iota_str.h"
 
+char const* const cmd_msg = "/api/v1/messages";
+
 // create JSON object and put the JSON string in byte_buf_t that can send by http client.
 int serialize_indexation(message_t* msg, byte_buf_t* buf) {
   int ret = -1;
@@ -149,7 +151,6 @@ int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_
   int ret = -1;
   long http_st_code = 0;
   iota_str_t* cmd = NULL;
-  http_client_config_t http = {0};
   byte_buf_t* json_data = byte_buf_new();
   byte_buf_t* node_res = byte_buf_new();
   if (!json_data || !node_res) {
@@ -178,23 +179,10 @@ int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_
     goto end;
   }
 
-  // post message
-  if ((cmd = iota_str_new(conf->url)) == NULL) {
-    printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    goto end;
-  }
+  // http client configuration
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd_msg, .use_tls = conf->use_tls, .port = conf->port};
 
-  if (iota_str_append(cmd, "api/v1/messages")) {
-    printf("[%s:%d]: string append failed\n", __func__, __LINE__);
-    goto end;
-  }
-
-  http.url = cmd->buf;
-  if (conf->port) {
-    http.port = conf->port;
-  }
-
-  if ((ret = http_client_post(&http, json_data, node_res, &http_st_code)) == 0) {
+  if ((ret = http_client_post(&http_conf, json_data, node_res, &http_st_code)) == 0) {
     // deserialize node response
     byte_buf2str(node_res);
     ret = deser_send_message_response((char const*)node_res->data, res);
@@ -205,7 +193,6 @@ int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_
 end:
   byte_buf_free(json_data);
   byte_buf_free(node_res);
-  iota_str_destroy(cmd);
   return ret;
 }
 
@@ -270,8 +257,6 @@ done:
 int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg, res_send_message_t* res) {
   int ret = -1;
   long http_st_code = 0;
-  iota_str_t* cmd = NULL;
-  http_client_config_t http = {0};
   byte_buf_t* json_data = byte_buf_new();
   byte_buf_t* node_res = byte_buf_new();
   res_tips_t* tips = NULL;
@@ -314,23 +299,10 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
   json_data->data = (byte_t*)msg_str;
   json_data->cap = json_data->len = strlen(msg_str) + 1;
 
-  // post message
-  if ((cmd = iota_str_new(conf->url)) == NULL) {
-    printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    goto end;
-  }
+  // config http client
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd_msg, .use_tls = conf->use_tls, .port = conf->port};
 
-  if (iota_str_append(cmd, "api/v1/messages")) {
-    printf("[%s:%d]: string append failed\n", __func__, __LINE__);
-    goto end;
-  }
-
-  http.url = cmd->buf;
-  if (conf->port) {
-    http.port = conf->port;
-  }
-
-  if ((ret = http_client_post(&http, json_data, node_res, &http_st_code)) == 0) {
+  if ((ret = http_client_post(&http_conf, json_data, node_res, &http_st_code)) == 0) {
     // deserialize node response
     byte_buf2str(node_res);
     ret = deser_send_message_response((char const*)node_res->data, res);
@@ -341,7 +313,6 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
 end:
   byte_buf_free(json_data);
   byte_buf_free(node_res);
-  iota_str_destroy(cmd);
   res_tips_free(tips);
   return ret;
 }

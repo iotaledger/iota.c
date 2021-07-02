@@ -62,32 +62,14 @@ size_t get_node_features_num(res_node_info_t *info) {
 
 int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   int ret = 0;
-  char const *const cmd_info = "api/v1/info";
-
+  char const *const cmd_info = "/api/v1/info";
   if (conf == NULL || res == NULL) {
     printf("[%s:%d]: get_node_info failed (null parameter)\n", __func__, __LINE__);
     return -1;
   }
 
-  // compose restful api command
-  iota_str_t *cmd = iota_str_new(conf->url);
-  if (cmd == NULL) {
-    printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    return -1;
-  }
-
-  if (iota_str_append(cmd, cmd_info)) {
-    printf("[%s:%d]: string append failed\n", __func__, __LINE__);
-    iota_str_destroy(cmd);
-    return -1;
-  }
-
   // http client configuration
-  http_client_config_t http_conf = {0};
-  http_conf.url = cmd->buf;
-  if (conf->port) {
-    http_conf.port = conf->port;
-  }
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd_info, .use_tls = conf->use_tls, .port = conf->port};
 
   byte_buf_t *http_res = byte_buf_new();
   if (http_res == NULL) {
@@ -111,8 +93,6 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   ret = deser_node_info((char const *const)http_res->data, res);
 
 done:
-  // cleanup command
-  iota_str_destroy(cmd);
   byte_buf_free(http_res);
 
   return ret;

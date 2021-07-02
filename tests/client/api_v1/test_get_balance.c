@@ -19,7 +19,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_balance() {
-  iota_client_conf_t conf = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
+  iota_client_conf_t conf = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_balance_t* res = res_balance_new();
   TEST_ASSERT_NOT_NULL(res);

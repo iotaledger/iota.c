@@ -13,7 +13,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_tips() {
-  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_tips_t* res_tips = res_tips_new();
   TEST_ASSERT_NOT_NULL(res_tips);

@@ -10,7 +10,10 @@ set_target_properties(iota_wallet PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 9
 
 add_dependencies(iota_wallet iota_client)
 
-target_sources(iota_wallet PRIVATE "wallet.c" PUBLIC "wallet.h")
+target_sources(
+  iota_wallet
+  PRIVATE "wallet.c"
+  PUBLIC "wallet.h")
 
 target_include_directories(
   iota_wallet PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CURL_INCLUDE_DIRS}"

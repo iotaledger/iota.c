@@ -27,7 +27,8 @@ extern "C" {
 
 // max length of m/44'/4218'/Account'/Change'
 #define IOTA_ACCOUNT_PATH_MAX 128
-#define DEFAULT_NODE_URL "http://localhost:14265/"
+#define NODE_DEFAULT_HOST "localhost"
+#define NODE_DEFAULT_PORT 14265
 static char const* const iota_bip44_prefix = "m/44'/4218'";
 
 /**
@@ -59,12 +60,13 @@ iota_wallet_t* wallet_create(byte_t const seed[], char const path[]);
 /**
  * @brief Set a node endpoint, if not calling this method default is "http://localhost:14265/"
  *
- * @param w A wallet instance
- * @param[in] url The URL of the node
+ * @param[in] w A wallet instance
+ * @param[in] host The hostname of the node
  * @param[in] port The port number of the node
+ * @param[in] use_tls if use TLS or not
  * @return int 0 on success
  */
-int wallet_set_endpoint(iota_wallet_t* w, char const url[], uint16_t port);
+int wallet_set_endpoint(iota_wallet_t* w, char const host[], uint16_t port, bool use_tls);
 
 /**
  * @brief Get an address by a given index

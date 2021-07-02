@@ -40,7 +40,7 @@ void test_deser_message_children() {
 void test_get_msg_children() {
   char const* const msg_id = "b3546cd9ab475b9b271a0e57041def4b7a2e6e67c9e59c835cc897e19f149a56";
 
-  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
   res_msg_children_t* ch = res_msg_children_new();
   TEST_ASSERT_NOT_NULL(ch);
 

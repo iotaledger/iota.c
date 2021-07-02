@@ -91,7 +91,7 @@ int main(int argc, char *argv[]) {
 
   // send encripted data
   int err = 0;
-  iota_client_conf_t ctx = {.url = "https://api.lb-0.testnet.chrysalis2.com/", .port = 443};
+  iota_client_conf_t ctx = {.host = "api.lb-0.testnet.chrysalis2.com", .port = 443, .use_tls = true};
   indexation_t *idx = NULL;
   core_message_t *msg = NULL;
   res_send_message_t msg_res = {};

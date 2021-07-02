@@ -18,7 +18,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_send_indexation() {
-  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_send_message_t res = {};
   TEST_ASSERT(send_indexation_msg(&ctx, "iota.c", "Hello IOTA", &res) == 0);
@@ -27,7 +27,7 @@ void test_send_indexation() {
 }
 
 void test_send_core_message_indexation() {
-  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   byte_t idx_data[12] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, 0x21};
   indexation_t* idx = indexation_create("iota.c", idx_data, sizeof(idx_data));
@@ -91,8 +91,8 @@ void test_deser_send_msg_response() {
 // send transaction on alphanet
 void test_send_core_message_tx() {
   iota_client_conf_t ctx = {
-      .url = "http://localhost:14265/",
-      .port = 0  // use default port number
+      .host = "localhost",
+      .port = 14265  // use default port number
   };
 
   byte_t wallet_addr[ED25519_ADDRESS_BYTES] = {0x51, 0x55, 0x82, 0xfe, 0x64, 0x8b, 0x0f, 0x10, 0xa2, 0xb2, 0xa1,

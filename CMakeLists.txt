@@ -16,14 +16,15 @@ option(IOTA_TESTS "Enable IOTA Client library test cases" ON)
 option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
 option(IOTA_EXAMPLES "Build example application" ON)
-##### Notice #####
+# ~~~
+# Notice #####
 # USE_REF_CRYPTO only support GCC compiler and Openssl is required.
 # ed25519-donna has a compiling issue with clang 11
 # ed25519-donna-64bit-x86.h:14:3: error: inline assembly requires more registers than available
 #                  "movq %0, %%rax                  ;\n"
 #                  ^
+# ~~~
 option(USE_REF_CRYPTO "Use ed25519_donna, blake2, openssl as crypto implementation" OFF)
-
 
 # fetch external libs
 include(ExternalProject)
@@ -47,26 +48,24 @@ endif()
 if(IOTA_ASAN_ENABLED)
   if(UNIX AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR NOT CMAKE_BUILD_TYPE))
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+      # ~~~
       # uthash causes runtime error if enable the unsigned-integer-overflow sanitizer in clang.
       # see: https://github.com/pmodels/mpich/issues/3322
       # add_compile_options("-fsanitize=address,undefined,unsigned-integer-overflow"
       #   "-fno-omit-frame-pointer"
       #   "-fsanitize-address-use-after-scope"
-      #   "-fno-sanitize-recover=undefined,unsigned-integer-overflow"
-      # )
-      add_compile_options("-fsanitize=address,undefined"
+      #   "-fno-sanitize-recover=undefined,unsigned-integer-overflow")
+      # ~~~
+      add_compile_options(
+        "-fsanitize=address,undefined"
         "-fno-omit-frame-pointer"
         "-fno-sanitize=unsigned-integer-overflow"
         "-fsanitize-address-use-after-scope"
-        "-fno-sanitize-recover=undefined"
-      )
+        "-fno-sanitize-recover=undefined")
       add_link_options("-fsanitize=address,undefined")
     elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
-      add_compile_options("-fsanitize=address,undefined"
-        "-fno-omit-frame-pointer"
-        "-fsanitize-address-use-after-scope"
-        "-fno-sanitize-recover=undefined"
-      )
+      add_compile_options("-fsanitize=address,undefined" "-fno-omit-frame-pointer" "-fsanitize-address-use-after-scope"
+                          "-fno-sanitize-recover=undefined")
       add_link_options("-fsanitize=address,undefined")
     endif()
   else()

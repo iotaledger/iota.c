@@ -16,10 +16,13 @@
 
 #define Mi 1000000
 
+#define NODE_HOST "api.lb-0.testnet.chrysalis2.com"
+#define NODE_HOST_PORT 443
+#define NODE_USE_TLS true
+
 char const *const my_seed = "seed_with_64_char";
 char const *const account_path = "m/44'/4218'/0'/0'";
-char const *const node_url = "https://api.lb-0.testnet.chrysalis2.com/";
-char const *const receiver = "a_bech32_address";
+char const *const receiver = "a_bech32_address";  // iota for mainnet, atoi for testnet
 char const *const my_data = "sent from iota.c";
 
 void dump_addresses(iota_wallet_t *w, uint32_t start, uint32_t end) {
@@ -63,7 +66,7 @@ int main(int argc, char *argv[]) {
   }
 
   // set connected node
-  wallet_set_endpoint(wallet, node_url, 0);
+  wallet_set_endpoint(wallet, NODE_HOST, NODE_HOST_PORT, NODE_USE_TLS);
 
   dump_addresses(wallet, 0, 5);
 

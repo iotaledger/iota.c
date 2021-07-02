@@ -14,7 +14,7 @@ void tearDown(void) {}
 
 void test_get_msg_by_id() {
   char const* const msg_id = "7c58a5bab90219de0231293f40ff65ee7d42e64ae917cc5560f7becdcf6cb158";
-  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();
   TEST_ASSERT_NOT_NULL(msg);

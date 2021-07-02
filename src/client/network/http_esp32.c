@@ -71,8 +71,6 @@ static void init_config(esp_http_client_config_t* esp, http_client_config_t cons
   esp->host = conf->host;
   esp->path = conf->path;
   esp->query = conf->query;
-  esp->username = conf->username;
-  esp->password = conf->password;
   esp->port = conf->port;
   esp->cert_pem = conf->cert_pem;
   esp->timeout_ms = HTTP_TIMEPUT_MS;

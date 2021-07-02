@@ -12,7 +12,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_find_msg_by_index() {
-  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_find_msg_t* res = res_find_msg_new();
   TEST_ASSERT(find_message_by_index(&ctx, "iota.c", res) == 0);

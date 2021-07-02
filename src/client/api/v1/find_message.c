@@ -150,14 +150,9 @@ int find_message_by_index(iota_client_conf_t const *conf, char index[], res_find
   }
 
   // compose restful api command
-  if ((cmd = iota_str_new(conf->url)) == NULL) {
-    printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    return -1;
-  }
-
-  if (iota_str_append(cmd, "api/v1/messages?index=")) {
+  if ((cmd = iota_str_new("/api/v1/messages?index=")) == NULL) {
     printf("[%s:%d]: cmd append failed\n", __func__, __LINE__);
-    goto done;
+    return -1;
   }
 
   if (iota_str_append(cmd, index_hex)) {
@@ -166,11 +161,7 @@ int find_message_by_index(iota_client_conf_t const *conf, char index[], res_find
   }
 
   // http client configuration
-  http_client_config_t http_conf = {0};
-  http_conf.url = cmd->buf;
-  if (conf->port) {
-    http_conf.port = conf->port;
-  }
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);

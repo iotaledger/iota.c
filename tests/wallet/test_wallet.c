@@ -63,7 +63,7 @@ void test_wallet_api() {
   }
 
   // testnet with default port number
-  TEST_ASSERT(wallet_set_endpoint(wallet, "https://api.lb-0.testnet.chrysalis2.com/", 0) == 0);
+  TEST_ASSERT(wallet_set_endpoint(wallet, "api.lb-0.testnet.chrysalis2.com", 443, true) == 0);
 
   wallet_destroy(wallet);
 }

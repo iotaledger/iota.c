@@ -14,9 +14,12 @@
 #include "core/utils/byte_buffer.h"
 #include "wallet/wallet.h"
 
+#define NODE_HOST "api.lb-0.testnet.chrysalis2.com"
+#define NODE_HOST_PORT 443
+#define NODE_USE_TLS true
+
 char const *const my_seed = "seed_with_64_char";
 char const *const account_path = "m/44'/4218'/0'/0'";
-char const *const node_url = "https://api.lb-0.testnet.chrysalis2.com/";
 
 void show_address(iota_wallet_t *w, uint32_t index) {
   byte_t addr_wit_version[IOTA_ADDRESS_BYTES] = {};
@@ -55,7 +58,7 @@ int main(int argc, char *argv[]) {
   }
 
   // set connected node
-  wallet_set_endpoint(wallet, node_url, 0);
+  wallet_set_endpoint(wallet, NODE_HOST, NODE_HOST_PORT, NODE_USE_TLS);
 
   for (uint32_t idx = 0; idx < 5; idx++) {
     uint64_t value = 0;

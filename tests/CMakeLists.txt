@@ -22,9 +22,9 @@ function(add_iota_test test_src test_name)
 endfunction(add_iota_test)
 
 # crypto test cases
-add_custom_target(copy_test_vectors
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_LIST_DIR}/crypto/ed25519_sign.input ${CMAKE_CURRENT_BINARY_DIR}
-)
+add_custom_target(
+  copy_test_vectors COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_LIST_DIR}/crypto/ed25519_sign.input
+                            ${CMAKE_CURRENT_BINARY_DIR})
 add_iota_test("crypto/test_crypto.c" crypto_crypto)
 add_dependencies(crypto_crypto copy_test_vectors)
 
