@@ -93,6 +93,14 @@ static inline iota_str_t *iota_str_clone(iota_str_t *istr) { return iota_str_clo
  */
 static inline int iota_str_cmp(iota_str_t const *a, iota_str_t const *b) { return strcmp(a->buf, b->buf); };
 
+/**
+ * @brief New a string object and reserves a specific length
+ *
+ * @param[in] len the length to reserve
+ * @return iota_str_t*
+ */
+iota_str_t *iota_str_reserve(size_t len);
+
 #ifdef __cplusplus
 }
 #endif

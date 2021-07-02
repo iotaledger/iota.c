@@ -71,3 +71,20 @@ iota_str_t *iota_str_clonen(iota_str_t *istr, size_t len) {
   clone->buf[clone->len] = '\0';
   return clone;
 }
+
+iota_str_t *iota_str_reserve(size_t len) {
+  iota_str_t *istr = malloc(sizeof(iota_str_t));
+  if (!istr) {
+    return NULL;
+  }
+
+  istr->len = 0;
+  istr->cap = len;
+  istr->buf = malloc(istr->cap);
+  if (!istr->buf) {
+    free(istr);
+    return NULL;
+  }
+
+  return istr;
+}
