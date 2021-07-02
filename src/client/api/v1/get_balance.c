@@ -86,7 +86,7 @@ end:
 
 int get_balance(iota_client_conf_t const *conf, char const addr[], res_balance_t *res) {
   int ret = -1;
-  char const *const cmd_balance = "api/v1/addresses/ed25519/";
+  char const *const cmd_balance = "/api/v1/addresses/ed25519/";
   byte_buf_t *http_res = NULL;
   long http_st = 0;
 
@@ -101,15 +101,10 @@ int get_balance(iota_client_conf_t const *conf, char const addr[], res_balance_t
   }
 
   // compose restful api command
-  iota_str_t *cmd = iota_str_new(conf->url);
+  iota_str_t *cmd = iota_str_new(cmd_balance);
   if (cmd == NULL) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return -1;
-  }
-
-  if (iota_str_append(cmd, cmd_balance)) {
     printf("[%s:%d]: cmd_balance append failed\n", __func__, __LINE__);
-    goto done;
+    return -1;
   }
 
   if (iota_str_append(cmd, addr)) {
@@ -118,11 +113,7 @@ int get_balance(iota_client_conf_t const *conf, char const addr[], res_balance_t
   }
 
   // http client configuration
-  http_client_config_t http_conf = {0};
-  http_conf.url = cmd->buf;
-  if (conf->port) {
-    http_conf.port = conf->port;
-  }
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);

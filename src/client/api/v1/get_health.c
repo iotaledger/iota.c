@@ -11,27 +11,11 @@
 int get_health(iota_client_conf_t const *conf, bool *health) {
   int ret = -1;
   long st = 0;
-  char const *const cmd_info = "health";
   byte_buf_t *http_res = NULL;
 
-  // compose restful api command
-  iota_str_t *cmd = iota_str_new(conf->url);
-  if (cmd == NULL) {
-    printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    return -1;
-  }
-
-  if (iota_str_append(cmd, cmd_info)) {
-    printf("[%s:%d]: string append failed\n", __func__, __LINE__);
-    goto done;
-  }
-
   // http client configuration
-  http_client_config_t http_conf = {0};
-  http_conf.url = cmd->buf;
-  if (conf->port) {
-    http_conf.port = conf->port;
-  }
+  http_client_config_t http_conf = {
+      .host = conf->host, .path = "/health", .use_tls = conf->use_tls, .port = conf->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
@@ -47,7 +31,6 @@ int get_health(iota_client_conf_t const *conf, bool *health) {
 
 done:
   // cleanup command
-  iota_str_destroy(cmd);
   byte_buf_free(http_res);
 
   return ret;

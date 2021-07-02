@@ -141,36 +141,31 @@ int get_message_children(iota_client_conf_t const *ctx, char const msg_id[], res
   iota_str_t *cmd = NULL;
   byte_buf_t *http_res = NULL;
   long st = 0;
+  char const *const cmd_prefix = "/api/v1/messages/";
+  char const *const cmd_suffix = "/children";
 
   if (ctx == NULL || msg_id == NULL || res == NULL) {
     // invalid parameters
     return -1;
   }
-  size_t index_str_len = strlen(msg_id);
-  if (index_str_len != IOTA_ADDRESS_HEX_BYTES) {
+  size_t msg_str_len = strlen(msg_id);
+  if (msg_str_len != IOTA_MESSAGE_ID_HEX_BYTES) {
     printf("[%s:%d] incorrect length of the message ID\n", __func__, __LINE__);
     return -1;
   }
 
-  // compose restful api command
-  if ((cmd = iota_str_new(ctx->url)) == NULL) {
-    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+  cmd = iota_str_reserve(strlen(cmd_prefix) + msg_str_len + strlen(cmd_suffix) + 1);
+  if (cmd == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
-  char cmd_buf[128] = {};
-  sprintf(cmd_buf, "api/v1/messages/%s/children", msg_id);
-  if (iota_str_append(cmd, cmd_buf)) {
-    printf("[%s:%d]: cmd append failed\n", __func__, __LINE__);
-    goto done;
-  }
+  // composing API command
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", cmd_prefix, msg_id, cmd_suffix);
+  cmd->len = strlen(cmd->buf);
 
   // http client configuration
-  http_client_config_t http_conf = {0};
-  http_conf.url = cmd->buf;
-  if (ctx->port) {
-    http_conf.port = ctx->port;
-  }
+  http_client_config_t http_conf = {.host = ctx->host, .path = cmd->buf, .use_tls = ctx->use_tls, .port = ctx->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);

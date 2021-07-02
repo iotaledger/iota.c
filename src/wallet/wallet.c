@@ -205,25 +205,27 @@ iota_wallet_t* wallet_create(byte_t const seed[], char const path[]) {
     memset(w->bech32HRP, 0, sizeof(w->bech32HRP));
     memcpy(w->seed, seed, IOTA_SEED_BYTES);
     memcpy(w->account, path, strlen(path) + 1);
-    strcpy(w->endpoint.url, DEFAULT_NODE_URL);
-    w->endpoint.port = 0;
+    strcpy(w->endpoint.host, NODE_DEFAULT_HOST);
+    w->endpoint.port = NODE_DEFAULT_PORT;
+    w->endpoint.use_tls = false;
   }
   return w;
 }
 
-int wallet_set_endpoint(iota_wallet_t* w, char const url[], uint16_t port) {
-  if (!w || !url) {
+int wallet_set_endpoint(iota_wallet_t* w, char const host[], uint16_t port, bool use_tls) {
+  if (!w || !host) {
     printf("[%s:%d] Err: invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  if (strlen(url) >= sizeof(w->endpoint.url)) {
-    printf("[%s:%d] Err: The length of URL is too long\n", __func__, __LINE__);
+  if (strlen(host) >= sizeof(w->endpoint.host)) {
+    printf("[%s:%d] Err: The length of hostname is too long\n", __func__, __LINE__);
     return -1;
   }
 
-  strncpy(w->endpoint.url, url, sizeof(w->endpoint.url) - 1);
+  snprintf(w->endpoint.host, sizeof(w->endpoint.host), "%s", host);
   w->endpoint.port = port;
+  w->endpoint.use_tls = use_tls;
   return 0;
 }
 

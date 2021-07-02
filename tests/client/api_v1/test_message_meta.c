@@ -83,7 +83,7 @@ void test_get_msg_meta() {
   // Transaction payload
   char const* const id_str = "460df94c91bdb2590df7e01ff5c8c30eb791b225545ff19b3cf86089bddc139e";
 
-  iota_client_conf_t ctx = {.url = TEST_NODE_ENDPOINT, .port = TEST_NODE_PORT};
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
   res_msg_meta_t* meta = res_msg_meta_new();
   TEST_ASSERT_NOT_NULL(meta);
 

@@ -134,32 +134,32 @@ int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], 
   int ret = -1;
   long st = 0;
   byte_buf_t *http_res = NULL;
+  char const *const cmd_prefix = "/api/v1/addresses/ed25519/";
+  char const *const cmd_suffix = "/outputs";
 
   if (conf == NULL || addr == NULL || res == NULL) {
     // invalid parameters
     return -1;
   }
 
-  // compose restful api command
-  iota_str_t *cmd = iota_str_new(conf->url);
-  if (cmd == NULL) {
-    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+  size_t addr_len = strlen(addr);
+  if (addr_len != IOTA_ADDRESS_HEX_BYTES) {
+    printf("[%s:%d] incorrect length of the address\n", __func__, __LINE__);
     return -1;
   }
 
-  char cmd_buf[128] = {};
-  sprintf(cmd_buf, "api/v1/addresses/ed25519/%s/outputs", addr);
-  if (iota_str_append(cmd, cmd_buf)) {
-    printf("[%s:%d]: cmd append failed\n", __func__, __LINE__);
-    goto done;
+  iota_str_t *cmd = iota_str_reserve(strlen(cmd_prefix) + addr_len + strlen(cmd_suffix) + 1);
+  if (cmd == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
   }
 
+  // composing API command
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", cmd_prefix, addr, cmd_suffix);
+  cmd->len = strlen(cmd->buf);
+
   // http client configuration
-  http_client_config_t http_conf = {0};
-  http_conf.url = cmd->buf;
-  if (conf->port) {
-    http_conf.port = conf->port;
-  }
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);

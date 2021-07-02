@@ -7,8 +7,16 @@
 // enable or disable test cases use the Tangle network.
 // We don't enable it by default but enable it for a local test is recommended.
 #define TEST_TANGLE_ENABLE 0
+#define USE_HTTPS
 
-#define TEST_NODE_ENDPOINT "https://api.lb-0.testnet.chrysalis2.com/"
-#define TEST_NODE_PORT 0
+#ifdef USE_HTTPS
+#define TEST_NODE_HOST "api.lb-0.testnet.chrysalis2.com"
+#define TEST_NODE_PORT 443
+#define TEST_IS_HTTPS 1
+#else
+#define TEST_NODE_HOST "chrysalis-nodes.iota.org"
+#define TEST_NODE_PORT 80
+#define TEST_IS_HTTPS 0
+#endif
 
 #endif

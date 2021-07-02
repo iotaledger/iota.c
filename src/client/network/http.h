@@ -15,14 +15,13 @@
 #include "core/utils/byte_buffer.h"
 
 typedef struct {
-  char* url;
-  char* host;
-  char* path;
-  char* query;
-  char* username;
-  char* password;
-  char const* cert_pem;
-  int port;
+  char const* url;       ///< HTTP URL, it overrides fields below, if any
+  char const* host;      ///< Domain name or IP as string
+  char const* path;      ///< HTTP path
+  char const* query;     ///< HTTP query
+  char const* cert_pem;  ///< SSL certification in PEM format
+  uint16_t port;         ///< port to connect
+  bool use_tls;          ///< Use TLS or not
 } http_client_config_t;
 
 #ifdef __cplusplus
