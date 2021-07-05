@@ -10,6 +10,7 @@
 #include "mbedtls/md.h"
 #elif CRYPTO_USE_OPENSSL
 #include <openssl/hmac.h>
+#include <openssl/rand.h>
 #include <string.h>
 #include <sys/random.h>
 #include "blake2.h"
@@ -39,8 +40,8 @@ void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
 #else
   sys_csrand_get(buf, len);
 #endif
-#else
-#error iota_crypto_randombytes must be implemented
+#else  // openssl
+  RAND_bytes(buf, len);
 #endif
 }
 
