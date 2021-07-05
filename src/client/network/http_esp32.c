@@ -75,6 +75,11 @@ static void init_config(esp_http_client_config_t* esp, http_client_config_t cons
   esp->cert_pem = conf->cert_pem;
   esp->timeout_ms = HTTP_TIMEPUT_MS;
   esp->event_handler = http_event_handler;
+  if (conf->use_tls) {
+    esp->transport_type = HTTP_TRANSPORT_OVER_SSL;
+  } else {
+    esp->transport_type = HTTP_TRANSPORT_OVER_TCP;
+  }
 }
 
 void http_client_init() {}
@@ -89,17 +94,22 @@ int http_client_post(http_client_config_t const* const config, byte_buf_t const*
   esp_client_conf.user_data = (void*)response;
 
   esp_http_client_handle_t client = esp_http_client_init(&esp_client_conf);
-  esp_http_client_set_method(client, HTTP_METHOD_POST);
-  esp_http_client_set_header(client, "Content-Type", "application/json");
-  esp_http_client_set_post_field(client, (char const*)request->data, request->len);
+  if (client) {
+    esp_http_client_set_method(client, HTTP_METHOD_POST);
+    esp_http_client_set_header(client, "Content-Type", "application/json");
+    esp_http_client_set_post_field(client, (char const*)request->data, request->len);
 
-  esp_err_t err = esp_http_client_perform(client);
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
+    esp_err_t err = esp_http_client_perform(client);
+    if (err != ESP_OK) {
+      ESP_LOGE(TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
+      ret = -1;
+    }
+    *status = esp_http_client_get_status_code(client);
+    esp_http_client_cleanup(client);
+  } else {
+    ESP_LOGE(TAG, "http client init failed");
     ret = -1;
   }
-  *status = esp_http_client_get_status_code(client);
-  esp_http_client_cleanup(client);
   return ret;
 }
 
@@ -110,14 +120,21 @@ int http_client_get(http_client_config_t const* const config, byte_buf_t* const 
   esp_client_conf.user_data = (void*)response;
 
   esp_http_client_handle_t client = esp_http_client_init(&esp_client_conf);
+  if (client) {
+    esp_http_client_set_method(client, HTTP_METHOD_GET);
+    esp_http_client_set_header(client, "Content-Type", "application/json");
+    esp_err_t err = esp_http_client_perform(client);
+    if (err != ESP_OK) {
+      ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
+      ret = -1;
+    }
 
-  esp_err_t err = esp_http_client_perform(client);
-  if (err != ESP_OK) {
-    ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
+    *status = esp_http_client_get_status_code(client);
+    esp_http_client_cleanup(client);
+
+  } else {
+    ESP_LOGE(TAG, "http client init failed");
     ret = -1;
   }
-
-  *status = esp_http_client_get_status_code(client);
-  esp_http_client_cleanup(client);
   return ret;
 }
