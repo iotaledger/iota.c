@@ -150,7 +150,6 @@ end:
 int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_message_t* res) {
   int ret = -1;
   long http_st_code = 0;
-  iota_str_t* cmd = NULL;
   byte_buf_t* json_data = byte_buf_new();
   byte_buf_t* node_res = byte_buf_new();
   if (!json_data || !node_res) {
@@ -162,10 +161,8 @@ int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_
   // serialize message
   switch (msg->type) {
     case MSG_PAYLOAD_TRANSACTION:
-      // TODO
-      break;
     case MSG_PAYLOAD_MILESTONE:
-      // TODO
+      printf("[%s:%d] not supported, use send_core_message instead\n", __func__, __LINE__);
       break;
     case MSG_PAYLOAD_INDEXATION:
       ret = serialize_indexation(msg, json_data);
