@@ -132,14 +132,16 @@ int find_message_by_index(iota_client_conf_t const *conf, char index[], res_find
   iota_str_t *cmd = NULL;
   byte_buf_t *http_res = NULL;
   long st = 0;
-  char index_hex[65] = {};
+  // the maximum Index in hex string is 128 bytes plus a null terminator.
+  char index_hex[129] = {};
 
   if (conf == NULL || index == NULL || res == NULL) {
     // invalid parameters
     return -1;
   }
+  // the maximum Index is 64 bytes.
   size_t index_str_len = strlen(index);
-  if (index_str_len > 32) {
+  if (index_str_len > 64) {
     printf("[%s:%d] index string too long\n", __func__, __LINE__);
     return -1;
   }
