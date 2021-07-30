@@ -145,7 +145,7 @@ int hex2string(char const str[], uint8_t array[], size_t arr_len);
  * @param[in] hex_len The length of hex buffer
  * @return int 0 on success
  */
-int string2hex(char str[], byte_t hex[], size_t hex_len);
+int string2hex(char const str[], byte_t hex[], size_t hex_len);
 
 /**
  * @brief Converts hex string to a byte array

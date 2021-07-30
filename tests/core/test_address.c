@@ -18,6 +18,7 @@ void tearDown(void) {}
 void test_address_gen() {
   char const* const exp_iot_bech32 = "iot1qpg4tqh7vj9s7y9zk2smj8t4qgvse9um42l7apdkhw6syp5ju4w3v6ffg6n";
   char const* const exp_iota_bech32 = "iota1qpg4tqh7vj9s7y9zk2smj8t4qgvse9um42l7apdkhw6syp5ju4w3v79tf3l";
+  char const* const exp_hex_addr = "515582FE648B0F10A2B2A1B91D7502190C979BAABFEE85B6BBB5020692E55D16";
   byte_t exp_addr[IOTA_ADDRESS_BYTES] = {0x00, 0x51, 0x55, 0x82, 0xfe, 0x64, 0x8b, 0xf,  0x10, 0xa2, 0xb2,
                                          0xa1, 0xb9, 0x1d, 0x75, 0x2,  0x19, 0xc,  0x97, 0x9b, 0xaa, 0xbf,
                                          0xee, 0x85, 0xb6, 0xbb, 0xb5, 0x2,  0x6,  0x92, 0xe5, 0x5d, 0x16};
@@ -30,6 +31,7 @@ void test_address_gen() {
   char bech32_addr[128] = {};
   byte_t addr_with_ver[IOTA_ADDRESS_BYTES] = {};
   byte_t addr_from_bech32[IOTA_ADDRESS_BYTES] = {};
+  char addr_hex_str[IOTA_ADDRESS_HEX_BYTES + 1] = {};
 
   // convert seed from hex string to binary
   TEST_ASSERT(hex_2_bin("e57fb750f3a3a67969ece5bd9ae7eef5b2256a818b2aac458941f7274985a410", IOTA_SEED_BYTES * 2, seed,
@@ -52,6 +54,9 @@ void test_address_gen() {
   // bech32 to binary address
   TEST_ASSERT(address_from_bech32("iot", bech32_addr, addr_from_bech32) == 0);
   TEST_ASSERT_EQUAL_MEMORY(addr_with_ver, addr_from_bech32, IOTA_ADDRESS_BYTES);
+  // bech32 to hex string
+  TEST_ASSERT(address_bech32_to_hex("iot", exp_iot_bech32, addr_hex_str, sizeof(addr_hex_str)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(exp_hex_addr, addr_hex_str, sizeof(addr_hex_str));
 
   // convert binary address to bech32 with iota HRP
   TEST_ASSERT(address_2_bech32(addr_with_ver, "iota", bech32_addr) == 0);
@@ -60,6 +65,9 @@ void test_address_gen() {
   // bech32 to binary address
   TEST_ASSERT(address_from_bech32("iota", bech32_addr, addr_from_bech32) == 0);
   TEST_ASSERT_EQUAL_MEMORY(addr_with_ver, addr_from_bech32, IOTA_ADDRESS_BYTES);
+  // bech32 to hex string
+  TEST_ASSERT(address_bech32_to_hex("iota", bech32_addr, addr_hex_str, sizeof(addr_hex_str)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(exp_hex_addr, addr_hex_str, sizeof(addr_hex_str));
 
   // address from ed25519 keypair
   iota_keypair_t seed_keypair = {};

@@ -47,7 +47,7 @@ int hex2string(char const str[], uint8_t array[], size_t arr_len) {
   return 0;
 }
 
-int string2hex(char str[], byte_t hex[], size_t hex_len) {
+int string2hex(char const str[], byte_t hex[], size_t hex_len) {
   size_t required_size = strlen(str) * 2 + 1;
   if (hex_len < required_size) {
     // hex buffer size is not sufficient

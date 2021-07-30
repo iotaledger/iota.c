@@ -86,7 +86,7 @@ int deser_find_message(char const *const j_str, res_find_msg_t *res);
  * @param[out] res The response object
  * @return int 0 on success
  */
-int find_message_by_index(iota_client_conf_t const *conf, char index[], res_find_msg_t *res);
+int find_message_by_index(iota_client_conf_t const *conf, char const index[], res_find_msg_t *res);
 
 #ifdef __cplusplus
 }

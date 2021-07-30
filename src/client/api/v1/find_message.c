@@ -127,7 +127,7 @@ end:
   return ret;
 }
 
-int find_message_by_index(iota_client_conf_t const *conf, char index[], res_find_msg_t *res) {
+int find_message_by_index(iota_client_conf_t const *conf, char const index[], res_find_msg_t *res) {
   int ret = -1;
   iota_str_t *cmd = NULL;
   byte_buf_t *http_res = NULL;

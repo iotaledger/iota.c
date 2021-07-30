@@ -28,6 +28,10 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 .. doxygenfunction:: address_2_bech32
 ```
 
+```{eval-rst}
+.. doxygenfunction:: address_bech32_to_hex
+```
+
 ## [Message](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/message.h)
 
 ```{eval-rst}

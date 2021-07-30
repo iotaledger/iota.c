@@ -74,6 +74,17 @@ int address_from_bech32(char const* hrp, char const* bech32_str, byte_t out_addr
  */
 int address_2_bech32(byte_t const addr[], char const* hrp, char* bech32_addr);
 
+/**
+ * @brief Convert Bech32 address to ed25519 in hex string form
+ *
+ * @param[in] hrp The HRP prefix
+ * @param[in] bech32 A Bech32 address string
+ * @param[out] hex A buffer holds output
+ * @param[in] hex_len the length of the buffer, should bigger than 65 bytes
+ * @return int 0 on success
+ */
+int address_bech32_to_hex(char const hrp[], char const bech32[], char hex[], size_t hex_len);
+
 #ifdef __cplusplus
 }
 #endif

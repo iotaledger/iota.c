@@ -6,6 +6,7 @@
 
 #include "core/address.h"
 #include "core/utils/bech32.h"
+#include "core/utils/byte_buffer.h"
 #include "core/utils/slip10.h"
 #include "crypto/iota_crypto.h"
 
@@ -50,4 +51,21 @@ int address_from_bech32(char const* hrp, char const* bech32_str, byte_t out_addr
 int address_2_bech32(byte_t const addr[], char const* hrp, char* bech32_addr) {
   // out_addr is an address with a verion byte which is 33 bytes
   return !iota_addr_bech32_encode(bech32_addr, hrp, addr, IOTA_ADDRESS_BYTES);
+}
+
+int address_bech32_to_hex(char const hrp[], char const bech32[], char hex[], size_t hex_len) {
+  // ed25519 address in binary
+  byte_t address[IOTA_ADDRESS_BYTES] = {};
+  // convert bech32 address to ed25519 address
+  if (address_from_bech32(hrp, bech32, address) != 0) {
+    printf("Convert bech32 address to ed25519 failed\n");
+    return -1;
+  }
+
+  // ed25519 address to hex string
+  if (bin_2_hex(address + 1, IOTA_ADDRESS_BYTES - 1, hex, hex_len) != 0) {
+    printf("Convert ed25519 address to hex string failed\n");
+    return -2;
+  }
+  return 0;
 }
