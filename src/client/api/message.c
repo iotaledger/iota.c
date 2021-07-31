@@ -31,7 +31,11 @@ void payload_tx_free(payload_tx_t *tx) {
       utarray_free(tx->unlock_blocks);
     }
     if (tx->payload) {
-      // TODO
+      if (tx->type == MSG_PAYLOAD_INDEXATION) {
+        payload_index_free((payload_index_t *)tx->payload);
+      } else {
+        // TODO
+      }
     }
     free(tx);
   }

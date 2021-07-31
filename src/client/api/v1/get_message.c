@@ -53,7 +53,24 @@ end:
   return ret;
 }
 
-static int deser_indexation(cJSON *idx_obj, res_message_t *res) {
+static int deser_tx_indexation(cJSON *json, payload_index_t *idx) {
+  int ret = -1;
+  if (json == NULL || idx == NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if ((ret = json_get_byte_buf_str(json, JSON_KEY_INDEX, idx->index)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_INDEX);
+  } else {
+    if ((ret = json_get_byte_buf_str(json, JSON_KEY_DATA, idx->data)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_DATA);
+    }
+  }
+  return ret;
+}
+
+static int deser_msg_indexation(cJSON *idx_obj, res_message_t *res) {
   int ret = -1;
   payload_index_t *idx = payload_index_new();
   if (idx == NULL) {
@@ -61,16 +78,7 @@ static int deser_indexation(cJSON *idx_obj, res_message_t *res) {
     return -1;
   }
 
-  if ((ret = json_get_byte_buf_str(idx_obj, JSON_KEY_INDEX, idx->index)) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_INDEX);
-    goto end;
-  }
-
-  if ((ret = json_get_byte_buf_str(idx_obj, JSON_KEY_DATA, idx->data)) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_DATA);
-  }
-
-end:
+  ret = deser_tx_indexation(idx_obj, idx);
   if (ret != 0) {
     payload_index_free(idx);
     res->u.msg->payload = NULL;
@@ -266,8 +274,34 @@ static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
     // payload
     cJSON *payload_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_PAYLOAD);
     if (!cJSON_IsNull(payload_obj)) {
-      // TODO;
-      printf("[%s:%d]: TODO parsing payload in a transaction\n", __func__, __LINE__);
+      /*
+      "payload": {
+          "type": 2,
+          "index": "45535033322057616c6c6574",
+          "data": "73656e742066726f6d2065737033322076696120696f74612e6300"
+      }
+      */
+      cJSON *payload_type = cJSON_GetObjectItemCaseSensitive(payload_obj, JSON_KEY_TYPE);
+      if (cJSON_IsNumber(payload_type)) {
+        if (payload_type->valueint == MSG_PAYLOAD_INDEXATION) {
+          payload_index_t *idx = payload_index_new();
+          if (idx == NULL) {
+            printf("[%s:%d]: allocate index payload failed\n", __func__, __LINE__);
+          } else {
+            if (deser_tx_indexation(payload_obj, idx) != 0) {
+              printf("[%s:%d]: parsing index payload failed\n", __func__, __LINE__);
+              payload_index_free(idx);
+            } else {
+              tx->type = MSG_PAYLOAD_INDEXATION;
+              tx->payload = idx;
+            }
+          }
+        } else {
+          printf("[%s:%d]: payload type %d is not supported\n", __func__, __LINE__, payload_type->valueint);
+        }
+      } else {
+        printf("[%s:%d]: payload type must be a number\n", __func__, __LINE__);
+      }
     }
 
     // unlock blocks
@@ -381,7 +415,7 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
           ret = deser_milestone(payload, res);
           break;
         case MSG_PAYLOAD_INDEXATION:
-          ret = deser_indexation(payload, res);
+          ret = deser_msg_indexation(payload, res);
           break;
         default:
           // do nothing

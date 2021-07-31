@@ -11,11 +11,11 @@
 #include "core/utils/byte_buffer.h"
 #include "utarray.h"
 
-#define API_MSG_ID_HEX_BYTES 64
-#define API_TX_ID_HEX_BYTES 64
-#define API_ADDR_HEX_BYTES 64
-#define API_PUB_KEY_HEX_BYTES 64
-#define API_SIGNATURE_HEX_BYTES 128
+#define API_MSG_ID_HEX_STR_LEN (64 + 1)
+#define API_TX_ID_HEX_STR_LEN (64 + 1)
+#define API_ADDR_HEX_STR_LEN (64 + 1)
+#define API_PUB_KEY_HEX_STR_LEN (64 + 1)
+#define API_SIGNATURE_HEX_STR_LEN (128 + 1)
 
 typedef enum {
   MSG_PAYLOAD_TRANSACTION = 0,
@@ -28,7 +28,7 @@ typedef enum {
 typedef struct {
   uint64_t timestamp;
   uint32_t index;
-  char inclusion_merkle_proof[64];  // hex string with 64 length
+  char inclusion_merkle_proof[64 + 1];  // hex string with 64 length
   UT_array *signatures;
 } payload_milestone_t;
 
@@ -39,17 +39,17 @@ typedef struct {
 
 typedef struct {
   uint32_t tx_output_index;
-  char tx_id[API_TX_ID_HEX_BYTES];
+  char tx_id[API_TX_ID_HEX_STR_LEN];
 } payload_tx_input_t;
 
 typedef struct {
   uint64_t amount;
-  char address[API_ADDR_HEX_BYTES];
+  char address[API_ADDR_HEX_STR_LEN];
 } payload_tx_output_t;
 
 typedef struct {
-  char pub_key[API_PUB_KEY_HEX_BYTES];
-  char signature[API_SIGNATURE_HEX_BYTES];
+  char pub_key[API_PUB_KEY_HEX_STR_LEN];
+  char signature[API_SIGNATURE_HEX_STR_LEN];
 } payload_unlock_block_t;
 
 typedef UT_array utxo_inputs_t;
@@ -60,6 +60,7 @@ typedef struct {
   utxo_inputs_t *intputs;
   utxo_outputs_t *outputs;
   unlock_blocks_t *unlock_blocks;
+  payload_t type;
   void *payload;
 } payload_tx_t;
 
