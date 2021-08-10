@@ -47,19 +47,20 @@ typedef struct {
   char address[API_ADDR_HEX_STR_LEN];
 } payload_tx_output_t;
 
+// TODO: unlock block should contain signautre and reference unlock block types
 typedef struct {
   char pub_key[API_PUB_KEY_HEX_STR_LEN];
   char signature[API_SIGNATURE_HEX_STR_LEN];
 } payload_unlock_block_t;
 
-typedef UT_array utxo_inputs_t;
-typedef UT_array utxo_outputs_t;
-typedef UT_array unlock_blocks_t;
+typedef UT_array api_utxo_inputs_t;
+typedef UT_array api_utxo_outputs_t;
+typedef UT_array api_unlock_blocks_t;
 
 typedef struct {
-  utxo_inputs_t *intputs;
-  utxo_outputs_t *outputs;
-  unlock_blocks_t *unlock_blocks;
+  api_utxo_inputs_t *intputs;
+  api_utxo_outputs_t *outputs;
+  api_unlock_blocks_t *unlock_blocks;
   payload_t type;
   void *payload;
 } payload_tx_t;

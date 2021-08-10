@@ -45,7 +45,7 @@ void test_message_with_tx() {
 
   TEST_ASSERT(core_message_sign_transaction(msg) == 0);
 
-  // tx_payload_print(tx);
+  tx_payload_print(tx);
 
   // free message and sub entities
   core_message_free(msg);

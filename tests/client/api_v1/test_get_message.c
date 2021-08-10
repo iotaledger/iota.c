@@ -266,6 +266,31 @@ void test_deser_tx2() {
   res_message_free(res);
 }
 
+void test_deser_tx3() {
+  char const* const tx_with_ref =
+      "{\"data\":{\"networkId\":\"14379272398717627559\",\"parentMessageIds\":["
+      "\"463d4c237c792f0fa049873b79ef30e6d8873208ec57b97a272cb9fdef1c3689\","
+      "\"5800b7bfe01decf85609494fb177e95b47f89addbc78775a987405c99eb8ef71\","
+      "\"580907add28cac6a40a07fa141fc03b531d5a61de0713ac05a648e79c64015c2\","
+      "\"ffb88663d28855e64b5f8b00c27e6bdccffadb7b1c034518197547e619a22a61\"],\"payload\":{\"type\":0,\"essence\":{"
+      "\"type\":0,\"inputs\":[{\"type\":0,\"transactionId\":"
+      "\"17057e92991f836ff2f0f88f2abb93ba0d8eda37efc1312daad599c1326bce31\",\"transactionOutputIndex\":1},{\"type\":0,"
+      "\"transactionId\":\"7f558c37e8b5d68e290a9269a77327eec9c564eba8f707ad3905de0f8fb04cba\","
+      "\"transactionOutputIndex\":1}],\"outputs\":[{\"type\":0,\"address\":{\"type\":0,\"address\":"
+      "\"663e6d9dc9955691ede73e1a81fef87af7b94f167524b5e6f92aa559b89185db\"},\"amount\":1000000},{\"type\":0,"
+      "\"address\":{\"type\":0,\"address\":\"96f9de0989e77d0e150e850a5a600e83045fa57419eaf3b20225b763d4e23813\"},"
+      "\"amount\":1200045}],\"payload\":null},\"unlockBlocks\":[{\"type\":0,\"signature\":{\"type\":0,\"publicKey\":"
+      "\"2baaf3bca8ace9f862e60184bd3e79df25ff230f7eaaa4c7f03daa9833ba854a\",\"signature\":"
+      "\"cb4ece3f2d7e4903b17d45d41c26685fae9ed04e61294c94095ba248e4eae8cbed60addbd57cabd2df633f0c3f51644fa141a612df81c1"
+      "f18942e20bbaf4d102\"}},{\"type\":1,\"reference\":0}]},\"nonce\":\"9223372036857144820\"}}";
+
+  res_message_t* res = res_message_new();
+  TEST_ASSERT_NOT_NULL(res);
+  TEST_ASSERT(deser_get_message(tx_with_ref, res) == 0);
+  // TEST_ASSERT(res->is_error == false);
+  res_message_free(res);
+}
+
 void test_deser_tx_with_index() {
   char const* const tx_with_index =
       "{\"data\":{\"networkId\":\"14379272398717627559\",\"parentMessageIds\":["
@@ -342,6 +367,7 @@ int main() {
   RUN_TEST(test_deser_milestone);
   RUN_TEST(test_deser_tx1);
   RUN_TEST(test_deser_tx2);
+  RUN_TEST(test_deser_tx3);
   RUN_TEST(test_deser_tx_with_index);
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_msg_by_id);

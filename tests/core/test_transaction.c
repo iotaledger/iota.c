@@ -70,34 +70,34 @@ static byte_t exp_block[103] = {
     0xAB, 0xE4, 0x6E, 0x99, 0x21, 0x56, 0x25, 0x73, 0xF2, 0x62, 0x1,  0x0,  0x0};
 
 void test_tx_unlocked_block() {
-  tx_unlock_blocks_t* blocks = tx_blocks_new();
+  unlock_blocks_t* blocks = unlock_blocks_new();
   TEST_ASSERT_NULL(blocks);
-  TEST_ASSERT_EQUAL_UINT16(0, tx_blocks_count(blocks));
+  TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(blocks));
 
   // add a signature block
-  ed25519_signature_t sig = {};
-  sig.type = 1;
-  memcpy(sig.pub_key, test_pub_key, ED_PUBLIC_KEY_BYTES);
-  memcpy(sig.signature, test_sig, ED_SIGNATURE_BYTES);
-  tx_blocks_add_signature(&blocks, &sig);
-  TEST_ASSERT_EQUAL_UINT16(1, tx_blocks_count(blocks));
+  byte_t sig[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+  sig[0] = ADDRESS_VER_UNKNOW;
+  memcpy(sig + 1, test_pub_key, ED_PUBLIC_KEY_BYTES);
+  memcpy(sig + 1 + ED_PUBLIC_KEY_BYTES, test_sig, ED_SIGNATURE_BYTES);
+  unlock_blocks_add_signature(&blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_blocks_count(blocks));
 
   // add a reference block that reverence to the 0 index of blocks.
-  tx_blocks_add_reference(&blocks, 0);
+  unlock_blocks_add_reference(&blocks, 0);
 
   // tx_blocks_print(blocks);
 
   // serialization
-  size_t len = tx_blocks_serialize_length(blocks);
+  size_t len = unlock_blocks_serialize_length(blocks);
   TEST_ASSERT(len != 0);
   byte_t* block_buf = malloc(len);
-  TEST_ASSERT(tx_blocks_serialize(blocks, block_buf) == len);
+  TEST_ASSERT(unlock_blocks_serialize(blocks, block_buf) == len);
   TEST_ASSERT_EQUAL_MEMORY(exp_block, block_buf, sizeof(exp_block));
   // dump_hex(block_buf, len);
 
   free(block_buf);
 
-  tx_blocks_free(blocks);
+  unlock_blocks_free(blocks);
 }
 
 static byte_t addr0[ED25519_ADDRESS_BYTES] = {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -128,11 +128,12 @@ void test_tx_payload() {
   TEST_ASSERT(tx_payload_add_output(tx, OUTPUT_SINGLE_OUTPUT, addr0, 1000) == 0);
 
   // add signature
-  ed25519_signature_t sig = {};
-  sig.type = ADDRESS_VER_ED25519;
-  memcpy(sig.pub_key, test_pub_key, ED_PUBLIC_KEY_BYTES);
-  memcpy(sig.signature, test_sig, ED_SIGNATURE_BYTES);
-  TEST_ASSERT(tx_payload_add_sig_block(tx, &sig) == 0);
+  byte_t sig[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+  // ed25519_signature_t sig = {};
+  sig[0] = ADDRESS_VER_ED25519;
+  memcpy(sig + 1, test_pub_key, ED_PUBLIC_KEY_BYTES);
+  memcpy(sig + 1 + ED_PUBLIC_KEY_BYTES, test_sig, ED_SIGNATURE_BYTES);
+  TEST_ASSERT(tx_payload_add_sig_block(tx, sig, ED25519_SIGNATURE_BLOCK_BYTES) == 0);
 
   // tx_payload_print(tx);
 

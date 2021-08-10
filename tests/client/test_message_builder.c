@@ -78,8 +78,8 @@ void test_msg_tx() {
   TEST_ASSERT(tx_payload_add_output(tx, OUTPUT_SINGLE_OUTPUT, addr0, 1000) == 0);
   TEST_ASSERT(tx_payload_add_output(tx, OUTPUT_SINGLE_OUTPUT, addr1, 9999) == 0);
 
-  ed25519_signature_t sig = {};
-  TEST_ASSERT(tx_payload_add_sig_block(tx, &sig) == 0);
+  byte_t sig[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+  TEST_ASSERT(tx_payload_add_sig_block(tx, sig, ED25519_SIGNATURE_BLOCK_BYTES) == 0);
   TEST_ASSERT(tx_payload_add_ref_block(tx, 0) == 0);
   // tx_payload_print(tx);
 

@@ -11,28 +11,10 @@
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/outputs/outputs.h"
 #include "core/models/payloads/indexation.h"
+#include "core/models/unlock_block.h"
 #include "core/types.h"
 
 static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
-
-typedef struct {
-  signature_t type;  ///< Set to value 0 to denote an Ed25519 Signature
-  byte_t
-      pub_key[ED_PUBLIC_KEY_BYTES];  ///< The public key of the Ed25519 keypair which is used to verify the signature.
-  byte_t signature[ED_SIGNATURE_BYTES];  ///< The signature signing the serialized Unsigned Transaction.
-} ed25519_signature_t;
-
-/**
- * @brief An unlock block list object
- *
- */
-typedef struct unlock_blocks {
-  unlock_block_t type;            ///< 0 to denote a Signature Unlock Block, 1 for a Reference Unlock Block.
-  ed25519_signature_t signature;  ///< For signature unlock block, public key and signature for a specific input.
-  uint16_t reference;             ///< For reverence unlock block, the index of a previous unlock block.
-  struct unlock_blocks* prev;     ///< point to previous block
-  struct unlock_blocks* next;     ///< point to next block
-} tx_unlock_blocks_t;
 
 /**
  * @brief Transaction Essence, the essence data making up a transaction by defining its inputs and outputs and an
@@ -58,10 +40,10 @@ typedef struct {
  *
  */
 typedef struct {
-  payload_t type;                     ///< Set to value 0 to denote a Transaction payload.
-  transaction_essence_t* essence;     ///< Describes the essence data making up a transaction by defining its inputs and
-                                      ///< outputs and an optional payload.
-  tx_unlock_blocks_t* unlock_blocks;  ///< Defines an unlock block containing signature(s) unlocking input(s).
+  payload_t type;                  ///< Set to value 0 to denote a Transaction payload.
+  transaction_essence_t* essence;  ///< Describes the essence data making up a transaction by defining its inputs and
+                                   ///< outputs and an optional payload.
+  unlock_blocks_t* unlock_blocks;  ///< Defines an unlock block containing signature(s) unlocking input(s).
 } transaction_payload_t;
 
 #ifdef __cplusplus
@@ -150,70 +132,6 @@ void tx_essence_print(transaction_essence_t* es);
 void tx_essence_sort_input_output(transaction_essence_t* es);
 
 /**
- * @brief Initialize a block list object
- *
- * @return tx_unlock_blocks_t* a NULL pointer
- */
-tx_unlock_blocks_t* tx_blocks_new();
-
-/**
- * @brief Add a signature block
- *
- * @param[in] blocks The head of list
- * @param[in] sig A ed25519 signature object
- * @return int 0 on success
- */
-int tx_blocks_add_signature(tx_unlock_blocks_t** blocks, ed25519_signature_t* sig);
-
-/**
- * @brief Add a reference block
- *
- * @param[in] blocks The head of list
- * @param[in] ref The index of reference
- * @return int 0 on success.
- */
-int tx_blocks_add_reference(tx_unlock_blocks_t** blocks, uint16_t ref);
-
-/**
- * @brief Get the length of unlock blocks
- *
- * @param[in] blocks The head of list
- * @return uint16_t
- */
-uint16_t tx_blocks_count(tx_unlock_blocks_t* blocks);
-
-/**
- * @brief Get the serialized length of unlocked blocks
- *
- * @param[in] blocks The head of list
- * @return size_t 0 on failed
- */
-size_t tx_blocks_serialize_length(tx_unlock_blocks_t* blocks);
-
-/**
- * @brief Serialize unlock blocks
- *
- * @param[in] blocks The head of list
- * @param[out] buf A buffer holds serialized data
- * @return size_t number of bytes written to the buffer
- */
-size_t tx_blocks_serialize(tx_unlock_blocks_t* blocks, byte_t buf[]);
-
-/**
- * @brief Free an unlock block list
- *
- * @param[in] blocks An unlock block object
- */
-void tx_blocks_free(tx_unlock_blocks_t* blocks);
-
-/**
- * @brief Print out unlocked blocks object
- *
- * @param[in] blocks An unlock block object
- */
-void tx_blocks_print(tx_unlock_blocks_t* blocks);
-
-/**
  * @brief Allocate a tansaction payload object
  *
  * @return transaction_payload_t*
@@ -258,10 +176,11 @@ int tx_payload_add_output(transaction_payload_t* tx, output_type_t type, byte_t 
  * @brief Add a signature unlocked block to the transaction
  *
  * @param[in] tx A transaction payload
- * @param[in] sig An ed25519  signature block
+ * @param[in] sig_block An ed25519 signature block
+ * @param[in] sig_len the length of ed25519 signature block
  * @return int 0 on success
  */
-int tx_payload_add_sig_block(transaction_payload_t* tx, ed25519_signature_t* sig);
+int tx_payload_add_sig_block(transaction_payload_t* tx, byte_t* sig_block, size_t sig_len);
 
 /**
  * @brief Add a reference unlocked block to the transaction
