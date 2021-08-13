@@ -128,7 +128,7 @@ static int deser_tx_inputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
         }
 
         // add the input element to payload
-        utarray_push_back(payload_tx->intputs, &input);
+        utarray_push_back(payload_tx->inputs, &input);
 
       } else {
         printf("[%s:%d] parsing inputs array failed\n", __func__, __LINE__);
@@ -229,11 +229,11 @@ static int deser_tx_blocks(cJSON *blocks_obj, payload_tx_t *payload_tx) {
             cJSON *pub = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_PUB_KEY);
             cJSON *sig = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_SIG);
             if (cJSON_IsString(pub) && cJSON_IsString(sig)) {
-              payload_unlock_block_t block = {};
-              memcpy(block.pub_key, pub->valuestring, sizeof(block.pub_key));
-              memcpy(block.signature, sig->valuestring, sizeof(block.signature));
-              // add to unlockBlocks
-              utarray_push_back(payload_tx->unlock_blocks, &block);
+              char sig_block[API_SIGNATURE_BLOCK_STR_LEN] = {};
+              sig_block[0] = sig_type->valueint;
+              memcpy(sig_block + 1, pub->valuestring, API_PUB_KEY_HEX_STR_LEN);
+              memcpy(sig_block + 1 + API_PUB_KEY_HEX_STR_LEN, sig->valuestring, API_SIGNATURE_HEX_STR_LEN);
+              payload_tx_add_sig_block(payload_tx, sig_block, API_SIGNATURE_BLOCK_STR_LEN);
             } else {
               printf("[%s:%d] publicKey or signature is not a string\n", __func__, __LINE__);
               return -1;
@@ -253,8 +253,7 @@ static int deser_tx_blocks(cJSON *blocks_obj, payload_tx_t *payload_tx) {
     } else if (block_type->valueint == 1) {  // reference block
       cJSON *ref = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_REFERENCE);
       if (ref && cJSON_IsNumber(ref)) {
-        // TODO
-        printf("[%s:%d] TODO: parsing reference block\n", __func__, __LINE__);
+        payload_tx_add_ref_block(payload_tx, ref->valueint);
       }
     } else {
       printf("[%s:%d] Unsupported block type\n", __func__, __LINE__);

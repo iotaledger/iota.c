@@ -136,7 +136,7 @@ void test_deser_milestone() {
 }
 
 void test_deser_tx1() {
-  // case 1
+  // case 1: tx payload with 1 input, 1 output, 1 signature
   char const* const tx_res1 =
       "{\"data\":{\"networkId\":\"6530425480034647824\",\"parentMessageIds\":["
       "\"7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3\","
@@ -199,6 +199,7 @@ void test_deser_tx1() {
 }
 
 void test_deser_tx2() {
+  // case 2: tx payload with 2 inputs, 2 outputs, 2 signatures
   char const* const tx_res2 =
       "{\"data\":{\"networkId\":\"6530425480034647824\",\"parentMessageIds\":["
       "\"7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3\","
@@ -267,6 +268,7 @@ void test_deser_tx2() {
 }
 
 void test_deser_tx3() {
+  // case 3: tx payload with 2 inputs, 2 outputs, 1 signature, 1 reference
   char const* const tx_with_ref =
       "{\"data\":{\"networkId\":\"14379272398717627559\",\"parentMessageIds\":["
       "\"463d4c237c792f0fa049873b79ef30e6d8873208ec57b97a272cb9fdef1c3689\","
@@ -287,11 +289,61 @@ void test_deser_tx3() {
   res_message_t* res = res_message_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(deser_get_message(tx_with_ref, res) == 0);
-  // TEST_ASSERT(res->is_error == false);
+  TEST_ASSERT(res->is_error == false);
+
+  message_t* msg = res->u.msg;
+  TEST_ASSERT_EQUAL_STRING("14379272398717627559", msg->net_id);
+  TEST_ASSERT_EQUAL_STRING("9223372036857144820", msg->nonce);
+  TEST_ASSERT_EQUAL_INT(4, api_message_parent_count(msg));
+  TEST_ASSERT_EQUAL_MEMORY("463d4c237c792f0fa049873b79ef30e6d8873208ec57b97a272cb9fdef1c3689",
+                           api_message_parent_id(msg, 0), API_MSG_ID_HEX_STR_LEN);
+  TEST_ASSERT_EQUAL_MEMORY("5800b7bfe01decf85609494fb177e95b47f89addbc78775a987405c99eb8ef71",
+                           api_message_parent_id(msg, 1), API_MSG_ID_HEX_STR_LEN);
+  TEST_ASSERT_NULL(api_message_parent_id(msg, 5));
+
+  TEST_ASSERT(get_message_payload_type(res) == MSG_PAYLOAD_TRANSACTION);
+
+  payload_tx_t* tx = (payload_tx_t*)msg->payload;
+  // validate input transaction ID and transaction output index
+  TEST_ASSERT_EQUAL_UINT32(2, payload_tx_inputs_count(tx));
+  TEST_ASSERT_EQUAL_MEMORY("17057e92991f836ff2f0f88f2abb93ba0d8eda37efc1312daad599c1326bce31",
+                           payload_tx_inputs_tx_id(tx, 0), API_TX_ID_HEX_STR_LEN);
+  TEST_ASSERT_EQUAL_UINT32(1, payload_tx_inputs_tx_output_index(tx, 0));
+  TEST_ASSERT_NOT_NULL(payload_tx_inputs_tx_id(tx, 1));
+  TEST_ASSERT_EQUAL_MEMORY("7f558c37e8b5d68e290a9269a77327eec9c564eba8f707ad3905de0f8fb04cba",
+                           payload_tx_inputs_tx_id(tx, 1), API_TX_ID_HEX_STR_LEN);
+  TEST_ASSERT_EQUAL_UINT32(1, payload_tx_inputs_tx_output_index(tx, 1));
+
+  // validate output address and amount
+  TEST_ASSERT_EQUAL_UINT32(2, payload_tx_outputs_count(tx));
+  TEST_ASSERT_EQUAL_MEMORY("663e6d9dc9955691ede73e1a81fef87af7b94f167524b5e6f92aa559b89185db",
+                           payload_tx_outputs_address(tx, 0), API_ADDR_HEX_STR_LEN);
+  TEST_ASSERT(1000000 == payload_tx_outputs_amount(tx, 0));
+  TEST_ASSERT_EQUAL_MEMORY("96f9de0989e77d0e150e850a5a600e83045fa57419eaf3b20225b763d4e23813",
+                           payload_tx_outputs_address(tx, 1), API_ADDR_HEX_STR_LEN);
+  TEST_ASSERT(1200045 == payload_tx_outputs_amount(tx, 1));
+
+  TEST_ASSERT_NULL(tx->payload);
+
+  // validate unlocked block
+  TEST_ASSERT_EQUAL_UINT32(2, payload_tx_blocks_count(tx));
+  TEST_ASSERT_EQUAL_MEMORY("2baaf3bca8ace9f862e60184bd3e79df25ff230f7eaaa4c7f03daa9833ba854a",
+                           payload_tx_blocks_public_key(tx, 0), API_PUB_KEY_HEX_STR_LEN);
+  TEST_ASSERT_EQUAL_MEMORY(
+      "cb4ece3f2d7e4903b17d45d41c26685fae9ed04e61294c94095ba248e4eae8cbed60addbd57cabd2df633f0c3f51644fa141a612df81c1f1"
+      "8942e20bbaf4d102",
+      payload_tx_blocks_signature(tx, 0), API_SIGNATURE_HEX_STR_LEN);
+
+  TEST_ASSERT(payload_tx_blocks_reference(tx, 0) == UINT16_MAX);
+  TEST_ASSERT_NULL(payload_tx_blocks_public_key(tx, 1));
+  TEST_ASSERT_NULL(payload_tx_blocks_signature(tx, 1));
+
+  TEST_ASSERT(payload_tx_blocks_reference(tx, 1) == 0);
   res_message_free(res);
 }
 
 void test_deser_tx_with_index() {
+  // case 3: tx payload with 1 input, 1 output, 1 signature, an indexaction payload
   char const* const tx_with_index =
       "{\"data\":{\"networkId\":\"14379272398717627559\",\"parentMessageIds\":["
       "\"1b9b8b53fc65d85339f49c50a1b262a74304c1f9a40bd2fbf7b72e9d612fb154\","
