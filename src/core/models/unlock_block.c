@@ -35,6 +35,7 @@ int unlock_blocks_add_signature(unlock_blocks_t** blocks, byte_t* sig, size_t si
   }
 
   printf("[%s:%d] allocate signature block failed\n", __func__, __LINE__);
+  free(b);
   return -1;
 }
 
