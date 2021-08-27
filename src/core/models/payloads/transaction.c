@@ -187,151 +187,12 @@ void tx_essence_print(transaction_essence_t* es) {
   printf("]\n");
 }
 
-tx_unlock_blocks_t* tx_blocks_new() { return NULL; }
-
-int tx_blocks_add_signature(tx_unlock_blocks_t** blocks, ed25519_signature_t* sig) {
-  if (sig == NULL) {
-    printf("[%s:%d] invalid amount\n", __func__, __LINE__);
-    return -1;
-  }
-  tx_unlock_blocks_t* b = malloc(sizeof(tx_unlock_blocks_t));
-  if (b == NULL) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return -1;
-  }
-
-  b->type = 0;  // signature block
-  b->reference = 0;
-  memcpy(&b->signature, sig, sizeof(ed25519_signature_t));
-  DL_APPEND(*blocks, b);
-  return 0;
-}
-
-int tx_blocks_add_reference(tx_unlock_blocks_t** blocks, uint16_t ref) {
-  // Unlock Blocks Count must match the amount of inputs. Must be 0 < x < 127.
-  if (ref > UNLOCKED_BLOCKS_MAX_COUNT) {
-    printf("[%s:%d] reference out of range \n", __func__, __LINE__);
-    return -1;
-  }
-
-  tx_unlock_blocks_t* b = malloc(sizeof(tx_unlock_blocks_t));
-  if (b == NULL) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return -1;
-  }
-
-  b->type = 1;  // reference block
-  b->reference = ref;
-  memset(&b->signature, 0, sizeof(ed25519_signature_t));
-  DL_APPEND(*blocks, b);
-  return 0;
-}
-
-size_t tx_blocks_serialize_length(tx_unlock_blocks_t* blocks) {
-  tx_unlock_blocks_t* elm = NULL;
-  size_t serialized_size = 0;
-
-  // empty unlocked blocks
-  if (blocks == NULL) {
-    return 0;
-  }
-
-  // bytes of Unlock Blocks Count
-  serialized_size += sizeof(uint16_t);
-
-  // calculate serialized bytes of unlocked blocks
-  DL_FOREACH(blocks, elm) {
-    if (elm->type == 0) {
-      serialized_size += SIGNATURE_SERIALIZE_BYTES;
-    } else if (elm->type == 1) {
-      serialized_size += REFERENCE_SERIALIZE_BYTES;
-    } else {
-      printf("[%s:%d] Unkown unlocked block type\n", __func__, __LINE__);
-      return 0;
-    }
-  }
-
-  return serialized_size;
-}
-
-size_t tx_blocks_serialize(tx_unlock_blocks_t* blocks, byte_t buf[]) {
-  tx_unlock_blocks_t* elm = NULL;
-  byte_t* offset = buf;
-
-  uint16_t block_count = tx_blocks_count(blocks);
-
-  // unlocked block count
-  memcpy(offset, &block_count, sizeof(block_count));
-  offset += sizeof(block_count);
-
-  // serializing unlocked blocks
-  DL_FOREACH(blocks, elm) {
-    if (elm->type == 0) {  // signature block
-      memcpy(offset, &elm->type, sizeof(elm->type));
-      offset += sizeof(elm->type);
-      memcpy(offset, &elm->signature, sizeof(ed25519_signature_t));
-      offset += sizeof(elm->signature);
-    } else if (elm->type == 1) {  // reference block
-      memcpy(offset, &elm->type, sizeof(elm->type));
-      offset += sizeof(elm->type);
-      memcpy(offset, &elm->reference, sizeof(elm->reference));
-      offset += sizeof(elm->reference);
-    }
-  }
-
-  return (offset - buf) / sizeof(byte_t);
-}
-
-uint16_t tx_blocks_count(tx_unlock_blocks_t* blocks) {
-  tx_unlock_blocks_t* elm = NULL;
-  uint16_t count = 0;
-  if (blocks) {
-    DL_COUNT(blocks, elm, count);
-  }
-  return count;
-}
-
-void tx_blocks_free(tx_unlock_blocks_t* blocks) {
-  tx_unlock_blocks_t *elm, *tmp;
-  if (blocks) {
-    DL_FOREACH_SAFE(blocks, elm, tmp) {
-      DL_DELETE(blocks, elm);
-      free(elm);
-    }
-  }
-}
-
-void tx_blocks_print(tx_unlock_blocks_t* blocks) {
-  tx_unlock_blocks_t* elm;
-  if (blocks) {
-    printf("unlocked blocks[\n");
-    DL_FOREACH(blocks, elm) {
-      if (elm->type == 0) {  // signature block
-        printf("\tSignautre block[ ");
-        printf("Type: %s\n", elm->signature.type ? "UNKNOW" : "ED25519");
-        printf("\tPub key: ");
-        dump_hex(elm->signature.pub_key, ED_PUBLIC_KEY_BYTES);
-        printf("\tSignature: ");
-        dump_hex(elm->signature.signature, ED_SIGNATURE_BYTES);
-        printf("\t]\n");
-      } else if (elm->type == 1) {  // reference block
-        printf("\tReference block[ ");
-        printf("ref: %" PRIu16 " ]\n", elm->reference);
-      } else {
-        printf("[%s:%d] Unkown unlocked block type\n", __func__, __LINE__);
-        // return 0;
-      }
-    }
-    printf("]\n");
-  }
-}
-
 transaction_payload_t* tx_payload_new() {
   transaction_payload_t* tx = malloc(sizeof(transaction_payload_t));
   if (tx) {
     tx->type = 0;  // 0 to denote a Transaction payload.
     tx->essence = tx_essence_new();
-    tx->unlock_blocks = tx_blocks_new();
+    tx->unlock_blocks = unlock_blocks_new();
     if (tx->essence == NULL) {
       tx_payload_free(tx);
       return NULL;
@@ -362,23 +223,23 @@ int tx_payload_add_output(transaction_payload_t* tx, output_type_t type, byte_t 
   return -1;
 }
 
-int tx_payload_add_sig_block(transaction_payload_t* tx, ed25519_signature_t* sig) {
+int tx_payload_add_sig_block(transaction_payload_t* tx, byte_t* sig_block, size_t sig_len) {
   if (tx) {
-    return tx_blocks_add_signature(&tx->unlock_blocks, sig);
+    return unlock_blocks_add_signature(&tx->unlock_blocks, sig_block, sig_len);
   }
   return -1;
 }
 
 int tx_payload_add_ref_block(transaction_payload_t* tx, uint16_t ref) {
   if (tx) {
-    return tx_blocks_add_reference(&tx->unlock_blocks, ref);
+    return unlock_blocks_add_reference(&tx->unlock_blocks, ref);
   }
   return -1;
 }
 
 size_t tx_payload_serialize_length(transaction_payload_t* tx) {
   size_t essence_len = tx_essence_serialize_length(tx->essence);
-  size_t blocks_len = tx_blocks_serialize_length(tx->unlock_blocks);
+  size_t blocks_len = unlock_blocks_serialize_length(tx->unlock_blocks);
   if (essence_len == 0 || blocks_len == 0) {
     return 0;
   }
@@ -399,7 +260,7 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[]) {
   // write essence
   offset += tx_essence_serialize(tx->essence, offset);
   // write unlocked blocks
-  offset += tx_blocks_serialize(tx->unlock_blocks, offset);
+  offset += unlock_blocks_serialize(tx->unlock_blocks, offset);
   return (offset - buf) / sizeof(byte_t);
 }
 
@@ -409,7 +270,7 @@ void tx_payload_free(transaction_payload_t* tx) {
       tx_essence_free(tx->essence);
     }
     if (tx->unlock_blocks) {
-      tx_blocks_free(tx->unlock_blocks);
+      unlock_blocks_free(tx->unlock_blocks);
     }
     free(tx);
   }
@@ -419,6 +280,6 @@ void tx_payload_print(transaction_payload_t* tx) {
   if (tx) {
     printf("Payload type: %d\n", tx->type);
     tx_essence_print(tx->essence);
-    tx_blocks_print(tx->unlock_blocks);
+    unlock_blocks_print(tx->unlock_blocks);
   }
 }

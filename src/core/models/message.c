@@ -11,50 +11,6 @@
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
 
-typedef struct {
-  byte_t pub_key[ED_PUBLIC_KEY_BYTES];  // The public key of the Ed25519 keypair which is used to verify the signature.
-  byte_t signature[ED_SIGNATURE_BYTES];
-  uint16_t unlock_index;
-  UT_hash_handle hh;
-} unlock_sig_ht;
-
-static unlock_sig_ht* unlock_sig_new() { return NULL; }
-
-static uint16_t unlock_sig_count(unlock_sig_ht** ht) { return (uint16_t)HASH_COUNT(*ht); }
-
-static unlock_sig_ht* unlock_sig_find_by_pub(unlock_sig_ht** ht, byte_t pub[]) {
-  unlock_sig_ht* in = NULL;
-  HASH_FIND(hh, *ht, pub, ED_PUBLIC_KEY_BYTES, in);
-  return in;
-}
-
-static int unlock_sig_add(unlock_sig_ht** ht, ed25519_signature_t* sig, uint16_t index) {
-  unlock_sig_ht* elm = unlock_sig_find_by_pub(ht, sig->pub_key);
-  if (elm) {
-    printf("[%s:%d] public key exists\n", __func__, __LINE__);
-    return -1;
-  }
-
-  elm = malloc(sizeof(unlock_sig_ht));
-  if (elm == NULL) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return -1;
-  }
-  memcpy(elm->pub_key, sig->pub_key, ED_PUBLIC_KEY_BYTES);
-  memcpy(elm->signature, sig->signature, ED_SIGNATURE_BYTES);
-  elm->unlock_index = index;
-  HASH_ADD(hh, *ht, pub_key, ED_PUBLIC_KEY_BYTES, elm);
-  return 0;
-}
-
-static void unlock_sig_free(unlock_sig_ht** ht) {
-  unlock_sig_ht *curr_elm, *tmp;
-  HASH_ITER(hh, *ht, curr_elm, tmp) {
-    HASH_DEL(*ht, curr_elm);
-    free(curr_elm);
-  }
-}
-
 core_message_t* core_message_new() {
   core_message_t* msg = malloc(sizeof(core_message_t));
   if (msg) {
@@ -103,40 +59,37 @@ int core_message_sign_transaction(core_message_t* msg) {
     return -1;
   }
 
-  unlock_sig_ht* unlocked_sig = unlock_sig_new();
   // create unlocked blocks and sign tx essence
   utxo_input_ht *elm, *tmp;
   HASH_ITER(hh, tx->essence->inputs, elm, tmp) {
     // create a ref block, if public key exists in unlocked_sig
-    if (unlock_sig_find_by_pub(&unlocked_sig, elm->keypair.pub_key)) {
-      // create a reference block
-      if ((ret = tx_blocks_add_reference(&tx->unlock_blocks, unlock_sig_count(&unlocked_sig) - 1))) {
+    uint32_t pub_index = unlock_blocks_find_pub(tx->unlock_blocks, elm->keypair.pub_key);
+    if (pub_index == -1) {
+      // publick key is not found in the unlocked block
+      byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+      sig_block[0] = ADDRESS_VER_ED25519;
+      memcpy(sig_block + 1, elm->keypair.pub_key, ED_PUBLIC_KEY_BYTES);
+      // sign transaction
+      if ((ret = iota_crypto_sign(elm->keypair.priv, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES,
+                                  sig_block + (1 + ED_PUBLIC_KEY_BYTES)))) {
+        printf("[%s:%d] signing signature failed\n", __func__, __LINE__);
+        break;
+      }
+
+      // create a signature block
+      if ((ret = unlock_blocks_add_signature(&tx->unlock_blocks, sig_block, ED25519_SIGNATURE_BLOCK_BYTES))) {
+        printf("[%s:%d] Add signature block failed\n", __func__, __LINE__);
         break;
       }
     } else {
-      // sign transaction
-      ed25519_signature_t signature = {};
-      signature.type = ADDRESS_VER_ED25519;
-      if ((ret = iota_crypto_sign(elm->keypair.priv, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES, signature.signature))) {
-        break;
-      }
-      memcpy(signature.pub_key, elm->keypair.pub_key, ED_PUBLIC_KEY_BYTES);
-
-      // create a signature block
-      if ((ret = tx_blocks_add_signature(&tx->unlock_blocks, &signature))) {
-        break;
-      }
-
-      // add to unlocked sig
-      if ((ret = unlock_sig_add(&unlocked_sig, &signature, unlock_sig_count(&unlocked_sig)))) {
+      // public key is found in the unlocked block
+      if ((ret = unlock_blocks_add_reference(&tx->unlock_blocks, (uint16_t)pub_index))) {
+        printf("[%s:%d] Add reference block failed\n", __func__, __LINE__);
         break;
       }
     }
   }
 
-  if (unlocked_sig) {
-    unlock_sig_free(&unlocked_sig);
-  }
   if (b_essence) {
     free(b_essence);
   }

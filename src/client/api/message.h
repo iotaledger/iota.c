@@ -16,6 +16,7 @@
 #define API_ADDR_HEX_STR_LEN (64 + 1)
 #define API_PUB_KEY_HEX_STR_LEN (64 + 1)
 #define API_SIGNATURE_HEX_STR_LEN (128 + 1)
+#define API_SIGNATURE_BLOCK_STR_LEN (1 + API_PUB_KEY_HEX_STR_LEN + API_SIGNATURE_HEX_STR_LEN)
 
 typedef enum {
   MSG_PAYLOAD_TRANSACTION = 0,
@@ -47,19 +48,24 @@ typedef struct {
   char address[API_ADDR_HEX_STR_LEN];
 } payload_tx_output_t;
 
+/**
+ * @brief An unlocked block in strings
+ *
+ */
 typedef struct {
-  char pub_key[API_PUB_KEY_HEX_STR_LEN];
-  char signature[API_SIGNATURE_HEX_STR_LEN];
+  uint8_t block_type;  ///< 0 denotes a Signature Unlock Block, 1 denotes a Reference Unlock Block.
+  uint16_t reference;  ///< Represents the index of a pervious unlock block
+  char *sig_block;     ///< ed25519 public key + signature in hex string
 } payload_unlock_block_t;
 
-typedef UT_array utxo_inputs_t;
-typedef UT_array utxo_outputs_t;
-typedef UT_array unlock_blocks_t;
+typedef UT_array api_utxo_inputs_t;
+typedef UT_array api_utxo_outputs_t;
+typedef UT_array api_unlock_blocks_t;
 
 typedef struct {
-  utxo_inputs_t *intputs;
-  utxo_outputs_t *outputs;
-  unlock_blocks_t *unlock_blocks;
+  api_utxo_inputs_t *inputs;
+  api_utxo_outputs_t *outputs;
+  api_unlock_blocks_t *unlock_blocks;
   payload_t type;
   void *payload;
 } payload_tx_t;
@@ -238,6 +244,34 @@ char *payload_tx_blocks_public_key(payload_tx_t const *const tx, size_t index);
  * @return char*
  */
 char *payload_tx_blocks_signature(payload_tx_t const *const tx, size_t index);
+
+/**
+ * @brief Add a signature block into the unlock blocks
+ *
+ * @param[in] tx A transaction payload object
+ * @param[in] sig A string of signature block
+ * @param[in] sig_len The length of signature block
+ * @return int 0 on success
+ */
+int payload_tx_add_sig_block(payload_tx_t const *const tx, char const sig[], size_t sig_len);
+
+/**
+ * @brief Add a reference into the unlock blocks
+ *
+ * @param[in] tx A transaction payload object
+ * @param[in] ref The index of reference
+ * @return int 0 on success
+ */
+int payload_tx_add_ref_block(payload_tx_t const *const tx, uint16_t ref);
+
+/**
+ * @brief Get the reference by a given index of the unlock block
+ *
+ * @param[in] tx A transaction payload object
+ * @param[in] index The index of unlock block
+ * @return uint16_t 65536(UINT16_MAX) on fails
+ */
+uint16_t payload_tx_blocks_reference(payload_tx_t const *const tx, size_t index);
 
 #ifdef __cplusplus
 }

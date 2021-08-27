@@ -128,7 +128,7 @@ static int deser_tx_inputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
         }
 
         // add the input element to payload
-        utarray_push_back(payload_tx->intputs, &input);
+        utarray_push_back(payload_tx->inputs, &input);
 
       } else {
         printf("[%s:%d] parsing inputs array failed\n", __func__, __LINE__);
@@ -215,34 +215,49 @@ static int deser_tx_blocks(cJSON *blocks_obj, payload_tx_t *payload_tx) {
   */
   cJSON *elm = NULL;
   cJSON_ArrayForEach(elm, blocks_obj) {
-    cJSON *sig_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_SIG);
-    if (sig_obj) {
-      cJSON *sig_type = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_TYPE);
-      if (cJSON_IsNumber(sig_type)) {
-        if (sig_type->valueint == ADDRESS_VER_ED25519) {
-          cJSON *pub = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_PUB_KEY);
-          cJSON *sig = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_SIG);
-          if (cJSON_IsString(pub) && cJSON_IsString(sig)) {
-            payload_unlock_block_t block = {};
-            memcpy(block.pub_key, pub->valuestring, sizeof(block.pub_key));
-            memcpy(block.signature, sig->valuestring, sizeof(block.signature));
-            // add to unlockBlocks
-            utarray_push_back(payload_tx->unlock_blocks, &block);
+    cJSON *block_type = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TYPE);
+    if (!cJSON_IsNumber(block_type)) {
+      printf("[%s:%d] %s must be a number\n", __func__, __LINE__, JSON_KEY_TYPE);
+      break;
+    }
+    if (block_type->valueint == 0) {  // signature block
+      cJSON *sig_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_SIG);
+      if (sig_obj) {
+        cJSON *sig_type = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_TYPE);
+        if (cJSON_IsNumber(sig_type)) {
+          if (sig_type->valueint == ADDRESS_VER_ED25519) {
+            cJSON *pub = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_PUB_KEY);
+            cJSON *sig = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_SIG);
+            if (cJSON_IsString(pub) && cJSON_IsString(sig)) {
+              char sig_block[API_SIGNATURE_BLOCK_STR_LEN] = {};
+              sig_block[0] = sig_type->valueint;
+              memcpy(sig_block + 1, pub->valuestring, API_PUB_KEY_HEX_STR_LEN);
+              memcpy(sig_block + 1 + API_PUB_KEY_HEX_STR_LEN, sig->valuestring, API_SIGNATURE_HEX_STR_LEN);
+              payload_tx_add_sig_block(payload_tx, sig_block, API_SIGNATURE_BLOCK_STR_LEN);
+            } else {
+              printf("[%s:%d] publicKey or signature is not a string\n", __func__, __LINE__);
+              return -1;
+            }
           } else {
-            printf("[%s:%d] publicKey or signature is not a string\n", __func__, __LINE__);
+            printf("[%s:%d] only suppport ed25519 signature\n", __func__, __LINE__);
             return -1;
           }
         } else {
-          printf("[%s:%d] only suppport ed25519 signature\n", __func__, __LINE__);
+          printf("[%s:%d] signature type is not an number\n", __func__, __LINE__);
           return -1;
         }
       } else {
-        printf("[%s:%d] signature type is not an number\n", __func__, __LINE__);
+        printf("[%s:%d] %s is not found\n", __func__, __LINE__, JSON_KEY_SIG);
         return -1;
       }
+    } else if (block_type->valueint == 1) {  // reference block
+      cJSON *ref = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_REFERENCE);
+      if (ref && cJSON_IsNumber(ref)) {
+        payload_tx_add_ref_block(payload_tx, ref->valueint);
+      }
     } else {
-      printf("[%s:%d] %s is not found\n", __func__, __LINE__, JSON_KEY_SIG);
-      return -1;
+      printf("[%s:%d] Unsupported block type\n", __func__, __LINE__);
+      break;
     }
   }
 

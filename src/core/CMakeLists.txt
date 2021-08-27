@@ -22,6 +22,7 @@ target_sources(
           "models/payloads/transaction.c"
           "models/payloads/indexation.c"
           "models/message.c"
+          "models/unlock_block.c"
   PUBLIC "address.h"
          "seed.c"
          "utils/iota_str.h"
@@ -32,7 +33,8 @@ target_sources(
          "models/outputs/outputs.h"
          "models/payloads/transaction.h"
          "models/payloads/indexation.h"
-         "models/message.h")
+         "models/message.h"
+         "models/unlock_block.h")
 
 target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 
