@@ -27,7 +27,7 @@ void show_address(iota_wallet_t *w, uint32_t index) {
 
   addr_wit_version[0] = ADDRESS_VER_ED25519;
   wallet_address_by_index(w, index, addr_wit_version + 1);
-  address_2_bech32(addr_wit_version, "atoi", tmp_bech32_addr);
+  address_2_bech32(addr_wit_version, w->bech32HRP, tmp_bech32_addr);
   printf("Addr[%" PRIu32 "]\n", index);
   // print ed25519 address without version filed.
   printf("\t");
@@ -59,6 +59,7 @@ int main(int argc, char *argv[]) {
 
   // set connected node
   wallet_set_endpoint(wallet, NODE_HOST, NODE_HOST_PORT, NODE_USE_TLS);
+  wallet_update_bech32HRP(wallet);
 
   for (uint32_t idx = 0; idx < 5; idx++) {
     uint64_t value = 0;

@@ -17,17 +17,18 @@ int main(int argc, char *argv[]) {
   res_send_message_t res = {};
 
   // send out index
-  err = send_indexation_msg(&ctx, "iota.c\xF0\x9F\x80\x84", "Hello from iota.c", &res);
-
-  if (res.is_error) {
-    printf("Err response: %s\n", res.u.error->msg);
-    res_err_free(res.u.error);
-  }
+  err = send_indexation_msg(&ctx, "iota.c\xF0\x9F\xA6\x8B", "Hello from iota.c", &res);
 
   if (err) {
     printf("send indexation failed\n");
   } else {
-    printf("message ID: %s\n", res.u.msg_id);
+    if (res.is_error) {
+      printf("Err response: %s\n", res.u.error->msg);
+      res_err_free(res.u.error);
+    } else {
+      printf("message ID: %s\n", res.u.msg_id);
+    }
   }
+
   return 0;
 }
