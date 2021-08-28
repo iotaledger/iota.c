@@ -10,7 +10,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
+#include "client/api/message.h"
+#include "client/api/v1/get_balance.h"
 #include "core/utils/byte_buffer.h"
 #include "wallet/wallet.h"
 
@@ -24,6 +27,8 @@ char const *const my_seed = "seed_with_64_char";
 char const *const account_path = "m/44'/4218'/0'/0'";
 char const *const receiver = "a_bech32_address";  // iota for mainnet, atoi for testnet
 char const *const my_data = "sent from iota.c";
+uint32_t const sender_addr_index = 2;  // address index of the wallet
+uint64_t const amount = 1;             // sent out 1Mi
 
 void dump_addresses(iota_wallet_t *w, uint32_t start, uint32_t end) {
   byte_t addr_wit_version[IOTA_ADDRESS_BYTES] = {};
@@ -63,47 +68,61 @@ int main(int argc, char *argv[]) {
 
   if ((wallet = wallet_create(seed, account_path)) == NULL) {
     printf("create wallet failed\n");
+    goto done;
   }
 
   // set connected node
   wallet_set_endpoint(wallet, NODE_HOST, NODE_HOST_PORT, NODE_USE_TLS);
+  wallet_update_bech32HRP(wallet);
 
   dump_addresses(wallet, 0, 5);
 
-  // send none-valued transaction with indexaction payload
-  if ((err = wallet_send(wallet, 0, NULL, 0, "iota.c\xF0\x9F\x80\x84", (byte_t *)my_data, strlen(my_data), msg_id,
-                         sizeof(msg_id)))) {
-    printf("send indexation failed\n");
-  }
-  printf("Message ID: %s\n", msg_id);
-
-  if ((err = wallet_send(wallet, 0, recv + 1, 0, "iota.c\xF0\x9F\x80\x84", (byte_t *)my_data, strlen(my_data), msg_id,
-                         sizeof(msg_id)))) {
-    printf("send indexation with address failed\n");
-  }
-  printf("Message ID: %s\n", msg_id);
-
   // check balance at address 0
   uint64_t value = 0;
-  if ((err = wallet_balance_by_index(wallet, 0, &value))) {
+  if ((err = wallet_balance_by_index(wallet, sender_addr_index, &value))) {
     printf("wallet get balance failed\n");
     goto done;
   }
-  printf("balance: %" PRIu64 "\n", value);
+  printf("[%d]balance: %" PRIu64 "\n", sender_addr_index, value);
 
-  // send out 1Mi to recever address
-  // convert receiver to binary
-  if ((err = address_from_bech32("atoi", receiver, recv))) {
+  // send out 1Mi to receiver address
+  // convert bech32 address to binary
+  if ((err = address_from_bech32(wallet->bech32HRP, receiver, recv))) {
     printf("convert receiver address failed\n");
     goto done;
   }
 
   // wallet_send take ed25519 address without the version field.
-  if ((err = wallet_send(wallet, 0, recv + 1, 1 * Mi, "iota.c\xF0\x9F\x80\x84", (byte_t *)my_data, strlen(my_data),
-                         msg_id, sizeof(msg_id)))) {
+  if ((err = wallet_send(wallet, sender_addr_index, recv + 1, amount * Mi, "iota.c\xF0\x9F\xA6\x8B", (byte_t *)my_data,
+                         strlen(my_data), msg_id, sizeof(msg_id)))) {
     printf("send tx to %s failed\n", receiver);
+    goto done;
   }
   printf("Message ID: %s\n", msg_id);
+
+  printf("Check balance after 20s...\n");
+  sleep(20);
+
+  // sender balance
+  uint64_t sender_tokens = 0;
+  if ((err = wallet_balance_by_index(wallet, sender_addr_index, &sender_tokens))) {
+    printf("get sender balance failed\n");
+  }
+
+  // receiver balance
+  char recv_addr_hex[API_ADDR_HEX_STR_LEN] = {};
+  // convert bin address to hex string for node API
+  bin_2_hex(recv + 1, ED25519_ADDRESS_BYTES, recv_addr_hex, sizeof(recv_addr_hex));
+  res_balance_t *res = res_balance_new();
+  if (res) {
+    if ((err = get_balance(&wallet->endpoint, recv_addr_hex, res))) {
+      printf("get receiver balance failed\n");
+    } else {
+      printf("sender balance = %" PRIu64 " receiver balance = %" PRIu64 "\n", sender_tokens,
+             res->u.output_balance->balance);
+    }
+    res_balance_free(res);
+  }
 
 done:
   wallet_destroy(wallet);

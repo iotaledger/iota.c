@@ -3,13 +3,13 @@ bazel-*
 user.bazelrc
 
 # CMake
-build/*
+build
 
 # VS Code 
-.vscode/*
+.vscode
 
 # CLion
-.idea/*
+.idea
 
 # Sphinx build dir
 docs/_build

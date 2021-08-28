@@ -147,6 +147,10 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, uint32_
         ret = tx_payload_add_input_with_key(tx_payload, tmp_tx_id, out_id_res.u.output.output_idx, addr_keypair.pub,
                                             addr_keypair.priv);
         total_balance += out_id_res.u.output.amount;
+        if (total_balance >= balance) {
+          // balance is sufficient from current inputs
+          break;
+        }
       } else {
         printf("Unknow address type\n");
       }

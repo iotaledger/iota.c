@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
   indexation_t *idx = NULL;
   core_message_t *msg = NULL;
   res_send_message_t msg_res = {};
-  idx = indexation_create("iota.c", (byte_t *)encrypted, strlen(encrypted));
+  idx = indexation_create("iota.c\xF0\x9F\xA6\x8B", (byte_t *)encrypted, strlen(encrypted));
   msg = core_message_new();
   msg->payload = idx;
   msg->payload_type = MSG_PAYLOAD_INDEXATION;  // indexation playload
