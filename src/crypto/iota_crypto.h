@@ -12,9 +12,10 @@
 #define ED_PRIVATE_KEY_BYTES 64  // ed25519 secret/private key bytes
 #define ED_SIGNATURE_BYTES 64    // ed25519 signature bytes
 
-#define CRYPTO_SHA512_KEY_BYTES 32   // crypto_auth_hmacsha512_KEYBYTES
-#define CRYPTO_SHA512_HASH_BYTES 64  // crypto_auth_hmacsha512_BYTES
-
+#define CRYPTO_SHA512_KEY_BYTES 32    // crypto_auth_hmacsha512_KEYBYTES
+#define CRYPTO_SHA512_HASH_BYTES 64   // crypto_auth_hmacsha512_BYTES
+#define CRYPTO_SHA256_KEY_BYTES 32    // crypto_auth_hmacsha256_KEYBYTES
+#define CRYPTO_SHA256_HASH_BYTES 32   // crypto_auth_hmacsha256_BYTES
 #define CRYPTO_BLAKE2B_HASH_BYTES 32  // crypto_generichash_blake2b_BYTES
 
 /**
@@ -89,6 +90,26 @@ int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg
  * @return int 0 on success
  */
 int iota_blake2b_sum(uint8_t const msg[], size_t msg_len, uint8_t out[], size_t out_len);
+
+/**
+ * @brief SHA-256 HASH
+ *
+ * @param[in] msg message data
+ * @param[in] msg_len the length of data
+ * @param[out] hash the output hash
+ * @return int 0 on success
+ */
+int iota_crypto_sha256(uint8_t const msg[], size_t msg_len, uint8_t hash[]);
+
+/**
+ * @brief SHA-512 HASH
+ *
+ * @param[in] msg message data
+ * @param[in] msg_len the length of data
+ * @param[out] hash the output hash
+ * @return int 0 on success
+ */
+int iota_crypto_sha512(uint8_t const msg[], size_t msg_len, uint8_t hash[]);
 
 #ifdef __cplusplus
 }

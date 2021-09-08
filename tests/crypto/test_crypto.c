@@ -174,12 +174,57 @@ void test_ed25519_signature() {
   fclose(fp);
 }
 
+// test vectors: https://www.di-mgt.com.au/sha_testvectors.html
+void test_sha() {
+  uint8_t tmp_bin[CRYPTO_SHA512_HASH_BYTES] = {};
+  uint8_t tmp_hash[CRYPTO_SHA512_HASH_BYTES] = {};
+
+  // vector 1
+  uint8_t const vector1[] = "abc";
+  TEST_ASSERT(iota_crypto_sha256(vector1, 3, tmp_hash) == 0);
+  hex2bin("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad", 64, tmp_bin, CRYPTO_SHA256_HASH_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_hash, tmp_bin, CRYPTO_SHA256_HASH_BYTES);
+  TEST_ASSERT(iota_crypto_sha512(vector1, 3, tmp_hash) == 0);
+  hex2bin(
+      "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e"
+      "2a9ac94fa54ca49f",
+      128, tmp_bin, CRYPTO_SHA512_HASH_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_hash, tmp_bin, CRYPTO_SHA512_HASH_BYTES);
+
+  // vector 2
+  uint8_t const vector2[] = "";
+  TEST_ASSERT(iota_crypto_sha256(vector2, 0, tmp_hash) == 0);
+  hex2bin("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", 64, tmp_bin, CRYPTO_SHA256_HASH_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_hash, tmp_bin, CRYPTO_SHA256_HASH_BYTES);
+  TEST_ASSERT(iota_crypto_sha512(vector2, 0, tmp_hash) == 0);
+  hex2bin(
+      "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81"
+      "a538327af927da3e",
+      128, tmp_bin, CRYPTO_SHA512_HASH_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_hash, tmp_bin, CRYPTO_SHA512_HASH_BYTES);
+
+  // vector 3
+  uint8_t const vector3[] =
+      "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrst"
+      "u";
+  TEST_ASSERT(iota_crypto_sha256(vector3, 112, tmp_hash) == 0);
+  hex2bin("cf5b16a778af8380036ce59e7b0492370b249b11e8f07a51afac45037afee9d1", 64, tmp_bin, CRYPTO_SHA256_HASH_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_hash, tmp_bin, CRYPTO_SHA256_HASH_BYTES);
+  TEST_ASSERT(iota_crypto_sha512(vector3, 112, tmp_hash) == 0);
+  hex2bin(
+      "8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018501d289e4900f7e4331b99dec4b5433ac7d329eeb6dd2654"
+      "5e96e55b874be909",
+      128, tmp_bin, CRYPTO_SHA512_HASH_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_hash, tmp_bin, CRYPTO_SHA512_HASH_BYTES);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_hmacsha);
   RUN_TEST(test_blake2b_hash);
   RUN_TEST(test_ed25519_signature);
+  RUN_TEST(test_sha);
 
   return UNITY_END();
 }

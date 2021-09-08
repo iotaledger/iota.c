@@ -109,3 +109,51 @@ int iota_blake2b_sum(uint8_t const msg[], size_t msg_len, uint8_t out[], size_t 
   return blake2b(out, out_len, msg, msg_len, NULL, 0);
 #endif
 }
+
+int iota_crypto_sha256(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
+#if defined(CRYPTO_USE_SODIUM)
+  return crypto_hash_sha256(hash, msg, msg_len);
+#elif defined(CRYPTO_USE_MBEDTLS)
+  // TODO
+  TODO
+#else
+  EVP_MD_CTX *mdctx;
+  unsigned int hash_len = CRYPTO_SHA256_HASH_BYTES;
+  if ((mdctx = EVP_MD_CTX_new()) != NULL) {
+    if (1 == EVP_DigestInit_ex(mdctx, EVP_sha256(), NULL)) {
+      if (1 == EVP_DigestUpdate(mdctx, (void const *)msg, msg_len)) {
+        if (1 == EVP_DigestFinal_ex(mdctx, hash, &hash_len)) {
+          EVP_MD_CTX_free(mdctx);
+          return 0;
+        }
+      }
+    }
+    EVP_MD_CTX_free(mdctx);
+  }
+  return -1;
+#endif
+}
+
+int iota_crypto_sha512(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
+#if defined(CRYPTO_USE_SODIUM)
+  return crypto_hash_sha512(hash, msg, msg_len);
+#elif defined(CRYPTO_USE_MBEDTLS)
+  // TODO
+  TODO
+#else
+  EVP_MD_CTX *mdctx;
+  unsigned int hash_len = CRYPTO_SHA256_HASH_BYTES;
+  if ((mdctx = EVP_MD_CTX_new()) != NULL) {
+    if (1 == EVP_DigestInit_ex(mdctx, EVP_sha512(), NULL)) {
+      if (1 == EVP_DigestUpdate(mdctx, (void const *)msg, msg_len)) {
+        if (1 == EVP_DigestFinal_ex(mdctx, hash, &hash_len)) {
+          EVP_MD_CTX_free(mdctx);
+          return 0;
+        }
+      }
+    }
+    EVP_MD_CTX_free(mdctx);
+  }
+  return -1;
+#endif
+}
