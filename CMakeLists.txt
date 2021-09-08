@@ -16,6 +16,7 @@ option(IOTA_TESTS "Enable IOTA Client library test cases" ON)
 option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
 option(IOTA_EXAMPLES "Build example application" ON)
+option(IOTA_WALLET_BIP39 "Enable mnemonic support" OFF)
 # ~~~
 # Notice #####
 # USE_REF_CRYPTO only support GCC compiler and Openssl is required.
