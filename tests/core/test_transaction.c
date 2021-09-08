@@ -85,7 +85,7 @@ void test_tx_unlocked_block() {
   // add a reference block that reverence to the 0 index of blocks.
   unlock_blocks_add_reference(&blocks, 0);
 
-  // tx_blocks_print(blocks);
+  // unlock_blocks_print(blocks);
 
   // serialization
   size_t len = unlock_blocks_serialize_length(blocks);
@@ -129,7 +129,6 @@ void test_tx_payload() {
 
   // add signature
   byte_t sig[ED25519_SIGNATURE_BLOCK_BYTES] = {};
-  // ed25519_signature_t sig = {};
   sig[0] = ADDRESS_VER_ED25519;
   memcpy(sig + 1, test_pub_key, ED_PUBLIC_KEY_BYTES);
   memcpy(sig + 1 + ED_PUBLIC_KEY_BYTES, test_sig, ED_SIGNATURE_BYTES);
