@@ -80,11 +80,6 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 
 ## [Transaction Payload](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/payloads/transaction.h)
 
-```{eval-rst}
-.. doxygenstruct:: ed25519_signature_t
-  :members:
-```
-
 ### Transaction Essence
 
 ```{eval-rst}
@@ -122,27 +117,27 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: tx_blocks_new
+.. doxygenfunction:: unlock_blocks_new
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: tx_blocks_free
+.. doxygenfunction:: unlock_blocks_free
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: tx_blocks_add_signature
+.. doxygenfunction:: unlock_blocks_add_signature
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: tx_blocks_add_reference
+.. doxygenfunction:: unlock_blocks_add_reference
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: tx_blocks_count
+.. doxygenfunction:: unlock_blocks_count
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: tx_blocks_print
+.. doxygenfunction:: unlock_blocks_print
 ```
 
 ### Transaction Payload

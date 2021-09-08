@@ -39,6 +39,18 @@ The Crypto API provides an abstraction layer with the cryptography implementatio
 .. doxygenfunction:: iota_crypto_hmacsha512
 ```
 
+## SHA-256
+
+```{eval-rst}
+.. doxygenfunction:: iota_crypto_sha256
+```
+
+## SHA-512
+
+```{eval-rst}
+.. doxygenfunction:: iota_crypto_sha512
+```
+
 ## Blake2b Sum
 
 ```{eval-rst}
