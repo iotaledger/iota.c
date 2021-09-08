@@ -13,12 +13,17 @@ add_dependencies(iota_wallet iota_client)
 target_sources(
   iota_wallet
   PRIVATE "wallet.c"
+          "bip39.c"
   PUBLIC "wallet.h")
 
 target_include_directories(
   iota_wallet PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CURL_INCLUDE_DIRS}"
                      "${CMAKE_INSTALL_PREFIX}/include/cjson" # for esp32 compatibility
 )
+
+if(IOTA_WALLET_BIP39)
+  target_compile_definitions(iota_crypto PUBLIC EN_WALLET_BIP39)
+endif()
 
 add_dependencies(iota_wallet iota_client)
 

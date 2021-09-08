@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
+#include "wallet/bip39.h"
 #include "wallet/wallet.h"
 
 static const byte_t seed[] = {0xe5, 0x7f, 0xb7, 0x50, 0xf3, 0xa3, 0xa6, 0x79, 0x69, 0xec, 0xe5,
@@ -103,10 +104,44 @@ void test_wallet_api_with_node() {
   wallet_destroy(wallet);
 }
 
+#ifdef EN_WALLET_BIP39
+#define BUF_LEN 32
+#define MS_BUF_SIZE 512
+
+void test_bip39_encode() {
+  byte_t seed[BUF_LEN] = {};
+  char ms_buf[MS_BUF_SIZE] = {};
+  dump_hex_str(seed, BUF_LEN);
+  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_EN, ms_buf, 256);
+  printf("%s\n", ms_buf);
+  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_JA, ms_buf, 512);
+  printf("%s\n", ms_buf);
+  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_CS, ms_buf, 256);
+  printf("%s\n", ms_buf);
+  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_ES, ms_buf, 256);
+  printf("%s\n", ms_buf);
+  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_FR, ms_buf, 256);
+  printf("%s\n", ms_buf);
+  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_IT, ms_buf, 256);
+  printf("%s\n", ms_buf);
+  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_KO, ms_buf, 512);
+  printf("%s\n", ms_buf);
+  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_PT, ms_buf, 256);
+  printf("%s\n", ms_buf);
+  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_ZH_HANT, ms_buf, 256);
+  printf("%s\n", ms_buf);
+  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_ZH_HANS, ms_buf, 256);
+  printf("%s\n", ms_buf);
+}
+#endif
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_wallet_api);
+#ifdef EN_WALLET_BIP39
+  RUN_TEST(test_bip39_encode);
+#endif
   // tested on alphanet
   // RUN_TEST(test_wallet_api_with_node);
 
