@@ -14,7 +14,7 @@
 #include "wallet/wordlists/english.h"
 #include "wallet/wordlists/french.h"
 #include "wallet/wordlists/italian.h"
-#include "wallet/wordlists/japanese.h"
+// #include "wallet/wordlists/japanese.h" //TODO
 #include "wallet/wordlists/korean.h"
 #include "wallet/wordlists/portuguese.h"
 #include "wallet/wordlists/spanish.h"
@@ -34,10 +34,17 @@
 
 // BIP39 split entropy into groups of 11 bits.
 #define BIP39_GROUP_BITS 11
+// maximum words of mnemonic sentence(MS)
+#define BIP39_MAX_MS 24
+
+// japaneses uses the "　"(\u3000) seperator
+// https://github.com/bip32JP/bip32JP.github.io/blob/d2475a57735bdc06da615481a9d2232e090e69f7/js/bip39.js#L45-L49
+#define BIP39_MS_SEPERATOR_JA L"　"
+#define BIP39_MS_SEPERATOR " "
 
 // index of mnemonic sentence
 typedef struct {
-  uint16_t index[24];
+  uint16_t index[BIP39_MAX_MS];
   uint8_t len;
 } ms_index_t;
 
@@ -129,6 +136,63 @@ static void index_to_entropy(ms_index_t *ms, byte_t entropy[], size_t ent_len) {
   // validate length
 }
 
+static word_t *get_lan_table(ms_lan_t lan) {
+  switch (lan) {
+    case MS_LAN_EN:
+      return en_word;
+    case MS_LAN_CS:
+      return cs_word;
+    case MS_LAN_ES:
+      return es_word;
+    case MS_LAN_FR:
+      return fr_word;
+    case MS_LAN_IT:
+      return it_word;
+    // case MS_LAN_JA:
+    //   return ja_word;
+    case MS_LAN_KO:
+      return ko_word;
+    case MS_LAN_PT:
+      return pt_word;
+    case MS_LAN_ZH_HANT:
+      return zh_hant_word;
+    case MS_LAN_ZH_HANS:
+      return zh_hans_word;
+    default:
+      return en_word;
+  }
+}
+
+int mnemonic_to_seed(char ms_strs[], ms_lan_t lan, byte_t seed[]) {
+  // get corresponding wordlist
+  word_t *word_table = get_lan_table(lan);
+  ms_index_t ms = {};
+  // char delimit[] = " \0";
+  char delimit[] = " ";
+  char *token = strtok(ms_strs, delimit);
+  int w_count = 0;
+  while (token != NULL) {
+    for (size_t i = 0; i < BIP39_WORDLIST_COUNT; i++) {
+      // word_table = sizeof(word_t) * i;
+      // printf("checking..%s\n", word_table[i].p);
+      if (memcmp(token, word_table[i].p, word_table[i].len) == 0) {
+        ms.index[w_count] = i;
+        break;
+      }
+    }
+    // printf("%s\n", token);
+    w_count++;
+    token = strtok(NULL, delimit);
+  }
+  ms.len = w_count;
+  for (int i = 0; i < ms.len; i++) {
+    printf("%d, ", ms.index[i]);
+  }
+  printf("\n");
+
+  return 0;
+}
+
 int mnemonic_from_seed(byte_t const seed[], uint32_t seed_len, ms_lan_t lan, char buf_out[], size_t buf_len) {
   ms_index_t ms = {};
 
@@ -139,56 +203,15 @@ int mnemonic_from_seed(byte_t const seed[], uint32_t seed_len, ms_lan_t lan, cha
 
   if (index_from_entropy(seed, seed_len, &ms) == 0) {
     // default to english
-    word_t *lan_p = en_word;
-    // get lang
-    switch (lan) {
-      case MS_LAN_EN:
-        lan_p = en_word;
-        break;
-      case MS_LAN_CS:
-        lan_p = cs_word;
-        break;
-      case MS_LAN_ES:
-        lan_p = es_word;
-        break;
-      case MS_LAN_FR:
-        lan_p = fr_word;
-        break;
-      case MS_LAN_IT:
-        lan_p = it_word;
-        break;
-      case MS_LAN_JA:
-        lan_p = ja_word;
-        break;
-      case MS_LAN_KO:
-        lan_p = ko_word;
-        break;
-      case MS_LAN_PT:
-        lan_p = pt_word;
-        break;
-      case MS_LAN_ZH_HANT:
-        lan_p = zh_hant_word;
-        break;
-      case MS_LAN_ZH_HANS:
-        lan_p = zh_hans_word;
-        break;
-      default:
-        break;
-    }
+    word_t *lan_p = get_lan_table(lan);
 
-    // dump string
-    int offset = 0;
+    // get string from the wordlist
+    size_t offset = 0;
     for (size_t i = 0; i < ms.len; i++) {
       // printf("%u, ", ms.index[i]);
       int n;
       if (i < ms.len - 1) {
-        if (lan == MS_LAN_JA) {
-          // japaneses uses the "　"(\u3000) seperator
-          // https://github.com/bip32JP/bip32JP.github.io/blob/d2475a57735bdc06da615481a9d2232e090e69f7/js/bip39.js#L45-L49
-          n = snprintf(buf_out + offset, buf_len - offset, "%s　", lan_p[ms.index[i]].p);
-        } else {
-          n = snprintf(buf_out + offset, buf_len - offset, "%s ", lan_p[ms.index[i]].p);
-        }
+        n = snprintf(buf_out + offset, buf_len - offset, "%s%s", lan_p[ms.index[i]].p, BIP39_MS_SEPERATOR);
       } else {
         n = snprintf(buf_out + offset, buf_len - offset, "%s", lan_p[ms.index[i]].p);
       }

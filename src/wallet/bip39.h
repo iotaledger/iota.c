@@ -12,7 +12,7 @@
 
 typedef enum {
   MS_LAN_EN,
-  MS_LAN_JA,
+  // MS_LAN_JA, //TODO
   MS_LAN_KO,
   MS_LAN_ES,
   MS_LAN_ZH_HANT,
@@ -27,9 +27,9 @@ typedef enum {
 extern "C" {
 #endif
 
-// void mnemonic_to_seed();
+int mnemonic_to_seed(char ms_strs[], ms_lan_t lan, byte_t seed[]);
 
-int mnemonic_from_seed(byte_t const seed[], uint32_t seed_len, ms_lan_t lan, char out_str[], size_t out_len);
+int mnemonic_from_seed(byte_t const seed[], uint32_t seed_len, ms_lan_t lan, char buf_out[], size_t buf_len);
 
 #ifdef __cplusplus
 }
