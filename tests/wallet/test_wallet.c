@@ -8,6 +8,8 @@
 #include "wallet/bip39.h"
 #include "wallet/wallet.h"
 
+#include "mnemonic_vectors.h"
+
 static const byte_t seed[] = {0xe5, 0x7f, 0xb7, 0x50, 0xf3, 0xa3, 0xa6, 0x79, 0x69, 0xec, 0xe5,
                               0xbd, 0x9a, 0xe7, 0xee, 0xf5, 0xb2, 0x25, 0x6a, 0x81, 0x8b, 0x2a,
                               0xac, 0x45, 0x89, 0x41, 0xf7, 0x27, 0x49, 0x85, 0xa4, 0x10};
@@ -105,33 +107,33 @@ void test_wallet_api_with_node() {
 }
 
 #ifdef EN_WALLET_BIP39
-#define BUF_LEN 32
-#define MS_BUF_SIZE 512
+#define ENT_BUF_LEN 32
+#define MS_BUF_SIZE 1024
 
 void test_bip39_encode() {
-  byte_t seed[BUF_LEN] = {};
-  char ms_buf[MS_BUF_SIZE] = {};
-  dump_hex_str(seed, BUF_LEN);
-  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_EN, ms_buf, 256);
-  printf("%s\n", ms_buf);
-  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_JA, ms_buf, 512);
-  printf("%s\n", ms_buf);
-  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_CS, ms_buf, 256);
-  printf("%s\n", ms_buf);
-  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_ES, ms_buf, 256);
-  printf("%s\n", ms_buf);
-  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_FR, ms_buf, 256);
-  printf("%s\n", ms_buf);
-  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_IT, ms_buf, 256);
-  printf("%s\n", ms_buf);
-  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_KO, ms_buf, 512);
-  printf("%s\n", ms_buf);
-  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_PT, ms_buf, 256);
-  printf("%s\n", ms_buf);
-  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_ZH_HANT, ms_buf, 256);
-  printf("%s\n", ms_buf);
-  mnemonic_from_seed(seed, BUF_LEN, MS_LAN_ZH_HANS, ms_buf, 256);
-  printf("%s\n", ms_buf);
+  byte_t entropy[ENT_BUF_LEN] = {};
+  char ms_out[MS_BUF_SIZE] = {};
+
+#if 0
+  for (size_t i = 0; i < sizeof(vectors) / sizeof(ms_vectors_t); i++) {
+    size_t entropy_str_len = strlen(vectors[i].ent);
+    hex_2_bin(vectors[i].ent, entropy_str_len, entropy, sizeof(entropy));
+    mnemonic_from_seed(entropy, entropy_str_len / 2, MS_LAN_EN, ms_out, MS_BUF_SIZE);
+    printf("%s\n", vectors[i].ms);
+    TEST_ASSERT_EQUAL_MEMORY(vectors[i].ms, ms_out, strlen(vectors[i].ms));
+
+    mnemonic_to_seed(ms_out, MS_LAN_EN, NULL);
+  }
+#else
+  size_t i = 0;
+  size_t entropy_str_len = strlen(vectors[i].ent);
+  hex_2_bin(vectors[i].ent, entropy_str_len, entropy, sizeof(entropy));
+  mnemonic_from_seed(entropy, entropy_str_len / 2, MS_LAN_EN, ms_out, MS_BUF_SIZE);
+  printf("%s\n", vectors[i].ms);
+  TEST_ASSERT_EQUAL_MEMORY(vectors[i].ms, ms_out, strlen(vectors[i].ms));
+
+  mnemonic_to_seed(ms_out, MS_LAN_EN, NULL);
+#endif
 }
 #endif
 
