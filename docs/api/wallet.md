@@ -52,3 +52,17 @@ This is reference implementation as wallet APIs. Users are able to implement wal
 ```{eval-rst}
 .. doxygenfunction:: wallet_update_bech32HRP
 ```
+
+## Mnemonic Sentence
+
+```{eval-rst}
+.. doxygenenum:: ms_lan_t
+```
+
+```{eval-rst}
+.. doxygenfunction:: mnemonic_from_seed
+```
+
+```{eval-rst}
+.. doxygenfunction:: mnemonic_to_seed
+```
