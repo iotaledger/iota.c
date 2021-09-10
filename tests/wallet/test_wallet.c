@@ -131,6 +131,7 @@ void test_bip39_en() {
     hex_2_bin(vectors[i].ent, entropy_str_len, entropy, sizeof(entropy));
     mnemonic_from_seed(entropy, entropy_bin_len, MS_LAN_EN, ms_out, MS_BUF_SIZE);
     TEST_ASSERT_EQUAL_MEMORY(vectors[i].ms, ms_out, strlen(vectors[i].ms));
+    printf("%s\n", ms_out);
 
     // decode
     size_t len = mnemonic_to_seed(ms_out, MS_LAN_EN, out_ent, sizeof(out_ent));
@@ -151,6 +152,7 @@ void test_bip39_languages() {
       size_t entropy_bin_len = entropy_str_len / 2;
       TEST_ASSERT(hex_2_bin(vectors[i].ent, entropy_str_len, entropy, sizeof(entropy)) == 0);
       TEST_ASSERT(mnemonic_from_seed(entropy, entropy_bin_len, lan, ms_out, MS_BUF_SIZE) == 0);
+      printf("\t%s\n", ms_out);
       // decode
       size_t len = mnemonic_to_seed(ms_out, lan, out_ent, sizeof(out_ent));
       TEST_ASSERT(len != 0);

@@ -11,20 +11,20 @@
 #include "core/types.h"
 
 /**
- * @brief ISO 639-1 Language Tags
+ * @brief Mnemonic supported languages with ISO 639-1 suffixes
  *
  */
 typedef enum {
-  MS_LAN_EN,
-  // MS_LAN_JA, // TODO, or not support
-  MS_LAN_KO,
-  MS_LAN_ES,
-  MS_LAN_ZH_HANT,
-  MS_LAN_ZH_HANS,
-  MS_LAN_FR,
-  MS_LAN_IT,
-  MS_LAN_CS,
-  MS_LAN_PT,
+  MS_LAN_EN,       ///< English
+  MS_LAN_KO,       ///< Korean
+  MS_LAN_ES,       ///< Spanish
+  MS_LAN_ZH_HANT,  ///< Chinese Traditional
+  MS_LAN_ZH_HANS,  ///< Chinese Simplified
+  MS_LAN_FR,       ///< French
+  MS_LAN_IT,       ///< Italian
+  MS_LAN_CS,       ///< Czech
+  MS_LAN_PT,       ///< Portuguese
+  // MS_LAN_JA, ///< Japanese, TODO or not support
 } ms_lan_t;
 
 #ifdef __cplusplus
