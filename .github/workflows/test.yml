@@ -28,14 +28,14 @@ jobs:
         cmake --version
         clang --version
         mkdir build && cd build
-        cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON ..
+        cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON -DIOTA_WALLET_BIP39=ON ..
         ninja -v && CTEST_OUTPUT_ON_FAILURE=1 ninja test
 
     - name: Release build
       run: |
         rm -rf build && sync
         mkdir build && cd build
-        cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON ..
+        cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_WALLET_BIP39=ON ..
         ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
 
   make_gcc:
@@ -54,12 +54,12 @@ jobs:
         cmake --version
         gcc --version
         mkdir build && cd build
-        cmake -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON -DUSE_REF_CRYPTO=ON ..
+        cmake -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON -DUSE_REF_CRYPTO=ON -DIOTA_WALLET_BIP39=ON ..
         make -j8 && make test
 
     - name: Release build
       run: |
         rm -rf build && sync
         mkdir build && cd build
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DUSE_REF_CRYPTO=ON ..
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DUSE_REF_CRYPTO=ON -DIOTA_WALLET_BIP39=ON ..
         make -j8 && make test
