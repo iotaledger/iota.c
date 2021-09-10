@@ -6,9 +6,13 @@
 
 #include <stdlib.h>
 
+/**
+ * @brief The word object for wordlist tables.
+ *
+ */
 typedef struct word {
-  char *p;     // pointer to the string
-  size_t len;  // the length of string, null terminator is excluded
+  char *p;     ///< a pointer to the string
+  size_t len;  ///< the length of string, null terminator is excluded
 } word_t;
 
 #endif

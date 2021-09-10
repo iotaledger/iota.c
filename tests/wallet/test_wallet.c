@@ -107,34 +107,59 @@ void test_wallet_api_with_node() {
 }
 
 #ifdef EN_WALLET_BIP39
+
+// max entropy input size is 32
 #define ENT_BUF_LEN 32
+// depends on the chosen language
 #define MS_BUF_SIZE 1024
+// wrt bip39 spec, should be bigger than 33 bytes
+#define ENT_OUT_BUF_LEN 64
 
-void test_bip39_encode() {
-  byte_t entropy[ENT_BUF_LEN] = {};
-  char ms_out[MS_BUF_SIZE] = {};
+// buffers used by test_bip39_en and test_bip39_languages
+byte_t entropy[ENT_BUF_LEN] = {};
+char ms_out[MS_BUF_SIZE] = {};
+char ms_zh_out[MS_BUF_SIZE] = {};
+byte_t out_ent[ENT_OUT_BUF_LEN] = {};
 
-#if 0
+// validate encode/decode/ms with English
+void test_bip39_en() {
   for (size_t i = 0; i < sizeof(vectors) / sizeof(ms_vectors_t); i++) {
+    printf("validating BIP39 vector[%zu]: %s\n", i, vectors[i].ent);
+    // encode
     size_t entropy_str_len = strlen(vectors[i].ent);
+    size_t entropy_bin_len = entropy_str_len / 2;
     hex_2_bin(vectors[i].ent, entropy_str_len, entropy, sizeof(entropy));
-    mnemonic_from_seed(entropy, entropy_str_len / 2, MS_LAN_EN, ms_out, MS_BUF_SIZE);
-    printf("%s\n", vectors[i].ms);
+    mnemonic_from_seed(entropy, entropy_bin_len, MS_LAN_EN, ms_out, MS_BUF_SIZE);
     TEST_ASSERT_EQUAL_MEMORY(vectors[i].ms, ms_out, strlen(vectors[i].ms));
 
-    mnemonic_to_seed(ms_out, MS_LAN_EN, NULL);
+    // decode
+    size_t len = mnemonic_to_seed(ms_out, MS_LAN_EN, out_ent, sizeof(out_ent));
+    TEST_ASSERT(len != 0);
+    TEST_ASSERT_EQUAL_MEMORY(entropy, out_ent, entropy_bin_len);
+    // dump_hex_str(out_ent, len);
   }
-#else
-  size_t i = 0;
-  size_t entropy_str_len = strlen(vectors[i].ent);
-  hex_2_bin(vectors[i].ent, entropy_str_len, entropy, sizeof(entropy));
-  mnemonic_from_seed(entropy, entropy_str_len / 2, MS_LAN_EN, ms_out, MS_BUF_SIZE);
-  printf("%s\n", vectors[i].ms);
-  TEST_ASSERT_EQUAL_MEMORY(vectors[i].ms, ms_out, strlen(vectors[i].ms));
-
-  mnemonic_to_seed(ms_out, MS_LAN_EN, NULL);
-#endif
 }
+
+// validate encode/decode with other languages
+void test_bip39_languages() {
+  for (ms_lan_t lan = MS_LAN_KO; lan <= MS_LAN_PT; lan++) {
+    printf("validating BIP39 language ID %d...\n", lan);
+    for (size_t i = 0; i < sizeof(vectors) / sizeof(ms_vectors_t); i++) {
+      printf("\tBIP39 vector[%zu]: %s\n", i, vectors[i].ent);
+      // encode
+      size_t entropy_str_len = strlen(vectors[i].ent);
+      size_t entropy_bin_len = entropy_str_len / 2;
+      TEST_ASSERT(hex_2_bin(vectors[i].ent, entropy_str_len, entropy, sizeof(entropy)) == 0);
+      TEST_ASSERT(mnemonic_from_seed(entropy, entropy_bin_len, lan, ms_out, MS_BUF_SIZE) == 0);
+      // decode
+      size_t len = mnemonic_to_seed(ms_out, lan, out_ent, sizeof(out_ent));
+      TEST_ASSERT(len != 0);
+      // we don't check the ms but validate encode/decode entropy
+      TEST_ASSERT_EQUAL_MEMORY(entropy, out_ent, entropy_bin_len);
+    }
+  }
+}
+
 #endif
 
 int main() {
@@ -142,7 +167,8 @@ int main() {
 
   RUN_TEST(test_wallet_api);
 #ifdef EN_WALLET_BIP39
-  RUN_TEST(test_bip39_encode);
+  RUN_TEST(test_bip39_en);
+  RUN_TEST(test_bip39_languages);
 #endif
   // tested on alphanet
   // RUN_TEST(test_wallet_api_with_node);

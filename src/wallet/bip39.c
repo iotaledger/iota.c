@@ -14,7 +14,7 @@
 #include "wallet/wordlists/english.h"
 #include "wallet/wordlists/french.h"
 #include "wallet/wordlists/italian.h"
-// #include "wallet/wordlists/japanese.h" //TODO
+// #include "wallet/wordlists/japanese.h" // TODO, or not support
 #include "wallet/wordlists/korean.h"
 #include "wallet/wordlists/portuguese.h"
 #include "wallet/wordlists/spanish.h"
@@ -26,7 +26,7 @@
 #define BIP39_ENT_224_BYTES 28
 #define BIP39_ENT_256_BYTES 32
 
-// max length of ENT+CS in byte
+// max length of ENT+CS in byte, 33 bytes
 #define BIP39_MAX_ENT_CS_BYTES (264 / 8)
 
 // mnemonic sentence count in language files
@@ -42,13 +42,22 @@
 #define BIP39_MS_SEPERATOR_JA L"　"
 #define BIP39_MS_SEPERATOR " "
 
-// index of mnemonic sentence
+/**
+ * @brief Store index of mnemonic sentence
+ *
+ */
 typedef struct {
-  uint16_t index[BIP39_MAX_MS];
-  uint8_t len;
+  uint16_t index[BIP39_MAX_MS];  ///< index of the word
+  uint8_t len;                   ///< the number of words in this MS.
 } ms_index_t;
 
-// get word index from entropy group
+/**
+ * @brief Get index value from a word
+ *
+ * @param[in] entropy the entropy data buffer
+ * @param[in] n the n-th word
+ * @return size_t the index value
+ */
 static size_t word_index(byte_t const entropy[], size_t n) {
   size_t start = n * BIP39_GROUP_BITS;    // start index of this group
   size_t end = start + BIP39_GROUP_BITS;  // end index of this group
@@ -68,6 +77,14 @@ static size_t word_index(byte_t const entropy[], size_t n) {
   return index;
 }
 
+/**
+ * @brief build the index table from entropy
+ *
+ * @param[in] entropy the input entropy
+ * @param[in] entropy_len the bytes of entropy
+ * @param[out] ms_index index table for a mnemonic sentence
+ * @return int 0 on success
+ */
 static int index_from_entropy(byte_t const entropy[], uint32_t entropy_len, ms_index_t *ms_index) {
   byte_t checksum_buf[CRYPTO_SHA256_HASH_BYTES] = {};
   byte_t ENT_buf[BIP39_MAX_ENT_CS_BYTES] = {};
@@ -132,10 +149,31 @@ static int index_from_entropy(byte_t const entropy[], uint32_t entropy_len, ms_i
   return 0;
 }
 
-static void index_to_entropy(ms_index_t *ms, byte_t entropy[], size_t ent_len) {
-  // validate length
+/**
+ * @brief convert index to entropy value
+ *
+ * @param[in] n the n-th word in ms
+ * @param[in] value the index value of word
+ * @param[out] entropy an entropy buffer should bigger than BIP39_MAX_ENT_CS_BYTES
+ */
+static void index_to_entropy(size_t n, size_t value, byte_t entropy[]) {
+  size_t start = n * BIP39_GROUP_BITS;  // start index of this group
+  for (size_t i = 0; i < BIP39_GROUP_BITS; i++, start++) {
+    if (value & (1u << (BIP39_GROUP_BITS - i - 1u))) {
+      // the mask of the bit we need
+      byte_t mask = (1u << (7u - start % 8));
+      // store to entropy
+      entropy[start / 8] |= mask;
+    }
+  }
 }
 
+/**
+ * @brief Get the language table
+ *
+ * @param[in] lan language to find
+ * @return word_t* a pointer of the language table
+ */
 static word_t *get_lan_table(ms_lan_t lan) {
   switch (lan) {
     case MS_LAN_EN:
@@ -163,34 +201,60 @@ static word_t *get_lan_table(ms_lan_t lan) {
   }
 }
 
-int mnemonic_to_seed(char ms_strs[], ms_lan_t lan, byte_t seed[]) {
+/**
+ * @brief Calculate entropy bytes from MS length
+ *
+ * @param[in] len the length of a mnemonic sentence
+ * @return size_t the bytes of entropy
+ */
+static size_t ENT_from_MS(uint8_t len) {
+  switch (len) {
+    case 12:
+      return BIP39_ENT_128_BYTES;
+    case 15:
+      return BIP39_ENT_160_BYTES;
+    case 18:
+      return BIP39_ENT_192_BYTES;
+    case 21:
+      return BIP39_ENT_224_BYTES;
+    case 24:
+      return BIP39_ENT_256_BYTES;
+    default:
+      return 0;
+  }
+}
+
+size_t mnemonic_to_seed(char ms_strs[], ms_lan_t lan, byte_t seed[], size_t seed_len) {
+  if (ms_strs == NULL || seed == NULL) {
+    printf("invalid parameters");
+    return 0;
+  }
+
   // get corresponding wordlist
   word_t *word_table = get_lan_table(lan);
+  // index of ms
   ms_index_t ms = {};
-  // char delimit[] = " \0";
-  char delimit[] = " ";
-  char *token = strtok(ms_strs, delimit);
+
+  // cleanup, bits are zero for writing
+  memset(seed, 0, seed_len);
+
+  char *token = strtok(ms_strs, BIP39_MS_SEPERATOR);
   int w_count = 0;
   while (token != NULL) {
     for (size_t i = 0; i < BIP39_WORDLIST_COUNT; i++) {
-      // word_table = sizeof(word_t) * i;
-      // printf("checking..%s\n", word_table[i].p);
-      if (memcmp(token, word_table[i].p, word_table[i].len) == 0) {
+      if (memcmp(token, word_table[i].p, word_table[i].len + 1) == 0) {
+        // index found
         ms.index[w_count] = i;
+        index_to_entropy(w_count, ms.index[w_count], seed);
         break;
       }
     }
-    // printf("%s\n", token);
     w_count++;
-    token = strtok(NULL, delimit);
+    token = strtok(NULL, BIP39_MS_SEPERATOR);
   }
+  // words in the ms
   ms.len = w_count;
-  for (int i = 0; i < ms.len; i++) {
-    printf("%d, ", ms.index[i]);
-  }
-  printf("\n");
-
-  return 0;
+  return ENT_from_MS(ms.len);
 }
 
 int mnemonic_from_seed(byte_t const seed[], uint32_t seed_len, ms_lan_t lan, char buf_out[], size_t buf_len) {
@@ -208,7 +272,6 @@ int mnemonic_from_seed(byte_t const seed[], uint32_t seed_len, ms_lan_t lan, cha
     // get string from the wordlist
     size_t offset = 0;
     for (size_t i = 0; i < ms.len; i++) {
-      // printf("%u, ", ms.index[i]);
       int n;
       if (i < ms.len - 1) {
         n = snprintf(buf_out + offset, buf_len - offset, "%s%s", lan_p[ms.index[i]].p, BIP39_MS_SEPERATOR);
@@ -226,4 +289,5 @@ int mnemonic_from_seed(byte_t const seed[], uint32_t seed_len, ms_lan_t lan, cha
   }
   return -1;
 }
+
 #endif
