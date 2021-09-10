@@ -10,9 +10,13 @@
 
 #include "core/types.h"
 
+/**
+ * @brief ISO 639-1 Language Tags
+ *
+ */
 typedef enum {
   MS_LAN_EN,
-  // MS_LAN_JA, //TODO
+  // MS_LAN_JA, // TODO, or not support
   MS_LAN_KO,
   MS_LAN_ES,
   MS_LAN_ZH_HANT,
@@ -27,8 +31,27 @@ typedef enum {
 extern "C" {
 #endif
 
-int mnemonic_to_seed(char ms_strs[], ms_lan_t lan, byte_t seed[]);
+/**
+ * @brief Converts mnemonic sentence to an IOTA seed.
+ *
+ * @param[in] ms_strs A string of mnemonic sentence
+ * @param[in] lan The language of the mnemonic sentence
+ * @param[in] seed the output buffer, should bigger than 33 bytes(ENT+CS)
+ * @param[in] seed_len the size of the output buffer
+ * @return size_t the bytes written to output buffer, 0 on failed.
+ */
+size_t mnemonic_to_seed(char ms_strs[], ms_lan_t lan, byte_t seed[], size_t seed_len);
 
+/**
+ * @brief Gets mnemonic sentence from a given(IOTA) seed.
+ *
+ * @param[in] seed the input seed(entroty)
+ * @param[in] seed_len the length of seed(entroty), should be one of 16, 20, 24, 28, 32.
+ * @param[in] lan The expected language of mnemonic sentence
+ * @param[out] buf_out The output string of mnemonic sentence
+ * @param[in] buf_len the output buffer length
+ * @return int 0 on success
+ */
 int mnemonic_from_seed(byte_t const seed[], uint32_t seed_len, ms_lan_t lan, char buf_out[], size_t buf_len);
 
 #ifdef __cplusplus
