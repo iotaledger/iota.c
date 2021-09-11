@@ -224,8 +224,8 @@ static size_t ENT_from_MS(uint8_t len) {
   }
 }
 
-size_t mnemonic_to_seed(char ms_strs[], ms_lan_t lan, byte_t seed[], size_t seed_len) {
-  if (ms_strs == NULL || seed == NULL) {
+size_t mnemonic_decode(char ms_strs[], ms_lan_t lan, byte_t entropy[], size_t ent_len) {
+  if (ms_strs == NULL || entropy == NULL) {
     printf("invalid parameters");
     return 0;
   }
@@ -236,7 +236,7 @@ size_t mnemonic_to_seed(char ms_strs[], ms_lan_t lan, byte_t seed[], size_t seed
   ms_index_t ms = {};
 
   // cleanup, bits are zero for writing
-  memset(seed, 0, seed_len);
+  memset(entropy, 0, ent_len);
 
   char *token = strtok(ms_strs, BIP39_MS_SEPERATOR);
   int w_count = 0;
@@ -245,7 +245,7 @@ size_t mnemonic_to_seed(char ms_strs[], ms_lan_t lan, byte_t seed[], size_t seed
       if (memcmp(token, word_table[i].p, word_table[i].len + 1) == 0) {
         // index found
         ms.index[w_count] = i;
-        index_to_entropy(w_count, ms.index[w_count], seed);
+        index_to_entropy(w_count, ms.index[w_count], entropy);
         break;
       }
     }
@@ -257,15 +257,15 @@ size_t mnemonic_to_seed(char ms_strs[], ms_lan_t lan, byte_t seed[], size_t seed
   return ENT_from_MS(ms.len);
 }
 
-int mnemonic_from_seed(byte_t const seed[], uint32_t seed_len, ms_lan_t lan, char buf_out[], size_t buf_len) {
+int mnemonic_encode(byte_t const entropy[], uint32_t ent_len, ms_lan_t lan, char ms_out[], size_t ms_len) {
   ms_index_t ms = {};
 
-  if (seed == NULL || buf_out == NULL) {
+  if (entropy == NULL || ms_out == NULL) {
     printf("invalid parameters");
     return -1;
   }
 
-  if (index_from_entropy(seed, seed_len, &ms) == 0) {
+  if (index_from_entropy(entropy, ent_len, &ms) == 0) {
     // default to english
     word_t *lan_p = get_lan_table(lan);
 
@@ -274,13 +274,13 @@ int mnemonic_from_seed(byte_t const seed[], uint32_t seed_len, ms_lan_t lan, cha
     for (size_t i = 0; i < ms.len; i++) {
       int n;
       if (i < ms.len - 1) {
-        n = snprintf(buf_out + offset, buf_len - offset, "%s%s", lan_p[ms.index[i]].p, BIP39_MS_SEPERATOR);
+        n = snprintf(ms_out + offset, ms_len - offset, "%s%s", lan_p[ms.index[i]].p, BIP39_MS_SEPERATOR);
       } else {
-        n = snprintf(buf_out + offset, buf_len - offset, "%s", lan_p[ms.index[i]].p);
+        n = snprintf(ms_out + offset, ms_len - offset, "%s", lan_p[ms.index[i]].p);
       }
 
       offset += n;
-      if (offset >= buf_len) {
+      if (offset >= ms_len) {
         printf("output buffer is too small\n");
         return -1;
       }
