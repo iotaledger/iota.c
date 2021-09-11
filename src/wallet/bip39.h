@@ -31,28 +31,30 @@ typedef enum {
 extern "C" {
 #endif
 
+// void mnemonic_to_seed(); // TODO
+
 /**
- * @brief Converts mnemonic sentence to an IOTA seed.
+ * @brief decode mnemonic sentence to the entropy.
  *
  * @param[in] ms_strs A string of mnemonic sentence
  * @param[in] lan The language of the mnemonic sentence
- * @param[in] seed the output buffer, should bigger than 33 bytes(ENT+CS)
- * @param[in] seed_len the size of the output buffer
+ * @param[out] entropy the output buffer, should bigger than 33 bytes(ENT+CS)
+ * @param[in] ent_len the size of the entropy buffer
  * @return size_t the bytes written to output buffer, 0 on failed.
  */
-size_t mnemonic_to_seed(char ms_strs[], ms_lan_t lan, byte_t seed[], size_t seed_len);
+size_t mnemonic_decode(char ms_strs[], ms_lan_t lan, byte_t entropy[], size_t ent_len);
 
 /**
- * @brief Gets mnemonic sentence from a given(IOTA) seed.
+ * @brief encode mnemonic sentence from a given entropy.
  *
- * @param[in] seed the input seed(entroty)
- * @param[in] seed_len the length of seed(entroty), should be one of 16, 20, 24, 28, 32.
+ * @param[in] entropy the input entroty
+ * @param[in] ent_len the length of entroty, should be one of 16, 20, 24, 28, 32.
  * @param[in] lan The expected language of mnemonic sentence
- * @param[out] buf_out The output string of mnemonic sentence
- * @param[in] buf_len the output buffer length
+ * @param[out] ms_out The output string of mnemonic sentence
+ * @param[in] ms_len the output buffer length
  * @return int 0 on success
  */
-int mnemonic_from_seed(byte_t const seed[], uint32_t seed_len, ms_lan_t lan, char buf_out[], size_t buf_len);
+int mnemonic_encode(byte_t const entropy[], uint32_t ent_len, ms_lan_t lan, char ms_out[], size_t ms_len);
 
 #ifdef __cplusplus
 }

@@ -60,9 +60,9 @@ This is reference implementation as wallet APIs. Users are able to implement wal
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: mnemonic_from_seed
+.. doxygenfunction:: mnemonic_encode
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: mnemonic_to_seed
+.. doxygenfunction:: mnemonic_decode
 ```
