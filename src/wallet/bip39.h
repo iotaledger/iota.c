@@ -45,7 +45,16 @@ typedef enum {
 extern "C" {
 #endif
 
-// void mnemonic_to_seed(); // TODO
+/**
+ * @brief Drive seed from a given mnemonic sentence
+ *
+ * @param[in] ms A mnemonic sentence
+ * @param[in] pwd A password string
+ * @param[out] seed A buffer holds output seed
+ * @param[in] seed_len the length of seed buffer
+ * @return int
+ */
+int mnemonic_to_seed(char const ms[], char const pwd[], byte_t seed[], size_t seed_len);
 
 /**
  * @brief Generate a randome word list from given entropy length
@@ -67,7 +76,7 @@ int mnemonic_genrate(ms_entropy_t ent_len, ms_lan_t lang, char ms[], size_t ms_l
  * @param[in] ent_len the size of the entropy buffer
  * @return size_t the bytes written to output buffer, 0 on failed.
  */
-size_t mnemonic_decode(char ms_strs[], ms_lan_t lan, byte_t entropy[], size_t ent_len);
+size_t mnemonic_decode(char const ms_strs[], ms_lan_t lan, byte_t entropy[], size_t ent_len);
 
 /**
  * @brief encode mnemonic sentence from a given entropy.

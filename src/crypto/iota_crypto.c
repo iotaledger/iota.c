@@ -115,7 +115,6 @@ int iota_crypto_sha256(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
   return crypto_hash_sha256(hash, msg, msg_len);
 #elif defined(CRYPTO_USE_MBEDTLS)
   // TODO
-  TODO
 #else
   EVP_MD_CTX *mdctx;
   unsigned int hash_len = CRYPTO_SHA256_HASH_BYTES;
@@ -155,5 +154,16 @@ int iota_crypto_sha512(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
     EVP_MD_CTX_free(mdctx);
   }
   return -1;
+#endif
+}
+
+void iota_crypto_pbkdf2_hmac_sha512(char const pwd[], size_t pwd_len, char const salt[], size_t salt_len,
+                                    int32_t iterations, uint8_t dk[], size_t dk_len) {
+#if defined(CRYPTO_USE_SODIUM)
+  // TODO
+#elif defined(CRYPTO_USE_MBEDTLS)
+  // TODO
+#else
+  PKCS5_PBKDF2_HMAC(pwd, pwd_len, salt, salt_len, iterations, EVP_sha512(), dk_len, dk);
 #endif
 }
