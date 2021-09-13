@@ -19,13 +19,6 @@
 #include "wallet/wordlists/portuguese.h"
 #include "wallet/wordlists/spanish.h"
 
-// valid init entropy lengths in byte, ENT
-#define BIP39_ENT_128_BYTES 16
-#define BIP39_ENT_160_BYTES 20
-#define BIP39_ENT_192_BYTES 24
-#define BIP39_ENT_224_BYTES 28
-#define BIP39_ENT_256_BYTES 32
-
 // max length of ENT+CS in byte, 33 bytes
 #define BIP39_MAX_ENT_CS_BYTES (264 / 8)
 
@@ -85,7 +78,7 @@ static size_t word_index(byte_t const entropy[], size_t n) {
  * @param[out] ms_index index table for a mnemonic sentence
  * @return int 0 on success
  */
-static int index_from_entropy(byte_t const entropy[], uint32_t entropy_len, ms_index_t *ms_index) {
+static int index_from_entropy(byte_t const entropy[], ms_entropy_t entropy_len, ms_index_t *ms_index) {
   byte_t checksum_buf[CRYPTO_SHA256_HASH_BYTES] = {};
   byte_t ENT_buf[BIP39_MAX_ENT_CS_BYTES] = {};
   uint8_t checksum = 0;
@@ -98,23 +91,23 @@ static int index_from_entropy(byte_t const entropy[], uint32_t entropy_len, ms_i
   }
 
   switch (entropy_len) {
-    case BIP39_ENT_128_BYTES:
+    case MS_ENTROPY_128:
       checksum_mask = 0xF0;  // 4 bits
       ms_len = 12;
       break;
-    case BIP39_ENT_160_BYTES:
+    case MS_ENTROPY_160:
       checksum_mask = 0xF8;  // 5 bits
       ms_len = 15;
       break;
-    case BIP39_ENT_192_BYTES:
+    case MS_ENTROPY_192:
       checksum_mask = 0xFC;  // 6 bits
       ms_len = 18;
       break;
-    case BIP39_ENT_224_BYTES:
+    case MS_ENTROPY_224:
       checksum_mask = 0xFE;  // 7 bits
       ms_len = 21;
       break;
-    case BIP39_ENT_256_BYTES:
+    case MS_ENTROPY_256:
       checksum_mask = 0xFF;  // 8 bits
       ms_len = 24;
       break;
@@ -210,15 +203,15 @@ static word_t *get_lan_table(ms_lan_t lan) {
 static size_t ENT_from_MS(uint8_t len) {
   switch (len) {
     case 12:
-      return BIP39_ENT_128_BYTES;
+      return MS_ENTROPY_128;
     case 15:
-      return BIP39_ENT_160_BYTES;
+      return MS_ENTROPY_160;
     case 18:
-      return BIP39_ENT_192_BYTES;
+      return MS_ENTROPY_192;
     case 21:
-      return BIP39_ENT_224_BYTES;
+      return MS_ENTROPY_224;
     case 24:
-      return BIP39_ENT_256_BYTES;
+      return MS_ENTROPY_256;
     default:
       return 0;
   }
@@ -257,7 +250,7 @@ size_t mnemonic_decode(char ms_strs[], ms_lan_t lan, byte_t entropy[], size_t en
   return ENT_from_MS(ms.len);
 }
 
-int mnemonic_encode(byte_t const entropy[], uint32_t ent_len, ms_lan_t lan, char ms_out[], size_t ms_len) {
+int mnemonic_encode(byte_t const entropy[], ms_entropy_t ent_len, ms_lan_t lan, char ms_out[], size_t ms_len) {
   ms_index_t ms = {};
 
   if (entropy == NULL || ms_out == NULL) {
@@ -288,6 +281,12 @@ int mnemonic_encode(byte_t const entropy[], uint32_t ent_len, ms_lan_t lan, char
     return 0;
   }
   return -1;
+}
+
+int mnemonic_genrate(ms_entropy_t ent_len, ms_lan_t lang, char ms[], size_t ms_len) {
+  byte_t ent_tmp[MS_ENTROPY_256] = {};
+  iota_crypto_randombytes(ent_tmp, MS_ENTROPY_256);
+  return mnemonic_encode(ent_tmp, ent_len, lang, ms, ms_len);
 }
 
 #endif
