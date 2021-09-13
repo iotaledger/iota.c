@@ -27,11 +27,36 @@ typedef enum {
   // MS_LAN_JA, ///< Japanese, TODO or not support
 } ms_lan_t;
 
+/**
+ * @brief Init entropy of mnemonic sentense
+ *
+ * With more entropy security is improved but the sentence length increases.
+ *
+ */
+typedef enum {
+  MS_ENTROPY_128 = 16,  ///< 12 mnemonic words
+  MS_ENTROPY_160 = 20,  ///< 15 mnemonic words
+  MS_ENTROPY_192 = 24,  ///< 18 mnemonic words
+  MS_ENTROPY_224 = 28,  ///< 21 mnemonic words
+  MS_ENTROPY_256 = 32   ///< 24 mnemonic words
+} ms_entropy_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // void mnemonic_to_seed(); // TODO
+
+/**
+ * @brief Generate a randome word list from given entropy length
+ *
+ * @param[in] ent_len the init entropy length
+ * @param[in] lang the language of mnemonic
+ * @param[out] ms a buffer holds the mnemonic string
+ * @param[in] ms_len the length of mnemonic buffer
+ * @return int 0 on success
+ */
+int mnemonic_genrate(ms_entropy_t ent_len, ms_lan_t lang, char ms[], size_t ms_len);
 
 /**
  * @brief decode mnemonic sentence to the entropy.
@@ -54,7 +79,7 @@ size_t mnemonic_decode(char ms_strs[], ms_lan_t lan, byte_t entropy[], size_t en
  * @param[in] ms_len the output buffer length
  * @return int 0 on success
  */
-int mnemonic_encode(byte_t const entropy[], uint32_t ent_len, ms_lan_t lan, char ms_out[], size_t ms_len);
+int mnemonic_encode(byte_t const entropy[], ms_entropy_t ent_len, ms_lan_t lan, char ms_out[], size_t ms_len);
 
 #ifdef __cplusplus
 }
