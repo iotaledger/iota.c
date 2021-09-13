@@ -29,6 +29,10 @@ add_dependencies(iota_wallet iota_client)
 
 target_link_libraries(iota_wallet PUBLIC iota_client)
 
+if(IOTA_WALLET_BIP39)
+  target_link_libraries(iota_wallet PRIVATE utf8proc)
+endif()
+
 # install client lib and headers
 install(TARGETS iota_wallet DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
 install(

@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "crypto/iota_crypto.h"
+#include "utf8proc.h"
 #include "wallet/bip39.h"
 
 #include "wallet/wordlists/chinese_simplified.h"
@@ -217,11 +218,19 @@ static size_t ENT_from_MS(uint8_t len) {
   }
 }
 
-size_t mnemonic_decode(char ms_strs[], ms_lan_t lan, byte_t entropy[], size_t ent_len) {
+size_t mnemonic_decode(char const ms_strs[], ms_lan_t lan, byte_t entropy[], size_t ent_len) {
   if (ms_strs == NULL || entropy == NULL) {
-    printf("invalid parameters");
+    printf("invalid parameters\n");
     return 0;
   }
+
+  // copy string to another buffer
+  char *ms_p = malloc((strlen(ms_strs) + 1) * sizeof(char));
+  if (ms_p == NULL) {
+    printf("allocate buffer failed\n");
+    return 0;
+  }
+  strcpy(ms_p, ms_strs);
 
   // get corresponding wordlist
   word_t *word_table = get_lan_table(lan);
@@ -231,11 +240,11 @@ size_t mnemonic_decode(char ms_strs[], ms_lan_t lan, byte_t entropy[], size_t en
   // cleanup, bits are zero for writing
   memset(entropy, 0, ent_len);
 
-  char *token = strtok(ms_strs, BIP39_MS_SEPERATOR);
+  char *token = strtok(ms_p, BIP39_MS_SEPERATOR);
   int w_count = 0;
   while (token != NULL) {
     for (size_t i = 0; i < BIP39_WORDLIST_COUNT; i++) {
-      if (memcmp(token, word_table[i].p, word_table[i].len + 1) == 0) {
+      if (strcmp(token, word_table[i].p) == 0) {
         // index found
         ms.index[w_count] = i;
         index_to_entropy(w_count, ms.index[w_count], entropy);
@@ -247,6 +256,7 @@ size_t mnemonic_decode(char ms_strs[], ms_lan_t lan, byte_t entropy[], size_t en
   }
   // words in the ms
   ms.len = w_count;
+  free(ms_p);
   return ENT_from_MS(ms.len);
 }
 
@@ -287,6 +297,60 @@ int mnemonic_genrate(ms_entropy_t ent_len, ms_lan_t lang, char ms[], size_t ms_l
   byte_t ent_tmp[MS_ENTROPY_256] = {};
   iota_crypto_randombytes(ent_tmp, MS_ENTROPY_256);
   return mnemonic_encode(ent_tmp, ent_len, lang, ms, ms_len);
+}
+
+int mnemonic_to_seed(char const ms[], char const pwd[], byte_t seed[], size_t seed_len) {
+  char const *const phrase = "mnemonic";
+  size_t phrase_len = strlen(phrase);
+
+  if (ms == NULL || pwd == NULL || seed == NULL) {
+    return -1;
+  }
+
+  if (seed_len < 64) {
+    return -2;
+  }
+
+  utf8proc_uint8_t *normalize_ms = utf8proc_NFKD((utf8proc_uint8_t *)ms);
+  if (normalize_ms == NULL) {
+    return -3;
+  }
+
+  utf8proc_uint8_t *normalize_pwd = utf8proc_NFKD((utf8proc_uint8_t *)pwd);
+  if (normalize_pwd == NULL) {
+    free(normalize_ms);
+    return -4;
+  }
+  size_t pwd_len = strlen((char const *)normalize_pwd);
+
+  byte_t *phrase_tmp = malloc(phrase_len + pwd_len + 1 * sizeof(byte_t));
+  if (phrase_tmp == NULL) {
+    free(normalize_ms);
+    free(normalize_pwd);
+    return -5;
+  }
+
+  memcpy(phrase_tmp, phrase, phrase_len);
+  memcpy(phrase_tmp + phrase_len, normalize_pwd, pwd_len);
+  phrase_tmp[phrase_len + pwd_len] = '\0';
+
+  utf8proc_uint8_t *normalize_phrase = utf8proc_NFKD(phrase_tmp);
+  if (normalize_phrase == NULL) {
+    free(normalize_ms);
+    free(normalize_pwd);
+    free(phrase_tmp);
+    return -6;
+  }
+
+  iota_crypto_pbkdf2_hmac_sha512((char const *)normalize_ms, strlen((char const *)normalize_ms),
+                                 (char const *)normalize_phrase, strlen((char const *)normalize_phrase), 2048, seed,
+                                 seed_len);
+  free(normalize_ms);
+  free(normalize_pwd);
+  free(phrase_tmp);
+  free(normalize_phrase);
+
+  return 0;
 }
 
 #endif

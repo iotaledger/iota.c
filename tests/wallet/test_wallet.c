@@ -162,6 +162,21 @@ void test_bip39_languages() {
   }
 }
 
+void test_bip39_seed() {
+#ifdef CRYPTO_USE_OPENSSL
+  byte_t seed[64] = {};
+  byte_t exp_seed[64] = {};
+  for (size_t i = 0; i < sizeof(vectors) / sizeof(ms_vectors_t); i++) {
+    TEST_ASSERT(mnemonic_to_seed(vectors[i].ms, "TREZOR", seed, sizeof(seed)) == 0);
+    hex_2_bin(vectors[i].seed, strlen(vectors[i].seed), exp_seed, sizeof(exp_seed));
+    TEST_ASSERT_EQUAL_MEMORY(exp_seed, seed, sizeof(exp_seed));
+  }
+#else
+  // TODO
+  printf("TODO\n");
+#endif
+}
+
 #endif
 
 int main() {
@@ -171,6 +186,7 @@ int main() {
 #ifdef EN_WALLET_BIP39
   RUN_TEST(test_bip39_vectors);
   RUN_TEST(test_bip39_languages);
+  RUN_TEST(test_bip39_seed);
 #endif
   // tested on alphanet
   // RUN_TEST(test_wallet_api_with_node);

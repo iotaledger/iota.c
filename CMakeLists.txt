@@ -44,6 +44,11 @@ else()
 endif()
 # include(cmake/base58.cmake)
 
+if(IOTA_WALLET_BIP39)
+  message("Enable BIP39 support")
+  include(cmake/utf8proc.cmake)
+endif()
+
 if(ENABLED_JEMALLOC)
   include(cmake/jemalloc.cmake)
 endif()
