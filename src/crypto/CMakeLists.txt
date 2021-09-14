@@ -14,15 +14,29 @@ target_sources(
 
 target_include_directories(iota_crypto PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 
-if(USE_REF_CRYPTO)
+if(__ED25519_INCLUDE)
+  target_compile_definitions(iota_crypto PUBLIC CRYPTO_USE_ED25519_DONNA)
+  target_link_libraries(iota_crypto INTERFACE ed25519_donna)
+  add_dependencies(iota_crypto ext_ed25519)
+endif()
+
+if(__BLAKE2_INCLUDE)
+  target_compile_definitions(iota_crypto PUBLIC CRYPTO_USE_BLAKE2B_REF)
+  target_link_libraries(iota_crypto INTERFACE blake2)
+  add_dependencies(iota_crypto ext_blake2)
+endif()
+
+if(CryptoUse STREQUAL "openssl")
   target_compile_definitions(iota_crypto PUBLIC CRYPTO_USE_OPENSSL)
   target_include_directories(iota_crypto PUBLIC "${OPENSSL_INCLUDE_DIR}")
-  add_dependencies(iota_crypto ext_blake2 ext_ed25519)
-  target_link_libraries(iota_crypto INTERFACE blake2 ed25519_donna ${OPENSSL_LIBRARIES})
-else()
+  target_link_libraries(iota_crypto INTERFACE ${OPENSSL_LIBRARIES})
+elseif(CryptoUse STREQUAL "libsodium")
   target_compile_definitions(iota_crypto PUBLIC CRYPTO_USE_SODIUM)
   add_dependencies(iota_crypto sodium)
   target_link_libraries(iota_crypto INTERFACE sodium)
+else()
+  # mbedtls
+  # TODO
 endif()
 
 if(__JEMALLOC_INCLUDED)

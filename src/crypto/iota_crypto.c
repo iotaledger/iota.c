@@ -5,18 +5,22 @@
 #include <sodium.h>
 #elif CRYPTO_USE_MBEDTLS
 #include <string.h>
-#include "blake2.h"
-#include "ed25519.h"
 #include "mbedtls/md.h"
 #elif CRYPTO_USE_OPENSSL
 #include <openssl/hmac.h>
 #include <openssl/rand.h>
 #include <string.h>
 #include <sys/random.h>
-#include "blake2.h"
-#include "ed25519.h"
 #else
 #error Crypto backend is not defined
+#endif
+
+#ifdef CRYPTO_USE_ED25519_DONNA
+#include "ed25519.h"
+#endif
+
+#ifdef CRYPTO_USE_BLAKE2B_REF
+#include "blake2.h"
 #endif
 
 #ifdef __ZEPHYR__
@@ -40,8 +44,10 @@ void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
 #else
   sys_csrand_get(buf, len);
 #endif
-#else  // openssl
+#elif defined(CRYPTO_USE_OPENSSL)
   RAND_bytes(buf, len);
+#else
+#error crypto lib is not defined
 #endif
 }
 
@@ -49,12 +55,14 @@ void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
 void iota_crypto_keypair(uint8_t const seed[], iota_keypair_t *keypair) {
 #if defined(CRYPTO_USE_SODIUM)
   crypto_sign_seed_keypair(keypair->pub, keypair->priv, seed);
-#else
+#elif defined(CRYPTO_USE_ED25519_DONNA)
   ed25519_public_key pub;
   ed25519_publickey(seed, pub);
   memcpy(keypair->priv, seed, 32);
   memcpy(keypair->priv + 32, pub, 32);
   memcpy(keypair->pub, pub, 32);
+#else
+#error ed25519 is not defined
 #endif
 }
 
@@ -62,9 +70,11 @@ int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, ui
 #if defined(CRYPTO_USE_SODIUM)
   unsigned long long sign_len = ED_SIGNATURE_BYTES;
   return crypto_sign_ed25519_detached(signature, &sign_len, msg, msg_len, priv_key);
-#else
+#elif defined(CRYPTO_USE_ED25519_DONNA)
   ed25519_sign(msg, msg_len, priv_key, priv_key + 32, signature);
   return 0;
+#else
+#error ed25519 is not defined
 #endif
 }
 
@@ -78,10 +88,12 @@ int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg
     ret = mbedtls_md_hmac(md_info, secret_key, 32, msg, msg_len, auth);
   }
   return ret;
-#else
+#elif defined(CRYPTO_USE_OPENSSL)
   uint8_t *hash = HMAC(EVP_sha256(), secret_key, 32, (const unsigned char *)msg, msg_len, NULL, NULL);
   memcpy(auth, hash, 32);
   return 0;
+#else
+#error crypto lib is not defined
 #endif
 }
 
@@ -95,18 +107,22 @@ int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg
     ret = mbedtls_md_hmac(md_info, secret_key, 32, msg, msg_len, auth);
   }
   return ret;
-#else
+#elif defined(CRYPTO_USE_OPENSSL)
   uint8_t *hash = HMAC(EVP_sha512(), secret_key, 32, (const unsigned char *)msg, msg_len, NULL, NULL);
   memcpy(auth, hash, 64);
   return 0;
+#else
+#error crypto lib is not defined
 #endif
 }
 
 int iota_blake2b_sum(uint8_t const msg[], size_t msg_len, uint8_t out[], size_t out_len) {
 #if defined(CRYPTO_USE_SODIUM)
   return crypto_generichash_blake2b(out, out_len, msg, msg_len, NULL, 0);
-#else
+#elif defined(CRYPTO_USE_BLAKE2B_REF)
   return blake2b(out, out_len, msg, msg_len, NULL, 0);
+#else
+#error blake2b is not defined
 #endif
 }
 
@@ -115,7 +131,7 @@ int iota_crypto_sha256(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
   return crypto_hash_sha256(hash, msg, msg_len);
 #elif defined(CRYPTO_USE_MBEDTLS)
   // TODO
-#else
+#elif defined(CRYPTO_USE_OPENSSL)
   EVP_MD_CTX *mdctx;
   unsigned int hash_len = CRYPTO_SHA256_HASH_BYTES;
   if ((mdctx = EVP_MD_CTX_new()) != NULL) {
@@ -130,6 +146,8 @@ int iota_crypto_sha256(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
     EVP_MD_CTX_free(mdctx);
   }
   return -1;
+#else
+#error crypto lib is not defined
 #endif
 }
 
@@ -139,7 +157,7 @@ int iota_crypto_sha512(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
 #elif defined(CRYPTO_USE_MBEDTLS)
   // TODO
   TODO
-#else
+#elif defined(CRYPTO_USE_OPENSSL)
   EVP_MD_CTX *mdctx;
   unsigned int hash_len = CRYPTO_SHA256_HASH_BYTES;
   if ((mdctx = EVP_MD_CTX_new()) != NULL) {
@@ -154,16 +172,23 @@ int iota_crypto_sha512(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
     EVP_MD_CTX_free(mdctx);
   }
   return -1;
+#else
+#error crypto lib is not defined
 #endif
 }
 
-void iota_crypto_pbkdf2_hmac_sha512(char const pwd[], size_t pwd_len, char const salt[], size_t salt_len,
-                                    int32_t iterations, uint8_t dk[], size_t dk_len) {
+int iota_crypto_pbkdf2_hmac_sha512(char const pwd[], size_t pwd_len, char const salt[], size_t salt_len,
+                                   int32_t iterations, uint8_t dk[], size_t dk_len) {
 #if defined(CRYPTO_USE_SODIUM)
-  // TODO
+  // TODO, not supported by libsodium
+  return -1;
 #elif defined(CRYPTO_USE_MBEDTLS)
   // TODO
+  return -1;
+#elif defined(CRYPTO_USE_OPENSSL)
+  PKCS5_PBKDF2_HMAC(pwd, pwd_len, (unsigned char const *)salt, salt_len, iterations, EVP_sha512(), dk_len, dk);
+  return 0;
 #else
-  PKCS5_PBKDF2_HMAC(pwd, pwd_len, salt, salt_len, iterations, EVP_sha512(), dk_len, dk);
+#error crypto lib is not defined
 #endif
 }

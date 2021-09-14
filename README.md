@@ -59,6 +59,8 @@ sudo apt install build-essential libcurl4-openssl-dev pkg-config
 
 ## Building IOTA C Client Library
 
+IOTA C Client support different crypto libraries, including OpenSSL, libsodium, it can be changed by CMake property `CryptoUse`. Fro example, adding `-DCryptoUse=libsodium` to use libsodium.
+
 Compiling and testing library with Clang11 and Ninja
 
 ```shell
