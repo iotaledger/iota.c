@@ -10,6 +10,8 @@
 #include "crypto/iota_crypto.h"
 #include "unity/unity.h"
 
+#include "pbkdf2_vectors.h"
+
 void setUp(void) {}
 
 void tearDown(void) {}
@@ -218,6 +220,31 @@ void test_sha() {
   TEST_ASSERT_EQUAL_MEMORY(tmp_hash, tmp_bin, CRYPTO_SHA512_HASH_BYTES);
 }
 
+void test_pbkdf2_hmac_sha512() {
+#ifdef CRYPTO_USE_OPENSSL
+  uint8_t pwd[128] = {}, salt[128] = {}, dk[128] = {}, exp_dk[128] = {};
+  size_t pwd_len, salt_len;
+
+  for (size_t i = 0; i < sizeof(pbkdf2) / sizeof(pbkdf2_vector_t); i++) {
+    printf("testing PBKDF2 vector %zu...\n", i);
+    pwd_len = strlen(pbkdf2[i].pwd) / 2;
+    salt_len = strlen(pbkdf2[i].salt) / 2;
+    // convert hex string to binary
+    hex2bin(pbkdf2[i].pwd, strlen(pbkdf2[i].pwd), pwd, sizeof(pwd));
+    hex2bin(pbkdf2[i].salt, strlen(pbkdf2[i].salt), salt, sizeof(salt));
+    hex2bin(pbkdf2[i].sha512, strlen(pbkdf2[i].sha512), exp_dk, sizeof(exp_dk));
+    // key calculation
+    iota_crypto_pbkdf2_hmac_sha512((char const*)pwd, pwd_len, (char const*)salt, salt_len, pbkdf2[i].iter, dk,
+                                   pbkdf2[i].dk_len);
+    // validate
+    TEST_ASSERT_EQUAL_MEMORY(exp_dk, dk, pbkdf2[i].dk_len);
+  }
+#else
+  // TODO
+  printf("TODO...\n");
+#endif
+}
+
 int main() {
   UNITY_BEGIN();
 
@@ -225,6 +252,7 @@ int main() {
   RUN_TEST(test_blake2b_hash);
   RUN_TEST(test_ed25519_signature);
   RUN_TEST(test_sha);
+  RUN_TEST(test_pbkdf2_hmac_sha512);
 
   return UNITY_END();
 }
