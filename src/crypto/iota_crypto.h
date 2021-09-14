@@ -123,9 +123,10 @@ int iota_crypto_sha512(uint8_t const msg[], size_t msg_len, uint8_t hash[]);
  * @param[in] iterations iteration count, must be bigger than 0
  * @param[out] dk derived key
  * @param[in] dk_len the length of derived key
+ * @return int 0 on success
  */
-void iota_crypto_pbkdf2_hmac_sha512(char const pwd[], size_t pwd_len, char const salt[], size_t salt_len,
-                                    int32_t iterations, uint8_t dk[], size_t dk_len);
+int iota_crypto_pbkdf2_hmac_sha512(char const pwd[], size_t pwd_len, char const salt[], size_t salt_len,
+                                   int32_t iterations, uint8_t dk[], size_t dk_len);
 #ifdef __cplusplus
 }
 #endif

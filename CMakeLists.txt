@@ -17,15 +17,14 @@ option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
 option(IOTA_EXAMPLES "Build example application" ON)
 option(IOTA_WALLET_BIP39 "Enable mnemonic support" OFF)
-# ~~~
-# Notice #####
-# USE_REF_CRYPTO only support GCC compiler and Openssl is required.
-# ed25519-donna has a compiling issue with clang 11
-# ed25519-donna-64bit-x86.h:14:3: error: inline assembly requires more registers than available
-#                  "movq %0, %%rax                  ;\n"
-#                  ^
-# ~~~
-option(USE_REF_CRYPTO "Use ed25519_donna, blake2, openssl as crypto implementation" OFF)
+
+set(MainCryptoLibs "openssl" "libsodium" "mbedtls")
+set(CryptoUse "openssl" CACHE STRING "Crypto lib options")
+set_property(CACHE CryptoUse PROPERTY STRINGS ${MainCryptoLibs})
+
+if(NOT CryptoUse IN_LIST MainCryptoLibs)
+    message(FATAL_ERROR "CryptoUse must be one of ${MainCryptoLibs}")
+endif()
 
 # fetch external libs
 include(ExternalProject)
@@ -33,16 +32,18 @@ include(ExternalProject)
 include(cmake/unity.cmake)
 include(cmake/cjson.cmake)
 include(cmake/uthash.cmake)
-if(USE_REF_CRYPTO)
-  message("Crypto uses OpenSSL and external libs")
+if(CryptoUse STREQUAL "openssl")
+  message("Crypto uses OpenSSL")
   find_package(OpenSSL REQUIRED)
   include(cmake/blake2.cmake)
   include(cmake/ed25519_donna.cmake)
-else()
+elseif(CryptoUse STREQUAL "libsodium")
   message("Crypto uses libsodium")
   include(cmake/sodium.cmake)
+else()
+  message("Crypto uses mbedtls")
+  message(FATAL_ERROR "TODO: support mbedtls")
 endif()
-# include(cmake/base58.cmake)
 
 if(IOTA_WALLET_BIP39)
   message("Enable BIP39 support")

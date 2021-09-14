@@ -241,7 +241,7 @@ void test_pbkdf2_hmac_sha512() {
   }
 #else
   // TODO
-  printf("TODO...\n");
+  printf("TODO test_pbkdf2_hmac_sha512...\n");
 #endif
 }
 
