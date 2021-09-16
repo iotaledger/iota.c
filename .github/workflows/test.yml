@@ -6,7 +6,7 @@ on:
     branches: [ dev ]
 
 jobs:
-  ninja_clang:
+  ninja_clang_sodium:
     runs-on: ubuntu-20.04
 
     steps:
@@ -38,7 +38,7 @@ jobs:
         cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DCryptoUse=libsodium -DIOTA_WALLET_BIP39=ON ..
         ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
 
-  make_gcc:
+  make_gcc_openssl:
     runs-on: ubuntu-20.04
 
     steps:
@@ -62,4 +62,30 @@ jobs:
         rm -rf build && sync
         mkdir build && cd build
         cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DCryptoUse=openssl -DIOTA_WALLET_BIP39=ON ..
+        make -j8 && make test
+
+  make_gcc_mbedtls:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: install requirements
+      run: |
+        sudo apt update
+        sudo apt install -y libcurl4-openssl-dev clang-format build-essential
+
+    - name: Debug build
+      run: |
+        cmake --version
+        gcc --version
+        mkdir build && cd build
+        cmake -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON -DCryptoUse=mbedtls -DIOTA_WALLET_BIP39=ON ..
+        make -j8 && make test
+
+    - name: Release build
+      run: |
+        rm -rf build && sync
+        mkdir build && cd build
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DCryptoUse=mbedtls -DIOTA_WALLET_BIP39=ON ..
         make -j8 && make test
