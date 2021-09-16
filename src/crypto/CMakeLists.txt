@@ -34,9 +34,10 @@ elseif(CryptoUse STREQUAL "libsodium")
   target_compile_definitions(iota_crypto PUBLIC CRYPTO_USE_SODIUM)
   add_dependencies(iota_crypto sodium)
   target_link_libraries(iota_crypto INTERFACE sodium)
-else()
-  # mbedtls
-  # TODO
+elseif(CryptoUse STREQUAL "mbedtls")
+  target_compile_definitions(iota_crypto PUBLIC CRYPTO_USE_MBEDTLS)
+  add_dependencies(iota_crypto ext_mbedtls)
+  target_link_libraries(iota_crypto INTERFACE mbedcrypto mbedtls mbedx509)
 endif()
 
 if(__JEMALLOC_INCLUDED)

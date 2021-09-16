@@ -19,11 +19,13 @@ option(IOTA_EXAMPLES "Build example application" ON)
 option(IOTA_WALLET_BIP39 "Enable mnemonic support" OFF)
 
 set(MainCryptoLibs "openssl" "libsodium" "mbedtls")
-set(CryptoUse "openssl" CACHE STRING "Crypto lib options")
+set(CryptoUse
+    "openssl"
+    CACHE STRING "Crypto lib options")
 set_property(CACHE CryptoUse PROPERTY STRINGS ${MainCryptoLibs})
 
 if(NOT CryptoUse IN_LIST MainCryptoLibs)
-    message(FATAL_ERROR "CryptoUse must be one of ${MainCryptoLibs}")
+  message(FATAL_ERROR "CryptoUse must be one of ${MainCryptoLibs}")
 endif()
 
 # fetch external libs
@@ -32,6 +34,8 @@ include(ExternalProject)
 include(cmake/unity.cmake)
 include(cmake/cjson.cmake)
 include(cmake/uthash.cmake)
+
+# cryptography libs comparison https://en.wikipedia.org/wiki/Comparison_of_cryptography_libraries
 if(CryptoUse STREQUAL "openssl")
   message("Crypto uses OpenSSL")
   find_package(OpenSSL REQUIRED)
@@ -40,9 +44,13 @@ if(CryptoUse STREQUAL "openssl")
 elseif(CryptoUse STREQUAL "libsodium")
   message("Crypto uses libsodium")
   include(cmake/sodium.cmake)
+elseif(CryptoUse STREQUAL "mbedtls")
+  include(cmake/mbedtls.cmake)
+  include(cmake/blake2.cmake)
+  include(cmake/ed25519_donna.cmake)
+  message("Crypto uses mbedtls ${MBEDTLS_VERSION}")
 else()
-  message("Crypto uses mbedtls")
-  message(FATAL_ERROR "TODO: support mbedtls")
+  message(FATAL_ERROR "Crypto framework is not defined")
 endif()
 
 if(IOTA_WALLET_BIP39)

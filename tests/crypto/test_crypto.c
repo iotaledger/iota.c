@@ -221,7 +221,7 @@ void test_sha() {
 }
 
 void test_pbkdf2_hmac_sha512() {
-#ifdef CRYPTO_USE_OPENSSL
+#if defined(CRYPTO_USE_OPENSSL) || defined(CRYPTO_USE_MBEDTLS)
   uint8_t pwd[128] = {}, salt[128] = {}, dk[128] = {}, exp_dk[128] = {};
   size_t pwd_len, salt_len;
 

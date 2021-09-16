@@ -5,7 +5,12 @@
 #include <sodium.h>
 #elif CRYPTO_USE_MBEDTLS
 #include <string.h>
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/entropy.h"
 #include "mbedtls/md.h"
+#include "mbedtls/pkcs5.h"
+#include "mbedtls/sha256.h"
+#include "mbedtls/sha512.h"
 #elif CRYPTO_USE_OPENSSL
 #include <openssl/hmac.h>
 #include <openssl/rand.h>
@@ -32,18 +37,35 @@
 void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
 #if defined(CRYPTO_USE_SODIUM)
   randombytes_buf((void *const)buf, len);
-#elif defined(CRYPTO_USE_MBEDTLS) && defined(__MBED__)
-  // TODO use (T)RNG or mbed PSA
-  srand((unsigned int)time(NULL));
-  for (size_t l = 0; l < len; l++) {
-    buf[l] = (uint8_t)rand();
-  }
+
+// TODO: validate on Mbed OS
+// #elif defined(CRYPTO_USE_MBEDTLS) && defined(__MBED__)
+//   // TODO use (T)RNG or mbed PSA
+//   srand((unsigned int)time(NULL));
+//   for (size_t l = 0; l < len; l++) {
+//     buf[l] = (uint8_t)rand();
+//   }
 #elif defined(CRYPTO_USE_MBEDTLS) && defined(__ZEPHYR__)
 #if defined(CONFIG_TEST_RANDOM_GENERATOR)
   sys_rand_get(buf, len);
 #else
   sys_csrand_get(buf, len);
 #endif
+#elif defined(CRYPTO_USE_MBEDTLS)
+  int ret = 0;
+  mbedtls_ctr_drbg_context drbg;
+  mbedtls_entropy_context ent;
+
+  mbedtls_ctr_drbg_init(&drbg);
+  mbedtls_entropy_init(&ent);
+
+  ret = mbedtls_ctr_drbg_seed(&drbg, mbedtls_entropy_func, &ent, (unsigned char const *)"CTR_DRBG", 8);
+  if (ret == 0) {
+    mbedtls_ctr_drbg_random(&drbg, buf, len);
+  }
+
+  mbedtls_entropy_free(&ent);
+  mbedtls_ctr_drbg_free(&drbg);
 #elif defined(CRYPTO_USE_OPENSSL)
   RAND_bytes(buf, len);
 #else
@@ -130,7 +152,8 @@ int iota_crypto_sha256(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
 #if defined(CRYPTO_USE_SODIUM)
   return crypto_hash_sha256(hash, msg, msg_len);
 #elif defined(CRYPTO_USE_MBEDTLS)
-  // TODO
+  mbedtls_sha256(msg, msg_len, hash, 0);
+  return 0;
 #elif defined(CRYPTO_USE_OPENSSL)
   EVP_MD_CTX *mdctx;
   unsigned int hash_len = CRYPTO_SHA256_HASH_BYTES;
@@ -155,8 +178,8 @@ int iota_crypto_sha512(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
 #if defined(CRYPTO_USE_SODIUM)
   return crypto_hash_sha512(hash, msg, msg_len);
 #elif defined(CRYPTO_USE_MBEDTLS)
-  // TODO
-  TODO
+  mbedtls_sha512(msg, msg_len, hash, 0);
+  return 0;
 #elif defined(CRYPTO_USE_OPENSSL)
   EVP_MD_CTX *mdctx;
   unsigned int hash_len = CRYPTO_SHA256_HASH_BYTES;
@@ -183,8 +206,18 @@ int iota_crypto_pbkdf2_hmac_sha512(char const pwd[], size_t pwd_len, char const 
   // TODO, not supported by libsodium
   return -1;
 #elif defined(CRYPTO_USE_MBEDTLS)
-  // TODO
-  return -1;
+  int ret = -1;
+  mbedtls_md_context_t ctx;
+  const mbedtls_md_info_t *md_info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA512);
+
+  mbedtls_md_init(&ctx);
+  ret = mbedtls_md_setup(&ctx, md_info, 1);
+  if (ret == 0) {
+    ret = mbedtls_pkcs5_pbkdf2_hmac(&ctx, (unsigned char const *)pwd, pwd_len, (unsigned char const *)salt, salt_len,
+                                    iterations, dk_len, dk);
+  }
+  mbedtls_md_free(&ctx);
+  return ret;
 #elif defined(CRYPTO_USE_OPENSSL)
   PKCS5_PBKDF2_HMAC(pwd, pwd_len, (unsigned char const *)salt, salt_len, iterations, EVP_sha512(), dk_len, dk);
   return 0;
