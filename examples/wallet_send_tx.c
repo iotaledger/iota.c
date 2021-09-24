@@ -19,7 +19,7 @@
 
 #define Mi 1000000
 
-#define NODE_HOST "api.lb-0.testnet.chrysalis2.com"
+#define NODE_HOST "chrysalis-nodes.iota.org"
 #define NODE_HOST_PORT 443
 #define NODE_USE_TLS true
 

@@ -1,3 +1,8 @@
+# v0.2.0 - 2021-07-07
+
+* Support Zephyr RTOS and nRF-Connect SDK development frameworks
+* Breaking - HTTP client refactored for a better compatibility
+
 # v0.1.0-beta - 2021-05-25
 
 This is the first C client library release for the [Chrysalis](https://chrysalis.docs.iota.org/introduction/what_is_chrysalis.html) network aka IOTA 1.5.  
