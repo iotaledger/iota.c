@@ -65,8 +65,8 @@ void test_wallet_api() {
     dump_hex_str(addr, ED25519_ADDRESS_BYTES);
   }
 
-  // testnet with default port number
-  TEST_ASSERT(wallet_set_endpoint(wallet, "api.lb-0.testnet.chrysalis2.com", 443, true) == 0);
+  // devnet with default port number
+  TEST_ASSERT(wallet_set_endpoint(wallet, "api.lb-0.h.chrysalis-devnet.iota.cafe", 443, true) == 0);
 
   wallet_destroy(wallet);
 }

@@ -10,7 +10,7 @@
 #define USE_HTTPS
 
 #ifdef USE_HTTPS
-#define TEST_NODE_HOST "api.lb-0.testnet.chrysalis2.com"
+#define TEST_NODE_HOST "api.lb-0.h.chrysalis-devnet.iota.cafe"
 #define TEST_NODE_PORT 443
 #define TEST_IS_HTTPS 1
 #else
