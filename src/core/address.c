@@ -14,11 +14,11 @@ int address_from_ed25519_pub(byte_t const pub_key[], byte_t addr[]) {
   return iota_blake2b_sum(pub_key, ED_PUBLIC_KEY_BYTES, addr, ED25519_ADDRESS_BYTES);
 }
 
-int address_keypair_from_path(byte_t seed[], char path[], iota_keypair_t* keypair) {
+int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], iota_keypair_t* keypair) {
   // derive key from seed
   slip10_key_t key = {};
   int ret = 0;
-  if ((ret = slip10_key_from_path(seed, IOTA_SEED_BYTES, path, ED25519_CURVE, &key)) != 0) {
+  if ((ret = slip10_key_from_path(seed, seed_len, path, ED25519_CURVE, &key)) != 0) {
     printf("[%s:%d] derive key from path failed, err: %d\n", __func__, __LINE__, ret);
     return ret;
   }
@@ -28,11 +28,11 @@ int address_keypair_from_path(byte_t seed[], char path[], iota_keypair_t* keypai
   return ret;
 }
 
-int address_from_path(byte_t seed[], char path[], byte_t out_addr[]) {
+int address_from_path(byte_t seed[], size_t seed_len, char path[], byte_t out_addr[]) {
   // ed25519 keypair from slip10 private key
   iota_keypair_t addr_keypair = {};
   int ret = 0;
-  if ((ret = address_keypair_from_path(seed, path, &addr_keypair)) == 0) {
+  if ((ret = address_keypair_from_path(seed, seed_len, path, &addr_keypair)) == 0) {
     return address_from_ed25519_pub(addr_keypair.pub, out_addr);
   }
   return ret;

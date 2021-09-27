@@ -87,7 +87,7 @@ static int index_from_entropy(byte_t const entropy[], ms_entropy_t entropy_len, 
   uint8_t ms_len = 0;
 
   if (entropy == NULL || entropy_len == 0) {
-    printf("invalid entropy\n");
+    printf("[%s:%d] invalid entropy\n", __func__, __LINE__);
     return -1;
   }
 
@@ -117,13 +117,13 @@ static int index_from_entropy(byte_t const entropy[], ms_entropy_t entropy_len, 
   }
 
   if (checksum_mask == 0x0 || ms_len == 0) {
-    printf("invalid entropy length\n");
+    printf("[%s:%d] invalid entropy length\n", __func__, __LINE__);
     return -1;
   }
 
   // get checksum from entropy
   if (iota_crypto_sha256(entropy, entropy_len, checksum_buf) != 0) {
-    printf("get checksum failed\n");
+    printf("[%s:%d] checksum failed\n", __func__, __LINE__);
     return -1;
   }
 
@@ -220,14 +220,14 @@ static size_t ENT_from_MS(uint8_t len) {
 
 size_t mnemonic_decode(char const ms_strs[], ms_lan_t lan, byte_t entropy[], size_t ent_len) {
   if (ms_strs == NULL || entropy == NULL) {
-    printf("invalid parameters\n");
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return 0;
   }
 
   // copy string to another buffer
   char *ms_p = malloc((strlen(ms_strs) + 1) * sizeof(char));
   if (ms_p == NULL) {
-    printf("allocate buffer failed\n");
+    printf("[%s:%d] allocate buffer failed\n", __func__, __LINE__);
     return 0;
   }
   strcpy(ms_p, ms_strs);
@@ -264,7 +264,7 @@ int mnemonic_encode(byte_t const entropy[], ms_entropy_t ent_len, ms_lan_t lan, 
   ms_index_t ms = {};
 
   if (entropy == NULL || ms_out == NULL) {
-    printf("invalid parameters");
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
@@ -284,7 +284,7 @@ int mnemonic_encode(byte_t const entropy[], ms_entropy_t ent_len, ms_lan_t lan, 
 
       offset += n;
       if (offset >= ms_len) {
-        printf("output buffer is too small\n");
+        printf("[%s:%d] output buffer is too small\n", __func__, __LINE__);
         return -1;
       }
     }
@@ -307,7 +307,7 @@ int mnemonic_to_seed(char const ms[], char const pwd[], byte_t seed[], size_t se
     return -1;
   }
 
-  if (seed_len < 64) {
+  if (seed_len < BIP39_SEED_BYTES) {
     return -2;
   }
 
@@ -351,6 +351,16 @@ int mnemonic_to_seed(char const ms[], char const pwd[], byte_t seed[], size_t se
   free(normalize_phrase);
 
   return 0;
+}
+
+int mnemonic_convertor(char const from[], ms_lan_t lan_from, char to[], size_t to_len, ms_lan_t lan_to) {
+  byte_t ent[BIP39_MAX_ENT_CS_BYTES] = {};
+  size_t ent_len = mnemonic_decode(from, lan_from, ent, sizeof(ent));
+  if (ent_len == 0) {
+    printf("[%s:%d] mnemonic decode error\n", __func__, __LINE__);
+    return -1;
+  }
+  return mnemonic_encode(ent, ent_len, lan_to, to, to_len);
 }
 
 #endif
