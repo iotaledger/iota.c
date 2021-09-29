@@ -360,3 +360,9 @@ int mnemonic_convertor(char const from[], ms_lan_t lan_from, char to[], size_t t
   }
   return mnemonic_encode(ent, ent_len, lan_to, to, to_len);
 }
+
+bool mnemonic_validation(char const ms[], ms_lan_t language) {
+  byte_t ent[BIP39_MAX_ENT_CS_BYTES] = {};
+  size_t ent_len = mnemonic_decode(ms, language, ent, sizeof(ent));
+  return ent_len ? true : false;
+}

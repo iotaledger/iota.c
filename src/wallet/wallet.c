@@ -97,9 +97,9 @@ static void get_address_path(uint32_t account, bool change, uint32_t index, char
   }
 }
 
-static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, uint32_t sender_index, byte_t receiver[],
-                                                       uint64_t balance, char const index[], byte_t data[],
-                                                       size_t data_len) {
+static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, bool change, uint32_t sender_index,
+                                                       byte_t receiver[], uint64_t balance, char const index[],
+                                                       byte_t data[], size_t data_len) {
   char tmp_addr[IOTA_ADDRESS_HEX_BYTES + 1] = {};
   char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
   byte_t send_addr[ED25519_ADDRESS_BYTES] = {};
@@ -111,7 +111,7 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, uint32_
 
   // TODO loop over start and end addresses
   // get address keypair and address
-  get_address_path(w->account_index, false, sender_index, addr_path, sizeof(addr_path));
+  get_address_path(w->account_index, change, sender_index, addr_path, sizeof(addr_path));
 
   if (address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &addr_keypair) != 0) {
     printf("[%s:%d] Cannot get address keypair\n", __func__, __LINE__);
@@ -229,11 +229,16 @@ iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t account
 
     // drive mnemonic seed from the given sentence and password
     if (ms) {
-      // create a new seed with pwd
-      if (mnemonic_to_seed(ms, pwd, w->seed, sizeof(w->seed)) != 0) {
-        printf("[%s:%d] derive mnemonic seed failed\n", __func__, __LINE__);
+      // validating mnemonic sentence
+      if (mnemonic_validation(ms, MS_LAN_EN)) {
+        // create a new seed with pwd
+        if (mnemonic_to_seed(ms, pwd, w->seed, sizeof(w->seed)) != 0) {
+          printf("[%s:%d] derive mnemonic seed failed\n", __func__, __LINE__);
+        } else {
+          return w;
+        }
       } else {
-        return w;
+        printf("[%s:%d] invalid mnemonic sentence\n", __func__, __LINE__);
       }
     } else {
       // genrate random ms
@@ -337,8 +342,8 @@ int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* ba
   return -1;
 }
 
-int wallet_send(iota_wallet_t* w, uint32_t addr_index, byte_t receiver[], uint64_t balance, char const index[],
-                byte_t data[], size_t data_len, char msg_id[], size_t msg_id_len) {
+int wallet_send(iota_wallet_t* w, bool change, uint32_t addr_index, byte_t receiver[], uint64_t balance,
+                char const index[], byte_t data[], size_t data_len, char msg_id[], size_t msg_id_len) {
   core_message_t* msg = NULL;
   indexation_t* idx = NULL;
   transaction_payload_t* tx = NULL;
@@ -366,7 +371,7 @@ int wallet_send(iota_wallet_t* w, uint32_t addr_index, byte_t receiver[], uint64
     }
   } else {
     // transaction
-    if ((tx = wallet_build_transaction(w, addr_index, receiver, balance, index, data, data_len)) == NULL) {
+    if ((tx = wallet_build_transaction(w, change, addr_index, receiver, balance, index, data, data_len)) == NULL) {
       printf("[%s:%d] Err: create transaction payload failed\n", __func__, __LINE__);
       return -1;
     }

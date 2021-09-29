@@ -5,10 +5,10 @@
 #define __WALLET_WALLET_H__
 
 /**
- * @brief A reference wallet application
+ * @brief Simple wallet APIs
  *
- * A reference wallet application for users to create there own wallet on demand.
- * This wallet implementation will not contain any storage mechanism which storage method could vary on devices.
+ * A reference wallet implementation for users to create there own wallet.
+ * This wallet implementation will not contain any storage mechanism which storage could vary on deferent devices.
  *
  */
 
@@ -110,6 +110,7 @@ int wallet_balance_by_index(iota_wallet_t* w, bool change, uint32_t index, uint6
  * @brief Send message to the Tangle
  *
  * @param[in] w A wallet instance
+ * @param[in] change Is change/chain address?
  * @param[in] sender_index The address index of this wallet
  * @param[in] receiver The receiver address in ed25519 format
  * @param[in] balance The balance to send
@@ -119,8 +120,8 @@ int wallet_balance_by_index(iota_wallet_t* w, bool change, uint32_t index, uint6
  * @param[in] msg_id_len The length of msg_id buffer.
  * @return int 0 on success
  */
-int wallet_send(iota_wallet_t* w, uint32_t sender_index, byte_t receiver[], uint64_t balance, char const index[],
-                byte_t data[], size_t data_len, char msg_id[], size_t msg_id_len);
+int wallet_send(iota_wallet_t* w, bool change, uint32_t addr_index, byte_t receiver[], uint64_t balance,
+                char const index[], byte_t data[], size_t data_len, char msg_id[], size_t msg_id_len);
 
 /**
  * @brief Destory the wallet account

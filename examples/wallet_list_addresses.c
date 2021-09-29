@@ -1,8 +1,8 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * @brief A simple example for checking balances.
+ * @brief A simple example for generate addresses.
  *
  */
 
@@ -24,6 +24,7 @@ static char const *const test_mnemonic = "your_testing_mnemonic_sentence";
 int main(int argc, char *argv[]) {
   iota_wallet_t *wallet = wallet_create(test_mnemonic, "", 0);
   char tmp_bech32[BECH32_ADDRESS_LEN] = {};
+  // byte_t tmp_ed25519[ED255] = {};
   if (wallet) {
     wallet_set_endpoint(wallet, NODE_HOST, NODE_HOST_PORT, NODE_USE_TLS);
     if (wallet_update_bech32HRP(wallet) != 0) {
@@ -32,17 +33,12 @@ int main(int argc, char *argv[]) {
       return -1;
     }
 
-    // get balance from first 5 addresses
+    // get addresses
     for (uint32_t idx = 0; idx < 5; idx++) {
-      uint64_t value = 0;
-      // get balance from a given index
-      if (wallet_balance_by_index(wallet, false, idx, &value) != 0) {
-        printf("wallet get balance from address index [%" PRIu32 "]failed\n", idx);
-        goto done;
-      }
       // get bech32 address from index
       wallet_bech32_from_index(wallet, false, idx, tmp_bech32);
-      printf("[%" PRIu32 "] %s: %" PRIu64 "\n", idx, tmp_bech32, value);
+      // wallet_address_from_index(wallet, false, idx, tmp_bech32);
+      printf("[%" PRIu32 "]: %s\n", idx, tmp_bech32);
     }
   } else {
     printf("Create wallet failed\n");

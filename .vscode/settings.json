@@ -5,7 +5,7 @@
     "cmake.configureArgs": [
         "-DCryptoUse:STRING=openssl",
         "-DIOTA_TESTS:BOOL=TRUE",
-        "-DIOTA_WALLET_BIP39:BOOL=TRUE",
+        "-DIOTA_WALLET_ENABLE:BOOL=TRUE",
         "-DIOTA_ASAN_ENABLED:BOOL=TRUE"
     ],
     "cmakeFormat.args": [

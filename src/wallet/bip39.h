@@ -4,6 +4,7 @@
 #ifndef __WALLET_BIP39_H__
 #define __WALLET_BIP39_H__
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "core/types.h"
@@ -101,6 +102,16 @@ int mnemonic_encode(byte_t const entropy[], ms_entropy_t ent_len, ms_lan_t lan, 
  * @return int
  */
 int mnemonic_convertor(char const from[], ms_lan_t lan_from, char to[], size_t to_len, ms_lan_t lan_to);
+
+/**
+ * @brief Check if mnemonic sentence is valid
+ *
+ * @param[in] ms A string of mnemonic sentence
+ * @param[in] language The language of the given mnemonic
+ * @return true valid sentence
+ * @return false invalid sentence
+ */
+bool mnemonic_validation(char const ms[], ms_lan_t language);
 
 #ifdef __cplusplus
 }
