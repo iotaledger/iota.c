@@ -44,6 +44,11 @@ if(CryptoUse STREQUAL "openssl")
 elseif(CryptoUse STREQUAL "libsodium")
   message("Crypto uses libsodium")
   include(cmake/sodium.cmake)
+  # TODO FIXME, https://github.com/iotaledger/iota.c/issues/148
+  if(IOTA_WALLET_ENABLE)
+    message(
+      FATAL_ERROR "Wallet API is not supported with libsodium, please disable wallet API or use another crypto library")
+  endif()
 elseif(CryptoUse STREQUAL "mbedtls")
   include(cmake/mbedtls.cmake)
   include(cmake/blake2.cmake)
