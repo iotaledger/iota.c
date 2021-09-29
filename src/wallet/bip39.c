@@ -1,8 +1,6 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifdef EN_WALLET_BIP39
-
 #include <string.h>
 
 #include "crypto/iota_crypto.h"
@@ -362,5 +360,3 @@ int mnemonic_convertor(char const from[], ms_lan_t lan_from, char to[], size_t t
   }
   return mnemonic_encode(ent, ent_len, lan_to, to, to_len);
 }
-
-#endif

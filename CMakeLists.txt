@@ -16,7 +16,7 @@ option(IOTA_TESTS "Enable IOTA Client library test cases" ON)
 option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
 option(IOTA_EXAMPLES "Build example application" ON)
-option(IOTA_WALLET_BIP39 "Enable mnemonic support" OFF)
+option(IOTA_WALLET_ENABLE "Enable simple wallet API" ON)
 
 set(MainCryptoLibs "openssl" "libsodium" "mbedtls")
 set(CryptoUse
@@ -53,8 +53,8 @@ else()
   message(FATAL_ERROR "Crypto framework is not defined")
 endif()
 
-if(IOTA_WALLET_BIP39)
-  message("Enable BIP39 support")
+if(IOTA_WALLET_ENABLE)
+  message("Enable Wallet API")
   include(cmake/utf8proc.cmake)
 endif()
 

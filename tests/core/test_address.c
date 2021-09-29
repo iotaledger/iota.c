@@ -38,7 +38,7 @@ void test_address_gen() {
                         IOTA_SEED_BYTES) == 0);
   dump_hex(seed, IOTA_SEED_BYTES);
 
-  TEST_ASSERT(address_from_path(seed, "m/44'/4218'/0'/0'/0'", addr_from_path) == 0);
+  TEST_ASSERT(address_from_path(seed, sizeof(seed), "m/44'/4218'/0'/0'/0'", addr_from_path) == 0);
   // dump_hex(addr_from_path, ED25519_ADDRESS_BYTES);
 
   // ed25519 address to IOTA address
@@ -112,7 +112,7 @@ void addr_bench() {
     }
     ed_addr[0] = 0;
     start_time = time_in_us();
-    if (address_from_path(seed, path_buf, ed_addr + 1) == 0) {
+    if (address_from_path(seed, sizeof(seed), path_buf, ed_addr + 1) == 0) {
       if (address_2_bech32(ed_addr, "iota", bech32_addr) != 0) {
         printf("convert to bech32 failed\n");
         break;

@@ -61,9 +61,11 @@ add_iota_test("client/api_v1/test_find_message.c" client_find_message)
 add_iota_test("client/api_v1/test_message_meta.c" client_message_meta)
 add_iota_test("client/api_v1/test_message_children.c" client_message_children)
 
-# for higher level APIs
-add_executable(test_wallet_api "wallet/test_wallet.c")
-target_include_directories(test_wallet_api PRIVATE ${PROJECT_SOURCE_DIR}/src ${CMAKE_INSTALL_PREFIX}/include)
-add_dependencies(test_wallet_api ext_unity iota_wallet)
-target_link_libraries(test_wallet_api PRIVATE iota_wallet unity)
-add_test(test_wallet_api test_wallet_api)
+# Wallet APIs
+if(IOTA_WALLET_ENABLE)
+  add_executable(test_wallet_api "wallet/test_wallet.c")
+  target_include_directories(test_wallet_api PRIVATE ${PROJECT_SOURCE_DIR}/src ${CMAKE_INSTALL_PREFIX}/include)
+  add_dependencies(test_wallet_api ext_unity iota_wallet)
+  target_link_libraries(test_wallet_api PRIVATE iota_wallet unity)
+  add_test(test_wallet_api test_wallet_api)
+endif()

@@ -4,8 +4,6 @@
 #ifndef __WALLET_BIP39_H__
 #define __WALLET_BIP39_H__
 
-#ifdef EN_WALLET_BIP39
-
 #include <stdint.h>
 
 #include "core/types.h"
@@ -107,7 +105,5 @@ int mnemonic_convertor(char const from[], ms_lan_t lan_from, char to[], size_t t
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // EN_WALLET_BIP39
 
 #endif  // __WALLET_BIP39_H__
