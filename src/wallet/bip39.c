@@ -291,7 +291,7 @@ int mnemonic_encode(byte_t const entropy[], ms_entropy_t ent_len, ms_lan_t lan, 
   return -1;
 }
 
-int mnemonic_genrate(ms_entropy_t ent_len, ms_lan_t lang, char ms[], size_t ms_len) {
+int mnemonic_generator(ms_entropy_t ent_len, ms_lan_t lang, char ms[], size_t ms_len) {
   byte_t ent_tmp[MS_ENTROPY_256] = {};
   iota_crypto_randombytes(ent_tmp, MS_ENTROPY_256);
   return mnemonic_encode(ent_tmp, ent_len, lang, ms, ms_len);

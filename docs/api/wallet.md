@@ -9,6 +9,10 @@ This is reference implementation as wallet APIs. Users are able to implement wal
   :members:
 ```
 
+```{eval-rst}
+.. doxygenfunction:: wallet_update_bech32HRP
+```
+
 ## Create
 
 ```{eval-rst}
@@ -28,14 +32,22 @@ This is reference implementation as wallet APIs. Users are able to implement wal
 ## Address
 
 ```{eval-rst}
-.. doxygenfunction:: wallet_address_by_index
+.. doxygenfunction:: wallet_address_from_index
 ```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_bech32_from_index
+```
+
+## Balance
 
 ```{eval-rst}
 .. doxygenfunction:: wallet_balance_by_address
 ```
 
-## Balance
+```{eval-rst}
+.. doxygenfunction:: wallet_balance_by_bech32
+```
 
 ```{eval-rst}
 .. doxygenfunction:: wallet_balance_by_index
@@ -47,16 +59,22 @@ This is reference implementation as wallet APIs. Users are able to implement wal
 .. doxygenfunction:: wallet_send
 ```
 
-## Update bech32HRP
-
-```{eval-rst}
-.. doxygenfunction:: wallet_update_bech32HRP
-```
-
 ## Mnemonic Sentence
 
 ```{eval-rst}
 .. doxygenenum:: ms_lan_t
+```
+
+```{eval-rst}
+.. doxygenenum:: ms_entropy_t
+```
+
+```{eval-rst}
+.. doxygenfunction:: mnemonic_to_seed
+```
+
+```{eval-rst}
+.. doxygenfunction:: mnemonic_generator
 ```
 
 ```{eval-rst}
@@ -65,4 +83,12 @@ This is reference implementation as wallet APIs. Users are able to implement wal
 
 ```{eval-rst}
 .. doxygenfunction:: mnemonic_decode
+```
+
+```{eval-rst}
+.. doxygenfunction:: mnemonic_convertor
+```
+
+```{eval-rst}
+.. doxygenfunction:: mnemonic_validation
 ```

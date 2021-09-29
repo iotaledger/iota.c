@@ -241,8 +241,8 @@ iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t account
         printf("[%s:%d] invalid mnemonic sentence\n", __func__, __LINE__);
       }
     } else {
-      // genrate random ms
-      if (mnemonic_genrate(MS_ENTROPY_256, MS_LAN_EN, mnemonic_tmp, sizeof(mnemonic_tmp)) != 0) {
+      // generator random ms
+      if (mnemonic_generator(MS_ENTROPY_256, MS_LAN_EN, mnemonic_tmp, sizeof(mnemonic_tmp)) != 0) {
         printf("[%s:%d] genrating mnemonic failed\n", __func__, __LINE__);
       }
       if (mnemonic_to_seed(mnemonic_tmp, pwd, w->seed, sizeof(w->seed)) != 0) {

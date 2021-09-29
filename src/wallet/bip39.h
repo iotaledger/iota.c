@@ -66,7 +66,7 @@ int mnemonic_to_seed(char const ms[], char const pwd[], byte_t seed[], size_t se
  * @param[in] ms_len the length of mnemonic buffer
  * @return int 0 on success
  */
-int mnemonic_genrate(ms_entropy_t ent_len, ms_lan_t lang, char ms[], size_t ms_len);
+int mnemonic_generator(ms_entropy_t ent_len, ms_lan_t lang, char ms[], size_t ms_len);
 
 /**
  * @brief decode mnemonic sentence to the entropy.

@@ -67,6 +67,16 @@ transaction_essence_t* tx_essence_new();
  */
 int tx_essence_add_input(transaction_essence_t* es, byte_t tx_id[], uint8_t index);
 
+/**
+ * @brief Add an input to the essence with ed25519 key pair
+ *
+ * @param[in] es An essence object
+ * @param[in] tx_id A transaction ID
+ * @param[in] index The index of the output
+ * @param[in] pub A ed25519 public key
+ * @param[in] priv A ed25519 private key
+ * @return int 0 on success
+ */
 int tx_essence_add_input_with_key(transaction_essence_t* es, byte_t const tx_id[], uint8_t index, byte_t const pub[],
                                   byte_t const priv[]);
 

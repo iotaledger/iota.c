@@ -4,7 +4,7 @@
 
 This is an IOTA Client library documentation for Chrysalis, aka IOTA 1.5.
 
-Learn more about Chrysalis changes, please visit [Chrysalis Documentation](https://chrysalis.docs.iota.org/introduction/welcome.html).
+Learn more about Chrysalis changes, please visit [Chrysalis Documentation](https://chrysalis.docs.iota.org/).
 
 This C Client is still in highly development, the source can be found on [iotaledger/iota.c](https://github.com/iotaledger/iota.c).
 

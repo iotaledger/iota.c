@@ -55,7 +55,7 @@ indexation_t *indexation_create(char const *index, byte_t data[], uint32_t data_
  * @param[in] idx An indexation payload object
  * @return size_t The expect size of serialied data
  */
-size_t indexaction_serialize_length(indexation_t *idx);
+size_t indexation_serialize_length(indexation_t *idx);
 
 /**
  * @brief Serialize an indexation payload
