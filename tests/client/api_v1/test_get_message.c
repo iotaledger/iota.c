@@ -343,7 +343,7 @@ void test_deser_tx3() {
 }
 
 void test_deser_tx_with_index() {
-  // case 3: tx payload with 1 input, 1 output, 1 signature, an indexaction payload
+  // case 3: tx payload with 1 input, 1 output, 1 signature, an indexation payload
   char const* const tx_with_index =
       "{\"data\":{\"networkId\":\"14379272398717627559\",\"parentMessageIds\":["
       "\"1b9b8b53fc65d85339f49c50a1b262a74304c1f9a40bd2fbf7b72e9d612fb154\","
@@ -393,7 +393,7 @@ void test_deser_tx_with_index() {
                            payload_tx_outputs_address(tx, 0), API_ADDR_HEX_STR_LEN);
   TEST_ASSERT(1000000 == payload_tx_outputs_amount(tx, 0));
 
-  // transaction with indexaction pyaload
+  // transaction with indexation pyaload
   TEST_ASSERT_NOT_NULL(tx->payload);
   TEST_ASSERT(tx->type == MSG_PAYLOAD_INDEXATION);
   indexation_t* idx = (indexation_t*)tx->payload;

@@ -4,11 +4,12 @@
 #ifndef __WALLET_BIP39_H__
 #define __WALLET_BIP39_H__
 
-#ifdef EN_WALLET_BIP39
-
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "core/types.h"
+
+#define BIP39_SEED_BYTES 64
 
 /**
  * @brief Mnemonic supported languages with ISO 639-1 suffixes
@@ -65,7 +66,7 @@ int mnemonic_to_seed(char const ms[], char const pwd[], byte_t seed[], size_t se
  * @param[in] ms_len the length of mnemonic buffer
  * @return int 0 on success
  */
-int mnemonic_genrate(ms_entropy_t ent_len, ms_lan_t lang, char ms[], size_t ms_len);
+int mnemonic_generator(ms_entropy_t ent_len, ms_lan_t lang, char ms[], size_t ms_len);
 
 /**
  * @brief decode mnemonic sentence to the entropy.
@@ -90,10 +91,30 @@ size_t mnemonic_decode(char const ms_strs[], ms_lan_t lan, byte_t entropy[], siz
  */
 int mnemonic_encode(byte_t const entropy[], ms_entropy_t ent_len, ms_lan_t lan, char ms_out[], size_t ms_len);
 
+/**
+ * @brief Convert mnemonic to another language
+ *
+ * @param[in] from A source mnemonic sentence
+ * @param[in] lan_from The language of source mnemonic
+ * @param[in] lan_to The language of target mnemonic
+ * @param[out] to A buffer for target mnemonic
+ * @param[out] to_len The length of target buffer
+ * @return int
+ */
+int mnemonic_convertor(char const from[], ms_lan_t lan_from, char to[], size_t to_len, ms_lan_t lan_to);
+
+/**
+ * @brief Check if mnemonic sentence is valid
+ *
+ * @param[in] ms A string of mnemonic sentence
+ * @param[in] language The language of the given mnemonic
+ * @return true valid sentence
+ * @return false invalid sentence
+ */
+bool mnemonic_validation(char const ms[], ms_lan_t language);
+
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // EN_WALLET_BIP39
 
 #endif  // __WALLET_BIP39_H__

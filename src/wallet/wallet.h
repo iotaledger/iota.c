@@ -5,10 +5,10 @@
 #define __WALLET_WALLET_H__
 
 /**
- * @brief A reference wallet application
+ * @brief Simple wallet APIs
  *
- * A reference wallet application for users to create there own wallet on demand.
- * This wallet implementation will not contain any storage mechanism which storage method could vary on devices.
+ * A reference wallet implementation for users to create there own wallet.
+ * This wallet implementation will not contain any storage mechanism which storage could vary on deferent devices.
  *
  */
 
@@ -25,37 +25,30 @@
 extern "C" {
 #endif
 
-// max length of m/44'/4218'/Account'/Change'
-#define IOTA_ACCOUNT_PATH_MAX 128
-#define NODE_DEFAULT_HOST "localhost"
-#define NODE_DEFAULT_PORT 14265
-static char const* const iota_bip44_prefix = "m/44'/4218'";
+#define NODE_DEFAULT_HRP "iota"
+#define NODE_DEFAULT_HOST "chrysalis-nodes.iota.org"
+#define NODE_DEFAULT_PORT 443
 
 /**
  * @brief IOTA wallet setting
  *
  */
 typedef struct {
-  byte_t seed[IOTA_SEED_BYTES];         ///< the seed of this wallet
-  char account[IOTA_ACCOUNT_PATH_MAX];  ///< store Bip44 Paths: m/44'/4128'/Account'/Change'
-  char bech32HRP[8];                    ///< The Bech32 HRP of the network. `iota` for mainnet, `atoi` for testnet.
-  iota_client_conf_t endpoint;          ///< IOTA node endpoint
+  byte_t seed[64];              ///< the mnemonic seed of this wallet
+  char bech32HRP[8];            ///< The Bech32 HRP of the network. `iota` for mainnet, `atoi` for testnet.
+  uint32_t account_index;       ///< wallet account index
+  iota_client_conf_t endpoint;  ///< IOTA node endpoint
 } iota_wallet_t;
 
 /**
- * @brief Create a wallet account based on given seed and PIB44 path
+ * @brief Create a wallet instance from the given mnemonic, password, and account index
  *
- * The path is an IOTA path of BIP-44 derivation paths, it should start with m/44'/4218'
- * https://github.com/satoshilabs/slips/blob/master/slip-0044.md
- *
- * Since we don't have storage, the start and end index are for wallet to seek multiple outputs and addresses
- * As a reuse-address-wallet, start index could quale to end index.
- *
- * @param[in] seed An IOTA seed
- * @param[in] path A string of BIP44 path
- * @return iota_wallet_t* A pointer to a wallet instance
+ * @param[in] ms A string of mnemonic, NULL for genrating a random mnemonic
+ * @param[in] pwd A passphase for seed deivation
+ * @param[in] account_index The account index
+ * @return iota_wallet_t*
  */
-iota_wallet_t* wallet_create(byte_t const seed[], char const path[]);
+iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t account_index);
 
 /**
  * @brief Set a node endpoint, if not calling this method default is "http://localhost:14265/"
@@ -69,14 +62,28 @@ iota_wallet_t* wallet_create(byte_t const seed[], char const path[]);
 int wallet_set_endpoint(iota_wallet_t* w, char const host[], uint16_t port, bool use_tls);
 
 /**
- * @brief Get an address by a given index
+ * @brief Get an ed25519 address from the given account, change, and index
+ *
+ * https://chrysalis.docs.iota.org/guides/dev_guide/#addresskey-space
  *
  * @param[in] w A wallet instance
- * @param[in] index The index of the address, the index is limited by slip10 spec, the maximun is 2147483646 (1 << 31U).
+ * @param[in] change The change index which is {0, 1}, also known as wallet chain.
+ * @param[in] index Address index
  * @param[out] addr A buffer holds ed25519 address
  * @return int 0 on success
  */
-int wallet_address_by_index(iota_wallet_t* w, uint32_t index, byte_t addr[]);
+int wallet_address_from_index(iota_wallet_t* w, bool change, uint32_t index, byte_t addr[]);
+
+/**
+ * @brief Get bech32 address from the given account, change, and index
+ *
+ * @param[in] w A wallet instance
+ * @param[in] change The change index which is {0, 1}, also known as wallet chain.
+ * @param[in] index Address index
+ * @param[out] addr A buffer holds bech32 address
+ * @return int 0 on success
+ */
+int wallet_bech32_from_index(iota_wallet_t* w, bool change, uint32_t index, char addr[]);
 
 /**
  * @brief Get balance by a given address
@@ -92,16 +99,18 @@ int wallet_balance_by_address(iota_wallet_t* w, byte_t const addr[], uint64_t* b
  * @brief Get address balance by a given index
  *
  * @param[in] w A wallet instance
+ * @param[in] change Is change address
  * @param[in] index The index of address
  * @param[out] balance The balance of the address
  * @return int 0 on success
  */
-int wallet_balance_by_index(iota_wallet_t* w, uint32_t index, uint64_t* balance);
+int wallet_balance_by_index(iota_wallet_t* w, bool change, uint32_t index, uint64_t* balance);
 
 /**
  * @brief Send message to the Tangle
  *
  * @param[in] w A wallet instance
+ * @param[in] change Is change/chain address?
  * @param[in] sender_index The address index of this wallet
  * @param[in] receiver The receiver address in ed25519 format
  * @param[in] balance The balance to send
@@ -111,8 +120,8 @@ int wallet_balance_by_index(iota_wallet_t* w, uint32_t index, uint64_t* balance)
  * @param[in] msg_id_len The length of msg_id buffer.
  * @return int 0 on success
  */
-int wallet_send(iota_wallet_t* w, uint32_t sender_index, byte_t receiver[], uint64_t balance, char const index[],
-                byte_t data[], size_t data_len, char msg_id[], size_t msg_id_len);
+int wallet_send(iota_wallet_t* w, bool change, uint32_t addr_index, byte_t receiver[], uint64_t balance,
+                char const index[], byte_t data[], size_t data_len, char msg_id[], size_t msg_id_len);
 
 /**
  * @brief Destory the wallet account
@@ -128,6 +137,16 @@ void wallet_destroy(iota_wallet_t* w);
  * @return int 0 on success
  */
 int wallet_update_bech32HRP(iota_wallet_t* w);
+
+/**
+ * @brief Get balance from a given bech32 address
+ *
+ * @param[in] w A wallet instance
+ * @param[in] bech32 A string of bech32 address
+ * @param[in] balance The balance of the address
+ * @return int 0 on success
+ */
+int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* balance);
 
 #ifdef __cplusplus
 }

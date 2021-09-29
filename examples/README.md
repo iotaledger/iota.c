@@ -9,3 +9,4 @@ For building example, please enable example option, `-DIOTA_EXAMPLES=TRUE`, duri
 * get_message - decoding message by a given message id 
 * wallet_get_balance - getting wallet balance via wallet API.
 * wallet_send_tx - sending tokens via wallet API.
+* wallet_list_addresses - generating addresses via wallet API.

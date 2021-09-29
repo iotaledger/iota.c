@@ -2,6 +2,11 @@
 
 The C Client library is built for embedded development with microcontrollers and SoC(System on Chip). it can be ported to POSIX operating systems easily.
 
+Software Development Kits(SDK) for MCUs:
+* [esp32-client-sdk](https://github.com/iotaledger/esp32-client-sdk) - based on ESP-IDF for ESP32 series
+* [zephyr-client-sdk](https://github.com/iotaledger/zephyr-client-sdk) - based on ZephyrOS, supports hundreds of MCU out of the box, it works with nRF Connect SDK for Nordic microcontrollers as well.
+* [iota-mbed-studio](https://github.com/iotaledger/iota-mbed-studio) - based on ARM Mbed OS and [Mbed Studio IDE](https://os.mbed.com/studio/).
+
 ## C Client Library Diagram
 
 The C Client library consists 4 abstraction layers:
@@ -31,10 +36,3 @@ With the client library, you can interact with IOTA Tangle to:
 * Generate addresses
 
 ![](img/client_application_architecture.jpg)
-
-
-## Platform
-
-It has ported to [ESP32](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/hw-reference/esp32/get-started-devkitc.html) and [B-L4S5I-IOT01A](https://www.st.com/en/evaluation-tools/b-l4s5i-iot01a.html), find example projects in:
-* ESP32 with PlatformIO - [Chrysalis CLI Wallet](https://github.com/oopsmonk/iota_c_platformIO/tree/dev_esp32_chrysalis)
-* STM32 B-L4S5I-IOT01A with mBed OS - [iota-mbed-studio ](https://github.com/iotaledger/iota-mbed-studio)

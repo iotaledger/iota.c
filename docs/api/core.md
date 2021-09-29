@@ -78,6 +78,14 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 .. doxygenfunction:: indexation_create
 ```
 
+```{eval-rst}
+.. doxygenfunction:: indexation_serialize_length
+```
+
+```{eval-rst}
+.. doxygenfunction:: indexation_payload_serialize
+```
+
 ## [Transaction Payload](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/payloads/transaction.h)
 
 ### Transaction Essence
@@ -105,6 +113,10 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
+.. doxygenfunction:: tx_essence_add_input_with_key
+```
+
+```{eval-rst}
 .. doxygenfunction:: tx_essence_add_output
 ```
 
@@ -113,31 +125,15 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
+.. doxygenfunction:: tx_essence_serialize_length
+```
+
+```{eval-rst}
+.. doxygenfunction:: tx_essence_serialize
+```
+
+```{eval-rst}
 .. doxygenfunction:: tx_essence_print
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_new
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_free
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_add_signature
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_add_reference
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_count
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_print
 ```
 
 ### Transaction Payload
@@ -172,6 +168,14 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
+.. doxygenfunction:: tx_payload_serialize_length
+```
+
+```{eval-rst}
+.. doxygenfunction:: tx_payload_serialize
+```
+
+```{eval-rst}
 .. doxygenfunction:: tx_payload_print
 ```
 
@@ -191,10 +195,6 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: utxo_outputs_print
-```
-
-```{eval-rst}
 .. doxygenfunction:: utxo_outputs_add
 ```
 
@@ -204,6 +204,14 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 
 ```{eval-rst}
 .. doxygenfunction:: utxo_outputs_count
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_serialization
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_print
 ```
 
 ## [Inputs](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/inputs/utxo_input.h)
@@ -227,7 +235,11 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: utxo_inputs_print
+.. doxygenfunction:: utxo_inputs_find_by_id
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_count
 ```
 
 ```{eval-rst}
@@ -239,11 +251,49 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: utxo_inputs_count
+.. doxygenfunction:: utxo_inputs_serialization
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: utxo_inputs_find_by_id
+.. doxygenfunction:: utxo_inputs_print
+```
+
+## [Unlock Block](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/unlock_block.h)
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_new
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_add_signature
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_add_reference
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_count
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_find_pub
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_serialize_length
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_serialize
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_free
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_print
 ```
 
 ## [Utils](https://github.com/iotaledger/iota.c/tree/dev/src/core/utils)
@@ -259,6 +309,20 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ### [Slip10](https://github.com/iotaledger/iota.c/blob/dev/src/core/utils/slip10.h)
+
+```{eval-rst}
+.. doxygenstruct:: slip10_key_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenstruct:: bip32_path_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenfunction:: slip10_parse_path
+```
 
 ```{eval-rst}
 .. doxygenfunction:: slip10_key_from_path

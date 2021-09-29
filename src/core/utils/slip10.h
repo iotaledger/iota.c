@@ -16,14 +16,22 @@
 
 typedef enum { SECP256K1_CURVE, NIST_P256_CURVE, ED25519_CURVE } slip10_curve_t;
 
+/**
+ * @brief Slip10 key structure
+ *
+ */
 typedef struct {
-  byte_t key[SLIP10_PRIVATE_KEY_BYTES];
-  byte_t chain_code[SLIP10_CHAIN_CODE_BYTES];
+  byte_t key[SLIP10_PRIVATE_KEY_BYTES];        ///< private key, 32 bytes
+  byte_t chain_code[SLIP10_CHAIN_CODE_BYTES];  ///< chain code, 32 bytes
 } slip10_key_t;
 
+/**
+ * @brief BIP32 path structure
+ *
+ */
 typedef struct {
-  uint32_t path[MAX_PIB32_PATH];
-  int len;
+  uint32_t path[MAX_PIB32_PATH];  ///< the string of path, 32 bytes
+  int len;                        ///< the length of the path
 } bip32_path_t;
 
 #ifdef __cplusplus

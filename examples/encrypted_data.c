@@ -55,7 +55,7 @@ static int validation(iota_client_conf_t *ctx, char const *const src, char msg_i
   } else {
     // check payload type
     if (msg->u.msg->type != MSG_PAYLOAD_INDEXATION) {
-      printf("Not an indexaction payload\n");
+      printf("Not an indexation payload\n");
       res_message_free(msg);
       return -1;
     }

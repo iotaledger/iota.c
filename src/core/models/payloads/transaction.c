@@ -90,7 +90,7 @@ int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* paylo
   // TODO: support indexation payload at this moment
   if (type == 2) {
     es->payload = payload;
-    es->payload_len = indexaction_serialize_length(payload);
+    es->payload_len = indexation_serialize_length(payload);
   } else {
     return -1;
   }

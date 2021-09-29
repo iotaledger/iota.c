@@ -35,7 +35,7 @@ void test_indexation() {
   TEST_ASSERT_EQUAL_MEMORY(exp_data, idx->data->data, sizeof(exp_data));
 
   // serialization
-  size_t serialized_len = indexaction_serialize_length(idx);
+  size_t serialized_len = indexation_serialize_length(idx);
   byte_t* serialized_data = malloc(serialized_len);
   size_t actual_len = indexation_payload_serialize(idx, serialized_data);
   TEST_ASSERT(serialized_len = actual_len);

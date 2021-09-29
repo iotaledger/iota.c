@@ -6,4 +6,7 @@
 add_subdirectory(core)
 add_subdirectory(client)
 add_subdirectory(crypto)
-add_subdirectory(wallet)
+
+if(IOTA_WALLET_ENABLE)
+	add_subdirectory(wallet)
+endif(IOTA_WALLET_ENABLE)

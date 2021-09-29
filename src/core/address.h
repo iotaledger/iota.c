@@ -15,6 +15,7 @@
 #define ED25519_ADDRESS_BYTES ED_PUBLIC_KEY_BYTES     // ed25519 address schema
 // the hex address is used in node API, it's a string of 64 characters, the version field is excluded
 #define IOTA_ADDRESS_HEX_BYTES (ED25519_ADDRESS_BYTES * 2)
+#define BECH32_ADDRESS_LEN 65  // the length of bech32 string
 
 // address signature version
 typedef enum { ADDRESS_VER_ED25519 = 0, ADDRESS_VER_UNKNOW = 1 } address_version_t;
@@ -36,21 +37,23 @@ int address_from_ed25519_pub(byte_t const pub_key[], byte_t addr[]);
  * @brief Get Ed25519 keypair from given seed and path
  *
  * @param[in] seed A seed
+ * @param[in] seed_len The length of seed
  * @param[in] path A string of path, ex: "m/0H/1H/2H" or "m/0'/1'/2'"
  * @param[out] keypair The ed25519 keypair
  * @return int 0 on success
  */
-int address_keypair_from_path(byte_t seed[], char path[], iota_keypair_t* keypair);
+int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], iota_keypair_t* keypair);
 
 /**
  * @brief Get address from seed and slip10 path
  *
  * @param[in] seed An IOTA seed
+ * @param[in] seed_len The length of seed
  * @param[in] path A string of path, ex: "m/0H/1H/2H" or "m/0'/1'/2'"
  * @param[out] out_addr
  * @return int 0 on success
  */
-int address_from_path(byte_t seed[], char path[], byte_t out_addr[]);
+int address_from_path(byte_t seed[], size_t seed_len, char path[], byte_t out_addr[]);
 
 /**
  * @brief Get an IOTA address from a given bech32 string

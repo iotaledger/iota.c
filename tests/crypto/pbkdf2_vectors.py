@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 """
-Script for auto-genrated PBKDF2 test vectors
+Script to auto-generate PBKDF2 test vectors
 Usage: ./pbkdf2_vectors.py > pbkdf2_vectors.h
 
 Vectors from https://datatracker.ietf.org/doc/html/rfc6070

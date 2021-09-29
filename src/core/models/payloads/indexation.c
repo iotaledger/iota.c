@@ -51,7 +51,7 @@ indexation_t *indexation_create(char const *index, byte_t data[], uint32_t data_
   return idx;
 }
 
-size_t indexaction_serialize_length(indexation_t *idx) {
+size_t indexation_serialize_length(indexation_t *idx) {
   // payload type
   size_t len = sizeof(uint32_t);
   // index length
@@ -70,7 +70,7 @@ size_t indexation_payload_serialize(indexation_t *idx, byte_t buf[]) {
   }
 
   byte_t *offset = buf;
-  // payload type, set to value 2 to denote an indexaction payload.
+  // payload type, set to value 2 to denote an indexation payload.
   uint32_t idx_type = 2;
   memcpy(offset, &idx_type, sizeof(uint32_t));
   offset += sizeof(uint32_t);
