@@ -57,7 +57,7 @@ void dump_indexation_payload(payload_index_t *indexation) {
 
 void dump_milestone_payload(payload_milestone_t *ml) {
   char time_buf[128] = {};
-  struct tm *t = localtime(&ml->timestamp);
+  struct tm *t = localtime((time_t const *)&ml->timestamp);
   strftime(time_buf, sizeof(time_buf), "%a %Y-%m-%d %H:%M:%S", t);
   printf("index: %" PRIu32 ", timestamp: %s\n", ml->index, time_buf);
 }

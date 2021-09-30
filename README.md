@@ -1,20 +1,20 @@
 <h1 align="center">
   <br>
-  <a href="https://docs.iota.org/docs/client-libraries/0.1/getting-started/c-quickstart"><img src="iota-c.png"></a>
+  <img src="iota-c.png"></a>
 </h1>
 
 <h2 align="center">The official C client library for interacting with the Tangle</h2>
 
 <p align="center">
-    <a href="https://docs.iota.org/docs/client-libraries/0.1/getting-started/c-quickstart" style="text-decoration:none;">
+    <a href="https://chrysalis.docs.iota.org/" style="text-decoration:none;">
     <img src="https://img.shields.io/badge/Documentation%20portal-blue.svg?style=for-the-badge"
-         alt="Developer documentation portal">
+         alt="Developer Documentation">
       </p>
 <p align="center">
   <a href="https://discord.iota.org/" style="text-decoration:none;"><img src="https://img.shields.io/badge/Discord-9cf.svg?logo=discord" alt="Discord"></a>
     <a href="https://iota.stackexchange.com/" style="text-decoration:none;"><img src="https://img.shields.io/badge/StackExchange-9cf.svg?logo=stackexchange" alt="StackExchange"></a>
     <a href="https://github.com/iotaledger/iota.c/blob/master/LICENSE" style="text-decoration:none;"><img src="https://img.shields.io/github/license/iotaledger/iota.c.svg" alt="Apache 2.0 license"></a>
-    <a href="https://docs.iota.org/docs/node-software/0.1/iri/references/api-reference" style="text-decoration:none;"><img src="https://img.shields.io/badge/Node%20API%20coverage-16/18%20commands-green.svg" alt="Supported IRI API endpoints"></a>
+    <a href="https://iota-c-client.readthedocs.io/en/latest/index.html" style="text-decoration:none;"><img src="https://img.shields.io/readthedocs/iota-c-client" alt="Client API Reference"></a>
 </p>
       
 <p align="center">
@@ -38,10 +38,10 @@ This is the **official** C client library, which allows you to do the following:
 * Generate addresses
 * Implement a wallet application
 
-The documentation is host on [IOTA C Client Documentation](https://iota-c-client.readthedocs.io/en/latest/index.html)
+You can find API reference on [C Client API Reference](https://iota-c-client.readthedocs.io/en/latest/index.html)
 
 This is in highly development, so there may be performance and stability issues.
-Please report any issues in our [issue tracker](https://github.com/iotaledger/iota.c/issues/new/choose).
+Please report any issues in [Issues](https://github.com/iotaledger/iota.c/issues) or [Discussions](https://github.com/iotaledger/iota.c/discussions)
 
 ## Prerequisites
 
@@ -59,7 +59,7 @@ sudo apt install build-essential libcurl4-openssl-dev pkg-config
 
 ## Building IOTA C Client Library
 
-IOTA C Client support different crypto libraries, including OpenSSL, libsodium, it can be changed by CMake property `CryptoUse`. Fro example, adding `-DCryptoUse=libsodium` to use libsodium.
+IOTA C Client support different crypto libraries, including OpenSSL, libsodium, and mbedtsl, it can be changed by CMake property `CryptoUse`. Fro example, adding `-DCryptoUse=libsodium` to use libsodium.
 
 Compiling and testing library with Clang11 and Ninja
 
@@ -97,7 +97,7 @@ The default build type is Debug mode with debug symbols, for Release mode you ca
 
 The documentation is automatically generated thought Doxygen and Sphinx tools.
 
-This steps are tsted on Ubuntu, for different platform please refer to installation guides:
+This steps are tested on Ubuntu, please refer to installation guides for different platforms:
 * [Install sphinx](https://www.sphinx-doc.org/en/master/usage/installation.html)
 * [Install Doxygen](https://www.doxygen.nl/manual/install.html)
 
