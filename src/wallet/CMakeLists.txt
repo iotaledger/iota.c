@@ -8,8 +8,6 @@ add_library(iota_wallet STATIC)
 # the required minimum C standard
 set_target_properties(iota_wallet PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 99)
 
-add_dependencies(iota_wallet iota_client)
-
 target_sources(
   iota_wallet
   PRIVATE "wallet.c"
@@ -22,6 +20,10 @@ target_include_directories(
 )
 
 add_dependencies(iota_wallet iota_client)
+
+if(BIP39_ENGLISH_ONLY)
+  target_compile_definitions(iota_wallet PUBLIC BIP39_ENGLISH_ONLY)
+endif()
 
 target_link_libraries(iota_wallet PUBLIC iota_client)
 target_link_libraries(iota_wallet PRIVATE utf8proc)

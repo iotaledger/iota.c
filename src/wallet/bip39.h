@@ -16,7 +16,8 @@
  *
  */
 typedef enum {
-  MS_LAN_EN,       ///< English
+  MS_LAN_EN,  ///< English
+#ifndef BIP39_ENGLISH_ONLY
   MS_LAN_KO,       ///< Korean
   MS_LAN_ES,       ///< Spanish
   MS_LAN_ZH_HANT,  ///< Chinese Traditional
@@ -25,7 +26,8 @@ typedef enum {
   MS_LAN_IT,       ///< Italian
   MS_LAN_CS,       ///< Czech
   MS_LAN_PT,       ///< Portuguese
-  // MS_LAN_JA, ///< Japanese, TODO or not support
+// MS_LAN_JA, ///< Japanese, TODO or not support
+#endif
 } ms_lan_t;
 
 /**

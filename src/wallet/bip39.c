@@ -7,6 +7,7 @@
 #include "utf8proc.h"
 #include "wallet/bip39.h"
 
+#ifndef BIP39_ENGLISH_ONLY
 #include "wallet/wordlists/chinese_simplified.h"
 #include "wallet/wordlists/chinese_traditional.h"
 #include "wallet/wordlists/czech.h"
@@ -17,6 +18,9 @@
 #include "wallet/wordlists/korean.h"
 #include "wallet/wordlists/portuguese.h"
 #include "wallet/wordlists/spanish.h"
+#else
+#include "wallet/wordlists/english.h"
+#endif
 
 // max length of ENT+CS in byte, 33 bytes
 #define BIP39_MAX_ENT_CS_BYTES (264 / 8)
@@ -170,6 +174,7 @@ static word_t *get_lan_table(ms_lan_t lan) {
   switch (lan) {
     case MS_LAN_EN:
       return en_word;
+#ifndef BIP39_ENGLISH_ONLY
     case MS_LAN_CS:
       return cs_word;
     case MS_LAN_ES:
@@ -188,6 +193,7 @@ static word_t *get_lan_table(ms_lan_t lan) {
       return zh_hant_word;
     case MS_LAN_ZH_HANS:
       return zh_hans_word;
+#endif
     default:
       return en_word;
   }
@@ -352,6 +358,10 @@ int mnemonic_to_seed(char const ms[], char const pwd[], byte_t seed[], size_t se
 }
 
 int mnemonic_convertor(char const from[], ms_lan_t lan_from, char to[], size_t to_len, ms_lan_t lan_to) {
+#ifndef BIP39_ENGLISH_ONLY
+  printf("[%s:%d] not supported\n", __func__, __LINE__);
+  return -1;
+#else
   byte_t ent[BIP39_MAX_ENT_CS_BYTES] = {};
   size_t ent_len = mnemonic_decode(from, lan_from, ent, sizeof(ent));
   if (ent_len == 0) {
@@ -359,6 +369,7 @@ int mnemonic_convertor(char const from[], ms_lan_t lan_from, char to[], size_t t
     return -1;
   }
   return mnemonic_encode(ent, ent_len, lan_to, to, to_len);
+#endif
 }
 
 bool mnemonic_validation(char const ms[], ms_lan_t language) {

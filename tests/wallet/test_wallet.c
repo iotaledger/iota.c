@@ -49,6 +49,7 @@ void test_bip39_vectors() {
 
 // validate encode/decode with other languages
 void test_bip39_languages() {
+#ifndef BIP39_ENGLISH_ONLY
   for (ms_lan_t lan = MS_LAN_KO; lan <= MS_LAN_PT; lan++) {
     printf("validating BIP39 language ID %d...\n", lan);
     for (size_t i = 0; i < sizeof(vectors) / sizeof(ms_vectors_t); i++) {
@@ -66,6 +67,7 @@ void test_bip39_languages() {
       TEST_ASSERT_EQUAL_MEMORY(entropy, out_ent, entropy_bin_len);
     }
   }
+#endif
 }
 
 void test_bip39_seed() {
