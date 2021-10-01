@@ -15,7 +15,9 @@
 #include <openssl/hmac.h>
 #include <openssl/rand.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <sys/random.h>
+#endif
 #else
 #error Crypto backend is not defined
 #endif

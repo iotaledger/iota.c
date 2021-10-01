@@ -107,7 +107,11 @@ end:
   byte_buf_free(hex_data);
   byte_buf_free(hex_index);
   if (json_string) {
+#ifdef _MSC_VER
+    cJSON_free(json_string); 
+#else
     free(json_string);
+#endif
   }
   return ret;
 }
@@ -257,7 +261,7 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
   byte_buf_t* json_data = byte_buf_new();
   byte_buf_t* node_res = byte_buf_new();
   res_tips_t* tips = NULL;
-  byte_t tmp_msg_parent[IOTA_MESSAGE_ID_BYTES] = {};
+  byte_t tmp_msg_parent[IOTA_MESSAGE_ID_BYTES] = { 0 };
 
   if (!json_data || !node_res) {
     printf("[%s:%d] allocate http buffer failed\n", __func__, __LINE__);
@@ -308,7 +312,15 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
   }
 
 end:
+#ifdef _MSC_VER
+  if ( json_data->data ) {
+    cJSON_free(json_data->data);
+    json_data->data = (byte_t*) 0;
+  }
   byte_buf_free(json_data);
+#else
+  byte_buf_free(json_data);
+#endif
   byte_buf_free(node_res);
   res_tips_free(tips);
   return ret;

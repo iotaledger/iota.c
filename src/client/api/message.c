@@ -38,7 +38,7 @@ int api_unlock_blocks_add_signature(api_unlock_blocks_t *blocks, char const sig[
     return -1;
   }
 
-  payload_unlock_block_t b = {};
+  payload_unlock_block_t b = { 0 };
   b.block_type = 0;          // 0 denotes a signature block
   b.reference = UINT16_MAX;  // invalid reference index
   b.sig_block = malloc(sig_len);
@@ -64,7 +64,7 @@ int api_unlock_blocks_add_ref(api_unlock_blocks_t *blocks, uint16_t ref) {
 
   // TODO, should we check if the reference index points to a valid signature block?
 
-  payload_unlock_block_t b = {};
+  payload_unlock_block_t b = { 0 };
   b.block_type = 1;  // 1 denotes a reference block
   b.reference = ref;
   b.sig_block = NULL;

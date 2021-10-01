@@ -90,7 +90,7 @@ static cJSON* tx_inputs_to_json(transaction_essence_t* es) {
     }
   ]
   */
-  char tx_id_str[TRANSACTION_ID_BYTES * 2 + 1] = {};
+  char tx_id_str[TRANSACTION_ID_BYTES * 2 + 1] = { 0 };
   cJSON* input_arr = NULL;
 
   if (!es->inputs) {
@@ -164,7 +164,7 @@ static cJSON* tx_outputs_to_json(transaction_essence_t* es) {
     }
   ]
   */
-  char addr_str[ED25519_ADDRESS_BYTES * 2 + 1] = {};
+  char addr_str[ED25519_ADDRESS_BYTES * 2 + 1] = { 0 };
   cJSON* output_arr = NULL;
 
   if (!es->outputs) {
@@ -337,8 +337,8 @@ static cJSON* tx_blocks_to_json(unlock_blocks_t* blocks) {
     }
   ]
   */
-  char pub_str[ED_PUBLIC_KEY_BYTES * 2 + 1] = {};
-  char sig_str[ED_PRIVATE_KEY_BYTES * 2 + 1] = {};
+  char pub_str[ED_PUBLIC_KEY_BYTES * 2 + 1] = { 0 };
+  char sig_str[ED_PRIVATE_KEY_BYTES * 2 + 1] = { 0 };
   cJSON* block_arr = NULL;
 
   if (!blocks) {
@@ -509,7 +509,7 @@ char* message_to_json(core_message_t* msg) {
   cJSON* msg_obj = NULL;
   cJSON* payload = NULL;
   cJSON* parents = NULL;
-  char tmp_id_str[IOTA_MESSAGE_ID_BYTES * 2 + 1] = {};
+  char tmp_id_str[IOTA_MESSAGE_ID_BYTES * 2 + 1] = { 0 };
 
   if (!msg) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);

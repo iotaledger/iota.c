@@ -16,7 +16,7 @@ int address_from_ed25519_pub(byte_t const pub_key[], byte_t addr[]) {
 
 int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], iota_keypair_t* keypair) {
   // derive key from seed
-  slip10_key_t key = {};
+  slip10_key_t key = { 0 };
   int ret = 0;
   if ((ret = slip10_key_from_path(seed, seed_len, path, ED25519_CURVE, &key)) != 0) {
     printf("[%s:%d] derive key from path failed, err: %d\n", __func__, __LINE__, ret);
@@ -30,7 +30,7 @@ int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], iota_
 
 int address_from_path(byte_t seed[], size_t seed_len, char path[], byte_t out_addr[]) {
   // ed25519 keypair from slip10 private key
-  iota_keypair_t addr_keypair = {};
+  iota_keypair_t addr_keypair = { 0 };
   int ret = 0;
   if ((ret = address_keypair_from_path(seed, seed_len, path, &addr_keypair)) == 0) {
     return address_from_ed25519_pub(addr_keypair.pub, out_addr);
@@ -55,7 +55,7 @@ int address_2_bech32(byte_t const addr[], char const* hrp, char* bech32_addr) {
 
 int address_bech32_to_hex(char const hrp[], char const bech32[], char hex[], size_t hex_len) {
   // ed25519 address in binary
-  byte_t address[IOTA_ADDRESS_BYTES] = {};
+  byte_t address[IOTA_ADDRESS_BYTES] = { 0 };
   // convert bech32 address to ed25519 address
   if (address_from_bech32(hrp, bech32, address) != 0) {
     printf("Convert bech32 address to ed25519 failed\n");

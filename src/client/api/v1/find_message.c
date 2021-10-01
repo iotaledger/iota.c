@@ -133,7 +133,7 @@ int find_message_by_index(iota_client_conf_t const *conf, char const index[], re
   byte_buf_t *http_res = NULL;
   long st = 0;
   // the maximum Index in hex string is 128 bytes plus a null terminator.
-  char index_hex[129] = {};
+  char index_hex[129] = { 0 };
 
   if (conf == NULL || index == NULL || res == NULL) {
     // invalid parameters

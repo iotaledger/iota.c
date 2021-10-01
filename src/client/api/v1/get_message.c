@@ -111,7 +111,7 @@ static int deser_tx_inputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
       cJSON *tx_id_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_ID);
       cJSON *tx_out_idx = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_OUT_INDEX);
       if (tx_id_obj && tx_out_idx) {
-        payload_tx_input_t input = {};
+        payload_tx_input_t input = { 0 };
         char *str = cJSON_GetStringValue(tx_id_obj);
         if (str) {
           memcpy(input.tx_id, str, sizeof(input.tx_id));
@@ -172,7 +172,7 @@ static int deser_tx_outputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
           if (cJSON_IsNumber(addr_type) && addr_type->valueint == ADDRESS_VER_ED25519) {
             cJSON *addr = cJSON_GetObjectItemCaseSensitive(tx_address_obj, JSON_KEY_ADDR);
             if (cJSON_IsString(addr) && cJSON_IsNumber(tx_amount_obj)) {
-              payload_tx_output_t output = {};
+              payload_tx_output_t output = { 0 };
               memcpy(output.address, addr->valuestring, sizeof(output.address));
               output.amount = (uint64_t)tx_amount_obj->valuedouble;
               // add the output element to payload
@@ -229,7 +229,7 @@ static int deser_tx_blocks(cJSON *blocks_obj, payload_tx_t *payload_tx) {
             cJSON *pub = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_PUB_KEY);
             cJSON *sig = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_SIG);
             if (cJSON_IsString(pub) && cJSON_IsString(sig)) {
-              char sig_block[API_SIGNATURE_BLOCK_STR_LEN] = {};
+              char sig_block[API_SIGNATURE_BLOCK_STR_LEN] = { 0 };
               sig_block[0] = sig_type->valueint;
               memcpy(sig_block + 1, pub->valuestring, API_PUB_KEY_HEX_STR_LEN);
               memcpy(sig_block + 1 + API_PUB_KEY_HEX_STR_LEN, sig->valuestring, API_SIGNATURE_HEX_STR_LEN);

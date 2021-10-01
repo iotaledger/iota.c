@@ -23,7 +23,7 @@
 // creates a new master private extended key for the curve from a seed.
 static void master_key_generation(byte_t seed[], size_t seed_len, slip10_curve_t curve, slip10_key_t* key) {
   byte_t I[CRYPTO_SHA512_HASH_BYTES];
-  char curve_key[CRYPTO_SHA512_KEY_BYTES] = {};
+  char curve_key[CRYPTO_SHA512_KEY_BYTES] = { 0 };
   // Calculate I = HMAC-SHA512(Key = Curve, Data = seed)
   if (curve == SECP256K1_CURVE) {
     strcpy(curve_key, "Bitcoin seed");
@@ -42,7 +42,7 @@ static void master_key_generation(byte_t seed[], size_t seed_len, slip10_curve_t
 
 static void private_ckd(slip10_key_t* key, uint32_t index, byte_t I[]) {
   // I = HMAC-SHA512(Key = c_par, Data = 0x00 || ser_256(k_par) || ser_32(i))
-  byte_t priv_data[37] = {};
+  byte_t priv_data[37] = { 0 };
   int priv_data_len = 0;
   if (index >= BIP32_HARDENED) {
     // data = 0x00 + key
@@ -61,7 +61,7 @@ static void private_ckd(slip10_key_t* key, uint32_t index, byte_t I[]) {
 // derives a child extended private key from a given parent extended private key as outlined by SLIP-10.
 static void child_key_derivation(uint32_t index, slip10_key_t* key) {
   // private parent key -> private child key
-  byte_t I[64] = {};
+  byte_t I[64] = { 0 };
   private_ckd(key, index, I);
 
   // Split I into two 32-byte sequences, I_L and I_R
@@ -139,7 +139,7 @@ int slip10_key_from_path(byte_t seed[], size_t seed_len, char path[], slip10_cur
     return -1;
   }
 
-  bip32_path_t bip32_path = {};
+  bip32_path_t bip32_path = { 0 };
   if (slip10_parse_path(path, &bip32_path) != 0) {
     // invalid path
     return -2;
@@ -164,7 +164,7 @@ int slip10_public_key(slip10_curve_t curve, slip10_key_t* key, byte_t pub_key[])
     return -1;
   }
   // public key
-  iota_keypair_t keypair = {};
+  iota_keypair_t keypair = { 0 };
   iota_crypto_keypair(key->key, &keypair);
   // match the required public key size, SLIP10_PUBLIC_KEY_BYTES
   pub_key[0] = 0x00;

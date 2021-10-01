@@ -25,7 +25,7 @@
 static int validate_pib44_path(char const path[]) {
   static char const* const iota_bip44_prefix = "m/44'/4218'";
   int ret = -1;
-  char tmp_path[IOTA_ACCOUNT_PATH_MAX] = {};
+  char tmp_path[IOTA_ACCOUNT_PATH_MAX] = { 0 };
   size_t path_len = strlen(path);
   if (path_len > IOTA_ACCOUNT_PATH_MAX - 1 || path_len == 0 || path_len == strlen(iota_bip44_prefix)) {
     printf("[%s:%d] Err: invalid length of path\n", __func__, __LINE__);
@@ -100,11 +100,11 @@ static void get_address_path(uint32_t account, bool change, uint32_t index, char
 static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, bool change, uint32_t sender_index,
                                                        byte_t receiver[], uint64_t balance, char const index[],
                                                        byte_t data[], size_t data_len) {
-  char tmp_addr[IOTA_ADDRESS_HEX_BYTES + 1] = {};
-  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
-  byte_t send_addr[ED25519_ADDRESS_BYTES] = {};
-  byte_t tmp_tx_id[TRANSACTION_ID_BYTES] = {};
-  iota_keypair_t addr_keypair = {};
+  char tmp_addr[IOTA_ADDRESS_HEX_BYTES + 1] = { 0 };
+  char addr_path[IOTA_ACCOUNT_PATH_MAX] = { 0 };
+  byte_t send_addr[ED25519_ADDRESS_BYTES] = { 0 };
+  byte_t tmp_tx_id[TRANSACTION_ID_BYTES] = { 0 };
+  iota_keypair_t addr_keypair = { 0 };
   res_outputs_address_t* outputs_res = NULL;
   transaction_payload_t* tx_payload = NULL;
   int ret = -1;
@@ -150,7 +150,7 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, bool ch
   uint64_t total_balance = 0;
   for (size_t i = 0; i < out_counts; i++) {
     char* output_id = res_outputs_address_output_id(outputs_res, i);
-    res_output_t out_id_res = {};
+    res_output_t out_id_res = { 0 };
     ret = get_output(&w->endpoint, output_id, &out_id_res);
     if (out_id_res.is_error) {
       printf("[%s:%d] Error response: %s\n", __func__, __LINE__, out_id_res.u.error->msg);
@@ -212,7 +212,7 @@ done:
 }
 
 iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t account_index) {
-  char mnemonic_tmp[512] = {};  // buffer for random mnemonic
+  char mnemonic_tmp[512] = { 0 };  // buffer for random mnemonic
 
   if (!pwd) {
     printf("passphrase is needed\n");
@@ -278,7 +278,7 @@ int wallet_set_endpoint(iota_wallet_t* w, char const host[], uint16_t port, bool
 }
 
 int wallet_address_from_index(iota_wallet_t* w, bool change, uint32_t index, byte_t addr[]) {
-  char path_buf[IOTA_ACCOUNT_PATH_MAX] = {};
+  char path_buf[IOTA_ACCOUNT_PATH_MAX] = { 0 };
   if (!w || !addr) {
     printf("[%s:%d] Err: invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -288,7 +288,7 @@ int wallet_address_from_index(iota_wallet_t* w, bool change, uint32_t index, byt
 }
 
 int wallet_bech32_from_index(iota_wallet_t* w, bool change, uint32_t index, char addr[]) {
-  byte_t tmp_addr[IOTA_ADDRESS_BYTES] = {};
+  byte_t tmp_addr[IOTA_ADDRESS_BYTES] = { 0 };
   if (wallet_address_from_index(w, change, index, tmp_addr + 1) == 0) {
     return address_2_bech32(tmp_addr, w->bech32HRP, addr);
   } else {
@@ -298,7 +298,7 @@ int wallet_bech32_from_index(iota_wallet_t* w, bool change, uint32_t index, char
 }
 
 int wallet_balance_by_address(iota_wallet_t* w, byte_t const addr[], uint64_t* balance) {
-  char hex_addr[IOTA_ADDRESS_HEX_BYTES + 1] = {};
+  char hex_addr[IOTA_ADDRESS_HEX_BYTES + 1] = { 0 };
   res_balance_t* bal_res = NULL;
 
   // binary address to hex string
@@ -329,7 +329,7 @@ int wallet_balance_by_address(iota_wallet_t* w, byte_t const addr[], uint64_t* b
 }
 
 int wallet_balance_by_index(iota_wallet_t* w, bool change, uint32_t index, uint64_t* balance) {
-  byte_t ed_addr[ED25519_ADDRESS_BYTES] = {};
+  byte_t ed_addr[ED25519_ADDRESS_BYTES] = { 0 };
   if (wallet_address_from_index(w, change, index, ed_addr) == 0) {
     return wallet_balance_by_address(w, ed_addr, balance);
   }
@@ -347,7 +347,7 @@ int wallet_send(iota_wallet_t* w, bool change, uint32_t addr_index, byte_t recei
   core_message_t* msg = NULL;
   indexation_t* idx = NULL;
   transaction_payload_t* tx = NULL;
-  res_send_message_t msg_res = {};
+  res_send_message_t msg_res = { 0 };
 
   if (!w) {
     printf("[%s:%d] Err: invalid parameters\n", __func__, __LINE__);
