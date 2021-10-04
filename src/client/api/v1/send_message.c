@@ -107,11 +107,7 @@ end:
   byte_buf_free(hex_data);
   byte_buf_free(hex_index);
   if (json_string) {
-#ifdef _MSC_VER
-    cJSON_free(json_string); 
-#else
     free(json_string);
-#endif
   }
   return ret;
 }
@@ -312,15 +308,7 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
   }
 
 end:
-#ifdef _MSC_VER
-  if ( json_data->data ) {
-    cJSON_free(json_data->data);
-    json_data->data = (byte_t*) 0;
-  }
   byte_buf_free(json_data);
-#else
-  byte_buf_free(json_data);
-#endif
   byte_buf_free(node_res);
   res_tips_free(tips);
   return ret;
