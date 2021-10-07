@@ -84,9 +84,9 @@ end:
   return ret;
 }
 
-int get_balance(iota_client_conf_t const *conf, char const addr[], res_balance_t *res) {
+int get_balance(iota_client_conf_t const *conf, addr_type_enum addr_type, char const addr[], res_balance_t *res) {
   int ret = -1;
-  char const *const cmd_balance = "/api/v1/addresses/ed25519/";
+
   byte_buf_t *http_res = NULL;
   long http_st = 0;
 
@@ -97,6 +97,16 @@ int get_balance(iota_client_conf_t const *conf, char const addr[], res_balance_t
 
   if (strlen(addr) != IOTA_ADDRESS_HEX_BYTES) {
     printf("[%s:%d]: get_balance failed (invalid addr length)\n", __func__, __LINE__);
+    return -1;
+  }
+
+  char const *cmd_balance = "";
+  if (addr_type == ED25519) {
+    cmd_balance = "/api/v1/addresses/ed25519/";
+  } else if (addr_type == BECH32) {
+    cmd_balance = "/api/v1/addresses/";
+  } else {
+    printf("[%s:%d]: get_balance failed (invalid address)\n", __func__, __LINE__);
     return -1;
   }
 
