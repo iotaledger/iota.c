@@ -85,7 +85,9 @@ void test_get_balance() {
     char addr_hex_str[IOTA_ADDRESS_HEX_BYTES + 1] = {0};
     TEST_ASSERT(address_bech32_to_hex("iota", addr_hex_bech32, addr_hex_str, sizeof(addr_hex_str)) == 0);
     // Converting hex string to lower case to check equality
-    for (int i = 0; i < IOTA_ADDRESS_HEX_BYTES; i++) addr_hex_str[i] = tolower(addr_hex_str[i]);
+    for (int i = 0; i < IOTA_ADDRESS_HEX_BYTES; i++) {
+      addr_hex_str[i] = tolower(addr_hex_str[i]);
+    }
     // validate address data
     TEST_ASSERT_EQUAL_MEMORY(addr_hex_str, res->u.output_balance->address, IOTA_ADDRESS_HEX_BYTES);
   }
