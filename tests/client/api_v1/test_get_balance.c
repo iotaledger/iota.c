@@ -28,30 +28,25 @@ void test_get_balance() {
   res_balance_t* res = res_balance_new();
   TEST_ASSERT_NOT_NULL(res);
 
-  // test null cases, passing addr_type as 0 as it is an enum
-  TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, 0, NULL, NULL));
-  TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, 0, NULL, res));
-  TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, 0, NULL, NULL));
-  TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, 0, NULL, res));
-  TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, ED25519, NULL, res));
-  TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, BECH32, NULL, res));
-
-  // test invalid address type
-  addr_type_enum addr_type_test = 5;
-  TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, addr_type_test, addr_hex_ed25519, res));
+  // test null cases
+  TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, false, NULL, NULL));
+  TEST_ASSERT_EQUAL_INT(-1, get_balance(NULL, false, NULL, res));
+  TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, false, NULL, NULL));
+  TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, false, NULL, res));
+  TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, true, NULL, res));
 
   // test invalid address len
-  TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, ED25519, addr_hex_invalid_length, res));
+  TEST_ASSERT_EQUAL_INT(-1, get_balance(&conf, false, addr_hex_invalid_length, res));
 
   // test invalid ED25519 address
-  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, ED25519, addr_hex_invalid, res));
+  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, false, addr_hex_invalid, res));
   TEST_ASSERT(res->is_error);
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
   }
 
   // test invalid BECH32 address
-  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, BECH32, addr_hex_invalid, res));
+  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, true, addr_hex_invalid, res));
   TEST_ASSERT(res->is_error);
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
@@ -64,7 +59,7 @@ void test_get_balance() {
   TEST_ASSERT_NOT_NULL(res);
 
   // test for success - ED25519 address
-  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, ED25519, addr_hex_ed25519, res));
+  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, false, addr_hex_ed25519, res));
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
   } else {
@@ -75,7 +70,7 @@ void test_get_balance() {
   }
 
   // test for success - BECH32 address
-  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, BECH32, addr_hex_bech32, res));
+  TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, true, addr_hex_bech32, res));
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
   } else {

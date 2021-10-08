@@ -12,11 +12,6 @@
 #include "core/types.h"
 
 /**
- * @brief Enum to specify the address type
- */
-typedef enum { ED25519 = 1, BECH32 } addr_type_enum;
-
-/**
  * @brief Stores address string and amount of balance
  *
  */
@@ -72,7 +67,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res);
  * @param[out] res A response object of balance info
  * @return int 0 on success
  */
-int get_balance(iota_client_conf_t const *ctx, addr_type_enum addr_type, char const addr[], res_balance_t *res);
+int get_balance(iota_client_conf_t const *ctx, bool is_bech32, char const addr[], res_balance_t *res);
 
 #ifdef __cplusplus
 }
