@@ -48,7 +48,7 @@ void test_deser_response() {
       "{\"data\":"
       "{\"messageId\":\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c\","
       "\"transactionId\":\"1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d\","
-      "\"outputIndex\":3,\"isSpent\":false,"
+      "\"outputIndex\":3,\"isSpent\":false,\"ledgerIndex\":1403058,"
       "\"output\":{\"type\":0,"
       "\"address\":{\"type\":1,"
       "\"address\":\"7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006\"},"
@@ -60,14 +60,15 @@ void test_deser_response() {
   int ret = deser_get_output(json_res, &out);
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_FALSE(out.is_error);
-  TEST_ASSERT_EQUAL_MEMORY(out.u.output.msg_id, "ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c", 64);
-  TEST_ASSERT_EQUAL_MEMORY(out.u.output.tx_id, "1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d", 64);
+  TEST_ASSERT_EQUAL_STRING(out.u.output.msg_id, "ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c");
+  TEST_ASSERT_EQUAL_STRING(out.u.output.tx_id, "1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d");
   TEST_ASSERT_EQUAL_INT(out.u.output.output_idx, 3);
   TEST_ASSERT_FALSE(out.u.output.is_spent);
+  TEST_ASSERT(out.u.output.ledger_idx = 1403058);
   TEST_ASSERT_EQUAL_INT(0, out.u.output.output_type);
   TEST_ASSERT(out.u.output.amount == 1338263);
   TEST_ASSERT_EQUAL_INT(1, out.u.output.address_type);
-  TEST_ASSERT_EQUAL_MEMORY(out.u.output.addr, "7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006", 64);
+  TEST_ASSERT_EQUAL_STRING(out.u.output.addr, "7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006");
 }
 
 int main() {

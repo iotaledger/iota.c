@@ -12,7 +12,8 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
   int ret = -1;
   long st = 0;
   byte_buf_t *http_res = NULL;
-  char const *const cmd_outputs = "/api/v1/outputs/";
+  // cmd length = "/api/v1/outputs/" + IOTA_OUTPUT_ID_HEX_STR
+  char cmd_buffer[85] = {};
 
   if (conf == NULL || output_id == NULL || res == NULL) {
     // invalid parameters
@@ -25,17 +26,12 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
     return -1;
   }
 
-  iota_str_t *cmd = iota_str_reserve(strlen(cmd_outputs) + IOTA_OUTPUT_ID_HEX_BYTES + 1);
-  if (cmd == NULL) {
-    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
-    return -1;
-  }
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s", cmd_outputs, output_id);
-  cmd->len = strlen(cmd->buf);
+  snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v1/outputs/%s", output_id);
 
   // http client configuration
-  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
+  http_client_config_t http_conf = {
+      .host = conf->host, .path = cmd_buffer, .use_tls = conf->use_tls, .port = conf->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
@@ -51,7 +47,6 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
 
 done:
   // cleanup command
-  iota_str_destroy(cmd);
   byte_buf_free(http_res);
   return ret;
 }
@@ -103,6 +98,12 @@ int deser_get_output(char const *const j_str, res_output_t *res) {
       goto end;
     }
 
+    // ledgerIndex
+    if ((ret = json_get_uint64(data_obj, JSON_KEY_LEDGER_IDX, &res->u.output.ledger_idx)) != 0) {
+      printf("[%s:%d]: gets %s json bool failed\n", __func__, __LINE__, JSON_KEY_IS_SPENT);
+      goto end;
+    }
+
     cJSON *output_obj = cJSON_GetObjectItemCaseSensitive(data_obj, JSON_KEY_OUTPUT);
     if (output_obj) {
       // output type
@@ -148,12 +149,13 @@ void dump_output_response(res_output_t *res) {
   } else {
     get_output_t *output = &res->u.output;
     printf("output:[\n");
-    printf("\t%s addr: %.64s\n", output->address_type ? "UNKNOW" : "ED25519", output->addr);
-    printf("\tmsg id: %.64s\n", output->msg_id);
-    printf("\ttx id: %.64s\n", output->tx_id);
+    printf("\t%s addr: %s\n", output->address_type ? "UNKNOW" : "ED25519", output->addr);
+    printf("\tmsg id: %s\n", output->msg_id);
+    printf("\ttx id: %s\n", output->tx_id);
     printf("\tamount: %" PRIu64 "\n", output->amount);
-    printf("\toutput_idx: %" PRIu16 "\n", output->output_idx);
+    printf("\toutput index: %" PRIu16 "\n", output->output_idx);
     printf("\tis spent: %s\n", output->is_spent ? "True" : "False");
+    printf("\tledger index: %" PRIu64 "\n", output->ledger_idx);
     printf("]\n");
   }
 }
