@@ -16,7 +16,7 @@
  */
 typedef struct {
   char host[IOTA_ENDPOINT_MAX_LEN];  ///< domain name or IP as string
-  uint16_t port;                     ///< prot to connect
+  uint16_t port;                     ///< port to connect
   bool use_tls;                      ///< Use TLS or not
 } iota_client_conf_t;
 
