@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * @brief A simple example of sending encripted string to the Tangle.
+ * @brief A simple example of sending an encrypted string to the Tangle.
  *
  */
 
