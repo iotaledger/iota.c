@@ -11,19 +11,22 @@
 #include "client/client_service.h"
 #include "client/network/http.h"
 
+// output id = transaction id(64 bytes) + output index(4 bytes)
 #define IOTA_OUTPUT_ID_HEX_BYTES 68
+#define IOTA_OUTPUT_ID_HEX_STR (IOTA_OUTPUT_ID_HEX_BYTES + 1)
 
 /**
  * @brief An output object
  *
  */
 typedef struct {
-  char msg_id[64];        ///< the message IDs that references the output
-  char tx_id[64];         ///< the transaction ID
-  char addr[64];          ///< the address in hex string
+  char msg_id[65];        ///< the message IDs that references the output
+  char tx_id[65];         ///< the transaction ID
+  char addr[65];          ///< the address in hex string
   uint32_t output_type;   ///< the output type
   uint32_t address_type;  ///< the address type
   uint64_t amount;        ///< the amount of this output
+  uint64_t ledger_idx;    ///< The ledger index at which this balance was queried at.
   uint16_t output_idx;    ///< the index of this output
   bool is_spent;          ///< is spent or not
 } get_output_t;

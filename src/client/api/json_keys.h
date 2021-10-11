@@ -59,5 +59,6 @@ static char const* const JSON_KEY_REF_MPS = "referencedMessagesPerSecond";
 static char const* const JSON_KEY_REF_RATE = "referencedRate";
 static char const* const JSON_KEY_LMT = "latestMilestoneTimestamp";
 static char const* const JSON_KEY_CHILDREN_MSG_IDS = "childrenMessageIds";
+static char const* const JSON_KEY_LEDGER_IDX = "ledgerIndex";
 
 #endif
