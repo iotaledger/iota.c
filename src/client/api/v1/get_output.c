@@ -100,7 +100,7 @@ int deser_get_output(char const *const j_str, res_output_t *res) {
 
     // ledgerIndex
     if ((ret = json_get_uint64(data_obj, JSON_KEY_LEDGER_IDX, &res->u.output.ledger_idx)) != 0) {
-      printf("[%s:%d]: gets %s json bool failed\n", __func__, __LINE__, JSON_KEY_IS_SPENT);
+      printf("[%s:%d]: gets %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
       goto end;
     }
 
