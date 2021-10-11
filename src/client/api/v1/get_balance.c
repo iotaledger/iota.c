@@ -100,27 +100,25 @@ int get_balance(iota_client_conf_t const *conf, bool is_bech32, char const addr[
     return -1;
   }
 
-  char const *cmd_balance = "";
-  if (is_bech32) {
-    cmd_balance = "/api/v1/addresses/";
-  } else {
-    cmd_balance = "/api/v1/addresses/ed25519/";
-  }
-
   // compose restful api command
-  iota_str_t *cmd = iota_str_new(cmd_balance);
-  if (cmd == NULL) {
-    printf("[%s:%d]: cmd_balance append failed\n", __func__, __LINE__);
-    return -1;
+  char cmd_buffer[91] = {0};  // 91 = max size of api path(26) + IOTA_ADDRESS_HEX_BYTES(64) + 1
+  int snprintf_ret;
+
+  if (is_bech32) {
+    snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v1/addresses/%s", addr);
+  } else {
+    snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v1/addresses/ed25519/%s", addr);
   }
 
-  if (iota_str_append(cmd, addr)) {
-    printf("[%s:%d]: addr append failed\n", __func__, __LINE__);
+  // check if data stored is not more than buffer length
+  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
+    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
     goto done;
   }
 
   // http client configuration
-  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
+  http_client_config_t http_conf = {
+      .host = conf->host, .path = cmd_buffer, .use_tls = conf->use_tls, .port = conf->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
@@ -136,7 +134,6 @@ int get_balance(iota_client_conf_t const *conf, bool is_bech32, char const addr[
 
 done:
   // cleanup command
-  iota_str_destroy(cmd);
   byte_buf_free(http_res);
 
   return ret;
