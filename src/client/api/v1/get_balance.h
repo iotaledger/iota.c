@@ -62,7 +62,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res);
  * @brief Gets balance from an address
  *
  * @param[in] ctx IOTA Client conf
- * @param[in] addr_type The address type : ED25519/BECH32
+ * @param[in] is_bech32 the address type, true for bech32, false for ed25519
  * @param[in] addr The address
  * @param[out] res A response object of balance info
  * @return int 0 on success
