@@ -312,7 +312,7 @@ int wallet_balance_by_address(iota_wallet_t* w, byte_t const addr[], uint64_t* b
     return -1;
   }
 
-  if (get_balance(&w->endpoint, hex_addr, bal_res) != 0) {
+  if (get_balance(&w->endpoint, false, hex_addr, bal_res) != 0) {
     printf("[%s:%d] Err: get balance API failed\n", __func__, __LINE__);
     res_balance_free(bal_res);
     return -1;
