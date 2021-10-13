@@ -12,7 +12,7 @@
 #include "core/types.h"
 
 /**
- * @brief Stores address string and amount of balance
+ * @brief Stores address type, amount of balance, address string, dust allowed status and ledger index
  *
  */
 typedef struct {
@@ -20,6 +20,8 @@ typedef struct {
   uint64_t balance;                      ///< amount of balance
   char address[IOTA_ADDRESS_HEX_BYTES];  ///< hex address string, ex:
                                          ///< 7ED3D67FC7B619E72E588F51FEF2379E43E6E9A856635843B3F29AA3A3F1F006
+  bool dust_allowed;                     ///< Dust allowance output to the transaction allowed or not
+  uint64_t ledger_idx;                   ///< Ledger Index
 } get_balance_t;
 
 /**
