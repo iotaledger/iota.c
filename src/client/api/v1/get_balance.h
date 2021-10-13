@@ -12,7 +12,7 @@
 #include "core/types.h"
 
 /**
- * @brief Stores address string and amount of balance
+ * @brief Stores address type, amount of balance, address string, dust allowed status and ledger index
  *
  */
 typedef struct {
