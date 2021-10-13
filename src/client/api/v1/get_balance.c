@@ -77,6 +77,18 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
       printf("[%s:%d]: gets %s json balance failed\n", __func__, __LINE__, JSON_KEY_BALANCE);
       goto end;
     }
+
+    // gets dust allowance
+    if ((ret = json_get_boolean(data_obj, JSON_KEY_DUST_ALLOWED, &res->u.output_balance->dust_allowed)) != 0) {
+      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_DUST_ALLOWED);
+      goto end;
+    }
+
+    // gets ledger index
+    if ((ret = json_get_uint64(data_obj, JSON_KEY_LEDGER_IDX, &res->u.output_balance->ledger_idx)) != 0) {
+      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
+      goto end;
+    }
   }
 
 end:

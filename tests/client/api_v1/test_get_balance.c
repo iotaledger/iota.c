@@ -92,7 +92,7 @@ void test_get_balance() {
 void test_deser_balance_info() {
   char const* json_info_200 =
       "{\"data\":{\"addressType\":1,\"address\":\"7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006\","
-      "\"balance\":1338263}}";
+      "\"balance\":1338263,\"dustAllowed\": false,\"ledgerIndex\": 1400912}}";
   char const* json_info_400 =
       "{\"error\":{\"code\":\"400\",\"message\":\"bad request, error: invalid address: "
       "iot1qxknyfvz2hnulyn6fqelg4ljyzm3sl8ewh5z4mhzuglu4eg9d26lg0h78ec, error: encoding\\/hex: invalid byte: U+0069 "
