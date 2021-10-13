@@ -61,7 +61,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
   if (data_obj) {
     // gets address type
     if ((ret = json_get_uint8(data_obj, JSON_KEY_ADDR_TYPE, &res->u.output_balance->address_type)) != 0) {
-      printf("[%s:%d]: gets %s json max_results failed\n", __func__, __LINE__, JSON_KEY_ADDR_TYPE);
+      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_ADDR_TYPE);
       goto end;
     }
 
@@ -74,7 +74,7 @@ int deser_balance_info(char const *const j_str, res_balance_t *res) {
 
     // gets balance
     if ((ret = json_get_uint64(data_obj, JSON_KEY_BALANCE, &res->u.output_balance->balance)) != 0) {
-      printf("[%s:%d]: gets %s json balance failed\n", __func__, __LINE__, JSON_KEY_BALANCE);
+      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_BALANCE);
       goto end;
     }
 
