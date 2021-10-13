@@ -107,6 +107,8 @@ void test_deser_balance_info() {
   TEST_ASSERT_EQUAL_STRING(addr_hex_ed25519, res->u.output_balance->address);
   TEST_ASSERT_EQUAL_STRING(res->u.output_balance->address, addr_hex_ed25519);
   TEST_ASSERT(1338263 == res->u.output_balance->balance);
+  TEST_ASSERT(false == res->u.output_balance->dust_allowed);
+  TEST_ASSERT(1400912 == res->u.output_balance->ledger_idx);
 
   // clean up
   res_balance_free(res);
