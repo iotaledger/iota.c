@@ -119,6 +119,11 @@ int deser_outputs_from_address(char const *const j_str, res_outputs_address_t *r
       goto end;
     }
 
+    if ((ret = json_get_uint64(data_obj, JSON_KEY_LEDGER_IDX, &res->u.output_ids->ledger_idx) != 0)) {
+      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
+      goto end;
+    }
+
   } else {
     // JSON format mismatched.
     printf("[%s:%d]: parsing JSON object failed\n", __func__, __LINE__);
