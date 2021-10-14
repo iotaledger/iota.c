@@ -3,6 +3,7 @@
 
 #ifdef CRYPTO_USE_SODIUM
 #include <sodium.h>
+#include <sodium/crypto_auth_hmacsha512.h>
 #elif CRYPTO_USE_MBEDTLS
 #include <string.h>
 #include "mbedtls/ctr_drbg.h"
@@ -32,7 +33,24 @@
 #include <random/rand32.h>
 #endif
 
+#include <string.h>
+
 #include "crypto/iota_crypto.h"
+
+// store 32 bits in big-endian
+static inline void store32_be(uint8_t dst[4], uint32_t w) {
+  if (is_little_endian()) {
+    dst[3] = (uint8_t)w;
+    w >>= 8;
+    dst[2] = (uint8_t)w;
+    w >>= 8;
+    dst[1] = (uint8_t)w;
+    w >>= 8;
+    dst[0] = (uint8_t)w;
+  } else {
+    memcpy(dst, &w, sizeof w);
+  }
+}
 
 void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
 #if defined(CRYPTO_USE_SODIUM)
@@ -203,8 +221,45 @@ int iota_crypto_sha512(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
 int iota_crypto_pbkdf2_hmac_sha512(char const pwd[], size_t pwd_len, char const salt[], size_t salt_len,
                                    int32_t iterations, uint8_t dk[], size_t dk_len) {
 #if defined(CRYPTO_USE_SODIUM)
-  // TODO, not supported by libsodium
-  return -1;
+  static uint32_t buff_size = crypto_auth_hmacsha512_BYTES;
+  crypto_auth_hmacsha512_state PShctx, hctx;
+  size_t i, j, k;
+  uint8_t ivec[4];
+  uint8_t U[crypto_auth_hmacsha512_BYTES];
+  uint8_t T[crypto_auth_hmacsha512_BYTES];
+  size_t clen;
+
+  crypto_auth_hmacsha512_init(&PShctx, (uint8_t const *)pwd, pwd_len);
+  crypto_auth_hmacsha512_update(&PShctx, (uint8_t const *)salt, salt_len);
+
+  // DK = T1 + T2 + ... + T(dklen/hlen)
+  for (i = 0; i * crypto_auth_hmacsha512_BYTES < dk_len; i++) {
+    store32_be(ivec, (uint32_t)(i + 1));
+    memcpy(&hctx, &PShctx, sizeof(crypto_auth_hmacsha512_state));
+    crypto_auth_hmacsha512_update(&hctx, ivec, 4);
+    crypto_auth_hmacsha512_final(&hctx, U);
+    memcpy(T, U, crypto_auth_hmacsha512_BYTES);
+
+    for (j = 2; j <= iterations; j++) {
+      crypto_auth_hmacsha512_init(&hctx, (uint8_t const *)pwd, pwd_len);
+      crypto_auth_hmacsha512_update(&hctx, U, crypto_auth_hmacsha512_BYTES);
+      crypto_auth_hmacsha512_final(&hctx, U);
+
+      for (k = 0; k < crypto_auth_hmacsha512_BYTES; k++) {
+        // XOR
+        T[k] ^= U[k];
+      }
+    }
+
+    clen = dk_len - i * crypto_auth_hmacsha512_BYTES;
+    if (clen > crypto_auth_hmacsha512_BYTES) {
+      clen = crypto_auth_hmacsha512_BYTES;
+    }
+    memcpy(&dk[i * crypto_auth_hmacsha512_BYTES], T, clen);
+  }
+
+  sodium_memzero((void *)&PShctx, sizeof PShctx);
+  return 0;
 #elif defined(CRYPTO_USE_MBEDTLS)
   int ret = -1;
   mbedtls_md_context_t ctx;

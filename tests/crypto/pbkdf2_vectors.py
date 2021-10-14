@@ -57,6 +57,13 @@ def pbkdf2_vectors():
     # test vectors
     print_vector(b"password", b"salt", 1, 20)
     print_vector(b"password", b"salt", 2, 20)
+    print_vector(b"password", b"salt", 2, 16)
+    print_vector(b"password", b"salt", 2, 32)
+    print_vector(b"password", b"salt", 2, 64)
+    print_vector(b"password", b"salt", 2, 127)
+    print_vector(b"password", b"salt", 2, 128)
+    print_vector(b"password", b"salt", 2, 129)
+    print_vector(b"password", b"salt", 2, 256)
     print_vector(b"password", b"salt", 4096, 20)
     print_vector(b"passwordPASSWORDpassword",
                  b"saltSALTsaltSALTsaltSALTsaltSALTsalt", 4096, 25)
