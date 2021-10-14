@@ -4,6 +4,7 @@
 #ifndef __CRYPTO_IOTA_H__
 #define __CRYPTO_IOTA_H__
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -127,6 +128,22 @@ int iota_crypto_sha512(uint8_t const msg[], size_t msg_len, uint8_t hash[]);
  */
 int iota_crypto_pbkdf2_hmac_sha512(char const pwd[], size_t pwd_len, char const salt[], size_t salt_len,
                                    int32_t iterations, uint8_t dk[], size_t dk_len);
+
+/**
+ * @brief endianness check
+ *
+ * There is no standardized way to check endianness with different compilers at compile-time
+ * for better compatibility, we check it at runtime.
+ *
+ * @return true little-endian
+ * @return false big-endian
+ */
+static inline bool is_little_endian() {
+  int16_t i = 0xF;
+  char *p = (char *)&i;
+  return (p[0] == 0xF);
+}
+
 #ifdef __cplusplus
 }
 #endif

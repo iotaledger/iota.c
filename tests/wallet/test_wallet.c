@@ -71,7 +71,6 @@ void test_bip39_languages() {
 }
 
 void test_bip39_seed() {
-#if defined(CRYPTO_USE_OPENSSL) || defined(CYRPTO_USE_MBEDTLS)
   byte_t seed[64] = {};
   byte_t exp_seed[64] = {};
   for (size_t i = 0; i < sizeof(vectors) / sizeof(ms_vectors_t); i++) {
@@ -79,10 +78,6 @@ void test_bip39_seed() {
     hex_2_bin(vectors[i].seed, strlen(vectors[i].seed), exp_seed, sizeof(exp_seed));
     TEST_ASSERT_EQUAL_MEMORY(exp_seed, seed, sizeof(exp_seed));
   }
-#else
-  // TODO
-  printf("TODO\n");
-#endif
 }
 
 static char const* const test_mnemonic =

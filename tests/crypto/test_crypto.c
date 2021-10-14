@@ -221,12 +221,13 @@ void test_sha() {
 }
 
 void test_pbkdf2_hmac_sha512() {
-#if defined(CRYPTO_USE_OPENSSL) || defined(CRYPTO_USE_MBEDTLS)
-  uint8_t pwd[128] = {}, salt[128] = {}, dk[128] = {}, exp_dk[128] = {};
+#define BUF_SIZE 256
+
+  uint8_t pwd[BUF_SIZE] = {0}, salt[BUF_SIZE] = {0}, dk[BUF_SIZE] = {0}, exp_dk[BUF_SIZE] = {0};
   size_t pwd_len, salt_len;
 
   for (size_t i = 0; i < sizeof(pbkdf2) / sizeof(pbkdf2_vector_t); i++) {
-    printf("testing PBKDF2 vector %zu...\n", i);
+    printf("testing PBKDF2 HMACSHA512 vector %zu...\n", i);
     pwd_len = strlen(pbkdf2[i].pwd) / 2;
     salt_len = strlen(pbkdf2[i].salt) / 2;
     // convert hex string to binary
@@ -239,10 +240,6 @@ void test_pbkdf2_hmac_sha512() {
     // validate
     TEST_ASSERT_EQUAL_MEMORY(exp_dk, dk, pbkdf2[i].dk_len);
   }
-#else
-  // TODO
-  printf("TODO test_pbkdf2_hmac_sha512...\n");
-#endif
 }
 
 int main() {
