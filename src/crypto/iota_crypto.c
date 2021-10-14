@@ -221,7 +221,6 @@ int iota_crypto_sha512(uint8_t const msg[], size_t msg_len, uint8_t hash[]) {
 int iota_crypto_pbkdf2_hmac_sha512(char const pwd[], size_t pwd_len, char const salt[], size_t salt_len,
                                    int32_t iterations, uint8_t dk[], size_t dk_len) {
 #if defined(CRYPTO_USE_SODIUM)
-  static uint32_t buff_size = crypto_auth_hmacsha512_BYTES;
   crypto_auth_hmacsha512_state PShctx, hctx;
   size_t i, j, k;
   uint8_t ivec[4];
