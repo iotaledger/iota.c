@@ -135,12 +135,11 @@ end:
   return ret;
 }
 
-int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], res_outputs_address_t *res) {
+int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, char const addr[],
+                             res_outputs_address_t *res) {
   int ret = -1;
   long st = 0;
   byte_buf_t *http_res = NULL;
-  char const *const cmd_prefix = "/api/v1/addresses/ed25519/";
-  char const *const cmd_suffix = "/outputs";
 
   if (conf == NULL || addr == NULL || res == NULL) {
     // invalid parameters
@@ -153,18 +152,25 @@ int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], 
     return -1;
   }
 
-  iota_str_t *cmd = iota_str_reserve(strlen(cmd_prefix) + addr_len + strlen(cmd_suffix) + 1);
-  if (cmd == NULL) {
-    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
-    return -1;
+  // compose restful api command
+  char cmd_buffer[99] = {0};  // 99 = max size of api path(34) + IOTA_ADDRESS_HEX_BYTES(64) + 1
+  int snprintf_ret;
+
+  if (is_bech32) {
+    snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v1/addresses/%s/outputs", addr);
+  } else {
+    snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v1/addresses/ed25519/%s/outputs", addr);
   }
 
-  // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", cmd_prefix, addr, cmd_suffix);
-  cmd->len = strlen(cmd->buf);
+  // check if data stored is not more than buffer length
+  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
+    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
+    goto done;
+  }
 
   // http client configuration
-  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
+  http_client_config_t http_conf = {
+      .host = conf->host, .path = cmd_buffer, .use_tls = conf->use_tls, .port = conf->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
@@ -180,7 +186,6 @@ int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], 
 
 done:
   // cleanup command
-  iota_str_destroy(cmd);
   byte_buf_free(http_res);
   return ret;
 }

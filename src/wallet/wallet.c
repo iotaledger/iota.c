@@ -130,7 +130,7 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, bool ch
     return NULL;
   }
 
-  if (get_outputs_from_address(&w->endpoint, tmp_addr, outputs_res) != 0) {
+  if (get_outputs_from_address(&w->endpoint, false, tmp_addr, outputs_res) != 0) {
     printf("[%s:%d] Err: get outputs from address failed\n", __func__, __LINE__);
     goto done;
   }
