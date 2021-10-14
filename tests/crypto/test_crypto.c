@@ -221,8 +221,9 @@ void test_sha() {
 }
 
 void test_pbkdf2_hmac_sha512() {
-  static size_t const buf_size = 256;
-  uint8_t pwd[buf_size] = {0}, salt[buf_size] = {0}, dk[buf_size] = {0}, exp_dk[buf_size] = {0};
+#define BUF_SIZE 256
+
+  uint8_t pwd[BUF_SIZE] = {0}, salt[BUF_SIZE] = {0}, dk[BUF_SIZE] = {0}, exp_dk[BUF_SIZE] = {0};
   size_t pwd_len, salt_len;
 
   for (size_t i = 0; i < sizeof(pbkdf2) / sizeof(pbkdf2_vector_t); i++) {
