@@ -76,9 +76,44 @@ void test_deser_outputs_err() {
 void test_get_output_ids() {
   char addr1[] = "017ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f0";
   char addr_bech32[] = "iota1qpg2xkj66wwgn8p2ggnp7p582gj8g6p79us5hve2tsudzpsr2ap4skprwjg";
+  char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  char const* const addr_hex_invalid_length =
+      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_outputs_address_t* res = res_outputs_address_new();
+  TEST_ASSERT_NOT_NULL(res);
+
+  // Tests for NULL cases
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(NULL, false, NULL, NULL));
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(NULL, false, NULL, res));
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, false, NULL, res));
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, true, NULL, res));
+
+  // Test invalid address len : ed25519 address
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, false, addr_hex_invalid_length, res));
+
+  // Test invalid address len : bech32 address
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, true, addr_hex_invalid_length, res));
+
+  // Test invalid ED25519 address
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_address(&ctx, false, addr_hex_invalid, res));
+  TEST_ASSERT(res->is_error);
+  if (res->is_error == true) {
+    printf("Error: %s\n", res->u.error->msg);
+  }
+
+  // Test invalid BECH32 address
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_address(&ctx, true, addr_hex_invalid, res));
+  TEST_ASSERT(res->is_error);
+  if (res->is_error == true) {
+    printf("Error: %s\n", res->u.error->msg);
+  }
+
+  // Re initializing res
+  res_outputs_address_free(res);
+  res = NULL;
+  res = res_outputs_address_new();
   TEST_ASSERT_NOT_NULL(res);
 
   // Tests for ed25519 address

@@ -131,7 +131,6 @@ int deser_outputs_from_address(char const *const j_str, res_outputs_address_t *r
 
 end:
   cJSON_Delete(json_obj);
-
   return ret;
 }
 
