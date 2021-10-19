@@ -20,6 +20,7 @@ typedef struct {
   uint32_t max_results;                      ///< The number of results it can return at most.
   uint32_t count;                            ///< The actual number of found results.
   UT_array *outputs;                         ///< output IDs
+  uint64_t ledger_idx;                       ///< The ledger index at which the output was queried at.
 } get_outputs_address_t;
 
 /**
@@ -82,11 +83,13 @@ int deser_outputs_from_address(char const *const j_str, res_outputs_address_t *r
  * @brief Gets output IDs from a given address
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] is_bech32 the address type, true for bech32, false for ed25519
  * @param[in] addr An address in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], res_outputs_address_t *res);
+int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, char const addr[],
+                             res_outputs_address_t *res);
 
 #ifdef __cplusplus
 }

@@ -121,7 +121,7 @@ void test_send_core_message_tx() {
   // get outputs
   res_outputs_address_t* res = res_outputs_address_new();
   TEST_ASSERT_NOT_NULL(res);
-  int ret = get_outputs_from_address(&ctx, "6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92", res);
+  int ret = get_outputs_from_address(&ctx, false, "6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92", res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
   TEST_ASSERT_EQUAL_STRING("6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92",
