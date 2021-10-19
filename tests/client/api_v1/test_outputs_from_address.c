@@ -96,12 +96,24 @@ void test_get_output_ids() {
   // Test invalid address len : bech32 address
   TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, true, addr_hex_invalid_length, res));
 
+  // Re initializing res
+  res_outputs_address_free(res);
+  res = NULL;
+  res = res_outputs_address_new();
+  TEST_ASSERT_NOT_NULL(res);
+
   // Test invalid ED25519 address
   TEST_ASSERT_EQUAL_INT(0, get_outputs_from_address(&ctx, false, addr_hex_invalid, res));
   TEST_ASSERT(res->is_error);
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
   }
+
+  // Re initializing res
+  res_outputs_address_free(res);
+  res = NULL;
+  res = res_outputs_address_new();
+  TEST_ASSERT_NOT_NULL(res);
 
   // Test invalid BECH32 address
   TEST_ASSERT_EQUAL_INT(0, get_outputs_from_address(&ctx, true, addr_hex_invalid, res));
@@ -121,6 +133,12 @@ void test_get_output_ids() {
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
   TEST_ASSERT_EQUAL_STRING(addr1, res->u.output_ids->address);
+
+  // Re initializing res
+  res_outputs_address_free(res);
+  res = NULL;
+  res = res_outputs_address_new();
+  TEST_ASSERT_NOT_NULL(res);
 
   // Tests for bech32 address
   ret = get_outputs_from_address(&ctx, true, addr_bech32, res);
