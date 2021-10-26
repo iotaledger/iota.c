@@ -27,6 +27,10 @@ target_sources(
           "api/v1/send_message.c"
           "api/v1/find_message.c"
           "api/v1/get_outputs_from_address.c"
+          if(MQTT_CLIENT_ENABLE)
+            "network/mqtt/mqtt_mosquitto.c"
+            "api/mqtt/sub_milestone_latest.c"
+          endif()
   PUBLIC "network/http.h"
          "api/json_utils.h"
          "api/json_keys.h"
@@ -44,7 +48,12 @@ target_sources(
          "api/v1/send_message.h"
          "api/v1/find_message.h"
          "api/v1/get_outputs_from_address.h"
-         "client_service.h")
+         "client_service.h"
+         if(MQTT_CLIENT_ENABLE)
+          "network/mqtt/mqtt.h"
+          "api/mqtt/sub_milestone_latest.h"
+         endif()
+         )
 
 target_include_directories(
   iota_client PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CURL_INCLUDE_DIRS}"
