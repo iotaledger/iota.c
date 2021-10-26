@@ -44,6 +44,11 @@ void test_get_balance() {
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
   }
+  // reusing the response object
+  res_balance_free(res);
+  res = NULL;
+  res = res_balance_new();
+  TEST_ASSERT_NOT_NULL(res);
 
   // test invalid BECH32 address
   TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, true, addr_hex_invalid, res));
@@ -68,6 +73,11 @@ void test_get_balance() {
     // validate address data
     TEST_ASSERT_EQUAL_MEMORY(addr_hex_ed25519, res->u.output_balance->address, IOTA_ADDRESS_HEX_BYTES);
   }
+  // reusing the response object
+  res_balance_free(res);
+  res = NULL;
+  res = res_balance_new();
+  TEST_ASSERT_NOT_NULL(res);
 
   // test for success - BECH32 address
   TEST_ASSERT_EQUAL_INT(0, get_balance(&conf, true, addr_hex_bech32, res));
