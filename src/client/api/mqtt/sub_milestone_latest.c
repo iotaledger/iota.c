@@ -22,13 +22,13 @@ void mqtt_cb_milestone_latest(void *payload) {
   }
 
   // gets index
-  if ((json_get_uint32(json_obj, JSON_KEY_INDEX, response.u.received_milestone_latest->index)) != 0) {
+  if ((json_get_uint32(json_obj, JSON_KEY_INDEX, response->u.received_milestone_latest->index)) != 0) {
     printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_INDEX);
     goto end;
   }
 
   // gets timestamp
-  if ((json_get_uint64(json_obj, JSON_KEY_TIMESTAMP, response.u.received_milestone_latest->timestamp)) != 0) {
+  if ((json_get_uint64(json_obj, JSON_KEY_TIMESTAMP, response->u.received_milestone_latest->timestamp)) != 0) {
     printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_TIMESTAMP);
     goto end;
   }
