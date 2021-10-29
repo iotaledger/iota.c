@@ -10,10 +10,10 @@ void callback(res_milestone_latest_t *res) {
          res->u.received_milestone_latest->timestamp);
 }
 
-int main(void) {
+int main(void){
   mqtt_client_config_t mqtt_conf = {
       .host = "mqtt.lb-0.h.chrysalis-devnet.iota.cafe", .port = 1883, .client_id = "iota_test_123", .keepalive = 60};
   mqtt_init(&mqtt_conf);
   sub_milestone_latest(callback);
-  mqtt_start(&mqtt_conf);
+  mqtt_start(&mqtt_conf);// This is a blocking call
 }
