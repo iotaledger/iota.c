@@ -9,7 +9,7 @@
 
 void (*milestone_latest_cb)(res_milestone_latest_t *res);
 
-res_milestone_latest_t *res_milestone_latest_new(void){
+res_milestone_latest_t *res_milestone_latest_new(void) {
   res_milestone_latest_t *res = (res_milestone_latest_t *)malloc(sizeof(res_milestone_latest_t));
   if (res) {
     res->is_error = false;
@@ -33,7 +33,6 @@ void res_milestone_latest_free(res_milestone_latest_t *res) {
 }
 
 void mqtt_cb_milestone_latest(void *payload) {
-
   cJSON *json_obj = cJSON_Parse((char *)payload);
   if (json_obj == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
@@ -48,7 +47,7 @@ void mqtt_cb_milestone_latest(void *payload) {
     printf("[%s:%d]: parse %s failed\n", __func__, __LINE__, JSON_KEY_INDEX);
     res->is_error = true;
     char *error_msg = "Parse index failed";
-    res->u.error = (char*)malloc(strlen(error_msg));
+    res->u.error = (char *)malloc(strlen(error_msg));
     strcpy(res->u.error, error_msg);
     goto end;
   }
@@ -58,7 +57,7 @@ void mqtt_cb_milestone_latest(void *payload) {
     printf("[%s:%d]: parse %s failed\n", __func__, __LINE__, JSON_KEY_TIMESTAMP);
     res->is_error = true;
     char *error_msg = "Parse timestamp failed";
-    res->u.error = (char*)malloc(strlen(error_msg));
+    res->u.error = (char *)malloc(strlen(error_msg));
     strcpy(res->u.error, error_msg);
     goto end;
   }
