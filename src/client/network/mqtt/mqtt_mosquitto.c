@@ -6,7 +6,7 @@
 #include "client/network/mqtt/mqtt.h"
 
 struct mosquitto *mosq;
-sub_topic_t sub_topic;
+sub_topic_list_t sub_topic_list;
 
 /* Callback called when the client receives a CONNACK message from the broker. */
 void on_mqtt_connect(struct mosquitto *mosq, void *obj, int reason_code) {
@@ -17,10 +17,12 @@ void on_mqtt_connect(struct mosquitto *mosq, void *obj, int reason_code) {
     /* Making subscriptions in the on_connect() callback means that if the
      * connection drops and is automatically resumed by the client, then the
      * subscriptions will be recreated when the client reconnects. */
-    printf("[%s:%d]: Trying to subscribe topic : %s\n", __func__, __LINE__, sub_topic.topic);
-    rc = mosquitto_subscribe(mosq, NULL, sub_topic.topic, 1);
-    if (rc != MOSQ_ERR_SUCCESS) {
-      fprintf(stderr, "Error subscribing: %s\n", mosquitto_strerror(rc));
+    for(int i=0; i<sub_topic_list.topic_count; i++){
+      printf("[%s:%d]: Trying to subscribe topic : %s\n", __func__, __LINE__, sub_topic_list.sub_topic_array[i].topic);
+      rc = mosquitto_subscribe(mosq, NULL, sub_topic_list.sub_topic_array[i].topic, 1);
+      if (rc != MOSQ_ERR_SUCCESS) {
+        printf("[%s:%d]: Error subscribing: %s\n", __func__, __LINE__, mosquitto_strerror(rc));
+      }
     }
   }
 }
@@ -47,8 +49,11 @@ void on_mqtt_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_count
 void on_mqtt_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg) {
   /* Handling call back functions*/
   // To do : Handle more than one topic subscription
-  if (!strcmp(msg->topic, sub_topic.topic)) {
-    (*sub_topic.callback)(msg->payload);
+  for(int i=0; i<sub_topic_list.topic_count; i++){
+    if (!strcmp(msg->topic, sub_topic_list.sub_topic_array[i].topic)) {
+      (*sub_topic_list.sub_topic_array[i].callback)(msg->payload);
+      break; // If a topic matches, skip checking rest of the topics
+    }
   }
 }
 
@@ -79,7 +84,8 @@ int mqtt_init(mqtt_client_config_t const *const config) {
   mosquitto_connect_callback_set(mosq, on_mqtt_connect);
   mosquitto_subscribe_callback_set(mosq, on_mqtt_subscribe);
   mosquitto_message_callback_set(mosq, on_mqtt_message);
-
+  // Clear topic count
+  sub_topic_list.topic_count = 0;
   return 0;
 }
 
@@ -102,13 +108,19 @@ int mqtt_start(mqtt_client_config_t const *const config) {
 }
 
 int mqtt_subscribe(char *topic, void (*callback)(void *), int qos) {
-  // To do : Handle more than one topic subscription
-  sub_topic.topic = topic;
-  sub_topic.callback = callback;
+  sub_topic_list.topic_count++;
+  if(sub_topic_list.topic_count > MAX_TOPIC_COUNT){
+    printf("[%s:%d]: Error : Max topic count reached.\n", __func__, __LINE__);
+    return -1;
+  }
+  sub_topic_list.sub_topic_array[sub_topic_list.topic_count-1].topic = topic;
+  sub_topic_list.sub_topic_array[sub_topic_list.topic_count-1].callback = callback;
   return 0;
 }
 
 int mqtt_stop(void) {
+  // Clear topic count
+  sub_topic_list.topic_count = 0;
   // Disconnect from the broker.
   mosquitto_disconnect(mosq);
   // Call to free memory associated with a mosquitto client instance.

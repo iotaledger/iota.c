@@ -13,6 +13,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#define MAX_TOPIC_COUNT 50
+
 typedef struct {
   char const *host;       ///< Mqtt host url
   uint16_t port;          ///< Mqtt port to connect, usually it is 1883
@@ -23,9 +25,14 @@ typedef struct {
 } mqtt_client_config_t;
 
 typedef struct {
-  char *topic;
-  void (*callback)(void *payload);
+  char *topic; ///< topic sctring, support wild cards
+  void (*callback)(void *payload); ///< Callback function assosiated with the topic
 } sub_topic_t;
+
+typedef struct{
+  int topic_count; ///< Total subscribed topic count update variable
+  sub_topic_t sub_topic_array[MAX_TOPIC_COUNT]; ///< Buffer enough for holding total topics to subscribe
+}sub_topic_list_t;
 
 #ifdef __cplusplus
 extern "C" {
