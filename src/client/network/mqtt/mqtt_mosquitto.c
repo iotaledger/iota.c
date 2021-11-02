@@ -12,11 +12,12 @@ sub_topic_t sub_topic;
 void on_mqtt_connect(struct mosquitto *mosq, void *obj, int reason_code) {
   int rc;
   /* Print out the connection result.*/
-  printf("on_mqtt_connect: %s\n", mosquitto_connack_string(reason_code));
+  printf("[%s:%d]: Connect Mqtt: %s\n", __func__, __LINE__, mosquitto_connack_string(reason_code));
   if (reason_code == 0) {
     /* Making subscriptions in the on_connect() callback means that if the
      * connection drops and is automatically resumed by the client, then the
      * subscriptions will be recreated when the client reconnects. */
+    printf("[%s:%d]: Trying to subscribe topic : %s\n", __func__, __LINE__, sub_topic.topic);
     rc = mosquitto_subscribe(mosq, NULL, sub_topic.topic, 1);
     if (rc != MOSQ_ERR_SUCCESS) {
       fprintf(stderr, "Error subscribing: %s\n", mosquitto_strerror(rc));
@@ -31,14 +32,14 @@ void on_mqtt_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_count
 
   /* Check if subscription granted by broker. */
   for (i = 0; i < qos_count; i++) {
-    printf("on_subscribe: %d:granted qos = %d\n", i, granted_qos[i]);
     if (granted_qos[i] <= 2) {
       have_subscription = true;
+      printf("[%s:%d]: Subscribed topic, granted qos = %d\n", __func__, __LINE__, granted_qos[i]);
     }
   }
   if (have_subscription == false) {
     /* The broker rejected subscription. */
-    fprintf(stderr, "Error: Subscription rejected.\n");
+    printf("[%s:%d]: Error: Subscription rejected.\n", __func__, __LINE__);
   }
 }
 
@@ -63,14 +64,14 @@ int mqtt_init(mqtt_client_config_t const *const config) {
    */
   mosq = mosquitto_new(config->client_id, true, NULL);
   if (mosq == NULL) {
-    fprintf(stderr, "Error: Mosquitto new, cannot initialize \n");
+    printf("[%s:%d]: Error: Mosquitto new, cannot be initialized.\n", __func__, __LINE__);
     return 1;
   }
   if (config->username != NULL) {
     rc = mosquitto_username_pw_set(mosq, config->username, config->password);
     if (rc != MOSQ_ERR_SUCCESS) {
       mosquitto_destroy(mosq);
-      fprintf(stderr, "Mqtt set username password, Error: %s\n", mosquitto_strerror(rc));
+      printf("[%s:%d]: Mqtt set username password, Error: %s\n", __func__, __LINE__, mosquitto_strerror(rc));
       return 1;
     }
   }
@@ -89,8 +90,8 @@ int mqtt_start(mqtt_client_config_t const *const config) {
   if (rc != MOSQ_ERR_SUCCESS) {
     mosquitto_destroy(mosq);
     mosquitto_lib_cleanup();
-    fprintf(stderr, "Mqtt connect, Error: %s\n", mosquitto_strerror(rc));
-    return 1;
+    printf("[%s:%d]: Mqtt connect, Error: %s\n", __func__, __LINE__, mosquitto_strerror(rc));
+    return -1;
   }
 
   /* Run the network loop in a blocking call. */

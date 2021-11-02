@@ -5,9 +5,13 @@
 #include "client/network/mqtt/mqtt.h"
 
 void callback(res_milestone_latest_t *res) {
-  // To Do Handle Error Cases
-  printf("index :%d, timestamp : %ld\n", res->u.received_milestone_latest->index,
+  if(res->is_error){
+    printf("Error in milestone latest callback : %s\n", res->u.error);
+  }
+  else{
+    printf("index :%d, timestamp : %ld\n", res->u.received_milestone_latest->index,
          res->u.received_milestone_latest->timestamp);
+  }
 }
 
 int main(void){
@@ -16,4 +20,5 @@ int main(void){
   mqtt_init(&mqtt_conf);
   sub_milestone_latest(callback);
   mqtt_start(&mqtt_conf);// This is a blocking call
+  return 0;
 }

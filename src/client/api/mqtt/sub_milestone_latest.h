@@ -33,6 +33,18 @@ extern "C" {
 #endif
 
 /**
+ * @brief Allocates milestone latest response object
+ * @return res_balance_t*
+ */
+res_milestone_latest_t *res_milestone_latest_new(void);
+
+/**
+ * @brief Frees a milestone latest object
+ * @param[in] res A response object
+ */
+void res_milestone_latest_free(res_milestone_latest_t *res);
+
+/**
  * @brief Allocates balance response object
  * @return res_balance_t*
  */
