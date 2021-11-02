@@ -33,14 +33,18 @@ void res_milestone_latest_free(res_milestone_latest_t *res) {
 }
 
 void mqtt_cb_milestone_latest(void *payload) {
+  // Allocates milestone latest response object
+  res_milestone_latest_t *res = res_milestone_latest_new();
+  if (res == NULL) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return;
+  }
+
   cJSON *json_obj = cJSON_Parse((char *)payload);
   if (json_obj == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     goto end;
   }
-
-  // Allocates milestone latest response object
-  res_milestone_latest_t *res = res_milestone_latest_new();
 
   // Parse index
   if ((json_get_uint32(json_obj, JSON_KEY_INDEX, &(res->u.received_milestone_latest->index))) != 0) {
