@@ -1,5 +1,5 @@
 
-// Copyright 2020 IOTA Stiftung
+// Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/mqtt/sub_milestone_latest.h"
