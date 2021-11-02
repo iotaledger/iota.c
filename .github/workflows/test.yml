@@ -18,10 +18,10 @@ jobs:
         sudo apt install -y cppcheck ninja-build libcurl4-openssl-dev clang-format build-essential
 
     - name: Coding style check
-      run: ./tools/ci_format_check src
+      run: ./tools/ci_format_check
 
     - name: Static analysis check
-      run: cppcheck --force --error-exitcode=1 -q src
+      run: cppcheck --force --error-exitcode=1 -q src tests examples
 
     - name: Debug build
       run: |
