@@ -1,9 +1,8 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.
 
-#include "client/network/http.h"
-
 #include <logging/log.h>
+#include <sys/util.h>
 LOG_MODULE_REGISTER(iota_http, CONFIG_IOTA_HTTP_CLIENT_LOG_LEVEL);
 
 #include <net/dns_resolve.h>
@@ -16,42 +15,38 @@ LOG_MODULE_REGISTER(iota_http, CONFIG_IOTA_HTTP_CLIENT_LOG_LEVEL);
 #include "ca_certificate.h"
 #endif
 
+#include "client/network/http.h"
+
+/**
+ * @brief store http body and status code
+ *
+ */
 typedef struct {
   byte_buf_t* buf;
   uint16_t status_code;
 } http_user_data_t;
 
 static const char* http_headers[] = {"Content-Type: application/json\r\n", NULL};
+// http client receiving buffer
 static char recv_buff[CONFIG_IOTA_HTTP_RECV_BUFF_SIZE];
 static char port_text[8];
 
+// http parser on body
+static int on_body(struct http_parser* parser, const char* at, size_t length) {
+  struct http_request* req = CONTAINER_OF(parser, struct http_request, internal.parser);
+  http_user_data_t* user = (http_user_data_t*)req->internal.user_data;
+
+  LOG_DBG("on_body: at %p, len: %d", at, length);
+  byte_buf_append(user->buf, at, length);
+  return 0;
+}
+
+// http client on response callback
 static void response_cb(struct http_response* rsp, enum http_final_call final_data, void* user_data) {
   http_user_data_t* user = (http_user_data_t*)user_data;
-
-  if (final_data == HTTP_DATA_MORE) {
-    LOG_DBG("Partial data received (%d), processed (%d), content (%d)", rsp->data_len, rsp->processed,
-            rsp->content_length);
-    if (rsp->body_found) {
-      if (rsp->body_start) {
-        // header with response body
-        byte_buf_append(user->buf, rsp->body_start, rsp->processed);
-        LOG_DBG("buff append: %d", rsp->processed);
-      } else {
-        // response body
-        byte_buf_append(user->buf, rsp->recv_buf, rsp->data_len);
-        LOG_DBG("buff append: %d", rsp->data_len);
-      }
-    }
-  } else if (final_data == HTTP_DATA_FINAL) {
-    LOG_DBG("All the data received (%d bytes)", rsp->data_len);
-    if (rsp->data_len) {
-      byte_buf_append(user->buf, rsp->recv_buf, rsp->data_len);
-      LOG_DBG("buff append: %d", rsp->data_len);
-    }
-  }
-
   user->status_code = rsp->http_status_code;
-  LOG_DBG("Response status %s", rsp->http_status);
+  memset(recv_buff, 0, sizeof(recv_buff));
+  LOG_DBG("data size: %d, content len: %d, status %s", user->buf->len, rsp->content_length, rsp->http_status);
 }
 
 static int connect_socket(http_client_config_t const* const config) {
@@ -60,7 +55,7 @@ static int connect_socket(http_client_config_t const* const config) {
   int st = 0, sock = 0;
   int ret = -1;
 
-  LOG_DBG("socket connect to %s:%s, tls: %s\n", config->host, port_text, config->use_tls ? "true" : "false");
+  LOG_DBG("socket connect to %s:%s, tls: %s", config->host, port_text, config->use_tls ? "true" : "false");
   if (config->use_tls) {
 #if defined(CONFIG_NET_SOCKETS_SOCKOPT_TLS)
     tls_credential_add(CA_CERTIFICATE_TAG, TLS_CREDENTIAL_CA_CERTIFICATE, ca_certificate, sizeof(ca_certificate));
@@ -154,7 +149,12 @@ int http_client_post(http_client_config_t const* const config, byte_buf_t const*
   // http request
   struct http_request req = {};
   http_user_data_t user_data = {.buf = response, .status_code = 0};
+  // http parser configuration
+  struct http_parser_settings parser_settings = {};
+  parser_settings.on_body = on_body;
 
+  // http request configuration
+  req.http_cb = &parser_settings;
   req.method = HTTP_POST;
   req.host = config->host;
   req.port = port_text;
@@ -167,6 +167,7 @@ int http_client_post(http_client_config_t const* const config, byte_buf_t const*
   req.recv_buf = recv_buff;
   req.recv_buf_len = sizeof(recv_buff);
 
+  // sent http request with timeout.
   ret = http_client_req(sock, &req, 3 * MSEC_PER_SEC, &user_data);
   if (ret <= 0) {
     LOG_ERR("http sent request failed");
@@ -196,7 +197,12 @@ int http_client_get(http_client_config_t const* const config, byte_buf_t* const 
   // http request
   struct http_request req = {};
   http_user_data_t user_data = {.buf = response, .status_code = 0};
+  // http parser configuration
+  struct http_parser_settings parser_settings = {};
+  parser_settings.on_body = on_body;
 
+  // http request configuration
+  req.http_cb = &parser_settings;
   req.method = HTTP_GET;
   req.host = config->host;
   req.port = port_text;
@@ -207,6 +213,7 @@ int http_client_get(http_client_config_t const* const config, byte_buf_t* const 
   req.recv_buf = recv_buff;
   req.recv_buf_len = sizeof(recv_buff);
 
+  // sent http request with timeout.
   ret = http_client_req(sock, &req, 3 * MSEC_PER_SEC, &user_data);
   if (ret <= 0) {
     LOG_ERR("http sent request failed");
