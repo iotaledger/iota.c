@@ -2,7 +2,7 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/mqtt/sub_milestone_latest.h"
+#include "client/api/events/sub_milestone_latest.h"
 #include <stdlib.h>
 #include "client/api/json_utils.h"
 #include "client/network/mqtt/mqtt.h"
@@ -32,7 +32,7 @@ void res_milestone_latest_free(res_milestone_latest_t *res) {
   }
 }
 
-void mqtt_cb_milestone_latest(void *payload) {
+res_milestone_latest_t deser_milestone_latest(char *data) {
   // Allocates milestone latest response object
   res_milestone_latest_t *res = res_milestone_latest_new();
   if (res == NULL) {
@@ -40,7 +40,7 @@ void mqtt_cb_milestone_latest(void *payload) {
     return;
   }
 
-  cJSON *json_obj = cJSON_Parse((char *)payload);
+  cJSON *json_obj = cJSON_Parse((char *)data);
   if (json_obj == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     goto end;
@@ -76,7 +76,7 @@ end:
 }
 
 int sub_milestone_latest(void (*callback)(res_milestone_latest_t *)) {
-  mqtt_subscribe("milestones/latest", mqtt_cb_milestone_latest, 1);
+  // mqtt_subscribe("milestones/latest", mqtt_cb_milestone_latest, 1);
   milestone_latest_cb = callback;
   return 0;
 }

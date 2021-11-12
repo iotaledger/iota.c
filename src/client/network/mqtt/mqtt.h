@@ -25,14 +25,16 @@ typedef struct {
 } mqtt_client_config_t;
 
 typedef struct {
-  char *topic;                      ///< topic sctring, support wild cards
-  void (*callback)(void *payload);  ///< Callback function assosiated with the topic
+  char *topic;  ///< topic string, support wild cards
+  int qos;      ///< QOS to be used for the topic
 } sub_topic_t;
 
 typedef struct {
   int topic_count;                               ///< Total subscribed topic count update variable
   sub_topic_t sub_topic_array[MAX_TOPIC_COUNT];  ///< Buffer enough for holding total topics to subscribe
 } sub_topic_list_t;
+
+typedef struct mqtt_client *mqtt_client_handle_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,33 +43,34 @@ extern "C" {
 /**
  * @brief Initialize mqtt clients and call backs.
  *
- * @return int 0 on success
+ * @param[in] config client config
+ * @return mqtt_client_handle_t
  */
-int mqtt_init(mqtt_client_config_t const *const config);
+mqtt_client_handle_t mqtt_init(mqtt_client_config_t *config);
 
 /**
  * @brief Connects to mqtt broker
  *
- * @param[in] config mqtt server config
+ * @param[in] client client instance
  * @return int 0 on success
  */
-int mqtt_start(mqtt_client_config_t const *const config);
+int mqtt_start(mqtt_client_handle_t client);
 
 /**
  * @brief Subscribe to a topic and register callback
  *
+ * @param[in] client client instance
  * @param[in] topic topic for subscribing, support wildcards
- * @param[in] callback callback when a message arrived in the specified topic
  * @param[in] qos Quality of Service for the subscription
  * @return int 0 on success
  */
-int mqtt_subscribe(char *topic, void (*callback)(void *), int qos);
+int mqtt_subscribe(mqtt_client_handle_t client, char *topic, int qos);
 
 /** @brief Disconnect mqtt broker
  *
  * @return int 0 on success
  */
-int mqtt_stop(void);
+int mqtt_destroy(mqtt_client_handle_t client);
 
 #ifdef __cplusplus
 }
