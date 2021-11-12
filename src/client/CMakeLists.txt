@@ -51,8 +51,10 @@ if(MQTT_CLIENT_ENABLE)
   target_sources(
     iota_client
     PRIVATE "network/mqtt/mqtt_mosquitto.c"
+            "api/events/node_event.c"
             "api/events/sub_milestone_latest.c"
     PUBLIC  "network/mqtt/mqtt.h"
+            "api/events/node_event.h"
             "api/events/sub_milestone_latest.h"
   )
 endif()

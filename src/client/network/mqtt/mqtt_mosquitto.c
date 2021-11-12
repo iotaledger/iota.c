@@ -22,11 +22,11 @@ void on_mqtt_connect(struct mosquitto *mosq, void *client, int reason_code) {
     /* Making subscriptions in the on_connect() callback means that if the
      * connection drops and is automatically resumed by the client, then the
      * subscriptions will be recreated when the client reconnects. */
-    for (int i = 0; i < (*(mqtt_client_handle_t *)client)->topic_list.topic_count; i++) {
+    for (int i = 0; i < ((mqtt_client_handle_t)client)->topic_list.topic_count; i++) {
       printf("[%s:%d]: Trying to subscribe topic : %s\n", __func__, __LINE__,
-             (*(mqtt_client_handle_t *)client)->topic_list.sub_topic_array[i].topic);
-      rc = mosquitto_subscribe(mosq, NULL, (*(mqtt_client_handle_t *)client)->topic_list.sub_topic_array[i].topic,
-                               (*(mqtt_client_handle_t *)client)->topic_list.sub_topic_array[i].qos);
+             ((mqtt_client_handle_t)client)->topic_list.sub_topic_array[i].topic);
+      rc = mosquitto_subscribe(mosq, NULL, ((mqtt_client_handle_t)client)->topic_list.sub_topic_array[i].topic,
+                               ((mqtt_client_handle_t)client)->topic_list.sub_topic_array[i].qos);
       if (rc != MOSQ_ERR_SUCCESS) {
         printf("[%s:%d]: Error subscribing: %s\n", __func__, __LINE__, mosquitto_strerror(rc));
       }
@@ -81,7 +81,7 @@ mqtt_client_handle_t mqtt_init(mqtt_client_config_t *config) {
    * clean session = true -> the broker should remove old sessions when we connect
    * obj = client -> client instance to be used in callback functions
    */
-  client->mosq = mosquitto_new(client->config->client_id, true, &client);
+  client->mosq = mosquitto_new(client->config->client_id, true, client);
   if (client->mosq == NULL) {
     printf("[%s:%d]: Error: Mosquitto new, cannot be initialized.\n", __func__, __LINE__);
     goto end;
@@ -145,5 +145,7 @@ int mqtt_destroy(mqtt_client_handle_t client) {
   mosquitto_destroy(client->mosq);
   // Call to free resources associated with the library.
   mosquitto_lib_cleanup();
+  // Free client insatnce
+  free(client);
   return 0;
 }
