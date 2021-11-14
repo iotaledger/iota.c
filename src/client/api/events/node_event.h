@@ -60,7 +60,7 @@ typedef struct event_client *event_client_handle_t;
 typedef struct {
   event_client_event_id_t event_id; /*!< MQTT event type */
   event_client_handle_t client;     /*!< MQTT client handle for this event */
-  char *data;                       /*!< Data associated with this event */
+  void *data;                       /*!< Data associated with this event */
   int data_len;                     /*!< Length of the data for this event */
   char *topic;                      /*!< Topic associated with this event */
   int topic_len;                    /*!< Length of the topic associated with this event */
@@ -70,12 +70,6 @@ typedef struct {
 } event_client_event_t;
 
 /**
- * @brief Event configuration structure handle
- *
- */
-typedef event_client_event_t *event_client_event_handle_t;
-
-/**
  * @brief Initialize events api mqtt library
  *
  * @param[in] config Mqtt client config paramters
@@ -83,14 +77,33 @@ typedef event_client_event_t *event_client_event_handle_t;
 event_client_handle_t event_init(event_client_config_t *config);
 
 /**
- * @brief Subscribe for a mqtt topic
+ * @brief Set event callback function
  *
  * @param[in] client Event client instance
+ * @param[in] callback Event callback function pointer
+ */
+int event_register_cb(event_client_handle_t client, void (*callback)(event_client_event_t *event));
+
+/**
+ * @brief Subscribe to a mqtt topic
+ *
+ * @param[in] client Event client instance
+ * @param[in] mid if not NULL, mid will be set as the message id for the subscription topic
  * @param[in] topic Mqtt topic to subscribe
  * @param[in] qos QoS level to be used with the topic
  * @return 0 if Success
  */
-int event_subscribe(event_client_handle_t client, char *topic, int qos);
+int event_subscribe(event_client_handle_t client, int *mid, char *topic, int qos);
+
+/**
+ * @brief Unubscribe a mqtt topic
+ *
+ * @param[in] client Event client instance
+ * @param[in] mid if not NULL, mid will be set as the message id for the subscription topic
+ * @param[in] topic Mqtt topic to subscribe
+ * @return 0 if Success
+ */
+int event_unsubscribe(event_client_handle_t client, int *mid, char *topic);
 
 /**
  * @brief Star mqtt connection

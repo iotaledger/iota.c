@@ -10,7 +10,8 @@
 struct mqtt_client {
   struct mosquitto *mosq;
   mqtt_client_config_t *config;
-  sub_topic_list_t topic_list;
+  void (*mqtt_callback)(mqtt_client_event_t *event, void *userdata);
+  void *cb_userdata;
 };
 
 /* Callback called when the client receives a CONNACK message from the broker. */
@@ -18,24 +19,22 @@ void on_mqtt_connect(struct mosquitto *mosq, void *client, int reason_code) {
   int rc;
   /* Print out the connection result.*/
   printf("[%s:%d]: Connect Mqtt: %s\n", __func__, __LINE__, mosquitto_connack_string(reason_code));
+  // Create an event with eventid corresponding to Mqtt Connected
+  mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
   if (reason_code == 0) {
-    /* Making subscriptions in the on_connect() callback means that if the
-     * connection drops and is automatically resumed by the client, then the
-     * subscriptions will be recreated when the client reconnects. */
-    for (int i = 0; i < ((mqtt_client_handle_t)client)->topic_list.topic_count; i++) {
-      printf("[%s:%d]: Trying to subscribe topic : %s\n", __func__, __LINE__,
-             ((mqtt_client_handle_t)client)->topic_list.sub_topic_array[i].topic);
-      rc = mosquitto_subscribe(mosq, NULL, ((mqtt_client_handle_t)client)->topic_list.sub_topic_array[i].topic,
-                               ((mqtt_client_handle_t)client)->topic_list.sub_topic_array[i].qos);
-      if (rc != MOSQ_ERR_SUCCESS) {
-        printf("[%s:%d]: Error subscribing: %s\n", __func__, __LINE__, mosquitto_strerror(rc));
-      }
-    }
+    mqtt_event->event_id = MQTT_CONNECTED;
+  } else {
+    mqtt_event->event_id = MQTT_ERROR;
+    char *con_ack = mosquitto_connack_string(reason_code);
+    mqtt_event->data_len = strlen(con_ack);
+    mqtt_event->data = con_ack;
   }
+  (((mqtt_client_handle_t)client)->mqtt_callback)(mqtt_event, ((mqtt_client_handle_t)client)->cb_userdata);
+  free(mqtt_event);
 }
 
 /* Callback called when the broker sends a SUBACK in response to a SUBSCRIBE. */
-void on_mqtt_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_count, const int *granted_qos) {
+void on_mqtt_subscribe(struct mosquitto *mosq, void *client, int mid, int qos_count, const int *granted_qos) {
   int i;
   bool have_subscription = false;
 
@@ -43,7 +42,13 @@ void on_mqtt_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_count
   for (i = 0; i < qos_count; i++) {
     if (granted_qos[i] <= 2) {
       have_subscription = true;
-      printf("[%s:%d]: Subscribed topic, granted qos = %d\n", __func__, __LINE__, granted_qos[i]);
+      // Create an event with eventid corresponding to Mqtt Subscribed
+      mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
+      mqtt_event->event_id = MQTT_SUBSCRIBED;
+      mqtt_event->msg_id = mid;
+      mqtt_event->qos = granted_qos[i];
+      (((mqtt_client_handle_t)client)->mqtt_callback)(mqtt_event, ((mqtt_client_handle_t)client)->cb_userdata);
+      free(mqtt_event);
     }
   }
   if (have_subscription == false) {
@@ -52,10 +57,37 @@ void on_mqtt_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_count
   }
 }
 
+/* Callback called when a topic is unsubscribed. */
+void on_mqtt_unsubscribe(struct mosquitto *mosq, void *client, int mid) {
+  mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
+  mqtt_event->event_id = MQTT_UNSUBSCRIBED;
+  mqtt_event->msg_id = mid;
+  (((mqtt_client_handle_t)client)->mqtt_callback)(mqtt_event, ((mqtt_client_handle_t)client)->cb_userdata);
+  free(mqtt_event);
+}
+
 /* Callback called when the client receives a message. */
 void on_mqtt_message(struct mosquitto *mosq, void *client, const struct mosquitto_message *msg) {
-  /* Handling call back functions*/
-  printf("Received message : %s \n", (char *)msg->payload);
+  /* Pass data to callback function */
+  mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
+  mqtt_event->event_id = MQTT_DATA;
+  mqtt_event->topic_len = strlen(msg->topic);
+  mqtt_event->topic = msg->topic;
+  mqtt_event->data_len = msg->payloadlen;
+  mqtt_event->data = msg->payload;
+  mqtt_event->msg_id = msg->mid;
+  mqtt_event->qos = msg->qos;
+  mqtt_event->retain = msg->retain;
+  (((mqtt_client_handle_t)client)->mqtt_callback)(mqtt_event, ((mqtt_client_handle_t)client)->cb_userdata);
+  free(mqtt_event);
+}
+
+void on_mqtt_disconnect(struct mosquitto *mosq, void *client, int mid) {
+  mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
+  mqtt_event->event_id = MQTT_DISCONNECTED;
+  mqtt_event->msg_id = mid;
+  (((mqtt_client_handle_t)client)->mqtt_callback)(mqtt_event, ((mqtt_client_handle_t)client)->cb_userdata);
+  free(mqtt_event);
 }
 
 mqtt_client_handle_t mqtt_init(mqtt_client_config_t *config) {
@@ -97,15 +129,41 @@ mqtt_client_handle_t mqtt_init(mqtt_client_config_t *config) {
   /* Configure callbacks. This should be done before connecting ideally. */
   mosquitto_connect_callback_set(client->mosq, on_mqtt_connect);
   mosquitto_subscribe_callback_set(client->mosq, on_mqtt_subscribe);
+  mosquitto_unsubscribe_callback_set(client->mosq, on_mqtt_unsubscribe);
   mosquitto_message_callback_set(client->mosq, on_mqtt_message);
-  // Clear topic count
-  client->topic_list.topic_count = 0;
+  mosquitto_disconnect_callback_set(client->mosq, on_disconnect);
   return client;
 
 end:
   free(client);
   return NULL;
 }
+
+int mqtt_register_cb(mqtt_client_handle_t client, void (*callback)(mqtt_client_event_t *event, void *userdata),
+                     void *userdata) {
+  client->mqtt_callback = callback;
+  client->cb_userdata = userdata;
+}
+
+int mqtt_subscribe(mqtt_client_handle_t client, int *mid, char *topic, int qos) {
+  int rc = mosquitto_subscribe(client->mosq, mid, topic, qos);
+  if (rc != MOSQ_ERR_SUCCESS) {
+    printf("[%s:%d]: Error subscribing: %s\n", __func__, __LINE__, mosquitto_strerror(rc));
+    return -1;
+  }
+  return 0;
+}
+
+int mqtt_unsubscribe(mqtt_client_handle_t client, int *mid, char *topic) {
+  int rc = mosquitto_unsubscribe(client->mosq, mid, topic);
+  if (rc != MOSQ_ERR_SUCCESS) {
+    printf("[%s:%d]: Error unsubscribing: %s\n", __func__, __LINE__, mosquitto_strerror(rc));
+    return -1;
+  }
+  return 0;
+}
+
+void mqtt_disconnect(mqtt_client_handle_t client, int mid) { return on_mqtt_disconnect(client->mosq, client, mid); }
 
 int mqtt_start(mqtt_client_handle_t client) {
   int rc;
@@ -125,20 +183,7 @@ int mqtt_start(mqtt_client_handle_t client) {
   return 0;
 }
 
-int mqtt_subscribe(mqtt_client_handle_t client, char *topic, int qos) {
-  client->topic_list.topic_count++;
-  if (client->topic_list.topic_count > MAX_TOPIC_COUNT) {
-    printf("[%s:%d]: Error : Max topic count reached.\n", __func__, __LINE__);
-    return -1;
-  }
-  client->topic_list.sub_topic_array[client->topic_list.topic_count - 1].topic = topic;
-  client->topic_list.sub_topic_array[client->topic_list.topic_count - 1].qos = qos;
-  return 0;
-}
-
 int mqtt_destroy(mqtt_client_handle_t client) {
-  // Clear topic count
-  client->topic_list.topic_count = 0;
   // Disconnect from the broker.
   mosquitto_disconnect(client->mosq);
   // Call to free memory associated with a mosquitto client instance.
