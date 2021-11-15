@@ -131,7 +131,7 @@ mqtt_client_handle_t mqtt_init(mqtt_client_config_t *config) {
   mosquitto_subscribe_callback_set(client->mosq, on_mqtt_subscribe);
   mosquitto_unsubscribe_callback_set(client->mosq, on_mqtt_unsubscribe);
   mosquitto_message_callback_set(client->mosq, on_mqtt_message);
-  mosquitto_disconnect_callback_set(client->mosq, on_disconnect);
+  mosquitto_disconnect_callback_set(client->mosq, on_mqtt_disconnect);
   return client;
 
 end:

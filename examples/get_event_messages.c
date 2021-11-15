@@ -2,38 +2,54 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/events/node_event.h"
+#include "client/api/events/sub_milestone_latest.h"
+#include "string.h"
+
+void process_event_data(event_client_event_t *event);
 
 void callback(event_client_event_t *event) {
   switch (event->event_id) {
     case NODE_EVENT_ERROR:
-      printf("[%s:%d]: Node event network error : %s\n", __func__, __LINE__, (char *)event->data);
+      printf("Node event network error : %s\n", (char *)event->data);
       break;
     case NODE_EVENT_CONNECTED:
-      printf("[%s:%d]: Node event network connected\n", __func__, __LINE__);
+      printf("Node event network connected\n");
       /* Making subscriptions in the on_connect() callback means that if the
        * connection drops and is automatically resumed by the client, then the
        * subscriptions will be recreated when the client reconnects. */
       event_subscribe(event->client, NULL, "milestones/latest", 1);
       break;
     case NODE_EVENT_DISCONNECTED:
-      printf("[%s:%d]: Node event vetwork disonnected\n", __func__, __LINE__);
+      printf("Node event vetwork disonnected\n");
       break;
     case NODE_EVENT_SUBSCRIBED:
-      printf("[%s:%d]: Subscribed topic, granted qos = %d\n", __func__, __LINE__, event->qos);
+      printf("Subscribed topic, granted qos = %d\n", event->qos);
       break;
     case NODE_EVENT_UNSUBSCRIBED:
-      printf("[%s:%d]: Un Subscribed topic\n", __func__, __LINE__);
+      printf("Unsubscribed topic\n");
       break;
     case NODE_EVENT_PUBLISHED:
       // To Do : Handle publish callback
       break;
     case NODE_EVENT_DATA:
-      printf("[%s:%d]: Message arrived\n Topic : %s\n Message : %s\n", __func__, __LINE__, event->topic,
-             (char *)event->data);
-      // To Do : Parse Data
+      printf("Message arrived\nTopic : %s\n", event->topic);
+      process_event_data(event);
       break;
     default:
       break;
+  }
+}
+
+void process_event_data(event_client_event_t *event) {
+  if (!strcmp(event->topic, "milestones/latest")) {
+    milestone_latest_t *res = res_milestone_latest_new();
+    if (res == NULL) {
+      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      return;
+    }
+    parse_milestone_latest((char *)event->data, res);
+    printf("Index :%u\nTimestamp : %lu\n", res->index, res->timestamp);
+    res_milestone_latest_free(res);
   }
 }
 

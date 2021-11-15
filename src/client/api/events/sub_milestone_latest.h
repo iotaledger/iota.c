@@ -16,18 +16,6 @@ typedef struct {
   uint32_t index;
 } milestone_latest_t;
 
-/**
- * @brief The response argumet for callback
- *
- */
-typedef struct {
-  bool is_error;  ///< True if error occured
-  union {
-    char *error;                                    ///< Error message if is_error is True
-    milestone_latest_t *received_milestone_latest;  ///< a balance object if is_error is False
-  } u;
-} res_milestone_latest_t;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,19 +24,21 @@ extern "C" {
  * @brief Allocates milestone latest response object
  * @return res_balance_t*
  */
-res_milestone_latest_t *res_milestone_latest_new(void);
+milestone_latest_t *res_milestone_latest_new(void);
 
 /**
  * @brief Frees a milestone latest object
  * @param[in] res A response object
  */
-void res_milestone_latest_free(res_milestone_latest_t *res);
+void res_milestone_latest_free(milestone_latest_t *res);
 
 /**
  * @brief Allocates balance response object
- * @return res_balance_t*
+ * @param[in] data Data to parse
+ * @param[out] res Parsed response object
+ * @return 0 if success
  */
-int sub_milestone_latest(void (*callback)(res_milestone_latest_t *));
+int parse_milestone_latest(char *data, milestone_latest_t *res);
 
 #ifdef __cplusplus
 }
