@@ -20,7 +20,7 @@ void callback(event_client_event_t *event) {
       event_subscribe(event->client, NULL, "milestones/latest", 1);
       break;
     case NODE_EVENT_DISCONNECTED:
-      printf("Node event vetwork disonnected\n");
+      printf("Node event network disonnected\n");
       break;
     case NODE_EVENT_SUBSCRIBED:
       printf("Subscribed topic, granted qos = %d\n", event->qos);

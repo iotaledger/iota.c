@@ -16,7 +16,6 @@ struct mqtt_client {
 
 /* Callback called when the client receives a CONNACK message from the broker. */
 void on_mqtt_connect(struct mosquitto *mosq, void *client, int reason_code) {
-  int rc;
   /* Print out the connection result.*/
   printf("[%s:%d]: Connect Mqtt: %s\n", __func__, __LINE__, mosquitto_connack_string(reason_code));
   // Create an event with eventid corresponding to Mqtt Connected
@@ -25,9 +24,9 @@ void on_mqtt_connect(struct mosquitto *mosq, void *client, int reason_code) {
     mqtt_event->event_id = MQTT_CONNECTED;
   } else {
     mqtt_event->event_id = MQTT_ERROR;
-    char *con_ack = mosquitto_connack_string(reason_code);
+    const char *con_ack = mosquitto_connack_string(reason_code);
     mqtt_event->data_len = strlen(con_ack);
-    mqtt_event->data = con_ack;
+    mqtt_event->data = (void *)con_ack;
   }
   (((mqtt_client_handle_t)client)->mqtt_callback)(mqtt_event, ((mqtt_client_handle_t)client)->cb_userdata);
   free(mqtt_event);
@@ -190,7 +189,7 @@ int mqtt_destroy(mqtt_client_handle_t client) {
   mosquitto_destroy(client->mosq);
   // Call to free resources associated with the library.
   mosquitto_lib_cleanup();
-  // Free client insatnce
+  // Free client instance
   free(client);
   return 0;
 }
