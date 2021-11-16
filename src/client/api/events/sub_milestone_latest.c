@@ -10,7 +10,7 @@ milestone_latest_t *res_milestone_latest_new(void) {
   milestone_latest_t *res = (milestone_latest_t *)malloc(sizeof(milestone_latest_t));
   if (res == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return;
+    return NULL;
   }
   return res;
 }
