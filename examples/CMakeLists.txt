@@ -26,3 +26,7 @@ if(IOTA_WALLET_ENABLE)
   add_iota_example(wallet_get_balance "wallet_get_balance.c")
   add_iota_example(wallet_list_addresses "wallet_list_addresses.c")
 endif()
+
+if(MQTT_CLIENT_ENABLE)
+  add_iota_example(get_event_messages "get_event_messages.c")
+endif()

@@ -44,7 +44,20 @@ target_sources(
          "api/v1/send_message.h"
          "api/v1/find_message.h"
          "api/v1/get_outputs_from_address.h"
-         "client_service.h")
+         "client_service.h"
+         )
+
+if(MQTT_CLIENT_ENABLE)
+  target_sources(
+    iota_client
+    PRIVATE "network/mqtt/mqtt_mosquitto.c"
+            "api/events/node_event.c"
+            "api/events/sub_milestone_latest.c"
+    PUBLIC  "network/mqtt/mqtt.h"
+            "api/events/node_event.h"
+            "api/events/sub_milestone_latest.h"
+  )
+endif()
 
 target_include_directories(
   iota_client PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CURL_INCLUDE_DIRS}"
@@ -57,6 +70,12 @@ target_link_libraries(
   iota_client
   INTERFACE ${CURL_LIBRARIES} cjson
   PUBLIC iota_core)
+
+if(MQTT_CLIENT_ENABLE)
+target_link_libraries(
+    iota_client
+    PUBLIC mosquitto_static)
+endif()
 
 # install client lib and headers
 install(TARGETS iota_client DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
