@@ -20,6 +20,8 @@ option(IOTA_WALLET_ENABLE "Enable simple wallet API" ON)
 option(MQTT_CLIENT_ENABLE "Enable MQTT Event APIs" OFF)
 # Enable for reducing the application binary size
 option(BIP39_ENGLISH_ONLY "Support English mnemonic only" OFF)
+option(WITH_IOTA_CLIENT "Build library with client module" OFF)
+option(WITH_IOTA_CORE "Build library with core module" OFF)
 
 set(MainCryptoLibs "openssl" "libsodium" "mbedtls")
 set(CryptoUse
@@ -31,12 +33,32 @@ if(NOT CryptoUse IN_LIST MainCryptoLibs)
   message(FATAL_ERROR "CryptoUse must be one of ${MainCryptoLibs}")
 endif()
 
+if(IOTA_WALLET_ENABLE OR MQTT_CLIENT_ENABLE)
+  set(WITH_IOTA_CLIENT ON)
+  set(WITH_IOTA_CORE ON)
+elseif(WITH_IOTA_CLIENT)
+  message("Build with Client/Core/Crypto module")
+  set(WITH_IOTA_CORE ON)
+elseif(WITH_IOTA_CORE)
+  message("Build with Core/Crypto module")
+else()
+  message("Build with Crypto module only")
+endif()
+
 # fetch external libs
 include(ExternalProject)
 
+if(IOTA_TESTS)
 include(cmake/unity.cmake)
+endif()
+
+if(WITH_IOTA_CLIENT)
 include(cmake/cjson.cmake)
+endif()
+
+if(WITH_IOTA_CORE)
 include(cmake/uthash.cmake)
+endif()
 
 # cryptography libs comparison https://en.wikipedia.org/wiki/Comparison_of_cryptography_libraries
 if(CryptoUse STREQUAL "openssl")
@@ -62,7 +84,7 @@ if(IOTA_WALLET_ENABLE)
 endif()
 
 if(MQTT_CLIENT_ENABLE)
-  message("Enable Mqtt Client")
+  message("Enable MQTT Client")
   include(cmake/mosquitto.cmake)
 endif()
 
@@ -98,7 +120,9 @@ if(IOTA_ASAN_ENABLED)
   endif()
 endif()
 
-find_package(CURL REQUIRED)
+if(WITH_IOTA_CLIENT)
+  find_package(CURL REQUIRED)
+endif()
 
 # links libraries in the sandbox
 link_directories("${CMAKE_INSTALL_PREFIX}/lib")
@@ -109,6 +133,6 @@ if(IOTA_TESTS)
   add_subdirectory(tests)
 endif()
 
-if(IOTA_EXAMPLES)
+if(IOTA_EXAMPLES AND WITH_IOTA_CLIENT)
   add_subdirectory(examples)
 endif()

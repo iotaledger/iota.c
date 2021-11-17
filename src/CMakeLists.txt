@@ -3,10 +3,16 @@
 // SPDX-License-Identifier: Apache-2.0
 ]]
 
-add_subdirectory(core)
-add_subdirectory(client)
-add_subdirectory(crypto)
-
 if(IOTA_WALLET_ENABLE)
 	add_subdirectory(wallet)
 endif(IOTA_WALLET_ENABLE)
+
+if(WITH_IOTA_CLIENT)
+	add_subdirectory(client)
+endif()
+
+if(WITH_IOTA_CORE)
+	add_subdirectory(core)
+endif()
+
+add_subdirectory(crypto)
