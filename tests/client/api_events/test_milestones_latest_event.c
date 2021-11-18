@@ -61,7 +61,7 @@ void callback(event_client_event_t *event) {
     case NODE_EVENT_DATA:
       printf("Message arrived\nTopic : %s\n", event->topic);
       process_event_data(event);
-      TEST_ASSERT_EQUAL_INT(0, event_destroy(event->client));
+      TEST_ASSERT_EQUAL_INT(0, event_stop(event->client));
       break;
     default:
       break;
@@ -75,6 +75,7 @@ void test_milestone_latest_events(void) {
   TEST_ASSERT_NOT_NULL(client);
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
+  TEST_ASSERT_EQUAL_INT(0, event_destroy(client));
 }
 
 int main() {
