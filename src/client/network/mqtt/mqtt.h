@@ -120,10 +120,9 @@ int mqtt_start(mqtt_client_handle_t client);
  * @brief Disconnects from mqtt broker
  *
  * @param[in] client client instance
- * @param[in] mid if not NULL, mid will be set as the message id for the disconnect method
  * @return int 0 on success
  */
-void mqtt_disconnect(mqtt_client_handle_t client, int mid);
+int mqtt_stop(mqtt_client_handle_t client);
 
 /** @brief Disconnect mqtt broker
  *

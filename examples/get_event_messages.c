@@ -59,5 +59,6 @@ int main(void) {
   event_client_handle_t client = event_init(&config);
   event_register_cb(client, &callback);
   event_start(client);
+  event_destroy(client);
   return 0;
 }

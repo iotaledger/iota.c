@@ -162,8 +162,6 @@ int mqtt_unsubscribe(mqtt_client_handle_t client, int *mid, char *topic) {
   return 0;
 }
 
-void mqtt_disconnect(mqtt_client_handle_t client, int mid) { return on_mqtt_disconnect(client->mosq, client, mid); }
-
 int mqtt_start(mqtt_client_handle_t client) {
   int rc;
   /* Connect mqtt with the specified url, port and keep alive time. */
@@ -179,6 +177,12 @@ int mqtt_start(mqtt_client_handle_t client) {
   mosquitto_loop_forever(client->mosq, -1, 1);
 
   mosquitto_lib_cleanup();
+  return 0;
+}
+
+int mqtt_stop(mqtt_client_handle_t client) {
+  // Disconnect from the broker.
+  mosquitto_disconnect(client->mosq);
   return 0;
 }
 

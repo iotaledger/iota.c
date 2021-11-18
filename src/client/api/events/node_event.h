@@ -114,6 +114,14 @@ int event_unsubscribe(event_client_handle_t client, int *mid, char *topic);
 int event_start(event_client_handle_t client);
 
 /**
+ * @brief Mqtt disconnect
+ *
+ * @param[in] client Event client instance
+ * @return 0 if Success
+ */
+int event_stop(event_client_handle_t client);
+
+/**
  * @brief Destroy event intance
  *
  * @param[in] client Event client instance

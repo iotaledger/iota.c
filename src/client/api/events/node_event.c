@@ -132,6 +132,11 @@ int event_start(event_client_handle_t client) {
   return mqtt_start(client->mqtt_client);
 }
 
+int event_stop(event_client_handle_t client) {
+  // Call to mqtt network layer
+  return mqtt_stop(client->mqtt_client);
+}
+
 int event_destroy(event_client_handle_t client) {
   mqtt_destroy(client->mqtt_client);
   free(client);
