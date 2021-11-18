@@ -65,6 +65,10 @@ if(WITH_IOTA_CLIENT)
   add_iota_test("client/api_v1/test_message_children.c" client_message_children)
 endif()
 
+if(MQTT_CLIENT_ENABLE)
+  add_iota_test("client/api_events/test_milestones_latest_event.c" test_milestones_latest_event)
+endif()
+
 # Wallet APIs
 if(IOTA_WALLET_ENABLE)
   add_executable(test_wallet_api "wallet/test_wallet.c")
