@@ -18,7 +18,7 @@ struct mqtt_client {
 void on_mqtt_connect(struct mosquitto *mosq, void *client, int reason_code) {
   /* Print out the connection result.*/
   printf("[%s:%d]: Connect Mqtt: %s\n", __func__, __LINE__, mosquitto_connack_string(reason_code));
-  // Create an event with eventid corresponding to Mqtt Connected
+  // Create an event with eventid corresponding to MQTT Connected
   mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
   if (reason_code == 0) {
     mqtt_event->event_id = MQTT_CONNECTED;
@@ -41,7 +41,7 @@ void on_mqtt_subscribe(struct mosquitto *mosq, void *client, int mid, int qos_co
   for (i = 0; i < qos_count; i++) {
     if (granted_qos[i] <= 2) {
       have_subscription = true;
-      // Create an event with eventid corresponding to Mqtt Subscribed
+      // Create an event with eventid corresponding to MQTT Subscribed
       mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
       mqtt_event->event_id = MQTT_SUBSCRIBED;
       mqtt_event->msg_id = mid;
@@ -162,11 +162,9 @@ int mqtt_unsubscribe(mqtt_client_handle_t client, int *mid, char *topic) {
   return 0;
 }
 
-void mqtt_disconnect(mqtt_client_handle_t client, int mid) { return on_mqtt_disconnect(client->mosq, client, mid); }
-
 int mqtt_start(mqtt_client_handle_t client) {
   int rc;
-  /* Connect mqtt with the specified url, port and keep alive time. */
+  /* Connect MQTT with the specified url, port and keep alive time. */
   rc = mosquitto_connect(client->mosq, client->config->host, client->config->port, client->config->keepalive);
   if (rc != MOSQ_ERR_SUCCESS) {
     mosquitto_destroy(client->mosq);
@@ -179,6 +177,12 @@ int mqtt_start(mqtt_client_handle_t client) {
   mosquitto_loop_forever(client->mosq, -1, 1);
 
   mosquitto_lib_cleanup();
+  return 0;
+}
+
+int mqtt_stop(mqtt_client_handle_t client) {
+  // Disconnect from the broker.
+  mosquitto_disconnect(client->mosq);
   return 0;
 }
 

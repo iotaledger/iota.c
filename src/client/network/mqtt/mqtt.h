@@ -5,7 +5,7 @@
 #define __CLIENT_NETWORK_MQTT_H__
 
 /**
- * @brief Abstract layer of mqtt client for IOTA client
+ * @brief Abstract layer of MQTT client for IOTA client
  *
  */
 
@@ -14,7 +14,7 @@
 #include <stdio.h>
 
 /**
- * @brief Event ids for handling mqtt events
+ * @brief Event ids for handling MQTT events
  *
  */
 typedef enum {
@@ -35,7 +35,7 @@ typedef enum {
 } mqtt_event_id_t;
 
 /**
- * @brief Event ids for handling mqtt events
+ * @brief Event ids for handling MQTT events
  *
  */
 typedef struct {
@@ -54,8 +54,8 @@ typedef struct {
  *
  */
 typedef struct {
-  char const *host;       ///< Mqtt host url
-  uint16_t port;          ///< Mqtt port to connect, usually it is 1883
+  char const *host;       ///< MQTT host url
+  uint16_t port;          ///< MQTT port to connect, usually it is 1883
   const char *client_id;  ///< The client id to use, or NULL if a random client id should be generated
   uint8_t keepalive;      ///< The number of seconds after which the broker should send a PING message to the client
   const char *username;   ///< The username string, or NULL for no username authentication
@@ -69,7 +69,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Initialize mqtt clients and call backs.
+ * @brief Initialize MQTT clients and call backs.
  *
  * @param[in] config client config
  * @return mqtt_client_handle_t
@@ -77,7 +77,7 @@ extern "C" {
 mqtt_client_handle_t mqtt_init(mqtt_client_config_t *config);
 
 /**
- * @brief Connects to mqtt broker
+ * @brief Connects to MQTT broker
  *
  * @param[in] client client instance
  * @param[in] callback callback function
@@ -109,7 +109,7 @@ int mqtt_subscribe(mqtt_client_handle_t client, int *mid, char *topic, int qos);
 int mqtt_unsubscribe(mqtt_client_handle_t client, int *mid, char *topic);
 
 /**
- * @brief Connects to mqtt broker
+ * @brief Connects to MQTT broker
  *
  * @param[in] client client instance
  * @return int 0 on success
@@ -117,15 +117,14 @@ int mqtt_unsubscribe(mqtt_client_handle_t client, int *mid, char *topic);
 int mqtt_start(mqtt_client_handle_t client);
 
 /**
- * @brief Disconnects from mqtt broker
+ * @brief Disconnects from MQTT broker
  *
  * @param[in] client client instance
- * @param[in] mid if not NULL, mid will be set as the message id for the disconnect method
  * @return int 0 on success
  */
-void mqtt_disconnect(mqtt_client_handle_t client, int mid);
+int mqtt_stop(mqtt_client_handle_t client);
 
-/** @brief Disconnect mqtt broker
+/** @brief Disconnect MQTT broker
  *
  * @return int 0 on success
  */

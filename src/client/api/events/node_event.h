@@ -14,7 +14,7 @@
 #include <stdio.h>
 
 /**
- * @brief Event ids for handling mqtt events
+ * @brief Event ids for handling MQTT events
  *
  */
 typedef enum {
@@ -35,12 +35,12 @@ typedef enum {
 } event_client_event_id_t;
 
 /**
- * @brief Event mqtt client config paramters
+ * @brief Event MQTT client config paramters
  *
  */
 typedef struct {
-  char const *host;       ///< Mqtt host url
-  uint16_t port;          ///< Mqtt port to connect, usually it is 1883
+  char const *host;       ///< MQTT host url
+  uint16_t port;          ///< MQTT port to connect, usually it is 1883
   const char *client_id;  ///< The client id to use, or NULL if a random client id should be generated
   uint8_t keepalive;      ///< The number of seconds after which the broker should send a PING message to the client
   const char *username;   ///< The username string, or NULL for no username authentication
@@ -70,9 +70,9 @@ typedef struct {
 } event_client_event_t;
 
 /**
- * @brief Initialize events api mqtt library
+ * @brief Initialize events api MQTT library
  *
- * @param[in] config Mqtt client config paramters
+ * @param[in] config MQTT client config paramters
  */
 event_client_handle_t event_init(event_client_config_t *config);
 
@@ -85,28 +85,28 @@ event_client_handle_t event_init(event_client_config_t *config);
 int event_register_cb(event_client_handle_t client, void (*callback)(event_client_event_t *event));
 
 /**
- * @brief Subscribe to a mqtt topic
+ * @brief Subscribe to a MQTT topic
  *
  * @param[in] client Event client instance
  * @param[in] mid if not NULL, mid will be set as the message id for the subscription topic
- * @param[in] topic Mqtt topic to subscribe
+ * @param[in] topic MQTT topic to subscribe
  * @param[in] qos QoS level to be used with the topic
  * @return 0 if Success
  */
 int event_subscribe(event_client_handle_t client, int *mid, char *topic, int qos);
 
 /**
- * @brief Unubscribe a mqtt topic
+ * @brief Unubscribe a MQTT topic
  *
  * @param[in] client Event client instance
  * @param[in] mid if not NULL, mid will be set as the message id for the subscription topic
- * @param[in] topic Mqtt topic to subscribe
+ * @param[in] topic MQTT topic to subscribe
  * @return 0 if Success
  */
 int event_unsubscribe(event_client_handle_t client, int *mid, char *topic);
 
 /**
- * @brief Star mqtt connection
+ * @brief Connect to MQTT broker with the given config
  *
  * @param[in] client Event client instance
  * @return 0 if Success
@@ -114,7 +114,15 @@ int event_unsubscribe(event_client_handle_t client, int *mid, char *topic);
 int event_start(event_client_handle_t client);
 
 /**
- * @brief Destroy event intance
+ * @brief Disconnect from the MQTT broker
+ *
+ * @param[in] client Event client instance
+ * @return 0 if Success
+ */
+int event_stop(event_client_handle_t client);
+
+/**
+ * @brief Stop and destroy event instance
  *
  * @param[in] client Event client instance
  * @return 0 if Success

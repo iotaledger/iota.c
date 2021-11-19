@@ -118,18 +118,23 @@ int event_register_cb(event_client_handle_t client, void (*callback)(event_clien
 }
 
 int event_subscribe(event_client_handle_t client, int *mid, char *topic, int qos) {
-  // Call to mqtt network layer
+  // Call to MQTT network layer
   return mqtt_subscribe(client->mqtt_client, mid, topic, qos);
 }
 
 int event_unsubscribe(event_client_handle_t client, int *mid, char *topic) {
-  // Call to mqtt network layer
+  // Call to MQTT network layer
   return mqtt_unsubscribe(client->mqtt_client, mid, topic);
 }
 
 int event_start(event_client_handle_t client) {
-  // Call to mqtt network layer
+  // Call to MQTT network layer
   return mqtt_start(client->mqtt_client);
+}
+
+int event_stop(event_client_handle_t client) {
+  // Call to MQTT network layer
+  return mqtt_stop(client->mqtt_client);
 }
 
 int event_destroy(event_client_handle_t client) {
