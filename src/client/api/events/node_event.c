@@ -1,11 +1,12 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "node_event.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "client/network/mqtt/mqtt.h"
+#include "node_event.h"
 
 /**
  * @brief Event client session
@@ -17,8 +18,7 @@ struct event_client {
 };
 
 void mqtt_callback(mqtt_client_event_t *event, void *client) {
-  event_client_event_t *node_event;
-  node_event = (event_client_event_t *)malloc(sizeof(event_client_event_t));
+  event_client_event_t *node_event = (event_client_event_t *)malloc(sizeof(event_client_event_t));
   switch (event->event_id) {
     case MQTT_ERROR:
       node_event->event_id = NODE_EVENT_ERROR;
@@ -26,19 +26,16 @@ void mqtt_callback(mqtt_client_event_t *event, void *client) {
       (((event_client_handle_t)client)->event_callback_t)(node_event);
       break;
     case MQTT_CONNECTED:
-      node_event = (event_client_event_t *)malloc(sizeof(event_client_event_t));
       node_event->event_id = NODE_EVENT_CONNECTED;
       node_event->client = ((event_client_handle_t)client);
       (((event_client_handle_t)client)->event_callback_t)(node_event);
       break;
     case MQTT_DISCONNECTED:
-      node_event = (event_client_event_t *)malloc(sizeof(event_client_event_t));
       node_event->event_id = NODE_EVENT_DISCONNECTED;
       node_event->client = ((event_client_handle_t)client);
       (((event_client_handle_t)client)->event_callback_t)(node_event);
       break;
     case MQTT_SUBSCRIBED:
-      node_event = (event_client_event_t *)malloc(sizeof(event_client_event_t));
       node_event->event_id = NODE_EVENT_SUBSCRIBED;
       node_event->msg_id = event->msg_id;
       node_event->qos = event->qos;
@@ -46,7 +43,6 @@ void mqtt_callback(mqtt_client_event_t *event, void *client) {
       (((event_client_handle_t)client)->event_callback_t)(node_event);
       break;
     case MQTT_UNSUBSCRIBED:
-      node_event = (event_client_event_t *)malloc(sizeof(event_client_event_t));
       node_event->event_id = NODE_EVENT_UNSUBSCRIBED;
       node_event->msg_id = event->msg_id;
       node_event->client = ((event_client_handle_t)client);
@@ -55,14 +51,13 @@ void mqtt_callback(mqtt_client_event_t *event, void *client) {
     case MQTT_PUBLISHED:
       break;
     case MQTT_DATA:
-      node_event = (event_client_event_t *)malloc(sizeof(event_client_event_t));
       node_event->event_id = NODE_EVENT_DATA;
       node_event->client = ((event_client_handle_t)client);
       node_event->topic_len = event->topic_len;
       node_event->topic = event->topic;
       node_event->data_len = event->data_len;
       node_event->data = event->data;
-      node_event->event_id = event->event_id;
+      node_event->msg_id = event->msg_id;
       node_event->qos = event->qos;
       node_event->retain = event->retain;
       (((event_client_handle_t)client)->event_callback_t)(node_event);

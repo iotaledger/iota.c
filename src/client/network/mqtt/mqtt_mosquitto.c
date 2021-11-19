@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "client/network/mqtt/mqtt.h"
 
 struct mqtt_client {
@@ -142,6 +143,7 @@ int mqtt_register_cb(mqtt_client_handle_t client, void (*callback)(mqtt_client_e
                      void *userdata) {
   client->mqtt_callback = callback;
   client->cb_userdata = userdata;
+  return 0;
 }
 
 int mqtt_subscribe(mqtt_client_handle_t client, int *mid, char *topic, int qos) {
@@ -193,6 +195,8 @@ int mqtt_destroy(mqtt_client_handle_t client) {
   mosquitto_destroy(client->mosq);
   // Call to free resources associated with the library.
   mosquitto_lib_cleanup();
+  // Free client config
+  free(client->config);
   // Free client instance
   free(client);
   return 0;
