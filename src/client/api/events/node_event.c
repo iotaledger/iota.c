@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "client/api/events/node_event.h"
 #include "client/network/mqtt/mqtt.h"
-#include "node_event.h"
 
 /**
  * @brief Event client session
