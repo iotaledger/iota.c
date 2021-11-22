@@ -70,8 +70,10 @@ void callback(event_client_event_t *event) {
 }
 
 void test_milestone_latest_events(void) {
-  event_client_config_t config = {
-      .host = "mqtt.lb-0.h.chrysalis-devnet.iota.cafe", .port = 1883, .client_id = "iota_test_1", .keepalive = 60};
+  event_client_config_t config = {.host = TEST_EVENTS_HOST,
+                                  .port = TEST_EVENTS_PORT,
+                                  .client_id = TEST_EVENTS_CLIENT_ID,
+                                  .keepalive = TEST_EVENTS_KEEP_ALIVE};
   event_client_handle_t client = event_init(&config);
   TEST_ASSERT_NOT_NULL(client);
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
