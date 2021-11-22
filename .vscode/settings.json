@@ -6,7 +6,8 @@
         "-DCryptoUse:STRING=openssl",
         "-DIOTA_TESTS:BOOL=TRUE",
         "-DIOTA_WALLET_ENABLE:BOOL=TRUE",
-        "-DIOTA_ASAN_ENABLED:BOOL=TRUE"
+        "-DIOTA_ASAN_ENABLED:BOOL=TRUE",
+        "-DMQTT_CLIENT_ENABLE:BOOL=TRUE"
     ],
     "cmakeFormat.args": [
         "--config-file",
