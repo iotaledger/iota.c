@@ -1,11 +1,12 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <string.h>
 #include <unity/unity.h>
+
 #include "client/api/events/node_event.h"
 #include "client/api/events/sub_milestones_confirmed.h"
 #include "events_test_config.h"
-#include "string.h"
 
 void setUp(void) {}
 
