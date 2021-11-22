@@ -19,7 +19,7 @@ target_include_directories(
                      "${CMAKE_INSTALL_PREFIX}/include/cjson" # for esp32 compatibility
 )
 
-add_dependencies(iota_wallet iota_client)
+add_dependencies(iota_wallet iota_client ext_utf8proc)
 
 if(BIP39_ENGLISH_ONLY)
   target_compile_definitions(iota_wallet PUBLIC BIP39_ENGLISH_ONLY)
