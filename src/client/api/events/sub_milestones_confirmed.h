@@ -4,7 +4,6 @@
 #ifndef __SUB_MILESTONES_CONFIRMED_H__
 #define __SUB_MILESTONES_CONFIRMED_H__
 
-#include <stdbool.h>
 #include <stdint.h>
 
 /**
