@@ -7,17 +7,6 @@
 #include "client/api/json_utils.h"
 #include "client/network/mqtt/mqtt.h"
 
-milestone_latest_t *res_milestone_latest_new(void) {
-  milestone_latest_t *res = (milestone_latest_t *)malloc(sizeof(milestone_latest_t));
-  if (res == NULL) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return NULL;
-  }
-  return res;
-}
-
-void res_milestone_latest_free(milestone_latest_t *res) { free(res); }
-
 int parse_milestone_latest(char *data, milestone_latest_t *res) {
   cJSON *json_obj = cJSON_Parse((char *)data);
   if (json_obj == NULL) {

@@ -21,18 +21,6 @@ extern "C" {
 #endif
 
 /**
- * @brief Allocates milestone confirmed response object
- * @return res_balance_t*
- */
-milestone_confirmed_t *res_milestones_confirmed_new(void);
-
-/**
- * @brief Frees a milestone confirmed object
- * @param[in] res A response object
- */
-void res_milestones_confirmed_free(milestone_confirmed_t *res);
-
-/**
  * @brief Parse milestone confirmed response object
  * @param[in] data Data to parse
  * @param[out] res Parsed response object

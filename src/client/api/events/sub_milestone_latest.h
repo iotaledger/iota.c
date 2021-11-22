@@ -21,18 +21,6 @@ extern "C" {
 #endif
 
 /**
- * @brief Allocates milestone latest response object
- * @return res_balance_t*
- */
-milestone_latest_t *res_milestone_latest_new(void);
-
-/**
- * @brief Frees a milestone latest object
- * @param[in] res A response object
- */
-void res_milestone_latest_free(milestone_latest_t *res);
-
-/**
  * @brief Parse milestone latest response object
  * @param[in] data Data to parse
  * @param[out] res Parsed response object

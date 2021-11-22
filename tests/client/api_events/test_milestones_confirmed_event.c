@@ -16,24 +16,18 @@ void test_milestones_confirmed_parser(void) {
   char *json_data = "{\"index\":1139767,\"timestamp\": 1637221249}";
 
   // Test for expected events response
-  milestone_confirmed_t *res = res_milestones_confirmed_new();
-  TEST_ASSERT_NOT_NULL(res);
-  TEST_ASSERT_EQUAL_INT(0, parse_milestones_confirmed(json_data, res));
-  TEST_ASSERT(1139767 == res->index);
-  TEST_ASSERT(1637221249 == res->timestamp);
-
-  // clean up
-  res_milestones_confirmed_free(res);
+  milestone_confirmed_t res = {};
+  TEST_ASSERT_EQUAL_INT(0, parse_milestones_confirmed(json_data, &res));
+  TEST_ASSERT(1139767 == res.index);
+  TEST_ASSERT(1637221249 == res.timestamp);
 }
 
 void process_event_data(event_client_event_t *event) {
   if (!strcmp(event->topic, "milestones/confirmed")) {
-    milestone_confirmed_t *res = res_milestones_confirmed_new();
-    TEST_ASSERT_NOT_NULL(res);
-    TEST_ASSERT_EQUAL_INT(0, parse_milestones_confirmed((char *)event->data, res));
+    milestone_confirmed_t res = {};
+    TEST_ASSERT_EQUAL_INT(0, parse_milestones_confirmed((char *)event->data, &res));
     // Print received data
-    printf("Index :%u\nTimestamp : %lu\n", res->index, res->timestamp);
-    res_milestones_confirmed_free(res);
+    printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
   }
 }
 

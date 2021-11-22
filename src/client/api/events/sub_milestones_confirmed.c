@@ -7,17 +7,6 @@
 #include "client/api/json_utils.h"
 #include "client/network/mqtt/mqtt.h"
 
-milestone_confirmed_t *res_milestones_confirmed_new(void) {
-  milestone_confirmed_t *res = (milestone_confirmed_t *)malloc(sizeof(milestone_confirmed_t));
-  if (res == NULL) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return NULL;
-  }
-  return res;
-}
-
-void res_milestones_confirmed_free(milestone_confirmed_t *res) { free(res); }
-
 int parse_milestones_confirmed(char *data, milestone_confirmed_t *res) {
   cJSON *json_obj = cJSON_Parse((char *)data);
   if (json_obj == NULL) {

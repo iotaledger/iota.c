@@ -16,24 +16,18 @@ void test_milestone_latest_parser(void) {
   char *json_data = "{\"index\":242412,\"timestamp\": 1609950538}";
 
   // Test for expected events response
-  milestone_latest_t *res = res_milestone_latest_new();
-  TEST_ASSERT_NOT_NULL(res);
-  TEST_ASSERT_EQUAL_INT(0, parse_milestone_latest(json_data, res));
-  TEST_ASSERT(242412 == res->index);
-  TEST_ASSERT(1609950538 == res->timestamp);
-
-  // clean up
-  res_milestone_latest_free(res);
+  milestone_latest_t res = {};
+  TEST_ASSERT_EQUAL_INT(0, parse_milestone_latest(json_data, &res));
+  TEST_ASSERT(242412 == res.index);
+  TEST_ASSERT(1609950538 == res.timestamp);
 }
 
 void process_event_data(event_client_event_t *event) {
   if (!strcmp(event->topic, "milestones/latest")) {
-    milestone_latest_t *res = res_milestone_latest_new();
-    TEST_ASSERT_NOT_NULL(res);
-    TEST_ASSERT_EQUAL_INT(0, parse_milestone_latest((char *)event->data, res));
+    milestone_latest_t res = {};
+    TEST_ASSERT_EQUAL_INT(0, parse_milestone_latest((char *)event->data, &res));
     // Print received data
-    printf("Index :%u\nTimestamp : %lu\n", res->index, res->timestamp);
-    res_milestone_latest_free(res);
+    printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
   }
 }
 

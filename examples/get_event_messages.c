@@ -45,23 +45,13 @@ void callback(event_client_event_t *event) {
 
 void process_event_data(event_client_event_t *event) {
   if (!strcmp(event->topic, "milestones/latest")) {
-    milestone_latest_t *res = res_milestone_latest_new();
-    if (res == NULL) {
-      printf("[%s:%d] OOM\n", __func__, __LINE__);
-      return;
-    }
-    parse_milestone_latest((char *)event->data, res);
-    printf("Index :%u\nTimestamp : %lu\n", res->index, res->timestamp);
-    res_milestone_latest_free(res);
+    milestone_latest_t res = {};
+    parse_milestone_latest((char *)event->data, &res);
+    printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
   } else if (!strcmp(event->topic, "milestones/confirmed")) {
-    milestone_confirmed_t *res = res_milestones_confirmed_new();
-    if (res == NULL) {
-      printf("[%s:%d] OOM\n", __func__, __LINE__);
-      return;
-    }
-    parse_milestones_confirmed((char *)event->data, res);
-    printf("Index :%u\nTimestamp : %lu\n", res->index, res->timestamp);
-    res_milestones_confirmed_free(res);
+    milestone_confirmed_t res = {};
+    parse_milestones_confirmed((char *)event->data, &res);
+    printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
   }
 }
 
