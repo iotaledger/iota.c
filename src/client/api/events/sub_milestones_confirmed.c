@@ -3,11 +3,11 @@
 
 #include <stdlib.h>
 
-#include "client/api/events/sub_milestone_latest.h"
+#include "client/api/events/sub_milestones_confirmed.h"
 #include "client/api/json_utils.h"
 #include "client/network/mqtt/mqtt.h"
 
-int parse_milestone_latest(char *data, milestone_latest_t *res) {
+int parse_milestones_confirmed(char *data, milestone_confirmed_t *res) {
   cJSON *json_obj = cJSON_Parse((char *)data);
   if (json_obj == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);

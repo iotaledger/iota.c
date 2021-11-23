@@ -5,27 +5,27 @@
 #include <unity/unity.h>
 
 #include "client/api/events/node_event.h"
-#include "client/api/events/sub_milestone_latest.h"
+#include "client/api/events/sub_milestones_confirmed.h"
 #include "events_test_config.h"
 
 void setUp(void) {}
 
 void tearDown(void) {}
 
-void test_milestone_latest_parser(void) {
-  char *json_data = "{\"index\":242412,\"timestamp\": 1609950538}";
+void test_milestones_confirmed_parser(void) {
+  char *json_data = "{\"index\":1139767,\"timestamp\": 1637221249}";
 
   // Test for expected events response
-  milestone_latest_t res = {};
-  TEST_ASSERT_EQUAL_INT(0, parse_milestone_latest(json_data, &res));
-  TEST_ASSERT(242412 == res.index);
-  TEST_ASSERT(1609950538 == res.timestamp);
+  milestone_confirmed_t res = {};
+  TEST_ASSERT_EQUAL_INT(0, parse_milestones_confirmed(json_data, &res));
+  TEST_ASSERT(1139767 == res.index);
+  TEST_ASSERT(1637221249 == res.timestamp);
 }
 
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, "milestones/latest")) {
-    milestone_latest_t res = {};
-    TEST_ASSERT_EQUAL_INT(0, parse_milestone_latest((char *)event->data, &res));
+  if (!strcmp(event->topic, "milestones/confirmed")) {
+    milestone_confirmed_t res = {};
+    TEST_ASSERT_EQUAL_INT(0, parse_milestones_confirmed((char *)event->data, &res));
     // Print received data
     printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
   }
@@ -39,7 +39,7 @@ void callback(event_client_event_t *event) {
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
       /* Making subscriptions in the on_connect()*/
-      event_subscribe(event->client, NULL, "milestones/latest", 1);
+      event_subscribe(event->client, NULL, "milestones/confirmed", 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -63,7 +63,7 @@ void callback(event_client_event_t *event) {
   }
 }
 
-void test_milestone_latest_events(void) {
+void test_milestones_confirmed_events(void) {
   event_client_config_t config = {.host = TEST_EVENTS_HOST,
                                   .port = TEST_EVENTS_PORT,
                                   .client_id = TEST_EVENTS_CLIENT_ID,
@@ -78,8 +78,8 @@ void test_milestone_latest_events(void) {
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_milestone_latest_parser);
-  RUN_TEST(test_milestone_latest_events);
+  RUN_TEST(test_milestones_confirmed_parser);
+  RUN_TEST(test_milestones_confirmed_events);
 
   return UNITY_END();
 }
