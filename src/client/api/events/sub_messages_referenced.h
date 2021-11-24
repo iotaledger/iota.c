@@ -19,9 +19,9 @@ typedef struct {
   char inclusion_state[32];       ///< the ledger inclusion state of the transaction payload, one of `noTransaction`,
                                   ///< `conflicting`, `included`
   bool is_solid;                  ///< whether the message is solid
-  bool should_promote;            ///< whether the message should be promoted
-  bool should_reattach;           ///< whether the message should be reattached
-  uint64_t referenced_milestone;  ///< The milestone index that references this message
+  bool should_promote;            ///< whether the message should be promoted, optional
+  bool should_reattach;           ///< whether the message should be reattached, optional
+  uint64_t referenced_milestone;  ///< The milestone index that references this message, optional
 } msg_referenced_t;
 
 #ifdef __cplusplus
@@ -29,7 +29,36 @@ extern "C" {
 #endif
 
 /**
- * @brief Parses messages referenced response object
+ * @brief Allocates message referenced response
+ * @return msg_referenced_t*
+ */
+msg_referenced_t *res_msg_referenced_new(void);
+
+/**
+ * @brief Frees a message referenced reponse object
+ * @param[in] res A response object
+ */
+void res_msg_referenced_free(msg_referenced_t *res);
+
+/**
+ * @brief Gets the number of parent messages
+ *
+ * @param res The message referenced response
+ * @return size_t The number of parent message ids
+ */
+size_t res_msg_referenced_parents_len(msg_referenced_t *res);
+
+/**
+ * @brief Gets the parent message ID by a given index
+ *
+ * @param res The message referenced respose
+ * @param index A index
+ * @return char* The string of parent message ID
+ */
+char *res_msg_referenced_parent_get(msg_referenced_t *res, size_t index);
+
+/**
+ * @brief Parses message referenced response object
  * @param[in] data Data to parse
  * @param[out] res Parsed response object
  * @return 0 if success
