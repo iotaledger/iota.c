@@ -3,12 +3,12 @@
 
 #include <stdlib.h>
 
-#include "client/api/events/sub_messages_referenced.h"
+#include "client/api/events/sub_messages_metadata.h"
 #include "client/api/json_utils.h"
 #include "client/network/mqtt/mqtt.h"
 
-msg_referenced_t *res_msg_referenced_new(void) {
-  msg_referenced_t *res = malloc(sizeof(msg_referenced_t));
+msg_metadata_t *res_msg_metadata_new(void) {
+  msg_metadata_t *res = malloc(sizeof(msg_metadata_t));
   if (res) {
     utarray_new(res->parents, &ut_str_icd);
     res->is_solid = false;
@@ -20,7 +20,7 @@ msg_referenced_t *res_msg_referenced_new(void) {
   return NULL;
 }
 
-void res_msg_referenced_free(msg_referenced_t *res) {
+void res_msg_metadata_free(msg_metadata_t *res) {
   if (res) {
     if (res->parents) {
       utarray_free(res->parents);
@@ -29,16 +29,16 @@ void res_msg_referenced_free(msg_referenced_t *res) {
   }
 }
 
-size_t res_msg_referenced_parents_len(msg_referenced_t *res) {
+size_t res_msg_metadata_parents_len(msg_metadata_t *res) {
   if (res) {
     return utarray_len(res->parents);
   }
   return 0;
 }
 
-char *res_msg_referenced_parent_get(msg_referenced_t *res, size_t index) {
+char *res_msg_metadata_parent_get(msg_metadata_t *res, size_t index) {
   if (res) {
-    if (index < res_msg_referenced_parents_len(res)) {
+    if (index < res_msg_metadata_parents_len(res)) {
       char **p = (char **)utarray_eltptr(res->parents, index);
       return *p;
     }
@@ -46,7 +46,7 @@ char *res_msg_referenced_parent_get(msg_referenced_t *res, size_t index) {
   return NULL;
 }
 
-int parse_messages_referenced(char *data, msg_referenced_t *res) {
+int parse_messages_metadata(char *data, msg_metadata_t *res) {
   int ret = -1;
   cJSON *json_obj = cJSON_Parse((char *)data);
   if (json_obj == NULL) {
@@ -94,7 +94,7 @@ int parse_messages_referenced(char *data, msg_referenced_t *res) {
     }
   }
 
-  // gets referenced milestone index
+  // gets metadata milestone index
   if (cJSON_HasObjectItem(json_obj, JSON_KEY_REF_MILESTONE_IDX)) {
     if ((ret = json_get_uint64(json_obj, JSON_KEY_REF_MILESTONE_IDX, &res->referenced_milestone)) != 0) {
       printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_REF_MILESTONE_IDX);

@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "client/api/events/node_event.h"
-#include "client/api/events/sub_messages_referenced.h"
+#include "client/api/events/sub_messages_metadata.h"
 #include "client/api/events/sub_milestone_latest.h"
 #include "client/api/events/sub_milestones_confirmed.h"
 
@@ -57,13 +57,13 @@ void process_event_data(event_client_event_t *event) {
       printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
     }
   } else if (!strcmp(event->topic, "messages/referenced")) {
-    msg_referenced_t *res = res_msg_referenced_new();
+    msg_metadata_t *res = res_msg_metadata_new();
     if (res) {
-      if (parse_messages_referenced((char *)event->data, res) == 0) {
+      if (parse_messages_metadata((char *)event->data, res) == 0) {
         printf("Msg Id :%s\n", res->msg_id);
-        size_t parents_count = res_msg_referenced_parents_len(res);
+        size_t parents_count = res_msg_metadata_parents_len(res);
         for (size_t i = 0; i < parents_count; i++) {
-          printf("Parent Id %zu : %s\n", i + 1, res_msg_referenced_parent_get(res, i));
+          printf("Parent Id %zu : %s\n", i + 1, res_msg_metadata_parent_get(res, i));
         }
         printf("Inclusion State : %s\n", res->inclusion_state);
         printf("Is Solid : %s\n", res->is_solid ? "true" : "false");
@@ -71,7 +71,7 @@ void process_event_data(event_client_event_t *event) {
         printf("Should Reattach : %s\n", res->should_reattach ? "true" : "false");
         printf("Referenced Milestone : %ld\n", res->referenced_milestone);
       }
-      res_msg_referenced_free(res);
+      res_msg_metadata_free(res);
     }
   }
 }

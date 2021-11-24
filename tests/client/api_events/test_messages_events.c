@@ -5,14 +5,14 @@
 #include <unity/unity.h>
 
 #include "client/api/events/node_event.h"
-#include "client/api/events/sub_messages_referenced.h"
+#include "client/api/events/sub_messages_metadata.h"
 #include "events_test_config.h"
 
 void setUp(void) {}
 
 void tearDown(void) {}
 
-void test_messages_referenced_parser(void) {
+void test_messages_metadata_parser(void) {
   // Sample data for testing
   char *json_data =
       "{\"messageId\":"
@@ -24,8 +24,8 @@ void test_messages_referenced_parser(void) {
 
   // Test for expected events response
   // Create and allocate memory for response object
-  msg_referenced_t *res = res_msg_referenced_new();
-  TEST_ASSERT_EQUAL_INT(0, parse_messages_referenced(json_data, res));
+  msg_metadata_t *res = res_msg_metadata_new();
+  TEST_ASSERT_EQUAL_INT(0, parse_messages_metadata(json_data, res));
   TEST_ASSERT_EQUAL_STRING("cf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85", res->msg_id);
   TEST_ASSERT((strcmp(res->inclusion_state, "noTransaction") == 0) ||
               (strcmp(res->inclusion_state, "conflicting") == 0) || (strcmp(res->inclusion_state, "included") == 0));
@@ -34,21 +34,21 @@ void test_messages_referenced_parser(void) {
   TEST_ASSERT_FALSE(res->should_reattach);
   TEST_ASSERT_EQUAL_UINT64(242544, res->referenced_milestone);
   // Free response object
-  res_msg_referenced_free(res);
+  res_msg_metadata_free(res);
 }
 
 void process_event_data(event_client_event_t *event) {
   if (!strcmp(event->topic, "messages/referenced")) {
     // Create and allocate memory for response object
-    msg_referenced_t *res = res_msg_referenced_new();
-    TEST_ASSERT_EQUAL_INT(0, parse_messages_referenced((char *)event->data, res));
+    msg_metadata_t *res = res_msg_metadata_new();
+    TEST_ASSERT_EQUAL_INT(0, parse_messages_metadata((char *)event->data, res));
 
     // Print received data
     printf("Msg Id :%s\n", res->msg_id);
     // Get parent id count
-    size_t parents_count = res_msg_referenced_parents_len(res);
+    size_t parents_count = res_msg_metadata_parents_len(res);
     for (size_t i = 0; i < parents_count; i++) {
-      printf("Parent Id %zu : %s\n", i + 1, res_msg_referenced_parent_get(res, i));
+      printf("Parent Id %zu : %s\n", i + 1, res_msg_metadata_parent_get(res, i));
     }
     printf("Inclusion State : %s\n", res->inclusion_state);
     printf("Is Solid : %s\n", res->is_solid ? "true" : "false");
@@ -57,7 +57,7 @@ void process_event_data(event_client_event_t *event) {
     printf("Referenced Milestone : %ld\n", res->referenced_milestone);
 
     // Free response object
-    res_msg_referenced_free(res);
+    res_msg_metadata_free(res);
   }
 }
 
@@ -114,7 +114,7 @@ void test_messages_referenced_events(void) {
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_messages_referenced_parser);
+  RUN_TEST(test_messages_metadata_parser);
   RUN_TEST(test_messages_referenced_events);
 
   return UNITY_END();
