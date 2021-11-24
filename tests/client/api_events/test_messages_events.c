@@ -135,4 +135,5 @@ int main() {
   RUN_TEST(test_messages_referenced_events);
 
   return UNITY_END();
+
 }
