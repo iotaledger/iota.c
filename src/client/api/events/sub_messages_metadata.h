@@ -43,7 +43,7 @@ void res_msg_metadata_free(msg_metadata_t *res);
 /**
  * @brief Gets the number of parent messages
  *
- * @param res The message metadata response
+ * @param[in] res The message metadata response
  * @return size_t The number of parent message ids
  */
 size_t res_msg_metadata_parents_len(msg_metadata_t *res);
@@ -51,8 +51,8 @@ size_t res_msg_metadata_parents_len(msg_metadata_t *res);
 /**
  * @brief Gets the parent message ID by a given index
  *
- * @param res The message metadata respose
- * @param index A index
+ * @param[in] res The message metadata respose
+ * @param[in] index A index
  * @return char* The string of parent message ID
  */
 char *res_msg_metadata_parent_get(msg_metadata_t *res, size_t index);
