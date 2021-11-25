@@ -196,6 +196,8 @@ int mqtt_destroy(mqtt_client_handle_t client) {
   mosquitto_loop_stop(client->mosq, false);
   // Call to free memory associated with a mosquitto client instance.
   mosquitto_destroy(client->mosq);
+  // Stop the network loop
+  mosquitto_loop_stop(client->mosq, false);
   // Call to free resources associated with the library.
   mosquitto_lib_cleanup();
   // Free client config
