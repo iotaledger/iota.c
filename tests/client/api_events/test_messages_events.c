@@ -8,6 +8,8 @@
 #include "client/api/events/sub_messages_metadata.h"
 #include "events_test_config.h"
 
+bool test_completed = false;
+
 void setUp(void) {}
 
 void tearDown(void) {}
@@ -88,6 +90,7 @@ void callback(event_client_event_t *event) {
       process_event_data(event);
       // Once event data is received and it is verified, close and destroy event MQTT network
       TEST_ASSERT_EQUAL_INT(0, event_stop(event->client));
+      test_completed = true;
       break;
     default:
       break;
@@ -107,6 +110,9 @@ void test_messages_referenced_events(void) {
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
   // Start event client, this is a blocking call
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
+  // Wait until test is completed
+  while (!test_completed)
+    ;
   // Destroy event client
   TEST_ASSERT_EQUAL_INT(0, event_destroy(client));
 }

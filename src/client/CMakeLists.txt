@@ -76,6 +76,7 @@ target_link_libraries(
   PUBLIC iota_core)
 
 if(MQTT_CLIENT_ENABLE)
+  target_link_libraries(iota_client PRIVATE Threads::Threads)
   add_dependencies(iota_client ext_mosquitto)
   target_link_libraries( iota_client PUBLIC mosquitto_static)
 endif()

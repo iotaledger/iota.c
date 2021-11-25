@@ -81,7 +81,10 @@ int main(void) {
       .host = "mqtt.lb-0.h.chrysalis-devnet.iota.cafe", .port = 1883, .client_id = "iota_test_1234", .keepalive = 60};
   event_client_handle_t client = event_init(&config);
   event_register_cb(client, &callback);
+  // Runs event client in a non blocking call.
   event_start(client);
-  event_destroy(client);
+  // Blocking main loop, callbacks will be processed on event message arrival
+  while (1)
+    ;
   return 0;
 }

@@ -8,6 +8,8 @@
 #include "client/api/events/sub_milestone_latest.h"
 #include "events_test_config.h"
 
+bool test_completed = false;
+
 void setUp(void) {}
 
 void tearDown(void) {}
@@ -57,6 +59,7 @@ void callback(event_client_event_t *event) {
       printf("Message arrived\nTopic : %s\n", event->topic);
       process_event_data(event);
       TEST_ASSERT_EQUAL_INT(0, event_stop(event->client));
+      test_completed = true;
       break;
     default:
       break;
@@ -72,6 +75,9 @@ void test_milestone_latest_events(void) {
   TEST_ASSERT_NOT_NULL(client);
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
+  // Wait until test is completed
+  while (!test_completed)
+    ;
   TEST_ASSERT_EQUAL_INT(0, event_destroy(client));
 }
 
