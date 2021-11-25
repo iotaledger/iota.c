@@ -5,7 +5,7 @@
 #define __CLIENT_NETWORK_MQTT_H__
 
 /**
- * @brief Abstract layer of MQTT client for IOTA client
+ * @brief The Abstract layer of MQTT client library.
  *
  */
 
@@ -14,24 +14,24 @@
 #include <stdio.h>
 
 /**
- * @brief Event ids for handling MQTT events
+ * @brief Event IDs for handling MQTT events
  *
  */
 typedef enum {
   MQTT_ANY = -1,
   MQTT_ERROR = 0,    /*!< on error event, additional context: connection return code*/
-  MQTT_CONNECTED,    /*!< connected event */
-  MQTT_DISCONNECTED, /*!< disconnected event */
-  MQTT_SUBSCRIBED,   /*!< subscribed event, additional context: msg_id */
-  MQTT_UNSUBSCRIBED, /*!< unsubscribed event */
-  MQTT_PUBLISHED,    /*!< published event, additional context:  msg_id */
+  MQTT_CONNECTED,    /*!< connected to the broker */
+  MQTT_DISCONNECTED, /*!< disconnected from the broker */
+  MQTT_SUBSCRIBED,   /*!< subscribed to a topic, additional context: msg_id */
+  MQTT_UNSUBSCRIBED, /*!< unsubscribed to a topic */
+  MQTT_PUBLISHED,    /*!< published a topic, additional context:  msg_id */
   MQTT_DATA,         /*!< data event, additional context:
-                                - msg_id               message id
-                                - topic                pointer to the received topic
-                                - topic_len            length of the topic
-                                - data                 pointer to the received data
-                                - data_len             length of the data for this event
-                                - retain               retain flag of the message */
+                                - msg_id               A message id
+                                - topic                An pointer to the received topic
+                                - topic_len            The length of the topic
+                                - data                 An pointer to the received data
+                                - data_len             The length of the data for this event
+                                - retain               The retain flag of the message */
 } mqtt_event_id_t;
 
 /**
@@ -40,13 +40,13 @@ typedef enum {
  */
 typedef struct {
   mqtt_event_id_t event_id; /*!< MQTT event type */
-  void *data;               /*!< Data associated with this event */
-  int data_len;             /*!< Length of the data for this event */
-  char *topic;              /*!< Topic associated with this event */
-  int topic_len;            /*!< Length of the topic associated with this event */
-  int msg_id;               /*!< MQTT messaged id of message */
-  bool retain;              /*!< Retained flag of the message associated with this event */
-  int qos;                  /*!< qos of the messages associated with this event */
+  void *data;               /*!< The data associated with this event */
+  int data_len;             /*!< The length of the data for this event */
+  char *topic;              /*!< The topic associated with this event */
+  int topic_len;            /*!< The length of the topic associated with this event */
+  int msg_id;               /*!< The message id*/
+  bool retain;              /*!< The retained flag of the message associated with this event */
+  int qos;                  /*!< The QoS of this event */
 } mqtt_client_event_t;
 
 /**

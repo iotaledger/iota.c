@@ -5,7 +5,7 @@
 #define __NODE_EVENT_H__
 
 /**
- * @brief Abstract layer of event api's for IOTA client
+ * @brief The Abstract layer of the node event API.
  *
  */
 
@@ -14,33 +14,33 @@
 #include <stdio.h>
 
 /**
- * @brief Event ids for handling MQTT events
+ * @brief Event IDs for handling IOTA Node events
  *
  */
 typedef enum {
   NODE_EVENT_ANY = -1,
   NODE_EVENT_ERROR = 0,    /*!< on error event, additional context: connection return code*/
-  NODE_EVENT_CONNECTED,    /*!< connected event */
-  NODE_EVENT_DISCONNECTED, /*!< disconnected event */
-  NODE_EVENT_SUBSCRIBED,   /*!< subscribed event, additional context: msg_id */
-  NODE_EVENT_UNSUBSCRIBED, /*!< unsubscribed event */
-  NODE_EVENT_PUBLISHED,    /*!< published event, additional context:  msg_id */
+  NODE_EVENT_CONNECTED,    /*!< connected to a node broker */
+  NODE_EVENT_DISCONNECTED, /*!< disconnected from the node broker */
+  NODE_EVENT_SUBSCRIBED,   /*!< subscribed an event, additional context: msg_id */
+  NODE_EVENT_UNSUBSCRIBED, /*!< unsubscribed an event */
+  NODE_EVENT_PUBLISHED,    /*!< published an event, additional context:  msg_id */
   NODE_EVENT_DATA,         /*!< data event, additional context:
-                                - msg_id               message id
-                                - topic                pointer to the received topic
-                                - topic_len            length of the topic
-                                - data                 pointer to the received data
-                                - data_len             length of the data for this event
-                                - retain               retain flag of the message */
+                                - msg_id               The message id
+                                - topic                An pointer to the received topic
+                                - topic_len            The length of the topic
+                                - data                 An pointer to the received data
+                                - data_len             The length of the data for this event
+                                - retain               The retain flag of the message */
 } event_client_event_id_t;
 
 /**
- * @brief Event MQTT client config paramters
+ * @brief The event client configuration
  *
  */
 typedef struct {
-  char const *host;       ///< MQTT host url
-  uint16_t port;          ///< MQTT port to connect, usually it is 1883
+  char const *host;       ///< The broker host url
+  uint16_t port;          ///< The broker port to connect with, usually it is 1883
   const char *client_id;  ///< The client id to use, or NULL if a random client id should be generated
   uint8_t keepalive;      ///< The number of seconds after which the broker should send a PING message to the client
   const char *username;   ///< The username string, or NULL for no username authentication
@@ -54,69 +54,69 @@ typedef struct {
 typedef struct event_client *event_client_handle_t;
 
 /**
- * @brief Event configuration structure
+ * @brief Event response object
  *
  */
 typedef struct {
-  event_client_event_id_t event_id; /*!< MQTT event type */
-  event_client_handle_t client;     /*!< MQTT client handle for this event */
-  void *data;                       /*!< Data associated with this event */
-  int data_len;                     /*!< Length of the data for this event */
-  char *topic;                      /*!< Topic associated with this event */
-  int topic_len;                    /*!< Length of the topic associated with this event */
-  int msg_id;                       /*!< MQTT messaged id of message */
-  bool retain;                      /*!< Retained flag of the message associated with this event */
-  int qos;                          /*!< qos of the messages associated with this event */
+  event_client_event_id_t event_id; /*!< An event type */
+  event_client_handle_t client;     /*!< The event handler of this event */
+  void *data;                       /*!< The data associated with this event */
+  int data_len;                     /*!< The length of the data for this event */
+  char *topic;                      /*!< The topic associated with this event */
+  int topic_len;                    /*!< The length of the topic associated with this event */
+  int msg_id;                       /*!< The message ID */
+  bool retain;                      /*!< The retained flag of the message associated with this event */
+  int qos;                          /*!< The QoS of the message associated with this event */
 } event_client_event_t;
 
 /**
- * @brief Initialize events api MQTT library
+ * @brief Initialize event service
  *
  * @param[in] config MQTT client config paramters
  */
 event_client_handle_t event_init(event_client_config_t *config);
 
 /**
- * @brief Set event callback function
+ * @brief Set the event callback handler
  *
- * @param[in] client Event client instance
- * @param[in] callback Event callback function pointer
+ * @param[in] client The event client instance
+ * @param[in] callback An event callback handler
  */
 int event_register_cb(event_client_handle_t client, void (*callback)(event_client_event_t *event));
 
 /**
- * @brief Subscribe to a MQTT topic
+ * @brief Subscribe an event
  *
- * @param[in] client Event client instance
+ * @param[in] client The event client instance
  * @param[in] mid if not NULL, mid will be set as the message id for the subscription topic
- * @param[in] topic MQTT topic to subscribe
+ * @param[in] topic A node topic to subscribe
  * @param[in] qos QoS level to be used with the topic
  * @return 0 if Success
  */
 int event_subscribe(event_client_handle_t client, int *mid, char *topic, int qos);
 
 /**
- * @brief Unubscribe a MQTT topic
+ * @brief Unsubscribe an event
  *
- * @param[in] client Event client instance
+ * @param[in] client The event client instance
  * @param[in] mid if not NULL, mid will be set as the message id for the subscription topic
- * @param[in] topic MQTT topic to subscribe
+ * @param[in] topic A node topic to subscribe
  * @return 0 if Success
  */
 int event_unsubscribe(event_client_handle_t client, int *mid, char *topic);
 
 /**
- * @brief Connect to MQTT broker with the given config
+ * @brief Connect to Node broker with the given config
  *
- * @param[in] client Event client instance
+ * @param[in] client The event client instance
  * @return 0 if Success
  */
 int event_start(event_client_handle_t client);
 
 /**
- * @brief Disconnect from the MQTT broker
+ * @brief Disconnect from the Node broker
  *
- * @param[in] client Event client instance
+ * @param[in] client The event client instance
  * @return 0 if Success
  */
 int event_stop(event_client_handle_t client);
@@ -124,7 +124,7 @@ int event_stop(event_client_handle_t client);
 /**
  * @brief Stop and destroy event instance
  *
- * @param[in] client Event client instance
+ * @param[in] client The event client instance
  * @return 0 if Success
  */
 int event_destroy(event_client_handle_t client);

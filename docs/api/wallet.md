@@ -1,6 +1,6 @@
 # Wallet API Reference
 
-This is reference implementation as wallet APIs. Users are able to implement wallet application based on [Client APIs](./client.md#client-api-reference).
+This is reference implementation as wallet APIs. Users are able to implement wallet application based on [RESTful APIs](./restful.md#restful-api-reference).
 
 ## Setting
 

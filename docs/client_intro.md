@@ -12,7 +12,7 @@ Software Development Kits(SDK) for MCUs:
 The C Client library consists 4 abstraction layers:
 * Crypto - provide cryptographic functions
 * Core - implement components include address/message/UTXO...
-* Client - implement node REST APIs. (optional)
+* Client - implement node REST APIs and Event APIs. (optional)
 * Wallet - simple wallet functions. (optional)
 
 As a client application, Client and Wallet modules could be an option as needed. For instance, the application can implement its own wallet logic or it uses the Core module to compose messages then send messages through another interface without the Client module.
@@ -23,6 +23,7 @@ The C Client library relies on some functionalities from the operating system AP
 * HTTP/HTTPS Client
 * JSON parser
 * Crypto library
+* MQTT Client
 
 ## IOTA Application Architecture
 
@@ -34,5 +35,6 @@ With the client library, you can interact with IOTA Tangle to:
 * Query messages
 * Query the node status
 * Generate addresses
+* Subscribe node events
 
 ![](img/client_application_architecture.jpg)
