@@ -9,4 +9,6 @@
 #define TEST_EVENTS_CLIENT_ID "iota_test_2"
 #define TEST_EVENTS_KEEP_ALIVE 60
 
+#define TEST_TIMEOUT_SECONDS 30
+
 #endif

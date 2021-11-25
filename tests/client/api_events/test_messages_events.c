@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <string.h>
+#include <time.h>
 #include <unity/unity.h>
 
 #include "client/api/events/node_event.h"
@@ -110,11 +111,21 @@ void test_messages_referenced_events(void) {
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
   // Start event client, this is a blocking call
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
-  // Wait until test is completed
-  while (!test_completed) {
+  // Store start time
+  time_t start = time(NULL);
+  // Calculate time after wait period
+  time_t endwait = start + (time_t)TEST_TIMEOUT_SECONDS;
+  // Wait until test is completed or timeout reached
+  while ((!test_completed) && (start < endwait)) {
+    start = time(NULL);
   };
   // Destroy event client
   TEST_ASSERT_EQUAL_INT(0, event_destroy(client));
+  // Check if test was not completed before timeout
+  if (!test_completed) {
+    printf("Test Timedout\n");
+    TEST_FAIL();
+  }
 }
 
 int main() {
