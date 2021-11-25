@@ -9,6 +9,11 @@
 #include "client/api/events/sub_messages_metadata.h"
 #include "events_test_config.h"
 
+#define messages_referenced_topic "messages/referenced"
+#define msg_id_meta_topic "messages/+/metadata"
+
+char *message_topic;
+
 bool test_completed = false;
 
 void setUp(void) {}
@@ -41,7 +46,7 @@ void test_messages_metadata_parser(void) {
 }
 
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, "messages/referenced")) {
+  if (!strcmp(event->topic, message_topic)) {
     // Create and allocate memory for response object
     msg_metadata_t *res = res_msg_metadata_new();
     TEST_ASSERT_EQUAL_INT(0, parse_messages_metadata((char *)event->data, res));
@@ -72,7 +77,7 @@ void callback(event_client_event_t *event) {
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
       /* Making subscriptions in the on_connect()*/
-      event_subscribe(event->client, NULL, "messages/referenced", 1);
+      event_subscribe(event->client, NULL, message_topic, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -98,7 +103,7 @@ void callback(event_client_event_t *event) {
   }
 }
 
-void test_messages_referenced_events(void) {
+void test_messages_events(void) {
   // Event MQTT network config parameters
   event_client_config_t config = {.host = TEST_EVENTS_HOST,
                                   .port = TEST_EVENTS_PORT,
@@ -109,7 +114,11 @@ void test_messages_referenced_events(void) {
   TEST_ASSERT_NOT_NULL(client);
   // Register callback
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
-  // Start event client, this is a blocking call
+
+  /* Test case for messages/referenced topic */
+  message_topic = (char *)malloc(strlen(messages_referenced_topic));
+  strcpy(message_topic, messages_referenced_topic);
+  // Start event client, this is a non blocking call
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
   // Store start time
   time_t start = time(NULL);
@@ -119,8 +128,36 @@ void test_messages_referenced_events(void) {
   while ((!test_completed) && (start < endwait)) {
     start = time(NULL);
   };
+
+  // Stop event client
+  TEST_ASSERT_EQUAL_INT(0, event_stop(client));
+
+  // Check if test was not completed before timeout
+  if (!test_completed) {
+    printf("Test Timedout\n");
+    TEST_FAIL();
+  }
+
+  test_completed = false;
+  free(message_topic);
+
+  /* Test case for messages/[messageId/metadata topic */
+  message_topic = (char *)malloc(strlen(msg_id_meta_topic));
+  strcpy(message_topic, msg_id_meta_topic);
+  // Start event client, this is a non blocking call
+  TEST_ASSERT_EQUAL_INT(0, event_start(client));
+  // Store start time
+  start = time(NULL);
+  // Calculate time after wait period
+  endwait = start + (time_t)TEST_TIMEOUT_SECONDS;
+  // Wait until test is completed or timeout reached
+  while ((!test_completed) && (start < endwait)) {
+    start = time(NULL);
+  };
+
   // Destroy event client
   TEST_ASSERT_EQUAL_INT(0, event_destroy(client));
+
   // Check if test was not completed before timeout
   if (!test_completed) {
     printf("Test Timedout\n");
@@ -132,7 +169,7 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_messages_metadata_parser);
-  RUN_TEST(test_messages_referenced_events);
+  RUN_TEST(test_messages_events);
 
   return UNITY_END();
 
