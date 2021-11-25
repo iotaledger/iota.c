@@ -10,7 +10,7 @@
 #include "events_test_config.h"
 
 #define messages_referenced_topic "messages/referenced"
-#define msg_id_meta_topic "messages/+/metadata"
+#define msg_id_meta_topic "messages/0e1155e3b502b51823b3ed67b6ffa7128e0211911096738c64a769a0d5224e44/metadata"
 
 char *message_topic;
 
