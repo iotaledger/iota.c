@@ -107,4 +107,3 @@ end:
   cJSON_Delete(json_obj);
   return ret;
 }
-
