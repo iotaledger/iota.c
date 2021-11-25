@@ -111,8 +111,8 @@ void test_messages_referenced_events(void) {
   // Start event client, this is a blocking call
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
   // Wait until test is completed
-  while (!test_completed)
-    ;
+  while (!test_completed) {
+  };
   // Destroy event client
   TEST_ASSERT_EQUAL_INT(0, event_destroy(client));
 }

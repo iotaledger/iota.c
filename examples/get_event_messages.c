@@ -8,12 +8,15 @@
 #include "client/api/events/sub_milestone_latest.h"
 #include "client/api/events/sub_milestones_confirmed.h"
 
+bool is_error = false;
+
 void process_event_data(event_client_event_t *event);
 
 void callback(event_client_event_t *event) {
   switch (event->event_id) {
     case NODE_EVENT_ERROR:
       printf("Node event network error : %s\n", (char *)event->data);
+      is_error = true;
       break;
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
@@ -72,6 +75,8 @@ void process_event_data(event_client_event_t *event) {
         printf("Referenced Milestone : %ld\n", res->referenced_milestone);
       }
       res_msg_metadata_free(res);
+    } else {
+      is_error = true;
     }
   }
 }
@@ -84,7 +89,11 @@ int main(void) {
   // Runs event client in a non blocking call.
   event_start(client);
   // Blocking main loop, callbacks will be processed on event message arrival
-  while (1)
-    ;
+  while (!is_error) {
+  };
+  // Stop event client instance
+  event_stop(client);
+  // Destroy event client instance
+  event_destroy(client);
   return 0;
 }

@@ -76,8 +76,8 @@ void test_milestone_latest_events(void) {
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
   // Wait until test is completed
-  while (!test_completed)
-    ;
+  while (!test_completed) {
+  };
   TEST_ASSERT_EQUAL_INT(0, event_destroy(client));
 }
 
