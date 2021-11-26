@@ -14,6 +14,7 @@
  */
 struct event_client {
   mqtt_client_handle_t mqtt_client;
+  mqtt_client_config_t *event_conf;
   void (*event_callback_t)(event_client_event_t *event);
 };
 
@@ -91,16 +92,16 @@ event_client_handle_t event_init(event_client_config_t *config) {
     return NULL;
   }
   // Prepare client config for mqt network layer
-  mqtt_client_config_t *event_conf = set_client_config(config);
-  if (event_conf == NULL) {
+  client->event_conf = set_client_config(config);
+  if (client->event_conf == NULL) {
     free(client);
     return NULL;
   }
   // Initialize mqtt network layer
-  client->mqtt_client = mqtt_init(event_conf);
+  client->mqtt_client = mqtt_init(client->event_conf);
   if (client->mqtt_client == NULL) {
+    free(client->event_conf);
     free(client);
-    free(event_conf);
     return NULL;
   }
   return client;
@@ -134,6 +135,7 @@ int event_stop(event_client_handle_t client) {
 
 int event_destroy(event_client_handle_t client) {
   mqtt_destroy(client->mqtt_client);
+  free(client->event_conf);
   free(client);
   return 0;
 }
