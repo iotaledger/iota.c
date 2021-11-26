@@ -9,9 +9,6 @@
 #include "client/api/events/sub_messages_metadata.h"
 #include "events_test_config.h"
 
-char *messages_referenced_topic = "messages/referenced";
-char *msg_id_meta_topic = "messages/0e1155e3b502b51823b3ed67b6ffa7128e0211911096738c64a769a0d5224e44/metadata";
-
 char *message_topic;
 
 bool test_completed = false;
@@ -142,19 +139,18 @@ int main() {
   RUN_TEST(test_messages_metadata_parser);
 
   /* Test case for messages/referenced topic */
-  message_topic = (char *)malloc(strlen(messages_referenced_topic));
-  strcpy(message_topic, messages_referenced_topic);
+  message_topic = (char *)malloc(strlen(MESSAGES_REFERENCED_TOPIC));
+  strcpy(message_topic, MESSAGES_REFERENCED_TOPIC);
   RUN_TEST(test_messages_events);
   free(message_topic);
 
   test_completed = false;
 
   /* Test case for messages/referenced topic */
-  message_topic = (char *)malloc(strlen(msg_id_meta_topic));
-  strcpy(message_topic, msg_id_meta_topic);
+  message_topic = (char *)malloc(strlen(MSG_ID_META_TOPIC));
+  strcpy(message_topic, MSG_ID_META_TOPIC);
   RUN_TEST(test_messages_events);
   free(message_topic);
 
   return UNITY_END();
-
 }

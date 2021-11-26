@@ -26,7 +26,7 @@ void test_milestone_latest_parser(void) {
 }
 
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, "milestones/latest")) {
+  if (!strcmp(event->topic, MILESTONES_LATEST_TOPIC)) {
     milestone_latest_t res = {};
     TEST_ASSERT_EQUAL_INT(0, parse_milestone_latest((char *)event->data, &res));
     // Print received data
@@ -42,7 +42,7 @@ void callback(event_client_event_t *event) {
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
       /* Making subscriptions in the on_connect()*/
-      event_subscribe(event->client, NULL, "milestones/latest", 1);
+      event_subscribe(event->client, NULL, MILESTONES_LATEST_TOPIC, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
