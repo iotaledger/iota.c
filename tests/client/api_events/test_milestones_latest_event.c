@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <string.h>
+#include <time.h>
 #include <unity/unity.h>
 
 #include "client/api/events/node_event.h"
 #include "client/api/events/sub_milestone_latest.h"
 #include "events_test_config.h"
+
+bool test_completed = false;
 
 void setUp(void) {}
 
@@ -57,6 +60,7 @@ void callback(event_client_event_t *event) {
       printf("Message arrived\nTopic : %s\n", event->topic);
       process_event_data(event);
       TEST_ASSERT_EQUAL_INT(0, event_stop(event->client));
+      test_completed = true;
       break;
     default:
       break;
@@ -72,7 +76,21 @@ void test_milestone_latest_events(void) {
   TEST_ASSERT_NOT_NULL(client);
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
+  // Store start time
+  time_t start = time(NULL);
+  // Calculate time after wait period
+  time_t endwait = start + (time_t)TEST_TIMEOUT_SECONDS;
+  // Wait until test is completed or timeout reached
+  while ((!test_completed) && (start < endwait)) {
+    start = time(NULL);
+  };
+  // Destroy event client
   TEST_ASSERT_EQUAL_INT(0, event_destroy(client));
+  // Check if test was not completed before timeout
+  if (!test_completed) {
+    printf("Test Timedout\n");
+    TEST_FAIL();
+  }
 }
 
 int main() {
