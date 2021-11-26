@@ -86,6 +86,8 @@ endif()
 if(MQTT_CLIENT_ENABLE)
   message("Enable MQTT Client")
   include(cmake/mosquitto.cmake)
+  set(THREADS_PREFER_PTHREAD_FLAG ON)
+  find_package(Threads REQUIRED)
 endif()
 
 if(ENABLED_JEMALLOC)

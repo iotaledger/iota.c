@@ -54,10 +54,12 @@ if(MQTT_CLIENT_ENABLE)
             "api/events/node_event.c"
             "api/events/sub_milestone_latest.c"
             "api/events/sub_milestones_confirmed.c"
+            "api/events/sub_messages_metadata.c"
     PUBLIC  "network/mqtt/mqtt.h"
             "api/events/node_event.h"
             "api/events/sub_milestone_latest.h"
             "api/events/sub_milestones_confirmed.h"
+            "api/events/sub_messages_metadata.h"
   )
 endif()
 
@@ -74,6 +76,7 @@ target_link_libraries(
   PUBLIC iota_core)
 
 if(MQTT_CLIENT_ENABLE)
+  target_link_libraries(iota_client PRIVATE Threads::Threads)
   add_dependencies(iota_client ext_mosquitto)
   target_link_libraries( iota_client PUBLIC mosquitto_static)
 endif()

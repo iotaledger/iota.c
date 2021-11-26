@@ -175,22 +175,25 @@ int mqtt_start(mqtt_client_handle_t client) {
     return -1;
   }
 
-  /* Run the network loop in a blocking call. */
-  mosquitto_loop_forever(client->mosq, -1, 1);
+  /* Run the network loop in a non-blocking call. */
+  mosquitto_loop_start(client->mosq);
 
-  mosquitto_lib_cleanup();
   return 0;
 }
 
 int mqtt_stop(mqtt_client_handle_t client) {
   // Disconnect from the broker.
   mosquitto_disconnect(client->mosq);
+  // Stop the network loop
+  mosquitto_loop_stop(client->mosq, false);
   return 0;
 }
 
 int mqtt_destroy(mqtt_client_handle_t client) {
   // Disconnect from the broker.
   mosquitto_disconnect(client->mosq);
+  // Stop the network loop
+  mosquitto_loop_stop(client->mosq, false);
   // Call to free memory associated with a mosquitto client instance.
   mosquitto_destroy(client->mosq);
   // Call to free resources associated with the library.
