@@ -9,8 +9,8 @@
 #include "client/api/events/sub_messages_metadata.h"
 #include "events_test_config.h"
 
-#define messages_referenced_topic "messages/referenced"
-#define msg_id_meta_topic "messages/0e1155e3b502b51823b3ed67b6ffa7128e0211911096738c64a769a0d5224e44/metadata"
+char *messages_referenced_topic = "messages/referenced";
+char *msg_id_meta_topic = "messages/0e1155e3b502b51823b3ed67b6ffa7128e0211911096738c64a769a0d5224e44/metadata";
 
 char *message_topic;
 
@@ -103,7 +103,7 @@ void callback(event_client_event_t *event) {
   }
 }
 
-void test_messages_events(void) {
+void test_messages_events() {
   // Event MQTT network config parameters
   event_client_config_t config = {.host = TEST_EVENTS_HOST,
                                   .port = TEST_EVENTS_PORT,
@@ -115,9 +115,6 @@ void test_messages_events(void) {
   // Register callback
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
 
-  /* Test case for messages/referenced topic */
-  message_topic = (char *)malloc(strlen(messages_referenced_topic));
-  strcpy(message_topic, messages_referenced_topic);
   // Start event client, this is a non blocking call
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
   // Store start time
@@ -130,32 +127,6 @@ void test_messages_events(void) {
   };
 
   // Stop event client
-  TEST_ASSERT_EQUAL_INT(0, event_stop(client));
-
-  // Check if test was not completed before timeout
-  if (!test_completed) {
-    printf("Test Timedout\n");
-    TEST_FAIL();
-  }
-
-  test_completed = false;
-  free(message_topic);
-
-  /* Test case for messages/[messageId/metadata topic */
-  message_topic = (char *)malloc(strlen(msg_id_meta_topic));
-  strcpy(message_topic, msg_id_meta_topic);
-  // Start event client, this is a non blocking call
-  TEST_ASSERT_EQUAL_INT(0, event_start(client));
-  // Store start time
-  start = time(NULL);
-  // Calculate time after wait period
-  endwait = start + (time_t)TEST_TIMEOUT_SECONDS;
-  // Wait until test is completed or timeout reached
-  while ((!test_completed) && (start < endwait)) {
-    start = time(NULL);
-  };
-
-  // Destroy event client
   TEST_ASSERT_EQUAL_INT(0, event_destroy(client));
 
   // Check if test was not completed before timeout
@@ -169,7 +140,20 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_messages_metadata_parser);
+
+  /* Test case for messages/referenced topic */
+  message_topic = (char *)malloc(strlen(messages_referenced_topic));
+  strcpy(message_topic, messages_referenced_topic);
   RUN_TEST(test_messages_events);
+  free(message_topic);
+
+  test_completed = false;
+
+  /* Test case for messages/referenced topic */
+  message_topic = (char *)malloc(strlen(msg_id_meta_topic));
+  strcpy(message_topic, msg_id_meta_topic);
+  RUN_TEST(test_messages_events);
+  free(message_topic);
 
   return UNITY_END();
 
