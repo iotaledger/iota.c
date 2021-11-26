@@ -139,16 +139,16 @@ int main() {
   RUN_TEST(test_messages_metadata_parser);
 
   /* Test case for messages/referenced topic */
-  message_topic = (char *)malloc(strlen(MESSAGES_REFERENCED_TOPIC));
-  strcpy(message_topic, MESSAGES_REFERENCED_TOPIC);
+  message_topic = (char *)malloc(strlen(TOPIC_MS_REFERENCED));
+  strcpy(message_topic, TOPIC_MS_REFERENCED);
   RUN_TEST(test_messages_events);
   free(message_topic);
 
   test_completed = false;
 
   /* Test case for messages/referenced topic */
-  message_topic = (char *)malloc(strlen(MSG_ID_META_TOPIC));
-  strcpy(message_topic, MSG_ID_META_TOPIC);
+  message_topic = (char *)malloc(strlen(TOPIC_MSG_ID_META));
+  strcpy(message_topic, TOPIC_MSG_ID_META);
   RUN_TEST(test_messages_events);
   free(message_topic);
 

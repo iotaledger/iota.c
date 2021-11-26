@@ -23,10 +23,10 @@ void callback(event_client_event_t *event) {
       /* Making subscriptions in the on_connect() callback means that if the
        * connection drops and is automatically resumed by the client, then the
        * subscriptions will be recreated when the client reconnects. */
-      event_subscribe(event->client, NULL, MILESTONES_LATEST_TOPIC, 1);
-      event_subscribe(event->client, NULL, MILESTONES_CONFIRMED_TOPIC, 1);
-      event_subscribe(event->client, NULL, MESSAGES_REFERENCED_TOPIC, 1);
-      event_subscribe(event->client, NULL, MSG_ID_META_TOPIC, 1);
+      event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
+      event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
+      event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1);
+      event_subscribe(event->client, NULL, TOPIC_MSG_ID_META, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -71,19 +71,19 @@ void parse_and_print_message_metadata(char *data) {
 }
 
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, MILESTONES_LATEST_TOPIC)) {
+  if (!strcmp(event->topic, TOPIC_MS_LATEST)) {
     milestone_latest_t res = {};
     if (parse_milestone_latest((char *)event->data, &res) == 0) {
       printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
     }
-  } else if (!strcmp(event->topic, MILESTONES_CONFIRMED_TOPIC)) {
+  } else if (!strcmp(event->topic, TOPIC_MS_CONFIRMED)) {
     milestone_confirmed_t res = {};
     if (parse_milestones_confirmed((char *)event->data, &res) == 0) {
       printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
     }
-  } else if (!strcmp(event->topic, MESSAGES_REFERENCED_TOPIC)) {
+  } else if (!strcmp(event->topic, TOPIC_MS_REFERENCED)) {
     parse_and_print_message_metadata(event->data);
-  } else if ((!strcmp(event->topic, MSG_ID_META_TOPIC))) {
+  } else if ((!strcmp(event->topic, TOPIC_MSG_ID_META))) {
     parse_and_print_message_metadata(event->data);
   }
 }
