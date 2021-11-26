@@ -1,6 +1,6 @@
-# Client API Reference
+# RESTful API Reference
 
-The Client API is low level client implementation based on [RFC: REST Node API](https://github.com/iotaledger/protocol-rfcs/pull/27), it enables communications with the Node on the Tangle.
+The RESTful API is low level client implementation based on [RFC: REST Node API](https://github.com/iotaledger/protocol-rfcs/pull/27), it enables communications with the Node on the Tangle.
 
 ## [Endpoint Setting](https://github.com/iotaledger/iota.c/blob/dev/src/client/client_service.h)
 

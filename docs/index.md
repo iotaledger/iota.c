@@ -25,7 +25,8 @@ maxdepth: 1
 caption: API Reference
 ---
 api/wallet.md
-api/client.rst
+api/events.md
+api/restful.md
 api/core.md
 api/crypto.md
 ```
