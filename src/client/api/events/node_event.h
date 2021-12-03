@@ -16,7 +16,11 @@
 #define TOPIC_MS_LATEST "milestones/latest"
 #define TOPIC_MS_CONFIRMED "milestones/confirmed"
 #define TOPIC_MS_REFERENCED "messages/referenced"
-#define TOPIC_MSG_ID_META "messages/0e1155e3b502b51823b3ed67b6ffa7128e0211911096738c64a769a0d5224e44/metadata"
+
+#define TOPIC_STR_MESSAGES "messages/"
+#define TOPIC_STR_METADATA "/metadata"
+
+#define MSG_ID_LEN 64
 
 /**
  * @brief Event IDs for handling IOTA Node events
@@ -99,6 +103,17 @@ int event_register_cb(event_client_handle_t client, void (*callback)(event_clien
  * @return 0 if Success
  */
 int event_subscribe(event_client_handle_t client, int *mid, char *topic, int qos);
+
+/**
+ * @brief Subscribe for messages/{messageid}/metadata event
+ *
+ * @param[in] client The event client instance
+ * @param[in] mid if not NULL, mid will be set as the message id for the subscription topic
+ * @param[in] msg_id A messsage id for event
+ * @param[in] qos QoS level to be used with the topic
+ * @return 0 if Success
+ */
+int event_subscribe_msg_metadata(event_client_handle_t client, int *mid, char *msg_id, int qos);
 
 /**
  * @brief Unsubscribe an event

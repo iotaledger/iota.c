@@ -8,6 +8,9 @@
 #include "client/api/events/sub_milestone_latest.h"
 #include "client/api/events/sub_milestones_confirmed.h"
 
+// Update message id for testing
+#define TEST_MSG_ID "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7"
+
 bool is_error = false;
 
 void process_event_data(event_client_event_t *event);
@@ -26,7 +29,7 @@ void callback(event_client_event_t *event) {
       event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
       event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
       event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1);
-      event_subscribe(event->client, NULL, TOPIC_MSG_ID_META, 1);
+      event_subscribe_msg_metadata(event->client, NULL, TEST_MSG_ID, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -83,7 +86,7 @@ void process_event_data(event_client_event_t *event) {
     }
   } else if (!strcmp(event->topic, TOPIC_MS_REFERENCED)) {
     parse_and_print_message_metadata(event->data);
-  } else if ((!strcmp(event->topic, TOPIC_MSG_ID_META))) {
+  } else if ((strstr(event->topic, TOPIC_STR_MESSAGES) != NULL) && (strstr(event->topic, TOPIC_STR_METADATA) != NULL)) {
     parse_and_print_message_metadata(event->data);
   }
 }

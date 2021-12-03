@@ -9,8 +9,10 @@
 #include "client/api/events/sub_messages_metadata.h"
 #include "events_test_config.h"
 
-char *message_topic;
+// Update message id for testing
+#define TEST_MSG_ID "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7"
 
+bool test_metadata = false;
 bool test_completed = false;
 
 void setUp(void) {}
@@ -43,7 +45,8 @@ void test_messages_metadata_parser(void) {
 }
 
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, message_topic)) {
+  if (((strstr(event->topic, TOPIC_STR_MESSAGES) != NULL) && (strstr(event->topic, TOPIC_STR_METADATA) != NULL)) ||
+      (!strcmp(event->topic, TOPIC_MS_REFERENCED))) {
     // Create and allocate memory for response object
     msg_metadata_t *res = res_msg_metadata_new();
     TEST_ASSERT_EQUAL_INT(0, parse_messages_metadata((char *)event->data, res));
@@ -73,8 +76,6 @@ void callback(event_client_event_t *event) {
       break;
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
-      /* Making subscriptions in the on_connect()*/
-      event_subscribe(event->client, NULL, message_topic, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -111,9 +112,15 @@ void test_messages_events() {
   TEST_ASSERT_NOT_NULL(client);
   // Register callback
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
-
   // Start event client, this is a non blocking call
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
+  if (!test_metadata) {
+    // Subscribe to message referenced topic
+    event_subscribe(client, NULL, TOPIC_MS_REFERENCED, 1);
+  } else {
+    // Subscribe to messages/{messageId}/metadata topic
+    event_subscribe_msg_metadata(client, NULL, TEST_MSG_ID, 1);
+  }
   // Store start time
   time_t start = time(NULL);
   // Calculate time after wait period
@@ -139,18 +146,13 @@ int main() {
   RUN_TEST(test_messages_metadata_parser);
 
   /* Test case for messages/referenced topic */
-  message_topic = (char *)malloc(strlen(TOPIC_MS_REFERENCED));
-  strcpy(message_topic, TOPIC_MS_REFERENCED);
+  test_metadata = false;
   RUN_TEST(test_messages_events);
-  free(message_topic);
 
   test_completed = false;
-
-  /* Test case for messages/referenced topic */
-  message_topic = (char *)malloc(strlen(TOPIC_MSG_ID_META));
-  strcpy(message_topic, TOPIC_MSG_ID_META);
+  /* Test case for messages/{messageId/metadata topic */
+  test_metadata = true;
   RUN_TEST(test_messages_events);
-  free(message_topic);
 
   return UNITY_END();
 }
