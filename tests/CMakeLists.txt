@@ -69,6 +69,7 @@ if(MQTT_CLIENT_ENABLE)
   add_iota_test("client/api_events/test_milestones_latest_event.c" test_milestones_latest_event)
   add_iota_test("client/api_events/test_milestones_confirmed_event.c" test_milestones_confirmed_event)
   add_iota_test("client/api_events/test_messages_events.c" test_messages_events)
+  add_iota_test("client/api_events/test_address_outputs.c" event_address_outputs)
 endif()
 
 # Wallet APIs
