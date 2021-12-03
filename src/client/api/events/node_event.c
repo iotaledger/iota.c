@@ -69,21 +69,6 @@ void mqtt_callback(mqtt_client_event_t *event, void *client) {
   free(node_event);
 }
 
-mqtt_client_config_t *set_client_config(event_client_config_t *config) {
-  mqtt_client_config_t *event_conf = (mqtt_client_config_t *)malloc(sizeof(mqtt_client_config_t));
-  if (event_conf == NULL) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return NULL;
-  }
-  event_conf->host = config->host;
-  event_conf->port = config->port;
-  event_conf->client_id = config->client_id;
-  event_conf->keepalive = config->keepalive;
-  event_conf->username = config->username;
-  event_conf->password = config->password;
-  return event_conf;
-}
-
 event_client_handle_t event_init(event_client_config_t *config) {
   // Allocate client handle
   event_client_handle_t client = (struct event_client *)malloc(sizeof(struct event_client));
@@ -92,7 +77,7 @@ event_client_handle_t event_init(event_client_config_t *config) {
     return NULL;
   }
   // Prepare client config for mqt network layer
-  client->event_conf = set_client_config(config);
+  client->event_conf = (mqtt_client_config_t *)config;
   if (client->event_conf == NULL) {
     free(client);
     return NULL;
@@ -100,7 +85,6 @@ event_client_handle_t event_init(event_client_config_t *config) {
   // Initialize mqtt network layer
   client->mqtt_client = mqtt_init(client->event_conf);
   if (client->mqtt_client == NULL) {
-    free(client->event_conf);
     free(client);
     return NULL;
   }
@@ -135,7 +119,6 @@ int event_stop(event_client_handle_t client) {
 
 int event_destroy(event_client_handle_t client) {
   mqtt_destroy(client->mqtt_client);
-  free(client->event_conf);
   free(client);
   return 0;
 }
