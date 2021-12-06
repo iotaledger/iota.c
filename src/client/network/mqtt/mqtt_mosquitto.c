@@ -198,8 +198,6 @@ int mqtt_destroy(mqtt_client_handle_t client) {
   mosquitto_destroy(client->mosq);
   // Call to free resources associated with the library.
   mosquitto_lib_cleanup();
-  // Free client config
-  free(client->config);
   // Free client instance
   free(client);
   return 0;
