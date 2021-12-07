@@ -95,7 +95,7 @@ int event_sub_address_outputs(event_client_handle_t client, int *mid, char const
 int event_sub_outputs_id(event_client_handle_t client, int *mid, char const output_id[], int qos) {
   if ((strlen(output_id)) != OUTPUT_ID_LEN) {
     printf("[%s:%d]: Output Id length is invalid\n", __func__, __LINE__);
-    return 0;
+    return -1;
   }
 
   // Buffer enough for outputs/{outputId}

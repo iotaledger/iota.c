@@ -111,7 +111,7 @@ end:
 int event_subscribe_msg_metadata(event_client_handle_t client, int *mid, char const msg_id[], int qos) {
   if ((strlen(msg_id)) != MSG_ID_LEN) {
     printf("[%s:%d]: Message Id length is invalid\n", __func__, __LINE__);
-    return 0;
+    return -1;
   }
   // Buffer to store topic string : messages/{messageid}/metadata
   char topic_buff[MSG_ID_LEN + 19] = {0};
