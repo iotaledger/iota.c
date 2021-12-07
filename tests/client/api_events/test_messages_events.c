@@ -9,6 +9,10 @@
 #include "client/api/events/sub_messages_metadata.h"
 #include "events_test_config.h"
 
+// Update message id for testing
+#define TEST_MSG_ID "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7"
+
+bool test_metadata = false;
 bool test_completed = false;
 
 void setUp(void) {}
@@ -41,7 +45,8 @@ void test_messages_metadata_parser(void) {
 }
 
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, "messages/referenced")) {
+  if (((strstr(event->topic, "messages/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) ||
+      (!strcmp(event->topic, TOPIC_MS_REFERENCED))) {
     // Create and allocate memory for response object
     msg_metadata_t *res = res_msg_metadata_new();
     TEST_ASSERT_EQUAL_INT(0, parse_messages_metadata((char *)event->data, res));
@@ -71,8 +76,6 @@ void callback(event_client_event_t *event) {
       break;
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
-      /* Making subscriptions in the on_connect()*/
-      event_subscribe(event->client, NULL, "messages/referenced", 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -98,7 +101,7 @@ void callback(event_client_event_t *event) {
   }
 }
 
-void test_messages_referenced_events(void) {
+void test_messages_events() {
   // Event MQTT network config parameters
   event_client_config_t config = {.host = TEST_EVENTS_HOST,
                                   .port = TEST_EVENTS_PORT,
@@ -109,8 +112,15 @@ void test_messages_referenced_events(void) {
   TEST_ASSERT_NOT_NULL(client);
   // Register callback
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
-  // Start event client, this is a blocking call
+  // Start event client, this is a non blocking call
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
+  if (!test_metadata) {
+    // Subscribe to message referenced topic
+    event_subscribe(client, NULL, TOPIC_MS_REFERENCED, 1);
+  } else {
+    // Subscribe to messages/{messageId}/metadata topic
+    event_subscribe_msg_metadata(client, NULL, TEST_MSG_ID, 1);
+  }
   // Store start time
   time_t start = time(NULL);
   // Calculate time after wait period
@@ -119,8 +129,10 @@ void test_messages_referenced_events(void) {
   while ((!test_completed) && (start < endwait)) {
     start = time(NULL);
   };
-  // Destroy event client
+
+  // Stop event client
   TEST_ASSERT_EQUAL_INT(0, event_destroy(client));
+
   // Check if test was not completed before timeout
   if (!test_completed) {
     printf("Test Timedout\n");
@@ -132,7 +144,15 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_messages_metadata_parser);
-  RUN_TEST(test_messages_referenced_events);
+
+  /* Test case for messages/referenced topic */
+  test_metadata = false;
+  RUN_TEST(test_messages_events);
+
+  test_completed = false;
+  /* Test case for messages/{messageId/metadata topic */
+  test_metadata = true;
+  RUN_TEST(test_messages_events);
 
   return UNITY_END();
 }

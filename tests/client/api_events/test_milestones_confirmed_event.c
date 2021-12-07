@@ -26,7 +26,7 @@ void test_milestones_confirmed_parser(void) {
 }
 
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, "milestones/confirmed")) {
+  if (!strcmp(event->topic, TOPIC_MS_CONFIRMED)) {
     milestone_confirmed_t res = {};
     TEST_ASSERT_EQUAL_INT(0, parse_milestones_confirmed((char *)event->data, &res));
     // Print received data
@@ -42,7 +42,7 @@ void callback(event_client_event_t *event) {
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
       /* Making subscriptions in the on_connect()*/
-      event_subscribe(event->client, NULL, "milestones/confirmed", 1);
+      event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");

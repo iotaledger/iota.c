@@ -13,6 +13,10 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#define TOPIC_MS_LATEST "milestones/latest"
+#define TOPIC_MS_CONFIRMED "milestones/confirmed"
+#define TOPIC_MS_REFERENCED "messages/referenced"
+
 /**
  * @brief Event IDs for handling IOTA Node events
  *

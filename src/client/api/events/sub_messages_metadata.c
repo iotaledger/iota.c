@@ -107,3 +107,16 @@ end:
   cJSON_Delete(json_obj);
   return ret;
 }
+
+int event_subscribe_msg_metadata(event_client_handle_t client, int *mid, char *msg_id, int qos) {
+  if ((strlen(msg_id)) != MSG_ID_LEN) {
+    printf("[%s:%d]: Message Id length is invalid\n", __func__, __LINE__);
+    return 0;
+  }
+  // Buffer to store topic string : messages/{messageid}/metadata
+  char topic_buff[MSG_ID_LEN + 19] = {0};
+  // Prepare topic string
+  sprintf(topic_buff, "messages/%s/metadata", msg_id);
+  // Call to MQTT network layer
+  return event_subscribe(client, mid, topic_buff, qos);
+}

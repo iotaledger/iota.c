@@ -8,6 +8,9 @@
 #include "client/api/events/sub_milestone_latest.h"
 #include "client/api/events/sub_milestones_confirmed.h"
 
+// Update message id for testing
+#define TEST_MSG_ID "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7"
+
 bool is_error = false;
 
 void process_event_data(event_client_event_t *event);
@@ -23,9 +26,10 @@ void callback(event_client_event_t *event) {
       /* Making subscriptions in the on_connect() callback means that if the
        * connection drops and is automatically resumed by the client, then the
        * subscriptions will be recreated when the client reconnects. */
-      event_subscribe(event->client, NULL, "milestones/latest", 1);
-      event_subscribe(event->client, NULL, "milestones/confirmed", 1);
-      event_subscribe(event->client, NULL, "messages/referenced", 1);
+      event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
+      event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
+      event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1);
+      event_subscribe_msg_metadata(event->client, NULL, TEST_MSG_ID, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -48,36 +52,42 @@ void callback(event_client_event_t *event) {
   }
 }
 
+void parse_and_print_message_metadata(char *data) {
+  msg_metadata_t *res = res_msg_metadata_new();
+  if (res) {
+    if (parse_messages_metadata(data, res) == 0) {
+      printf("Msg Id :%s\n", res->msg_id);
+      size_t parents_count = res_msg_metadata_parents_len(res);
+      for (size_t i = 0; i < parents_count; i++) {
+        printf("Parent Id %zu : %s\n", i + 1, res_msg_metadata_parent_get(res, i));
+      }
+      printf("Inclusion State : %s\n", res->inclusion_state);
+      printf("Is Solid : %s\n", res->is_solid ? "true" : "false");
+      printf("Should Promote : %s\n", res->should_promote ? "true" : "false");
+      printf("Should Reattach : %s\n", res->should_reattach ? "true" : "false");
+      printf("Referenced Milestone : %ld\n", res->referenced_milestone);
+    }
+    res_msg_metadata_free(res);
+  } else {
+    is_error = true;
+  }
+}
+
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, "milestones/latest")) {
+  if (!strcmp(event->topic, TOPIC_MS_LATEST)) {
     milestone_latest_t res = {};
     if (parse_milestone_latest((char *)event->data, &res) == 0) {
       printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
     }
-  } else if (!strcmp(event->topic, "milestones/confirmed")) {
+  } else if (!strcmp(event->topic, TOPIC_MS_CONFIRMED)) {
     milestone_confirmed_t res = {};
     if (parse_milestones_confirmed((char *)event->data, &res) == 0) {
       printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
     }
-  } else if (!strcmp(event->topic, "messages/referenced")) {
-    msg_metadata_t *res = res_msg_metadata_new();
-    if (res) {
-      if (parse_messages_metadata((char *)event->data, res) == 0) {
-        printf("Msg Id :%s\n", res->msg_id);
-        size_t parents_count = res_msg_metadata_parents_len(res);
-        for (size_t i = 0; i < parents_count; i++) {
-          printf("Parent Id %zu : %s\n", i + 1, res_msg_metadata_parent_get(res, i));
-        }
-        printf("Inclusion State : %s\n", res->inclusion_state);
-        printf("Is Solid : %s\n", res->is_solid ? "true" : "false");
-        printf("Should Promote : %s\n", res->should_promote ? "true" : "false");
-        printf("Should Reattach : %s\n", res->should_reattach ? "true" : "false");
-        printf("Referenced Milestone : %ld\n", res->referenced_milestone);
-      }
-      res_msg_metadata_free(res);
-    } else {
-      is_error = true;
-    }
+  } else if (!strcmp(event->topic, TOPIC_MS_REFERENCED)) {
+    parse_and_print_message_metadata(event->data);
+  } else if ((strstr(event->topic, "messages/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) {
+    parse_and_print_message_metadata(event->data);
   }
 }
 

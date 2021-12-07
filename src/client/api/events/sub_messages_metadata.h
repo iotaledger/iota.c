@@ -7,7 +7,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "client/api/events/node_event.h"
 #include "core/models/message.h"
+
+#define MSG_ID_LEN 64
 
 /**
  * @brief Stores the message metadata response object
@@ -64,6 +67,17 @@ char *res_msg_metadata_parent_get(msg_metadata_t *res, size_t index);
  * @return 0 if success
  */
 int parse_messages_metadata(char *data, msg_metadata_t *res);
+
+/**
+ * @brief Subscribe for messages/{messageid}/metadata event
+ *
+ * @param[in] client The event client instance
+ * @param[in] mid if not NULL, mid will be set as the message id for the subscription topic
+ * @param[in] msg_id A messsage id for event
+ * @param[in] qos QoS level to be used with the topic
+ * @return 0 if Success
+ */
+int event_subscribe_msg_metadata(event_client_handle_t client, int *mid, char *msg_id, int qos);
 
 #ifdef __cplusplus
 }

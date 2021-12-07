@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "client/api/events/node_event.h"
 #include "client/network/mqtt/mqtt.h"
