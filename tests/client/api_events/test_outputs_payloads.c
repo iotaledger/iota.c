@@ -4,13 +4,14 @@
 #include <inttypes.h>
 #include <time.h>
 
-#include "client/api/events/sub_address_outputs.h"
+#include "client/api/events/sub_outputs_payload.h"
 #include "events_test_config.h"
 #include "unity/unity.h"
 
 bool test_completed = false;
 char const *const test_bech32 = "atoi1qqs7y6ec5vcg6cnz46vjrar2epc52lhksyar3a4zua7fg7ca08y5ymep8aa";
 char const *const test_ed25519 = "21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942";
+char const *const test_output_id = "3912942d1cb588d8091eff2069bdd797a0a834739dc8ea550e35fb0dc8609c820000";
 
 void setUp(void) {}
 
@@ -60,6 +61,7 @@ static void event_cb(event_client_event_t *event) {
       /* Making subscriptions in the on_connect()*/
       event_sub_address_outputs(event->client, NULL, test_bech32, true, 1);
       // event_sub_address_outputs(event->client, NULL, test_ed25519, false, 1);
+      // event_sub_outputs_id(event->client, NULL, test_output_id, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");

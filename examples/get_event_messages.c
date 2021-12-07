@@ -1,15 +1,20 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <inttypes.h>
 #include <string.h>
 
 #include "client/api/events/node_event.h"
 #include "client/api/events/sub_messages_metadata.h"
 #include "client/api/events/sub_milestone_latest.h"
 #include "client/api/events/sub_milestones_confirmed.h"
+#include "client/api/events/sub_outputs_payload.h"
 
 // Update message id for testing
-#define TEST_MSG_ID "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7"
+char const *const test_message_id = "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7";
+char const *const test_output_id = "3912942d1cb588d8091eff2069bdd797a0a834739dc8ea550e35fb0dc8609c820000";
+char const *const test_bech32 = "atoi1qqs7y6ec5vcg6cnz46vjrar2epc52lhksyar3a4zua7fg7ca08y5ymep8aa";
+char const *const test_ed25519 = "21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942";
 
 bool is_error = false;
 
@@ -29,7 +34,10 @@ void callback(event_client_event_t *event) {
       event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
       event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
       event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1);
-      event_subscribe_msg_metadata(event->client, NULL, TEST_MSG_ID, 1);
+      event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1);
+      event_sub_address_outputs(event->client, NULL, test_bech32, true, 1);
+      event_sub_address_outputs(event->client, NULL, test_ed25519, false, 1);
+      event_sub_outputs_id(event->client, NULL, test_output_id, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -73,6 +81,18 @@ void parse_and_print_message_metadata(char *data) {
   }
 }
 
+void parse_and_print_output_payload(char *data) {
+  event_addr_outputs_t res = {};
+  event_parse_address_outputs(data, &res);
+  printf("Message ID: %s\n", res.msg_id);
+  printf("Transaction ID: %s\n", res.tx_id);
+  printf("Output Index: %d\n", res.output_index);
+  printf("Ledger Index: %" PRIu64 "\n", res.ledger_index);
+  printf("isSpent: %s\n", res.is_spent ? "True" : "False");
+  printf("Addr: %s\n", res.output.addr);
+  printf("Amount: %" PRIu64 "\n", res.output.amount);
+}
+
 void process_event_data(event_client_event_t *event) {
   if (!strcmp(event->topic, TOPIC_MS_LATEST)) {
     milestone_latest_t res = {};
@@ -88,6 +108,10 @@ void process_event_data(event_client_event_t *event) {
     parse_and_print_message_metadata(event->data);
   } else if ((strstr(event->topic, "messages/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) {
     parse_and_print_message_metadata(event->data);
+  } else if ((strstr(event->topic, "outputs/") != NULL)) {
+    parse_and_print_output_payload(event->data);
+  } else if ((strstr(event->topic, "addresses/") != NULL)) {
+    parse_and_print_output_payload(event->data);
   }
 }
 

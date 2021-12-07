@@ -77,7 +77,7 @@ int parse_messages_metadata(char *data, msg_metadata_t *res);
  * @param[in] qos QoS level to be used with the topic
  * @return 0 if Success
  */
-int event_subscribe_msg_metadata(event_client_handle_t client, int *mid, char *msg_id, int qos);
+int event_subscribe_msg_metadata(event_client_handle_t client, int *mid, char const msg_id[], int qos);
 
 #ifdef __cplusplus
 }
