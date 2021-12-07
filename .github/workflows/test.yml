@@ -54,14 +54,14 @@ jobs:
         cmake --version
         gcc --version
         mkdir build && cd build
-        cmake -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON -DCryptoUse=openssl ..
+        cmake -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON -DCryptoUse=openssl -DMQTT_CLIENT_ENABLE=ON ..
         make -j8 && make test
 
     - name: Release build
       run: |
         rm -rf build && sync
         mkdir build && cd build
-        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DCryptoUse=openssl ..
+        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DCryptoUse=openssl -DMQTT_CLIENT_ENABLE=ON ..
         make -j8 && make test
 
   make_gcc_mbedtls:
