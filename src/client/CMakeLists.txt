@@ -55,13 +55,13 @@ if(MQTT_CLIENT_ENABLE)
             "api/events/sub_milestone_latest.c"
             "api/events/sub_milestones_confirmed.c"
             "api/events/sub_messages_metadata.c"
-            "api/events/sub_address_outputs.c"
+            "api/events/sub_outputs_payload.c"
     PUBLIC  "network/mqtt/mqtt.h"
             "api/events/node_event.h"
             "api/events/sub_milestone_latest.h"
             "api/events/sub_milestones_confirmed.h"
             "api/events/sub_messages_metadata.h"
-            "api/events/sub_address_outputs.h"
+            "api/events/sub_outputs_payload.h"
   )
 endif()
 

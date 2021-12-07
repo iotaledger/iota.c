@@ -1,7 +1,7 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/events/sub_address_outputs.h"
+#include "client/api/events/sub_outputs_payload.h"
 #include "client/api/json_utils.h"
 
 int event_parse_address_outputs(char const data[], event_addr_outputs_t *res) {
