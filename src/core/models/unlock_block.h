@@ -14,15 +14,20 @@
 #define UNLOCK_REFERENCE_SERIALIZE_BYTES (1 + sizeof(uint16_t))
 //  unlock_block_t + signature type + pub_key + signature
 #define UNLOCK_SIGNATURE_SERIALIZE_BYTES (1 + ED25519_SIGNATURE_BLOCK_BYTES)
+// unlock_block_t + reference = 1 + 2
+#define UNLOCK_ALIAS_SERIALIZE_BYTES (1 + sizeof(uint16_t))
+// unlock_block_t + reference = 1 + 2
+#define UNLOCK_NFT_SERIALIZE_BYTES (1 + sizeof(uint16_t))
 
 /**
  * @brief An unlock block list object
  *
  */
 typedef struct unlock_blocks {
-  unlock_block_t type;         ///< 0 denotes a Signature Unlock Block, 1 denotes a Reference Unlock Block.
-  uint16_t reference;          ///< Represents the index of a pervious unlock block
-  byte_t* sig_block;           ///< signature type + public key + signature
+  unlock_block_t type;  ///< 0 denotes a Signature Unlock Block, 1 denotes a Reference Unlock Block, 2 denotes an Alias
+                        ///< Unlock Block, 3 denotes a NFT Unlock Block.
+  uint16_t reference;   ///< Represents the index of a previous unlock block, an alias block or a NFT block
+  byte_t* sig_block;    ///< signature type + public key + signature
   struct unlock_blocks* next;  ///< point to next block
 } unlock_blocks_t;
 
@@ -55,6 +60,24 @@ int unlock_blocks_add_signature(unlock_blocks_t** blocks, byte_t* sig, size_t si
  * @return int 0 on success.
  */
 int unlock_blocks_add_reference(unlock_blocks_t** blocks, uint16_t ref);
+
+/**
+ * @brief Add an alias block
+ *
+ * @param[in] blocks The head of list
+ * @param[in] ref The index of alias block
+ * @return int 0 on success.
+ */
+int unlock_blocks_add_alias(unlock_blocks_t** blocks, uint16_t ref);
+
+/**
+ * @brief Add a NFT block
+ *
+ * @param[in] blocks The head of list
+ * @param[in] ref The index of NFT block
+ * @return int 0 on success.
+ */
+int unlock_blocks_add_nft(unlock_blocks_t** blocks, uint16_t ref);
 
 /**
  * @brief Get the length of unlock blocks

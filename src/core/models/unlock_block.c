@@ -61,6 +61,50 @@ int unlock_blocks_add_reference(unlock_blocks_t** blocks, uint16_t ref) {
   return 0;
 }
 
+int unlock_blocks_add_alias(unlock_blocks_t** blocks, uint16_t ref) {
+  // Unlock Blocks Count must match the amount of inputs. Must be 0 < x < 127.
+  if (ref > UNLOCKED_BLOCKS_MAX_COUNT) {
+    printf("[%s:%d] alias out of range \n", __func__, __LINE__);
+    return -1;
+  }
+
+  // TODO checking if the alias block index points to a valid signature block
+
+  unlock_blocks_t* b = malloc(sizeof(unlock_blocks_t));
+  if (b == NULL) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
+  }
+
+  b->type = 2;  // alias block
+  b->reference = ref;
+  b->sig_block = NULL;
+  LL_APPEND(*blocks, b);
+  return 0;
+}
+
+int unlock_blocks_add_nft(unlock_blocks_t** blocks, uint16_t ref) {
+  // Unlock Blocks Count must match the amount of inputs. Must be 0 < x < 127.
+  if (ref > UNLOCKED_BLOCKS_MAX_COUNT) {
+    printf("[%s:%d] NFT out of range \n", __func__, __LINE__);
+    return -1;
+  }
+
+  // TODO checking if the NFT block index points to a valid signature block
+
+  unlock_blocks_t* b = malloc(sizeof(unlock_blocks_t));
+  if (b == NULL) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
+  }
+
+  b->type = 3;  // NFT block
+  b->reference = ref;
+  b->sig_block = NULL;
+  LL_APPEND(*blocks, b);
+  return 0;
+}
+
 size_t unlock_blocks_serialize_length(unlock_blocks_t* blocks) {
   unlock_blocks_t* elm = NULL;
   size_t serialized_size = 0;
@@ -78,6 +122,10 @@ size_t unlock_blocks_serialize_length(unlock_blocks_t* blocks) {
       serialized_size += UNLOCK_SIGNATURE_SERIALIZE_BYTES;
     } else if (elm->type == 1) {
       serialized_size += UNLOCK_REFERENCE_SERIALIZE_BYTES;
+    } else if (elm->type == 2) {
+      serialized_size += UNLOCK_ALIAS_SERIALIZE_BYTES;
+    } else if (elm->type == 3) {
+      serialized_size += UNLOCK_NFT_SERIALIZE_BYTES;
     } else {
       printf("[%s:%d] Unkown unlocked block type\n", __func__, __LINE__);
       return 0;
@@ -104,6 +152,16 @@ size_t unlock_blocks_serialize(unlock_blocks_t* blocks, byte_t buf[]) {
       memcpy(offset, elm->sig_block, ED25519_SIGNATURE_BLOCK_BYTES);
       offset += ED25519_SIGNATURE_BLOCK_BYTES;
     } else if (elm->type == 1) {  // reference block
+      memcpy(offset, &elm->type, sizeof(elm->type));
+      offset += sizeof(elm->type);
+      memcpy(offset, &elm->reference, sizeof(elm->reference));
+      offset += sizeof(elm->reference);
+    } else if (elm->type == 2) {  // alias block
+      memcpy(offset, &elm->type, sizeof(elm->type));
+      offset += sizeof(elm->type);
+      memcpy(offset, &elm->reference, sizeof(elm->reference));
+      offset += sizeof(elm->reference);
+    } else if (elm->type == 3) {  // NFT block
       memcpy(offset, &elm->type, sizeof(elm->type));
       offset += sizeof(elm->type);
       memcpy(offset, &elm->reference, sizeof(elm->reference));
@@ -167,6 +225,12 @@ void unlock_blocks_print(unlock_blocks_t* blocks) {
         printf("\t]\n");
       } else if (elm->type == 1) {  // reference block
         printf("\tReference block[ ");
+        printf("ref: %" PRIu16 " ]\n", elm->reference);
+      } else if (elm->type == 2) {  // alias block
+        printf("\tAlias block[ ");
+        printf("ref: %" PRIu16 " ]\n", elm->reference);
+      } else if (elm->type == 3) {  // NFT block
+        printf("\tNFT block[ ");
         printf("ref: %" PRIu16 " ]\n", elm->reference);
       } else {
         printf("[%s:%d] Unkown unlocked block type\n", __func__, __LINE__);
