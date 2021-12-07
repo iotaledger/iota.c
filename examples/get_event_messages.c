@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "client/api/events/node_event.h"
-#include "client/api/events/sub_address_outputs.h"
 #include "client/api/events/sub_messages_metadata.h"
 #include "client/api/events/sub_milestone_latest.h"
 #include "client/api/events/sub_milestones_confirmed.h"
