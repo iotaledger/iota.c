@@ -45,7 +45,7 @@ void test_messages_metadata_parser(void) {
 }
 
 void process_event_data(event_client_event_t *event) {
-  if (((strstr(event->topic, TOPIC_STR_MESSAGES) != NULL) && (strstr(event->topic, TOPIC_STR_METADATA) != NULL)) ||
+  if (((strstr(event->topic, "messages/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) ||
       (!strcmp(event->topic, TOPIC_MS_REFERENCED))) {
     // Create and allocate memory for response object
     msg_metadata_t *res = res_msg_metadata_new();

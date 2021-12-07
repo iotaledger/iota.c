@@ -86,7 +86,7 @@ void process_event_data(event_client_event_t *event) {
     }
   } else if (!strcmp(event->topic, TOPIC_MS_REFERENCED)) {
     parse_and_print_message_metadata(event->data);
-  } else if ((strstr(event->topic, TOPIC_STR_MESSAGES) != NULL) && (strstr(event->topic, TOPIC_STR_METADATA) != NULL)) {
+  } else if ((strstr(event->topic, "messages/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) {
     parse_and_print_message_metadata(event->data);
   }
 }

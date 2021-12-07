@@ -118,22 +118,6 @@ int event_subscribe(event_client_handle_t client, int *mid, char *topic, int qos
   return mqtt_subscribe(client->mqtt_client, mid, topic, qos);
 }
 
-int event_subscribe_msg_metadata(event_client_handle_t client, int *mid, char *msg_id, int qos) {
-  if ((strlen(msg_id)) != MSG_ID_LEN) {
-    printf("[%s:%d]: Message Id length is invalid\n", __func__, __LINE__);
-    return 0;
-  }
-  // Buffer to store topic string : messages/{messageid}/metadata
-  char topic_str[MSG_ID_LEN + 18] = {0};
-  // Prepare topic string
-  strncpy(topic_str, TOPIC_STR_MESSAGES, strlen(TOPIC_STR_MESSAGES));
-  strncat(topic_str, msg_id, MSG_ID_LEN);
-  strncat(topic_str, TOPIC_STR_METADATA, strlen(TOPIC_STR_METADATA));
-  printf("topic : %s/n", topic_str);
-  // Call to MQTT network layer
-  return mqtt_subscribe(client->mqtt_client, mid, topic_str, qos);
-}
-
 int event_unsubscribe(event_client_handle_t client, int *mid, char *topic) {
   // Call to MQTT network layer
   return mqtt_unsubscribe(client->mqtt_client, mid, topic);
