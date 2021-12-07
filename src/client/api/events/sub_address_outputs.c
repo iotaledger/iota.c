@@ -91,3 +91,16 @@ int event_sub_address_outputs(event_client_handle_t client, int *mid, char const
   }
   return event_subscribe(client, mid, topic_buff, qos);
 }
+
+int event_sub_outputs_id(event_client_handle_t client, int *mid, char const output_id[], int qos) {
+  if ((strlen(output_id)) != OUTPUT_ID_LEN) {
+    printf("[%s:%d]: Output Id length is invalid\n", __func__, __LINE__);
+    return 0;
+  }
+
+  // Buffer enough for outputs/{outputId}
+  char topic_buff[77] = {};
+  sprintf(topic_buff, "outputs/%s", output_id);
+
+  return event_subscribe(client, mid, topic_buff, qos);
+}

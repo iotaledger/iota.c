@@ -10,6 +10,9 @@
 #include "client/api/events/node_event.h"
 #include "client/api/message.h"
 
+// output id = transaction id(64) + output index(4)
+#define OUTPUT_ID_LEN 68
+
 /**
  * @brief The output object in event
  *
@@ -53,5 +56,16 @@ int event_parse_address_outputs(char const data[], event_addr_outputs_t *res);
  * @return int return 0 if success
  */
 int event_sub_address_outputs(event_client_handle_t client, int *mid, char const addr[], bool is_bech32, int qos);
+
+/**
+ * @brief Subscribe to the outputs/{outputId} event
+ *
+ * @param[in] client The event client object
+ * @param[in] mid if not NULL, mid will be set as the message id for the topic
+ * @param[in] output_id An output Id
+ * @param[in] qos QoS level to be used with the topic
+ * @return int return 0 if success
+ */
+int event_sub_outputs_id(event_client_handle_t client, int *mid, char const output_id[], int qos);
 
 #endif

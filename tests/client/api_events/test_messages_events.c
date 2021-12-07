@@ -10,7 +10,7 @@
 #include "events_test_config.h"
 
 // Update message id for testing
-#define TEST_MSG_ID "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7"
+char const *const test_message_id = "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7";
 
 bool test_metadata = false;
 bool test_completed = false;
@@ -119,7 +119,7 @@ void test_messages_events() {
     event_subscribe(client, NULL, TOPIC_MS_REFERENCED, 1);
   } else {
     // Subscribe to messages/{messageId}/metadata topic
-    event_subscribe_msg_metadata(client, NULL, TEST_MSG_ID, 1);
+    event_subscribe_msg_metadata(client, NULL, test_message_id, 1);
   }
   // Store start time
   time_t start = time(NULL);
