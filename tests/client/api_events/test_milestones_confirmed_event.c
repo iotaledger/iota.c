@@ -97,7 +97,8 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_milestones_confirmed_parser);
-  RUN_TEST(test_milestones_confirmed_events);
+  // For local tests only
+  // RUN_TEST(test_milestones_confirmed_events);
 
   return UNITY_END();
 }

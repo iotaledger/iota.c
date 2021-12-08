@@ -97,7 +97,8 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_milestone_latest_parser);
-  RUN_TEST(test_milestone_latest_events);
+  // For local tests only
+  // RUN_TEST(test_milestone_latest_events);
 
   return UNITY_END();
 }

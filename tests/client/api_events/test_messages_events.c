@@ -76,6 +76,7 @@ void callback(event_client_event_t *event) {
       break;
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
+      /* Making subscriptions in the on_connect()*/
       if (!test_metadata) {
         // Subscribe to message referenced topic
         event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1);
@@ -145,14 +146,13 @@ int main() {
 
   RUN_TEST(test_messages_metadata_parser);
 
-  /* Test case for messages/referenced topic */
-  test_metadata = false;
-  RUN_TEST(test_messages_events);
+  /* For local tests only */
+  // test_metadata = false;
+  // RUN_TEST(test_messages_events);
 
-  test_completed = false;
-  /* Test case for messages/{messageId/metadata topic */
-  test_metadata = true;
-  RUN_TEST(test_messages_events);
+  // test_completed = false;
+  // test_metadata = true;
+  // RUN_TEST(test_messages_events);
 
   return UNITY_END();
 }
