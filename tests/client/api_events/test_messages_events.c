@@ -76,6 +76,13 @@ void callback(event_client_event_t *event) {
       break;
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
+      if (!test_metadata) {
+        // Subscribe to message referenced topic
+        event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1);
+      } else {
+        // Subscribe to messages/{messageId}/metadata topic
+        event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1);
+      }
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -114,13 +121,6 @@ void test_messages_events() {
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
   // Start event client, this is a non blocking call
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
-  if (!test_metadata) {
-    // Subscribe to message referenced topic
-    event_subscribe(client, NULL, TOPIC_MS_REFERENCED, 1);
-  } else {
-    // Subscribe to messages/{messageId}/metadata topic
-    event_subscribe_msg_metadata(client, NULL, test_message_id, 1);
-  }
   // Store start time
   time_t start = time(NULL);
   // Calculate time after wait period
