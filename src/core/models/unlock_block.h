@@ -20,15 +20,28 @@
 #define UNLOCK_NFT_SERIALIZE_BYTES (1 + sizeof(uint16_t))
 
 /**
+ * @brief Unlock block which references another unlock block object
+ *
+ */
+typedef struct {
+  union {
+    uint16_t reference;  ///< Represents the index of a previous unlock block
+    uint16_t alias;      ///< Represents the index of an alias unlock block
+    uint16_t nft;        ///< Represents the index of a NFT unlock block
+  };
+  bool chainable;  ///< Indicates whether this block can reference another referential unlock block
+} referential_unlock_block_t;
+
+/**
  * @brief An unlock block list object
  *
  */
 typedef struct unlock_blocks {
   unlock_block_t type;  ///< 0 denotes a Signature Unlock Block, 1 denotes a Reference Unlock Block, 2 denotes an Alias
                         ///< Unlock Block, 3 denotes a NFT Unlock Block.
-  uint16_t reference;   ///< Represents the index of a previous unlock block, an alias block or a NFT block
-  byte_t* sig_block;    ///< signature type + public key + signature
-  struct unlock_blocks* next;  ///< point to next block
+  referential_unlock_block_t ref_block;  ///< Represents an unlock block which references another unlock block.
+  byte_t* sig_block;                     ///< signature type + public key + signature
+  struct unlock_blocks* next;            ///< point to next block
 } unlock_blocks_t;
 
 #ifdef __cplusplus
@@ -65,19 +78,19 @@ int unlock_blocks_add_reference(unlock_blocks_t** blocks, uint16_t ref);
  * @brief Add an alias block
  *
  * @param[in] blocks The head of list
- * @param[in] ref The index of alias block
+ * @param[in] alias The index of alias block
  * @return int 0 on success.
  */
-int unlock_blocks_add_alias(unlock_blocks_t** blocks, uint16_t ref);
+int unlock_blocks_add_alias(unlock_blocks_t** blocks, uint16_t alias);
 
 /**
  * @brief Add a NFT block
  *
  * @param[in] blocks The head of list
- * @param[in] ref The index of NFT block
+ * @param[in] nft The index of NFT block
  * @return int 0 on success.
  */
-int unlock_blocks_add_nft(unlock_blocks_t** blocks, uint16_t ref);
+int unlock_blocks_add_nft(unlock_blocks_t** blocks, uint16_t nft);
 
 /**
  * @brief Get the length of unlock blocks
