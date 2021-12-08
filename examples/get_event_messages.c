@@ -9,12 +9,15 @@
 #include "client/api/events/sub_milestone_latest.h"
 #include "client/api/events/sub_milestones_confirmed.h"
 #include "client/api/events/sub_outputs_payload.h"
+#include "client/api/events/sub_serialized_output.h"
 
 // Update message id for testing
 char const *const test_message_id = "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7";
 char const *const test_output_id = "3912942d1cb588d8091eff2069bdd797a0a834739dc8ea550e35fb0dc8609c820000";
 char const *const test_bech32 = "atoi1qqs7y6ec5vcg6cnz46vjrar2epc52lhksyar3a4zua7fg7ca08y5ymep8aa";
 char const *const test_ed25519 = "21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942";
+char const *const test_transaction_id = "963b96adc39ebb7f96cfc523a4b4df658c2fb4a1bb5a9f0de5fa66e7207a2236";
+char const *const test_index = "546573746e6574205370616d6d6572";
 
 bool is_error = false;
 
@@ -34,10 +37,13 @@ void callback(event_client_event_t *event) {
       event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
       event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
       event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1);
+      event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
       event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1);
       event_sub_address_outputs(event->client, NULL, test_bech32, true, 1);
       event_sub_address_outputs(event->client, NULL, test_ed25519, false, 1);
       event_sub_outputs_id(event->client, NULL, test_output_id, 1);
+      event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1);
+      event_sub_msg_indexation(event->client, NULL, test_index, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -93,6 +99,14 @@ void parse_and_print_output_payload(char *data) {
   printf("Amount: %" PRIu64 "\n", res.output.amount);
 }
 
+void print_serialized_data(unsigned char *data, uint32_t len) {
+  printf("Received Serialized Data : ");
+  for (uint32_t i = 0; i < len; i++) {
+    printf("%02x", data[i]);
+  }
+  printf("\n");
+}
+
 void process_event_data(event_client_event_t *event) {
   if (!strcmp(event->topic, TOPIC_MS_LATEST)) {
     milestone_latest_t res = {};
@@ -106,12 +120,18 @@ void process_event_data(event_client_event_t *event) {
     }
   } else if (!strcmp(event->topic, TOPIC_MS_REFERENCED)) {
     parse_and_print_message_metadata(event->data);
+  } else if (!strcmp(event->topic, TOPIC_MESSAGES)) {
+    print_serialized_data(event->data, event->data_len);
   } else if ((strstr(event->topic, "messages/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) {
     parse_and_print_message_metadata(event->data);
   } else if ((strstr(event->topic, "outputs/") != NULL)) {
     parse_and_print_output_payload(event->data);
   } else if ((strstr(event->topic, "addresses/") != NULL)) {
     parse_and_print_output_payload(event->data);
+  } else if ((strstr(event->topic, "transactions/") != NULL) && (strstr(event->topic, "/included-message") != NULL)) {
+    print_serialized_data(event->data, event->data_len);
+  } else if (strstr(event->topic, "messages/indexation/")) {
+    print_serialized_data(event->data, event->data_len);
   }
 }
 
