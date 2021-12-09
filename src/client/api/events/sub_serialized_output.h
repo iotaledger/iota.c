@@ -6,6 +6,10 @@
 
 #include "client/api/events/node_event.h"
 
+#define EVENT_MS_INDEX_MAX_LEN 64
+#define EVENT_MS_INDEX_MIN_LEN 1
+#define EVENT_TXN_ID_LEN 64
+
 /**
  * @brief Subscribe to the topic transactions/{transactionId}/included_message
  *
