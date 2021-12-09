@@ -7,7 +7,7 @@
 
 #include "client/api/events/node_event.h"
 #include "client/api/events/sub_milestones_confirmed.h"
-#include "events_test_config.h"
+#include "test_config.h"
 
 bool test_completed = false;
 
@@ -97,8 +97,10 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_milestones_confirmed_parser);
-  // For local tests only
-  // RUN_TEST(test_milestones_confirmed_events);
+
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(test_milestones_confirmed_events);
+#endif
 
   return UNITY_END();
 }

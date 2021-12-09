@@ -5,7 +5,7 @@
 #include <time.h>
 
 #include "client/api/events/sub_outputs_payload.h"
-#include "events_test_config.h"
+#include "test_config.h"
 #include "unity/unity.h"
 
 bool test_completed = false;
@@ -122,8 +122,9 @@ int main() {
 
   RUN_TEST(address_outputs_parser);
 
-  // for local test only
-  // RUN_TEST(event_address_outputs);
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(event_address_outputs);
+#endif
 
   return UNITY_END();
 }

@@ -19,4 +19,11 @@
 #define TEST_IS_HTTPS 0
 #endif
 
+#define TEST_EVENTS_HOST "mqtt.lb-0.h.chrysalis-devnet.iota.cafe"
+#define TEST_EVENTS_PORT 1883
+#define TEST_EVENTS_CLIENT_ID "iota_test_2"
+#define TEST_EVENTS_KEEP_ALIVE 60
+
+#define TEST_TIMEOUT_SECONDS 30
+
 #endif

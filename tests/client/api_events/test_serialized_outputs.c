@@ -5,7 +5,7 @@
 #include <time.h>
 
 #include "client/api/events/sub_serialized_output.h"
-#include "events_test_config.h"
+#include "test_config.h"
 #include "unity/unity.h"
 
 bool test_completed = false;
@@ -94,8 +94,9 @@ void event_serialized_outputs(void) {
 int main() {
   UNITY_BEGIN();
 
-  // for local test only
-  // RUN_TEST(event_serialized_outputs);
+#if TEST_TANGLE_ENABLE
+  RUN_TEST(event_serialized_outputs);
+#endif
 
   return UNITY_END();
 }

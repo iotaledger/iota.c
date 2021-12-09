@@ -6,7 +6,7 @@
 #include "client/api/events/sub_serialized_output.h"
 
 int event_sub_txn_included_msg(event_client_handle_t client, int *mid, char const transaction_id[], int qos) {
-  if ((strlen(transaction_id)) != EVENT_TXN_ID_LEN ) {
+  if ((strlen(transaction_id)) != EVENT_TXN_ID_LEN) {
     printf("[%s:%d]: Transaction id length is invalid\n", __func__, __LINE__);
     return -1;
   }

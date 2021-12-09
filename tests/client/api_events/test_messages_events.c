@@ -7,7 +7,7 @@
 
 #include "client/api/events/node_event.h"
 #include "client/api/events/sub_messages_metadata.h"
-#include "events_test_config.h"
+#include "test_config.h"
 
 // Update message id for testing
 char const *const test_message_id = "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7";
@@ -146,13 +146,14 @@ int main() {
 
   RUN_TEST(test_messages_metadata_parser);
 
-  /* For local tests only */
-  // test_metadata = false;
-  // RUN_TEST(test_messages_events);
+#if TEST_TANGLE_ENABLE
+  test_metadata = false;
+  RUN_TEST(test_messages_events);
 
-  // test_completed = false;
-  // test_metadata = true;
-  // RUN_TEST(test_messages_events);
+  test_completed = false;
+  test_metadata = true;
+  RUN_TEST(test_messages_events);
+#endif
 
   return UNITY_END();
 }
