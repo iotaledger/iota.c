@@ -34,6 +34,21 @@ int bech32_encode(char *output, const char *hrp, const uint8_t *data, size_t dat
 int bech32_decode(char *hrp, uint8_t *data, size_t *data_len, const char *input);
 
 /**
+ * @brief Convert raw binary to X bit per byte encoded byte string.
+ *
+ * @param[out] out A outout buffer hold the encoded string
+ * @param[in] outlen The length of output buffer
+ * @param[in] outbits The output bits per byte
+ * @param[in] in The input data buffer
+ * @param[in] inlen The length of input buffer
+ * @param[in] inbits The input bits per byte
+ * @param[in] pad set 1 to add padding
+ * @return int 0 on success
+ */
+int bech32_convert_bits(uint8_t *out, size_t *outlen, int outbits, const uint8_t *in, size_t inlen, int inbits,
+                        int pad);
+
+/**
  * @brief Encode IOTA address to bech32 string
  *
  * @param[out] output An output buffer holds bech32 address string

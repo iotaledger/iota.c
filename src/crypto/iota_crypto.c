@@ -92,7 +92,7 @@ void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
 }
 
 // get ed25519 public and private key from address
-void iota_crypto_keypair(uint8_t const seed[], iota_keypair_t *keypair) {
+void iota_crypto_keypair(uint8_t const seed[], ed25519_keypair_t *keypair) {
 #if defined(CRYPTO_USE_SODIUM)
   crypto_sign_seed_keypair(keypair->pub, keypair->priv, seed);
 #elif defined(CRYPTO_USE_ED25519_DONNA)
