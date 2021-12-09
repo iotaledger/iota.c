@@ -28,7 +28,7 @@ static byte_t exp_block[109] = {
     0x56, 0x25, 0x73, 0xF2, 0x62, 0x1,  0x0,  0x0,  0x2,  0x0,  0x0,  0x3,  0x0,  0x0};
 
 void test_unlock_block() {
-  unlock_blocks_t* blocks = unlock_blocks_new();
+  unlock_list_t* blocks = unlock_blocks_new();
   TEST_ASSERT_NULL(blocks);
   TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(blocks));
 
@@ -67,7 +67,7 @@ void test_unlock_block() {
 
 void test_unlock_block_serialize() {
   byte_t sig[ED25519_SIGNATURE_BLOCK_BYTES] = {};
-  unlock_blocks_t* blocks = unlock_blocks_new();
+  unlock_list_t* blocks = unlock_blocks_new();
   TEST_ASSERT_NULL(blocks);
   TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(blocks));
 
