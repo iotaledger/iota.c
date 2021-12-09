@@ -68,6 +68,79 @@ void test_unlock_block() {
   unlock_blocks_free(blocks);
 }
 
+void test_unlock_block_validation() {
+  byte_t sig[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+  unlock_list_t* blocks;
+
+  //=====Signature unlock block validation=====
+  blocks = unlock_blocks_new();
+  TEST_ASSERT_NULL(blocks);
+  TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(blocks));
+  iota_crypto_randombytes(sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  sig[0] = 0;
+  unlock_blocks_add_signature(&blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);  // Add valid signature
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_blocks_count(blocks));
+  iota_crypto_randombytes(sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  sig[0] = 0;
+  unlock_blocks_add_signature(&blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);  // Add valid signature
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(blocks));
+  unlock_blocks_add_signature(&blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);  // Add duplicated signature
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(blocks));
+  // clean up
+  unlock_blocks_free(blocks);
+  blocks = NULL;
+
+  //=====Reference unlock block validation=====
+  blocks = unlock_blocks_new();
+  TEST_ASSERT_NULL(blocks);
+  TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(blocks));
+  iota_crypto_randombytes(sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  sig[0] = 0;
+  unlock_blocks_add_signature(&blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_blocks_count(blocks));
+  unlock_blocks_add_reference(&blocks, 0);  // Add valid reference
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(blocks));
+  unlock_blocks_add_reference(&blocks, 2);  // Add too big reference index
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(blocks));
+  unlock_blocks_add_reference(&blocks, 1);  // Add reference index which does not point to signature unlock block
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(blocks));
+  // clean up
+  unlock_blocks_free(blocks);
+  blocks = NULL;
+
+  //=====Alias unlock block validation=====
+  blocks = unlock_blocks_new();
+  TEST_ASSERT_NULL(blocks);
+  TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(blocks));
+  iota_crypto_randombytes(sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  sig[0] = 0;
+  unlock_blocks_add_signature(&blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_blocks_count(blocks));
+  unlock_blocks_add_alias(&blocks, 0);  // Add valid alias
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(blocks));
+  unlock_blocks_add_alias(&blocks, 2);  // Add too big alias index
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(blocks));
+  // clean up
+  unlock_blocks_free(blocks);
+  blocks = NULL;
+
+  //=====NFT unlock block validation=====
+  blocks = unlock_blocks_new();
+  TEST_ASSERT_NULL(blocks);
+  TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(blocks));
+  iota_crypto_randombytes(sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  sig[0] = 0;
+  unlock_blocks_add_signature(&blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_blocks_count(blocks));
+  unlock_blocks_add_nft(&blocks, 0);  // Add valid NFT
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(blocks));
+  unlock_blocks_add_nft(&blocks, 2);  // Add too big NFT index
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(blocks));
+  // clean up
+  unlock_blocks_free(blocks);
+  blocks = NULL;
+}
+
 void test_unlock_block_serialize() {
   byte_t sig[ED25519_SIGNATURE_BLOCK_BYTES] = {};
   unlock_list_t* blocks = unlock_blocks_new();
@@ -374,6 +447,7 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_unlock_block);
+  RUN_TEST(test_unlock_block_validation);
   RUN_TEST(test_unlock_block_serialize);
 
   return UNITY_END();

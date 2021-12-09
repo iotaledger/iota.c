@@ -52,7 +52,6 @@ int unlock_blocks_add(unlock_list_t** blocks, unlock_block_t* block) {
       printf("[%s:%d] index too big\n", __func__, __LINE__);
       return -1;
     }
-    // TODO Implement additional validation checks for alias unlock block
   } else if (block->type == UNLOCK_BLOCK_TYPE_NFT) {
     uint16_t count = unlock_blocks_count(*blocks);
     // NFT unlock block at index i must have index < i
@@ -60,7 +59,6 @@ int unlock_blocks_add(unlock_list_t** blocks, unlock_block_t* block) {
       printf("[%s:%d] index too big\n", __func__, __LINE__);
       return -1;
     }
-    // TODO Implement validation checks for NFT unlock block
   }
 
   unlock_list_t* b = malloc(sizeof(unlock_list_t));
