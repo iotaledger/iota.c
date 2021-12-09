@@ -36,7 +36,6 @@ typedef enum {
  */
 typedef struct {
   uint16_t index;  ///< Represents the index of a previous unlock block or an alias unlock block or a NFT unlock block
-  bool chainable;  ///< Indicates whether this block can reference another referential unlock block
 } unlock_referential_data_t;
 
 /**

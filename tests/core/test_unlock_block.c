@@ -42,12 +42,15 @@ void test_unlock_block() {
 
   // add a reference block that reference to the 0 index of blocks.
   unlock_blocks_add_reference(&blocks, 0);
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(blocks));
 
   // add an alias block that reference to the 0 index of blocks.
   unlock_blocks_add_alias(&blocks, 0);
+  TEST_ASSERT_EQUAL_UINT16(3, unlock_blocks_count(blocks));
 
   // add a NFT block that reference to the 0 index of blocks.
   unlock_blocks_add_nft(&blocks, 0);
+  TEST_ASSERT_EQUAL_UINT16(4, unlock_blocks_count(blocks));
 
   unlock_blocks_print(blocks);
 
