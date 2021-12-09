@@ -15,16 +15,6 @@
 #define UTXO_INPUT_SERIALIZED_BYTES (1 + TRANSACTION_ID_BYTES + 2)
 
 /**
- * @brief ED25519 keypair structure
- *
- */
-typedef struct {
-  byte_t
-      pub_key[ED_PUBLIC_KEY_BYTES];   ///< The public key of the Ed25519 keypair which is used to verify the signature.
-  byte_t priv[ED_PRIVATE_KEY_BYTES];  ///< The private key for signing the serialized Unsigned Transaction.
-} ed25519_keypair_t;
-
-/**
  * @brief UTXO input structure
  *
  */

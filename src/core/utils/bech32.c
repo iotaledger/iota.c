@@ -45,7 +45,7 @@ static const int8_t charset_rev[128] = {
     19, -1, 1,  0,  3,  16, 11, 28, 12, 14, 6,  4,  2,  -1, -1, -1, -1, -1, -1, 29, -1, 24, 13, 25, 9,  8,
     23, -1, 18, 22, 31, 27, 19, -1, 1,  0,  3,  16, 11, 28, 12, 14, 6,  4,  2,  -1, -1, -1, -1, -1};
 
-static int convert_bits(uint8_t *out, size_t *outlen, int outbits, const uint8_t *in, size_t inlen, int inbits,
+int bech32_convert_bits(uint8_t *out, size_t *outlen, int outbits, const uint8_t *in, size_t inlen, int inbits,
                         int pad) {
   uint32_t val = 0;
   int bits = 0;
@@ -164,7 +164,7 @@ int bech32_decode(char *hrp, uint8_t *data, size_t *data_len, const char *input)
 int iota_addr_bech32_encode(char *output, const char *hrp, const uint8_t *addr, size_t addr_len) {
   uint8_t data[64];
   size_t datalen = 0;
-  convert_bits(data, &datalen, 5, addr, addr_len, 8, 1);
+  bech32_convert_bits(data, &datalen, 5, addr, addr_len, 8, 1);
   return bech32_encode(output, hrp, data, datalen);
 }
 
@@ -191,7 +191,7 @@ int iota_addr_bech32_decode(uint8_t *addr_data, size_t *addr_len, const char *hr
   }
 
   *addr_len = 0;
-  if (!convert_bits(addr_data, addr_len, 8, data, data_len, 5, 0)) {
+  if (!bech32_convert_bits(addr_data, addr_len, 8, data, data_len, 5, 0)) {
     return 0;
   }
   return 1;

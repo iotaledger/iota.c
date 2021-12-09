@@ -98,7 +98,7 @@ void test_send_core_message_tx() {
   byte_t wallet_addr[ED25519_ADDRESS_BYTES] = {0x51, 0x55, 0x82, 0xfe, 0x64, 0x8b, 0x0f, 0x10, 0xa2, 0xb2, 0xa1,
                                                0xb9, 0x1d, 0x75, 0x02, 0x19, 0x0c, 0x97, 0x9b, 0xaa, 0xbf, 0xee,
                                                0x85, 0xb6, 0xbb, 0xb5, 0x02, 0x06, 0x92, 0xe5, 0x5d, 0x16};
-  iota_keypair_t genesis_seed_keypair = {};
+  ed25519_keypair_t genesis_seed_keypair = {};
   TEST_ASSERT(hex_2_bin("f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44", 64,
                         genesis_seed_keypair.pub, ED_PUBLIC_KEY_BYTES) == 0);
   TEST_ASSERT(
@@ -121,7 +121,8 @@ void test_send_core_message_tx() {
   // get outputs
   res_outputs_address_t* res = res_outputs_address_new();
   TEST_ASSERT_NOT_NULL(res);
-  int ret = get_outputs_from_address(&ctx, false, "6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92", res);
+  int ret =
+      get_outputs_from_address(&ctx, false, "6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92", res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
   TEST_ASSERT_EQUAL_STRING("6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92",

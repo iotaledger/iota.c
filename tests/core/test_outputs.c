@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "core/models/outputs/outputs.h"
+#include "crypto/iota_crypto.h"
 #include "unity/unity.h"
 
 void setUp(void) {}
@@ -11,12 +12,12 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_utxo_outputs() {
-  byte_t addr1[ED25519_ADDRESS_BYTES] = {};
-  byte_t addr2[ED25519_ADDRESS_BYTES] = {};
-  byte_t addr3[ED25519_ADDRESS_BYTES] = {};
-  iota_crypto_randombytes(addr1, ED25519_ADDRESS_BYTES);
-  iota_crypto_randombytes(addr2, ED25519_ADDRESS_BYTES);
-  iota_crypto_randombytes(addr3, ED25519_ADDRESS_BYTES);
+  byte_t addr1[ADDRESS_ED25519_BYTES] = {};
+  byte_t addr2[ADDRESS_ED25519_BYTES] = {};
+  byte_t addr3[ADDRESS_ED25519_BYTES] = {};
+  iota_crypto_randombytes(addr1, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(addr2, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(addr3, ADDRESS_ED25519_BYTES);
 
   outputs_ht* outputs = utxo_outputs_new();
   TEST_ASSERT_NULL(outputs);
@@ -46,7 +47,7 @@ void test_utxo_outputs() {
   // find and validate an output
   outputs_ht* elm = utxo_outputs_find_by_addr(&outputs, addr1);
   TEST_ASSERT_NOT_NULL(elm);
-  TEST_ASSERT_EQUAL_MEMORY(addr1, elm->address, ED25519_ADDRESS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(addr1, elm->address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT(1000 == elm->amount);
 
   utxo_outputs_print(&outputs);

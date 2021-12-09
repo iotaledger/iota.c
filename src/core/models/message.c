@@ -63,12 +63,12 @@ int core_message_sign_transaction(core_message_t* msg) {
   utxo_input_ht *elm, *tmp;
   HASH_ITER(hh, tx->essence->inputs, elm, tmp) {
     // create a ref block, if public key exists in unlocked_sig
-    uint32_t pub_index = unlock_blocks_find_pub(tx->unlock_blocks, elm->keypair.pub_key);
+    uint32_t pub_index = unlock_blocks_find_pub(tx->unlock_blocks, elm->keypair.pub);
     if (pub_index == -1) {
       // publick key is not found in the unlocked block
       byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
-      sig_block[0] = ADDRESS_VER_ED25519;
-      memcpy(sig_block + 1, elm->keypair.pub_key, ED_PUBLIC_KEY_BYTES);
+      sig_block[0] = ADDRESS_TYPE_ED25519;
+      memcpy(sig_block + 1, elm->keypair.pub, ED_PUBLIC_KEY_BYTES);
       // sign transaction
       if ((ret = iota_crypto_sign(elm->keypair.priv, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES,
                                   sig_block + (1 + ED_PUBLIC_KEY_BYTES)))) {
