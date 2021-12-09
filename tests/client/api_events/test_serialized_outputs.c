@@ -4,51 +4,24 @@
 #include <inttypes.h>
 #include <time.h>
 
-#include "client/api/events/sub_outputs_payload.h"
+#include "client/api/events/sub_serialized_output.h"
 #include "test_config.h"
 #include "unity/unity.h"
 
 bool test_completed = false;
-char const *const test_bech32 = "atoi1qqs7y6ec5vcg6cnz46vjrar2epc52lhksyar3a4zua7fg7ca08y5ymep8aa";
-char const *const test_ed25519 = "21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942";
-char const *const test_output_id = "3912942d1cb588d8091eff2069bdd797a0a834739dc8ea550e35fb0dc8609c820000";
+char const *const test_transaction_id = "963b96adc39ebb7f96cfc523a4b4df658c2fb4a1bb5a9f0de5fa66e7207a2236";
+char const *const test_index = "546573746e6574205370616d6d6572";
 
 void setUp(void) {}
 
 void tearDown(void) {}
 
-void address_outputs_parser() {
-  char const *const data =
-      "{\"messageId\":\"286efdc4c4769dd4672b8c42cbb0c05dfe1b07f8e3e5572f905de6051ef50fc3\",\"transactionId\":"
-      "\"fff6ddfc16b67cf01661c98d15caa2aa8c1e3bbc771e94e7cd1a4b2c792ebc43\",\"outputIndex\":0,\"isSpent\":false,"
-      "\"ledgerIndex\":1231739,\"output\":{\"type\":0,\"address\":{\"type\":0,\"address\":"
-      "\"21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"},\"amount\":1000000}}";
-
-  event_addr_outputs_t res = {};
-
-  TEST_ASSERT(event_parse_address_outputs(data, &res) == 0);
-  TEST_ASSERT_EQUAL_STRING("286efdc4c4769dd4672b8c42cbb0c05dfe1b07f8e3e5572f905de6051ef50fc3", res.msg_id);
-  TEST_ASSERT_EQUAL_STRING("fff6ddfc16b67cf01661c98d15caa2aa8c1e3bbc771e94e7cd1a4b2c792ebc43", res.tx_id);
-  TEST_ASSERT(res.output_index == 0);
-  TEST_ASSERT(res.ledger_index == 1231739);
-  TEST_ASSERT_FALSE(res.is_spent);
-
-  // validating output object
-  TEST_ASSERT(res.output.output_type == 0);
-  TEST_ASSERT_EQUAL_STRING("21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942", res.output.addr);
-  TEST_ASSERT(res.output.amount == 1000000);
-}
-
-static void dump_event_data(event_client_event_t *event) {
-  event_addr_outputs_t res = {};
-  event_parse_address_outputs(event->data, &res);
-  printf("Message ID: %s\n", res.msg_id);
-  printf("Transaction ID: %s\n", res.tx_id);
-  printf("Output Index: %d\n", res.output_index);
-  printf("Ledger Index: %" PRIu64 "\n", res.ledger_index);
-  printf("isSpent: %s\n", res.is_spent ? "True" : "False");
-  printf("ED25519 addr: %s\n", res.output.addr);
-  printf("Amount: %" PRIu64 "\n", res.output.amount);
+static void dump_serialized_output(unsigned char *data, uint32_t len) {
+  printf("Received Serialized Data : ");
+  for (uint32_t i = 0; i < len; i++) {
+    printf("%02x", data[i]);
+  }
+  printf("\n");
 }
 
 static void event_cb(event_client_event_t *event) {
@@ -59,9 +32,10 @@ static void event_cb(event_client_event_t *event) {
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
       /* Making subscriptions in the on_connect()*/
-      event_sub_address_outputs(event->client, NULL, test_bech32, true, 1);
-      // event_sub_address_outputs(event->client, NULL, test_ed25519, false, 1);
-      // event_sub_outputs_id(event->client, NULL, test_output_id, 1);
+      // Uncomment for subscribing to respective topics
+      event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
+      // event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1);
+      // event_sub_msg_indexation(event->client, NULL, test_index, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -77,7 +51,7 @@ static void event_cb(event_client_event_t *event) {
       break;
     case NODE_EVENT_DATA:
       printf("Message arrived\nTopic : %s\n", event->topic);
-      dump_event_data(event);
+      dump_serialized_output(event->data, event->data_len);
       // Once event data is received and it is verified, close and destroy event MQTT network
       TEST_ASSERT_EQUAL_INT(0, event_stop(event->client));
       test_completed = true;
@@ -87,7 +61,7 @@ static void event_cb(event_client_event_t *event) {
   }
 }
 
-void event_address_outputs(void) {
+void event_serialized_outputs(void) {
   // Event MQTT network config parameters
   event_client_config_t config = {.host = TEST_EVENTS_HOST,
                                   .port = TEST_EVENTS_PORT,
@@ -120,10 +94,8 @@ void event_address_outputs(void) {
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(address_outputs_parser);
-
 #if TEST_TANGLE_ENABLE
-  RUN_TEST(event_address_outputs);
+  RUN_TEST(event_serialized_outputs);
 #endif
 
   return UNITY_END();

@@ -3,6 +3,7 @@
 
 #include "client/api/events/sub_outputs_payload.h"
 #include "client/api/json_utils.h"
+#include "core/address.h"
 
 int event_parse_address_outputs(char const data[], event_addr_outputs_t *res) {
   int ret = -1;
@@ -82,6 +83,10 @@ end:
 }
 
 int event_sub_address_outputs(event_client_handle_t client, int *mid, char const addr[], bool is_bech32, int qos) {
+  if ((strlen(addr)) != IOTA_ADDRESS_HEX_BYTES) {
+    printf("[%s:%d]: Address length is invalid\n", __func__, __LINE__);
+    return -1;
+  }
   // 91 is the max length of string addresses/ed25519/[addr_str]/outputs
   char topic_buff[91] = {};
   if (is_bech32) {

@@ -7,7 +7,7 @@
 
 #include "client/api/events/node_event.h"
 #include "client/api/events/sub_messages_metadata.h"
-#include "events_test_config.h"
+#include "test_config.h"
 
 // Update message id for testing
 char const *const test_message_id = "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7";
@@ -76,6 +76,14 @@ void callback(event_client_event_t *event) {
       break;
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
+      /* Making subscriptions in the on_connect()*/
+      if (!test_metadata) {
+        // Subscribe to message referenced topic
+        event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1);
+      } else {
+        // Subscribe to messages/{messageId}/metadata topic
+        event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1);
+      }
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -114,13 +122,6 @@ void test_messages_events() {
   TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
   // Start event client, this is a non blocking call
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
-  if (!test_metadata) {
-    // Subscribe to message referenced topic
-    event_subscribe(client, NULL, TOPIC_MS_REFERENCED, 1);
-  } else {
-    // Subscribe to messages/{messageId}/metadata topic
-    event_subscribe_msg_metadata(client, NULL, test_message_id, 1);
-  }
   // Store start time
   time_t start = time(NULL);
   // Calculate time after wait period
@@ -145,14 +146,14 @@ int main() {
 
   RUN_TEST(test_messages_metadata_parser);
 
-  /* Test case for messages/referenced topic */
+#if TEST_TANGLE_ENABLE
   test_metadata = false;
   RUN_TEST(test_messages_events);
 
   test_completed = false;
-  /* Test case for messages/{messageId/metadata topic */
   test_metadata = true;
   RUN_TEST(test_messages_events);
+#endif
 
   return UNITY_END();
 }
