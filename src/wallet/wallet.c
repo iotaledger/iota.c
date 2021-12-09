@@ -104,7 +104,7 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, bool ch
   char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
   byte_t send_addr[ED25519_ADDRESS_BYTES] = {};
   byte_t tmp_tx_id[TRANSACTION_ID_BYTES] = {};
-  iota_keypair_t addr_keypair = {};
+  ed25519_keypair_t addr_keypair = {};
   res_outputs_address_t* outputs_res = NULL;
   transaction_payload_t* tx_payload = NULL;
   int ret = -1;

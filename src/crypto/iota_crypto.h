@@ -26,7 +26,7 @@
 typedef struct {
   uint8_t pub[ED_PUBLIC_KEY_BYTES];    ///< 32 bytes public key
   uint8_t priv[ED_PRIVATE_KEY_BYTES];  ///< 64 bytes private key
-} iota_keypair_t;
+} ed25519_keypair_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +46,7 @@ void iota_crypto_randombytes(uint8_t *const buf, const size_t len);
  * @param[in] seed A given seed with length of IOTA_SEED_BYTES
  * @param[out] keypair A keypair derived from the seed
  */
-void iota_crypto_keypair(uint8_t const seed[], iota_keypair_t *keypair);
+void iota_crypto_keypair(uint8_t const seed[], ed25519_keypair_t *keypair);
 
 /**
  * @brief signs message by the given private key

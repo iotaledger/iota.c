@@ -11,7 +11,7 @@
 #include "uthash.h"
 
 // Serialized bytes = output type(uint8_t) + address type(uint8_t) + ed25519 address(32bytes) + amount(uint64_t)
-#define UTXO_OUTPUT_SERIALIZED_BYTES (1 + 1 + ED25519_ADDRESS_BYTES + 8)
+#define UTXO_OUTPUT_SERIALIZED_BYTES (1 + 1 + ADDRESS_ED25519_BYTES + 8)
 
 /**
  * @brief Output types
@@ -35,7 +35,7 @@ typedef enum {
  */
 typedef struct {
   uint8_t output_type;                    ///< 0: SigLockedSingleOutput, 1: SigLockedDustAllowanceOutput
-  byte_t address[ED25519_ADDRESS_BYTES];  ///< Ed25519 address
+  byte_t address[ADDRESS_ED25519_BYTES];  ///< Ed25519 address
   uint64_t amount;                        ///< The amount of tokens to deposit with this output.
   UT_hash_handle hh;
 } outputs_ht;
@@ -60,7 +60,7 @@ static outputs_ht *utxo_outputs_new() { return NULL; }
  */
 static outputs_ht *utxo_outputs_find_by_addr(outputs_ht **ht, byte_t addr[]) {
   outputs_ht *elm = NULL;
-  HASH_FIND(hh, *ht, addr, ED25519_ADDRESS_BYTES, elm);
+  HASH_FIND(hh, *ht, addr, ADDRESS_ED25519_BYTES, elm);
   return elm;
 }
 

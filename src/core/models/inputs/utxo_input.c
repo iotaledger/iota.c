@@ -33,7 +33,7 @@ int utxo_inputs_add_with_key(utxo_input_ht **inputs, byte_t const tx_id[], uint1
     return -1;
   }
   memcpy(elm->tx_id, tx_id, TRANSACTION_ID_BYTES);
-  memcpy(elm->keypair.pub_key, pub, ED_PUBLIC_KEY_BYTES);
+  memcpy(elm->keypair.pub, pub, ED_PUBLIC_KEY_BYTES);
   memcpy(elm->keypair.priv, priv, ED_PRIVATE_KEY_BYTES);
   elm->output_index = index;
   HASH_ADD(hh, *inputs, tx_id, TRANSACTION_ID_BYTES, elm);

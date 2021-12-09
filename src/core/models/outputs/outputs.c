@@ -32,9 +32,9 @@ int utxo_outputs_add(outputs_ht **ht, output_type_t type, byte_t addr[], uint64_
     return -1;
   }
   elm->output_type = type;
-  memcpy(elm->address, addr, ED25519_ADDRESS_BYTES);
+  memcpy(elm->address, addr, ADDRESS_ED25519_BYTES);
   elm->amount = amount;
-  HASH_ADD(hh, *ht, address, ED25519_ADDRESS_BYTES, elm);
+  HASH_ADD(hh, *ht, address, ADDRESS_ED25519_BYTES, elm);
   return 0;
 }
 
@@ -48,12 +48,12 @@ size_t utxo_outputs_serialization(outputs_ht **ht, byte_t buf[]) {
     byte_count += sizeof(byte_t);
 
     // address type, set to value 0 to denote an ed25519.
-    memset(buf + byte_count, ADDRESS_VER_ED25519, sizeof(byte_t));
+    memset(buf + byte_count, ADDRESS_TYPE_ED25519, sizeof(byte_t));
     byte_count += sizeof(byte_t);
 
     // ed25519 address
-    memcpy(buf + byte_count, elm->address, ED25519_ADDRESS_BYTES);
-    byte_count += ED25519_ADDRESS_BYTES;
+    memcpy(buf + byte_count, elm->address, ADDRESS_ED25519_BYTES);
+    byte_count += ADDRESS_ED25519_BYTES;
 
     // amount
     memcpy(buf + byte_count, &elm->amount, sizeof(elm->amount));
@@ -76,7 +76,7 @@ void utxo_outputs_print(outputs_ht **ht) {
   HASH_ITER(hh, *ht, elm, tmp) {
     printf("\ttype: %d ", elm->output_type);
     printf("[%" PRIu64 "] ", elm->amount);
-    dump_hex(elm->address, ED25519_ADDRESS_BYTES);
+    dump_hex(elm->address, ADDRESS_ED25519_BYTES);
   }
   printf("]\n");
 }

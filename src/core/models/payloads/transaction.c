@@ -31,7 +31,7 @@ static int sort_input_tx_id(utxo_input_ht* a, utxo_input_ht* b) {
 }
 
 static int sort_output_address(outputs_ht* a, outputs_ht* b) {
-  return byte_cmp(a->address, b->address, ED25519_ADDRESS_BYTES);
+  return byte_cmp(a->address, b->address, ADDRESS_ED25519_BYTES);
 }
 
 transaction_essence_t* tx_essence_new() {
