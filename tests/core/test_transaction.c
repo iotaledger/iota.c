@@ -75,7 +75,7 @@ static byte_t exp_block[103] = {
 
 void test_tx_unlocked_block() {
 #if 0
-  unlock_blocks_t* blocks = unlock_blocks_new();
+  unlock_list_t* blocks = unlock_blocks_new();
   TEST_ASSERT_NULL(blocks);
   TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(blocks));
 

@@ -432,6 +432,58 @@ static cJSON* tx_blocks_to_json(unlock_blocks_t* blocks) {
       }
       cJSON_AddItemToArray(block_arr, ref);
 
+    } else if (elm->type == 2) {  // alias block
+      // new alias block obj and add to array
+      cJSON* alias_block = cJSON_CreateObject();
+      if (!alias_block) {
+        printf("[%s:%d] new alias item failed\n", __func__, __LINE__);
+        cJSON_Delete(block_arr);
+        return NULL;
+      }
+
+      // add type to item, 2 denote as an alias block
+      if (!cJSON_AddNumberToObject(alias_block, JSON_KEY_TYPE, 2)) {
+        printf("[%s:%d] add alias type failed\n", __func__, __LINE__);
+        cJSON_Delete(alias_block);
+        cJSON_Delete(block_arr);
+        return NULL;
+      }
+
+      // add alias to array
+      if (!cJSON_AddNumberToObject(alias_block, JSON_KEY_REFERENCE, elm->reference)) {
+        printf("[%s:%d] add alias failed\n", __func__, __LINE__);
+        cJSON_Delete(alias_block);
+        cJSON_Delete(block_arr);
+        return NULL;
+      }
+      cJSON_AddItemToArray(block_arr, alias_block);
+
+    } else if (elm->type == 3) {  // NFT block
+      // new NFT block obj and add to array
+      cJSON* nft_block = cJSON_CreateObject();
+      if (!nft_block) {
+        printf("[%s:%d] new NFT item failed\n", __func__, __LINE__);
+        cJSON_Delete(block_arr);
+        return NULL;
+      }
+
+      // add type to item, 3 denote as a NFT block
+      if (!cJSON_AddNumberToObject(nft_block, JSON_KEY_TYPE, 2)) {
+        printf("[%s:%d] add NFT type failed\n", __func__, __LINE__);
+        cJSON_Delete(nft_block);
+        cJSON_Delete(block_arr);
+        return NULL;
+      }
+
+      // add NFT to array
+      if (!cJSON_AddNumberToObject(nft_block, JSON_KEY_REFERENCE, elm->reference)) {
+        printf("[%s:%d] add NFT failed\n", __func__, __LINE__);
+        cJSON_Delete(nft_block);
+        cJSON_Delete(block_arr);
+        return NULL;
+      }
+      cJSON_AddItemToArray(block_arr, nft_block);
+
     } else {
       printf("[%s:%d] Unkown unlocked block type\n", __func__, __LINE__);
     }

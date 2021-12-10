@@ -43,7 +43,8 @@ typedef struct {
   payload_t type;                  ///< Set to value 0 to denote a Transaction payload.
   transaction_essence_t* essence;  ///< Describes the essence data making up a transaction by defining its inputs and
                                    ///< outputs and an optional payload.
-  unlock_blocks_t* unlock_blocks;  ///< Defines an unlock block containing signature(s) unlocking input(s).
+  unlock_list_t* unlock_blocks;    ///< Defines a list of unlock blocks (signature, reference, alias, NFT) which unlock
+                                   ///< the inputs of the transaction essence.
 } transaction_payload_t;
 
 #ifdef __cplusplus
