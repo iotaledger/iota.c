@@ -13,6 +13,7 @@ typedef uint8_t output_t;
 typedef uint8_t input_t;
 typedef uint8_t transaction_t;
 typedef uint8_t signature_t;
+typedef uint16_t unlock_index_t;
 
 /**
  * @brief Prints out hexmal value in a byte array.

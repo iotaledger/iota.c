@@ -30,14 +30,14 @@ int unlock_blocks_add(unlock_list_t** blocks, unlock_block_t* block) {
   } else if (block->type == UNLOCK_BLOCK_TYPE_REFERENCE) {
     uint16_t count = unlock_blocks_count(*blocks);
     // Reference unlock block at index i must have index < i
-    if (((unlock_referential_data_t*)block->block_data)->index >= count) {
+    if (*((unlock_index_t*)block->block_data) >= count) {
       printf("[%s:%d] index too big\n", __func__, __LINE__);
       return -1;
     }
     //  Unlock block at index must be a signature unlock block
     unlock_list_t* elm = *blocks;
     uint16_t index = 0;
-    while (index < ((unlock_referential_data_t*)block->block_data)->index) {
+    while (index < *((unlock_index_t*)block->block_data)) {
       elm = elm->next;
       index++;
     }
@@ -48,14 +48,14 @@ int unlock_blocks_add(unlock_list_t** blocks, unlock_block_t* block) {
   } else if (block->type == UNLOCK_BLOCK_TYPE_ALIAS) {
     uint16_t count = unlock_blocks_count(*blocks);
     // Alias unlock block at index i must have index < i
-    if (((unlock_referential_data_t*)block->block_data)->index >= count) {
+    if (*((unlock_index_t*)block->block_data) >= count) {
       printf("[%s:%d] index too big\n", __func__, __LINE__);
       return -1;
     }
   } else if (block->type == UNLOCK_BLOCK_TYPE_NFT) {
     uint16_t count = unlock_blocks_count(*blocks);
     // NFT unlock block at index i must have index < i
-    if (((unlock_referential_data_t*)block->block_data)->index >= count) {
+    if (*((unlock_index_t*)block->block_data) >= count) {
       printf("[%s:%d] index too big\n", __func__, __LINE__);
       return -1;
     }
@@ -106,13 +106,13 @@ int unlock_blocks_add_reference(unlock_list_t** blocks, uint16_t index) {
 
   unlock_block_t b;
   b.type = UNLOCK_BLOCK_TYPE_REFERENCE;  // Reference unlock block
-  b.block_data = malloc(sizeof(unlock_referential_data_t));
+  b.block_data = malloc(sizeof(unlock_index_t));
   if (b.block_data == NULL) {
     printf("[%s:%d] allocate reference block failed\n", __func__, __LINE__);
     return -1;
   }
 
-  ((unlock_referential_data_t*)b.block_data)->index = index;
+  *(unlock_index_t*)b.block_data = index;
 
   if (unlock_blocks_add(blocks, &b) == -1) {
     free(b.block_data);
@@ -130,13 +130,13 @@ int unlock_blocks_add_alias(unlock_list_t** blocks, uint16_t index) {
 
   unlock_block_t b;
   b.type = UNLOCK_BLOCK_TYPE_ALIAS;  // Alias unlock block
-  b.block_data = malloc(sizeof(unlock_referential_data_t));
+  b.block_data = malloc(sizeof(unlock_index_t));
   if (b.block_data == NULL) {
     printf("[%s:%d] allocate alias block failed\n", __func__, __LINE__);
     return -1;
   }
 
-  ((unlock_referential_data_t*)b.block_data)->index = index;
+  *(unlock_index_t*)b.block_data = index;
 
   if (unlock_blocks_add(blocks, &b) == -1) {
     free(b.block_data);
@@ -154,13 +154,13 @@ int unlock_blocks_add_nft(unlock_list_t** blocks, uint16_t index) {
 
   unlock_block_t b;
   b.type = UNLOCK_BLOCK_TYPE_NFT;  // NFT unlock block
-  b.block_data = malloc(sizeof(unlock_referential_data_t));
+  b.block_data = malloc(sizeof(unlock_index_t));
   if (b.block_data == NULL) {
     printf("[%s:%d] allocate NFT block failed\n", __func__, __LINE__);
     return -1;
   }
 
-  ((unlock_referential_data_t*)b.block_data)->index = index;
+  *(unlock_index_t*)b.block_data = index;
 
   if (unlock_blocks_add(blocks, &b) == -1) {
     free(b.block_data);
@@ -219,9 +219,8 @@ size_t unlock_blocks_serialize(unlock_list_t* blocks, byte_t buf[]) {
                (elm->block.type == UNLOCK_BLOCK_TYPE_NFT)) {  // reference, alias or NFT unlock block
       memcpy(offset, &elm->block.type, sizeof(byte_t));
       offset += sizeof(byte_t);
-      unlock_referential_data_t* block_data = elm->block.block_data;
-      memcpy(offset, &block_data->index, sizeof(block_data->index));
-      offset += sizeof(block_data->index);
+      memcpy(offset, elm->block.block_data, sizeof(unlock_index_t));
+      offset += sizeof(unlock_index_t);
     }
   }
 
@@ -281,13 +280,13 @@ void unlock_blocks_print(unlock_list_t* blocks) {
         printf("\t]\n");
       } else if (elm->block.type == UNLOCK_BLOCK_TYPE_REFERENCE) {  // reference block
         printf("\tReference block[ ");
-        printf("ref: %" PRIu16 " ]\n", ((unlock_referential_data_t*)elm->block.block_data)->index);
+        printf("ref: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
       } else if (elm->block.type == UNLOCK_BLOCK_TYPE_ALIAS) {  // alias block
         printf("\tAlias block[ ");
-        printf("ref: %" PRIu16 " ]\n", ((unlock_referential_data_t*)elm->block.block_data)->index);
+        printf("ref: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
       } else if (elm->block.type == UNLOCK_BLOCK_TYPE_NFT) {  // NFT block
         printf("\tNFT block[ ");
-        printf("ref: %" PRIu16 " ]\n", ((unlock_referential_data_t*)elm->block.block_data)->index);
+        printf("ref: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
       } else {
         printf("[%s:%d] Unkown unlocked block type\n", __func__, __LINE__);
         // return 0;

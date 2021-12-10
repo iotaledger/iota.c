@@ -31,14 +31,6 @@ typedef enum {
 } unlock_type_t;
 
 /**
- * @brief Unlock block referential data (index to unlock block)
- *
- */
-typedef struct {
-  uint16_t index;  ///< Represents the index of a previous unlock block or an alias unlock block or a NFT unlock block
-} unlock_referential_data_t;
-
-/**
  * @brief An unlock block object which points to a consumed output
  *
  */
