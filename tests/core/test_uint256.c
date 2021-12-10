@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "core/utils/uint256.h"
 #include "unity/unity.h"
@@ -52,11 +53,26 @@ void test_uint256_sub() {
   TEST_ASSERT_EQUAL_UINT64(0xDE0B6B3A763FFFF, num3.bits[3]);
 }
 
+void test_uint256_to_str() {
+  uint256_t num1 = {0};
+  num1.bits[0] = 0xE36CF8C718CD2CED;
+  num1.bits[1] = 0x6DBAA3BB90F8B53F;
+  num1.bits[2] = 0xAF9F3AC14DF900CD;
+  num1.bits[3] = 0x7538DCFB7617FFFF;
+
+  char* str = uint256_to_str(&num1);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("53021071883449387783242227712977678841266351175989414378504472453946362637549", str);
+
+  free(str);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_uint256_add);
   RUN_TEST(test_uint256_sub);
+  RUN_TEST(test_uint256_to_str);
 
   return UNITY_END();
 }

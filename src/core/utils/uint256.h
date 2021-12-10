@@ -20,34 +20,12 @@ extern "C" {
 #endif
 
 /**
- * @brief New uint256 object initialized to 0.
+ * @brief New uint256 object from c_string representing a 256 bit number.
  *
+ * @param[in] s A c_string representing a 256 bit number.
  * @return uint256_t* The pointer to uint256 object, NULL on failed.
  */
-uint256_t *uint256_new();
-
-/**
- * @brief New uint256 object from c_string.
- *
- * @param[in] s A c_string
- * @return uint256_t* The pointer to uint256 object, NULL on failed.
- */
-uint256_t *uint256_new_from_str(char const *s);
-
-/**
- * @brief Clones a uint256 object
- *
- * @param[in] num A pointer to a uint256 object
- * @return uint256_t* A cloned uint256 object
- */
-uint256_t *uint256_clone(uint256_t *num);
-
-/**
- * @brief Deallocates uint256 object
- *
- * @param[in] num uint256 object
- */
-void uint256_destroy(uint256_t *num);
+uint256_t *uint256_from_str(char const *s);
 
 /**
  * @brief Perform addition on two uint256 numbers.
@@ -88,7 +66,7 @@ int uint256_equal(uint256_t const *num1, uint256_t const *num2);
  * @param[in] num A pointer to a uint256 object
  * @return The pointer to string object, NULL on failed.
  */
-char const *uint256_to_str(uint256_t *num);
+char *uint256_to_str(uint256_t *num);
 
 #ifdef __cplusplus
 }
