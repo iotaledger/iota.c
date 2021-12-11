@@ -12,58 +12,221 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_uint256_add() {
-  uint256_t num1 = {0};
+  uint256_t num1, num2, num3;
+  bool res;
+  char *str1, *str2, *str3;
+
+  //=====Test overflow of unsigned 256-bit number=====
+  num1.bits[0] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[1] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[2] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[3] = 0x0000000000000000;
+
+  num2.bits[0] = 0x0000000000000001;
+  num2.bits[1] = 0x0000000000000000;
+  num2.bits[2] = 0x0000000000000000;
+  num2.bits[3] = 0x0000000000000000;
+
+  res = uint256_add(&num3, &num1, &num2);
+  TEST_ASSERT_TRUE(res);
+  TEST_ASSERT_EQUAL_UINT64(0x0000000000000000, num3.bits[0]);
+  TEST_ASSERT_EQUAL_UINT64(0x0000000000000000, num3.bits[1]);
+  TEST_ASSERT_EQUAL_UINT64(0x0000000000000000, num3.bits[2]);
+  TEST_ASSERT_EQUAL_UINT64(0x0000000000000001, num3.bits[3]);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  str3 = uint256_to_str(&num3);
+  printf("%s + %s = %s\n", str1, str2, str3);
+  free(str1);
+  free(str2);
+  free(str3);
+
+  //=====Test addition to get maximum unsigned 256-bit number=====
+  num1.bits[0] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[1] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[2] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[3] = 0x7FFFFFFFFFFFFFFF;
+
+  num2.bits[0] = 0x0000000000000000;
+  num2.bits[1] = 0x0000000000000000;
+  num2.bits[2] = 0x0000000000000000;
+  num2.bits[3] = 0x8000000000000000;
+
+  res = uint256_add(&num3, &num1, &num2);
+  TEST_ASSERT_TRUE(res);
+  TEST_ASSERT_EQUAL_UINT64(0xFFFFFFFFFFFFFFFF, num3.bits[0]);
+  TEST_ASSERT_EQUAL_UINT64(0xFFFFFFFFFFFFFFFF, num3.bits[1]);
+  TEST_ASSERT_EQUAL_UINT64(0xFFFFFFFFFFFFFFFF, num3.bits[2]);
+  TEST_ASSERT_EQUAL_UINT64(0xFFFFFFFFFFFFFFFF, num3.bits[3]);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  str3 = uint256_to_str(&num3);
+  printf("%s + %s = %s\n", str1, str2, str3);
+  free(str1);
+  free(str2);
+  free(str3);
+
+  //=====Test addition of two "random" unsigned 256-bit numbers=====
   num1.bits[0] = 0x136CF8C718CD2CED;
   num1.bits[1] = 0x6DBAA3BB90F8B53F;
   num1.bits[2] = 0xAF9F3AC14DF900CD;
   num1.bits[3] = 0x7538DCFB7617FFFF;
-  uint256_t num2 = {0};
+
   num2.bits[0] = 0xEE3893897C976CBC;
   num2.bits[1] = 0x135A88EBDFB74B3E;
   num2.bits[2] = 0xE4588421EC581538;
   num2.bits[3] = 0x67582647CEB3FFFF;
 
-  uint256_t num3 = {0};
-  bool res = uint256_add(&num3, &num1, &num2);
+  res = uint256_add(&num3, &num1, &num2);
   TEST_ASSERT_TRUE(res);
   TEST_ASSERT_EQUAL_UINT64(0x1A58C50956499A9, num3.bits[0]);
   TEST_ASSERT_EQUAL_UINT64(0x81152CA770B0007E, num3.bits[1]);
   TEST_ASSERT_EQUAL_UINT64(0x93F7BEE33A511605, num3.bits[2]);
   TEST_ASSERT_EQUAL_UINT64(0xDC91034344CBFFFF, num3.bits[3]);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  str3 = uint256_to_str(&num3);
+  printf("%s + %s = %s\n", str1, str2, str3);
+  free(str1);
+  free(str2);
+  free(str3);
+
+  //=====Sum is bigger number than maximum unsigned 256-bit number=====
+  num1.bits[0] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[1] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[2] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[3] = 0xFFFFFFFFFFFFFFFF;
+
+  num2.bits[0] = 0x0000000000000001;
+  num2.bits[1] = 0x0000000000000000;
+  num2.bits[2] = 0x0000000000000000;
+  num2.bits[3] = 0x0000000000000000;
+
+  res = uint256_add(&num3, &num1, &num2);
+  TEST_ASSERT_FALSE(res);
 }
 
 void test_uint256_sub() {
-  uint256_t num1 = {0};
+  uint256_t num1, num2, num3;
+  bool res;
+  char *str1, *str2, *str3;
+
+  //=====Test underflow of unsigned 256-bit number=====
+  num1.bits[0] = 0x0000000000000000;
+  num1.bits[1] = 0x0000000000000000;
+  num1.bits[2] = 0x0000000000000000;
+  num1.bits[3] = 0x0000000000000001;
+
+  num2.bits[0] = 0xFFFFFFFFFFFFFFFF;
+  num2.bits[1] = 0xFFFFFFFFFFFFFFFF;
+  num2.bits[2] = 0xFFFFFFFFFFFFFFFF;
+  num2.bits[3] = 0x0000000000000000;
+
+  res = uint256_sub(&num3, &num1, &num2);
+  TEST_ASSERT_TRUE(res);
+  TEST_ASSERT_EQUAL_UINT64(0x0000000000000001, num3.bits[0]);
+  TEST_ASSERT_EQUAL_UINT64(0x0000000000000000, num3.bits[1]);
+  TEST_ASSERT_EQUAL_UINT64(0x0000000000000000, num3.bits[2]);
+  TEST_ASSERT_EQUAL_UINT64(0x0000000000000000, num3.bits[3]);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  str3 = uint256_to_str(&num3);
+  printf("%s - %s = %s\n", str1, str2, str3);
+  free(str1);
+  free(str2);
+  free(str3);
+
+  //=====Test substraction from maximum unsigned 256-bit number=====
+  num1.bits[0] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[1] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[2] = 0xFFFFFFFFFFFFFFFF;
+  num1.bits[3] = 0xFFFFFFFFFFFFFFFF;
+
+  num2.bits[0] = 0x0000000000000000;
+  num2.bits[1] = 0x0000000000000000;
+  num2.bits[2] = 0x0000000000000000;
+  num2.bits[3] = 0x8000000000000000;
+
+  res = uint256_sub(&num3, &num1, &num2);
+  TEST_ASSERT_TRUE(res);
+  TEST_ASSERT_EQUAL_UINT64(0xFFFFFFFFFFFFFFFF, num3.bits[0]);
+  TEST_ASSERT_EQUAL_UINT64(0xFFFFFFFFFFFFFFFF, num3.bits[1]);
+  TEST_ASSERT_EQUAL_UINT64(0xFFFFFFFFFFFFFFFF, num3.bits[2]);
+  TEST_ASSERT_EQUAL_UINT64(0x7FFFFFFFFFFFFFFF, num3.bits[3]);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  str3 = uint256_to_str(&num3);
+  printf("%s - %s = %s\n", str1, str2, str3);
+  free(str1);
+  free(str2);
+  free(str3);
+
+  //=====Test subtraction of two "random" unsigned 256-bit numbers=====
   num1.bits[0] = 0xE36CF8C718CD2CED;
   num1.bits[1] = 0x6DBAA3BB90F8B53F;
   num1.bits[2] = 0xAF9F3AC14DF900CD;
   num1.bits[3] = 0x7538DCFB7617FFFF;
-  uint256_t num2 = {0};
+
   num2.bits[0] = 0x7E3893897C976CBC;
   num2.bits[1] = 0x135A88EBDFB74B3E;
   num2.bits[2] = 0xE4588421EC581538;
   num2.bits[3] = 0x67582647CEB3FFFF;
 
-  uint256_t num3 = {0};
-  bool res = uint256_sub(&num3, &num1, &num2);
+  res = uint256_sub(&num3, &num1, &num2);
   TEST_ASSERT_TRUE(res);
   TEST_ASSERT_EQUAL_UINT64(0x6534653D9C35C031, num3.bits[0]);
   TEST_ASSERT_EQUAL_UINT64(0x5A601ACFB1416A01, num3.bits[1]);
   TEST_ASSERT_EQUAL_UINT64(0xCB46B69F61A0EB95, num3.bits[2]);
   TEST_ASSERT_EQUAL_UINT64(0xDE0B6B3A763FFFF, num3.bits[3]);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  str3 = uint256_to_str(&num3);
+  printf("%s - %s = %s\n", str1, str2, str3);
+  free(str1);
+  free(str2);
+  free(str3);
+
+  //=====Subtrahend number is bigger then minued number=====
+  num1.bits[0] = 0xEEEEEEEEEEEEEEEE;
+  num1.bits[1] = 0xEEEEEEEEEEEEEEEE;
+  num1.bits[2] = 0xEEEEEEEEEEEEEEEE;
+  num1.bits[3] = 0xEEEEEEEEEEEEEEEE;
+
+  num2.bits[0] = 0xFFFFFFFFFFFFFFFF;
+  num2.bits[1] = 0xFFFFFFFFFFFFFFFF;
+  num2.bits[2] = 0xFFFFFFFFFFFFFFFF;
+  num2.bits[3] = 0xFFFFFFFFFFFFFFFF;
+
+  res = uint256_sub(&num3, &num1, &num2);
+  TEST_ASSERT_FALSE(res);
 }
 
 void test_uint256_to_str() {
-  uint256_t num1 = {0};
-  num1.bits[0] = 0xE36CF8C718CD2CED;
-  num1.bits[1] = 0x6DBAA3BB90F8B53F;
-  num1.bits[2] = 0xAF9F3AC14DF900CD;
-  num1.bits[3] = 0x7538DCFB7617FFFF;
+  uint256_t num;
+  char *str;
 
-  char* str = uint256_to_str(&num1);
+  //=====Maximum value of an unsigned 256-bit number=====
+  num.bits[0] = 0xFFFFFFFFFFFFFFFF;
+  num.bits[1] = 0xFFFFFFFFFFFFFFFF;
+  num.bits[2] = 0xFFFFFFFFFFFFFFFF;
+  num.bits[3] = 0xFFFFFFFFFFFFFFFF;
+
+  str = uint256_to_str(&num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("115792089237316195423570985008687907853269984665640564039457584007913129639935", str);
+  printf("Max 256-bit number: %s\n", str);
+  free(str);
+
+  //====="Random" unsigned 256-bit number=====
+  num.bits[0] = 0xE36CF8C718CD2CED;
+  num.bits[1] = 0x6DBAA3BB90F8B53F;
+  num.bits[2] = 0xAF9F3AC14DF900CD;
+  num.bits[3] = 0x7538DCFB7617FFFF;
+
+  str = uint256_to_str(&num);
   TEST_ASSERT_NOT_NULL(str);
   TEST_ASSERT_EQUAL_STRING("53021071883449387783242227712977678841266351175989414378504472453946362637549", str);
-
+  printf("\"Random\" 256-bit number: %s\n", str);
   free(str);
 }
 

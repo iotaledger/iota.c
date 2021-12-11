@@ -45,6 +45,11 @@ bool uint256_add(uint256_t *res, uint256_t *num1, uint256_t *num2) {
     res->bits[3] += 1;
   }
 
+  if ((res->bits[3] < num1->bits[3]) || (res->bits[3] < num2->bits[3])) {
+    printf("[%s:%d] Overflow occurs. Summed number is too large.\n", __func__, __LINE__);
+    return false;
+  }
+
   return true;
 }
 
@@ -58,18 +63,23 @@ bool uint256_sub(uint256_t *res, uint256_t *num1, uint256_t *num2) {
   res->bits[0] = num1->bits[0] - num2->bits[0];
 
   res->bits[1] = num1->bits[1] - num2->bits[1];
-  if (res->bits[0] > num1->bits[0]) {
+  if (num2->bits[0] > num1->bits[0]) {
     res->bits[1] -= 1;
   }
 
   res->bits[2] = num1->bits[2] - num2->bits[2];
-  if (res->bits[1] > num1->bits[1]) {
+  if (num2->bits[1] > num1->bits[1]) {
     res->bits[2] -= 1;
   }
 
   res->bits[3] = num1->bits[3] - num2->bits[3];
-  if (res->bits[2] > num1->bits[2]) {
+  if (num2->bits[2] > num1->bits[2]) {
     res->bits[3] -= 1;
+  }
+
+  if (num2->bits[3] > num1->bits[3]) {
+    printf("[%s:%d] Underflow occurs. Subtracted number is too small.\n", __func__, __LINE__);
+    return false;
   }
 
   return true;
@@ -98,7 +108,7 @@ char *uint256_to_str(uint256_t *num) {
   uint256_t temp_num = *num;
 
   for (uint16_t i = 0; i < 256; i++) {
-    int carry = temp_num.bits[3] >= 0x8000000000000000;
+    uint8_t carry = temp_num.bits[3] >= 0x8000000000000000;
 
     // Shift temp_num left, doubling it
     temp_num.bits[3] = ((temp_num.bits[3] << 1) & 0xFFFFFFFFFFFFFFFF) + (temp_num.bits[2] >= 0x8000000000000000);
@@ -109,9 +119,7 @@ char *uint256_to_str(uint256_t *num) {
     // Add str_temp to itself in decimal, doubling it
     for (int8_t j = STRING_NUMBER_MAX_CHARACTERS - 2; j >= 0; j--) {
       str_temp[j] += str_temp[j] - '0' + carry;
-
       carry = (str_temp[j] > '9');
-
       if (carry) {
         str_temp[j] -= 10;
       }
