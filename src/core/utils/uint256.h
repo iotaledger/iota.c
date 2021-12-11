@@ -30,9 +30,9 @@ uint256_t *uint256_from_str(char const *s);
 /**
  * @brief Perform addition on two uint256 numbers.
  *
- * @param[out] res Result. A pointer to a uint256 object
- * @param[in] num1 A pointer to a uint256 object
- * @param[in] num2 A pointer to a uint256 object
+ * @param[out] res Sum of two numbers. A pointer to a uint256 object
+ * @param[in] num1 Summand. A pointer to a uint256 object
+ * @param[in] num2 Summand. A pointer to a uint256 object
  * @return true On success
  * @return false On failed
  */
@@ -41,9 +41,9 @@ bool uint256_add(uint256_t *res, uint256_t *num1, uint256_t *num2);
 /**
  * @brief Perform subtraction on two uint256 numbers.
  *
- * @param[out] res Result. A pointer to a uint256 object
- * @param[in] num1 A pointer to a uint256 object
- * @param[in] num2 A pointer to a uint256 object
+ * @param[out] res Difference of two numbers. A pointer to a uint256 object
+ * @param[in] num1 Minuend. A pointer to a uint256 object
+ * @param[in] num2 Subtrahed. A pointer to a uint256 object
  * @return true On success
  * @return false On failed
  */
@@ -56,7 +56,9 @@ bool uint256_sub(uint256_t *res, uint256_t *num1, uint256_t *num2);
  *
  * @param[in] num1 A pointer to a uint256 object
  * @param[in] num2 A pointer to a uint256 object
- * @return int
+ * @return int < 0 if num1 is smaller then num2
+ * @return int > 0 if num1 is greater than num2
+ * @return int 0 if num1 is equal to num2
  */
 int uint256_equal(uint256_t const *num1, uint256_t const *num2);
 

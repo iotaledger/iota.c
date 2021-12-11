@@ -201,6 +201,107 @@ void test_uint256_sub() {
   TEST_ASSERT_FALSE(res);
 }
 
+void test_uint256_equal() {
+  uint256_t num1, num2;
+  int res;
+  char *str1, *str2;
+
+  //=====Numbers are equal=====
+  num1.bits[0] = 0xE36CF8C718CD2CED;
+  num1.bits[1] = 0x6DBAA3BB90F8B53F;
+  num1.bits[2] = 0xAF9F3AC14DF900CD;
+  num1.bits[3] = 0x7538DCFB7617FFFF;
+
+  num2.bits[0] = 0xE36CF8C718CD2CED;
+  num2.bits[1] = 0x6DBAA3BB90F8B53F;
+  num2.bits[2] = 0xAF9F3AC14DF900CD;
+  num2.bits[3] = 0x7538DCFB7617FFFF;
+
+  res = uint256_equal(&num1, &num2);
+  TEST_ASSERT_EQUAL_INT(0, res);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  printf("%s = %s\n", str1, str2);
+  free(str1);
+  free(str2);
+
+  //=====Numbers are equal (both 0)=====
+  num1.bits[0] = 0x0000000000000000;
+  num1.bits[1] = 0x0000000000000000;
+  num1.bits[2] = 0x0000000000000000;
+  num1.bits[3] = 0x0000000000000000;
+
+  num2.bits[0] = 0x0000000000000000;
+  num2.bits[1] = 0x0000000000000000;
+  num2.bits[2] = 0x0000000000000000;
+  num2.bits[3] = 0x0000000000000000;
+
+  res = uint256_equal(&num1, &num2);
+  TEST_ASSERT_EQUAL_INT(0, res);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  printf("%s = %s\n", str1, str2);
+  free(str1);
+  free(str2);
+
+  //=====Numbers are equal=====
+  num1.bits[0] = 0x0000000000000001;
+  num1.bits[1] = 0x1000000000000000;
+  num1.bits[2] = 0x0000000000000001;
+  num1.bits[3] = 0x1000000000000000;
+
+  num2.bits[0] = 0x0000000000000001;
+  num2.bits[1] = 0x1000000000000000;
+  num2.bits[2] = 0x0000000000000001;
+  num2.bits[3] = 0x1000000000000000;
+
+  res = uint256_equal(&num1, &num2);
+  TEST_ASSERT_EQUAL_INT(0, res);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  printf("%s = %s\n", str1, str2);
+  free(str1);
+  free(str2);
+
+  //=====num1 is greater than num2=====
+  num1.bits[0] = 0xE36CF8C718CD2CEE;
+  num1.bits[1] = 0x6DBAA3BB90F8B53F;
+  num1.bits[2] = 0xAF9F3AC14DF900CD;
+  num1.bits[3] = 0x7538DCFB7617FFFF;
+
+  num2.bits[0] = 0xE36CF8C718CD2CED;
+  num2.bits[1] = 0x6DBAA3BB90F8B53F;
+  num2.bits[2] = 0xAF9F3AC14DF900CD;
+  num2.bits[3] = 0x7538DCFB7617FFFF;
+
+  res = uint256_equal(&num1, &num2);
+  TEST_ASSERT_EQUAL_INT(1, res);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  printf("%s > %s\n", str1, str2);
+  free(str1);
+  free(str2);
+
+  //=====num1 is smaller than num2=====
+  num1.bits[0] = 0xE36CF8C718CD2CEC;
+  num1.bits[1] = 0x6DBAA3BB90F8B53F;
+  num1.bits[2] = 0xAF9F3AC14DF900CD;
+  num1.bits[3] = 0x7538DCFB7617FFFF;
+
+  num2.bits[0] = 0xE36CF8C718CD2CED;
+  num2.bits[1] = 0x6DBAA3BB90F8B53F;
+  num2.bits[2] = 0xAF9F3AC14DF900CD;
+  num2.bits[3] = 0x7538DCFB7617FFFF;
+
+  res = uint256_equal(&num1, &num2);
+  TEST_ASSERT_EQUAL_INT(-1, res);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  printf("%s < %s\n", str1, str2);
+  free(str1);
+  free(str2);
+}
+
 void test_uint256_to_str() {
   uint256_t num;
   char *str;
@@ -215,6 +316,30 @@ void test_uint256_to_str() {
   TEST_ASSERT_NOT_NULL(str);
   TEST_ASSERT_EQUAL_STRING("115792089237316195423570985008687907853269984665640564039457584007913129639935", str);
   printf("Max 256-bit number: %s\n", str);
+  free(str);
+
+  //=====Zero unsigned 256-bit number=====
+  num.bits[0] = 0x0000000000000000;
+  num.bits[1] = 0x0000000000000000;
+  num.bits[2] = 0x0000000000000000;
+  num.bits[3] = 0x0000000000000000;
+
+  str = uint256_to_str(&num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("0", str);
+  printf("Zero 256-bit number: %s\n", str);
+  free(str);
+
+  //=====Small unsigned 256-bit number=====
+  num.bits[0] = 0xE36CF8C718CD2CED;
+  num.bits[1] = 0x0000000000000000;
+  num.bits[2] = 0x6DBAA3BB90F8B53F;
+  num.bits[3] = 0x0000000000000000;
+
+  str = uint256_to_str(&num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("2690548743601445896320600757642964677162741715297406627053", str);
+  printf("Small 256-bit number: %s\n", str);
   free(str);
 
   //====="Random" unsigned 256-bit number=====
@@ -235,6 +360,7 @@ int main() {
 
   RUN_TEST(test_uint256_add);
   RUN_TEST(test_uint256_sub);
+  RUN_TEST(test_uint256_equal);
   RUN_TEST(test_uint256_to_str);
 
   return UNITY_END();

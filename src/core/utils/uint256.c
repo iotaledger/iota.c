@@ -13,6 +13,7 @@
 uint256_t *uint256_from_str(char const *s) {
   uint256_t *num = (uint256_t *)malloc(sizeof(uint256_t));
   if (!num) {
+    printf("[%s:%d] creating uint256 object failed\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -31,21 +32,21 @@ bool uint256_add(uint256_t *res, uint256_t *num1, uint256_t *num2) {
   res->bits[0] = num1->bits[0] + num2->bits[0];
 
   res->bits[1] = num1->bits[1] + num2->bits[1];
-  if ((res->bits[0] < num1->bits[0]) || (res->bits[0] < num2->bits[0])) {
+  if (res->bits[0] < num1->bits[0]) {
     res->bits[1] += 1;
   }
 
   res->bits[2] = num1->bits[2] + num2->bits[2];
-  if ((res->bits[1] < num1->bits[1]) || (res->bits[1] < num2->bits[1])) {
+  if (res->bits[1] < num1->bits[1]) {
     res->bits[2] += 1;
   }
 
   res->bits[3] = num1->bits[3] + num2->bits[3];
-  if ((res->bits[2] < num1->bits[2]) || (res->bits[2] < num2->bits[2])) {
+  if (res->bits[2] < num1->bits[2]) {
     res->bits[3] += 1;
   }
 
-  if ((res->bits[3] < num1->bits[3]) || (res->bits[3] < num2->bits[3])) {
+  if (res->bits[3] < num1->bits[3]) {
     printf("[%s:%d] Overflow occurs. Summed number is too large.\n", __func__, __LINE__);
     return false;
   }
@@ -91,7 +92,8 @@ int uint256_equal(uint256_t const *num1, uint256_t const *num2) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return 0;
   }
-  // TODO implementation is needed
+
+  return memcmp(num1, num2, sizeof(uint256_t));
 }
 
 char *uint256_to_str(uint256_t *num) {
@@ -110,13 +112,13 @@ char *uint256_to_str(uint256_t *num) {
   for (uint16_t i = 0; i < 256; i++) {
     uint8_t carry = temp_num.bits[3] >= 0x8000000000000000;
 
-    // Shift temp_num left, doubling it
+    // shift temp_num left, doubling it
     temp_num.bits[3] = ((temp_num.bits[3] << 1) & 0xFFFFFFFFFFFFFFFF) + (temp_num.bits[2] >= 0x8000000000000000);
     temp_num.bits[2] = ((temp_num.bits[2] << 1) & 0xFFFFFFFFFFFFFFFF) + (temp_num.bits[1] >= 0x8000000000000000);
     temp_num.bits[1] = ((temp_num.bits[1] << 1) & 0xFFFFFFFFFFFFFFFF) + (temp_num.bits[0] >= 0x8000000000000000);
     temp_num.bits[0] = ((temp_num.bits[0] << 1) & 0xFFFFFFFFFFFFFFFF);
 
-    // Add str_temp to itself in decimal, doubling it
+    // add str_temp to itself in decimal, doubling it
     for (int8_t j = STRING_NUMBER_MAX_CHARACTERS - 2; j >= 0; j--) {
       str_temp[j] += str_temp[j] - '0' + carry;
       carry = (str_temp[j] > '9');
@@ -126,14 +128,17 @@ char *uint256_to_str(uint256_t *num) {
     }
   }
 
-  // Count leading zeros in a temporary string
+  // count leading zeros in a temporary string
   uint8_t count_zeros = 0;
-  while ((str_temp[count_zeros] == '0') && (count_zeros < STRING_NUMBER_MAX_CHARACTERS)) {
+  while ((str_temp[count_zeros] == '0') && (count_zeros < (STRING_NUMBER_MAX_CHARACTERS - 2))) {
     count_zeros++;
   }
 
-  // Create a string with appropirate length
-  char *str = malloc(STRING_NUMBER_MAX_CHARACTERS - count_zeros);
+  // create a string with appropriate length
+  char *str = (char *)malloc(STRING_NUMBER_MAX_CHARACTERS - count_zeros);
+  if (!str) {
+    printf("[%s:%d] allocation memory space for string failed\n", __func__, __LINE__);
+  }
   memcpy(str, str_temp + count_zeros, STRING_NUMBER_MAX_CHARACTERS - count_zeros);
 
   return str;
