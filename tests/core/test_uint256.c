@@ -11,6 +11,92 @@ void setUp(void) {}
 
 void tearDown(void) {}
 
+void test_uint256_from_str() {
+  uint256_t *num;
+  char *str;
+
+  num = uint256_from_str("0");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_str(num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("0", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  free(num);
+
+  num = uint256_from_str("123456789");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_str(num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("123456789", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  free(num);
+
+  num = uint256_from_str("36893488147419103232");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_str(num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("36893488147419103232", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  free(num);
+
+  num = uint256_from_str("36893488147419103235");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_str(num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("36893488147419103235", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  free(num);
+
+  num = uint256_from_str("5534023222112865484629837493874298");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_str(num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("5534023222112865484629837493874298", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  free(num);
+
+  num = uint256_from_str("36893488147419103232");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_str(num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("36893488147419103232", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  free(num);
+
+  num = uint256_from_str("18446744073709551615");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_str(num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("18446744073709551615", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  free(num);
+
+  num = uint256_from_str("18446744073709551616");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_str(num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("18446744073709551616", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  free(num);
+
+  num = uint256_from_str("115792089237316195423570985008687907853269984665640564039457584007913129639935");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_str(num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("115792089237316195423570985008687907853269984665640564039457584007913129639935", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  free(num);
+}
+
 void test_uint256_add() {
   uint256_t num1, num2, num3;
   bool res;
@@ -358,6 +444,7 @@ void test_uint256_to_str() {
 int main() {
   UNITY_BEGIN();
 
+  RUN_TEST(test_uint256_from_str);
   RUN_TEST(test_uint256_add);
   RUN_TEST(test_uint256_sub);
   RUN_TEST(test_uint256_equal);

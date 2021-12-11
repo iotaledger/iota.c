@@ -8,9 +8,39 @@
 
 #include "core/utils/uint256.h"
 
+#define hi(x) (x >> 32)
+#define lo(x) ((((uint64_t)0x1 << 32) - 1) & x)
+
 #define STRING_NUMBER_MAX_CHARACTERS 79  // 78 characters + string termination character
 
+static void multiply64(uint64_t a, uint64_t b, uint64_t *result, uint64_t *carry) {
+  uint64_t s0, s1, s2, s3;
+
+  uint64_t x = lo(a) * lo(b);
+  s0 = lo(x);
+
+  x = hi(a) * lo(b) + hi(x);
+  s1 = lo(x);
+  s2 = hi(x);
+
+  x = s1 + lo(a) * hi(b);
+  s1 = lo(x);
+
+  x = s2 + hi(a) * hi(b) + hi(x);
+  s2 = lo(x);
+  s3 = hi(x);
+
+  *result = s1 << 32 | s0;
+  *carry = s3 << 32 | s2;
+}
+
 uint256_t *uint256_from_str(char const *s) {
+  if (s == NULL) {
+    // invalid parameters
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return NULL;
+  }
+
   uint256_t *num = (uint256_t *)malloc(sizeof(uint256_t));
   if (!num) {
     printf("[%s:%d] creating uint256 object failed\n", __func__, __LINE__);
@@ -18,6 +48,78 @@ uint256_t *uint256_from_str(char const *s) {
   }
 
   memset(num, 0, sizeof(uint256_t));
+
+  uint64_t result = 0;
+  uint64_t carry_part0 = 0;
+  uint64_t carry_part1 = 0;
+  uint64_t carry_part2 = 0;
+  uint64_t carry_part3 = 0;
+
+  bool overflow_part0 = false;
+  bool overflow_part1 = false;
+  bool overflow_part2 = false;
+
+  for (uint8_t i = 0; i < strlen(s); i++) {
+    multiply64(10, num->bits[0], &result, &carry_part0);
+    num->bits[0] = result + (s[i] - '0');
+
+    if (carry_part0 > 0 || num->bits[0] < result) {
+      overflow_part0 = true;
+
+      if (num->bits[0] < result) {
+        carry_part0++;
+      }
+    }
+
+    if (overflow_part0) {
+      multiply64(10, num->bits[1], &result, &carry_part1);
+      num->bits[1] = result;
+
+      if (carry_part0) {
+        num->bits[1] += carry_part0;
+      }
+
+      if (carry_part1 > 0 || num->bits[1] < result) {
+        overflow_part1 = true;
+
+        if (num->bits[1] < result) {
+          carry_part1++;
+        }
+      }
+    }
+
+    if (overflow_part1) {
+      multiply64(10, num->bits[2], &result, &carry_part2);
+      num->bits[2] = result;
+
+      if (carry_part1) {
+        num->bits[2] += carry_part1;
+      }
+
+      if (carry_part2 > 0 || num->bits[2] < result) {
+        overflow_part2 = true;
+
+        if (num->bits[2] < result) {
+          carry_part2++;
+        }
+      }
+    }
+
+    if (overflow_part2) {
+      multiply64(10, num->bits[3], &result, &carry_part3);
+      num->bits[3] = result;
+
+      if (carry_part2) {
+        num->bits[3] += carry_part2;
+      }
+
+      if (carry_part3 > 0 || num->bits[3] < result) {
+        printf("[%s:%d] Overflow occurs. Given string number is too large.\n", __func__, __LINE__);
+        free(num);
+        return NULL;
+      }
+    }
+  }
 
   return num;
 }
@@ -138,6 +240,7 @@ char *uint256_to_str(uint256_t *num) {
   char *str = (char *)malloc(STRING_NUMBER_MAX_CHARACTERS - count_zeros);
   if (!str) {
     printf("[%s:%d] allocation memory space for string failed\n", __func__, __LINE__);
+    return NULL;
   }
   memcpy(str, str_temp + count_zeros, STRING_NUMBER_MAX_CHARACTERS - count_zeros);
 
