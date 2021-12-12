@@ -13,20 +13,20 @@
 
 #define STRING_NUMBER_MAX_CHARACTERS 79  // 78 characters + string termination character
 
-static void multiply64(uint64_t a, uint64_t b, uint64_t *result, uint64_t *carry) {
+static void multiply64(uint64_t *a, uint64_t *b, uint64_t *result, uint64_t *carry) {
   uint64_t s0, s1, s2, s3;
 
-  uint64_t x = lo(a) * lo(b);
+  uint64_t x = lo(*a) * lo(*b);
   s0 = lo(x);
 
-  x = hi(a) * lo(b) + hi(x);
+  x = hi(*a) * lo(*b) + hi(x);
   s1 = lo(x);
   s2 = hi(x);
 
-  x = s1 + lo(a) * hi(b);
+  x = s1 + lo(*a) * hi(*b);
   s1 = lo(x);
 
-  x = s2 + hi(a) * hi(b) + hi(x);
+  x = s2 + hi(*a) * hi(*b) + hi(x);
   s2 = lo(x);
   s3 = hi(x);
 
@@ -49,78 +49,60 @@ uint256_t *uint256_from_str(char const *s) {
 
   memset(num, 0, sizeof(uint256_t));
 
+  const uint64_t multiplier = 10;
+  uint64_t carry[4] = {0};
+  bool overflow[4] = {false};
   uint64_t result = 0;
-  uint64_t carry_part0 = 0;
-  uint64_t carry_part1 = 0;
-  uint64_t carry_part2 = 0;
-  uint64_t carry_part3 = 0;
-
-  bool overflow_part0 = false;
-  bool overflow_part1 = false;
-  bool overflow_part2 = false;
 
   for (uint8_t i = 0; i < strlen(s); i++) {
-    multiply64(10, num->bits[0], &result, &carry_part0);
-    num->bits[0] = result + (s[i] - '0');
-
-    if (carry_part0 > 0 || num->bits[0] < result) {
-      overflow_part0 = true;
-
-      if (num->bits[0] < result) {
-        carry_part0++;
-      }
-    }
-
-    if (overflow_part0) {
-      multiply64(10, num->bits[1], &result, &carry_part1);
-      num->bits[1] = result;
-
-      if (carry_part0) {
-        num->bits[1] += carry_part0;
-      }
-
-      if (carry_part1 > 0 || num->bits[1] < result) {
-        overflow_part1 = true;
-
-        if (num->bits[1] < result) {
-          carry_part1++;
+    for (uint8_t j = 0; j < 4; j++) {
+      if (j == 0) {
+        multiply64(((uint64_t *)&multiplier), &num->bits[j], &result, &carry[j]);
+        if (carry[j] > 0) {
+          // multiplication overflows
+          overflow[j + 1] = true;
         }
-      }
-    }
 
-    if (overflow_part1) {
-      multiply64(10, num->bits[2], &result, &carry_part2);
-      num->bits[2] = result;
-
-      if (carry_part1) {
-        num->bits[2] += carry_part1;
-      }
-
-      if (carry_part2 > 0 || num->bits[2] < result) {
-        overflow_part2 = true;
-
-        if (num->bits[2] < result) {
-          carry_part2++;
+        num->bits[j] = result + (s[i] - '0');
+        if (num->bits[j] < result) {
+          // addition overflows
+          overflow[j + 1] = true;
+          carry[j]++;
         }
-      }
-    }
+      } else {
+        if (overflow[j]) {
+          multiply64(((uint64_t *)&multiplier), &num->bits[j], &result, &carry[j]);
+          num->bits[j] = result;
 
-    if (overflow_part2) {
-      multiply64(10, num->bits[3], &result, &carry_part3);
-      num->bits[3] = result;
+          if (carry[j] > 0) {
+            // multiplication overflows
+            if (j == 3) {
+              printf("[%s:%d] Overflow occurs. Given string number is too large.\n", __func__, __LINE__);
+              free(num);
+              return NULL;
+            }
+            overflow[j + 1] = true;
+          }
 
-      if (carry_part2) {
-        num->bits[3] += carry_part2;
-      }
+          if (carry[j - 1]) {
+            // carry from previous part of a number must be added because overflow of that part occurs
+            num->bits[j] += carry[j - 1];
 
-      if (carry_part3 > 0 || num->bits[3] < result) {
-        printf("[%s:%d] Overflow occurs. Given string number is too large.\n", __func__, __LINE__);
-        free(num);
-        return NULL;
+            if (num->bits[j] < carry[j - 1]) {
+              // addition overflows
+              if (j == 3) {
+                printf("[%s:%d] Overflow occurs. Given string number is too large.\n", __func__, __LINE__);
+                free(num);
+                return NULL;
+              }
+              overflow[j + 1] = true;
+              carry[j]++;
+            }
+          }
+        }
       }
     }
   }
-
   return num;
 }
 
