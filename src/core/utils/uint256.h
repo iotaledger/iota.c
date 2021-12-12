@@ -12,7 +12,7 @@
  *
  */
 typedef struct {
-  uint64_t bits[4];  ///< 256 bit number presented in a little endian format
+  uint64_t bits[4];  ///< 256 bit number represented in a little endian format
 } uint256_t;
 
 #ifdef __cplusplus
@@ -23,50 +23,50 @@ extern "C" {
  * @brief New uint256 object from c_string representing a 256 bit number.
  *
  * @param[in] s A c_string representing a 256 bit number.
- * @return uint256_t* The pointer to uint256 object, NULL on failed.
+ * @return uint256_t* Pointer to uint256 object, NULL on failed.
  */
 uint256_t *uint256_from_str(char const *s);
 
 /**
  * @brief Perform addition on two uint256 numbers.
  *
- * @param[out] res Sum of two numbers. A pointer to a uint256 object
- * @param[in] num1 Summand. A pointer to a uint256 object
- * @param[in] num2 Summand. A pointer to a uint256 object
+ * @param[out] res Sum of two numbers. A pointer to uint256 object
+ * @param[in] a Summand. A pointer to uint256 object
+ * @param[in] b Summand. A pointer to uint256 object
  * @return true On success
  * @return false On failed
  */
-bool uint256_add(uint256_t *res, uint256_t *num1, uint256_t *num2);
+bool uint256_add(uint256_t *res, uint256_t *a, uint256_t *b);
 
 /**
  * @brief Perform subtraction on two uint256 numbers.
  *
- * @param[out] res Difference of two numbers. A pointer to a uint256 object
- * @param[in] num1 Minuend. A pointer to a uint256 object
- * @param[in] num2 Subtrahed. A pointer to a uint256 object
+ * @param[out] res Difference of two numbers. A pointer to uint256 object
+ * @param[in] a Minuend. A pointer to uint256 object
+ * @param[in] b Subtrahend. A pointer to uint256 object
  * @return true On success
  * @return false On failed
  */
-bool uint256_sub(uint256_t *res, uint256_t *num1, uint256_t *num2);
+bool uint256_sub(uint256_t *res, uint256_t *a, uint256_t *b);
 
 /**
  * @brief Compare two uint256 objects (numbers)
  *
  * Comparing NULL uint256 objects is undefined behaviour.
  *
- * @param[in] num1 A pointer to a uint256 object
- * @param[in] num2 A pointer to a uint256 object
- * @return int < 0 if num1 is smaller then num2
- * @return int > 0 if num1 is greater than num2
- * @return int 0 if num1 is equal to num2
+ * @param[in] a A pointer to uint256 object
+ * @param[in] b A pointer to uint256 object
+ * @return int < 0 if a is smaller then b
+ * @return int > 0 if a is greater than b
+ * @return int 0 if a is equal to b
  */
-int uint256_equal(uint256_t const *num1, uint256_t const *num2);
+int uint256_equal(uint256_t const *a, uint256_t const *b);
 
 /**
- * @brief Converts uint256 number to string
+ * @brief Converts uint256 number to a string
  *
- * @param[in] num A pointer to a uint256 object
- * @return The pointer to string object, NULL on failed.
+ * @param[in] num A pointer to uint256 object
+ * @return Pointer to string object, NULL on failed.
  */
 char *uint256_to_str(uint256_t *num);
 

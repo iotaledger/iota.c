@@ -11,22 +11,24 @@
 #define hi(x) (x >> 32)
 #define lo(x) ((((uint64_t)0x1 << 32) - 1) & x)
 
-#define STRING_NUMBER_MAX_CHARACTERS 79  // 78 characters + string termination character
+// Maximum possible length of a string representing 256-bit number. 78 characters + string termination character
+#define STRING_NUMBER_MAX_CHARACTERS 79
 
-static void multiply64(uint64_t *a, uint64_t *b, uint64_t *result, uint64_t *carry) {
+// This function is optimized for multiplying an uint64_t number with 10
+static void multiply_by_10(uint64_t *b, uint64_t *result, uint64_t *carry) {
   uint64_t s0, s1, s2, s3;
 
-  uint64_t x = lo(*a) * lo(*b);
+  uint64_t x = 10 * lo(*b);
   s0 = lo(x);
 
-  x = hi(*a) * lo(*b) + hi(x);
+  x = hi(x);
   s1 = lo(x);
   s2 = hi(x);
 
-  x = s1 + lo(*a) * hi(*b);
+  x = s1 + 10 * hi(*b);
   s1 = lo(x);
 
-  x = s2 + hi(*a) * hi(*b) + hi(x);
+  x = s2 + hi(x);
   s2 = lo(x);
   s3 = hi(x);
 
@@ -49,7 +51,6 @@ uint256_t *uint256_from_str(char const *s) {
 
   memset(num, 0, sizeof(uint256_t));
 
-  const uint64_t multiplier = 10;
   uint64_t carry[4] = {0};
   bool overflow[4] = {false};
   uint64_t result = 0;
@@ -57,7 +58,7 @@ uint256_t *uint256_from_str(char const *s) {
   for (uint8_t i = 0; i < strlen(s); i++) {
     for (uint8_t j = 0; j < 4; j++) {
       if (j == 0) {
-        multiply64(((uint64_t *)&multiplier), &num->bits[j], &result, &carry[j]);
+        multiply_by_10(&num->bits[j], &result, &carry[j]);
         if (carry[j] > 0) {
           // multiplication overflows
           overflow[j + 1] = true;
@@ -71,7 +72,7 @@ uint256_t *uint256_from_str(char const *s) {
         }
       } else {
         if (overflow[j]) {
-          multiply64(((uint64_t *)&multiplier), &num->bits[j], &result, &carry[j]);
+          multiply_by_10(&num->bits[j], &result, &carry[j]);
           num->bits[j] = result;
 
           if (carry[j] > 0) {
@@ -106,31 +107,31 @@ uint256_t *uint256_from_str(char const *s) {
   return num;
 }
 
-bool uint256_add(uint256_t *res, uint256_t *num1, uint256_t *num2) {
-  if (res == NULL || num1 == NULL || num2 == NULL) {
+bool uint256_add(uint256_t *res, uint256_t *a, uint256_t *b) {
+  if (res == NULL || a == NULL || b == NULL) {
     // invalid parameters
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return false;
   }
 
-  res->bits[0] = num1->bits[0] + num2->bits[0];
+  res->bits[0] = a->bits[0] + b->bits[0];
 
-  res->bits[1] = num1->bits[1] + num2->bits[1];
-  if (res->bits[0] < num1->bits[0]) {
+  res->bits[1] = a->bits[1] + b->bits[1];
+  if (res->bits[0] < a->bits[0]) {
     res->bits[1] += 1;
   }
 
-  res->bits[2] = num1->bits[2] + num2->bits[2];
-  if (res->bits[1] < num1->bits[1]) {
+  res->bits[2] = a->bits[2] + b->bits[2];
+  if (res->bits[1] < a->bits[1]) {
     res->bits[2] += 1;
   }
 
-  res->bits[3] = num1->bits[3] + num2->bits[3];
-  if (res->bits[2] < num1->bits[2]) {
+  res->bits[3] = a->bits[3] + b->bits[3];
+  if (res->bits[2] < a->bits[2]) {
     res->bits[3] += 1;
   }
 
-  if (res->bits[3] < num1->bits[3]) {
+  if (res->bits[3] < a->bits[3]) {
     printf("[%s:%d] Overflow occurs. Summed number is too large.\n", __func__, __LINE__);
     return false;
   }
@@ -138,31 +139,31 @@ bool uint256_add(uint256_t *res, uint256_t *num1, uint256_t *num2) {
   return true;
 }
 
-bool uint256_sub(uint256_t *res, uint256_t *num1, uint256_t *num2) {
-  if (res == NULL || num1 == NULL || num2 == NULL) {
+bool uint256_sub(uint256_t *res, uint256_t *a, uint256_t *b) {
+  if (res == NULL || a == NULL || b == NULL) {
     // invalid parameters
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return false;
   }
 
-  res->bits[0] = num1->bits[0] - num2->bits[0];
+  res->bits[0] = a->bits[0] - b->bits[0];
 
-  res->bits[1] = num1->bits[1] - num2->bits[1];
-  if (num2->bits[0] > num1->bits[0]) {
+  res->bits[1] = a->bits[1] - b->bits[1];
+  if (b->bits[0] > a->bits[0]) {
     res->bits[1] -= 1;
   }
 
-  res->bits[2] = num1->bits[2] - num2->bits[2];
-  if (num2->bits[1] > num1->bits[1]) {
+  res->bits[2] = a->bits[2] - b->bits[2];
+  if (b->bits[1] > a->bits[1]) {
     res->bits[2] -= 1;
   }
 
-  res->bits[3] = num1->bits[3] - num2->bits[3];
-  if (num2->bits[2] > num1->bits[2]) {
+  res->bits[3] = a->bits[3] - b->bits[3];
+  if (b->bits[2] > a->bits[2]) {
     res->bits[3] -= 1;
   }
 
-  if (num2->bits[3] > num1->bits[3]) {
+  if (b->bits[3] > a->bits[3]) {
     printf("[%s:%d] Underflow occurs. Subtracted number is too small.\n", __func__, __LINE__);
     return false;
   }
@@ -170,14 +171,14 @@ bool uint256_sub(uint256_t *res, uint256_t *num1, uint256_t *num2) {
   return true;
 }
 
-int uint256_equal(uint256_t const *num1, uint256_t const *num2) {
-  if (num1 == NULL || num2 == NULL) {
+int uint256_equal(uint256_t const *a, uint256_t const *b) {
+  if (a == NULL || b == NULL) {
     // invalid parameters
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return 0;
   }
 
-  return memcmp(num1, num2, sizeof(uint256_t));
+  return memcmp(a, b, sizeof(uint256_t));
 }
 
 char *uint256_to_str(uint256_t *num) {
@@ -191,16 +192,16 @@ char *uint256_to_str(uint256_t *num) {
   memset(str_temp, '0', sizeof(str_temp) - 1);
   str_temp[sizeof(str_temp) - 1] = '\0';
 
-  uint256_t temp_num = *num;
+  uint256_t num_temp = *num;
 
   for (uint16_t i = 0; i < 256; i++) {
-    uint8_t carry = temp_num.bits[3] >= 0x8000000000000000;
+    uint8_t carry = num_temp.bits[3] >= 0x8000000000000000;
 
-    // shift temp_num left, doubling it
-    temp_num.bits[3] = ((temp_num.bits[3] << 1) & 0xFFFFFFFFFFFFFFFF) + (temp_num.bits[2] >= 0x8000000000000000);
-    temp_num.bits[2] = ((temp_num.bits[2] << 1) & 0xFFFFFFFFFFFFFFFF) + (temp_num.bits[1] >= 0x8000000000000000);
-    temp_num.bits[1] = ((temp_num.bits[1] << 1) & 0xFFFFFFFFFFFFFFFF) + (temp_num.bits[0] >= 0x8000000000000000);
-    temp_num.bits[0] = ((temp_num.bits[0] << 1) & 0xFFFFFFFFFFFFFFFF);
+    // shift num_temp left, doubling it
+    num_temp.bits[3] = ((num_temp.bits[3] << 1) & 0xFFFFFFFFFFFFFFFF) + (num_temp.bits[2] >= 0x8000000000000000);
+    num_temp.bits[2] = ((num_temp.bits[2] << 1) & 0xFFFFFFFFFFFFFFFF) + (num_temp.bits[1] >= 0x8000000000000000);
+    num_temp.bits[1] = ((num_temp.bits[1] << 1) & 0xFFFFFFFFFFFFFFFF) + (num_temp.bits[0] >= 0x8000000000000000);
+    num_temp.bits[0] = ((num_temp.bits[0] << 1) & 0xFFFFFFFFFFFFFFFF);
 
     // add str_temp to itself in decimal, doubling it
     for (int8_t j = STRING_NUMBER_MAX_CHARACTERS - 2; j >= 0; j--) {
@@ -212,7 +213,7 @@ char *uint256_to_str(uint256_t *num) {
     }
   }
 
-  // count leading zeros in a temporary string
+  // Count leading zeros in a temporary string. At least one character and string termination character must be present.
   uint8_t count_zeros = 0;
   while ((str_temp[count_zeros] == '0') && (count_zeros < (STRING_NUMBER_MAX_CHARACTERS - 2))) {
     count_zeros++;
