@@ -22,10 +22,10 @@ extern "C" {
 /**
  * @brief New uint256 object from c_string representing a 256 bit number.
  *
- * @param[in] s A c_string representing a 256 bit number.
+ * @param[in] str A c_string representing a 256 bit number.
  * @return uint256_t* Pointer to uint256 object, NULL on failed.
  */
-uint256_t *uint256_from_str(char const *s);
+uint256_t *uint256_from_str(char const *str);
 
 /**
  * @brief Perform addition on two uint256 numbers.

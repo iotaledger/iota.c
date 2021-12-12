@@ -8,11 +8,12 @@
 
 #include "core/utils/uint256.h"
 
-#define hi(x) (x >> 32)
-#define lo(x) ((((uint64_t)0x1 << 32) - 1) & x)
-
 // Maximum possible length of a string representing 256-bit number. 78 characters + string termination character
 #define STRING_NUMBER_MAX_CHARACTERS 79
+
+// Helper functions to get higher and lower part of an uint64_t number
+#define hi(x) (x >> 32)
+#define lo(x) ((((uint64_t)0x1 << 32) - 1) & x)
 
 // This function is optimized for multiplying an uint64_t number with 10
 static void multiply_by_10(uint64_t *b, uint64_t *result, uint64_t *carry) {
@@ -36,8 +37,8 @@ static void multiply_by_10(uint64_t *b, uint64_t *result, uint64_t *carry) {
   *carry = s3 << 32 | s2;
 }
 
-uint256_t *uint256_from_str(char const *s) {
-  if (s == NULL) {
+uint256_t *uint256_from_str(char const *str) {
+  if (str == NULL) {
     // invalid parameters
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
@@ -55,16 +56,17 @@ uint256_t *uint256_from_str(char const *s) {
   bool overflow[4] = {false};
   uint64_t result = 0;
 
-  for (uint8_t i = 0; i < strlen(s); i++) {
+  for (uint8_t i = 0; i < strlen(str); i++) {
     for (uint8_t j = 0; j < 4; j++) {
       if (j == 0) {
         multiply_by_10(&num->bits[j], &result, &carry[j]);
+        num->bits[j] = result + (str[i] - '0');
+
         if (carry[j] > 0) {
           // multiplication overflows
           overflow[j + 1] = true;
         }
 
-        num->bits[j] = result + (s[i] - '0');
         if (num->bits[j] < result) {
           // addition overflows
           overflow[j + 1] = true;
@@ -104,6 +106,7 @@ uint256_t *uint256_from_str(char const *s) {
       }
     }
   }
+
   return num;
 }
 
