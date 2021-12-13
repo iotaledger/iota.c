@@ -9,7 +9,6 @@
  *
  */
 
-#include <mosquitto.h>
 #include <stdint.h>
 #include <stdio.h>
 
