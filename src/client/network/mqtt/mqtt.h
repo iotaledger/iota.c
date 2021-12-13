@@ -9,7 +9,6 @@
  *
  */
 
-#include <mosquitto.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -91,7 +90,7 @@ int mqtt_register_cb(mqtt_client_handle_t client, void (*callback)(mqtt_client_e
  * @brief Subscribe to a topic
  *
  * @param[in] client client instance
- * @param[in] mid if not NULL, mid will be set as the message id for the subscription topic
+ * @param[out] mid if not NULL, mid will be set as the message id for the subscription topic
  * @param[in] topic topic for subscribing, support wildcards
  * @param[in] qos Quality of Service for the subscription
  * @return int 0 on success
@@ -102,7 +101,7 @@ int mqtt_subscribe(mqtt_client_handle_t client, int *mid, char *topic, int qos);
  * @brief Unsubscribe from a topic
  *
  * @param[in] client client instance
- * @param[in] mid if not NULL, mid will be set as the message id for the unsubscription topic
+ * @param[out] mid if not NULL, mid will be set as the message id for the unsubscription topic
  * @param[in] topic topic for subscribing, support wildcards
  * @return int 0 on success
  */
