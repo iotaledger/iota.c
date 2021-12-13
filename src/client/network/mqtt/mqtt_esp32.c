@@ -135,7 +135,7 @@ int mqtt_register_cb(mqtt_client_handle_t client, void (*callback)(mqtt_client_e
 }
 
 int mqtt_subscribe(mqtt_client_handle_t client, int *mid, char *topic, int qos) {
-  // esp_mqtt_client_subscribe returns mid if subascription successful else returns -1
+  // esp_mqtt_client_subscribe returns mid if subscription successful else returns -1
   *mid = esp_mqtt_client_subscribe(client->esp32_mqtt_client, topic, qos);
   if (*mid != -1) {
     return 0;
