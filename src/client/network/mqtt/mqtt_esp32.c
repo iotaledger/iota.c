@@ -136,8 +136,12 @@ int mqtt_register_cb(mqtt_client_handle_t client, void (*callback)(mqtt_client_e
 
 int mqtt_subscribe(mqtt_client_handle_t client, int *mid, char *topic, int qos) {
   // esp_mqtt_client_subscribe returns mid if subscription successful else returns -1
-  *mid = esp_mqtt_client_subscribe(client->esp32_mqtt_client, topic, qos);
-  if (*mid != -1) {
+  int msg_id;
+  msg_id = esp_mqtt_client_subscribe(client->esp32_mqtt_client, topic, qos);
+  if (msg_id != -1) {
+    if(mid != NULL) {
+      *mid = msg_id;
+    }
     return 0;
   } else {
     ESP_LOGD(TAG, "Error subscribing topic : %s", topic);
@@ -146,8 +150,12 @@ int mqtt_subscribe(mqtt_client_handle_t client, int *mid, char *topic, int qos) 
 }
 
 int mqtt_unsubscribe(mqtt_client_handle_t client, int *mid, char *topic) {
-  *mid = esp_mqtt_client_unsubscribe(client->esp32_mqtt_client, topic);
-  if (*mid != -1) {
+  int msg_id;
+  msg_id = esp_mqtt_client_unsubscribe(client->esp32_mqtt_client, topic);
+  if (msg_id != -1) {
+    if(mid != NULL) {
+      *mid = msg_id;
+    }
     return 0;
   } else {
     ESP_LOGD(TAG, "Error unsubscribing topic : %s", topic);
@@ -158,7 +166,6 @@ int mqtt_unsubscribe(mqtt_client_handle_t client, int *mid, char *topic) {
 int mqtt_start(mqtt_client_handle_t client) {
   // This is a non blocking call
   esp_err_t rc = esp_mqtt_client_start(client->esp32_mqtt_client);
-  printf("This is non blocking");
   if (rc == ESP_OK) {
     return 0;
   } else {
