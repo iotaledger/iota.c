@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #include "core/types.h"
+#include "core/utils/uint256.h"
 #include "uthash.h"
 
 // Native Token ID length in bytes
@@ -22,7 +23,7 @@
  */
 typedef struct {
   byte_t token_id[NATIVE_TOKEN_ID_BYTES];  ///< Identifier of the Native Token
-  void *amount;                            ///< Amount of Tokens. Pointer to uint256_t object
+  uint256_t *amount;                       ///< Amount of Tokens. Pointer to uint256_t object
   UT_hash_handle hh;
 } native_tokens_t;
 
@@ -79,19 +80,27 @@ static void native_tokens_free(native_tokens_t **nt) {
  *
  * @param[in] nt Native Tokens set
  * @param[in] token_id Identifier of Native Token
- * @param[in] amount Amount of tokens. Pointer to uint256_t object.
+ * @param[in] amount_str A c_string representing a 256 bit number
  * @return int 0 on success
  */
-int native_tokens_add(native_tokens_t **nt, byte_t token_id[], void *amount);
+int native_tokens_add(native_tokens_t **nt, byte_t token_id[], char const *amount_str);
 
 /**
  * @brief Compare two Native Tokens if they have the same ID.
  *
- * @param[in] token1 Native Token
- * @param[in] token2 Native Token
+ * @param[in] token1 Pointer to Native Token
+ * @param[in] token2 Pointer to Native Token
  * @return bool
  */
 bool native_tokens_equal(native_tokens_t *token1, native_tokens_t *token2);
+
+/**
+ * @brief Get the length of Native Tokens serialized data
+ *
+ * @param[in] nt Native Tokens set
+ * @return size_t The number of bytes of serialized data
+ */
+size_t native_tokens_serialize_length(native_tokens_t **nt);
 
 /**
  * @brief Serialize Native Tokens to a buffer
@@ -100,7 +109,7 @@ bool native_tokens_equal(native_tokens_t *token1, native_tokens_t *token2);
  * @param[out] buf A buffer for serialization
  * @return size_t number of bytes write to the buffer
  */
-size_t native_tokens_serialization(native_tokens_t **nt, byte_t buf[]);
+size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[]);
 
 /**
  * @brief Print Native Tokens set.

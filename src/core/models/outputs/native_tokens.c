@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "core/models/outputs/native_tokens.h"
-#include "core/utils/uint256.h"
 
 #define NATIVE_TOKENS_MIN_COUNT 0
 #define NATIVE_TOKENS_MAX_COUNT 256
@@ -12,8 +11,8 @@ static int token_id_sort(native_tokens_t *token1, native_tokens_t *token2) {
   return memcmp(token1->token_id, token2->token_id, NATIVE_TOKEN_ID_BYTES);
 }
 
-int native_tokens_add(native_tokens_t **nt, byte_t token_id[], void *amount) {
-  if (nt == NULL || amount == NULL) {
+int native_tokens_add(native_tokens_t **nt, byte_t token_id[], char const *amount_str) {
+  if (nt == NULL || token_id == NULL || amount_str == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -30,13 +29,16 @@ int native_tokens_add(native_tokens_t **nt, byte_t token_id[], void *amount) {
   }
 
   token = malloc(sizeof(native_tokens_t));
-  if (token == NULL) {
+  if (!token) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return -1;
   }
-
+  token->amount = uint256_from_str(amount_str);
+  if (!token->amount) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
+  }
   memcpy(token->token_id, token_id, NATIVE_TOKEN_ID_BYTES);
-  memcpy(token->amount, amount, sizeof(uint256_t));
   HASH_ADD_KEYPTR_INORDER(hh, *nt, token_id, NATIVE_TOKEN_ID_BYTES, token, token_id_sort);
 
   return 0;
@@ -52,8 +54,18 @@ bool native_tokens_equal(native_tokens_t *token1, native_tokens_t *token2) {
   return (cmp == 0);
 }
 
-size_t native_tokens_serialization(native_tokens_t **nt, byte_t buf[]) {
-  if (nt == NULL) {
+size_t native_tokens_serialize_length(native_tokens_t **nt) {
+  size_t length = 0;
+  uint8_t tokens_count = native_tokens_count(nt);
+
+  // serialized Native Tokens
+  length += NATIVE_TOKENS_SERIALIZED_BYTES * tokens_count;
+
+  return length;
+}
+
+size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[]) {
+  if (nt == NULL || buf == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return 0;
   }
@@ -89,10 +101,14 @@ void native_tokens_print(native_tokens_t **nt) {
   }
 
   native_tokens_t *elm, *tmp;
+  char *amount_str;
+
   printf("Native Tokens: [\n");
   HASH_ITER(hh, *nt, elm, tmp) {
-    printf("\t[%s] ", uint256_to_str((uint256_t *)elm->amount));
+    amount_str = uint256_to_str(elm->amount);
+    printf("\t[%s] ", amount_str);
     dump_hex(elm->token_id, NATIVE_TOKEN_ID_BYTES);
+    free(amount_str);
   }
   printf("]\n");
 }
