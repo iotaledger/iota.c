@@ -1,6 +1,11 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+/************************************************************
+ * Custom implementation for 256 bit number representation.
+ * Only a little endian format is supported at the moment.
+ ***********************************************************/
+
 #ifndef __CORE_UTILS_UINT256_H__
 #define __CORE_UTILS_UINT256_H__
 
