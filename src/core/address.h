@@ -135,6 +135,14 @@ int address_to_bech32(address_t *addr, char const hrp[], char bech32_buf[], size
  */
 bool address_equal(address_t *addr1, address_t *addr2);
 
+/**
+ * @brief Clone an address object, it should be freed after use.
+ *
+ * @param addr[in] The address for clone
+ * @return address_t* New address object
+ */
+address_t *address_clone(address_t *addr);
+
 #ifdef __cplusplus
 }
 #endif

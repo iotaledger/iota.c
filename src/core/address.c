@@ -173,3 +173,18 @@ bool address_equal(address_t *addr1, address_t *addr2) {
   }
   return false;
 }
+
+address_t *address_clone(address_t *addr) {
+  if (addr == NULL) {
+    return NULL;
+  }
+
+  address_t *new_addr = malloc(sizeof(address_t));
+  if (new_addr) {
+    new_addr->type = addr->type;
+    memset(new_addr->address, 0, ADDRESS_MAX_BYTES);
+    memcpy(new_addr->address, addr->address, address_len(addr));
+    return new_addr;
+  }
+  return new_addr;
+}
