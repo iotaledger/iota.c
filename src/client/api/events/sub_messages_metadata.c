@@ -29,7 +29,7 @@ void res_msg_metadata_free(msg_metadata_t *res) {
   }
 }
 
-size_t res_msg_metadata_parents_len(msg_metadata_t *res) {
+size_t res_msg_metadata_parents_count(msg_metadata_t *res) {
   if (res) {
     return utarray_len(res->parents);
   }
@@ -38,7 +38,7 @@ size_t res_msg_metadata_parents_len(msg_metadata_t *res) {
 
 char *res_msg_metadata_parent_get(msg_metadata_t *res, size_t index) {
   if (res) {
-    if (index < res_msg_metadata_parents_len(res)) {
+    if (index < res_msg_metadata_parents_count(res)) {
       char **p = (char **)utarray_eltptr(res->parents, index);
       return *p;
     }

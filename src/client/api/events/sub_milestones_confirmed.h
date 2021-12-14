@@ -11,8 +11,8 @@
  *
  */
 typedef struct {
-  uint64_t timestamp;
-  uint32_t index;
+  uint64_t timestamp;  ///< The timestamp of confirmed milestone
+  uint32_t index;      ///< The index of confirmed milestone
 } milestone_confirmed_t;
 
 #ifdef __cplusplus
@@ -21,9 +21,9 @@ extern "C" {
 
 /**
  * @brief Parse milestone confirmed response object
- * @param[in] data Data to parse
+ * @param[in] data Response data to parse
  * @param[out] res Parsed response object
- * @return 0 if success
+ * @return int 0 If success
  */
 int parse_milestones_confirmed(char *data, milestone_confirmed_t *res);
 
