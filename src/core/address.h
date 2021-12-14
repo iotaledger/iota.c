@@ -47,8 +47,6 @@ typedef struct {
 extern "C" {
 #endif
 
-// create ed25519 address from from seed and slip10 path
-
 /**
  * @brief Create an ed25519 address from slip10
  *
@@ -95,14 +93,24 @@ uint8_t address_len(address_t *addr);
 uint8_t address_serialized_len(address_t *addr);
 
 /**
- * @brief Serialized the given address to binary from.
+ * @brief Serialize the given address to binary from.
  *
  * @param[in] addr An address object
  * @param[out] bytes A buffer hold serialized data
  * @param[in] len The length of the buffer
  * @return int o on success
  */
-int address_serialized(address_t *addr, byte_t bytes[], size_t len);
+int address_serialize(address_t *addr, byte_t bytes[], size_t len);
+
+/**
+ * @brief Deserialize a bniary data to an address object
+ *
+ * @param[in] bytes A buffer holds binary data
+ * @param[in] len the length of the buffer
+ * @param[out] addr the output address object
+ * @return int 0 on success
+ */
+int address_deserialize(byte_t bytes[], size_t len, address_t *addr);
 
 /**
  * @brief Create an address object from the given bech32 string
