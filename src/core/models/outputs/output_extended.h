@@ -38,26 +38,26 @@ output_extended_t* output_extended_new(void* address, uint64_t amount, native_to
 /**
  * @brief Free Extended Output object.
  *
- * @param[in] oe Extended Output object.
+ * @param[in] output Extended Output object.
  */
-void output_extended_free(output_extended_t* oe);
+void output_extended_free(output_extended_t* output);
 
 /**
  * @brief Get the length of a serialized Extended Output
  *
- * @param[in] oe Extended Output object.
+ * @param[in] output Extended Output object.
  * @return size_t The number of bytes of serialized data
  */
-size_t output_extended_serialize_length(output_extended_t* oe);
+size_t output_extended_serialize_length(output_extended_t* output);
 
 /**
  * @brief Serialize Extended Output to a buffer
  *
- * @param[in] oe Extended Output object.
+ * @param[in] output Extended Output object.
  * @param[out] buf A buffer holds the serialized data
  * @return size_t number of bytes written to the buffer
  */
-size_t output_extended_serialize(output_extended_t* oe, byte_t buf[]);
+size_t output_extended_serialize(output_extended_t* output, byte_t buf[]);
 
 #ifdef __cplusplus
 }
