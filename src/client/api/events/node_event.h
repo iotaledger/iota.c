@@ -93,10 +93,10 @@ int event_register_cb(event_client_handle_t client, void (*callback)(event_clien
  * @brief Subscribe an event
  *
  * @param[in] client The event client instance
- * @param[in] mid if not NULL, mid will be set as the message id for the subscription topic
+ * @param[out] mid If not NULL, mid will return the message id of the topic subscription
  * @param[in] topic A node topic to subscribe
- * @param[in] qos QoS level to be used with the topic
- * @return 0 if Success
+ * @param[in] qos The QoS level for the topic
+ * @return int 0 If Success
  */
 int event_subscribe(event_client_handle_t client, int *mid, char *topic, int qos);
 
@@ -104,9 +104,9 @@ int event_subscribe(event_client_handle_t client, int *mid, char *topic, int qos
  * @brief Unsubscribe an event
  *
  * @param[in] client The event client instance
- * @param[in] mid if not NULL, mid will be set as the message id for the subscription topic
+ * @param[out] mid If not NULL, mid will return the message id of the topic subscription
  * @param[in] topic A node topic to subscribe
- * @return 0 if Success
+ * @return int 0 If Success
  */
 int event_unsubscribe(event_client_handle_t client, int *mid, char *topic);
 
@@ -114,7 +114,7 @@ int event_unsubscribe(event_client_handle_t client, int *mid, char *topic);
  * @brief Connect to Node broker with the given config
  *
  * @param[in] client The event client instance
- * @return 0 if Success
+ * @return int 0 If Success
  */
 int event_start(event_client_handle_t client);
 
@@ -122,7 +122,7 @@ int event_start(event_client_handle_t client);
  * @brief Disconnect from the Node broker
  *
  * @param[in] client The event client instance
- * @return 0 if Success
+ * @return int 0 If Success
  */
 int event_stop(event_client_handle_t client);
 
@@ -130,7 +130,7 @@ int event_stop(event_client_handle_t client);
  * @brief Stop and destroy event instance
  *
  * @param[in] client The event client instance
- * @return 0 if Success
+ * @return int 0 If Success
  */
 int event_destroy(event_client_handle_t client);
 

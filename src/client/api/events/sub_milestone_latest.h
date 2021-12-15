@@ -12,8 +12,8 @@
  *
  */
 typedef struct {
-  uint64_t timestamp;
-  uint32_t index;
+  uint64_t timestamp;  ///< The timestamp of latest milestone
+  uint32_t index;      ///< The index of latest milestone
 } milestone_latest_t;
 
 #ifdef __cplusplus
@@ -21,10 +21,10 @@ extern "C" {
 #endif
 
 /**
- * @brief Parse milestone latest response object
- * @param[in] data Data to parse
+ * @brief Parse milestone latest response
+ * @param[in] data Response data to parse
  * @param[out] res Parsed response object
- * @return 0 if success
+ * @return int 0 If success
  */
 int parse_milestone_latest(char *data, milestone_latest_t *res);
 

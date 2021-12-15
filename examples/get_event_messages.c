@@ -71,7 +71,7 @@ void parse_and_print_message_metadata(char *data) {
   if (res) {
     if (parse_messages_metadata(data, res) == 0) {
       printf("Msg Id :%s\n", res->msg_id);
-      size_t parents_count = res_msg_metadata_parents_len(res);
+      size_t parents_count = res_msg_metadata_parents_count(res);
       for (size_t i = 0; i < parents_count; i++) {
         printf("Parent Id %zu : %s\n", i + 1, res_msg_metadata_parent_get(res, i));
       }
@@ -88,8 +88,8 @@ void parse_and_print_message_metadata(char *data) {
 }
 
 void parse_and_print_output_payload(char *data) {
-  event_addr_outputs_t res = {};
-  event_parse_address_outputs(data, &res);
+  event_outputs_payload_t res = {};
+  event_parse_outputs_payload(data, &res);
   printf("Message ID: %s\n", res.msg_id);
   printf("Transaction ID: %s\n", res.tx_id);
   printf("Output Index: %d\n", res.output_index);

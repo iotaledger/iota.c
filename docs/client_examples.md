@@ -9,3 +9,4 @@ Examples are located in [iota.c/examples](https://github.com/iotaledger/iota.c/t
 * [wallet_get_balance](https://github.com/iotaledger/iota.c/blob/dev/examples/wallet_get_balance.c) - getting wallet balance via wallet API.
 * [wallet_send_tx](https://github.com/iotaledger/iota.c/blob/dev/examples/wallet_send_tx.c) - sending tokens via wallet API.
 * [wallet_list_addresses](https://github.com/iotaledger/iota.c/blob/dev/examples/wallet_list_addresses.c) - generating addresses via wallet API.
+* [get_event_messages](https://github.com/iotaledger/iota.c/blob/dev/examples/get_event_messages.c) - subscribe for node events api

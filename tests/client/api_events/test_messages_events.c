@@ -54,7 +54,7 @@ void process_event_data(event_client_event_t *event) {
     // Print received data
     printf("Msg Id :%s\n", res->msg_id);
     // Get parent id count
-    size_t parents_count = res_msg_metadata_parents_len(res);
+    size_t parents_count = res_msg_metadata_parents_count(res);
     for (size_t i = 0; i < parents_count; i++) {
       printf("Parent Id %zu : %s\n", i + 1, res_msg_metadata_parent_get(res, i));
     }

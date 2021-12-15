@@ -5,7 +5,7 @@
 #include "client/api/json_utils.h"
 #include "core/address.h"
 
-int event_parse_address_outputs(char const data[], event_addr_outputs_t *res) {
+int event_parse_outputs_payload(char const data[], event_outputs_payload_t *res) {
   int ret = -1;
   cJSON *json_obj = cJSON_Parse(data);
   if (json_obj == NULL) {

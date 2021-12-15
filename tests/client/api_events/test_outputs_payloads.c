@@ -24,9 +24,9 @@ void address_outputs_parser() {
       "\"ledgerIndex\":1231739,\"output\":{\"type\":0,\"address\":{\"type\":0,\"address\":"
       "\"21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"},\"amount\":1000000}}";
 
-  event_addr_outputs_t res = {};
+  event_outputs_payload_t res = {};
 
-  TEST_ASSERT(event_parse_address_outputs(data, &res) == 0);
+  TEST_ASSERT(event_parse_outputs_payload(data, &res) == 0);
   TEST_ASSERT_EQUAL_STRING("286efdc4c4769dd4672b8c42cbb0c05dfe1b07f8e3e5572f905de6051ef50fc3", res.msg_id);
   TEST_ASSERT_EQUAL_STRING("fff6ddfc16b67cf01661c98d15caa2aa8c1e3bbc771e94e7cd1a4b2c792ebc43", res.tx_id);
   TEST_ASSERT(res.output_index == 0);
@@ -40,8 +40,8 @@ void address_outputs_parser() {
 }
 
 static void dump_event_data(event_client_event_t *event) {
-  event_addr_outputs_t res = {};
-  event_parse_address_outputs(event->data, &res);
+  event_outputs_payload_t res = {};
+  event_parse_outputs_payload(event->data, &res);
   printf("Message ID: %s\n", res.msg_id);
   printf("Transaction ID: %s\n", res.tx_id);
   printf("Output Index: %d\n", res.output_index);
