@@ -221,3 +221,28 @@ address_t *address_clone(address_t const *const addr) {
   }
   return new_addr;
 }
+
+void address_print(address_t const *const addr) {
+  if (!addr) {
+    return;
+  }
+
+  switch (addr->type) {
+    case ADDRESS_TYPE_ED25519:
+      printf("[ED25519] ");
+      dump_hex_str(addr->address, ADDRESS_ED25519_BYTES);
+      break;
+    case ADDRESS_TYPE_ALIAS:
+      printf("[Alias] ");
+      dump_hex_str(addr->address, ADDRESS_ALIAS_BYTES);
+      break;
+    case ADDRESS_TYPE_NFT:
+      printf("[NFT] ");
+      dump_hex_str(addr->address, ADDRESS_NFT_BYTES);
+      break;
+    default:
+      // unknow address type
+      printf("[%s:%d] unknow address\n", __func__, __LINE__);
+      break;
+  }
+}

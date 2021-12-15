@@ -1,6 +1,8 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <inttypes.h>
+
 #include "core/models/outputs/feat_blocks.h"
 
 static feat_metadata_blk_t* new_feat_metadata(byte_t const data[], uint32_t data_len) {
@@ -400,5 +402,47 @@ void free_feat_blk(feat_block_t* blk) {
       }
     }
     free(blk);
+  }
+}
+
+void feat_blk_print(feat_block_t* blk) {
+  if (!blk) {
+    return;
+  }
+
+  switch (blk->type) {
+    case FEAT_SENDER_BLOCK:
+      printf("Sender:");
+      address_print((address_t*)blk->block);
+      break;
+    case FEAT_ISSUER_BLOCK:
+      printf("Issuer:");
+      address_print((address_t*)blk->block);
+      break;
+    case FEAT_DUST_DEP_RET_BLOCK:
+      printf("Dust Deposit Return: %" PRIu64 "\n", *((uint64_t*)blk->block));
+      break;
+    case FEAT_TIMELOCK_MS_INDEX_BLOCK:
+      printf("Timelock Milestone Index: %" PRIu32 "\n", *((uint32_t*)blk->block));
+      break;
+    case FEAT_TIMELOCK_UNIX_BLOCK:
+      printf("Timelock Unix: %" PRIu32 "\n", *((uint32_t*)blk->block));
+      break;
+    case FEAT_EXPIRATION_MS_INDEX_BLOCK:
+      printf("Expiration Milestone Index: %" PRIu32 "\n", *((uint32_t*)blk->block));
+      break;
+    case FEAT_EXPIRATION_UNIX_BLOCK:
+      printf("Expiration Unix: %" PRIu32 "\n", *((uint32_t*)blk->block));
+      break;
+    case FEAT_METADATA_BLOCK:
+      printf("Metadata: ");
+      dump_hex_str(((feat_metadata_blk_t*)blk->block)->data, ((feat_metadata_blk_t*)blk->block)->data_len);
+      break;
+    case FEAT_INDEXATION_BLOCK:
+      printf("Indexaction: ");
+      dump_hex_str(((feat_indexaction_blk_t*)blk->block)->tag, ((feat_indexaction_blk_t*)blk->block)->tag_len);
+      break;
+    default:
+      break;
   }
 }

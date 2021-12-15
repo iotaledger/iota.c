@@ -66,6 +66,10 @@ typedef struct index_blks {
   byte_t tag[MAX_INDEX_TAG_BYTES];  ///< Indexation Tag, max length is 64 bytes.
 } feat_indexaction_blk_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief New a Sender feature block
  *
@@ -194,5 +198,16 @@ feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len);
  * @param[in] blk A feature block object
  */
 void free_feat_blk(feat_block_t* blk);
+
+/**
+ * @brief Print a feature block object
+ *
+ * @param[in] blk A feature block object
+ */
+void feat_blk_print(feat_block_t* blk);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

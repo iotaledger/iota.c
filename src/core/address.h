@@ -151,6 +151,13 @@ bool address_equal(address_t *addr1, address_t *addr2);
  */
 address_t *address_clone(address_t const *const addr);
 
+/**
+ * @brief Print an address object
+ *
+ * @param[in] addr An address object
+ */
+void address_print(address_t const *const addr);
+
 #ifdef __cplusplus
 }
 #endif

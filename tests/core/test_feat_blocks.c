@@ -22,6 +22,7 @@ void test_sender() {
   iota_crypto_randombytes(sender_addr.address, ADDRESS_ED25519_BYTES);
   feat_block_t* sender_blk = new_feat_blk_sender(&sender_addr);
   TEST_ASSERT_NOT_NULL(sender_blk);
+  feat_blk_print(sender_blk);
 
   // validate sender object
   TEST_ASSERT(sender_blk->type == FEAT_SENDER_BLOCK);
@@ -56,6 +57,7 @@ void test_issuer() {
   iota_crypto_randombytes(addr.address, ADDRESS_NFT_BYTES);
   feat_block_t* issuer_blk = new_feat_blk_issuer(&addr);
   TEST_ASSERT_NOT_NULL(issuer_blk);
+  feat_blk_print(issuer_blk);
 
   // validate issuer object
   TEST_ASSERT(issuer_blk->type == FEAT_ISSUER_BLOCK);
@@ -88,6 +90,7 @@ void test_dust_deposit_return() {
   uint64_t amount = UINT64_MAX;
   feat_block_t* ddr_blk = new_feat_blk_ddr(amount);
   TEST_ASSERT_NOT_NULL(ddr_blk);
+  feat_blk_print(ddr_blk);
 
   // validate object
   TEST_ASSERT(ddr_blk->type == FEAT_DUST_DEP_RET_BLOCK);
@@ -117,6 +120,7 @@ void test_timelock_milestone_index() {
   uint32_t index = UINT32_MAX;
   feat_block_t* tmi_blk = new_feat_blk_tmi(index);
   TEST_ASSERT_NOT_NULL(tmi_blk);
+  feat_blk_print(tmi_blk);
 
   // validate object
   TEST_ASSERT(tmi_blk->type == FEAT_TIMELOCK_MS_INDEX_BLOCK);
@@ -146,6 +150,7 @@ void test_timelock_unix() {
   uint32_t time = UINT32_MAX;
   feat_block_t* tu_blk = new_feat_blk_tu(time);
   TEST_ASSERT_NOT_NULL(tu_blk);
+  feat_blk_print(tu_blk);
 
   // validate object
   TEST_ASSERT(tu_blk->type == FEAT_TIMELOCK_UNIX_BLOCK);
@@ -175,6 +180,7 @@ void test_expiration_milestone_index() {
   uint32_t index = UINT32_MAX;
   feat_block_t* emi_blk = new_feat_blk_emi(index);
   TEST_ASSERT_NOT_NULL(emi_blk);
+  feat_blk_print(emi_blk);
 
   // validate object
   TEST_ASSERT(emi_blk->type == FEAT_EXPIRATION_MS_INDEX_BLOCK);
@@ -204,6 +210,7 @@ void test_expiration_unix() {
   uint32_t time = UINT32_MAX;
   feat_block_t* eu_blk = new_feat_blk_eu(time);
   TEST_ASSERT_NOT_NULL(eu_blk);
+  feat_blk_print(eu_blk);
 
   // validate object
   TEST_ASSERT(eu_blk->type == FEAT_EXPIRATION_UNIX_BLOCK);
@@ -234,6 +241,7 @@ void test_metadata() {
   iota_crypto_randombytes(meta_data, sizeof(meta_data));
   feat_block_t* meta_blk = new_feat_blk_metadata(meta_data, sizeof(meta_data));
   TEST_ASSERT_NOT_NULL(meta_blk);
+  feat_blk_print(meta_blk);
 
   // validate object
   TEST_ASSERT(meta_blk->type == FEAT_METADATA_BLOCK);
@@ -269,6 +277,7 @@ void test_indexaction() {
 
   feat_block_t* idx_blk = new_feat_blk_indexaction(tag, sizeof(tag));
   TEST_ASSERT_NOT_NULL(idx_blk);
+  feat_blk_print(idx_blk);
 
   // validate object
   TEST_ASSERT(idx_blk->type == FEAT_INDEXATION_BLOCK);
