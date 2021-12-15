@@ -182,12 +182,11 @@ int feat_blk_serialize(feat_block_t* blk, byte_t buf[], size_t buf_len);
 /**
  * @brief Deserialize a binary data to a feature block object
  *
- * @param[in] buf The data in binary
- * @param[in] buf_len The length of data
- * @param[out] blk The output of the featrue block object.
- * @return int
+ * @param[in] buf The block data in binary
+ * @param[in] buf_len The length of the data
+ * @return feat_block_t*
  */
-int feat_blk_deserialize(byte_t buf[], size_t buf_len, feat_block_t* blk);
+feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len);
 
 /**
  * @brief free a featrue block

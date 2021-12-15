@@ -30,7 +30,7 @@ static int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[]
 }
 
 // get the length of corresponding address type
-uint8_t address_len(address_t *addr) {
+uint8_t address_len(address_t const *const addr) {
   switch (addr->type) {
     case ADDRESS_TYPE_ED25519:
       return ADDRESS_ED25519_BYTES;
@@ -75,15 +75,14 @@ int address_serialize(address_t *addr, byte_t bytes[], size_t len) {
   if (addr == NULL || bytes == NULL) {
     return -1;
   }
-  bytes[0] = (uint8_t)addr->type;
 
-  // expected length = type_len + address_len
-  uint16_t expected_len = address_len(addr);
-  if (len < expected_len + 1) {
+  bytes[0] = (uint8_t)addr->type;
+  // check buffer len
+  if (len < address_serialized_len(addr)) {
     return -1;
   }
 
-  memcpy(bytes + 1, addr->address, expected_len);
+  memcpy(bytes + 1, addr->address, address_len(addr));
   return 0;
 }
 
@@ -95,10 +94,8 @@ int address_deserialize(byte_t bytes[], size_t len, address_t *addr) {
 
   // get address type
   addr->type = bytes[0];
-
-  // expected length = type_len + address_len
-  uint16_t expected_len = address_len(addr);
-  if (len < expected_len + 1) {
+  // check buffer len
+  if (len < address_serialized_len(addr)) {
     return -1;
   }
 
@@ -210,7 +207,7 @@ bool address_equal(address_t *addr1, address_t *addr2) {
   return false;
 }
 
-address_t *address_clone(address_t *addr) {
+address_t *address_clone(address_t const *const addr) {
   if (addr == NULL) {
     return NULL;
   }

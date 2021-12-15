@@ -82,7 +82,7 @@ int nft_address_from_output(char const output_id[], address_t *addr);
  * @param[in] addr An address object
  * @return uint8_t
  */
-uint8_t address_len(address_t *addr);
+uint8_t address_len(address_t const *const addr);
 
 /**
  * @brief Get the serialized length of the given address
@@ -149,7 +149,7 @@ bool address_equal(address_t *addr1, address_t *addr2);
  * @param addr[in] The address for clone
  * @return address_t* New address object
  */
-address_t *address_clone(address_t *addr);
+address_t *address_clone(address_t const *const addr);
 
 #ifdef __cplusplus
 }
