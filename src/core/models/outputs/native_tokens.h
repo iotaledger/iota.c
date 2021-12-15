@@ -100,7 +100,7 @@ bool native_tokens_equal(native_tokens_t *token1, native_tokens_t *token2);
  * @param[in] nt Native Tokens set
  * @return size_t The number of bytes of serialized data
  */
-size_t native_tokens_serialize_length(native_tokens_t **nt);
+size_t native_tokens_serialize_len(native_tokens_t **nt);
 
 /**
  * @brief Serialize Native Tokens to a buffer
@@ -110,6 +110,15 @@ size_t native_tokens_serialize_length(native_tokens_t **nt);
  * @return size_t number of bytes write to the buffer
  */
 size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[]);
+
+/**
+ * @brief Deserialize a binary data to a Native Token object
+ *
+ * @param[in] buf The block data in binary
+ * @param[in] buf_len The length of the data
+ * @return native_tokens_t*
+ */
+native_tokens_t *native_tokens_deserialize(byte_t buf[], size_t buf_len);
 
 /**
  * @brief Print Native Tokens set.
