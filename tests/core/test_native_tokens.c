@@ -39,23 +39,26 @@ void test_native_tokens() {
 
   TEST_ASSERT_EQUAL_UINT32(0, native_tokens_count(&tokens));
   // add Native Token 1 to a set
-  TEST_ASSERT(native_tokens_add(&tokens, token_id1, "1000000000000000000000000000000000000000000000000000000000") == 0);
+  TEST_ASSERT(native_tokens_add_from_amount_str(&tokens, token_id1,
+                                                "1000000000000000000000000000000000000000000000000000000000") == 0);
   TEST_ASSERT_EQUAL_UINT32(1, native_tokens_count(&tokens));
 
   // Native Token 2 doesn't exist.
   TEST_ASSERT_NULL(native_tokens_find_by_id(&tokens, token_id2));
 
   // add Native Token 1 again
-  TEST_ASSERT(native_tokens_add(&tokens, token_id1, "123456789") == -1);
+  TEST_ASSERT(native_tokens_add_from_amount_str(&tokens, token_id1, "123456789") == -1);
   TEST_ASSERT_EQUAL_UINT32(1, native_tokens_count(&tokens));
 
   // add Native Token 2
-  TEST_ASSERT(native_tokens_add(&tokens, token_id2, "100000000000000000000000000000000") == 0);
+  TEST_ASSERT(native_tokens_add_from_amount_str(&tokens, token_id2, "100000000000000000000000000000000") == 0);
   TEST_ASSERT_EQUAL_UINT32(2, native_tokens_count(&tokens));
 
   // add Native Token 3
-  TEST_ASSERT(native_tokens_add(&tokens, token_id3, "100000000000000000000000000000000000000000000000") == 0);
+  uint256_t* amount = uint256_from_str("100000000000000000000000000000000000000000000000");
+  TEST_ASSERT(native_tokens_add_from_amount_uint256(&tokens, token_id3, amount) == 0);
   TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&tokens));
+  free(amount);
 
   // find and validate Native Token 2
   native_tokens_t* elm = native_tokens_find_by_id(&tokens, token_id2);
@@ -79,7 +82,7 @@ void test_native_tokens() {
   TEST_ASSERT(native_tokens_buf_len != 0);
   byte_t* native_tokens_buf = malloc(native_tokens_buf_len);
   TEST_ASSERT_NOT_NULL(native_tokens_buf);
-  TEST_ASSERT(native_tokens_serialize(&tokens, native_tokens_buf) == native_tokens_buf_len);
+  TEST_ASSERT_EQUAL_INT(0, native_tokens_serialize(&tokens, native_tokens_buf, native_tokens_buf_len));
   // dump_hex(native_tokens_buf, native_tokens_buf_len);
   TEST_ASSERT_EQUAL_MEMORY(native_tokens_byte, native_tokens_buf, sizeof(native_tokens_byte));
 

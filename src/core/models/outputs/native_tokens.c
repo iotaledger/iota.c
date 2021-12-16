@@ -6,7 +6,7 @@
 #define NATIVE_TOKENS_MIN_COUNT 0
 #define NATIVE_TOKENS_MAX_COUNT 256
 
-int native_tokens_add(native_tokens_t **nt, byte_t token_id[], char const *amount_str) {
+int native_tokens_add_from_amount_str(native_tokens_t **nt, byte_t token_id[], char const *amount_str) {
   if (nt == NULL || token_id == NULL || amount_str == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -39,6 +39,40 @@ int native_tokens_add(native_tokens_t **nt, byte_t token_id[], char const *amoun
   return 0;
 }
 
+int native_tokens_add_from_amount_uint256(native_tokens_t **nt, byte_t token_id[], uint256_t const *amount) {
+  if (nt == NULL || token_id == NULL || amount == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (native_tokens_count(nt) >= NATIVE_TOKENS_MAX_COUNT) {
+    printf("[%s:%d] Native Tokens count must be <= 256\n", __func__, __LINE__);
+    return -1;
+  }
+
+  native_tokens_t *token = native_tokens_find_by_id(nt, token_id);
+  if (token) {
+    printf("[%s:%d] Native Token already exists\n", __func__, __LINE__);
+    return -1;
+  }
+
+  token = malloc(sizeof(native_tokens_t));
+  if (!token) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
+  }
+  token->amount = malloc(sizeof(uint256_t));
+  if (!token->amount) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
+  }
+  memcpy(token->amount, amount, sizeof(uint256_t));
+  memcpy(token->token_id, token_id, NATIVE_TOKEN_ID_BYTES);
+  HASH_ADD(hh, *nt, token_id, NATIVE_TOKEN_ID_BYTES, token);
+
+  return 0;
+}
+
 bool native_tokens_equal(native_tokens_t *token1, native_tokens_t *token2) {
   if (token1 == NULL || token1 == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -62,10 +96,15 @@ size_t native_tokens_serialize_len(native_tokens_t **nt) {
   return length;
 }
 
-size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[]) {
-  if (nt == NULL || buf == NULL) {
+int native_tokens_serialize(native_tokens_t **nt, byte_t buf[], size_t buf_len) {
+  if (nt == NULL || buf == NULL || buf_len == 0) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return 0;
+    return -1;
+  }
+
+  if (buf_len < native_tokens_serialize_len(nt)) {
+    printf("[%s:%d] buffer size is insufficient\n", __func__, __LINE__);
+    return -1;
   }
 
   native_tokens_t *elm, *tmp;
@@ -89,12 +128,12 @@ size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[]) {
     elm_count++;
   }
 
-  if (byte_count != (sizeof(uint16_t) + (elm_count * NATIVE_TOKENS_SERIALIZED_BYTES))) {
+  if (byte_count != native_tokens_serialize_len(nt)) {
     printf("[%s:%d] offset error\n", __func__, __LINE__);
-    return 0;
+    return -1;
   }
 
-  return byte_count;
+  return 0;
 }
 
 native_tokens_t *native_tokens_deserialize(byte_t buf[], size_t buf_len) {
@@ -153,7 +192,7 @@ void native_tokens_print(native_tokens_t **nt) {
   HASH_ITER(hh, *nt, elm, tmp) {
     amount_str = uint256_to_str(elm->amount);
     printf("\t[%s] ", amount_str);
-    dump_hex(elm->token_id, NATIVE_TOKEN_ID_BYTES);
+    dump_hex_str(elm->token_id, NATIVE_TOKEN_ID_BYTES);
     free(amount_str);
   }
   printf("]\n");

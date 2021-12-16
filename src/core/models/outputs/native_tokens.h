@@ -83,7 +83,17 @@ static void native_tokens_free(native_tokens_t **nt) {
  * @param[in] amount_str A c_string representing a 256 bit number
  * @return int 0 on success
  */
-int native_tokens_add(native_tokens_t **nt, byte_t token_id[], char const *amount_str);
+int native_tokens_add_from_amount_str(native_tokens_t **nt, byte_t token_id[], char const *amount_str);
+
+/**
+ * @brief Add Native Token to a Native Tokens set.
+ *
+ * @param[in] nt Native Tokens set
+ * @param[in] token_id Identifier of Native Token
+ * @param[in] amount A pointer to uint256 object
+ * @return int 0 on success
+ */
+int native_tokens_add_from_amount_uint256(native_tokens_t **nt, byte_t token_id[], uint256_t const *amount);
 
 /**
  * @brief Compare two Native Tokens if they have the same ID.
@@ -107,9 +117,10 @@ size_t native_tokens_serialize_len(native_tokens_t **nt);
  *
  * @param[in] nt Native Tokens set
  * @param[out] buf A buffer for serialization
- * @return size_t number of bytes write to the buffer
+ * @param[in] buf_len The length of buffer
+ * @return int 0 on success
  */
-size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[]);
+int native_tokens_serialize(native_tokens_t **nt, byte_t buf[], size_t buf_len);
 
 /**
  * @brief Deserialize a binary data to a Native Token object
