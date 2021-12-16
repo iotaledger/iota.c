@@ -26,19 +26,29 @@ void test_output_extended() {
   iota_crypto_randombytes(token_id2, NATIVE_TOKEN_ID_BYTES);
   iota_crypto_randombytes(token_id3, NATIVE_TOKEN_ID_BYTES);
   native_tokens_t* native_tokens = native_tokens_new();
-  native_tokens_add(&native_tokens, token_id1, "111111111");
-  native_tokens_add(&native_tokens, token_id2, "222222222");
-  native_tokens_add(&native_tokens, token_id3, "333333333");
+  native_tokens_add_from_amount_str(&native_tokens, token_id1, "111111111");
+  native_tokens_add_from_amount_str(&native_tokens, token_id2, "222222222");
+  native_tokens_add_from_amount_str(&native_tokens, token_id3, "333333333");
+
+  // create Feature Blocks
+  feat_list_t* feature_blocks_head = malloc(sizeof(feat_list_t));
+  feat_list_t* feature_blocks_tail = malloc(sizeof(feat_list_t));
+  feat_block_t* block_sender = new_feat_blk_sender(&addr);
+  feat_block_t* block_issuer = new_feat_blk_issuer(&addr);
+  memcpy(&feature_blocks_head->blk, block_sender, sizeof(feat_block_t));
+  memcpy(&feature_blocks_tail->blk, block_issuer, sizeof(feat_block_t));
+  feature_blocks_head->next = feature_blocks_tail;
+  feature_blocks_tail->next = NULL;
 
   // create Extended Output and validate it
-  output_extended_t* output = output_extended_new(&addr, 123456789, &native_tokens, NULL);
+  output_extended_t* output = output_extended_new(&addr, 123456789, &native_tokens, feature_blocks_head);
   TEST_ASSERT_NOT_NULL(output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, output->address->type);
   TEST_ASSERT_EQUAL_MEMORY(addr.address, output->address->address, ADDRESS_NFT_BYTES);
   TEST_ASSERT_EQUAL_UINT64(123456789, output->amount);
   TEST_ASSERT_NOT_NULL(output->native_tokens);
   TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&output->native_tokens));
-  TEST_ASSERT_NULL(output->feature_blocks);
+  TEST_ASSERT_NOT_NULL(output->feature_blocks);
 
   // serialize Extended Output and validate it
   size_t output_extended_buf_len = output_extended_serialize_len(output);
@@ -56,11 +66,19 @@ void test_output_extended() {
   TEST_ASSERT_EQUAL_MEMORY(deser_output->address, &addr, 1 + ADDRESS_ED25519_BYTES);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
+  feat_list_t* feat_elm = deser_output->feature_blocks;
+  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_elm->blk.type);
+  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_elm->blk.block), sizeof(address_t));
+  feat_elm = feat_elm->next;
+  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, feat_elm->blk.type);
+  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_elm->blk.block), sizeof(address_t));
 
   output_extended_print(output);
 
   // clean up
   free(output_extended_buf);
+  free(feature_blocks_head);
+  free(feature_blocks_tail);
   output_extended_free(output);
   output_extended_free(deser_output);
   native_tokens_free(&native_tokens);

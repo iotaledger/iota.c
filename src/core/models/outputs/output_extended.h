@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "core/address.h"
+#include "core/models/outputs/feat_blocks.h"
 #include "core/models/outputs/native_tokens.h"
 
 /**
@@ -17,7 +18,7 @@ typedef struct {
   address_t* address;              ///< Deposit address
   uint64_t amount;                 ///< The amount of IOTA tokens to held by the output
   native_tokens_t* native_tokens;  ///< The native tokens held by the output
-  void* feature_blocks;            ///< The feature blocks which modulate the constraints on the output
+  feat_list_t* feature_blocks;     ///< The feature blocks which modulate the constraints on the output
 } output_extended_t;
 
 #ifdef __cplusplus
@@ -34,7 +35,8 @@ extern "C" {
  *
  * @return output_extended_t* or NULL on failure
  */
-output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_tokens_t** tokens, void* feat_blocks);
+output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_tokens_t** tokens,
+                                       feat_list_t* feat_blocks);
 
 /**
  * @brief Free Extended Output object.
