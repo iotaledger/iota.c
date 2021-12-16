@@ -47,8 +47,6 @@ typedef struct {
 extern "C" {
 #endif
 
-// create ed25519 address from from seed and slip10 path
-
 /**
  * @brief Create an ed25519 address from slip10
  *
@@ -84,7 +82,7 @@ int nft_address_from_output(char const output_id[], address_t *addr);
  * @param[in] addr An address object
  * @return uint8_t
  */
-uint8_t address_len(address_t *addr);
+uint8_t address_len(address_t const *const addr);
 
 /**
  * @brief Get the serialized length of the given address
@@ -95,14 +93,24 @@ uint8_t address_len(address_t *addr);
 uint8_t address_serialized_len(address_t *addr);
 
 /**
- * @brief Serialized the given address to binary from.
+ * @brief Serialize the given address to binary from.
  *
  * @param[in] addr An address object
  * @param[out] bytes A buffer hold serialized data
  * @param[in] len The length of the buffer
  * @return int o on success
  */
-int address_serialized(address_t *addr, byte_t bytes[], size_t len);
+int address_serialize(address_t *addr, byte_t bytes[], size_t len);
+
+/**
+ * @brief Deserialize a bniary data to an address object
+ *
+ * @param[in] bytes A buffer holds binary data
+ * @param[in] len the length of the buffer
+ * @param[out] addr the output address object
+ * @return int 0 on success
+ */
+int address_deserialize(byte_t bytes[], size_t len, address_t *addr);
 
 /**
  * @brief Create an address object from the given bech32 string
@@ -134,6 +142,21 @@ int address_to_bech32(address_t *addr, char const hrp[], char bech32_buf[], size
  * @return false
  */
 bool address_equal(address_t *addr1, address_t *addr2);
+
+/**
+ * @brief Clone an address object, it should be freed after use.
+ *
+ * @param addr[in] The address for clone
+ * @return address_t* New address object
+ */
+address_t *address_clone(address_t const *const addr);
+
+/**
+ * @brief Print an address object
+ *
+ * @param[in] addr An address object
+ */
+void address_print(address_t const *const addr);
 
 #ifdef __cplusplus
 }
