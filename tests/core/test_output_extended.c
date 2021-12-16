@@ -35,8 +35,8 @@ void test_output_extended() {
   feat_list_t* feature_blocks_tail = malloc(sizeof(feat_list_t));
   feat_block_t* block_sender = new_feat_blk_sender(&addr);
   feat_block_t* block_issuer = new_feat_blk_issuer(&addr);
-  memcpy(&feature_blocks_head->blk, block_sender, sizeof(feat_block_t));
-  memcpy(&feature_blocks_tail->blk, block_issuer, sizeof(feat_block_t));
+  feature_blocks_head->blk = block_sender;
+  feature_blocks_tail->blk = block_issuer;
   feature_blocks_head->next = feature_blocks_tail;
   feature_blocks_tail->next = NULL;
 
@@ -67,16 +67,18 @@ void test_output_extended() {
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
   feat_list_t* feat_elm = deser_output->feature_blocks;
-  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_elm->blk.type);
-  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_elm->blk.block), sizeof(address_t));
+  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_elm->blk->type);
+  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_elm->blk->block), sizeof(address_t));
   feat_elm = feat_elm->next;
-  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, feat_elm->blk.type);
-  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_elm->blk.block), sizeof(address_t));
+  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, feat_elm->blk->type);
+  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_elm->blk->block), sizeof(address_t));
 
   output_extended_print(output);
 
   // clean up
   free(output_extended_buf);
+  free_feat_blk(block_sender);
+  free_feat_blk(block_issuer);
   free(feature_blocks_head);
   free(feature_blocks_tail);
   output_extended_free(output);

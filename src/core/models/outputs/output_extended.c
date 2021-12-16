@@ -58,7 +58,39 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
         output_extended_free(output);
         return NULL;
       }
-      memcpy(&feat_new->blk, &feat_blocks->blk, sizeof(feat_block_t));
+      switch (feat_blocks->blk->type) {
+        case FEAT_SENDER_BLOCK:
+          feat_new->blk = new_feat_blk_sender(feat_blocks->blk->block);
+          break;
+        case FEAT_ISSUER_BLOCK:
+          feat_new->blk = new_feat_blk_issuer(feat_blocks->blk->block);
+          break;
+        case FEAT_DUST_DEP_RET_BLOCK:
+          feat_new->blk = new_feat_blk_ddr(*((uint64_t*)feat_blocks->blk->block));
+          break;
+        case FEAT_TIMELOCK_MS_INDEX_BLOCK:
+          feat_new->blk = new_feat_blk_tmi(*((uint32_t*)feat_blocks->blk->block));
+          break;
+        case FEAT_TIMELOCK_UNIX_BLOCK:
+          feat_new->blk = new_feat_blk_tu(*((uint32_t*)feat_blocks->blk->block));
+          break;
+        case FEAT_EXPIRATION_MS_INDEX_BLOCK:
+          feat_new->blk = new_feat_blk_emi(*((uint32_t*)feat_blocks->blk->block));
+          break;
+        case FEAT_EXPIRATION_UNIX_BLOCK:
+          feat_new->blk = new_feat_blk_eu(*((uint32_t*)feat_blocks->blk->block));
+          break;
+        case FEAT_METADATA_BLOCK: {
+          feat_metadata_blk_t* metadata = (feat_metadata_blk_t*)feat_blocks->blk->block;
+          feat_new->blk = new_feat_blk_metadata(metadata->data, metadata->data_len);
+          break;
+        }
+        case FEAT_INDEXATION_BLOCK: {
+          feat_indexaction_blk_t* indexation = (feat_indexaction_blk_t*)feat_blocks->blk->block;
+          feat_new->blk = new_feat_blk_indexaction(indexation->tag, indexation->tag_len);
+          break;
+        }
+      }
       feat_new->next = NULL;
 
       if (!output->feature_blocks) {
@@ -94,7 +126,8 @@ void output_extended_free(output_extended_t* output) {
     while (feat_head) {
       feat_list_t* tmp = feat_head;
       feat_head = feat_head->next;
-      free_feat_blk(&tmp->blk);
+      free_feat_blk(tmp->blk);
+      free(tmp);
     }
     free(output);
   }
@@ -121,7 +154,7 @@ size_t output_extended_serialize_len(output_extended_t* output) {
   // feature blocks
   feat_list_t* feat_elm = output->feature_blocks;
   while (feat_elm != NULL) {
-    length += feat_blk_serialize_len(&output->feature_blocks->blk);
+    length += feat_blk_serialize_len(output->feature_blocks->blk);
     feat_elm = feat_elm->next;
   }
 
@@ -185,8 +218,8 @@ int output_extended_serialize(output_extended_t* output, byte_t buf[], size_t bu
     // Serialize Feature Blocks
     feat_elm = output->feature_blocks;
     while (feat_elm) {
-      int res = feat_blk_serialize(&feat_elm->blk, offset, feat_blk_serialize_len(&feat_elm->blk));
-      offset += feat_blk_serialize_len(&feat_elm->blk);
+      int res = feat_blk_serialize(feat_elm->blk, offset, feat_blk_serialize_len(feat_elm->blk));
+      offset += feat_blk_serialize_len(feat_elm->blk);
       feat_elm = feat_elm->next;
     }
   } else {
@@ -289,25 +322,19 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
       output_extended_free(output);
       return NULL;
     }
-    if (buf_len < offset + sizeof(uint8_t)) {
+    if (buf_len < offset + sizeof(uint8_t) + 2) {  // TODO fix buffer length
       printf("[%s:%d] invalid data length\n", __func__, __LINE__);
       output_extended_free(output);
       return NULL;
     }
-    feat_new->blk.type = buf[offset];
-    if (buf_len < offset + 2) {  // TODO fix buffer length
-      printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-      output_extended_free(output);
-      return NULL;
-    }
-    feat_block_t* feat = feat_blk_deserialize(&buf[offset], 100);  // TODO fix buffer length
+    feat_block_t* feat = feat_blk_deserialize(&buf[offset], sizeof(uint8_t) + 100);  // TODO fix buffer length
     if (!feat) {
       printf("[%s:%d] can not deserialize feature block\n", __func__, __LINE__);
       output_extended_free(output);
       return NULL;
     }
-    feat_new->blk.block = feat->block;
-    offset += feat_blk_serialize_len(&feat_new->blk);
+    feat_new->blk = feat;
+    offset += feat_blk_serialize_len(feat_new->blk);
     feat_new->next = NULL;
 
     if (!output->feature_blocks) {
@@ -356,7 +383,7 @@ void output_extended_print(output_extended_t* output) {
   printf("\tFeature Blocks: [\n");
   while (feat_elm) {
     printf("\t\t");
-    feat_blk_print(&feat_elm->blk);
+    feat_blk_print(feat_elm->blk);
     feat_elm = feat_elm->next;
   }
   printf("\t]\n");
