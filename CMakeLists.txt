@@ -16,11 +16,11 @@ option(IOTA_TESTS "Enable IOTA Client library test cases" ON)
 option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
 option(IOTA_EXAMPLES "Build example application" ON)
-option(IOTA_WALLET_ENABLE "Enable simple wallet API" ON)
+option(IOTA_WALLET_ENABLE "Enable simple wallet API" OFF)
 option(MQTT_CLIENT_ENABLE "Enable MQTT Event APIs" OFF)
 # Enable for reducing the application binary size
 option(BIP39_ENGLISH_ONLY "Support English mnemonic only" OFF)
-option(WITH_IOTA_CLIENT "Build library with client module" OFF)
+option(WITH_IOTA_CLIENT "Build library with client module" ON)
 option(WITH_IOTA_CORE "Build library with core module" OFF)
 
 set(MainCryptoLibs "openssl" "libsodium" "mbedtls")

@@ -67,7 +67,7 @@ Compiling and testing library with Clang11 and Ninja
 git clone https://github.com/iotaledger/iota.c.git
 cd iota.c
 mkdir build && cd build
-cmake -G Ninja -DCMAKE_C_COMPILER=clang-11 -DCMAKE_CXX_COMPILER=clang++-11 -DIOTA_TESTS:BOOL=TRUE -DCMAKE_INSTALL_PREFIX=$PWD ..
+cmake -G Ninja -DCMAKE_C_COMPILER=clang-11 -DCMAKE_CXX_COMPILER=clang++-11 -DIOTA_WALLET_ENABLE:BOOL=TRUE -DCMAKE_INSTALL_PREFIX=$PWD ..
 ninja && ninja test
 ```
 
@@ -77,7 +77,7 @@ Compiling and testing library with Make and GCC
 git clone https://github.com/iotaledger/iota.c.git
 cd iota.c
 mkdir build && cd build
-cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DIOTA_TESTS:BOOL=TRUE -DCMAKE_INSTALL_PREFIX=$PWD ..
+cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DIOTA_WALLET_ENABLE:BOOL=TRUE -DCMAKE_INSTALL_PREFIX=$PWD ..
 make -j8 && make test
 ```
 
@@ -87,7 +87,7 @@ Compiling and testing library with default compiler
 git clone https://github.com/iotaledger/iota.c.git
 cd iota.c
 mkdir build && cd build
-cmake -DIOTA_TESTS:BOOL=TRUE -DCMAKE_INSTALL_PREFIX=$PWD ..
+cmake -DIOTA_WALLET_ENABLE:BOOL=TRUE -DCMAKE_INSTALL_PREFIX=$PWD ..
 make && make test
 ```
 
