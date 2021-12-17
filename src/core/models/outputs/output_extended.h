@@ -35,7 +35,7 @@ extern "C" {
  *
  * @return output_extended_t* or NULL on failure
  */
-output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_tokens_t** tokens,
+output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_tokens_t* tokens,
                                        feat_list_t* feat_blocks);
 
 /**

@@ -7,7 +7,7 @@
 #include "core/models/outputs/output_extended.h"
 #include "uthash.h"
 
-output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_tokens_t** tokens,
+output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_tokens_t* tokens,
                                        feat_list_t* feat_blocks) {
   if (addr == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -37,7 +37,7 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
   if (tokens != NULL) {
     output->native_tokens = native_tokens_new();
     native_tokens_t *token, *token_tmp;
-    HASH_ITER(hh, *tokens, token, token_tmp) {
+    HASH_ITER(hh, tokens, token, token_tmp) {
       int res = native_tokens_add_from_amount_uint256(&output->native_tokens, token->token_id, token->amount);
       if (res == -1) {
         printf("[%s:%d] can not add native token to extended output\n", __func__, __LINE__);
@@ -63,7 +63,9 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
           feat_new->blk = new_feat_blk_sender(feat_blocks->blk->block);
           break;
         case FEAT_ISSUER_BLOCK:
-          feat_new->blk = new_feat_blk_issuer(feat_blocks->blk->block);
+          printf("[%s:%d] issuer feature block is not supported by extended output\n", __func__, __LINE__);
+          output_extended_free(output);
+          return NULL;
           break;
         case FEAT_DUST_DEP_RET_BLOCK:
           feat_new->blk = new_feat_blk_ddr(*((uint64_t*)feat_blocks->blk->block));
@@ -90,6 +92,11 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
           feat_new->blk = new_feat_blk_indexaction(indexation->tag, indexation->tag_len);
           break;
         }
+      }
+      if (!feat_new->blk) {
+        printf("[%s:%d] can not add feature block to extended output\n", __func__, __LINE__);
+        output_extended_free(output);
+        return NULL;
       }
       feat_new->next = NULL;
 

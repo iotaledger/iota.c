@@ -34,14 +34,14 @@ void test_output_extended() {
   feat_list_t* feature_blocks_head = malloc(sizeof(feat_list_t));
   feat_list_t* feature_blocks_tail = malloc(sizeof(feat_list_t));
   feat_block_t* block_sender = new_feat_blk_sender(&addr);
-  feat_block_t* block_issuer = new_feat_blk_issuer(&addr);
+  feat_block_t* block_dust = new_feat_blk_ddr(1000000);
   feature_blocks_head->blk = block_sender;
-  feature_blocks_tail->blk = block_issuer;
+  feature_blocks_tail->blk = block_dust;
   feature_blocks_head->next = feature_blocks_tail;
   feature_blocks_tail->next = NULL;
 
   // create Extended Output and validate it
-  output_extended_t* output = output_extended_new(&addr, 123456789, &native_tokens, feature_blocks_head);
+  output_extended_t* output = output_extended_new(&addr, 123456789, native_tokens, feature_blocks_head);
   TEST_ASSERT_NOT_NULL(output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, output->address->type);
   TEST_ASSERT_EQUAL_MEMORY(addr.address, output->address->address, ADDRESS_NFT_BYTES);
@@ -70,15 +70,15 @@ void test_output_extended() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_elm->blk->type);
   TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_elm->blk->block), sizeof(address_t));
   feat_elm = feat_elm->next;
-  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, feat_elm->blk->type);
-  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_elm->blk->block), sizeof(address_t));
+  TEST_ASSERT_EQUAL_UINT8(FEAT_DUST_DEP_RET_BLOCK, feat_elm->blk->type);
+  TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_elm->blk->block));
 
   output_extended_print(output);
 
   // clean up
   free(output_extended_buf);
   free_feat_blk(block_sender);
-  free_feat_blk(block_issuer);
+  free_feat_blk(block_dust);
   free(feature_blocks_head);
   free(feature_blocks_tail);
   output_extended_free(output);
