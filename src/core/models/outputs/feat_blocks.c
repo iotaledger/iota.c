@@ -663,7 +663,9 @@ int feat_blk_list_add_indexaction(feat_blk_list_t** list, byte_t const tag[], ui
 
 size_t feat_blk_list_serialize_len(feat_blk_list_t* list) {
   feat_blk_list_t* elm;
-  size_t len = 0;
+  // feature blocks layout: Block Count + Blocks
+  // uint8_t is the serialized size of block count
+  size_t len = sizeof(uint8_t);
   if (list) {
     LL_FOREACH(list, elm) { len += feat_blk_serialize_len(elm->blk); }
   }
@@ -684,6 +686,7 @@ void feat_blk_list_print(feat_blk_list_t* list) {
   feat_blk_list_t* elm;
   uint8_t index = 0;
   printf("Feature Blocks:[\n");
+  printf("Block Counts: %d\n", feat_blk_list_len(list));
   if (list) {
     LL_FOREACH(list, elm) {
       printf("#%d ", index);

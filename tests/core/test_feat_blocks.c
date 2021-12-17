@@ -309,6 +309,9 @@ void test_feat_block_list_append_all() {
   feat_blk_list_t* blk_list = new_feat_blk_list();
   TEST_ASSERT_NULL(blk_list);
 
+  // print out an empty list
+  feat_blk_list_print(blk_list);
+
   // add a sender
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ED25519;
@@ -335,6 +338,9 @@ void test_feat_block_list_append_all() {
   byte_t tag[MAX_INDEX_TAG_BYTES] = {};
   iota_crypto_randombytes(tag, sizeof(tag));
   TEST_ASSERT(feat_blk_list_add_indexaction(&blk_list, tag, sizeof(tag)) == 0);
+
+  // check length of the list
+  TEST_ASSERT(feat_blk_list_len(blk_list) == 9);
 
   // print out the feature block list
   feat_blk_list_print(blk_list);
