@@ -39,26 +39,31 @@ void test_native_tokens() {
 
   TEST_ASSERT_EQUAL_UINT32(0, native_tokens_count(&tokens));
   // add Native Token 1 to a set
-  TEST_ASSERT(native_tokens_add_from_amount_str(&tokens, token_id1,
-                                                "1000000000000000000000000000000000000000000000000000000000") == 0);
+  uint256_t* amount1 = uint256_from_str("1000000000000000000000000000000000000000000000000000000000");
+  TEST_ASSERT(native_tokens_add(&tokens, token_id1, amount1) == 0);
   TEST_ASSERT_EQUAL_UINT32(1, native_tokens_count(&tokens));
+  free(amount1);
 
   // Native Token 2 doesn't exist.
   TEST_ASSERT_NULL(native_tokens_find_by_id(&tokens, token_id2));
 
   // add Native Token 1 again
-  TEST_ASSERT(native_tokens_add_from_amount_str(&tokens, token_id1, "123456789") == -1);
+  amount1 = uint256_from_str("123456789");
+  TEST_ASSERT(native_tokens_add(&tokens, token_id1, amount1) == -1);
   TEST_ASSERT_EQUAL_UINT32(1, native_tokens_count(&tokens));
+  free(amount1);
 
   // add Native Token 2
-  TEST_ASSERT(native_tokens_add_from_amount_str(&tokens, token_id2, "100000000000000000000000000000000") == 0);
+  uint256_t* amount2 = uint256_from_str("100000000000000000000000000000000");
+  TEST_ASSERT(native_tokens_add(&tokens, token_id2, amount2) == 0);
   TEST_ASSERT_EQUAL_UINT32(2, native_tokens_count(&tokens));
+  free(amount2);
 
   // add Native Token 3
-  uint256_t* amount = uint256_from_str("100000000000000000000000000000000000000000000000");
-  TEST_ASSERT(native_tokens_add_from_amount_uint256(&tokens, token_id3, amount) == 0);
+  uint256_t* amount3 = uint256_from_str("100000000000000000000000000000000000000000000000");
+  TEST_ASSERT(native_tokens_add(&tokens, token_id3, amount3) == 0);
   TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&tokens));
-  free(amount);
+  free(amount3);
 
   // find and validate Native Token 2
   native_tokens_t* elm = native_tokens_find_by_id(&tokens, token_id2);

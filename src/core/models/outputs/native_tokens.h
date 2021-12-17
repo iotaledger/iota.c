@@ -80,20 +80,10 @@ static void native_tokens_free(native_tokens_t **nt) {
  *
  * @param[in] nt Native Tokens set
  * @param[in] token_id Identifier of Native Token
- * @param[in] amount_str A c_string representing a 256 bit number
- * @return int 0 on success
- */
-int native_tokens_add_from_amount_str(native_tokens_t **nt, byte_t token_id[], char const *amount_str);
-
-/**
- * @brief Add Native Token to a Native Tokens set.
- *
- * @param[in] nt Native Tokens set
- * @param[in] token_id Identifier of Native Token
  * @param[in] amount A pointer to uint256 object
  * @return int 0 on success
  */
-int native_tokens_add_from_amount_uint256(native_tokens_t **nt, byte_t token_id[], uint256_t const *amount);
+int native_tokens_add(native_tokens_t **nt, byte_t token_id[], uint256_t const *amount);
 
 /**
  * @brief Compare two Native Tokens if they have the same ID.
