@@ -26,22 +26,21 @@ void test_output_extended() {
   iota_crypto_randombytes(token_id2, NATIVE_TOKEN_ID_BYTES);
   iota_crypto_randombytes(token_id3, NATIVE_TOKEN_ID_BYTES);
   native_tokens_t* native_tokens = native_tokens_new();
-  native_tokens_add_from_amount_str(&native_tokens, token_id1, "111111111");
-  native_tokens_add_from_amount_str(&native_tokens, token_id2, "222222222");
-  native_tokens_add_from_amount_str(&native_tokens, token_id3, "333333333");
+  uint256_t* amount = uint256_from_str("111111111");
+  native_tokens_add(&native_tokens, token_id1, amount);
+  amount = uint256_from_str("222222222");
+  native_tokens_add(&native_tokens, token_id2, amount);
+  amount = uint256_from_str("333333333");
+  native_tokens_add(&native_tokens, token_id3, amount);
+  free(amount);
 
   // create Feature Blocks
-  feat_list_t* feature_blocks_head = malloc(sizeof(feat_list_t));
-  feat_list_t* feature_blocks_tail = malloc(sizeof(feat_list_t));
-  feat_block_t* block_sender = new_feat_blk_sender(&addr);
-  feat_block_t* block_dust = new_feat_blk_ddr(1000000);
-  feature_blocks_head->blk = block_sender;
-  feature_blocks_tail->blk = block_dust;
-  feature_blocks_head->next = feature_blocks_tail;
-  feature_blocks_tail->next = NULL;
+  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_add_sender(&feat_blocks, &addr);
+  feat_blk_list_add_ddr(&feat_blocks, 1000000);
 
   // create Extended Output and validate it
-  output_extended_t* output = output_extended_new(&addr, 123456789, native_tokens, feature_blocks_head);
+  output_extended_t* output = output_extended_new(&addr, 123456789, native_tokens, feat_blocks);
   TEST_ASSERT_NOT_NULL(output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, output->address->type);
   TEST_ASSERT_EQUAL_MEMORY(addr.address, output->address->address, ADDRESS_NFT_BYTES);
@@ -66,7 +65,7 @@ void test_output_extended() {
   TEST_ASSERT_EQUAL_MEMORY(deser_output->address, &addr, 1 + ADDRESS_ED25519_BYTES);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
-  feat_list_t* feat_elm = deser_output->feature_blocks;
+  feat_blk_list_t* feat_elm = deser_output->feature_blocks;
   TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_elm->blk->type);
   TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_elm->blk->block), sizeof(address_t));
   feat_elm = feat_elm->next;
@@ -77,13 +76,10 @@ void test_output_extended() {
 
   // clean up
   free(output_extended_buf);
-  free_feat_blk(block_sender);
-  free_feat_blk(block_dust);
-  free(feature_blocks_head);
-  free(feature_blocks_tail);
+  native_tokens_free(&native_tokens);
+  free_feat_blk_list(feat_blocks);
   output_extended_free(output);
   output_extended_free(deser_output);
-  native_tokens_free(&native_tokens);
 }
 
 int main() {

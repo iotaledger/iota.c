@@ -6,9 +6,10 @@
 #include "core/address.h"
 #include "core/models/outputs/output_extended.h"
 #include "uthash.h"
+#include "utlist.h"
 
 output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_tokens_t* tokens,
-                                       feat_list_t* feat_blocks) {
+                                       feat_blk_list_t* feat_blocks) {
   if (addr == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
@@ -21,8 +22,12 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
 
   output_extended_t* output = malloc(sizeof(output_extended_t));
   if (!output) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
   }
+  output->address = NULL;
+  output->native_tokens = NULL;
+  output->feature_blocks = NULL;
 
   output->address = malloc(sizeof(address_t));
   if (!output->address) {
@@ -38,7 +43,7 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
     output->native_tokens = native_tokens_new();
     native_tokens_t *token, *token_tmp;
     HASH_ITER(hh, tokens, token, token_tmp) {
-      int res = native_tokens_add_from_amount_uint256(&output->native_tokens, token->token_id, token->amount);
+      int res = native_tokens_add(&output->native_tokens, token->token_id, token->amount);
       if (res == -1) {
         printf("[%s:%d] can not add native token to extended output\n", __func__, __LINE__);
         output_extended_free(output);
@@ -50,17 +55,13 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
   }
 
   if (feat_blocks != NULL) {
-    output->feature_blocks = NULL;
-    while (feat_blocks) {
-      feat_list_t* feat_new = malloc(sizeof(feat_list_t));
-      if (!feat_new) {
-        printf("[%s:%d] OOM\n", __func__, __LINE__);
-        output_extended_free(output);
-        return NULL;
-      }
-      switch (feat_blocks->blk->type) {
+    output->feature_blocks = new_feat_blk_list();
+    feat_blk_list_t* feat;
+    int res;
+    LL_FOREACH(feat_blocks, feat) {
+      switch (feat->blk->type) {
         case FEAT_SENDER_BLOCK:
-          feat_new->blk = new_feat_blk_sender(feat_blocks->blk->block);
+          res = feat_blk_list_add_sender(&output->feature_blocks, feat->blk->block);
           break;
         case FEAT_ISSUER_BLOCK:
           printf("[%s:%d] issuer feature block is not supported by extended output\n", __func__, __LINE__);
@@ -68,51 +69,36 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
           return NULL;
           break;
         case FEAT_DUST_DEP_RET_BLOCK:
-          feat_new->blk = new_feat_blk_ddr(*((uint64_t*)feat_blocks->blk->block));
+          res = feat_blk_list_add_ddr(&output->feature_blocks, *((uint64_t*)feat->blk->block));
           break;
         case FEAT_TIMELOCK_MS_INDEX_BLOCK:
-          feat_new->blk = new_feat_blk_tmi(*((uint32_t*)feat_blocks->blk->block));
+          res = feat_blk_list_add_tmi(&output->feature_blocks, *((uint32_t*)feat->blk->block));
           break;
         case FEAT_TIMELOCK_UNIX_BLOCK:
-          feat_new->blk = new_feat_blk_tu(*((uint32_t*)feat_blocks->blk->block));
+          res = feat_blk_list_add_tu(&output->feature_blocks, *((uint32_t*)feat->blk->block));
           break;
         case FEAT_EXPIRATION_MS_INDEX_BLOCK:
-          feat_new->blk = new_feat_blk_emi(*((uint32_t*)feat_blocks->blk->block));
+          res = feat_blk_list_add_emi(&output->feature_blocks, *((uint32_t*)feat->blk->block));
           break;
         case FEAT_EXPIRATION_UNIX_BLOCK:
-          feat_new->blk = new_feat_blk_eu(*((uint32_t*)feat_blocks->blk->block));
+          res = feat_blk_list_add_eu(&output->feature_blocks, *((uint32_t*)feat->blk->block));
           break;
         case FEAT_METADATA_BLOCK: {
-          feat_metadata_blk_t* metadata = (feat_metadata_blk_t*)feat_blocks->blk->block;
-          feat_new->blk = new_feat_blk_metadata(metadata->data, metadata->data_len);
+          feat_metadata_blk_t* metadata = (feat_metadata_blk_t*)feat->blk->block;
+          res = feat_blk_list_add_metadata(&output->feature_blocks, metadata->data, metadata->data_len);
           break;
         }
         case FEAT_INDEXATION_BLOCK: {
-          feat_indexaction_blk_t* indexation = (feat_indexaction_blk_t*)feat_blocks->blk->block;
-          feat_new->blk = new_feat_blk_indexaction(indexation->tag, indexation->tag_len);
+          feat_indexaction_blk_t* indexation = (feat_indexaction_blk_t*)feat->blk->block;
+          res = feat_blk_list_add_indexaction(&output->feature_blocks, indexation->tag, indexation->tag_len);
           break;
         }
       }
-      if (!feat_new->blk) {
+      if (res == -1) {
         printf("[%s:%d] can not add feature block to extended output\n", __func__, __LINE__);
         output_extended_free(output);
         return NULL;
       }
-      feat_new->next = NULL;
-
-      if (!output->feature_blocks) {
-        // if the feature block list is empty, then make the new feature block as head
-        output->feature_blocks = feat_new;
-      } else {
-        // traverse till the last feature block in a list
-        feat_list_t* feat_last = output->feature_blocks;
-        while (feat_last->next != NULL) {
-          feat_last = feat_last->next;
-        }
-        // change the next feature of currently last feature
-        feat_last->next = feat_new;
-      }
-      feat_blocks = feat_blocks->next;
     }
   } else {
     output->feature_blocks = NULL;
@@ -129,12 +115,8 @@ void output_extended_free(output_extended_t* output) {
     if (output->native_tokens) {
       native_tokens_free(&output->native_tokens);
     }
-    feat_list_t* feat_head = output->feature_blocks;
-    while (feat_head) {
-      feat_list_t* tmp = feat_head;
-      feat_head = feat_head->next;
-      free_feat_blk(tmp->blk);
-      free(tmp);
+    if (output->feature_blocks) {
+      free_feat_blk_list(output->feature_blocks);
     }
     free(output);
   }
@@ -156,14 +138,8 @@ size_t output_extended_serialize_len(output_extended_t* output) {
   length += sizeof(uint64_t);
   // native tokens
   length += native_tokens_serialize_len(&output->native_tokens);
-  // feature blocks count
-  length += sizeof(uint8_t);
   // feature blocks
-  feat_list_t* feat_elm = output->feature_blocks;
-  while (feat_elm != NULL) {
-    length += feat_blk_serialize_len(output->feature_blocks->blk);
-    feat_elm = feat_elm->next;
-  }
+  length += feat_blk_list_serialize_len(output->feature_blocks);
 
   return length;
 }
@@ -197,11 +173,11 @@ int output_extended_serialize(output_extended_t* output, byte_t buf[], size_t bu
   memcpy(offset, &output->amount, sizeof(uint64_t));
   offset += sizeof(uint64_t);
 
-  // Native Tokens
+  // native tokens
   if (output->native_tokens) {
     res = native_tokens_serialize(&output->native_tokens, offset, native_tokens_serialize_len(&output->native_tokens));
     if (res == -1) {
-      printf("[%s:%d] can not serialize Native Tokens\n", __func__, __LINE__);
+      printf("[%s:%d] can not serialize native tokens\n", __func__, __LINE__);
       return -1;
     }
     offset += native_tokens_serialize_len(&output->native_tokens);
@@ -210,25 +186,14 @@ int output_extended_serialize(output_extended_t* output, byte_t buf[], size_t bu
     offset += sizeof(uint16_t);
   }
 
-  // Feature Blocks
+  // feature blocks
   if (output->feature_blocks) {
-    // Count Feature Blocks
-    uint8_t count = 0;
-    feat_list_t* feat_elm = output->feature_blocks;
-    while (feat_elm) {
-      count += 1;
-      feat_elm = feat_elm->next;
+    res = feat_blk_list_serialize(output->feature_blocks, offset, feat_blk_list_serialize_len(output->feature_blocks));
+    if (res == -1) {
+      printf("[%s:%d] can not serialize feature blocks\n", __func__, __LINE__);
+      return -1;
     }
-    memset(offset, count, sizeof(uint8_t));
-    offset += sizeof(uint8_t);
-
-    // Serialize Feature Blocks
-    feat_elm = output->feature_blocks;
-    while (feat_elm) {
-      int res = feat_blk_serialize(feat_elm->blk, offset, feat_blk_serialize_len(feat_elm->blk));
-      offset += feat_blk_serialize_len(feat_elm->blk);
-      feat_elm = feat_elm->next;
-    }
+    offset += feat_blk_list_serialize_len(output->feature_blocks);
   } else {
     memset(offset, 0, sizeof(uint8_t));
     offset += sizeof(uint8_t);
@@ -238,7 +203,7 @@ int output_extended_serialize(output_extended_t* output, byte_t buf[], size_t bu
 }
 
 output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
-  if (!buf || buf_len == 0) {
+  if (buf == NULL || buf_len == 0) {
     printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
     return NULL;
   }
@@ -269,20 +234,14 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
     output_extended_free(output);
     return NULL;
   }
-  if (buf_len < offset + sizeof(uint8_t)) {
-    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-    output_extended_free(output);
-    return NULL;
-  }
   output->address->type = buf[offset];
-  offset += sizeof(uint8_t);
-  if (buf_len < offset + address_serialized_len(output->address) - sizeof(uint8_t)) {
+  if (buf_len < offset + address_serialized_len(output->address)) {
     printf("[%s:%d] invalid data length\n", __func__, __LINE__);
     output_extended_free(output);
     return NULL;
   }
-  memcpy(output->address->address, &buf[offset], address_serialized_len(output->address) - sizeof(uint8_t));
-  offset += address_serialized_len(output->address) - sizeof(uint8_t);
+  memcpy(output->address->address, &buf[offset], address_serialized_len(output->address));
+  offset += address_serialized_len(output->address);
 
   // amount
   if (buf_len < offset + sizeof(uint64_t)) {
@@ -293,70 +252,28 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   memcpy(&output->amount, &buf[offset], sizeof(uint64_t));
   offset += sizeof(uint64_t);
 
-  // Native Tokens
-  if (buf_len < offset + sizeof(uint16_t)) {
-    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-    output_extended_free(output);
-    return NULL;
-  }
-  uint16_t tokens_count = (uint16_t)buf[offset];
-  if (buf_len < offset + sizeof(uint16_t) + (tokens_count * NATIVE_TOKENS_SERIALIZED_BYTES)) {
-    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-    output_extended_free(output);
-    return NULL;
-  }
-  output->native_tokens =
-      native_tokens_deserialize(&buf[offset], sizeof(uint16_t) + (tokens_count * NATIVE_TOKENS_SERIALIZED_BYTES));
-  if (!output->native_tokens) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    output_extended_free(output);
-    return NULL;
-  }
-  offset += sizeof(uint16_t) + (tokens_count * NATIVE_TOKENS_SERIALIZED_BYTES);
-
-  // Feature Blocks
-  if (buf_len < offset + sizeof(uint8_t)) {
-    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-    output_extended_free(output);
-    return NULL;
-  }
-  uint8_t feat_count = buf[offset];
-  offset += sizeof(uint8_t);
-  for (uint8_t i = 0; i < feat_count; i++) {
-    feat_list_t* feat_new = malloc(sizeof(feat_list_t));
-    if (!feat_new) {
+  // native tokens
+  uint16_t tokens_count = *((uint16_t*)&buf[offset]);
+  if (tokens_count > 0) {
+    output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
+    if (!output->native_tokens) {
       printf("[%s:%d] OOM\n", __func__, __LINE__);
       output_extended_free(output);
       return NULL;
     }
-    if (buf_len < offset + sizeof(uint8_t) + 2) {  // TODO fix buffer length
-      printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-      output_extended_free(output);
-      return NULL;
-    }
-    feat_block_t* feat = feat_blk_deserialize(&buf[offset], sizeof(uint8_t) + 100);  // TODO fix buffer length
-    if (!feat) {
-      printf("[%s:%d] can not deserialize feature block\n", __func__, __LINE__);
-      output_extended_free(output);
-      return NULL;
-    }
-    feat_new->blk = feat;
-    offset += feat_blk_serialize_len(feat_new->blk);
-    feat_new->next = NULL;
-
-    if (!output->feature_blocks) {
-      // if the feature block list is empty, then make the new feature block as head
-      output->feature_blocks = feat_new;
-    } else {
-      // traverse till the last feature block in a list
-      feat_list_t* feat_last = output->feature_blocks;
-      while (feat_last->next != NULL) {
-        feat_last = feat_last->next;
-      }
-      // change the next feature of currently last feature
-      feat_last->next = feat_new;
-    }
+    offset += native_tokens_serialize_len(&output->native_tokens);
+  } else {
+    offset += sizeof(uint16_t);
   }
+
+  // feature blocks
+  output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
+  if (!output->feature_blocks) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    output_extended_free(output);
+    return NULL;
+  }
+  offset += feat_blk_list_serialize_len(output->feature_blocks);
 
   return output;
 }
@@ -372,26 +289,29 @@ void output_extended_print(output_extended_t* output) {
   address_print(output->address);
   printf("\tAmmount: %" PRIu64 "\n", output->amount);
 
-  // print Native Tokens
-  native_tokens_t *elm, *tmp;
+  // print native tokens
+  native_tokens_t *token, *tmp;
   char* amount_str;
-
   printf("\tNative Tokens: [\n");
-  HASH_ITER(hh, *(&output->native_tokens), elm, tmp) {
-    amount_str = uint256_to_str(elm->amount);
+  HASH_ITER(hh, *(&output->native_tokens), token, tmp) {
+    amount_str = uint256_to_str(token->amount);
     printf("\t\t[%s] ", amount_str);
-    dump_hex_str(elm->token_id, NATIVE_TOKEN_ID_BYTES);
+    dump_hex_str(token->token_id, NATIVE_TOKEN_ID_BYTES);
     free(amount_str);
   }
   printf("\t]\n");
 
-  // print Feature Blocks
-  feat_list_t* feat_elm = output->feature_blocks;
-  printf("\tFeature Blocks: [\n");
-  while (feat_elm) {
-    printf("\t\t");
-    feat_blk_print(feat_elm->blk);
-    feat_elm = feat_elm->next;
+  // print feature blocks
+  printf("\tFeature Blocks:[\n");
+  feat_blk_list_t* feat_block;
+  printf("\t\tBlock Counts: %d\n", feat_blk_list_len(output->feature_blocks));
+  if (output->feature_blocks) {
+    uint8_t index = 0;
+    LL_FOREACH(output->feature_blocks, feat_block) {
+      printf("\t\t#%d ", index);
+      feat_blk_print(feat_block->blk);
+      index++;
+    }
   }
   printf("\t]\n");
 
