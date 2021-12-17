@@ -305,6 +305,56 @@ void test_indexaction() {
   free_feat_blk(deser_blk);
 }
 
+void test_feat_block_list_append_all() {
+  feat_blk_list_t* blk_list = new_feat_blk_list();
+  TEST_ASSERT_NULL(blk_list);
+
+  // print out an empty list
+  feat_blk_list_print(blk_list);
+
+  // add a sender
+  address_t test_addr = {};
+  test_addr.type = ADDRESS_TYPE_ED25519;
+  iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
+  TEST_ASSERT(feat_blk_list_add_sender(&blk_list, &test_addr) == 0);
+
+  // add an issuer
+  TEST_ASSERT(feat_blk_list_add_issuer(&blk_list, &test_addr) == 0);
+  // add a dust deposit return
+  TEST_ASSERT(feat_blk_list_add_ddr(&blk_list, 128) == 0);
+  // add a timelock milestone index
+  TEST_ASSERT(feat_blk_list_add_tmi(&blk_list, 12345678) == 0);
+  // add a timelock Unix
+  TEST_ASSERT(feat_blk_list_add_tu(&blk_list, 0) == 0);
+  // add a expiration milestone index
+  TEST_ASSERT(feat_blk_list_add_emi(&blk_list, 98776543) == 0);
+  // add a expiration Unix
+  TEST_ASSERT(feat_blk_list_add_eu(&blk_list, 99934885) == 0);
+  // add a metadata
+  byte_t meta_data[256] = {};
+  iota_crypto_randombytes(meta_data, sizeof(meta_data));
+  TEST_ASSERT(feat_blk_list_add_metadata(&blk_list, meta_data, sizeof(meta_data)) == 0);
+  // add an indexaction tag
+  byte_t tag[MAX_INDEX_TAG_BYTES] = {};
+  iota_crypto_randombytes(tag, sizeof(tag));
+  TEST_ASSERT(feat_blk_list_add_indexaction(&blk_list, tag, sizeof(tag)) == 0);
+
+  // check length of the list
+  TEST_ASSERT(feat_blk_list_len(blk_list) == 9);
+
+  // print out the feature block list
+  feat_blk_list_print(blk_list);
+
+  // TODO serialization
+  printf("serialization len: %zu\n", feat_blk_list_serialize_len(blk_list));
+
+  free_feat_blk_list(blk_list);
+}
+
+void test_feat_block_list_checks() {
+  // TODO: other checks with feature block list object
+}
+
 int main() {
   UNITY_BEGIN();
 
@@ -317,6 +367,8 @@ int main() {
   RUN_TEST(test_expiration_unix);
   RUN_TEST(test_metadata);
   RUN_TEST(test_indexaction);
+  RUN_TEST(test_feat_block_list_append_all);
+  RUN_TEST(test_feat_block_list_checks);
 
   return UNITY_END();
 }
