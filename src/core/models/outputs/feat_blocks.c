@@ -4,6 +4,7 @@
 #include <inttypes.h>
 
 #include "core/models/outputs/feat_blocks.h"
+#include "utlist.h"
 
 static feat_metadata_blk_t* new_feat_metadata(byte_t const data[], uint32_t data_len) {
   if (!data || data_len == 0) {
@@ -444,5 +445,262 @@ void feat_blk_print(feat_block_t* blk) {
       break;
     default:
       break;
+  }
+}
+
+feat_blk_list_t* new_feat_blk_list() { return NULL; }
+
+uint8_t feat_blk_list_len(feat_blk_list_t* list) {
+  feat_blk_list_t* elm = NULL;
+  uint8_t len = 0;
+
+  if (list) {
+    LL_COUNT(list, elm, len);
+    return len;
+  }
+  return len;
+}
+
+int feat_blk_list_add_sender(feat_blk_list_t** list, address_t const* const addr) {
+  if (!addr) {
+    return -1;
+  }
+
+  // TODO: make sure the block type is not duplicated in the list.
+
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_sender(addr);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_issuer(feat_blk_list_t** list, address_t const* const addr) {
+  if (!addr) {
+    return -1;
+  }
+  // TODO: make sure the block type is not duplicated in the list.
+
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_issuer(addr);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_ddr(feat_blk_list_t** list, uint64_t amount) {
+  // TODO: make sure the block type is not duplicated in the list.
+
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_ddr(amount);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_tmi(feat_blk_list_t** list, uint32_t index) {
+  // TODO: make sure the block type is not duplicated in the list.
+
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_tmi(index);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_tu(feat_blk_list_t** list, uint32_t time) {
+  // TODO: make sure the block type is not duplicated in the list.
+
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_tu(time);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+int feat_blk_list_add_emi(feat_blk_list_t** list, uint32_t index) {
+  // TODO: make sure the block type is not duplicated in the list.
+
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_emi(index);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+int feat_blk_list_add_eu(feat_blk_list_t** list, uint32_t time) {
+  // TODO: make sure the block type is not duplicated in the list.
+
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_eu(time);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_metadata(feat_blk_list_t** list, byte_t const data[], uint32_t data_len) {
+  // TODO: make sure the block type is not duplicated in the list.
+
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_metadata(data, data_len);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_indexaction(feat_blk_list_t** list, byte_t const tag[], uint8_t tag_len) {
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_indexaction(tag, tag_len);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+  return -1;
+}
+
+size_t feat_blk_list_serialize_len(feat_blk_list_t* list) {
+  feat_blk_list_t* elm;
+  size_t len = 0;
+  if (list) {
+    LL_FOREACH(list, elm) { len += feat_blk_serialize_len(elm->blk); }
+  }
+  return len;
+}
+
+int feat_blk_list_serialize(feat_blk_list_t* list, byte_t buf[], size_t buf_len) {
+  // TODO
+  return -1;
+}
+
+feat_blk_list_t* feat_blk_list_deserialize(byte_t buf[], size_t buf_len) {
+  // TODO
+  return NULL;
+}
+
+void feat_blk_list_print(feat_blk_list_t* list) {
+  feat_blk_list_t* elm;
+  uint8_t index = 0;
+  printf("Feature Blocks:[\n");
+  if (list) {
+    LL_FOREACH(list, elm) {
+      printf("#%d ", index);
+      feat_blk_print(elm->blk);
+      index++;
+    }
+  }
+  printf("]\n");
+}
+
+void free_feat_blk_list(feat_blk_list_t* list) {
+  feat_blk_list_t *elm, *tmp;
+  if (list) {
+    LL_FOREACH_SAFE(list, elm, tmp) {
+      free_feat_blk(elm->blk);
+      LL_DELETE(list, elm);
+      free(elm);
+    }
   }
 }
