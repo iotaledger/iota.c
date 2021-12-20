@@ -98,9 +98,9 @@ uint8_t address_serialized_len(address_t *addr);
  * @param[in] addr An address object
  * @param[out] bytes A buffer hold serialized data
  * @param[in] len The length of the buffer
- * @return int o on success
+ * @return size_t The bytes written is returned, 0 on error
  */
-int address_serialize(address_t *addr, byte_t bytes[], size_t len);
+size_t address_serialize(address_t *addr, byte_t bytes[], size_t len);
 
 /**
  * @brief Deserialize a bniary data to an address object
@@ -108,9 +108,9 @@ int address_serialize(address_t *addr, byte_t bytes[], size_t len);
  * @param[in] bytes A buffer holds binary data
  * @param[in] len the length of the buffer
  * @param[out] addr the output address object
- * @return int 0 on success
+ * @return size_t The bytes written is returned, 0 on error
  */
-int address_deserialize(byte_t bytes[], size_t len, address_t *addr);
+size_t address_deserialize(byte_t bytes[], size_t len, address_t *addr);
 
 /**
  * @brief Create an address object from the given bech32 string
