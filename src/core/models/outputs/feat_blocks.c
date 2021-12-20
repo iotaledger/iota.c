@@ -4,6 +4,7 @@
 #include <inttypes.h>
 
 #include "core/models/outputs/feat_blocks.h"
+#include "utlist.h"
 
 static feat_metadata_blk_t* new_feat_metadata(byte_t const data[], uint32_t data_len) {
   if (!data || data_len == 0) {
@@ -234,15 +235,16 @@ size_t feat_blk_serialize_len(feat_block_t const* const blk) {
   }
 }
 
-int feat_blk_serialize(feat_block_t* blk, byte_t buf[], size_t buf_len) {
+size_t feat_blk_serialize(feat_block_t* blk, byte_t buf[], size_t buf_len) {
   if (!blk || !buf || buf_len == 0) {
     printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
-    return -1;
+    return 0;
   }
 
-  if (buf_len < feat_blk_serialize_len(blk)) {
+  size_t expected_bytes = feat_blk_serialize_len(blk);
+  if (buf_len < expected_bytes) {
     printf("[%s:%d] buffer size is insufficient\n", __func__, __LINE__);
-    return -1;
+    return 0;
   }
 
   // fillin block type
@@ -282,7 +284,7 @@ int feat_blk_serialize(feat_block_t* blk, byte_t buf[], size_t buf_len) {
     default:
       break;
   }
-  return 0;
+  return expected_bytes;
 }
 
 feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len) {
@@ -365,7 +367,10 @@ feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len) {
         free_feat_blk(blk);
         return NULL;
       }
-      blk->block = new_feat_metadata(buf + offset, buf_len - offset);
+      // get data length
+      uint32_t data_len = 0;
+      memcpy(&data_len, buf + sizeof(uint8_t), sizeof(uint32_t));
+      blk->block = new_feat_metadata(buf + offset, data_len);
       if (!blk->block) {
         printf("[%s:%d] deserialize metadata failed\n", __func__, __LINE__);
         free_feat_blk(blk);
@@ -379,7 +384,10 @@ feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len) {
         free_feat_blk(blk);
         return NULL;
       }
-      blk->block = new_feat_indexaztion(buf + offset, buf_len - offset);
+      // get tag length
+      uint32_t tag_len = 0;
+      memcpy(&tag_len, buf + sizeof(uint8_t), sizeof(uint8_t));
+      blk->block = new_feat_indexaztion(buf + offset, tag_len);
       if (!blk->block) {
         printf("[%s:%d] deserialize metadata failed\n", __func__, __LINE__);
         free_feat_blk(blk);
@@ -444,5 +452,314 @@ void feat_blk_print(feat_block_t* blk) {
       break;
     default:
       break;
+  }
+}
+
+feat_blk_list_t* new_feat_blk_list() { return NULL; }
+
+uint8_t feat_blk_list_len(feat_blk_list_t* list) {
+  feat_blk_list_t* elm = NULL;
+  uint8_t len = 0;
+
+  if (list) {
+    LL_COUNT(list, elm, len);
+    return len;
+  }
+  return len;
+}
+
+feat_block_t* feat_blk_list_get(feat_blk_list_t* list, uint8_t index) {
+  uint8_t count = 0;
+  feat_blk_list_t* elm;
+  if (list) {
+    LL_FOREACH(list, elm) {
+      if (count == index) {
+        return elm->blk;
+      }
+      count++;
+    }
+  }
+  return NULL;
+}
+
+int feat_blk_list_add_sender(feat_blk_list_t** list, address_t const* const addr) {
+  if (!addr) {
+    return -1;
+  }
+
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_sender(addr);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_issuer(feat_blk_list_t** list, address_t const* const addr) {
+  if (!addr) {
+    return -1;
+  }
+
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_issuer(addr);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_ddr(feat_blk_list_t** list, uint64_t amount) {
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_ddr(amount);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_tmi(feat_blk_list_t** list, uint32_t index) {
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_tmi(index);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_tu(feat_blk_list_t** list, uint32_t time) {
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_tu(time);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+int feat_blk_list_add_emi(feat_blk_list_t** list, uint32_t index) {
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_emi(index);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+int feat_blk_list_add_eu(feat_blk_list_t** list, uint32_t time) {
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_eu(time);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_metadata(feat_blk_list_t** list, byte_t const data[], uint32_t data_len) {
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_metadata(data, data_len);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+
+  return -1;
+}
+
+int feat_blk_list_add_indexaction(feat_blk_list_t** list, byte_t const tag[], uint8_t tag_len) {
+  // check if list length is reached the limitation
+  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+    return -1;
+  }
+
+  feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
+  if (next) {
+    next->blk = new_feat_blk_indexaction(tag, tag_len);
+    if (next->blk) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+  return -1;
+}
+
+size_t feat_blk_list_serialize_len(feat_blk_list_t* list) {
+  feat_blk_list_t* elm;
+  // feature blocks layout: Block Count + Blocks
+  // uint8_t is the serialized size of block count
+  size_t len = sizeof(uint8_t);
+  if (list) {
+    LL_FOREACH(list, elm) { len += feat_blk_serialize_len(elm->blk); }
+  }
+  return len;
+}
+
+size_t feat_blk_list_serialize(feat_blk_list_t* list, byte_t buf[], size_t buf_len) {
+  if (list) {
+    // serialized len = block count + blocks
+    size_t expected_bytes = feat_blk_list_serialize_len(list);
+    if (buf_len < expected_bytes) {
+      return 0;
+    }
+
+    size_t offset = sizeof(uint8_t);
+    feat_blk_list_t* elm;
+    int ret = 0;
+    // block count
+    buf[0] = feat_blk_list_len(list);
+    // feature blocks
+    LL_FOREACH(list, elm) { offset += feat_blk_serialize(elm->blk, buf + offset, buf_len - offset); }
+    // check the length of the serialized data
+    if (offset != expected_bytes) {
+      printf("[%s:%d] offset is not matched with expectation\n", __func__, __LINE__);
+      return 0;
+    }
+    return offset;
+  }
+  return 0;
+}
+
+feat_blk_list_t* feat_blk_list_deserialize(byte_t buf[], size_t buf_len) {
+  if (!buf || buf_len <= 1) {
+    return NULL;
+  }
+
+  feat_blk_list_t* list = new_feat_blk_list();
+  size_t offset = sizeof(uint8_t);
+  uint8_t blk_cnt = buf[0];
+  for (uint8_t i = 0; i < blk_cnt; i++) {
+    // create a new feature block list object
+    feat_blk_list_t* new_blk = malloc(sizeof(feat_blk_list_t));
+    if (new_blk) {
+      // get feature block from serialized data
+      new_blk->blk = feat_blk_deserialize(buf + offset, buf_len - offset);
+      if (new_blk->blk) {
+        // offset of the next block
+        offset += feat_blk_serialize_len(new_blk->blk);
+        LL_APPEND(list, new_blk);
+
+      } else {
+        // error on feature block deserialize
+        free(new_blk);
+        free_feat_blk_list(list);
+        return NULL;
+      }
+    } else {
+      // error on new feature block list
+      free_feat_blk_list(list);
+      return NULL;
+    }
+  }
+
+  return list;
+}
+
+void feat_blk_list_print(feat_blk_list_t* list) {
+  feat_blk_list_t* elm;
+  uint8_t index = 0;
+  printf("Feature Blocks:[\n");
+  printf("Block Counts: %d\n", feat_blk_list_len(list));
+  if (list) {
+    LL_FOREACH(list, elm) {
+      printf("#%d ", index);
+      feat_blk_print(elm->blk);
+      index++;
+    }
+  }
+  printf("]\n");
+}
+
+void free_feat_blk_list(feat_blk_list_t* list) {
+  feat_blk_list_t *elm, *tmp;
+  if (list) {
+    LL_FOREACH_SAFE(list, elm, tmp) {
+      free_feat_blk(elm->blk);
+      LL_DELETE(list, elm);
+      free(elm);
+    }
   }
 }
