@@ -30,8 +30,9 @@ void test_sender() {
   TEST_ASSERT_EQUAL_MEMORY(((address_t*)sender_blk->block)->address, sender_addr.address, ADDRESS_ED25519_BYTES);
 
   // serialization
-  TEST_ASSERT(feat_blk_serialize(sender_blk, serialized_blk, 1) != 0);  // expect serialize failed
-  TEST_ASSERT(feat_blk_serialize(sender_blk, serialized_blk, sizeof(serialized_blk)) == 0);
+  TEST_ASSERT(feat_blk_serialize(sender_blk, serialized_blk, 1) == 0);  // expect serialize failed
+  TEST_ASSERT(feat_blk_serialize(sender_blk, serialized_blk, sizeof(serialized_blk)) ==
+              feat_blk_serialize_len(sender_blk));
   feat_block_t* deser_blk = feat_blk_deserialize(serialized_blk, 1);
   TEST_ASSERT_NULL(deser_blk);  // expect deserialize failed
   deser_blk = feat_blk_deserialize(serialized_blk, sizeof(serialized_blk));
@@ -65,8 +66,9 @@ void test_issuer() {
   TEST_ASSERT_EQUAL_MEMORY(((address_t*)issuer_blk->block)->address, addr.address, ADDRESS_NFT_BYTES);
 
   // serialization
-  TEST_ASSERT(feat_blk_serialize(issuer_blk, serialized_blk, 1) != 0);  // expect serialize failed
-  TEST_ASSERT(feat_blk_serialize(issuer_blk, serialized_blk, sizeof(serialized_blk)) == 0);
+  TEST_ASSERT(feat_blk_serialize(issuer_blk, serialized_blk, 1) == 0);  // expect serialize failed
+  TEST_ASSERT(feat_blk_serialize(issuer_blk, serialized_blk, sizeof(serialized_blk)) ==
+              feat_blk_serialize_len(issuer_blk));
   feat_block_t* deser_blk = feat_blk_deserialize(serialized_blk, 1);
   TEST_ASSERT_NULL(deser_blk);  // expect deserialize failed
   deser_blk = feat_blk_deserialize(serialized_blk, sizeof(serialized_blk));
@@ -97,8 +99,8 @@ void test_dust_deposit_return() {
   TEST_ASSERT(*((uint64_t*)ddr_blk->block) == amount);
 
   // serialization
-  TEST_ASSERT(feat_blk_serialize(ddr_blk, serialized_blk, 1) != 0);  // expect serialize failed
-  TEST_ASSERT(feat_blk_serialize(ddr_blk, serialized_blk, sizeof(serialized_blk)) == 0);
+  TEST_ASSERT(feat_blk_serialize(ddr_blk, serialized_blk, 1) == 0);  // expect serialize failed
+  TEST_ASSERT(feat_blk_serialize(ddr_blk, serialized_blk, sizeof(serialized_blk)) == feat_blk_serialize_len(ddr_blk));
   feat_block_t* deser_blk = feat_blk_deserialize(serialized_blk, 1);
   TEST_ASSERT_NULL(deser_blk);  // expect deserialize failed
   deser_blk = feat_blk_deserialize(serialized_blk, sizeof(serialized_blk));
@@ -127,8 +129,8 @@ void test_timelock_milestone_index() {
   TEST_ASSERT(*((uint32_t*)tmi_blk->block) == index);
 
   // serialization
-  TEST_ASSERT(feat_blk_serialize(tmi_blk, serialized_blk, 1) != 0);  // expect serialize failed
-  TEST_ASSERT(feat_blk_serialize(tmi_blk, serialized_blk, sizeof(serialized_blk)) == 0);
+  TEST_ASSERT(feat_blk_serialize(tmi_blk, serialized_blk, 1) == 0);  // expect serialize failed
+  TEST_ASSERT(feat_blk_serialize(tmi_blk, serialized_blk, sizeof(serialized_blk)) == feat_blk_serialize_len(tmi_blk));
   feat_block_t* deser_blk = feat_blk_deserialize(serialized_blk, 1);
   TEST_ASSERT_NULL(deser_blk);  // expect deserialize failed
   deser_blk = feat_blk_deserialize(serialized_blk, sizeof(serialized_blk));
@@ -157,8 +159,8 @@ void test_timelock_unix() {
   TEST_ASSERT(*((uint32_t*)tu_blk->block) == time);
 
   // serialization
-  TEST_ASSERT(feat_blk_serialize(tu_blk, serialized_blk, 1) != 0);  // expect serialize failed
-  TEST_ASSERT(feat_blk_serialize(tu_blk, serialized_blk, sizeof(serialized_blk)) == 0);
+  TEST_ASSERT(feat_blk_serialize(tu_blk, serialized_blk, 1) == 0);  // expect serialize failed
+  TEST_ASSERT(feat_blk_serialize(tu_blk, serialized_blk, sizeof(serialized_blk)) == feat_blk_serialize_len(tu_blk));
   feat_block_t* deser_blk = feat_blk_deserialize(serialized_blk, 1);
   TEST_ASSERT_NULL(deser_blk);  // expect deserialize failed
   deser_blk = feat_blk_deserialize(serialized_blk, sizeof(serialized_blk));
@@ -187,8 +189,8 @@ void test_expiration_milestone_index() {
   TEST_ASSERT(*((uint32_t*)emi_blk->block) == index);
 
   // serialization
-  TEST_ASSERT(feat_blk_serialize(emi_blk, serialized_blk, 1) != 0);  // expect serialize failed
-  TEST_ASSERT(feat_blk_serialize(emi_blk, serialized_blk, sizeof(serialized_blk)) == 0);
+  TEST_ASSERT(feat_blk_serialize(emi_blk, serialized_blk, 1) == 0);  // expect serialize failed
+  TEST_ASSERT(feat_blk_serialize(emi_blk, serialized_blk, sizeof(serialized_blk)) == feat_blk_serialize_len(emi_blk));
   feat_block_t* deser_blk = feat_blk_deserialize(serialized_blk, 1);
   TEST_ASSERT_NULL(deser_blk);  // expect deserialize failed
   deser_blk = feat_blk_deserialize(serialized_blk, sizeof(serialized_blk));
@@ -217,8 +219,8 @@ void test_expiration_unix() {
   TEST_ASSERT(*((uint32_t*)eu_blk->block) == time);
 
   // serialization
-  TEST_ASSERT(feat_blk_serialize(eu_blk, serialized_blk, 1) != 0);  // expect serialize failed
-  TEST_ASSERT(feat_blk_serialize(eu_blk, serialized_blk, sizeof(serialized_blk)) == 0);
+  TEST_ASSERT(feat_blk_serialize(eu_blk, serialized_blk, 1) == 0);  // expect serialize failed
+  TEST_ASSERT(feat_blk_serialize(eu_blk, serialized_blk, sizeof(serialized_blk)) == feat_blk_serialize_len(eu_blk));
   feat_block_t* deser_blk = feat_blk_deserialize(serialized_blk, 1);
   TEST_ASSERT_NULL(deser_blk);  // expect deserialize failed
   deser_blk = feat_blk_deserialize(serialized_blk, sizeof(serialized_blk));
@@ -249,8 +251,8 @@ void test_metadata() {
   TEST_ASSERT_EQUAL_MEMORY(meta_data, ((feat_metadata_blk_t*)meta_blk->block)->data, sizeof(meta_data));
 
   // serialization
-  TEST_ASSERT(feat_blk_serialize(meta_blk, serialized_blk, 1) != 0);  // expect serialize failed
-  TEST_ASSERT(feat_blk_serialize(meta_blk, serialized_blk, sizeof(serialized_blk)) == 0);
+  TEST_ASSERT(feat_blk_serialize(meta_blk, serialized_blk, 1) == 0);  // expect serialize failed
+  TEST_ASSERT(feat_blk_serialize(meta_blk, serialized_blk, sizeof(serialized_blk)) == feat_blk_serialize_len(meta_blk));
   feat_block_t* deser_blk = feat_blk_deserialize(serialized_blk, 1);
   TEST_ASSERT_NULL(deser_blk);  // expect deserialize failed
   deser_blk = feat_blk_deserialize(serialized_blk, feat_blk_serialize_len(meta_blk));
@@ -285,8 +287,8 @@ void test_indexaction() {
   TEST_ASSERT_EQUAL_MEMORY(tag, ((feat_indexaction_blk_t*)idx_blk->block)->tag, sizeof(tag));
 
   // serialization
-  TEST_ASSERT(feat_blk_serialize(idx_blk, serialized_blk, 1) != 0);  // expect serialize failed
-  TEST_ASSERT(feat_blk_serialize(idx_blk, serialized_blk, sizeof(serialized_blk)) == 0);
+  TEST_ASSERT(feat_blk_serialize(idx_blk, serialized_blk, 1) == 0);  // expect serialize failed
+  TEST_ASSERT(feat_blk_serialize(idx_blk, serialized_blk, sizeof(serialized_blk)) == feat_blk_serialize_len(idx_blk));
   feat_block_t* deser_blk = feat_blk_deserialize(serialized_blk, 1);
   TEST_ASSERT_NULL(deser_blk);  // expect deserialize failed
   deser_blk = feat_blk_deserialize(serialized_blk, feat_blk_serialize_len(idx_blk));
@@ -319,17 +321,23 @@ void test_feat_block_list_append_all() {
   TEST_ASSERT(feat_blk_list_add_sender(&blk_list, &test_addr) == 0);
 
   // add an issuer
+  test_addr.type = ADDRESS_TYPE_NFT;  // changed the type, but use the same address data
   TEST_ASSERT(feat_blk_list_add_issuer(&blk_list, &test_addr) == 0);
   // add a dust deposit return
-  TEST_ASSERT(feat_blk_list_add_ddr(&blk_list, 128) == 0);
+  uint64_t ddr_value = 1280097745;
+  TEST_ASSERT(feat_blk_list_add_ddr(&blk_list, ddr_value) == 0);
   // add a timelock milestone index
-  TEST_ASSERT(feat_blk_list_add_tmi(&blk_list, 12345678) == 0);
+  uint32_t tmi_value = 12345678;
+  TEST_ASSERT(feat_blk_list_add_tmi(&blk_list, tmi_value) == 0);
   // add a timelock Unix
-  TEST_ASSERT(feat_blk_list_add_tu(&blk_list, 0) == 0);
+  uint32_t tu_value = 1639991908;
+  TEST_ASSERT(feat_blk_list_add_tu(&blk_list, tu_value) == 0);
   // add a expiration milestone index
-  TEST_ASSERT(feat_blk_list_add_emi(&blk_list, 98776543) == 0);
+  uint32_t emi_value = 145982608;
+  TEST_ASSERT(feat_blk_list_add_emi(&blk_list, emi_value) == 0);
   // add a expiration Unix
-  TEST_ASSERT(feat_blk_list_add_eu(&blk_list, 99934885) == 0);
+  uint32_t eu_value = 1839991908;
+  TEST_ASSERT(feat_blk_list_add_eu(&blk_list, eu_value) == 0);
   // add a metadata
   byte_t meta_data[256] = {};
   iota_crypto_randombytes(meta_data, sizeof(meta_data));
@@ -345,14 +353,82 @@ void test_feat_block_list_append_all() {
   // print out the feature block list
   feat_blk_list_print(blk_list);
 
-  // TODO serialization
-  printf("serialization len: %zu\n", feat_blk_list_serialize_len(blk_list));
+  // serialization
+  size_t exp_ser_len = feat_blk_list_serialize_len(blk_list);
+  // printf("serialization len: %zu\n", exp_ser_len);
+  byte_t ser_blk[512] = {};
+  TEST_ASSERT(feat_blk_list_serialize(blk_list, ser_blk, sizeof(ser_blk)) == exp_ser_len);
+  // dump_hex(ser_blk, exp_ser_len);
+  feat_blk_list_t* deser_list = feat_blk_list_deserialize(ser_blk, sizeof(ser_blk));
+  TEST_ASSERT(feat_blk_list_len(deser_list) == feat_blk_list_len(blk_list));
+  feat_blk_list_print(deser_list);
 
+  // check deser objects
+  TEST_ASSERT_NULL(feat_blk_list_get(deser_list, feat_blk_list_len(deser_list)));
+  TEST_ASSERT_NULL(feat_blk_list_get(deser_list, UINT8_MAX - 1));
+  feat_block_t* tmp_blk = NULL;
+
+  // 0: should be sender
+  tmp_blk = feat_blk_list_get(deser_list, 0);
+  TEST_ASSERT_NOT_NULL(tmp_blk);
+  TEST_ASSERT(tmp_blk->type == FEAT_SENDER_BLOCK);
+  TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_ED25519);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_ED25519_BYTES);
+
+  // 1: should be issuer
+  tmp_blk = feat_blk_list_get(deser_list, 1);
+  TEST_ASSERT_NOT_NULL(tmp_blk);
+  TEST_ASSERT(tmp_blk->type == FEAT_ISSUER_BLOCK);
+  TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_NFT);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_NFT_BYTES);
+
+  // 2: should be dust deposit return
+  tmp_blk = feat_blk_list_get(deser_list, 2);
+  TEST_ASSERT_NOT_NULL(tmp_blk);
+  TEST_ASSERT(tmp_blk->type == FEAT_DUST_DEP_RET_BLOCK);
+  TEST_ASSERT(*(uint64_t*)tmp_blk->block == ddr_value);
+
+  // 3: should be timelock milestone index
+  tmp_blk = feat_blk_list_get(deser_list, 3);
+  TEST_ASSERT_NOT_NULL(tmp_blk);
+  TEST_ASSERT(tmp_blk->type == FEAT_TIMELOCK_MS_INDEX_BLOCK);
+  TEST_ASSERT(*(uint32_t*)tmp_blk->block == tmi_value);
+
+  // 4: should be timelock Unix
+  tmp_blk = feat_blk_list_get(deser_list, 4);
+  TEST_ASSERT_NOT_NULL(tmp_blk);
+  TEST_ASSERT(tmp_blk->type == FEAT_TIMELOCK_UNIX_BLOCK);
+  TEST_ASSERT(*(uint32_t*)tmp_blk->block == tu_value);
+
+  // 5: should be expiration milestone index
+  tmp_blk = feat_blk_list_get(deser_list, 5);
+  TEST_ASSERT_NOT_NULL(tmp_blk);
+  TEST_ASSERT(tmp_blk->type == FEAT_EXPIRATION_MS_INDEX_BLOCK);
+  TEST_ASSERT(*(uint32_t*)tmp_blk->block == emi_value);
+
+  // 6: should be expiration Unix
+  tmp_blk = feat_blk_list_get(deser_list, 6);
+  TEST_ASSERT_NOT_NULL(tmp_blk);
+  TEST_ASSERT(tmp_blk->type == FEAT_EXPIRATION_UNIX_BLOCK);
+  TEST_ASSERT(*(uint32_t*)tmp_blk->block == eu_value);
+
+  // 7: should be metadata
+  tmp_blk = feat_blk_list_get(deser_list, 7);
+  TEST_ASSERT_NOT_NULL(tmp_blk);
+  TEST_ASSERT(tmp_blk->type == FEAT_METADATA_BLOCK);
+  TEST_ASSERT(((feat_metadata_blk_t*)tmp_blk->block)->data_len == sizeof(meta_data));
+  TEST_ASSERT_EQUAL_MEMORY(((feat_metadata_blk_t*)tmp_blk->block)->data, meta_data, sizeof(meta_data));
+
+  // 8: should be indexaction
+  tmp_blk = feat_blk_list_get(deser_list, 8);
+  TEST_ASSERT_NOT_NULL(tmp_blk);
+  TEST_ASSERT(tmp_blk->type == FEAT_INDEXATION_BLOCK);
+  TEST_ASSERT(((feat_indexaction_blk_t*)tmp_blk->block)->tag_len == sizeof(tag));
+  TEST_ASSERT_EQUAL_MEMORY(((feat_indexaction_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
+
+  // clean up
+  free_feat_blk_list(deser_list);
   free_feat_blk_list(blk_list);
-}
-
-void test_feat_block_list_checks() {
-  // TODO: other checks with feature block list object
 }
 
 int main() {
@@ -368,7 +444,6 @@ int main() {
   RUN_TEST(test_metadata);
   RUN_TEST(test_indexaction);
   RUN_TEST(test_feat_block_list_append_all);
-  RUN_TEST(test_feat_block_list_checks);
 
   return UNITY_END();
 }
