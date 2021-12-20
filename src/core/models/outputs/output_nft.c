@@ -161,15 +161,16 @@ size_t output_nft_serialize_len(output_nft_t* output) {
   return length;
 }
 
-int output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) {
+size_t output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) {
   if (output == NULL || buf == NULL || buf_len == 0) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return -1;
+    return 0;
   }
 
-  if (buf_len < output_nft_serialize_len(output)) {
+  size_t expected_bytes = output_nft_serialize_len(output);
+  if (buf_len < expected_bytes) {
     printf("[%s:%d] buffer size is insufficient\n", __func__, __LINE__);
-    return -1;
+    return 0;
   }
 
   byte_t* offset = buf;
@@ -182,7 +183,7 @@ int output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) {
   int res = address_serialize(output->address, offset, address_serialized_len(output->address));
   if (res == -1) {
     printf("[%s:%d] can not serialize address\n", __func__, __LINE__);
-    return -1;
+    return 0;
   }
   offset += address_serialized_len(output->address);
 
@@ -195,7 +196,7 @@ int output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) {
     res = native_tokens_serialize(&output->native_tokens, offset, native_tokens_serialize_len(&output->native_tokens));
     if (res == -1) {
       printf("[%s:%d] can not serialize native tokens\n", __func__, __LINE__);
-      return -1;
+      return 0;
     }
     offset += native_tokens_serialize_len(&output->native_tokens);
   } else {
@@ -228,7 +229,7 @@ int output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) {
     offset += sizeof(uint8_t);
   }
 
-  return 0;
+  return expected_bytes;
 }
 
 output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {

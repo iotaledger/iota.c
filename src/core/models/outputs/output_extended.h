@@ -59,9 +59,9 @@ size_t output_extended_serialize_len(output_extended_t* output);
  * @param[in] output Extended Output object
  * @param[out] buf A buffer holds the serialized data
  * @param[in] buf_len The length of buffer
- * @return int 0 on success
+ * @return size_t The bytes written is returned, 0 on errors
  */
-int output_extended_serialize(output_extended_t* output, byte_t buf[], size_t buf_len);
+size_t output_extended_serialize(output_extended_t* output, byte_t buf[], size_t buf_len);
 
 /**
  * @brief Deserialize a binary data to a Extended Output object

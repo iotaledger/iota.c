@@ -64,41 +64,37 @@ size_t native_tokens_serialize_len(native_tokens_t **nt) {
   return length;
 }
 
-int native_tokens_serialize(native_tokens_t **nt, byte_t buf[], size_t buf_len) {
+size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[], size_t buf_len) {
   if (nt == NULL || buf == NULL || buf_len == 0) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return -1;
+    return 0;
   }
 
-  if (buf_len < native_tokens_serialize_len(nt)) {
+  size_t expected_bytes = native_tokens_serialize_len(nt);
+  if (buf_len < expected_bytes) {
     printf("[%s:%d] buffer size is insufficient\n", __func__, __LINE__);
-    return -1;
+    return 0;
   }
 
   native_tokens_t *elm, *tmp;
-  size_t byte_count = 0;
+  size_t offset = 0;
 
   // Native Tokens count
   uint16_t count = native_tokens_count(nt);
-  memcpy(buf + byte_count, &count, sizeof(uint16_t));
-  byte_count += sizeof(uint16_t);
+  memcpy(buf + offset, &count, sizeof(uint16_t));
+  offset += sizeof(uint16_t);
 
   HASH_ITER(hh, *nt, elm, tmp) {
     // ID
-    memcpy(buf + byte_count, elm->token_id, NATIVE_TOKEN_ID_BYTES);
-    byte_count += NATIVE_TOKEN_ID_BYTES;
+    memcpy(buf + offset, elm->token_id, NATIVE_TOKEN_ID_BYTES);
+    offset += NATIVE_TOKEN_ID_BYTES;
 
     // amount
-    memcpy(buf + byte_count, elm->amount, sizeof(uint256_t));
-    byte_count += sizeof(uint256_t);
+    memcpy(buf + offset, elm->amount, sizeof(uint256_t));
+    offset += sizeof(uint256_t);
   }
 
-  if (byte_count != native_tokens_serialize_len(nt)) {
-    printf("[%s:%d] offset error\n", __func__, __LINE__);
-    return -1;
-  }
-
-  return 0;
+  return expected_bytes;
 }
 
 native_tokens_t *native_tokens_deserialize(byte_t buf[], size_t buf_len) {

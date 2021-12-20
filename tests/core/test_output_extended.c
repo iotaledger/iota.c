@@ -69,17 +69,18 @@ void test_output_extended() {
   TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->block));
 
   // serialize Extended Output and validate it
-  size_t output_extended_buf_len = output_extended_serialize_len(output);
-  TEST_ASSERT(output_extended_buf_len != 0);
-  byte_t* output_extended_buf = malloc(output_extended_buf_len);
+  size_t output_extended_expected_len = output_extended_serialize_len(output);
+  TEST_ASSERT(output_extended_expected_len != 0);
+  byte_t* output_extended_buf = malloc(output_extended_expected_len);
   TEST_ASSERT_NOT_NULL(output_extended_buf);
-  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, 1) != 0);  // expect serialization fails
-  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, output_extended_buf_len) == 0);
+  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, 1) == 0);  // expect serialization fails
+  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, output_extended_expected_len) ==
+              output_extended_expected_len);
 
   // deserialize Extended Output and validate it
   output_extended_t* deser_output = output_extended_deserialize(output_extended_buf, 1);
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
-  deser_output = output_extended_deserialize(output_extended_buf, output_extended_buf_len);
+  deser_output = output_extended_deserialize(output_extended_buf, output_extended_expected_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, deser_output->address->type);
   TEST_ASSERT_EQUAL_MEMORY(addr.address, deser_output->address->address, ADDRESS_ED25519_BYTES);
@@ -150,17 +151,18 @@ void test_output_extended_without_native_tokens() {
   TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->block));
 
   // serialize Extended Output and validate it
-  size_t output_extended_buf_len = output_extended_serialize_len(output);
-  TEST_ASSERT(output_extended_buf_len != 0);
-  byte_t* output_extended_buf = malloc(output_extended_buf_len);
+  size_t output_extended_expected_len = output_extended_serialize_len(output);
+  TEST_ASSERT(output_extended_expected_len != 0);
+  byte_t* output_extended_buf = malloc(output_extended_expected_len);
   TEST_ASSERT_NOT_NULL(output_extended_buf);
-  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, 1) != 0);  // expect serialization fails
-  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, output_extended_buf_len) == 0);
+  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, 1) == 0);  // expect serialization fails
+  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, output_extended_expected_len) ==
+              output_extended_expected_len);
 
   // deserialize Extended Output and validate it
   output_extended_t* deser_output = output_extended_deserialize(output_extended_buf, 1);
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
-  deser_output = output_extended_deserialize(output_extended_buf, output_extended_buf_len);
+  deser_output = output_extended_deserialize(output_extended_buf, output_extended_expected_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, deser_output->address->type);
   TEST_ASSERT_EQUAL_MEMORY(addr.address, deser_output->address->address, ADDRESS_ED25519_BYTES);
@@ -230,17 +232,18 @@ void test_output_extended_without_feature_blocks() {
   TEST_ASSERT_NULL(output->feature_blocks);
 
   // serialize Extended Output and validate it
-  size_t output_extended_buf_len = output_extended_serialize_len(output);
-  TEST_ASSERT(output_extended_buf_len != 0);
-  byte_t* output_extended_buf = malloc(output_extended_buf_len);
+  size_t output_extended_expected_len = output_extended_serialize_len(output);
+  TEST_ASSERT(output_extended_expected_len != 0);
+  byte_t* output_extended_buf = malloc(output_extended_expected_len);
   TEST_ASSERT_NOT_NULL(output_extended_buf);
-  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, 1) != 0);  // expect serialization fails
-  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, output_extended_buf_len) == 0);
+  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, 1) == 0);  // expect serialization fails
+  TEST_ASSERT(output_extended_serialize(output, output_extended_buf, output_extended_expected_len) ==
+              output_extended_expected_len);
 
   // deserialize Extended Output and validate it
   output_extended_t* deser_output = output_extended_deserialize(output_extended_buf, 1);
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
-  deser_output = output_extended_deserialize(output_extended_buf, output_extended_buf_len);
+  deser_output = output_extended_deserialize(output_extended_buf, output_extended_expected_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, deser_output->address->type);
   TEST_ASSERT_EQUAL_MEMORY(addr.address, deser_output->address->address, ADDRESS_ED25519_BYTES);

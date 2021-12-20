@@ -83,16 +83,17 @@ void test_native_tokens() {
   TEST_ASSERT_FALSE(native_tokens_equal(token1, token2));
 
   // serialize Native Tokens set
-  size_t native_tokens_buf_len = native_tokens_serialize_len(&tokens);
-  TEST_ASSERT(native_tokens_buf_len != 0);
-  byte_t* native_tokens_buf = malloc(native_tokens_buf_len);
+  size_t native_tokens_expected_len = native_tokens_serialize_len(&tokens);
+  TEST_ASSERT(native_tokens_expected_len != 0);
+  byte_t* native_tokens_buf = malloc(native_tokens_expected_len);
   TEST_ASSERT_NOT_NULL(native_tokens_buf);
-  TEST_ASSERT_EQUAL_INT(0, native_tokens_serialize(&tokens, native_tokens_buf, native_tokens_buf_len));
-  // dump_hex(native_tokens_buf, native_tokens_buf_len);
+  TEST_ASSERT_EQUAL_INT(native_tokens_expected_len,
+                        native_tokens_serialize(&tokens, native_tokens_buf, native_tokens_expected_len));
+  // dump_hex(native_tokens_buf, native_tokens_expected_len);
   TEST_ASSERT_EQUAL_MEMORY(native_tokens_byte, native_tokens_buf, sizeof(native_tokens_byte));
 
   // deserialize Native Tokens set
-  native_tokens_t* deser_tokens = native_tokens_deserialize(native_tokens_buf, native_tokens_buf_len);
+  native_tokens_t* deser_tokens = native_tokens_deserialize(native_tokens_buf, native_tokens_expected_len);
   TEST_ASSERT_NOT_NULL(deser_tokens);
   TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_tokens));
 

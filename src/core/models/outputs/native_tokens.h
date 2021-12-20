@@ -108,9 +108,9 @@ size_t native_tokens_serialize_len(native_tokens_t **nt);
  * @param[in] nt Native Tokens set
  * @param[out] buf A buffer for serialization
  * @param[in] buf_len The length of buffer
- * @return int 0 on success
+ * @return size_t The bytes written is returned, 0 on errors
  */
-int native_tokens_serialize(native_tokens_t **nt, byte_t buf[], size_t buf_len);
+size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[], size_t buf_len);
 
 /**
  * @brief Deserialize a binary data to a Native Token object

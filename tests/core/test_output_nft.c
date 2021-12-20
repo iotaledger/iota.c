@@ -81,17 +81,17 @@ void test_output_nft() {
   TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->block));
 
   // serialize NFT Output and validate it
-  size_t output_nft_buf_len = output_nft_serialize_len(output);
-  TEST_ASSERT(output_nft_buf_len != 0);
-  byte_t* output_nft_buf = malloc(output_nft_buf_len);
+  size_t output_nft_expected_len = output_nft_serialize_len(output);
+  TEST_ASSERT(output_nft_expected_len != 0);
+  byte_t* output_nft_buf = malloc(output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(output_nft_buf);
-  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, 1) != 0);  // expect serialization fails
-  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, output_nft_buf_len) == 0);
+  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, 1) == 0);  // expect serialization fails
+  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, output_nft_expected_len) == output_nft_expected_len);
 
   // deserialize NFT Output and validate it
   output_nft_t* deser_output = output_nft_deserialize(output_nft_buf, 1);
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
-  deser_output = output_nft_deserialize(output_nft_buf, output_nft_buf_len);
+  deser_output = output_nft_deserialize(output_nft_buf, output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_NFT, deser_output->address->type);
   TEST_ASSERT_EQUAL_MEMORY(deser_output->address, &addr, 1 + ADDRESS_NFT_BYTES);
@@ -179,17 +179,17 @@ void test_output_nft_without_native_tokens() {
   TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->block));
 
   // serialize NFT Output and validate it
-  size_t output_nft_buf_len = output_nft_serialize_len(output);
-  TEST_ASSERT(output_nft_buf_len != 0);
-  byte_t* output_nft_buf = malloc(output_nft_buf_len);
+  size_t output_nft_expected_len = output_nft_serialize_len(output);
+  TEST_ASSERT(output_nft_expected_len != 0);
+  byte_t* output_nft_buf = malloc(output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(output_nft_buf);
-  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, 1) != 0);  // expect serialization fails
-  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, output_nft_buf_len) == 0);
+  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, 1) == 0);  // expect serialization fails
+  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, output_nft_expected_len) == output_nft_expected_len);
 
   // deserialize NFT Output and validate it
   output_nft_t* deser_output = output_nft_deserialize(output_nft_buf, 1);
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
-  deser_output = output_nft_deserialize(output_nft_buf, output_nft_buf_len);
+  deser_output = output_nft_deserialize(output_nft_buf, output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_NFT, deser_output->address->type);
   TEST_ASSERT_EQUAL_MEMORY(deser_output->address, &addr, 1 + ADDRESS_NFT_BYTES);
@@ -284,17 +284,17 @@ void test_output_nft_without_metadata() {
   TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->block));
 
   // serialize NFT Output and validate it
-  size_t output_nft_buf_len = output_nft_serialize_len(output);
-  TEST_ASSERT(output_nft_buf_len != 0);
-  byte_t* output_nft_buf = malloc(output_nft_buf_len);
+  size_t output_nft_expected_len = output_nft_serialize_len(output);
+  TEST_ASSERT(output_nft_expected_len != 0);
+  byte_t* output_nft_buf = malloc(output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(output_nft_buf);
-  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, 1) != 0);  // expect serialization fails
-  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, output_nft_buf_len) == 0);
+  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, 1) == 0);  // expect serialization fails
+  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, output_nft_expected_len) == output_nft_expected_len);
 
   // deserialize NFT Output and validate it
   output_nft_t* deser_output = output_nft_deserialize(output_nft_buf, 1);
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
-  deser_output = output_nft_deserialize(output_nft_buf, output_nft_buf_len);
+  deser_output = output_nft_deserialize(output_nft_buf, output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_NFT, deser_output->address->type);
   TEST_ASSERT_EQUAL_MEMORY(deser_output->address, &addr, 1 + ADDRESS_NFT_BYTES);
@@ -392,17 +392,17 @@ void test_output_nft_without_feature_blocks() {
   TEST_ASSERT_NULL(output->feature_blocks);
 
   // serialize NFT Output and validate it
-  size_t output_nft_buf_len = output_nft_serialize_len(output);
-  TEST_ASSERT(output_nft_buf_len != 0);
-  byte_t* output_nft_buf = malloc(output_nft_buf_len);
+  size_t output_nft_expected_len = output_nft_serialize_len(output);
+  TEST_ASSERT(output_nft_expected_len != 0);
+  byte_t* output_nft_buf = malloc(output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(output_nft_buf);
-  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, 1) != 0);  // expect serialization fails
-  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, output_nft_buf_len) == 0);
+  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, 1) == 0);  // expect serialization fails
+  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, output_nft_expected_len) == output_nft_expected_len);
 
   // deserialize NFT Output and validate it
   output_nft_t* deser_output = output_nft_deserialize(output_nft_buf, 1);
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
-  deser_output = output_nft_deserialize(output_nft_buf, output_nft_buf_len);
+  deser_output = output_nft_deserialize(output_nft_buf, output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_NFT, deser_output->address->type);
   TEST_ASSERT_EQUAL_MEMORY(deser_output->address, &addr, 1 + ADDRESS_NFT_BYTES);
