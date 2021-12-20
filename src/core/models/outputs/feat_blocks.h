@@ -188,9 +188,9 @@ size_t feat_blk_serialize_len(feat_block_t const* const blk);
  * @param[in] blk A feature block object
  * @param[out] buf A buffer holds serialized data
  * @param[in] buf_len The length of buffer
- * @return int 0 on success
+ * @return size_t The bytes written is returned, 0 on errors
  */
-int feat_blk_serialize(feat_block_t* blk, byte_t buf[], size_t buf_len);
+size_t feat_blk_serialize(feat_block_t* blk, byte_t buf[], size_t buf_len);
 
 /**
  * @brief Deserialize a binary data to a feature block object
@@ -229,6 +229,15 @@ feat_blk_list_t* new_feat_blk_list();
  * @return uint8_t
  */
 uint8_t feat_blk_list_len(feat_blk_list_t* list);
+
+/**
+ * @brief Get a feature block pointer in the list from a given index
+ *
+ * @param[in] list A feature list object
+ * @param[in] index The index of a feature block
+ * @return feat_block_t* A pointer of the feature block
+ */
+feat_block_t* feat_blk_list_get(feat_blk_list_t* list, uint8_t index);
 
 /**
  * @brief Add a sender feature block to the list
@@ -322,25 +331,21 @@ int feat_blk_list_add_indexaction(feat_blk_list_t** list, byte_t const tag[], ui
 size_t feat_blk_list_serialize_len(feat_blk_list_t* list);
 
 /**
- * @brief Serialize a feature block list
- *
- * TODO
+ * @brief Serialize a feature block list to binary data
  *
  * @param[in] list A feature block list
  * @param[out] buf A buffer holds serialized data
  * @param[in] buf_len The length of the buffer
- * @return int
+ * @return size_t The bytes written to the buffer, 0 on errors
  */
-int feat_blk_list_serialize(feat_blk_list_t* list, byte_t buf[], size_t buf_len);
+size_t feat_blk_list_serialize(feat_blk_list_t* list, byte_t buf[], size_t buf_len);
 
 /**
  * @brief Deserialize binary data to a feature list object
  *
- * TODO
- *
- * @param[in] buf The buffer holds a serialized feature block list
+ * @param[in] buf The buffer holds a serialized data
  * @param[in] buf_len The length of the buffer
- * @return feat_blk_list_t*
+ * @return feat_blk_list_t* The deserialized feature list, NULL on errors
  */
 feat_blk_list_t* feat_blk_list_deserialize(byte_t buf[], size_t buf_len);
 
