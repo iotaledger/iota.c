@@ -44,7 +44,7 @@ void test_output_extended() {
   // validation
   TEST_ASSERT_NOT_NULL(output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, output->address->type);
-  TEST_ASSERT_EQUAL_MEMORY(addr.address, output->address->address, ADDRESS_NFT_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(addr.address, output->address->address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_EQUAL_UINT64(123456789, output->amount);
 
   TEST_ASSERT_NOT_NULL(output->native_tokens);
@@ -61,12 +61,12 @@ void test_output_extended() {
 
   TEST_ASSERT_NOT_NULL(output->feature_blocks);
   TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(output->feature_blocks));
-  feat_blk_list_t* feat_block = output->feature_blocks;
-  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->blk->type);
-  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_block->blk->block), sizeof(address_t));
-  feat_block = feat_block->next;
-  TEST_ASSERT_EQUAL_UINT8(FEAT_DUST_DEP_RET_BLOCK, feat_block->blk->type);
-  TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->blk->block));
+  feat_block_t* feat_block = feat_blk_list_get(output->feature_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_block->block), ADDRESS_ED25519_BYTES);
+  feat_block = feat_blk_list_get(output->feature_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_DUST_DEP_RET_BLOCK, feat_block->type);
+  TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->block));
 
   // serialize Extended Output and validate it
   size_t output_extended_buf_len = output_extended_serialize_len(output);
@@ -81,7 +81,8 @@ void test_output_extended() {
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
   deser_output = output_extended_deserialize(output_extended_buf, output_extended_buf_len);
   TEST_ASSERT_NOT_NULL(deser_output);
-  TEST_ASSERT_EQUAL_MEMORY(deser_output->address, &addr, 1 + ADDRESS_ED25519_BYTES);
+  TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, deser_output->address->type);
+  TEST_ASSERT_EQUAL_MEMORY(addr.address, deser_output->address->address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
 
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
@@ -97,12 +98,12 @@ void test_output_extended() {
   TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
 
   TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);
-  feat_block = deser_output->feature_blocks;
-  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->blk->type);
-  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_block->blk->block), sizeof(address_t));
-  feat_block = feat_block->next;
-  TEST_ASSERT_EQUAL_UINT8(FEAT_DUST_DEP_RET_BLOCK, feat_block->blk->type);
-  TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->blk->block));
+  feat_block = feat_blk_list_get(deser_output->feature_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_block->block), ADDRESS_ED25519_BYTES);
+  feat_block = feat_blk_list_get(deser_output->feature_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_DUST_DEP_RET_BLOCK, feat_block->type);
+  TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->block));
 
   output_extended_print(output);
 
@@ -134,19 +135,19 @@ void test_output_extended_without_native_tokens() {
   // validation
   TEST_ASSERT_NOT_NULL(output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, output->address->type);
-  TEST_ASSERT_EQUAL_MEMORY(addr.address, output->address->address, ADDRESS_NFT_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(addr.address, output->address->address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_EQUAL_UINT64(123456789, output->amount);
 
   TEST_ASSERT_NULL(output->native_tokens);
 
   TEST_ASSERT_NOT_NULL(output->feature_blocks);
   TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(output->feature_blocks));
-  feat_blk_list_t* feat_block = output->feature_blocks;
-  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->blk->type);
-  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_block->blk->block), sizeof(address_t));
-  feat_block = feat_block->next;
-  TEST_ASSERT_EQUAL_UINT8(FEAT_DUST_DEP_RET_BLOCK, feat_block->blk->type);
-  TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->blk->block));
+  feat_block_t* feat_block = feat_blk_list_get(output->feature_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_block->block), ADDRESS_ED25519_BYTES);
+  feat_block = feat_blk_list_get(output->feature_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_DUST_DEP_RET_BLOCK, feat_block->type);
+  TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->block));
 
   // serialize Extended Output and validate it
   size_t output_extended_buf_len = output_extended_serialize_len(output);
@@ -161,18 +162,19 @@ void test_output_extended_without_native_tokens() {
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
   deser_output = output_extended_deserialize(output_extended_buf, output_extended_buf_len);
   TEST_ASSERT_NOT_NULL(deser_output);
-  TEST_ASSERT_EQUAL_MEMORY(deser_output->address, &addr, 1 + ADDRESS_ED25519_BYTES);
+  TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, deser_output->address->type);
+  TEST_ASSERT_EQUAL_MEMORY(addr.address, deser_output->address->address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
 
   TEST_ASSERT_NULL(deser_output->native_tokens);
 
   TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);
-  feat_block = deser_output->feature_blocks;
-  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->blk->type);
-  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_block->blk->block), sizeof(address_t));
-  feat_block = feat_block->next;
-  TEST_ASSERT_EQUAL_UINT8(FEAT_DUST_DEP_RET_BLOCK, feat_block->blk->type);
-  TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->blk->block));
+  feat_block = feat_blk_list_get(deser_output->feature_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(&addr, *(&feat_block->block), ADDRESS_ED25519_BYTES);
+  feat_block = feat_blk_list_get(deser_output->feature_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_DUST_DEP_RET_BLOCK, feat_block->type);
+  TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->block));
 
   output_extended_print(output);
 
@@ -210,7 +212,7 @@ void test_output_extended_without_feature_blocks() {
   // validation
   TEST_ASSERT_NOT_NULL(output);
   TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, output->address->type);
-  TEST_ASSERT_EQUAL_MEMORY(addr.address, output->address->address, ADDRESS_NFT_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(addr.address, output->address->address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_EQUAL_UINT64(123456789, output->amount);
 
   TEST_ASSERT_NOT_NULL(output->native_tokens);
@@ -240,7 +242,8 @@ void test_output_extended_without_feature_blocks() {
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
   deser_output = output_extended_deserialize(output_extended_buf, output_extended_buf_len);
   TEST_ASSERT_NOT_NULL(deser_output);
-  TEST_ASSERT_EQUAL_MEMORY(deser_output->address, &addr, 1 + ADDRESS_ED25519_BYTES);
+  TEST_ASSERT_EQUAL_UINT8(ADDRESS_TYPE_ED25519, deser_output->address->type);
+  TEST_ASSERT_EQUAL_MEMORY(addr.address, deser_output->address->address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
 
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);

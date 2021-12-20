@@ -221,12 +221,8 @@ int output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) {
 
   // feature blocks
   if (output->feature_blocks) {
-    res = feat_blk_list_serialize(output->feature_blocks, offset, feat_blk_list_serialize_len(output->feature_blocks));
-    if (res == -1) {
-      printf("[%s:%d] can not serialize feature blocks\n", __func__, __LINE__);
-      return -1;
-    }
-    offset += feat_blk_list_serialize_len(output->feature_blocks);
+    offset +=
+        feat_blk_list_serialize(output->feature_blocks, offset, feat_blk_list_serialize_len(output->feature_blocks));
   } else {
     memset(offset, 0, sizeof(uint8_t));
     offset += sizeof(uint8_t);
@@ -254,7 +250,7 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   size_t offset = 0;
 
   // output type
-  if (buf[offset] != 3) {
+  if (buf[offset] != 6) {
     printf("[%s:%d] buffer does not contain NFT Output object\n", __func__, __LINE__);
     output_nft_free(output);
     return NULL;
@@ -274,7 +270,8 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
     output_nft_free(output);
     return NULL;
   }
-  memcpy(output->address->address, &buf[offset], address_serialized_len(output->address));
+  memcpy(output->address->address, &buf[offset + sizeof(uint8_t)],
+         address_serialized_len(output->address) - sizeof(uint8_t));
   offset += address_serialized_len(output->address);
 
   // amount
@@ -336,13 +333,18 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   }
 
   // feature blocks
-  output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
-  if (!output->feature_blocks) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    output_nft_free(output);
-    return NULL;
+  uint8_t feat_block_count = *((uint8_t*)&buf[offset]);
+  if (feat_block_count > 0) {
+    output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
+    if (!output->feature_blocks) {
+      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      output_nft_free(output);
+      return NULL;
+    }
+    offset += feat_blk_list_serialize_len(output->feature_blocks);
+  } else {
+    offset += sizeof(uint8_t);
   }
-  offset += feat_blk_list_serialize_len(output->feature_blocks);
 
   return output;
 }
