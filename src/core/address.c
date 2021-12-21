@@ -70,53 +70,58 @@ uint8_t address_serialized_len(address_t *addr) {
   return 1 + address_len(addr);
 }
 
-int address_serialize(address_t *addr, byte_t bytes[], size_t len) {
+size_t address_serialize(address_t *addr, byte_t bytes[], size_t len) {
   // validate parameters
   if (addr == NULL || bytes == NULL) {
-    return -1;
+    return 0;
+  }
+
+  // check buffer len
+  if (len < address_serialized_len(addr)) {
+    return 0;
   }
 
   bytes[0] = (uint8_t)addr->type;
-  // check buffer len
-  if (len < address_serialized_len(addr)) {
-    return -1;
-  }
-
   memcpy(bytes + 1, addr->address, address_len(addr));
-  return 0;
+  return sizeof(uint8_t) + address_len(addr);
 }
 
-int address_deserialize(byte_t bytes[], size_t len, address_t *addr) {
+address_t *address_deserialize(byte_t bytes[], size_t len) {
   // validate parameters
-  if (addr == NULL || bytes == NULL) {
-    return -1;
+  if (bytes == NULL || len <= 1) {
+    return NULL;
   }
 
-  // get address type
-  addr->type = bytes[0];
-  // check buffer len
-  if (len < address_serialized_len(addr)) {
-    return -1;
-  }
+  address_t *addr = malloc(sizeof(address_t));
+  if (addr) {
+    // address type
+    addr->type = bytes[0];
+    // memcpy(&addr->type, bytes, sizeof(uint8_t));
+    // check if binary length is satisfied
+    if (len < address_serialized_len(addr)) {
+      free_address(addr);
+      return NULL;
+    }
 
-  // copy address
-  switch (addr->type) {
-    case ADDRESS_TYPE_ED25519:
-      memcpy(addr->address, bytes + 1, ADDRESS_ED25519_BYTES);
-      break;
-    case ADDRESS_TYPE_ALIAS:
-      memcpy(addr->address, bytes + 1, ADDRESS_ALIAS_BYTES);
-      break;
-    case ADDRESS_TYPE_NFT:
-      memcpy(addr->address, bytes + 1, ADDRESS_NFT_BYTES);
-      break;
-    default:
-      // unknow address type
-      memset(addr->address, 0, ADDRESS_MAX_BYTES);
-      printf("[%s:%d] unknow address type\n", __func__, __LINE__);
-      return -1;
+    // copy address
+    switch (addr->type) {
+      case ADDRESS_TYPE_ED25519:
+        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_ED25519_BYTES);
+        break;
+      case ADDRESS_TYPE_ALIAS:
+        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_ALIAS_BYTES);
+        break;
+      case ADDRESS_TYPE_NFT:
+        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_NFT_BYTES);
+        break;
+      default:
+        // unknow address type
+        free_address(addr);
+        printf("[%s:%d] unknow address type\n", __func__, __LINE__);
+        return NULL;
+    }
   }
-  return 0;
+  return addr;
 }
 
 // get the address object from the given hex string
@@ -184,16 +189,16 @@ int address_to_bech32(address_t *addr, char const hrp[], char bech32_buf[], size
   if (addr == NULL || hrp == NULL || bech32_buf == NULL || buf_len < 65) {
     return -1;
   }
-  int ret = 0;
+
   byte_t serialized_addr[33] = {};
   uint8_t data[64] = {};
   size_t datalen = 0;
-  size_t addr_len = address_serialized_len(addr);
-  if ((ret = address_serialize(addr, serialized_addr, addr_len)) == 0) {
-    bech32_convert_bits(data, &datalen, 5, serialized_addr, addr_len, 8, 1);
+  size_t ser_len = address_serialize(addr, serialized_addr, sizeof(serialized_addr));
+  if (ser_len != 0) {
+    bech32_convert_bits(data, &datalen, 5, serialized_addr, ser_len, 8, 1);
     return !bech32_encode(bech32_buf, hrp, data, datalen);
   }
-  return ret;
+  return -1;
 }
 
 bool address_equal(address_t *addr1, address_t *addr2) {
@@ -244,5 +249,11 @@ void address_print(address_t const *const addr) {
       // unknow address type
       printf("[%s:%d] unknow address\n", __func__, __LINE__);
       break;
+  }
+}
+
+void free_address(address_t *addr) {
+  if (addr) {
+    free(addr);
   }
 }

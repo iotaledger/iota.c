@@ -22,11 +22,10 @@ target_sources(
           "models/outputs/feat_blocks.c"
           "models/outputs/output_extended.c"
           "models/outputs/output_nft.c"
-          "models/outputs/outputs.c"
           "models/outputs/native_tokens.c"
-          "models/payloads/transaction.c"
+          #"models/payloads/transaction.c"
           "models/payloads/indexation.c"
-          "models/message.c"
+          #"models/message.c"
           "models/unlock_block.c"
   PUBLIC "address.h"
          "seed.c"
@@ -39,11 +38,10 @@ target_sources(
          "models/outputs/feat_blocks.h"
          "models/outputs/output_extended.h"
          "models/outputs/output_nft.h"
-         "models/outputs/outputs.h"
          "models/outputs/native_tokens.h"
-         "models/payloads/transaction.h"
+         #"models/payloads/transaction.h"
          "models/payloads/indexation.h"
-         "models/message.h"
+         #"models/message.h"
          "models/unlock_block.h")
 
 target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
