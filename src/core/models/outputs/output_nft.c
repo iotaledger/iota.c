@@ -37,7 +37,6 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
     return NULL;
   }
 
-  memcpy(output->address, addr, sizeof(address_t));
   output->amount = amount;
 
   if (tokens != NULL) {
@@ -51,8 +50,6 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
         return NULL;
       }
     }
-  } else {
-    output->native_tokens = NULL;
   }
 
   memcpy(output->nft_id, nft_id, ADDRESS_NFT_BYTES);
@@ -110,8 +107,6 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
         return NULL;
       }
     }
-  } else {
-    output->feature_blocks = NULL;
   }
 
   return output;
@@ -184,12 +179,7 @@ size_t output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) 
   offset += sizeof(uint8_t);
 
   // address
-  int res = address_serialize(output->address, offset, address_serialized_len(output->address));
-  if (res == -1) {
-    printf("[%s:%d] can not serialize address\n", __func__, __LINE__);
-    return 0;
-  }
-  offset += address_serialized_len(output->address);
+  offset += address_serialize(output->address, offset, address_serialized_len(output->address));
 
   // amount
   memcpy(offset, &output->amount, sizeof(uint64_t));
@@ -258,7 +248,6 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   }
   offset += sizeof(uint8_t);
 
-  // address
   // address
   output->address = address_deserialize(&buf[offset], buf_len - offset);
   if (!output->address) {
