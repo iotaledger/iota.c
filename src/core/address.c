@@ -86,41 +86,42 @@ size_t address_serialize(address_t *addr, byte_t bytes[], size_t len) {
   return sizeof(uint8_t) + address_len(addr);
 }
 
-size_t address_deserialize(byte_t bytes[], size_t len, address_t *addr) {
+address_t *address_deserialize(byte_t bytes[], size_t len) {
   // validate parameters
-  if (addr == NULL || bytes == NULL || len <= 1) {
-    return 0;
+  if (bytes == NULL || len <= 1) {
+    return NULL;
   }
 
-  size_t offset = sizeof(uint8_t);
-  // get address type
-  addr->type = bytes[0];
-  // check buffer len
-  if (len < address_serialized_len(addr)) {
-    return 0;
-  }
+  address_t *addr = malloc(sizeof(address_t));
+  if (addr) {
+    // address type
+    addr->type = bytes[0];
+    // memcpy(&addr->type, bytes, sizeof(uint8_t));
+    // check if binary length is satisfied
+    if (len < address_serialized_len(addr)) {
+      free_address(addr);
+      return NULL;
+    }
 
-  // copy address
-  switch (addr->type) {
-    case ADDRESS_TYPE_ED25519:
-      memcpy(addr->address, bytes + offset, ADDRESS_ED25519_BYTES);
-      offset += ADDRESS_ED25519_BYTES;
-      break;
-    case ADDRESS_TYPE_ALIAS:
-      memcpy(addr->address, bytes + offset, ADDRESS_ALIAS_BYTES);
-      offset += ADDRESS_ALIAS_BYTES;
-      break;
-    case ADDRESS_TYPE_NFT:
-      memcpy(addr->address, bytes + offset, ADDRESS_NFT_BYTES);
-      offset += ADDRESS_NFT_BYTES;
-      break;
-    default:
-      // unknow address type
-      memset(addr->address, 0, ADDRESS_MAX_BYTES);
-      printf("[%s:%d] unknow address type\n", __func__, __LINE__);
-      return 0;
+    // copy address
+    switch (addr->type) {
+      case ADDRESS_TYPE_ED25519:
+        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_ED25519_BYTES);
+        break;
+      case ADDRESS_TYPE_ALIAS:
+        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_ALIAS_BYTES);
+        break;
+      case ADDRESS_TYPE_NFT:
+        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_NFT_BYTES);
+        break;
+      default:
+        // unknow address type
+        free_address(addr);
+        printf("[%s:%d] unknow address type\n", __func__, __LINE__);
+        return NULL;
+    }
   }
-  return offset;
+  return addr;
 }
 
 // get the address object from the given hex string
@@ -248,5 +249,11 @@ void address_print(address_t const *const addr) {
       // unknow address type
       printf("[%s:%d] unknow address\n", __func__, __LINE__);
       break;
+  }
+}
+
+void free_address(address_t *addr) {
+  if (addr) {
+    free(addr);
   }
 }

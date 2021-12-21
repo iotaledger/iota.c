@@ -107,10 +107,9 @@ size_t address_serialize(address_t *addr, byte_t bytes[], size_t len);
  *
  * @param[in] bytes A buffer holds binary data
  * @param[in] len the length of the buffer
- * @param[out] addr the output address object
- * @return size_t The bytes written is returned, 0 on error
+ * @return address_t* A pointer to the deserialized address, NULL on error
  */
-size_t address_deserialize(byte_t bytes[], size_t len, address_t *addr);
+address_t *address_deserialize(byte_t bytes[], size_t len);
 
 /**
  * @brief Create an address object from the given bech32 string
@@ -157,6 +156,13 @@ address_t *address_clone(address_t const *const addr);
  * @param[in] addr An address object
  */
 void address_print(address_t const *const addr);
+
+/**
+ * @brief Free an address object
+ *
+ * @param[in] addr An address object
+ */
+void free_address(address_t *addr);
 
 #ifdef __cplusplus
 }
