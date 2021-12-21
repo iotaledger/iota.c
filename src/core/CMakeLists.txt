@@ -37,7 +37,7 @@ target_sources(
          "models/outputs/native_tokens.h"
          #"models/payloads/transaction.h"
          "models/payloads/indexation.h"
-         "models/message.h"
+         #"models/message.h"
          "models/unlock_block.h")
 
 target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
