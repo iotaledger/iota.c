@@ -44,7 +44,7 @@ uint256_t *uint256_from_str(char const *str) {
     return NULL;
   }
 
-  uint256_t *num = (uint256_t *)malloc(sizeof(uint256_t));
+  uint256_t *num = malloc(sizeof(uint256_t));
   if (!num) {
     printf("[%s:%d] creating uint256 object failed\n", __func__, __LINE__);
     return NULL;
@@ -223,7 +223,7 @@ char *uint256_to_str(uint256_t *num) {
   }
 
   // create a string with appropriate length
-  char *str = (char *)malloc(STRING_NUMBER_MAX_CHARACTERS - count_zeros);
+  char *str = malloc(STRING_NUMBER_MAX_CHARACTERS - count_zeros);
   if (!str) {
     printf("[%s:%d] allocation memory space for string failed\n", __func__, __LINE__);
     return NULL;

@@ -12,9 +12,9 @@ static feat_metadata_blk_t* new_feat_metadata(byte_t const data[], uint32_t data
     return NULL;
   }
 
-  feat_metadata_blk_t* meta = (feat_metadata_blk_t*)malloc(sizeof(feat_metadata_blk_t));
+  feat_metadata_blk_t* meta = malloc(sizeof(feat_metadata_blk_t));
   if (meta) {
-    meta->data = (byte_t*)malloc(data_len);
+    meta->data = malloc(data_len);
     if (!meta->data) {
       free(meta);
       return NULL;
@@ -41,7 +41,7 @@ static feat_indexaction_blk_t* new_feat_indexaztion(byte_t const tag[], uint8_t 
     return NULL;
   }
 
-  feat_indexaction_blk_t* idx = (feat_indexaction_blk_t*)malloc(sizeof(feat_indexaction_blk_t));
+  feat_indexaction_blk_t* idx = malloc(sizeof(feat_indexaction_blk_t));
   if (idx) {
     memcpy(idx->tag, tag, tag_len);
     idx->tag_len = tag_len;
@@ -91,7 +91,7 @@ feat_block_t* new_feat_blk_issuer(address_t const* const addr) {
 feat_block_t* new_feat_blk_ddr(uint64_t amount) {
   feat_block_t* blk = malloc(sizeof(feat_block_t));
   if (blk) {
-    blk->block = (uint64_t*)malloc(sizeof(uint64_t));
+    blk->block = malloc(sizeof(uint64_t));
     if (!blk->block) {
       free(blk);
       return NULL;
@@ -106,7 +106,7 @@ feat_block_t* new_feat_blk_ddr(uint64_t amount) {
 feat_block_t* new_feat_blk_tmi(uint32_t ms_idx) {
   feat_block_t* blk = malloc(sizeof(feat_block_t));
   if (blk) {
-    blk->block = (uint32_t*)malloc(sizeof(uint32_t));
+    blk->block = malloc(sizeof(uint32_t));
     if (!blk->block) {
       free(blk);
       return NULL;
@@ -121,7 +121,7 @@ feat_block_t* new_feat_blk_tmi(uint32_t ms_idx) {
 feat_block_t* new_feat_blk_tu(uint32_t time) {
   feat_block_t* blk = malloc(sizeof(feat_block_t));
   if (blk) {
-    blk->block = (uint32_t*)malloc(sizeof(uint32_t));
+    blk->block = malloc(sizeof(uint32_t));
     if (!blk->block) {
       free(blk);
       return NULL;
@@ -136,7 +136,7 @@ feat_block_t* new_feat_blk_tu(uint32_t time) {
 feat_block_t* new_feat_blk_emi(uint32_t ms_idx) {
   feat_block_t* blk = malloc(sizeof(feat_block_t));
   if (blk) {
-    blk->block = (uint32_t*)malloc(sizeof(uint32_t));
+    blk->block = malloc(sizeof(uint32_t));
     if (!blk->block) {
       free(blk);
       return NULL;
@@ -151,7 +151,7 @@ feat_block_t* new_feat_blk_emi(uint32_t ms_idx) {
 feat_block_t* new_feat_blk_eu(uint32_t time) {
   feat_block_t* blk = malloc(sizeof(feat_block_t));
   if (blk) {
-    blk->block = (uint32_t*)malloc(sizeof(uint32_t));
+    blk->block = malloc(sizeof(uint32_t));
     if (!blk->block) {
       free(blk);
       return NULL;
@@ -190,7 +190,7 @@ feat_block_t* new_feat_blk_indexaction(byte_t const tag[], uint8_t tag_len) {
 
   feat_block_t* blk = malloc(sizeof(feat_block_t));
   if (blk) {
-    blk->block = (feat_indexaction_blk_t*)malloc(sizeof(feat_indexaction_blk_t));
+    blk->block = malloc(sizeof(feat_indexaction_blk_t));
     if (!blk->block) {
       free(blk);
       return NULL;
