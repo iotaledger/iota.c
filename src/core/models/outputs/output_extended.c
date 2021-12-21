@@ -29,14 +29,13 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
   output->native_tokens = NULL;
   output->feature_blocks = NULL;
 
-  output->address = malloc(sizeof(address_t));
+  output->address = address_clone(addr);
   if (!output->address) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    printf("[%s:%d] can not add address to extended output\n", __func__, __LINE__);
     output_extended_free(output);
     return NULL;
   }
 
-  memcpy(output->address, addr, sizeof(address_t));
   output->amount = amount;
 
   if (tokens != NULL) {
@@ -110,7 +109,7 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
 void output_extended_free(output_extended_t* output) {
   if (output) {
     if (output->address) {
-      free(output->address);
+      free_address(output->address);
     }
     if (output->native_tokens) {
       native_tokens_free(&output->native_tokens);
@@ -176,12 +175,8 @@ size_t output_extended_serialize(output_extended_t* output, byte_t buf[], size_t
 
   // native tokens
   if (output->native_tokens) {
-    res = native_tokens_serialize(&output->native_tokens, offset, native_tokens_serialize_len(&output->native_tokens));
-    if (res == -1) {
-      printf("[%s:%d] can not serialize native tokens\n", __func__, __LINE__);
-      return 0;
-    }
-    offset += native_tokens_serialize_len(&output->native_tokens);
+    offset +=
+        native_tokens_serialize(&output->native_tokens, offset, native_tokens_serialize_len(&output->native_tokens));
   } else {
     memset(offset, 0, sizeof(uint16_t));
     offset += sizeof(uint16_t);
@@ -225,20 +220,12 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint8_t);
 
   // address
-  output->address = malloc(sizeof(address_t));
+  output->address = address_deserialize(&buf[offset], buf_len - offset);
   if (!output->address) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    printf("[%s:%d] can not deserialize address\n", __func__, __LINE__);
     output_extended_free(output);
     return NULL;
   }
-  output->address->type = buf[offset];
-  if (buf_len < offset + address_serialized_len(output->address)) {
-    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-    output_extended_free(output);
-    return NULL;
-  }
-  memcpy(output->address->address, &buf[offset + sizeof(uint8_t)],
-         address_serialized_len(output->address) - sizeof(uint8_t));
   offset += address_serialized_len(output->address);
 
   // amount
@@ -255,7 +242,7 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   if (tokens_count > 0) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {
-      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      printf("[%s:%d] can not deserialize native tokens\n", __func__, __LINE__);
       output_extended_free(output);
       return NULL;
     }
@@ -269,7 +256,7 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   if (feat_block_count > 0) {
     output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
     if (!output->feature_blocks) {
-      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      printf("[%s:%d] can not deserialize feature blocks\n", __func__, __LINE__);
       output_extended_free(output);
       return NULL;
     }

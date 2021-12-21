@@ -445,6 +445,7 @@ int main() {
 
   RUN_TEST(test_output_nft);
   RUN_TEST(test_output_nft_without_native_tokens);
+  RUN_TEST(test_output_nft_without_metadata);
   RUN_TEST(test_output_nft_without_feature_blocks);
 
   return UNITY_END();

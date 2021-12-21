@@ -30,9 +30,9 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
   output->immutable_metadata = NULL;
   output->feature_blocks = NULL;
 
-  output->address = malloc(sizeof(address_t));
+  output->address = address_clone(addr);
   if (!output->address) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    printf("[%s:%d] can not add address to extended output\n", __func__, __LINE__);
     output_nft_free(output);
     return NULL;
   }
@@ -120,7 +120,7 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
 void output_nft_free(output_nft_t* output) {
   if (output) {
     if (output->address) {
-      free(output->address);
+      free_address(output->address);
     }
     if (output->native_tokens) {
       native_tokens_free(&output->native_tokens);
@@ -153,8 +153,12 @@ size_t output_nft_serialize_len(output_nft_t* output) {
   length += native_tokens_serialize_len(&output->native_tokens);
   // NFT ID
   length += ADDRESS_NFT_BYTES;
+  // immutable metadata length
+  length += sizeof(uint32_t);
   // immutable metadata
-  length += sizeof(uint32_t) + output->immutable_metadata->len;
+  if (output->immutable_metadata) {
+    length += output->immutable_metadata->len;
+  }
   // feature blocks
   length += feat_blk_list_serialize_len(output->feature_blocks);
 
@@ -193,12 +197,8 @@ size_t output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) 
 
   // native tokens
   if (output->native_tokens) {
-    res = native_tokens_serialize(&output->native_tokens, offset, native_tokens_serialize_len(&output->native_tokens));
-    if (res == -1) {
-      printf("[%s:%d] can not serialize native tokens\n", __func__, __LINE__);
-      return 0;
-    }
-    offset += native_tokens_serialize_len(&output->native_tokens);
+    offset +=
+        native_tokens_serialize(&output->native_tokens, offset, native_tokens_serialize_len(&output->native_tokens));
   } else {
     memset(offset, 0, sizeof(uint16_t));
     offset += sizeof(uint16_t);
@@ -259,20 +259,13 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint8_t);
 
   // address
-  output->address = malloc(sizeof(address_t));
+  // address
+  output->address = address_deserialize(&buf[offset], buf_len - offset);
   if (!output->address) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    printf("[%s:%d] can not deserialize address\n", __func__, __LINE__);
     output_nft_free(output);
     return NULL;
   }
-  output->address->type = buf[offset];
-  if (buf_len < offset + address_serialized_len(output->address)) {
-    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-    output_nft_free(output);
-    return NULL;
-  }
-  memcpy(output->address->address, &buf[offset + sizeof(uint8_t)],
-         address_serialized_len(output->address) - sizeof(uint8_t));
   offset += address_serialized_len(output->address);
 
   // amount
@@ -289,7 +282,7 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   if (tokens_count > 0) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {
-      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      printf("[%s:%d] can not deserialize native tokens\n", __func__, __LINE__);
       output_nft_free(output);
       return NULL;
     }
@@ -326,7 +319,7 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
     }
     output->immutable_metadata = byte_buf_new_with_data(&buf[offset], metadata_len);
     if (!output->immutable_metadata) {
-      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      printf("[%s:%d] can not deserialize metadata\n", __func__, __LINE__);
       output_nft_free(output);
       return NULL;
     }
@@ -338,7 +331,7 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   if (feat_block_count > 0) {
     output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
     if (!output->feature_blocks) {
-      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      printf("[%s:%d] can not deserialize feature blocks\n", __func__, __LINE__);
       output_nft_free(output);
       return NULL;
     }
@@ -381,6 +374,8 @@ void output_nft_print(output_nft_t* output) {
   printf("\tMetadata: ");
   if (output->immutable_metadata) {
     dump_hex_str(output->immutable_metadata->data, output->immutable_metadata->len);
+  } else {
+    printf("/\n");
   }
 
   // print feature blocks
