@@ -20,7 +20,7 @@ void on_mqtt_connect(struct mosquitto *mosq, void *client, int reason_code) {
   /* Print out the connection result.*/
   printf("[%s:%d]: Connect Mqtt: %s\n", __func__, __LINE__, mosquitto_connack_string(reason_code));
   // Create an event with eventid corresponding to MQTT Connected
-  mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
+  mqtt_client_event_t *mqtt_event = malloc(sizeof(mqtt_client_event_t));
   if (reason_code == 0) {
     mqtt_event->event_id = MQTT_CONNECTED;
   } else {
@@ -43,7 +43,7 @@ void on_mqtt_subscribe(struct mosquitto *mosq, void *client, int mid, int qos_co
     if (granted_qos[i] <= 2) {
       have_subscription = true;
       // Create an event with eventid corresponding to MQTT Subscribed
-      mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
+      mqtt_client_event_t *mqtt_event = malloc(sizeof(mqtt_client_event_t));
       mqtt_event->event_id = MQTT_SUBSCRIBED;
       mqtt_event->msg_id = mid;
       mqtt_event->qos = granted_qos[i];
@@ -59,7 +59,7 @@ void on_mqtt_subscribe(struct mosquitto *mosq, void *client, int mid, int qos_co
 
 /* Callback called when a topic is unsubscribed. */
 void on_mqtt_unsubscribe(struct mosquitto *mosq, void *client, int mid) {
-  mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
+  mqtt_client_event_t *mqtt_event = malloc(sizeof(mqtt_client_event_t));
   mqtt_event->event_id = MQTT_UNSUBSCRIBED;
   mqtt_event->msg_id = mid;
   (((mqtt_client_handle_t)client)->mqtt_callback)(mqtt_event, ((mqtt_client_handle_t)client)->cb_userdata);
@@ -69,7 +69,7 @@ void on_mqtt_unsubscribe(struct mosquitto *mosq, void *client, int mid) {
 /* Callback called when the client receives a message. */
 void on_mqtt_message(struct mosquitto *mosq, void *client, const struct mosquitto_message *msg) {
   /* Pass data to callback function */
-  mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
+  mqtt_client_event_t *mqtt_event = malloc(sizeof(mqtt_client_event_t));
   mqtt_event->event_id = MQTT_DATA;
   mqtt_event->topic_len = strlen(msg->topic);
   mqtt_event->topic = msg->topic;
@@ -83,7 +83,7 @@ void on_mqtt_message(struct mosquitto *mosq, void *client, const struct mosquitt
 }
 
 void on_mqtt_disconnect(struct mosquitto *mosq, void *client, int mid) {
-  mqtt_client_event_t *mqtt_event = (mqtt_client_event_t *)malloc(sizeof(mqtt_client_event_t));
+  mqtt_client_event_t *mqtt_event = malloc(sizeof(mqtt_client_event_t));
   mqtt_event->event_id = MQTT_DISCONNECTED;
   mqtt_event->msg_id = mid;
   (((mqtt_client_handle_t)client)->mqtt_callback)(mqtt_event, ((mqtt_client_handle_t)client)->cb_userdata);
@@ -100,7 +100,7 @@ mqtt_client_handle_t mqtt_init(mqtt_client_config_t *config) {
    * clean session = true -> the broker should remove old sessions when we connect
    * obj = NULL -> we aren't passing any of our private data for callbacks
    */
-  mqtt_client_handle_t client = (struct mqtt_client *)malloc(sizeof(struct mqtt_client));
+  mqtt_client_handle_t client = malloc(sizeof(struct mqtt_client));
   if (client == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
