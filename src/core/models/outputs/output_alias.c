@@ -309,7 +309,8 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint64_t);
 
   // native tokens
-  uint16_t tokens_count = *((uint16_t*)&buf[offset]);
+  uint16_t tokens_count = 0;
+  memcpy(&tokens_count, &buf[offset], sizeof(uint16_t));
   if (tokens_count > 0) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {
@@ -418,10 +419,9 @@ void output_alias_print(output_alias_t* output) {
 
   // print native tokens
   native_tokens_t *token, *tmp;
-  char* amount_str;
   printf("\tNative Tokens: [\n");
   HASH_ITER(hh, *(&output->native_tokens), token, tmp) {
-    amount_str = uint256_to_str(token->amount);
+    char* amount_str = uint256_to_str(token->amount);
     printf("\t\t[%s] ", amount_str);
     dump_hex_str(token->token_id, NATIVE_TOKEN_ID_BYTES);
     free(amount_str);
@@ -454,9 +454,9 @@ void output_alias_print(output_alias_t* output) {
 
   // print feature blocks
   printf("\tFeature Blocks:[\n");
-  feat_blk_list_t* feat_block;
   printf("\t\tBlock Counts: %d\n", feat_blk_list_len(output->feature_blocks));
   if (output->feature_blocks) {
+    feat_blk_list_t* feat_block;
     uint8_t index = 0;
     LL_FOREACH(output->feature_blocks, feat_block) {
       printf("\t\t#%d ", index);
