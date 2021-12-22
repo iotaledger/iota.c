@@ -8,7 +8,11 @@
 #include "uthash.h"
 #include "utlist.h"
 
+// minumum dust allowance
 #define MIN_DUST_ALLOWANCE 1000000
+
+// maximum number of feature blocks
+#define MAX_FEATURE_BLOCKS_COUNT 3
 
 output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_t alias_id[], address_t* st_ctl,
                                  address_t* gov_ctl, uint32_t state_index, byte_t* metadata, uint32_t metadata_len,
@@ -20,6 +24,28 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
 
   if (amount < MIN_DUST_ALLOWANCE) {
     printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (buf_all_zeros(alias_id, ADDRESS_ALIAS_BYTES)) {
+    if (state_index != 0 || foundry_counter != 0) {
+      printf("[%s:%d] when alias ID is zero then state index and foundry counter must be zero\n", __func__, __LINE__);
+      return NULL;
+    }
+  }
+
+  if (st_ctl->type == ADDRESS_TYPE_ALIAS && memcmp(st_ctl->address, alias_id, ADDRESS_ALIAS_BYTES) == 0) {
+    printf("[%s:%d] state controller address must be different than alias ID\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (gov_ctl->type == ADDRESS_TYPE_ALIAS && memcmp(gov_ctl->address, alias_id, ADDRESS_ALIAS_BYTES) == 0) {
+    printf("[%s:%d] governance controller address must be different than alias ID\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (feat_blk_list_len(feat_blocks) > MAX_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_FEATURE_BLOCKS_COUNT);
     return NULL;
   }
 
@@ -99,35 +125,13 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
         case FEAT_ISSUER_BLOCK:
           res = feat_blk_list_add_issuer(&output->feature_blocks, feat->blk->block);
           break;
-        case FEAT_DUST_DEP_RET_BLOCK:
-          printf("[%s:%d] dust deposit return feature block is not supported by Alias output\n", __func__, __LINE__);
-          output_alias_free(output);
-          return NULL;
-        case FEAT_TIMELOCK_MS_INDEX_BLOCK:
-          printf("[%s:%d] timelock milestone index feature block is not supported by Alias output\n", __func__,
-                 __LINE__);
-          output_alias_free(output);
-          return NULL;
-        case FEAT_TIMELOCK_UNIX_BLOCK:
-          printf("[%s:%d] timelock unix feature block is not supported by Alias output\n", __func__, __LINE__);
-          output_alias_free(output);
-          return NULL;
-        case FEAT_EXPIRATION_MS_INDEX_BLOCK:
-          printf("[%s:%d] expiration milestone index feature block is not supported by Alias output\n", __func__,
-                 __LINE__);
-          output_alias_free(output);
-          return NULL;
-        case FEAT_EXPIRATION_UNIX_BLOCK:
-          printf("[%s:%d] expiration unix feature block is not supported by Alias output\n", __func__, __LINE__);
-          output_alias_free(output);
-          return NULL;
         case FEAT_METADATA_BLOCK: {
           feat_metadata_blk_t* block_metadata = (feat_metadata_blk_t*)feat->blk->block;
           res = feat_blk_list_add_metadata(&output->feature_blocks, block_metadata->data, block_metadata->data_len);
           break;
         }
-        case FEAT_INDEXATION_BLOCK:
-          printf("[%s:%d] indexation feature block is not supported by Alias output\n", __func__, __LINE__);
+        default:
+          printf("[%s:%d] unsupported feature block type, can not add it to Alias output\n", __func__, __LINE__);
           output_alias_free(output);
           return NULL;
       }

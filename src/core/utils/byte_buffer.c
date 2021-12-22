@@ -142,6 +142,13 @@ byte_buf_t* byte_buf_new_with_data(byte_t data[], size_t len) {
   return buf;
 }
 
+bool buf_all_zeros(uint8_t array[], size_t arr_len) {
+  if (array && arr_len > 0) {
+    return (array[0] == 0 && !memcmp(array, array + 1, arr_len - 1));
+  }
+  false;
+}
+
 bool byte_buf_set(byte_buf_t* buf, byte_t const data[], size_t len) {
   if (data == NULL || buf == NULL) {
     return false;

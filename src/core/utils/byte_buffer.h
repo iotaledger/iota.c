@@ -169,6 +169,16 @@ int hex_2_bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len);
  */
 int bin_2_hex(byte_t const bin[], size_t bin_len, char str_buf[], size_t buf_len);
 
+/**
+ * @brief Checks if buffer has only zeros
+ *
+ * @param[in] array A buffer holds data
+ * @param[in] arr_len The length of buffer
+ * @return true If buffer has only zeros
+ * @return false If buffer has also some other numbers
+ */
+bool buf_all_zeros(uint8_t array[], size_t arr_len);
+
 #ifdef __cplusplus
 }
 #endif
