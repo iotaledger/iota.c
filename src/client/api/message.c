@@ -97,7 +97,7 @@ char *api_unlock_blocks_get_sig(api_unlock_blocks_t *blocks, uint16_t index) {
 void api_unlock_blocks_free(api_unlock_blocks_t *blocks) { utarray_free(blocks); }
 
 payload_tx_t *payload_tx_new() {
-  payload_tx_t *tx = (payload_tx_t *)malloc(sizeof(payload_tx_t));
+  payload_tx_t *tx = malloc(sizeof(payload_tx_t));
   if (tx) {
     memset(tx, 0, sizeof(payload_tx_t));
     utarray_new(tx->inputs, &ut_tx_inputs_icd);
