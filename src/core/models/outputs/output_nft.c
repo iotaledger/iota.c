@@ -8,6 +8,8 @@
 #include "uthash.h"
 #include "utlist.h"
 
+#define MIN_DUST_ALLOWANCE 1000000
+
 output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* tokens, byte_t nft_id[],
                              byte_t* metadata, uint32_t metadata_len, feat_blk_list_t* feat_blocks) {
   if (addr == NULL || nft_id == NULL) {
@@ -15,7 +17,7 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
     return NULL;
   }
 
-  if (amount < 1000000) {
+  if (amount < MIN_DUST_ALLOWANCE) {
     printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
     return NULL;
   }

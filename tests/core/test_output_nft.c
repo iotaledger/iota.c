@@ -38,7 +38,8 @@ void test_output_nft() {
   memcpy(nft_id, addr.address, ADDRESS_NFT_BYTES);
 
   // create metadata
-  byte_buf_t* metadata = byte_buf_new_with_data("Test metadata...", sizeof("Test metadata..."));
+  byte_t test_data[] = "Test metadata...";
+  byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = new_feat_blk_list();
@@ -147,7 +148,8 @@ void test_output_nft_without_native_tokens() {
   memcpy(nft_id, addr.address, ADDRESS_NFT_BYTES);
 
   // create metadata
-  byte_buf_t* metadata = byte_buf_new_with_data("Test metadata...", sizeof("Test metadata..."));
+  byte_t test_data[] = "Test metadata...";
+  byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = new_feat_blk_list();
@@ -362,7 +364,8 @@ void test_output_nft_without_feature_blocks() {
   memcpy(nft_id, addr.address, ADDRESS_NFT_BYTES);
 
   // create metadata
-  byte_buf_t* metadata = byte_buf_new_with_data("Test metadata...", sizeof("Test metadata..."));
+  byte_t test_data[] = "Test metadata...";
+  byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create NFT Output
   output_nft_t* output = output_nft_new(&addr, 123456789, native_tokens, nft_id, metadata->data, metadata->len, NULL);
