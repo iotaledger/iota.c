@@ -6,6 +6,11 @@
 #define NATIVE_TOKENS_MIN_COUNT 0
 #define NATIVE_TOKENS_MAX_COUNT 256
 
+// Native Tokens must be lexicographically sorted based on Token ID
+static int token_id_sort(native_tokens_t *token1, native_tokens_t *token2) {
+  return memcmp(token1->token_id, token2->token_id, NATIVE_TOKEN_ID_BYTES);
+}
+
 int native_tokens_add(native_tokens_t **nt, byte_t token_id[], uint256_t const *amount) {
   if (nt == NULL || token_id == NULL || amount == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -42,7 +47,7 @@ int native_tokens_add(native_tokens_t **nt, byte_t token_id[], uint256_t const *
 }
 
 bool native_tokens_equal(native_tokens_t *token1, native_tokens_t *token2) {
-  if (token1 == NULL || token1 == NULL) {
+  if (token1 == NULL || token2 == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return false;
   }
@@ -83,6 +88,9 @@ size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[], size_t buf_le
   uint16_t count = native_tokens_count(nt);
   memcpy(buf + offset, &count, sizeof(uint16_t));
   offset += sizeof(uint16_t);
+
+  // sort Native Tokens in lexicographical order based on token ID
+  HASH_SORT(*nt, token_id_sort);
 
   HASH_ITER(hh, *nt, elm, tmp) {
     // ID
