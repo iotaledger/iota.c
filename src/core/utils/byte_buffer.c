@@ -146,7 +146,7 @@ bool buf_all_zeros(uint8_t array[], size_t arr_len) {
   if (array && arr_len > 0) {
     return (array[0] == 0 && !memcmp(array, array + 1, arr_len - 1));
   }
-  false;
+  return false;
 }
 
 bool byte_buf_set(byte_buf_t* buf, byte_t const data[], size_t len) {
