@@ -50,6 +50,11 @@ static feat_indexaction_blk_t* new_feat_indexaztion(byte_t const tag[], uint8_t 
   return idx;
 }
 
+// feature blocks must be sorted in ascending order based on feature block type
+static int feat_blk_type_sort(feat_blk_list_t* blk1, feat_blk_list_t* blk2) {
+  return memcmp(&blk1->blk->type, &blk2->blk->type, sizeof(uint8_t));
+}
+
 feat_block_t* new_feat_blk_sender(address_t const* const addr) {
   if (!addr) {
     printf("[%s:%d] invalid paramter\n", __func__, __LINE__);
@@ -691,6 +696,8 @@ size_t feat_blk_list_serialize(feat_blk_list_t* list, byte_t buf[], size_t buf_l
     int ret = 0;
     // block count
     buf[0] = feat_blk_list_len(list);
+    // sort feature blocks in ascending order based on feature block type
+    LL_SORT(list, feat_blk_type_sort);
     // feature blocks
     LL_FOREACH(list, elm) { offset += feat_blk_serialize(elm->blk, buf + offset, buf_len - offset); }
     // check the length of the serialized data
