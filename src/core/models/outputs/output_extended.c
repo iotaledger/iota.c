@@ -270,7 +270,7 @@ void output_extended_print(output_extended_t* output) {
   printf("Extended Output: [\n");
   printf("\tAddress: ");
   address_print(output->address);
-  printf("\tAmmount: %" PRIu64 "\n", output->amount);
+  printf("\tAmount: %" PRIu64 "\n", output->amount);
 
   // print native tokens
   native_tokens_t *token, *tmp;
