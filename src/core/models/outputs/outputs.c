@@ -224,15 +224,3 @@ void utxo_outputs_print(utxo_outputs_list_t *outputs) {
   }
   printf("]\n");
 }
-
-/*
-void utxo_outputs_print(outputs_ht **ht) {
-  outputs_ht *elm, *tmp;
-  printf("utxo_outputs: [\n");
-  HASH_ITER(hh, *ht, elm, tmp) {
-    printf("\ttype: %d ", elm->output_type);
-    printf("[%" PRIu64 "] ", elm->amount);
-    dump_hex(elm->address, ADDRESS_ED25519_BYTES);
-  }
-  printf("]\n");
-}*/

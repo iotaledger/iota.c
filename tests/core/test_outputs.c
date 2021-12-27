@@ -256,6 +256,8 @@ void test_utxo_outputs() {
 
   // clean up
   free(extended_output);
+  free(alias_output);
+  free(nft_output);
   free(outputs_list_buf);
   utxo_outputs_free(outputs);
 }
