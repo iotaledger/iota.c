@@ -412,63 +412,44 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   return output;
 }
 
-void output_alias_print(output_alias_t* output) {
+void output_alias_print(output_alias_t* output, uint8_t indentation) {
   if (output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return;
   }
 
-  printf("Alias Output: [\n");
-  printf("\tAmmount: %" PRIu64 "\n", output->amount);
+  printf("%sAlias Output: [\n", PRINT_INDENTATION(indentation));
+  printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
-  native_tokens_t *token, *tmp;
-  printf("\tNative Tokens: [\n");
-  HASH_ITER(hh, *(&output->native_tokens), token, tmp) {
-    char* amount_str = uint256_to_str(token->amount);
-    printf("\t\t[%s] ", amount_str);
-    dump_hex_str(token->token_id, NATIVE_TOKEN_ID_BYTES);
-    free(amount_str);
-  }
-  printf("\t]\n");
+  native_tokens_print(&output->native_tokens, indentation + 1);
 
   // print alias ID
-  printf("\tAlias ID: ");
+  printf("%s\tAlias ID: ", PRINT_INDENTATION(indentation));
   dump_hex_str(output->alias_id, ADDRESS_ALIAS_BYTES);
 
   // print state controller
-  printf("\tState Controller: ");
+  printf("%s\tState Controller: ", PRINT_INDENTATION(indentation));
   address_print(output->st_ctl);
 
   // print governance controller
-  printf("\tGovernance Controller: ");
+  printf("%s\tGovernance Controller: ", PRINT_INDENTATION(indentation));
   address_print(output->gov_ctl);
 
-  printf("\tState Index: %" PRIu32 "\n", output->state_index);
+  printf("%s\tState Index: %" PRIu32 "\n", PRINT_INDENTATION(indentation), output->state_index);
 
   // print metadata
-  printf("\tMetadata: ");
+  printf("%s\tMetadata: ", PRINT_INDENTATION(indentation));
   if (output->state_metadata) {
     dump_hex_str(output->state_metadata->data, output->state_metadata->len);
   } else {
-    printf("/\n");
+    printf("%s/\n", PRINT_INDENTATION(indentation));
   }
 
-  printf("\tFoundry Counter: %" PRIu32 "\n", output->foundry_counter);
+  printf("%s\tFoundry Counter: %" PRIu32 "\n", PRINT_INDENTATION(indentation), output->foundry_counter);
 
   // print feature blocks
-  printf("\tFeature Blocks:[\n");
-  printf("\t\tBlock Counts: %d\n", feat_blk_list_len(output->feature_blocks));
-  if (output->feature_blocks) {
-    feat_blk_list_t* feat_block;
-    uint8_t index = 0;
-    LL_FOREACH(output->feature_blocks, feat_block) {
-      printf("\t\t#%d ", index);
-      feat_blk_print(feat_block->blk);
-      index++;
-    }
-  }
-  printf("\t]\n");
+  feat_blk_list_print(output->feature_blocks, indentation + 1);
 
-  printf("]\n");
+  printf("%s]\n", PRINT_INDENTATION(indentation));
 }

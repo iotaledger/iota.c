@@ -197,42 +197,33 @@ size_t utxo_outputs_serialize(utxo_outputs_list_t *outputs, byte_t buf[], size_t
   return expected_bytes;
 }
 
-void utxo_outputs_print(utxo_outputs_list_t *outputs) {
+void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation) {
   utxo_outputs_list_t *elm;
   uint8_t index = 0;
-  printf("UTXO Outputs:[\n");
-  printf("Outputs Count: %d\n", utxo_outputs_count(outputs));
+  printf("%sUTXO Outputs:[\n", PRINT_INDENTATION(indentation));
+  printf("%s\tOutputs Count: %d\n", PRINT_INDENTATION(indentation), utxo_outputs_count(outputs));
+
+  // print outputs
   if (outputs) {
     LL_FOREACH(outputs, elm) {
-      printf("#%d ", index);
+      printf("%s\t#%d ", PRINT_INDENTATION(indentation), index);
       switch (elm->output->output_type) {
         case OUTPUT_EXTENDED:
-          output_extended_print(elm->output->output);
+          output_extended_print(elm->output->output, indentation + 1);
           break;
         case OUTPUT_ALIAS:
-          output_alias_print(elm->output->output);
+          output_alias_print(elm->output->output, indentation + 1);
           break;
         case OUTPUT_FOUNDRY:
-          output_foundry_print(elm->output->output);
+          output_foundry_print(elm->output->output, indentation + 1);
           break;
         case OUTPUT_NFT:
-          output_nft_print(elm->output->output);
+          output_nft_print(elm->output->output, indentation + 1);
           break;
       }
       index++;
     }
   }
-  printf("]\n");
-}
 
-/*
-void utxo_outputs_print(outputs_ht **ht) {
-  outputs_ht *elm, *tmp;
-  printf("utxo_outputs: [\n");
-  HASH_ITER(hh, *ht, elm, tmp) {
-    printf("\ttype: %d ", elm->output_type);
-    printf("[%" PRIu64 "] ", elm->amount);
-    dump_hex(elm->address, ADDRESS_ED25519_BYTES);
-  }
-  printf("]\n");
-}*/
+  printf("%s]\n", PRINT_INDENTATION(indentation));
+}

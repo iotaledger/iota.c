@@ -152,7 +152,7 @@ native_tokens_t *native_tokens_deserialize(byte_t buf[], size_t buf_len) {
   return nt;
 }
 
-void native_tokens_print(native_tokens_t **nt) {
+void native_tokens_print(native_tokens_t **nt, uint8_t indentation) {
   if (nt == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return;
@@ -161,12 +161,12 @@ void native_tokens_print(native_tokens_t **nt) {
   native_tokens_t *elm, *tmp;
   char *amount_str;
 
-  printf("Native Tokens: [\n");
+  printf("%sNative Tokens: [\n", PRINT_INDENTATION(indentation));
   HASH_ITER(hh, *nt, elm, tmp) {
     amount_str = uint256_to_str(elm->amount);
-    printf("\t[%s] ", amount_str);
+    printf("%s\t[%s] ", PRINT_INDENTATION(indentation), amount_str);
     dump_hex_str(elm->token_id, NATIVE_TOKEN_ID_BYTES);
     free(amount_str);
   }
-  printf("]\n");
+  printf("%s]\n", PRINT_INDENTATION(indentation));
 }

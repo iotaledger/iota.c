@@ -353,8 +353,9 @@ feat_blk_list_t* feat_blk_list_deserialize(byte_t buf[], size_t buf_len);
  * @brief Print a feature block list
  *
  * @param[in] list A feature block list
+ * @param[in] indentation Tab indentation when printing feature block list
  */
-void feat_blk_list_print(feat_blk_list_t* list);
+void feat_blk_list_print(feat_blk_list_t* list, uint8_t indentation);
 
 /**
  * @brief free a feature block list object

@@ -90,7 +90,8 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len);
  * @brief Print Alias Output
  *
  * @param[in] output Alias Output object
+ * @param[in] indentation Tab indentation when printing Alias Output
  */
-void output_alias_print(output_alias_t* output);
+void output_alias_print(output_alias_t* output, uint8_t indentation);
 
 #endif

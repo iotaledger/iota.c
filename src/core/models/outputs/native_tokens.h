@@ -125,8 +125,9 @@ native_tokens_t *native_tokens_deserialize(byte_t buf[], size_t buf_len);
  * @brief Print Native Tokens set.
  *
  * @param[in] nt Native Tokens set
+ * @param[in] indentation Tab indentation when printing Native Tokens set
  */
-void native_tokens_print(native_tokens_t **nt);
+void native_tokens_print(native_tokens_t **nt, uint8_t indentation);
 
 #ifdef __cplusplus
 }
