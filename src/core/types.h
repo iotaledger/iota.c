@@ -15,6 +15,14 @@ typedef uint8_t transaction_t;
 typedef uint8_t signature_t;
 typedef uint16_t unlock_index_t;
 
+// Returns string representing tabulator indentation
+#define PRINT_INDENTATION(i)            \
+  ((i) == 0                             \
+       ? "\0"                           \
+       : (i) == 1 ? "\t\0"              \
+                  : (i) == 2 ? "\t\t\0" \
+                             : (i) == 3 ? "\t\t\t\0" : (i) == 4 ? "\t\t\t\t\0" : (i) == 5 ? "\t\t\t\t\t\0" : "\0")
+
 /**
  * @brief Prints out hexmal value in a byte array.
  *
