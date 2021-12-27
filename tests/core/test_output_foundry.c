@@ -55,8 +55,8 @@ void test_output_foundry() {
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
 
   // create Foundry Output
-  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, *circ_supply,
-                                                *max_supply, SIMPLE_TOKEN_SCHEME, feat_blocks);
+  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply,
+                                                max_supply, SIMPLE_TOKEN_SCHEME, feat_blocks);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
@@ -132,10 +132,10 @@ void test_output_foundry() {
   TEST_ASSERT_EQUAL_MEMORY(token_tag, deser_output->token_tag, TOKEN_TAG_BYTES_LEN);
 
   // validate circulating supply
-  TEST_ASSERT(!uint256_equal(circ_supply, &deser_output->circ_supply));
+  TEST_ASSERT(!uint256_equal(circ_supply, deser_output->circ_supply));
 
   // validate maximum supply
-  TEST_ASSERT(!uint256_equal(max_supply, &deser_output->max_supply));
+  TEST_ASSERT(!uint256_equal(max_supply, deser_output->max_supply));
 
   // validate feature blocks
   TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);
@@ -186,7 +186,7 @@ void test_output_foundry_without_native_tokens() {
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
 
   // create Foundry Output
-  output_foundry_t* output = output_foundry_new(&addr, 123456789, NULL, 22, token_tag, *circ_supply, *max_supply,
+  output_foundry_t* output = output_foundry_new(&addr, 123456789, NULL, 22, token_tag, circ_supply, max_supply,
                                                 SIMPLE_TOKEN_SCHEME, feat_blocks);
 
   // validation
@@ -235,10 +235,10 @@ void test_output_foundry_without_native_tokens() {
   TEST_ASSERT_EQUAL_MEMORY(token_tag, deser_output->token_tag, TOKEN_TAG_BYTES_LEN);
 
   // validate circulating supply
-  TEST_ASSERT(!uint256_equal(circ_supply, &deser_output->circ_supply));
+  TEST_ASSERT(!uint256_equal(circ_supply, deser_output->circ_supply));
 
   // validate maximum supply
-  TEST_ASSERT(!uint256_equal(max_supply, &deser_output->max_supply));
+  TEST_ASSERT(!uint256_equal(max_supply, deser_output->max_supply));
 
   // validate feature blocks
   TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);
@@ -286,8 +286,8 @@ void test_output_foundry_without_feature_blocks() {
   uint256_t* max_supply = uint256_from_str("555555555");
 
   // create Foundry Output
-  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, *circ_supply,
-                                                *max_supply, SIMPLE_TOKEN_SCHEME, NULL);
+  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply,
+                                                max_supply, SIMPLE_TOKEN_SCHEME, NULL);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
@@ -354,10 +354,10 @@ void test_output_foundry_without_feature_blocks() {
   TEST_ASSERT_EQUAL_MEMORY(token_tag, deser_output->token_tag, TOKEN_TAG_BYTES_LEN);
 
   // validate circulating supply
-  TEST_ASSERT(!uint256_equal(circ_supply, &deser_output->circ_supply));
+  TEST_ASSERT(!uint256_equal(circ_supply, deser_output->circ_supply));
 
   // validate maximum supply
-  TEST_ASSERT(!uint256_equal(max_supply, &deser_output->max_supply));
+  TEST_ASSERT(!uint256_equal(max_supply, deser_output->max_supply));
 
   // print foundry output
   output_foundry_print(output);

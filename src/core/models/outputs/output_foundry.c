@@ -10,10 +10,10 @@
 #define MIN_DUST_ALLOWANCE 1000000
 
 output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_tokens_t* tokens, uint32_t serial_num,
-                                     byte_t token_tag[], uint256_t circ_supply, uint256_t max_supply,
+                                     byte_t token_tag[], uint256_t* circ_supply, uint256_t* max_supply,
                                      token_scheme_e token_scheme, feat_blk_list_t* feat_blocks) {
-  if (addr == NULL) {
-    printf("[%s:%d] invalid address parameter\n", __func__, __LINE__);
+  if (addr == NULL || circ_supply == NULL || max_supply == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -23,7 +23,7 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
     return NULL;
   }
 
-  if (!uint256_equal(&max_supply, max_supply_check)) {
+  if (!uint256_equal(max_supply, max_supply_check)) {
     printf("[%s:%d] maximum supply cannot be 0\n", __func__, __LINE__);
     free(max_supply_check);
     return NULL;
@@ -36,7 +36,7 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
     return NULL;
   }
 
-  if (uint256_equal(&circ_supply, &max_supply) > 0) {
+  if (uint256_equal(circ_supply, max_supply) > 0) {
     printf("[%s:%d] circulating supply must not be greater than maximum supply\n", __func__, __LINE__);
     return NULL;
   }
@@ -56,6 +56,8 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
 
   output->address = NULL;
   output->native_tokens = NULL;
+  output->circ_supply = NULL;
+  output->max_supply = NULL;
   output->feature_blocks = NULL;
 
   // Store address
@@ -90,10 +92,12 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
   memcpy(output->token_tag, token_tag, TOKEN_TAG_BYTES_LEN);
 
   // Store ciruclating supply of tokens
-  output->circ_supply = circ_supply;
+  output->circ_supply = malloc(sizeof(uint256_t));
+  memcpy(output->circ_supply, circ_supply, sizeof(uint256_t));
 
   // Store maximum supply of tokens
-  output->max_supply = max_supply;
+  output->max_supply = malloc(sizeof(uint256_t));
+  memcpy(output->max_supply, max_supply, sizeof(uint256_t));
 
   // Store token scheme
   output->token_scheme = token_scheme;
@@ -129,6 +133,12 @@ void output_foundry_free(output_foundry_t* output) {
     }
     if (output->native_tokens) {
       native_tokens_free(&output->native_tokens);
+    }
+    if (output->circ_supply) {
+      free(output->circ_supply);
+    }
+    if (output->max_supply) {
+      free(output->max_supply);
     }
     if (output->feature_blocks) {
       free_feat_blk_list(output->feature_blocks);
@@ -212,11 +222,11 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
   offset += TOKEN_TAG_BYTES_LEN;
 
   // circulating supply
-  memcpy(offset, &output->circ_supply, sizeof(uint256_t));
+  memcpy(offset, output->circ_supply, sizeof(uint256_t));
   offset += sizeof(uint256_t);
 
   // maximum supply
-  memcpy(offset, &output->max_supply, sizeof(uint256_t));
+  memcpy(offset, output->max_supply, sizeof(uint256_t));
   offset += sizeof(uint256_t);
 
   // token scheme
@@ -248,6 +258,8 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   }
   output->address = NULL;
   output->native_tokens = NULL;
+  output->circ_supply = NULL;
+  output->max_supply = NULL;
   output->feature_blocks = NULL;
 
   size_t offset = 0;
@@ -317,7 +329,13 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
     output_foundry_free(output);
     return NULL;
   }
-  memcpy(&output->circ_supply, &buf[offset], sizeof(uint256_t));
+  output->circ_supply = malloc(sizeof(uint256_t));
+  if (!output->circ_supply) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    output_foundry_free(output);
+    return NULL;
+  }
+  memcpy(output->circ_supply, &buf[offset], sizeof(uint256_t));
   offset += sizeof(uint256_t);
 
   // maximum supply
@@ -326,7 +344,13 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
     output_foundry_free(output);
     return NULL;
   }
-  memcpy(&output->max_supply, &buf[offset], sizeof(uint256_t));
+  output->max_supply = malloc(sizeof(uint256_t));
+  if (!output->max_supply) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    output_foundry_free(output);
+    return NULL;
+  }
+  memcpy(output->max_supply, &buf[offset], sizeof(uint256_t));
   offset += sizeof(uint256_t);
 
   // token scheme
@@ -387,7 +411,7 @@ void output_foundry_print(output_foundry_t* output) {
 
   // print circulating supply
   char* circ_supply_str;
-  circ_supply_str = uint256_to_str(&output->circ_supply);
+  circ_supply_str = uint256_to_str(output->circ_supply);
   if (circ_supply_str != NULL) {
     printf("\tCirculating Supply: [%s]\n", circ_supply_str);
     free(circ_supply_str);
@@ -395,7 +419,7 @@ void output_foundry_print(output_foundry_t* output) {
 
   // print maximum supply
   char* max_supply_str;
-  max_supply_str = uint256_to_str(&output->max_supply);
+  max_supply_str = uint256_to_str(output->max_supply);
   if (max_supply_str != NULL) {
     printf("\tMaximum Supply: [%s]\n", max_supply_str);
     free(max_supply_str);
