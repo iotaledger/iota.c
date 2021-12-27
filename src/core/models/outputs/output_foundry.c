@@ -18,10 +18,18 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
   }
 
   uint256_t* max_supply_check = uint256_from_str("0");
-  if (!uint256_equal(&max_supply, max_supply_check)) {
-    printf("[%s:%d] maximum supply cannot be 0\n", __func__, __LINE__);
+  if (!max_supply_check) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
   }
+
+  if (!uint256_equal(&max_supply, max_supply_check)) {
+    printf("[%s:%d] maximum supply cannot be 0\n", __func__, __LINE__);
+    free(max_supply_check);
+    return NULL;
+  }
+
+  free(max_supply_check);
 
   if (amount < MIN_DUST_ALLOWANCE) {
     printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
@@ -111,7 +119,6 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
       }
     }
   }
-  free(max_supply_check);
   return output;
 }
 
@@ -364,9 +371,11 @@ void output_foundry_print(output_foundry_t* output) {
   printf("\tNative Tokens: [\n");
   HASH_ITER(hh, *(&output->native_tokens), token, tmp) {
     amount_str = uint256_to_str(token->amount);
-    printf("\t\t[%s] ", amount_str);
-    dump_hex_str(token->token_id, NATIVE_TOKEN_ID_BYTES);
-    free(amount_str);
+    if (amount_str != NULL) {
+      printf("\t\t[%s] ", amount_str);
+      dump_hex_str(token->token_id, NATIVE_TOKEN_ID_BYTES);
+      free(amount_str);
+    }
   }
   printf("\t]\n");
 
@@ -379,14 +388,18 @@ void output_foundry_print(output_foundry_t* output) {
   // print circulating supply
   char* circ_supply_str;
   circ_supply_str = uint256_to_str(&output->circ_supply);
-  printf("\tCirculating Supply: [%s]\n", circ_supply_str);
-  free(circ_supply_str);
+  if (circ_supply_str != NULL) {
+    printf("\tCirculating Supply: [%s]\n", circ_supply_str);
+    free(circ_supply_str);
+  }
 
   // print maximum supply
   char* max_supply_str;
   max_supply_str = uint256_to_str(&output->max_supply);
-  printf("\tMaximum Supply: [%s]\n", max_supply_str);
-  free(max_supply_str);
+  if (max_supply_str != NULL) {
+    printf("\tMaximum Supply: [%s]\n", max_supply_str);
+    free(max_supply_str);
+  }
 
   token_scheme_e token_scheme = output->token_scheme;
   if (token_scheme == SIMPLE_TOKEN_SCHEME) {
