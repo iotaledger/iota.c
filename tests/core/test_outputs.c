@@ -332,6 +332,33 @@ void test_utxo_outputs() {
   TEST_ASSERT(utxo_outputs_serialize(outputs, outputs_list_buf, 1) == 0);  // expect serialization fails
   TEST_ASSERT(utxo_outputs_serialize(outputs, outputs_list_buf, expected_serialized_len) == expected_serialized_len);
 
+  // deserialize outputs list and validate it
+  utxo_outputs_list_t* deser_outputs = utxo_outputs_deserialize(outputs_list_buf, 1);
+  TEST_ASSERT_NULL(deser_outputs);  // expect deserialization fails
+  deser_outputs = utxo_outputs_deserialize(outputs_list_buf, expected_serialized_len);
+  TEST_ASSERT_NOT_NULL(deser_outputs);
+  TEST_ASSERT_EQUAL_INT(4, utxo_outputs_count(deser_outputs));
+  // check extended output
+  output_from_list = utxo_outputs_get(deser_outputs, 0);
+  TEST_ASSERT_NOT_NULL(output_from_list);
+  TEST_ASSERT_EQUAL_UINT8(OUTPUT_EXTENDED, output_from_list->output_type);
+  TEST_ASSERT_NOT_NULL(output_from_list->output);
+  // check alias output
+  output_from_list = utxo_outputs_get(deser_outputs, 1);
+  TEST_ASSERT_NOT_NULL(output_from_list);
+  TEST_ASSERT_EQUAL_UINT8(OUTPUT_ALIAS, output_from_list->output_type);
+  TEST_ASSERT_NOT_NULL(output_from_list->output);
+  // check foundry output
+  output_from_list = utxo_outputs_get(deser_outputs, 2);
+  TEST_ASSERT_NOT_NULL(output_from_list);
+  TEST_ASSERT_EQUAL_UINT8(OUTPUT_FOUNDRY, output_from_list->output_type);
+  TEST_ASSERT_NOT_NULL(output_from_list->output);
+  // check NFT output
+  output_from_list = utxo_outputs_get(deser_outputs, 3);
+  TEST_ASSERT_NOT_NULL(output_from_list);
+  TEST_ASSERT_EQUAL_UINT8(OUTPUT_NFT, output_from_list->output_type);
+  TEST_ASSERT_NOT_NULL(output_from_list->output);
+
   // print out outputs list
   utxo_outputs_print(outputs);
 
@@ -342,6 +369,7 @@ void test_utxo_outputs() {
   free(nft_output);
   free(outputs_list_buf);
   utxo_outputs_free(outputs);
+  utxo_outputs_free(deser_outputs);
 }
 
 int main() {
