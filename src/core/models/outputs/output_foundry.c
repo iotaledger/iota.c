@@ -376,44 +376,33 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   return output;
 }
 
-void output_foundry_print(output_foundry_t* output) {
+void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
   if (output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return;
   }
 
-  printf("Foundry Output: [\n");
+  printf("%sFoundry Output: [\n", PRINT_INDENTATION(indentation));
 
-  printf("\tAddress: ");
+  printf("%s\tAddress: ", PRINT_INDENTATION(indentation));
   address_print(output->address);
 
-  printf("\tAmount: %" PRIu64 "\n", output->amount);
+  printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
-  native_tokens_t *token, *tmp;
-  char* amount_str;
-  printf("\tNative Tokens: [\n");
-  HASH_ITER(hh, *(&output->native_tokens), token, tmp) {
-    amount_str = uint256_to_str(token->amount);
-    if (amount_str != NULL) {
-      printf("\t\t[%s] ", amount_str);
-      dump_hex_str(token->token_id, NATIVE_TOKEN_ID_BYTES);
-      free(amount_str);
-    }
-  }
-  printf("\t]\n");
+  native_tokens_print(&output->native_tokens, indentation + 1);
 
-  printf("\tSerial Number: %" PRIu32 "\n", output->serial);
+  printf("%s\tSerial Number: %" PRIu32 "\n", PRINT_INDENTATION(indentation), output->serial);
 
   // print token tag
-  printf("\tToken Tag: ");
+  printf("%s\tToken Tag: ", PRINT_INDENTATION(indentation));
   dump_hex_str(output->token_tag, TOKEN_TAG_BYTES_LEN);
 
   // print circulating supply
   char* circ_supply_str;
   circ_supply_str = uint256_to_str(output->circ_supply);
   if (circ_supply_str != NULL) {
-    printf("\tCirculating Supply: [%s]\n", circ_supply_str);
+    printf("%s\tCirculating Supply: [%s]\n", PRINT_INDENTATION(indentation), circ_supply_str);
     free(circ_supply_str);
   }
 
@@ -421,30 +410,19 @@ void output_foundry_print(output_foundry_t* output) {
   char* max_supply_str;
   max_supply_str = uint256_to_str(output->max_supply);
   if (max_supply_str != NULL) {
-    printf("\tMaximum Supply: [%s]\n", max_supply_str);
+    printf("%s\tMaximum Supply: [%s]\n", PRINT_INDENTATION(indentation), max_supply_str);
     free(max_supply_str);
   }
 
   token_scheme_e token_scheme = output->token_scheme;
   if (token_scheme == SIMPLE_TOKEN_SCHEME) {
-    printf("\tToken Scheme: Simple Token Scheme\n");
+    printf("%s\tToken Scheme: Simple Token Scheme\n", PRINT_INDENTATION(indentation));
   } else {
-    printf("\tToken Scheme: Unknown Token Scheme\n");
+    printf("%s\tToken Scheme: Unknown Token Scheme\n", PRINT_INDENTATION(indentation));
   }
 
   // print feature blocks
-  printf("\tFeature Blocks:[\n");
-  feat_blk_list_t* feat_block;
-  printf("\t\tBlock Counts: %d\n", feat_blk_list_len(output->feature_blocks));
-  if (output->feature_blocks) {
-    uint8_t index = 0;
-    LL_FOREACH(output->feature_blocks, feat_block) {
-      printf("\t\t#%d ", index);
-      feat_blk_print(feat_block->blk);
-      index++;
-    }
-  }
-  printf("\t]\n");
+  feat_blk_list_print(output->feature_blocks, indentation + 1);
 
-  printf("]\n");
+  printf("%s]\n", PRINT_INDENTATION(indentation));
 }

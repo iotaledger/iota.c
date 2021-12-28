@@ -749,7 +749,7 @@ void feat_blk_list_print(feat_blk_list_t* list, uint8_t indentation) {
   feat_blk_list_t* elm;
   uint8_t index = 0;
   printf("%sFeature Blocks: [\n", PRINT_INDENTATION(indentation));
-  printf("%s\tBlock Counts: %d\n", PRINT_INDENTATION(indentation), feat_blk_list_len(list));
+  printf("%s\tBlock Count: %d\n", PRINT_INDENTATION(indentation), feat_blk_list_len(list));
   if (list) {
     LL_FOREACH(list, elm) {
       printf("%s\t#%d ", PRINT_INDENTATION(indentation), index);
