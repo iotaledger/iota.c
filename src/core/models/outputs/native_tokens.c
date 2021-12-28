@@ -164,9 +164,11 @@ void native_tokens_print(native_tokens_t **nt) {
   printf("Native Tokens: [\n");
   HASH_ITER(hh, *nt, elm, tmp) {
     amount_str = uint256_to_str(elm->amount);
-    printf("\t[%s] ", amount_str);
-    dump_hex_str(elm->token_id, NATIVE_TOKEN_ID_BYTES);
-    free(amount_str);
+    if (amount_str != NULL) {
+      printf("\t[%s] ", amount_str);
+      dump_hex_str(elm->token_id, NATIVE_TOKEN_ID_BYTES);
+      free(amount_str);
+    }
   }
   printf("]\n");
 }

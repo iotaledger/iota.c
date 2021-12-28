@@ -343,7 +343,7 @@ void output_nft_print(output_nft_t* output) {
   printf("NFT Output: [\n");
   printf("\tAddress: ");
   address_print(output->address);
-  printf("\tAmmount: %" PRIu64 "\n", output->amount);
+  printf("\tAmount: %" PRIu64 "\n", output->amount);
 
   // print native tokens
   native_tokens_t *token, *tmp;
