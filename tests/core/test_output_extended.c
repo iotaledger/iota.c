@@ -283,12 +283,88 @@ void test_output_extended_without_feature_blocks() {
   output_extended_free(deser_output);
 }
 
+void test_output_extended_validation() {
+  // create random ED25519 address
+  address_t addr = {};
+  addr.type = ADDRESS_TYPE_ED25519;
+  iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
+
+  // create Native Tokens
+  byte_t token_id1[NATIVE_TOKEN_ID_BYTES];
+  byte_t token_id2[NATIVE_TOKEN_ID_BYTES];
+  byte_t token_id3[NATIVE_TOKEN_ID_BYTES];
+  iota_crypto_randombytes(token_id1, NATIVE_TOKEN_ID_BYTES);
+  iota_crypto_randombytes(token_id2, NATIVE_TOKEN_ID_BYTES);
+  iota_crypto_randombytes(token_id3, NATIVE_TOKEN_ID_BYTES);
+  native_tokens_t* native_tokens = native_tokens_new();
+  uint256_t* amount1 = uint256_from_str("111111111");
+  native_tokens_add(&native_tokens, token_id1, amount1);
+  uint256_t* amount2 = uint256_from_str("222222222");
+  native_tokens_add(&native_tokens, token_id2, amount2);
+  uint256_t* amount3 = uint256_from_str("333333333");
+  native_tokens_add(&native_tokens, token_id3, amount3);
+
+  // create Feature Blocks
+  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_add_sender(&feat_blocks, &addr);
+  feat_blk_list_add_ddr(&feat_blocks, 1000000);
+
+  //=====Test NULL address=====
+  output_extended_t* output = output_extended_new(&addr, 123456789, native_tokens, feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  output_extended_free(output);
+  output = output_extended_new(NULL, 123456789, native_tokens, feat_blocks);
+  TEST_ASSERT_NULL(output);
+
+  //=====Test minimum dust allowance=====
+  output = output_extended_new(&addr, 1000000, native_tokens, feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  output_extended_free(output);
+  output = output_extended_new(&addr, 999999, native_tokens, feat_blocks);
+  TEST_ASSERT_NULL(output);
+
+  //=====Test unsupported feature blocks type=====
+  output = output_extended_new(&addr, 123456789, native_tokens, feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  output_extended_free(output);
+  feat_blk_list_add_issuer(&feat_blocks, &addr);
+  output = output_extended_new(&addr, 123456789, native_tokens, feat_blocks);
+  TEST_ASSERT_NULL(output);
+  free_feat_blk_list(feat_blocks);
+
+  //=====Test maximum feature blocks count=====
+  feat_blocks = new_feat_blk_list();
+  feat_blk_list_add_sender(&feat_blocks, &addr);
+  feat_blk_list_add_ddr(&feat_blocks, 1000000);
+  output = output_extended_new(&addr, 123456789, native_tokens, feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  output_extended_free(output);
+  feat_blk_list_add_sender(&feat_blocks, &addr);
+  feat_blk_list_add_ddr(&feat_blocks, 1000000);
+  feat_blk_list_add_sender(&feat_blocks, &addr);
+  feat_blk_list_add_ddr(&feat_blocks, 1000000);
+  feat_blk_list_add_sender(&feat_blocks, &addr);
+  feat_blk_list_add_ddr(&feat_blocks, 1000000);
+  feat_blk_list_add_sender(&feat_blocks, &addr);
+  output = output_extended_new(&addr, 123456789, native_tokens, feat_blocks);
+  TEST_ASSERT_NULL(output);
+
+  // clean up
+  free(amount1);
+  free(amount2);
+  free(amount3);
+  native_tokens_free(&native_tokens);
+  free_feat_blk_list(feat_blocks);
+  output_extended_free(output);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_output_extended);
   RUN_TEST(test_output_extended_without_native_tokens);
   RUN_TEST(test_output_extended_without_feature_blocks);
+  RUN_TEST(test_output_extended_validation);
 
   return UNITY_END();
 }

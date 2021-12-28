@@ -8,7 +8,11 @@
 #include "uthash.h"
 #include "utlist.h"
 
+// minumum dust allowance
 #define MIN_DUST_ALLOWANCE 1000000
+
+// maximum number of feature blocks
+#define MAX_FEATURE_BLOCKS_COUNT 9
 
 output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* tokens, byte_t nft_id[],
                              byte_t* metadata, uint32_t metadata_len, feat_blk_list_t* feat_blocks) {
@@ -19,6 +23,16 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
 
   if (amount < MIN_DUST_ALLOWANCE) {
     printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (addr->type == ADDRESS_TYPE_NFT && memcmp(addr->address, nft_id, ADDRESS_NFT_BYTES) == 0) {
+    printf("[%s:%d] address must not be the same as the NFT address derived from NFT ID\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (feat_blk_list_len(feat_blocks) > MAX_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_FEATURE_BLOCKS_COUNT);
     return NULL;
   }
 
@@ -34,7 +48,7 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
 
   output->address = address_clone(addr);
   if (!output->address) {
-    printf("[%s:%d] can not add address to extended output\n", __func__, __LINE__);
+    printf("[%s:%d] can not add address to NFT output\n", __func__, __LINE__);
     output_nft_free(output);
     return NULL;
   }
@@ -93,8 +107,8 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
           res = feat_blk_list_add_eu(&output->feature_blocks, *((uint32_t*)feat->blk->block));
           break;
         case FEAT_METADATA_BLOCK: {
-          feat_metadata_blk_t* metadata = (feat_metadata_blk_t*)feat->blk->block;
-          res = feat_blk_list_add_metadata(&output->feature_blocks, metadata->data, metadata->data_len);
+          feat_metadata_blk_t* block_metadata = (feat_metadata_blk_t*)feat->blk->block;
+          res = feat_blk_list_add_metadata(&output->feature_blocks, block_metadata->data, block_metadata->data_len);
           break;
         }
         case FEAT_INDEXATION_BLOCK: {
@@ -102,6 +116,10 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
           res = feat_blk_list_add_indexaction(&output->feature_blocks, indexation->tag, indexation->tag_len);
           break;
         }
+        default:
+          printf("[%s:%d] unsupported feature block type, can not add it to NFT output\n", __func__, __LINE__);
+          output_nft_free(output);
+          return NULL;
       }
       if (res == -1) {
         printf("[%s:%d] can not add feature block to NFT output\n", __func__, __LINE__);
