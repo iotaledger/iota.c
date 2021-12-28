@@ -148,7 +148,7 @@ void test_output_foundry() {
                            ((feat_metadata_blk_t*)feat_block->block)->data_len);
 
   // print foundry output
-  output_foundry_print(output);
+  output_foundry_print(output, 0);
 
   // clean up
   free(amount1);
@@ -251,7 +251,7 @@ void test_output_foundry_without_native_tokens() {
                            ((feat_metadata_blk_t*)feat_block->block)->data_len);
 
   // print foundry output
-  output_foundry_print(output);
+  output_foundry_print(output, 0);
 
   // clean up
   free(circ_supply);
@@ -362,7 +362,7 @@ void test_output_foundry_without_feature_blocks() {
   TEST_ASSERT(!uint256_equal(max_supply, deser_output->max_supply));
 
   // print foundry output
-  output_foundry_print(output);
+  output_foundry_print(output, 0);
 
   // clean up
   free(amount1);
