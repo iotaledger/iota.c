@@ -287,7 +287,8 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint64_t);
 
   // native tokens
-  uint16_t tokens_count = *((uint16_t*)&buf[offset]);
+  uint16_t tokens_count = 0;
+  memcpy(&tokens_count, &buf[offset], sizeof(uint16_t));
   if (tokens_count > 0) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {
