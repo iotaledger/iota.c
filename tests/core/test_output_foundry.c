@@ -55,8 +55,8 @@ void test_output_foundry() {
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
 
   // create Foundry Output
-  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply,
-                                                max_supply, SIMPLE_TOKEN_SCHEME, feat_blocks);
+  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
+                                                SIMPLE_TOKEN_SCHEME, feat_blocks);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
@@ -115,15 +115,16 @@ void test_output_foundry() {
 
   // validate native tokens
   TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
+  // native tokens are sorted in lexicographical order based on token ID
   token = deser_output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
+  token = token->hh.next;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
   token = token->hh.next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
 
   // validate serial number
   TEST_ASSERT_EQUAL_UINT32(22, deser_output->serial);
@@ -286,8 +287,8 @@ void test_output_foundry_without_feature_blocks() {
   uint256_t* max_supply = uint256_from_str("555555555");
 
   // create Foundry Output
-  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply,
-                                                max_supply, SIMPLE_TOKEN_SCHEME, NULL);
+  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
+                                                SIMPLE_TOKEN_SCHEME, NULL);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
@@ -337,15 +338,16 @@ void test_output_foundry_without_feature_blocks() {
 
   // validate native tokens
   TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
+  // native tokens are sorted in lexicographical order based on token ID
   token = deser_output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
+  token = token->hh.next;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
   token = token->hh.next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
 
   // validate serial number
   TEST_ASSERT_EQUAL_UINT32(22, deser_output->serial);
