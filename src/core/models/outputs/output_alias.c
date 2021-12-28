@@ -419,7 +419,7 @@ void output_alias_print(output_alias_t* output) {
   }
 
   printf("Alias Output: [\n");
-  printf("\tAmmount: %" PRIu64 "\n", output->amount);
+  printf("\tAmount: %" PRIu64 "\n", output->amount);
 
   // print native tokens
   native_tokens_t *token, *tmp;
