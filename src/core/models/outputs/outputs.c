@@ -197,6 +197,90 @@ size_t utxo_outputs_serialize(utxo_outputs_list_t *outputs, byte_t buf[], size_t
   return expected_bytes;
 }
 
+utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len) {
+  if (buf == NULL || buf_len < 2) {
+    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  utxo_outputs_list_t *outputs = utxo_outputs_new();
+
+  size_t offset = 0;
+
+  // number of output entries
+  uint16_t output_cnt = 0;
+  memcpy(&output_cnt, &buf[offset], sizeof(uint16_t));
+  offset += sizeof(uint16_t);
+
+  for (uint8_t i = 0; i < output_cnt; i++) {
+    // create a new output list object
+    utxo_outputs_list_t *new_output = malloc(sizeof(utxo_outputs_list_t));
+    if (!new_output) {
+      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      utxo_outputs_free(outputs);
+      return NULL;
+    }
+    new_output->output = malloc(sizeof(utxo_output_t));
+    if (!new_output->output) {
+      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      free(new_output);
+      utxo_outputs_free(outputs);
+      return NULL;
+    }
+    LL_APPEND(outputs, new_output);
+
+    // get type of output
+    if (buf_len < offset + sizeof(uint8_t)) {
+      printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+      utxo_outputs_free(outputs);
+      return NULL;
+    }
+    new_output->output->output_type = buf[offset];
+
+    // deserialize output
+    switch (new_output->output->output_type) {
+      case OUTPUT_EXTENDED:
+        new_output->output->output = output_extended_deserialize(&buf[offset], buf_len - offset);
+        if (!new_output->output->output) {
+          printf("[%s:%d] can not deserialize extended output\n", __func__, __LINE__);
+          utxo_outputs_free(outputs);
+          return NULL;
+        }
+        offset += output_extended_serialize_len(new_output->output->output);
+        break;
+      case OUTPUT_ALIAS:
+        new_output->output->output = output_alias_deserialize(&buf[offset], buf_len - offset);
+        if (!new_output->output->output) {
+          printf("[%s:%d] can not deserialize alias output\n", __func__, __LINE__);
+          utxo_outputs_free(outputs);
+          return NULL;
+        }
+        offset += output_alias_serialize_len(new_output->output->output);
+        break;
+      case OUTPUT_FOUNDRY:
+        new_output->output->output = output_foundry_deserialize(&buf[offset], buf_len - offset);
+        if (!new_output->output->output) {
+          printf("[%s:%d] can not deserialize foundry output\n", __func__, __LINE__);
+          utxo_outputs_free(outputs);
+          return NULL;
+        }
+        offset += output_foundry_serialize_len(new_output->output->output);
+        break;
+      case OUTPUT_NFT:
+        new_output->output->output = output_nft_deserialize(&buf[offset], buf_len - offset);
+        if (!new_output->output->output) {
+          printf("[%s:%d] can not deserialize NFT output\n", __func__, __LINE__);
+          utxo_outputs_free(outputs);
+          return NULL;
+        }
+        offset += output_nft_serialize_len(new_output->output->output);
+        break;
+    }
+  }
+
+  return outputs;
+}
+
 void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation) {
   utxo_outputs_list_t *elm;
   uint8_t index = 0;

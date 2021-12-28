@@ -9,7 +9,11 @@
 #include "uthash.h"
 #include "utlist.h"
 
+// minumum dust allowance
 #define MIN_DUST_ALLOWANCE 1000000
+
+// maximum number of feature blocks
+#define MAX_FEATURE_BLOCKS_COUNT 8
 
 output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_tokens_t* tokens,
                                        feat_blk_list_t* feat_blocks) {
@@ -20,6 +24,11 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
 
   if (amount < MIN_DUST_ALLOWANCE) {
     printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (feat_blk_list_len(feat_blocks) > MAX_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_FEATURE_BLOCKS_COUNT);
     return NULL;
   }
 
@@ -63,11 +72,6 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
         case FEAT_SENDER_BLOCK:
           res = feat_blk_list_add_sender(&output->feature_blocks, feat->blk->block);
           break;
-        case FEAT_ISSUER_BLOCK:
-          printf("[%s:%d] issuer feature block is not supported by extended output\n", __func__, __LINE__);
-          output_extended_free(output);
-          return NULL;
-          break;
         case FEAT_DUST_DEP_RET_BLOCK:
           res = feat_blk_list_add_ddr(&output->feature_blocks, *((uint64_t*)feat->blk->block));
           break;
@@ -84,8 +88,8 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
           res = feat_blk_list_add_eu(&output->feature_blocks, *((uint32_t*)feat->blk->block));
           break;
         case FEAT_METADATA_BLOCK: {
-          feat_metadata_blk_t* metadata = (feat_metadata_blk_t*)feat->blk->block;
-          res = feat_blk_list_add_metadata(&output->feature_blocks, metadata->data, metadata->data_len);
+          feat_metadata_blk_t* block_metadata = (feat_metadata_blk_t*)feat->blk->block;
+          res = feat_blk_list_add_metadata(&output->feature_blocks, block_metadata->data, block_metadata->data_len);
           break;
         }
         case FEAT_INDEXATION_BLOCK: {
@@ -93,6 +97,10 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
           res = feat_blk_list_add_indexaction(&output->feature_blocks, indexation->tag, indexation->tag_len);
           break;
         }
+        default:
+          printf("[%s:%d] unsupported feature block type, can not add it to extended output\n", __func__, __LINE__);
+          output_extended_free(output);
+          return NULL;
       }
       if (res == -1) {
         printf("[%s:%d] can not add feature block to extended output\n", __func__, __LINE__);
@@ -232,7 +240,8 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint64_t);
 
   // native tokens
-  uint16_t tokens_count = *((uint16_t*)&buf[offset]);
+  uint16_t tokens_count = 0;
+  memcpy(&tokens_count, &buf[offset], sizeof(uint16_t));
   if (tokens_count > 0) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {

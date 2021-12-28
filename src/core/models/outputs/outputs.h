@@ -19,10 +19,10 @@
  *
  */
 typedef enum {
-  OUTPUT_EXTENDED = 0,  ///< Extended output
-  OUTPUT_ALIAS,         ///< Alias output
-  OUTPUT_FOUNDRY,       ///< Foundry output
-  OUTPUT_NFT            ///< NFT output
+  OUTPUT_EXTENDED = 3,  ///< Extended output
+  OUTPUT_ALIAS = 4,     ///< Alias output
+  OUTPUT_FOUNDRY = 5,   ///< Foundry output
+  OUTPUT_NFT = 6        ///< NFT output
 } utxo_output_type_t;
 
 /**
@@ -30,7 +30,7 @@ typedef enum {
  *
  */
 typedef struct {
-  utxo_output_type_t output_type;  ///< 0: Extended output, 1: Alias output, 2: Foundry output, 3: NFT output
+  utxo_output_type_t output_type;  ///< 3: Extended output, 4: Alias output, 5: Foundry output, 6: NFT output
   void *output;                    //< Pointer to an output
 } utxo_output_t;
 
@@ -105,6 +105,15 @@ size_t utxo_outputs_serialize_len(utxo_outputs_list_t *outputs);
  * @return size_t The bytes written is returned, 0 on errors
  */
 size_t utxo_outputs_serialize(utxo_outputs_list_t *outputs, byte_t buf[], size_t buf_len);
+
+/**
+ * @brief Deserialize binary data to a utxo output list object
+ *
+ * @param[in] buf The buffer holds a serialized data
+ * @param[in] buf_len The length of the buffer
+ * @return utxo_outputs_list_t* The deserialized utxo output list, NULL on errors
+ */
+utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len);
 
 /**
  * @brief Print an utxo output list
