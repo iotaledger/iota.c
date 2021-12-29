@@ -4,6 +4,7 @@
 #include <inttypes.h>
 
 #include "core/models/outputs/output_foundry.h"
+#include "core/models/outputs/outputs.h"
 #include "uthash.h"
 #include "utlist.h"
 
@@ -193,8 +194,8 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
 
   byte_t* offset = buf;
 
-  // fill-in output type, set to value 5 to denote a Foundry Output
-  memset(offset, 5, sizeof(uint8_t));
+  // fill-in Foundry Output type
+  memset(offset, OUTPUT_FOUNDRY, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
   // address
@@ -265,7 +266,7 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   size_t offset = 0;
 
   // Check if output type is foundry output
-  if (buf[offset] != 5) {
+  if (buf[offset] != OUTPUT_FOUNDRY) {
     printf("[%s:%d] buffer does not contain Foundry Output object\n", __func__, __LINE__);
     output_foundry_free(output);
     return NULL;

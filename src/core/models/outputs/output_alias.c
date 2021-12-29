@@ -5,6 +5,7 @@
 
 #include "core/address.h"
 #include "core/models/outputs/output_alias.h"
+#include "core/models/outputs/outputs.h"
 #include "uthash.h"
 #include "utlist.h"
 
@@ -217,8 +218,8 @@ size_t output_alias_serialize(output_alias_t* output, byte_t buf[], size_t buf_l
 
   byte_t* offset = buf;
 
-  // fill-in output type, set to value 4 to denote a Alias Output
-  memset(offset, 4, sizeof(uint8_t));
+  // fill-in Alias Output type
+  memset(offset, OUTPUT_ALIAS, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
   // amount
@@ -296,7 +297,7 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   size_t offset = 0;
 
   // output type
-  if (buf[offset] != 4) {
+  if (buf[offset] != OUTPUT_ALIAS) {
     printf("[%s:%d] buffer does not contain Alias Output object\n", __func__, __LINE__);
     output_alias_free(output);
     return NULL;

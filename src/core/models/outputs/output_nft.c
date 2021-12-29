@@ -5,6 +5,7 @@
 
 #include "core/address.h"
 #include "core/models/outputs/output_nft.h"
+#include "core/models/outputs/outputs.h"
 #include "uthash.h"
 #include "utlist.h"
 
@@ -194,8 +195,8 @@ size_t output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) 
 
   byte_t* offset = buf;
 
-  // fill-in output type, set to value 6 to denote a NFT Output
-  memset(offset, 6, sizeof(uint8_t));
+  // fill-in NFT Output type
+  memset(offset, OUTPUT_NFT, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
   // address
@@ -261,7 +262,7 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   size_t offset = 0;
 
   // output type
-  if (buf[offset] != 6) {
+  if (buf[offset] != OUTPUT_NFT) {
     printf("[%s:%d] buffer does not contain NFT Output object\n", __func__, __LINE__);
     output_nft_free(output);
     return NULL;

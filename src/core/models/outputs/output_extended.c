@@ -5,6 +5,7 @@
 
 #include "core/address.h"
 #include "core/models/outputs/output_extended.h"
+#include "core/models/outputs/outputs.h"
 #include "uthash.h"
 #include "utlist.h"
 
@@ -163,8 +164,8 @@ size_t output_extended_serialize(output_extended_t* output, byte_t buf[], size_t
 
   byte_t* offset = buf;
 
-  // fill-in output type, set to value 3 to denote a Extended Output
-  memset(offset, 3, sizeof(uint8_t));
+  // fill-in Extended Output type
+  memset(offset, OUTPUT_EXTENDED, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
   // address
@@ -213,7 +214,7 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   size_t offset = 0;
 
   // output type
-  if (buf[offset] != 3) {
+  if (buf[offset] != OUTPUT_EXTENDED) {
     printf("[%s:%d] buffer does not contain Extended Output object\n", __func__, __LINE__);
     output_extended_free(output);
     return NULL;
