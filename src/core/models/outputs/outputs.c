@@ -78,10 +78,15 @@ int utxo_outputs_add(utxo_outputs_list_t **outputs, utxo_output_type_t type, voi
       if (next->output->output) {
         LL_APPEND(*outputs, next);
         return 0;
-      } else {
-        free(next);
       }
     }
+  }
+
+  if (next) {
+    if (next->output) {
+      free(next->output);
+    }
+    free(next);
   }
 
   return -1;
