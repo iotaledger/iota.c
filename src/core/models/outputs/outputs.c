@@ -285,7 +285,7 @@ void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation) {
   utxo_outputs_list_t *elm;
   uint8_t index = 0;
   printf("%sUTXO Outputs:[\n", PRINT_INDENTATION(indentation));
-  printf("%s\tOutputs Count: %d\n", PRINT_INDENTATION(indentation), utxo_outputs_count(outputs));
+  printf("%s\tOutput Count: %d\n", PRINT_INDENTATION(indentation), utxo_outputs_count(outputs));
 
   // print outputs
   if (outputs) {
