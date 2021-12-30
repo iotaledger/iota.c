@@ -160,16 +160,18 @@ void native_tokens_print(native_tokens_t **nt, uint8_t indentation) {
 
   native_tokens_t *elm, *tmp;
   char *amount_str;
+  uint16_t index = 0;
 
   printf("%sNative Tokens: [\n", PRINT_INDENTATION(indentation));
   printf("%s\tToken Count: %d\n", PRINT_INDENTATION(indentation), native_tokens_count(nt));
   HASH_ITER(hh, *nt, elm, tmp) {
     amount_str = uint256_to_str(elm->amount);
     if (amount_str != NULL) {
-      printf("%s\t[%s] ", PRINT_INDENTATION(indentation), amount_str);
+      printf("%s\t#%d [%s] ", PRINT_INDENTATION(indentation), index, amount_str);
       dump_hex_str(elm->token_id, NATIVE_TOKEN_ID_BYTES);
       free(amount_str);
     }
+    index++;
   }
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }
