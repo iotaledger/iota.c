@@ -75,6 +75,14 @@ int uint256_equal(uint256_t const *a, uint256_t const *b);
  */
 char *uint256_to_str(uint256_t *num);
 
+/**
+ * @brief Clone uint256 object, it should be freed after use.
+ *
+ * @param[in] num A pointer to uint256 object for clone
+ * @return uint256_t* New uint256 object
+ */
+uint256_t *uint256_clone(uint256_t const *const num);
+
 #ifdef __cplusplus
 }
 #endif

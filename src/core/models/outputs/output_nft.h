@@ -80,6 +80,14 @@ size_t output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len);
 output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len);
 
 /**
+ * @brief Clone NFT Output object, it should be freed after use.
+ *
+ * @param[in] output NFT Output object for clone
+ * @return output_nft_t* New NFT Output object
+ */
+output_nft_t* output_nft_clone(output_nft_t const* const output);
+
+/**
  * @brief Print NFT Output
  *
  * @param[in] output NFT Output object

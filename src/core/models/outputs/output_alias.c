@@ -413,6 +413,27 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   return output;
 }
 
+output_alias_t* output_alias_clone(output_alias_t const* const output) {
+  if (output == NULL) {
+    return NULL;
+  }
+
+  output_alias_t* new_output = malloc(sizeof(output_alias_t));
+  if (new_output) {
+    new_output->amount = output->amount;
+    new_output->native_tokens = native_tokens_clone(output->native_tokens);
+    memcpy(new_output->alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
+    new_output->st_ctl = address_clone(output->st_ctl);
+    new_output->gov_ctl = address_clone(output->gov_ctl);
+    new_output->state_index = output->state_index;
+    new_output->state_metadata = byte_buf_clone(output->state_metadata);
+    new_output->foundry_counter = output->foundry_counter;
+    new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
+  }
+
+  return new_output;
+}
+
 void output_alias_print(output_alias_t* output) {
   if (output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);

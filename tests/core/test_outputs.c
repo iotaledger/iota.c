@@ -363,10 +363,10 @@ void test_utxo_outputs() {
   utxo_outputs_print(outputs);
 
   // clean up
-  free(extended_output);
-  free(alias_output);
-  free(foundry_output);
-  free(nft_output);
+  output_extended_free(extended_output);
+  output_alias_free(alias_output);
+  output_foundry_free(foundry_output);
+  output_nft_free(nft_output);
   free(outputs_list_buf);
   utxo_outputs_free(outputs);
   utxo_outputs_free(deser_outputs);
@@ -390,7 +390,7 @@ void test_deprecated_and_unsupported_utxo_outputs() {
   // check outputs list length
   TEST_ASSERT_EQUAL_INT(0, utxo_outputs_count(outputs));
 
-  // create test data for deserealization
+  // create test data for deserialization
   byte_t outputs_list_contains_SigLockedSingleOutput_buf[] = {
       1, 0,                 // number of outputs
       OUTPUT_SINGLE_OUTPUT  // SigLockedSingleOutput output type
@@ -400,7 +400,7 @@ void test_deprecated_and_unsupported_utxo_outputs() {
       outputs_list_contains_SigLockedSingleOutput_buf, sizeof(outputs_list_contains_SigLockedSingleOutput_buf));
   TEST_ASSERT_NULL(deser_outputs);  // expect deserialization fails
 
-  // create test data for deserealization
+  // create test data for deserialization
   byte_t outputs_list_contains_SigLockedDustAllowanceOutput_buf[] = {
       1, 0,                  // number of outputs
       OUTPUT_DUST_ALLOWANCE  // SigLockedSingleOutput output type
@@ -410,7 +410,7 @@ void test_deprecated_and_unsupported_utxo_outputs() {
                                            sizeof(outputs_list_contains_SigLockedDustAllowanceOutput_buf));
   TEST_ASSERT_NULL(deser_outputs);  // expect deserialization fails
 
-  // create test data for deserealization
+  // create test data for deserialization
   byte_t outputs_list_contains_TreasuryOutput_buf[] = {
       1, 0,            // number of outputs
       OUTPUT_TREASURY  // Treasury output type

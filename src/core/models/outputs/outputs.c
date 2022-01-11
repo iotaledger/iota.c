@@ -70,20 +70,28 @@ int utxo_outputs_add(utxo_outputs_list_t **outputs, utxo_output_type_t type, voi
           printf("[%s:%d] deprecated or unsupported output type can not be added\n", __func__, __LINE__);
           break;
         case OUTPUT_EXTENDED:
-          next->output->output = malloc(sizeof(output_extended_t));
-          memcpy(next->output->output, output, sizeof(output_extended_t));
+          next->output->output = output_extended_clone((output_extended_t const *const)output);
+          if (!next->output->output) {
+            printf("[%s:%d] can not add Extended Output type\n", __func__, __LINE__);
+          }
           break;
         case OUTPUT_ALIAS:
-          next->output->output = malloc(sizeof(output_alias_t));
-          memcpy(next->output->output, output, sizeof(output_alias_t));
+          next->output->output = output_alias_clone((output_alias_t const *const)output);
+          if (!next->output->output) {
+            printf("[%s:%d] can not add Alias Output type\n", __func__, __LINE__);
+          }
           break;
         case OUTPUT_FOUNDRY:
-          next->output->output = malloc(sizeof(output_foundry_t));
-          memcpy(next->output->output, output, sizeof(output_foundry_t));
+          next->output->output = output_foundry_clone((output_foundry_t const *const)output);
+          if (!next->output->output) {
+            printf("[%s:%d] can not add Foundry Output type\n", __func__, __LINE__);
+          }
           break;
         case OUTPUT_NFT:
-          next->output->output = malloc(sizeof(output_nft_t));
-          memcpy(next->output->output, output, sizeof(output_nft_t));
+          next->output->output = output_nft_clone((output_nft_t const *const)output);
+          if (!next->output->output) {
+            printf("[%s:%d] can not add NFT Output type\n", __func__, __LINE__);
+          }
           break;
       }
       if (next->output->output) {

@@ -152,6 +152,25 @@ native_tokens_t *native_tokens_deserialize(byte_t buf[], size_t buf_len) {
   return nt;
 }
 
+native_tokens_t *native_tokens_clone(native_tokens_t const *const nt) {
+  if (nt == NULL) {
+    return NULL;
+  }
+
+  native_tokens_t *new_native_tokens = native_tokens_new();
+
+  native_tokens_t *token, *token_tmp;
+  HASH_ITER(hh, (native_tokens_t *)nt, token, token_tmp) {
+    if (native_tokens_add(&new_native_tokens, token->token_id, token->amount) == -1) {
+      printf("[%s:%d] can not clone native tokens\n", __func__, __LINE__);
+      native_tokens_free(&new_native_tokens);
+      return NULL;
+    }
+  }
+
+  return new_native_tokens;
+}
+
 void native_tokens_print(native_tokens_t **nt) {
   if (nt == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);

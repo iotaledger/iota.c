@@ -354,6 +354,24 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   return output;
 }
 
+output_nft_t* output_nft_clone(output_nft_t const* const output) {
+  if (output == NULL) {
+    return NULL;
+  }
+
+  output_nft_t* new_output = malloc(sizeof(output_nft_t));
+  if (new_output) {
+    new_output->address = address_clone(output->address);
+    new_output->amount = output->amount;
+    new_output->native_tokens = native_tokens_clone(output->native_tokens);
+    memcpy(new_output->nft_id, output->nft_id, ADDRESS_NFT_BYTES);
+    new_output->immutable_metadata = byte_buf_clone(output->immutable_metadata);
+    new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
+  }
+
+  return new_output;
+}
+
 void output_nft_print(output_nft_t* output) {
   if (output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
