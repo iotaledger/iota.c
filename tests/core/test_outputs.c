@@ -372,10 +372,60 @@ void test_utxo_outputs() {
   utxo_outputs_free(deser_outputs);
 }
 
+void test_deprecated_and_unsupported_utxo_outputs() {
+  utxo_outputs_list_t* outputs = utxo_outputs_new();
+  TEST_ASSERT_NULL(outputs);
+
+  uint8_t dummy_output = 0;
+
+  // try to add SigLockedSingleOutput to the outputs list
+  TEST_ASSERT_EQUAL_INT(-1, utxo_outputs_add(&outputs, OUTPUT_SINGLE_OUTPUT, &dummy_output));
+
+  // try to add SigLockedDustAllowanceOutput to the output list
+  TEST_ASSERT_EQUAL_INT(-1, utxo_outputs_add(&outputs, OUTPUT_DUST_ALLOWANCE, &dummy_output));
+
+  // try to add Treasury output to the output list
+  TEST_ASSERT_EQUAL_INT(-1, utxo_outputs_add(&outputs, OUTPUT_TREASURY, &dummy_output));
+
+  // check outputs list length
+  TEST_ASSERT_EQUAL_INT(0, utxo_outputs_count(outputs));
+
+  // create test data for deserealization
+  byte_t outputs_list_contains_SigLockedSingleOutput_buf[] = {
+      1, 0,                 // number of outputs
+      OUTPUT_SINGLE_OUTPUT  // SigLockedSingleOutput output type
+  };
+  // try to deserialize outputs list and validate it
+  utxo_outputs_list_t* deser_outputs = utxo_outputs_deserialize(
+      outputs_list_contains_SigLockedSingleOutput_buf, sizeof(outputs_list_contains_SigLockedSingleOutput_buf));
+  TEST_ASSERT_NULL(deser_outputs);  // expect deserialization fails
+
+  // create test data for deserealization
+  byte_t outputs_list_contains_SigLockedDustAllowanceOutput_buf[] = {
+      1, 0,                  // number of outputs
+      OUTPUT_DUST_ALLOWANCE  // SigLockedSingleOutput output type
+  };
+  // try to deserialize outputs list and validate it
+  deser_outputs = utxo_outputs_deserialize(outputs_list_contains_SigLockedDustAllowanceOutput_buf,
+                                           sizeof(outputs_list_contains_SigLockedDustAllowanceOutput_buf));
+  TEST_ASSERT_NULL(deser_outputs);  // expect deserialization fails
+
+  // create test data for deserealization
+  byte_t outputs_list_contains_TreasuryOutput_buf[] = {
+      1, 0,            // number of outputs
+      OUTPUT_TREASURY  // Treasury output type
+  };
+  // try to deserialize outputs list and validate it
+  deser_outputs = utxo_outputs_deserialize(outputs_list_contains_TreasuryOutput_buf,
+                                           sizeof(outputs_list_contains_TreasuryOutput_buf));
+  TEST_ASSERT_NULL(deser_outputs);  // expect deserialization fails
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_utxo_outputs);
+  RUN_TEST(test_deprecated_and_unsupported_utxo_outputs);
 
   return UNITY_END();
 }

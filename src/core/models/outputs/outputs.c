@@ -21,6 +21,11 @@ void utxo_outputs_free(utxo_outputs_list_t *outputs) {
     utxo_outputs_list_t *elm, *tmp;
     LL_FOREACH_SAFE(outputs, elm, tmp) {
       switch (elm->output->output_type) {
+        case OUTPUT_SINGLE_OUTPUT:
+        case OUTPUT_DUST_ALLOWANCE:
+        case OUTPUT_TREASURY:
+          printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
+          break;
         case OUTPUT_EXTENDED:
           output_extended_free(elm->output->output);
           break;
@@ -42,7 +47,7 @@ void utxo_outputs_free(utxo_outputs_list_t *outputs) {
 }
 
 int utxo_outputs_add(utxo_outputs_list_t **outputs, utxo_output_type_t type, void *output) {
-  if (output == NULL) {
+  if (outputs == NULL || output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -57,7 +62,13 @@ int utxo_outputs_add(utxo_outputs_list_t **outputs, utxo_output_type_t type, voi
     next->output = malloc(sizeof(utxo_output_t));
     if (next->output) {
       next->output->output_type = type;
+      next->output->output = NULL;
       switch (next->output->output_type) {
+        case OUTPUT_SINGLE_OUTPUT:
+        case OUTPUT_DUST_ALLOWANCE:
+        case OUTPUT_TREASURY:
+          printf("[%s:%d] deprecated or unsupported output type can not be added\n", __func__, __LINE__);
+          break;
         case OUTPUT_EXTENDED:
           next->output->output = malloc(sizeof(output_extended_t));
           memcpy(next->output->output, output, sizeof(output_extended_t));
@@ -132,6 +143,11 @@ size_t utxo_outputs_serialize_len(utxo_outputs_list_t *outputs) {
   size_t output_len;
   LL_FOREACH(outputs, elm) {
     switch (elm->output->output_type) {
+      case OUTPUT_SINGLE_OUTPUT:
+      case OUTPUT_DUST_ALLOWANCE:
+      case OUTPUT_TREASURY:
+        printf("[%s:%d] deprecated or unsupported output type will not be serialized\n", __func__, __LINE__);
+        break;
       case OUTPUT_EXTENDED:
         output_len = output_extended_serialize_len(elm->output->output);
         break;
@@ -182,6 +198,11 @@ size_t utxo_outputs_serialize(utxo_outputs_list_t *outputs, byte_t buf[], size_t
   utxo_outputs_list_t *elm;
   LL_FOREACH(outputs, elm) {
     switch (elm->output->output_type) {
+      case OUTPUT_SINGLE_OUTPUT:
+      case OUTPUT_DUST_ALLOWANCE:
+      case OUTPUT_TREASURY:
+        printf("[%s:%d] deprecated or unsupported output type will not be serialized\n", __func__, __LINE__);
+        break;
       case OUTPUT_EXTENDED:
         offset +=
             output_extended_serialize(elm->output->output, offset, output_extended_serialize_len(elm->output->output));
@@ -244,6 +265,12 @@ utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len) {
 
     // deserialize output
     switch (new_output->output->output_type) {
+      case OUTPUT_SINGLE_OUTPUT:
+      case OUTPUT_DUST_ALLOWANCE:
+      case OUTPUT_TREASURY:
+        printf("[%s:%d] can not deserialize deprecated or unsupported output type\n", __func__, __LINE__);
+        utxo_outputs_free(outputs);
+        return NULL;
       case OUTPUT_EXTENDED:
         new_output->output->output = output_extended_deserialize(&buf[offset], buf_len - offset);
         if (!new_output->output->output) {
@@ -295,6 +322,11 @@ void utxo_outputs_print(utxo_outputs_list_t *outputs) {
     LL_FOREACH(outputs, elm) {
       printf("#%d ", index);
       switch (elm->output->output_type) {
+        case OUTPUT_SINGLE_OUTPUT:
+        case OUTPUT_DUST_ALLOWANCE:
+        case OUTPUT_TREASURY:
+          printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
+          break;
         case OUTPUT_EXTENDED:
           output_extended_print(elm->output->output);
           break;
