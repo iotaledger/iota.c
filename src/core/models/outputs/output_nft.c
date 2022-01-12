@@ -5,6 +5,7 @@
 
 #include "core/address.h"
 #include "core/models/outputs/output_nft.h"
+#include "core/models/outputs/outputs.h"
 #include "uthash.h"
 #include "utlist.h"
 
@@ -194,8 +195,8 @@ size_t output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) 
 
   byte_t* offset = buf;
 
-  // fill-in output type, set to value 6 to denote a NFT Output
-  memset(offset, 6, sizeof(uint8_t));
+  // fill-in NFT Output type
+  memset(offset, OUTPUT_NFT, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
   // address
@@ -261,7 +262,7 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   size_t offset = 0;
 
   // output type
-  if (buf[offset] != 6) {
+  if (buf[offset] != OUTPUT_NFT) {
     printf("[%s:%d] buffer does not contain NFT Output object\n", __func__, __LINE__);
     output_nft_free(output);
     return NULL;
@@ -287,7 +288,8 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint64_t);
 
   // native tokens
-  uint16_t tokens_count = *((uint16_t*)&buf[offset]);
+  uint16_t tokens_count = 0;
+  memcpy(&tokens_count, &buf[offset], sizeof(uint16_t));
   if (tokens_count > 0) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {
@@ -350,6 +352,24 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   }
 
   return output;
+}
+
+output_nft_t* output_nft_clone(output_nft_t const* const output) {
+  if (output == NULL) {
+    return NULL;
+  }
+
+  output_nft_t* new_output = malloc(sizeof(output_nft_t));
+  if (new_output) {
+    new_output->address = address_clone(output->address);
+    new_output->amount = output->amount;
+    new_output->native_tokens = native_tokens_clone(output->native_tokens);
+    memcpy(new_output->nft_id, output->nft_id, ADDRESS_NFT_BYTES);
+    new_output->immutable_metadata = byte_buf_clone(output->immutable_metadata);
+    new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
+  }
+
+  return new_output;
 }
 
 void output_nft_print(output_nft_t* output) {

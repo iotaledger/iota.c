@@ -122,6 +122,14 @@ size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[], size_t buf_le
 native_tokens_t *native_tokens_deserialize(byte_t buf[], size_t buf_len);
 
 /**
+ * @brief Clone Native Token set object, it should be freed after use.
+ *
+ * @param[in] nt Native Token set object for clone
+ * @return native_tokens_t* New Native Token set object
+ */
+native_tokens_t *native_tokens_clone(native_tokens_t const *const nt);
+
+/**
  * @brief Print Native Tokens set.
  *
  * @param[in] nt Native Tokens set

@@ -6,111 +6,129 @@
 
 #include <stdint.h>
 
-#include "core/address.h"
 #include "core/types.h"
-#include "uthash.h"
-
-// Serialized bytes = output type(uint8_t) + address type(uint8_t) + ed25519 address(32bytes) + amount(uint64_t)
-#define UTXO_OUTPUT_SERIALIZED_BYTES (1 + 1 + ADDRESS_ED25519_BYTES + 8)
 
 /**
- * @brief Output types
+ * @brief UTXO output types
  *
- * SigLockedSingleOutput: Describes a deposit to a single address which is unlocked via a signature
- * SigLockedDustAllowanceOutput: enables an address to receive dust outputs. It can be consumed as an input like a
- * regular SigLockedSingleOutput
- *
- * The amount of a SigLockedDustAllowanceOutput must be at least 1 Mi. Apart from this, SigLockedDustAllowanceOutputs
- * are processed identical to SigLockedSingleOutput
+ * SigLockedSingleOutput: Defines an output (with a certain amount) to a single target address which is unlocked via
+ *                        a signature proving ownership over the given address.
+ * SigLockedDustAllowanceOutput: Works in the same way as a SigLockedSingleOutput but additionally controls the dust
+ *                               allowance on the target address.
+ * Treasury output: Describes an output which holds the treasury of a network.
+ * Extended output: Describes a deposit to a single address. The output might contain optional feature blocks and
+ *                  native tokens.
+ * Alias output: Describes an alias account in the ledger.
+ * Foundry output: Describes a foundry that controls supply of native tokens.
+ * NFT output: Describes a unique, non-fungible token deposit to a single address.
  *
  */
 typedef enum {
-  OUTPUT_SINGLE_OUTPUT = 0,  ///< SigLockedSingleOutput
-  OUTPUT_DUST_ALLOWANCE      ///< SigLockedDustAllowanceOutput
-} output_type_t;
+  OUTPUT_SINGLE_OUTPUT = 0,   ///< SigLockedSingleOutput, deprecated
+  OUTPUT_DUST_ALLOWANCE = 1,  ///< SigLockedDustAllowanceOutput, deprecated
+  OUTPUT_TREASURY = 2,        ///< Treasury output, not supported in this library
+  OUTPUT_EXTENDED = 3,        ///< Extended output
+  OUTPUT_ALIAS = 4,           ///< Alias output
+  OUTPUT_FOUNDRY = 5,         ///< Foundry output
+  OUTPUT_NFT = 6              ///< NFT output
+} utxo_output_type_t;
 
 /**
- * @brief Stores deposit outputs in a hash table
+ * @brief An utxo output
  *
  */
 typedef struct {
-  uint8_t output_type;                    ///< 0: SigLockedSingleOutput, 1: SigLockedDustAllowanceOutput
-  byte_t address[ADDRESS_ED25519_BYTES];  ///< Ed25519 address
-  uint64_t amount;                        ///< The amount of tokens to deposit with this output.
-  UT_hash_handle hh;
-} outputs_ht;
+  utxo_output_type_t output_type;  ///< 3: Extended output, 4: Alias output, 5: Foundry output, 6: NFT output
+  void *output;                    //< Pointer to an output
+} utxo_output_t;
+
+/**
+ * @brief A list of utxo outputs
+ *
+ */
+typedef struct utxo_outputs_list {
+  utxo_output_t *output;           //< Points to a current output
+  struct utxo_outputs_list *next;  //< Points to a next output
+} utxo_outputs_list_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @brief Initialize an utxo output hash table.
+ * @brief Initialize an utxo output list
  *
- * @return outputs_ht* a NULL pointer
+ * @return utxo_outputs_list_t* a NULL pointer
  */
-static outputs_ht *utxo_outputs_new() { return NULL; }
+utxo_outputs_list_t *utxo_outputs_new();
 
 /**
- * @brief Find an utxo output by a given address
+ * @brief Free an utxo output list
  *
- * @param[in] ht An utxo output hash table
- * @param[in] addr An address for searching
- * @return outputs_ht*
+ * @param[in] outputs A list of utxo outputs
  */
-static outputs_ht *utxo_outputs_find_by_addr(outputs_ht **ht, byte_t addr[]) {
-  outputs_ht *elm = NULL;
-  HASH_FIND(hh, *ht, addr, ADDRESS_ED25519_BYTES, elm);
-  return elm;
-}
+void utxo_outputs_free(utxo_outputs_list_t *outputs);
 
 /**
- * @brief Get the size of utxo outputs
+ * @brief Add an output to an utxo output table
  *
- * @param[in] ht An utxo output hash table.
- * @return uint16_t
+ * @param[in] outputs A list of utxo outputs
+ * @param[in] type UTXO output type
+ * @param[in] output Pointer to an output
+ * @return int 0 on success, -1 on failure
  */
-static uint16_t utxo_outputs_count(outputs_ht **ht) { return (uint16_t)HASH_COUNT(*ht); }
+int utxo_outputs_add(utxo_outputs_list_t **outputs, utxo_output_type_t type, void *output);
 
 /**
- * @brief Free an utxo output hash table.
+ * @brief Get number of elements in an utxo output list
  *
- * @param[in] utxo_ins An utxo output hash table.
+ * @param[in] outputs A list of utxo outputs
+ * @return uint16_t A number of elements
  */
-static void utxo_outputs_free(outputs_ht **ht) {
-  outputs_ht *curr_elm, *tmp;
-  HASH_ITER(hh, *ht, curr_elm, tmp) {
-    HASH_DEL(*ht, curr_elm);
-    free(curr_elm);
-  }
-}
+uint16_t utxo_outputs_count(utxo_outputs_list_t *outputs);
 
 /**
- * @brief Append an utxo output element to the table.
+ * @brief Get an output pointer in the list from a given index
  *
- * @param[in] ht An utxo output hash table
- * @param[in] type output type
- * @param[in] addr An ED25519 address
- * @param[in] amount The amount of tokens to deposit
- * @return int 0 on success
+ * @param[in] outputs A list of utxo outputs
+ * @param[in] index A index of an output
+ * @return utxo_output_t* A pointer to an output
  */
-int utxo_outputs_add(outputs_ht **ht, output_type_t type, byte_t addr[], uint64_t amount);
+utxo_output_t *utxo_outputs_get(utxo_outputs_list_t *outputs, uint16_t index);
 
 /**
- * @brief Serialize outputs to a buffer
+ * @brief Get a length of a serialized utxo output list
  *
- * @param[in] ht An utxo output hash table
- * @param[out] buf A buffer for serialization
- * @return size_t number of bytes write to the buffer
+ * @param[in] outputs A list of utxo outputs
+ * @return size_t The number of bytes of a serialized data
  */
-size_t utxo_outputs_serialization(outputs_ht **ht, byte_t buf[]);
+size_t utxo_outputs_serialize_len(utxo_outputs_list_t *outputs);
 
 /**
- * @brief Print an utxo output hash table.
+ * @brief Serialize utxo output list to a binary data
  *
- * @param[in] ht An utxo output hash table.
+ * @param[in] outputs A list of utxo outputs
+ * @param[out] buf A buffer holds the serialized data
+ * @param[in] buf_len The length of buffer
+ * @return size_t The bytes written is returned, 0 on errors
  */
-void utxo_outputs_print(outputs_ht **ht);
+size_t utxo_outputs_serialize(utxo_outputs_list_t *outputs, byte_t buf[], size_t buf_len);
+
+/**
+ * @brief Deserialize binary data to a utxo output list object
+ *
+ * @param[in] buf The buffer holds a serialized data
+ * @param[in] buf_len The length of the buffer
+ * @return utxo_outputs_list_t* The deserialized utxo output list, NULL on errors
+ */
+utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len);
+
+/**
+ * @brief Print an utxo output list
+ *
+ * @param[in] outputs A list of utxo outputs
+ */
+void utxo_outputs_print(utxo_outputs_list_t *outputs);
 
 #ifdef __cplusplus
 }

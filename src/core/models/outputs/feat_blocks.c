@@ -745,6 +745,59 @@ feat_blk_list_t* feat_blk_list_deserialize(byte_t buf[], size_t buf_len) {
   return list;
 }
 
+feat_blk_list_t* feat_blk_list_clone(feat_blk_list_t const* const list) {
+  if (list == NULL) {
+    return NULL;
+  }
+
+  feat_blk_list_t* new_list = new_feat_blk_list();
+
+  int res;
+  feat_blk_list_t* elm;
+  LL_FOREACH((feat_blk_list_t*)list, elm) {
+    switch (elm->blk->type) {
+      case FEAT_SENDER_BLOCK:
+        res = feat_blk_list_add_sender(&new_list, (address_t*)elm->blk->block);
+        break;
+      case FEAT_ISSUER_BLOCK:
+        res = feat_blk_list_add_issuer(&new_list, (address_t*)elm->blk->block);
+        break;
+      case FEAT_DUST_DEP_RET_BLOCK:
+        res = feat_blk_list_add_ddr(&new_list, *((uint64_t*)elm->blk->block));
+        break;
+      case FEAT_TIMELOCK_MS_INDEX_BLOCK:
+        res = feat_blk_list_add_tmi(&new_list, *((uint32_t*)elm->blk->block));
+        break;
+      case FEAT_TIMELOCK_UNIX_BLOCK:
+        res = feat_blk_list_add_tu(&new_list, *((uint32_t*)elm->blk->block));
+        break;
+      case FEAT_EXPIRATION_MS_INDEX_BLOCK:
+        res = feat_blk_list_add_emi(&new_list, *((uint32_t*)elm->blk->block));
+        break;
+      case FEAT_EXPIRATION_UNIX_BLOCK:
+        res = feat_blk_list_add_eu(&new_list, *((uint32_t*)elm->blk->block));
+        break;
+      case FEAT_METADATA_BLOCK:
+        res = feat_blk_list_add_metadata(&new_list, ((feat_metadata_blk_t*)elm->blk->block)->data,
+                                         ((feat_metadata_blk_t*)elm->blk->block)->data_len);
+        break;
+      case FEAT_INDEXATION_BLOCK:
+        res = feat_blk_list_add_indexaction(&new_list, ((feat_indexaction_blk_t*)elm->blk->block)->tag,
+                                            ((feat_indexaction_blk_t*)elm->blk->block)->tag_len);
+        break;
+      default:
+        break;
+    }
+    if (res == -1) {
+      printf("[%s:%d] can not clone feature blocks\n", __func__, __LINE__);
+      free_feat_blk_list(new_list);
+      return NULL;
+    }
+  }
+
+  return new_list;
+}
+
 void feat_blk_list_print(feat_blk_list_t* list) {
   feat_blk_list_t* elm;
   uint8_t index = 0;

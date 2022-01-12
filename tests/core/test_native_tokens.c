@@ -165,11 +165,81 @@ void test_native_tokens_sort() {
   native_tokens_free(&deser_tokens);
 }
 
+void test_native_tokens_clone() {
+  //=====NULL Native Tokens list=====
+  native_tokens_t* new_tokens = native_tokens_clone(NULL);
+  TEST_ASSERT_NULL(new_tokens);
+
+  //=====Test Native Tokens list object=====
+  byte_t token_id1[NATIVE_TOKEN_ID_BYTES] = {
+      0xC8, 0x23, 0xAA, 0x49, 0x94, 0xF1, 0xBF, 0xB2, 0x7C, 0x6E, 0x80, 0x63, 0x4F, 0xE,  0xC7, 0x4E, 0x2C, 0x36, 0x75,
+      0xD2, 0x62, 0xB3, 0x7,  0x1,  0xA5, 0x4D, 0x58, 0x7E, 0x8D, 0x95, 0xB6, 0xBF, 0xCA, 0x2,  0x6A, 0xAC, 0xF3, 0x48};
+  byte_t token_id2[NATIVE_TOKEN_ID_BYTES] = {
+      0x9,  0x59, 0x55, 0x7F, 0xB1, 0xB9, 0x32, 0xE,  0x15, 0x94, 0x1C, 0x14, 0x2F, 0xD5, 0x3E, 0xA6, 0x4C, 0x77, 0xA5,
+      0xCF, 0x28, 0x8C, 0xB5, 0x6F, 0x88, 0x26, 0x90, 0x1,  0x50, 0x3D, 0x85, 0xF,  0x24, 0x42, 0x7D, 0x6F, 0x81, 0x2E};
+  byte_t token_id3[NATIVE_TOKEN_ID_BYTES] = {
+      0x18, 0xF2, 0x49, 0x6F, 0x44, 0x95, 0xB2, 0x5F, 0x69, 0x98, 0x88, 0x43, 0x9F, 0xC,  0x39, 0x41, 0xF,  0x2,  0x27,
+      0x60, 0xE7, 0xEA, 0x9,  0xF3, 0x4D, 0x69, 0xD9, 0xF3, 0x3B, 0xF6, 0xEF, 0x52, 0xE5, 0xFA, 0x7C, 0xEF, 0x21, 0xC8};
+
+  native_tokens_t* tokens = native_tokens_new();
+
+  // add Native Token 1 to a set
+  uint256_t* amount1 = uint256_from_str("1000000000000000000000000000000000000000000000000000000000");
+  TEST_ASSERT(native_tokens_add(&tokens, token_id1, amount1) == 0);
+  free(amount1);
+
+  // add Native Token 2
+  uint256_t* amount2 = uint256_from_str("100000000000000000000000000000000");
+  TEST_ASSERT(native_tokens_add(&tokens, token_id2, amount2) == 0);
+  free(amount2);
+
+  // add Native Token 3
+  uint256_t* amount3 = uint256_from_str("100000000000000000000000000000000000000000000000");
+  TEST_ASSERT(native_tokens_add(&tokens, token_id3, amount3) == 0);
+  free(amount3);
+
+  // check length of Native Tokens list
+  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&tokens));
+
+  // clone Native Tokens list object
+  new_tokens = native_tokens_clone(tokens);
+
+  // find and validate Native Token 1
+  native_tokens_t* elm = native_tokens_find_by_id(&tokens, token_id1);
+  native_tokens_t* new_elm = native_tokens_find_by_id(&new_tokens, token_id1);
+  TEST_ASSERT_NOT_NULL(elm);
+  TEST_ASSERT_NOT_NULL(new_elm);
+  TEST_ASSERT_EQUAL_MEMORY(elm->token_id, new_elm->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(elm->amount, new_elm->amount, sizeof(uint256_t));
+
+  // find and validate Native Token 2
+  elm = native_tokens_find_by_id(&tokens, token_id2);
+  new_elm = native_tokens_find_by_id(&new_tokens, token_id2);
+  TEST_ASSERT_NOT_NULL(elm);
+  TEST_ASSERT_NOT_NULL(new_elm);
+  TEST_ASSERT_EQUAL_MEMORY(elm->token_id, new_elm->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(elm->amount, new_elm->amount, sizeof(uint256_t));
+
+  // find and validate Native Token 3
+  elm = native_tokens_find_by_id(&tokens, token_id3);
+  new_elm = native_tokens_find_by_id(&new_tokens, token_id3);
+  TEST_ASSERT_NOT_NULL(elm);
+  TEST_ASSERT_NOT_NULL(new_elm);
+  TEST_ASSERT_EQUAL_MEMORY(elm->token_id, new_elm->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(elm->amount, new_elm->amount, sizeof(uint256_t));
+
+  native_tokens_print(&new_tokens);
+
+  native_tokens_free(&new_tokens);
+  native_tokens_free(&tokens);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_native_tokens);
   RUN_TEST(test_native_tokens_sort);
+  RUN_TEST(test_native_tokens_clone);
 
   return UNITY_END();
 }

@@ -437,6 +437,25 @@ void test_uint256_to_str() {
   free(str);
 }
 
+void test_uint256_clone() {
+  //=====NULL unsigned 256-bit number=====
+  uint256_t *new_num = uint256_clone(NULL);
+  TEST_ASSERT_NULL(new_num);
+
+  //====="Random" unsigned 256-bit number=====
+  uint256_t num;
+  num.bits[0] = 0xE36CF8C718CD2CED;
+  num.bits[1] = 0x6DBAA3BB90F8B53F;
+  num.bits[2] = 0xAF9F3AC14DF900CD;
+  num.bits[3] = 0x7538DCFB7617FFFF;
+
+  new_num = uint256_clone(&num);
+  TEST_ASSERT_NOT_NULL(new_num);
+  TEST_ASSERT_EQUAL_MEMORY(num.bits, new_num->bits, sizeof(num.bits));
+
+  free(new_num);
+}
+
 int main() {
   UNITY_BEGIN();
 
@@ -445,6 +464,7 @@ int main() {
   RUN_TEST(test_uint256_sub);
   RUN_TEST(test_uint256_equal);
   RUN_TEST(test_uint256_to_str);
+  RUN_TEST(test_uint256_clone);
 
   return UNITY_END();
 }

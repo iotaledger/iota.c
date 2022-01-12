@@ -232,3 +232,16 @@ char *uint256_to_str(uint256_t *num) {
 
   return str;
 }
+
+uint256_t *uint256_clone(uint256_t const *const num) {
+  if (num == NULL) {
+    return NULL;
+  }
+
+  uint256_t *new_num = malloc(sizeof(uint256_t));
+  if (new_num) {
+    memcpy(new_num->bits, num->bits, sizeof(uint64_t) * 4);
+  }
+
+  return new_num;
+}

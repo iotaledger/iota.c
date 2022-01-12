@@ -4,6 +4,7 @@
 #include <inttypes.h>
 
 #include "core/models/outputs/output_foundry.h"
+#include "core/models/outputs/outputs.h"
 #include "uthash.h"
 #include "utlist.h"
 
@@ -193,8 +194,8 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
 
   byte_t* offset = buf;
 
-  // fill-in output type, set to value 5 to denote a Foundry Output
-  memset(offset, 5, sizeof(uint8_t));
+  // fill-in Foundry Output type
+  memset(offset, OUTPUT_FOUNDRY, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
   // address
@@ -265,7 +266,7 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   size_t offset = 0;
 
   // Check if output type is foundry output
-  if (buf[offset] != 5) {
+  if (buf[offset] != OUTPUT_FOUNDRY) {
     printf("[%s:%d] buffer does not contain Foundry Output object\n", __func__, __LINE__);
     output_foundry_free(output);
     return NULL;
@@ -374,6 +375,27 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   }
 
   return output;
+}
+
+output_foundry_t* output_foundry_clone(output_foundry_t const* const output) {
+  if (output == NULL) {
+    return NULL;
+  }
+
+  output_foundry_t* new_output = malloc(sizeof(output_foundry_t));
+  if (new_output) {
+    new_output->address = address_clone(output->address);
+    new_output->amount = output->amount;
+    new_output->native_tokens = native_tokens_clone(output->native_tokens);
+    new_output->serial = output->serial;
+    memcpy(new_output->token_tag, output->token_tag, TOKEN_TAG_BYTES_LEN);
+    new_output->circ_supply = uint256_clone(output->circ_supply);
+    new_output->max_supply = uint256_clone(output->max_supply);
+    new_output->token_scheme = output->token_scheme;
+    new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
+  }
+
+  return new_output;
 }
 
 void output_foundry_print(output_foundry_t* output) {
