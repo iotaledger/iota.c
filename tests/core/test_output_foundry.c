@@ -376,12 +376,106 @@ void test_output_foundry_without_feature_blocks() {
   output_foundry_free(deser_output);
 }
 
+void test_output_foundry_clone() {
+  //=====NULL Foundry Output object=====
+  output_foundry_t* new_output = output_foundry_clone(NULL);
+  TEST_ASSERT_NULL(new_output);
+
+  //=====Test Foundry Output object=====
+  // create random ED25519 address
+  address_t addr = {};
+  addr.type = ADDRESS_TYPE_ED25519;
+  iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
+
+  // create Native Tokens
+  native_tokens_t* native_tokens = native_tokens_new();
+  uint256_t* amount1 = uint256_from_str("111111111");
+  native_tokens_add(&native_tokens, token_id1, amount1);
+  uint256_t* amount2 = uint256_from_str("222222222");
+  native_tokens_add(&native_tokens, token_id2, amount2);
+  uint256_t* amount3 = uint256_from_str("333333333");
+  native_tokens_add(&native_tokens, token_id3, amount3);
+
+  // create random token tag
+  byte_t token_tag[TOKEN_TAG_BYTES_LEN];
+  iota_crypto_randombytes(token_tag, TOKEN_TAG_BYTES_LEN);
+
+  // create circulating and maximum supply
+  uint256_t* circ_supply = uint256_from_str("444444444");
+  uint256_t* max_supply = uint256_from_str("555555555");
+
+  // create metadata
+  byte_t test_data[] = "Test metadata...";
+  byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
+
+  // create Feature Blocks
+  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
+
+  // create Foundry Output
+  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
+                                                SIMPLE_TOKEN_SCHEME, feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+
+  // clone Foundry Output object
+  new_output = output_foundry_clone(output);
+
+  // validate new Foundry Output object
+  // validate address
+  TEST_ASSERT_EQUAL_MEMORY(output->address, new_output->address, sizeof(address_t));
+
+  // validate amount
+  TEST_ASSERT_EQUAL_UINT64(output->amount, new_output->amount);
+
+  // validate native tokens
+  TEST_ASSERT_NOT_NULL(output->native_tokens);
+  TEST_ASSERT_NOT_NULL(new_output->native_tokens);
+  TEST_ASSERT_EQUAL_UINT32(native_tokens_count(&output->native_tokens),
+                           native_tokens_count(&new_output->native_tokens));
+
+  // validate serial number
+  TEST_ASSERT_EQUAL_UINT32(output->serial, new_output->serial);
+
+  // validate token tag
+  TEST_ASSERT_EQUAL_MEMORY(output->token_tag, new_output->token_tag, TOKEN_TAG_BYTES_LEN);
+
+  // validate circulating supply
+  TEST_ASSERT_EQUAL_MEMORY(output->circ_supply, new_output->circ_supply, sizeof(uint256_t));
+
+  // validate maximum supply
+  TEST_ASSERT_EQUAL_MEMORY(output->max_supply, new_output->max_supply, sizeof(uint256_t));
+
+  // validate token scheme
+  TEST_ASSERT_EQUAL_UINT32(output->token_scheme, new_output->token_scheme);
+
+  // validate feature blocks
+  TEST_ASSERT_NOT_NULL(output->feature_blocks);
+  TEST_ASSERT_NOT_NULL(new_output->feature_blocks);
+  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(output->feature_blocks), feat_blk_list_len(new_output->feature_blocks));
+
+  // print new foundry output
+  output_foundry_print(output, 0);
+
+  // clean up
+  free(amount1);
+  free(amount2);
+  free(amount3);
+  free(circ_supply);
+  free(max_supply);
+  byte_buf_free(metadata);
+  native_tokens_free(&native_tokens);
+  free_feat_blk_list(feat_blocks);
+  output_foundry_free(new_output);
+  output_foundry_free(output);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_output_foundry);
   RUN_TEST(test_output_foundry_without_native_tokens);
   RUN_TEST(test_output_foundry_without_feature_blocks);
+  RUN_TEST(test_output_foundry_clone);
 
   return UNITY_END();
 }

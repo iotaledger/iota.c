@@ -5,6 +5,7 @@
 
 #include "core/address.h"
 #include "core/models/outputs/output_alias.h"
+#include "core/models/outputs/outputs.h"
 #include "uthash.h"
 #include "utlist.h"
 
@@ -217,8 +218,8 @@ size_t output_alias_serialize(output_alias_t* output, byte_t buf[], size_t buf_l
 
   byte_t* offset = buf;
 
-  // fill-in output type, set to value 4 to denote a Alias Output
-  memset(offset, 4, sizeof(uint8_t));
+  // fill-in Alias Output type
+  memset(offset, OUTPUT_ALIAS, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
   // amount
@@ -296,7 +297,7 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   size_t offset = 0;
 
   // output type
-  if (buf[offset] != 4) {
+  if (buf[offset] != OUTPUT_ALIAS) {
     printf("[%s:%d] buffer does not contain Alias Output object\n", __func__, __LINE__);
     output_alias_free(output);
     return NULL;
@@ -410,6 +411,27 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   }
 
   return output;
+}
+
+output_alias_t* output_alias_clone(output_alias_t const* const output) {
+  if (output == NULL) {
+    return NULL;
+  }
+
+  output_alias_t* new_output = malloc(sizeof(output_alias_t));
+  if (new_output) {
+    new_output->amount = output->amount;
+    new_output->native_tokens = native_tokens_clone(output->native_tokens);
+    memcpy(new_output->alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
+    new_output->st_ctl = address_clone(output->st_ctl);
+    new_output->gov_ctl = address_clone(output->gov_ctl);
+    new_output->state_index = output->state_index;
+    new_output->state_metadata = byte_buf_clone(output->state_metadata);
+    new_output->foundry_counter = output->foundry_counter;
+    new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
+  }
+
+  return new_output;
 }
 
 void output_alias_print(output_alias_t* output, uint8_t indentation) {

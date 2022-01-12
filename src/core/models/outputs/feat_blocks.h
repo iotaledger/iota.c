@@ -350,6 +350,14 @@ size_t feat_blk_list_serialize(feat_blk_list_t* list, byte_t buf[], size_t buf_l
 feat_blk_list_t* feat_blk_list_deserialize(byte_t buf[], size_t buf_len);
 
 /**
+ * @brief Clone feature block list object, it should be freed after use.
+ *
+ * @param[in] list A feature block list object for clone
+ * @return feat_blk_list_t* New feature block list object
+ */
+feat_blk_list_t* feat_blk_list_clone(feat_blk_list_t const* const list);
+
+/**
  * @brief Print a feature block list
  *
  * @param[in] list A feature block list

@@ -73,6 +73,14 @@ size_t output_extended_serialize(output_extended_t* output, byte_t buf[], size_t
 output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len);
 
 /**
+ * @brief Clone Extended Output object, it should be freed after use.
+ *
+ * @param[in] output Extended Output object for clone
+ * @return output_extended_t* New Extended Output object
+ */
+output_extended_t* output_extended_clone(output_extended_t const* const output);
+
+/**
  * @brief Print Extended Output
  *
  * @param[in] output Extended Output object

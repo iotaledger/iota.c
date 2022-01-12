@@ -5,6 +5,7 @@
 
 #include "core/address.h"
 #include "core/models/outputs/output_extended.h"
+#include "core/models/outputs/outputs.h"
 #include "core/types.h"
 #include "uthash.h"
 #include "utlist.h"
@@ -164,8 +165,8 @@ size_t output_extended_serialize(output_extended_t* output, byte_t buf[], size_t
 
   byte_t* offset = buf;
 
-  // fill-in output type, set to value 3 to denote a Extended Output
-  memset(offset, 3, sizeof(uint8_t));
+  // fill-in Extended Output type
+  memset(offset, OUTPUT_EXTENDED, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
   // address
@@ -214,7 +215,7 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   size_t offset = 0;
 
   // output type
-  if (buf[offset] != 3) {
+  if (buf[offset] != OUTPUT_EXTENDED) {
     printf("[%s:%d] buffer does not contain Extended Output object\n", __func__, __LINE__);
     output_extended_free(output);
     return NULL;
@@ -269,6 +270,22 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   }
 
   return output;
+}
+
+output_extended_t* output_extended_clone(output_extended_t const* const output) {
+  if (output == NULL) {
+    return NULL;
+  }
+
+  output_extended_t* new_output = malloc(sizeof(output_extended_t));
+  if (new_output) {
+    new_output->address = address_clone(output->address);
+    new_output->amount = output->amount;
+    new_output->native_tokens = native_tokens_clone(output->native_tokens);
+    new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
+  }
+
+  return new_output;
 }
 
 void output_extended_print(output_extended_t* output, uint8_t indentation) {

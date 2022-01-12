@@ -18,7 +18,7 @@ int native_tokens_add(native_tokens_t **nt, byte_t token_id[], uint256_t const *
   }
 
   if (native_tokens_count(nt) >= NATIVE_TOKENS_MAX_COUNT) {
-    printf("[%s:%d] Native Tokens count must be <= 256\n", __func__, __LINE__);
+    printf("[%s:%d] Native Tokens count must be <= %d\n", __func__, __LINE__, NATIVE_TOKENS_MAX_COUNT);
     return -1;
   }
 
@@ -150,6 +150,25 @@ native_tokens_t *native_tokens_deserialize(byte_t buf[], size_t buf_len) {
   }
 
   return nt;
+}
+
+native_tokens_t *native_tokens_clone(native_tokens_t const *const nt) {
+  if (nt == NULL) {
+    return NULL;
+  }
+
+  native_tokens_t *new_native_tokens = native_tokens_new();
+
+  native_tokens_t *token, *token_tmp;
+  HASH_ITER(hh, (native_tokens_t *)nt, token, token_tmp) {
+    if (native_tokens_add(&new_native_tokens, token->token_id, token->amount) == -1) {
+      printf("[%s:%d] can not clone native tokens\n", __func__, __LINE__);
+      native_tokens_free(&new_native_tokens);
+      return NULL;
+    }
+  }
+
+  return new_native_tokens;
 }
 
 void native_tokens_print(native_tokens_t **nt, uint8_t indentation) {

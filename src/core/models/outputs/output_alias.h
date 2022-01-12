@@ -87,6 +87,14 @@ size_t output_alias_serialize(output_alias_t* output, byte_t buf[], size_t buf_l
 output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len);
 
 /**
+ * @brief Clone Alias Output object, it should be freed after use.
+ *
+ * @param[in] output Alias Output object for clone
+ * @return output_alias_t* New Alias Output object
+ */
+output_alias_t* output_alias_clone(output_alias_t const* const output);
+
+/**
  * @brief Print Alias Output
  *
  * @param[in] output Alias Output object

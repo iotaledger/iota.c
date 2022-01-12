@@ -96,6 +96,14 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
 output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len);
 
 /**
+ * @brief Clone Foundry Output object, it should be freed after use.
+ *
+ * @param[in] output Foundry Output object for clone
+ * @return output_foundry_t* New Foundry Output object
+ */
+output_foundry_t* output_foundry_clone(output_foundry_t const* const output);
+
+/**
  * @brief Print Foundry Output
  *
  * @param[in] output Foundry Output object
