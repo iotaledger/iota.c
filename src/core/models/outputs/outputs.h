@@ -58,7 +58,7 @@ extern "C" {
 /**
  * @brief Initialize an utxo output list
  *
- * @return utxo_outputs_list_t* or NULL on failure
+ * @return utxo_outputs_list_t* a NULL pointer
  */
 utxo_outputs_list_t *utxo_outputs_new();
 

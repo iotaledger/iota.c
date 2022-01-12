@@ -53,7 +53,7 @@ int utxo_outputs_add(utxo_outputs_list_t **outputs, utxo_output_type_t type, voi
   }
 
   if (utxo_outputs_count(*outputs) >= UTXO_OUTPUT_MAX_COUNT) {
-    printf("[%s:%d] output count must be <= 127\n", __func__, __LINE__);
+    printf("[%s:%d] output count must be <= %d\n", __func__, __LINE__, UTXO_OUTPUT_MAX_COUNT);
     return -1;
   }
 

@@ -18,7 +18,7 @@ int native_tokens_add(native_tokens_t **nt, byte_t token_id[], uint256_t const *
   }
 
   if (native_tokens_count(nt) >= NATIVE_TOKENS_MAX_COUNT) {
-    printf("[%s:%d] Native Tokens count must be <= 256\n", __func__, __LINE__);
+    printf("[%s:%d] Native Tokens count must be <= %d\n", __func__, __LINE__, NATIVE_TOKENS_MAX_COUNT);
     return -1;
   }
 
