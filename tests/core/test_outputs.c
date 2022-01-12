@@ -234,7 +234,7 @@ void test_utxo_outputs() {
   TEST_ASSERT_NULL(outputs);
 
   // print out an empty list
-  utxo_outputs_print(outputs);
+  utxo_outputs_print(outputs, 0);
 
   // add extended output to the outputs list
   output_extended_t* extended_output = create_output_extended();
@@ -360,7 +360,7 @@ void test_utxo_outputs() {
   TEST_ASSERT_NOT_NULL(output_from_list->output);
 
   // print out outputs list
-  utxo_outputs_print(outputs);
+  utxo_outputs_print(outputs, 0);
 
   // clean up
   output_extended_free(extended_output);

@@ -110,7 +110,7 @@ void test_output_extended() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_DUST_DEP_RET_BLOCK, feat_block->type);
   TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->block));
 
-  output_extended_print(output);
+  output_extended_print(output, 0);
 
   // clean up
   free(amount1);
@@ -182,7 +182,7 @@ void test_output_extended_without_native_tokens() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_DUST_DEP_RET_BLOCK, feat_block->type);
   TEST_ASSERT_EQUAL_UINT64(1000000, *((uint64_t*)feat_block->block));
 
-  output_extended_print(output);
+  output_extended_print(output, 0);
 
   // clean up
   free(output_extended_buf);
@@ -271,7 +271,7 @@ void test_output_extended_without_feature_blocks() {
 
   TEST_ASSERT_NULL(deser_output->feature_blocks);
 
-  output_extended_print(output);
+  output_extended_print(output, 0);
 
   // clean up
   free(amount1);
@@ -415,7 +415,7 @@ void test_output_extended_clone() {
   TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(output->feature_blocks), feat_blk_list_len(new_output->feature_blocks));
 
   // print new Extended Output
-  output_extended_print(new_output);
+  output_extended_print(new_output, 0);
 
   // clean up
   free(amount1);

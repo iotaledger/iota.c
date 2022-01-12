@@ -6,6 +6,7 @@
 #include "core/address.h"
 #include "core/models/outputs/output_extended.h"
 #include "core/models/outputs/outputs.h"
+#include "core/types.h"
 #include "uthash.h"
 #include "utlist.h"
 
@@ -287,42 +288,22 @@ output_extended_t* output_extended_clone(output_extended_t const* const output) 
   return new_output;
 }
 
-void output_extended_print(output_extended_t* output) {
+void output_extended_print(output_extended_t* output, uint8_t indentation) {
   if (output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return;
   }
 
-  printf("Extended Output: [\n");
-  printf("\tAddress: ");
+  printf("%sExtended Output: [\n", PRINT_INDENTATION(indentation));
+  printf("%s\tAddress: ", PRINT_INDENTATION(indentation));
   address_print(output->address);
-  printf("\tAmount: %" PRIu64 "\n", output->amount);
+  printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
-  native_tokens_t *token, *tmp;
-  char* amount_str;
-  printf("\tNative Tokens: [\n");
-  HASH_ITER(hh, *(&output->native_tokens), token, tmp) {
-    amount_str = uint256_to_str(token->amount);
-    printf("\t\t[%s] ", amount_str);
-    dump_hex_str(token->token_id, NATIVE_TOKEN_ID_BYTES);
-    free(amount_str);
-  }
-  printf("\t]\n");
+  native_tokens_print(&output->native_tokens, indentation + 1);
 
   // print feature blocks
-  printf("\tFeature Blocks:[\n");
-  feat_blk_list_t* feat_block;
-  printf("\t\tBlock Counts: %d\n", feat_blk_list_len(output->feature_blocks));
-  if (output->feature_blocks) {
-    uint8_t index = 0;
-    LL_FOREACH(output->feature_blocks, feat_block) {
-      printf("\t\t#%d ", index);
-      feat_blk_print(feat_block->blk);
-      index++;
-    }
-  }
-  printf("\t]\n");
+  feat_blk_list_print(output->feature_blocks, indentation + 1);
 
-  printf("]\n");
+  printf("%s]\n", PRINT_INDENTATION(indentation));
 }

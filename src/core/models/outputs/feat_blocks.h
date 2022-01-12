@@ -361,8 +361,9 @@ feat_blk_list_t* feat_blk_list_clone(feat_blk_list_t const* const list);
  * @brief Print a feature block list
  *
  * @param[in] list A feature block list
+ * @param[in] indentation Tab indentation when printing feature block list
  */
-void feat_blk_list_print(feat_blk_list_t* list);
+void feat_blk_list_print(feat_blk_list_t* list, uint8_t indentation);
 
 /**
  * @brief free a feature block list object

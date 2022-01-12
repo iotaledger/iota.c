@@ -91,7 +91,8 @@ output_nft_t* output_nft_clone(output_nft_t const* const output);
  * @brief Print NFT Output
  *
  * @param[in] output NFT Output object
+ * @param[in] indentation Tab indentation when printing NFT Output
  */
-void output_nft_print(output_nft_t* output);
+void output_nft_print(output_nft_t* output, uint8_t indentation);
 
 #endif

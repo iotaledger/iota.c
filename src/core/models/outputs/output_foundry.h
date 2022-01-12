@@ -107,8 +107,9 @@ output_foundry_t* output_foundry_clone(output_foundry_t const* const output);
  * @brief Print Foundry Output
  *
  * @param[in] output Foundry Output object
+ * @param[in] indentation Tab indentation when printing Foundry Output
  */
-void output_foundry_print(output_foundry_t* output);
+void output_foundry_print(output_foundry_t* output, uint8_t indentation);
 
 #ifdef __cplusplus
 }

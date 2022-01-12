@@ -133,8 +133,9 @@ native_tokens_t *native_tokens_clone(native_tokens_t const *const nt);
  * @brief Print Native Tokens set.
  *
  * @param[in] nt Native Tokens set
+ * @param[in] indentation Tab indentation when printing Native Tokens set
  */
-void native_tokens_print(native_tokens_t **nt);
+void native_tokens_print(native_tokens_t **nt, uint8_t indentation);
 
 #ifdef __cplusplus
 }

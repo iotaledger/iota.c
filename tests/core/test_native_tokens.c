@@ -97,7 +97,7 @@ void test_native_tokens() {
   TEST_ASSERT_NOT_NULL(deser_tokens);
   TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_tokens));
 
-  native_tokens_print(&tokens);
+  native_tokens_print(&tokens, 0);
 
   free(native_tokens_buf);
   native_tokens_free(&tokens);
@@ -155,7 +155,7 @@ void test_native_tokens_sort() {
   TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
 
-  native_tokens_print(&tokens);
+  native_tokens_print(&tokens, 0);
 
   free(amount1);
   free(amount2);
@@ -228,7 +228,7 @@ void test_native_tokens_clone() {
   TEST_ASSERT_EQUAL_MEMORY(elm->token_id, new_elm->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(elm->amount, new_elm->amount, sizeof(uint256_t));
 
-  native_tokens_print(&new_tokens);
+  native_tokens_print(&new_tokens, 0);
 
   native_tokens_free(&new_tokens);
   native_tokens_free(&tokens);

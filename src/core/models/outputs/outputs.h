@@ -127,8 +127,9 @@ utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len);
  * @brief Print an utxo output list
  *
  * @param[in] outputs A list of utxo outputs
+ * @param[in] indentation Tab indentation when printing utxo output list
  */
-void utxo_outputs_print(utxo_outputs_list_t *outputs);
+void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation);
 
 #ifdef __cplusplus
 }

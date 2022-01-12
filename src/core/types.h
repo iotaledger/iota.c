@@ -16,6 +16,20 @@ typedef uint8_t signature_t;
 typedef uint16_t unlock_index_t;
 
 /**
+ * @brief Returns string representing tabulator indentation
+ *
+ * @param[in] i Indentation level. The range of i is between 0 and 5.
+ */
+#define PRINT_INDENTATION(i)   \
+  ((i) == 0   ? "\0"           \
+   : (i) == 1 ? "\t\0"         \
+   : (i) == 2 ? "\t\t\0"       \
+   : (i) == 3 ? "\t\t\t\0"     \
+   : (i) == 4 ? "\t\t\t\t\0"   \
+   : (i) == 5 ? "\t\t\t\t\t\0" \
+              : "\0")
+
+/**
  * @brief Prints out hexmal value in a byte array.
  *
  * @param[in] data A byte_t buffer

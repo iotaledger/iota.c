@@ -312,7 +312,7 @@ void test_feat_block_list_append_all() {
   TEST_ASSERT_NULL(blk_list);
 
   // print out an empty list
-  feat_blk_list_print(blk_list);
+  feat_blk_list_print(blk_list, 0);
 
   // add a sender
   address_t test_addr = {};
@@ -351,7 +351,7 @@ void test_feat_block_list_append_all() {
   TEST_ASSERT(feat_blk_list_len(blk_list) == 9);
 
   // print out the feature block list
-  feat_blk_list_print(blk_list);
+  feat_blk_list_print(blk_list, 0);
 
   // serialization
   size_t exp_ser_len = feat_blk_list_serialize_len(blk_list);
@@ -361,7 +361,7 @@ void test_feat_block_list_append_all() {
   // dump_hex(ser_blk, exp_ser_len);
   feat_blk_list_t* deser_list = feat_blk_list_deserialize(ser_blk, sizeof(ser_blk));
   TEST_ASSERT(feat_blk_list_len(deser_list) == feat_blk_list_len(blk_list));
-  feat_blk_list_print(deser_list);
+  feat_blk_list_print(deser_list, 0);
 
   // check deser objects
   TEST_ASSERT_NULL(feat_blk_list_get(deser_list, feat_blk_list_len(deser_list)));
@@ -436,7 +436,7 @@ void test_feat_block_list_sort() {
   TEST_ASSERT_NULL(blk_list);
 
   // print out an empty list
-  feat_blk_list_print(blk_list);
+  feat_blk_list_print(blk_list, 0);
 
   // add feature blocks in "random" order
   // add a sender
@@ -535,7 +535,7 @@ void test_feat_block_list_sort() {
   TEST_ASSERT(*(uint32_t*)tmp_blk->block == eu_value);
 
   // print out the feature block list
-  feat_blk_list_print(blk_list);
+  feat_blk_list_print(blk_list, 0);
 
   // serialization
   size_t exp_ser_len = feat_blk_list_serialize_len(blk_list);
@@ -545,7 +545,7 @@ void test_feat_block_list_sort() {
   // dump_hex(ser_blk, exp_ser_len);
   feat_blk_list_t* deser_list = feat_blk_list_deserialize(ser_blk, sizeof(ser_blk));
   TEST_ASSERT(feat_blk_list_len(deser_list) == feat_blk_list_len(blk_list));
-  feat_blk_list_print(deser_list);
+  feat_blk_list_print(deser_list, 0);
 
   // check deser objects
   TEST_ASSERT_NULL(feat_blk_list_get(deser_list, feat_blk_list_len(deser_list)));
@@ -659,7 +659,7 @@ void test_feat_block_list_clone() {
   TEST_ASSERT(feat_blk_list_len(blk_list) == 9);
 
   // print out the feature block list
-  feat_blk_list_print(blk_list);
+  feat_blk_list_print(blk_list, 0);
 
   // clone feature block list
   new_blk_list = feat_blk_list_clone(blk_list);

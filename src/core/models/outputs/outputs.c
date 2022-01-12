@@ -321,14 +321,16 @@ utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len) {
   return outputs;
 }
 
-void utxo_outputs_print(utxo_outputs_list_t *outputs) {
+void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation) {
   utxo_outputs_list_t *elm;
   uint8_t index = 0;
-  printf("UTXO Outputs:[\n");
-  printf("Outputs Count: %d\n", utxo_outputs_count(outputs));
+  printf("%sUTXO Outputs:[\n", PRINT_INDENTATION(indentation));
+  printf("%s\tOutput Count: %d\n", PRINT_INDENTATION(indentation), utxo_outputs_count(outputs));
+
+  // print outputs
   if (outputs) {
     LL_FOREACH(outputs, elm) {
-      printf("#%d ", index);
+      printf("%s\t#%d ", PRINT_INDENTATION(indentation), index);
       switch (elm->output->output_type) {
         case OUTPUT_SINGLE_OUTPUT:
         case OUTPUT_DUST_ALLOWANCE:
@@ -336,20 +338,21 @@ void utxo_outputs_print(utxo_outputs_list_t *outputs) {
           printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
           break;
         case OUTPUT_EXTENDED:
-          output_extended_print(elm->output->output);
+          output_extended_print(elm->output->output, indentation + 1);
           break;
         case OUTPUT_ALIAS:
-          output_alias_print(elm->output->output);
+          output_alias_print(elm->output->output, indentation + 1);
           break;
         case OUTPUT_FOUNDRY:
-          output_foundry_print(elm->output->output);
+          output_foundry_print(elm->output->output, indentation + 1);
           break;
         case OUTPUT_NFT:
-          output_nft_print(elm->output->output);
+          output_nft_print(elm->output->output, indentation + 1);
           break;
       }
       index++;
     }
   }
-  printf("]\n");
+
+  printf("%s]\n", PRINT_INDENTATION(indentation));
 }

@@ -186,7 +186,7 @@ void test_output_alias() {
                            ((feat_metadata_blk_t*)feat_block->block)->data_len);
 
   // print alias output
-  output_alias_print(output);
+  output_alias_print(output, 0);
 
   // clean up
   free(amount1);
@@ -333,7 +333,7 @@ void test_output_alias_without_native_tokens() {
                            ((feat_metadata_blk_t*)feat_block->block)->data_len);
 
   // print alias output
-  output_alias_print(output);
+  output_alias_print(output, 0);
 
   // clean up
   free(output_alias_buf);
@@ -513,7 +513,7 @@ void test_output_alias_without_metadata() {
                            ((feat_metadata_blk_t*)feat_block->block)->data_len);
 
   // print alias output
-  output_alias_print(output);
+  output_alias_print(output, 0);
 
   // clean up
   free(amount1);
@@ -669,7 +669,7 @@ void test_output_alias_without_feature_blocks() {
   TEST_ASSERT_NULL(deser_output->feature_blocks);
 
   // print alias output
-  output_alias_print(output);
+  output_alias_print(output, 0);
 
   // clean up
   free(amount1);
@@ -773,7 +773,7 @@ void test_output_alias_clone() {
   TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(output->feature_blocks), feat_blk_list_len(new_output->feature_blocks));
 
   // print new Alias Output
-  output_alias_print(new_output);
+  output_alias_print(new_output, 0);
 
   // clean up
   free(amount1);

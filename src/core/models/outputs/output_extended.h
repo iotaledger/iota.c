@@ -84,8 +84,9 @@ output_extended_t* output_extended_clone(output_extended_t const* const output);
  * @brief Print Extended Output
  *
  * @param[in] output Extended Output object
+ * @param[in] indentation Tab indentation when printing Extended Output
  */
-void output_extended_print(output_extended_t* output);
+void output_extended_print(output_extended_t* output, uint8_t indentation);
 
 #ifdef __cplusplus
 }
