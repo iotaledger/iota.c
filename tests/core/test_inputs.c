@@ -39,6 +39,9 @@ void test_utxo_input() {
   // test for -1 if index more than max_output_count
   TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, UINT8_MAX) == -1);
 
+  // test for -1 if index is 0
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, 0) == -1);
+
   // test for unknown input type
   TEST_ASSERT(utxo_inputs_add(&inputs, 1, tx_id0, 2) == -1);
 
