@@ -7,107 +7,120 @@
 #include <stdint.h>
 
 #include "core/types.h"
-#include "crypto/iota_crypto.h"
-#include "uthash.h"
 
+#define UTXO_INPUT_MIN_INDEX 0
+#define UTXO_INPUT_MAX_COUNT 127
 #define TRANSACTION_ID_BYTES 32
-// Serialized bytes = input type(uint8_t) + transaction id(32bytes) + index(uint16_t)
-#define UTXO_INPUT_SERIALIZED_BYTES (1 + TRANSACTION_ID_BYTES + 2)
 
 /**
  * @brief UTXO input structure
  *
  */
 typedef struct {
-  byte_t tx_id[TRANSACTION_ID_BYTES];  ///< The transaction reference from which the UTXO comes from.
-  uint16_t output_index;      ///< The index of the output on the referenced transaction to consume 0<= x < 127.
-  ed25519_keypair_t keypair;  ///< ed25519 keypair of this input
-  UT_hash_handle hh;
-} utxo_input_ht;
+  uint8_t input_type;                  ///< The input type. Set to value 0 to denote an UTXO Input.
+  byte_t tx_id[TRANSACTION_ID_BYTES];  ///< The BLAKE2b-256 hash of the transaction payload containing the referenced
+                                       ///< output.
+  uint16_t output_index;               ///< The output index of the referenced output.
+} utxo_input_t;
+
+/**
+ * @brief A list of utxo inputs
+ *
+ */
+typedef struct utxo_inputs_list {
+  utxo_input_t *input;           //< Points to a current input
+  struct utxo_inputs_list *next;  //< Points to a next input
+} utxo_inputs_list_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @brief Initialize an utxo input hash table.
+ * @brief Initialize an utxo input list.
  *
- * @return utxo_inputs_t* a NULL pointer
+ * @return utxo_inputs_list_t* a NULL pointer
  */
-static utxo_input_ht *utxo_inputs_new() { return NULL; }
+utxo_inputs_list_t *utxo_inputs_new();
+
+/**
+ * @brief Free an utxo input list.
+ *
+ * @param[in] inputs An utxo input list.
+ */
+void utxo_inputs_free(utxo_inputs_list_t *inputs);
+
+/**
+ * @brief Append an utxo input element to the list.
+ *
+ * @param[in] inputs An utxo input list
+ * @param[in] type An input type
+ * @param[in] id A transaction ID
+ * @param[in] index An output index of the referenced output
+ * @return int 0 on success
+ */
+int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index);
+
+/**
+ * @brief Get number of elements in an utxo input list
+ *
+ * @param[in] inputs An utxo input list.
+ * @return uint16_t A count of elements
+  */
+uint16_t utxo_inputs_count(utxo_inputs_list_t *inputs);
 
 /**
  * @brief Find an utxo input by a given transaction ID
  *
  * @param[in] inputs An utxo input hash table
- * @param[in] tx_id A transaction ID
- * @return utxo_input_ht*
+ * @param[in] id A transaction ID
+ * @return utxo_input_t*
  */
-static utxo_input_ht *utxo_inputs_find_by_id(utxo_input_ht **inputs, byte_t const tx_id[]) {
-  utxo_input_ht *in = NULL;
-  HASH_FIND(hh, *inputs, tx_id, TRANSACTION_ID_BYTES, in);
-  return in;
-}
+utxo_input_t *utxo_inputs_find_by_id(utxo_inputs_list_t *inputs, byte_t id[]);
 
 /**
- * @brief Get the size of utxo inputs
+ * @brief Find an utxo input by a given index
  *
- * @param[in] ht An utxo input hash table.
- * @return uint16_t
+ * @param[in] inputs An utxo input hash table
+ * @param[in] index An output index
+ * @return utxo_input_t*
  */
-static uint16_t utxo_inputs_count(utxo_input_ht **ht) { return (uint16_t)HASH_COUNT(*ht); }
+utxo_input_t *utxo_inputs_find_by_index(utxo_inputs_list_t *inputs, uint16_t index);
 
 /**
- * @brief Free an utxo input hash table.
+ * @brief Get length of a serialized utxo input list
  *
- * @param[in] utxo_ins An utxo input hash table.
+ * @param[in] inputs A list of utxo inputs
+ * @return size_t The number of bytes of a serialized data
  */
-static void utxo_inputs_free(utxo_input_ht **ht) {
-  utxo_input_ht *curr_elm, *tmp;
-  HASH_ITER(hh, *ht, curr_elm, tmp) {
-    HASH_DEL(*ht, curr_elm);
-    free(curr_elm);
-  }
-}
-
-/**
- * @brief Append an utxo input element to the list.
- *
- * @param[in] inputs An input hash table
- * @param[in] tx_id A transaction ID
- * @param[in] index An index
- * @return int 0 on success
- */
-int utxo_inputs_add(utxo_input_ht **inputs, byte_t tx_id[], uint16_t index);
-
-/**
- * @brief Append an utxo input with keypair to hash table
- *
- * @param[in] inputs An input hash table
- * @param[in] tx_id A transaction ID
- * @param[in] index An index
- * @param[in] pub An ed25519 public key
- * @param[in] priv An ed25519 private key
- * @return int 0 on success
- */
-int utxo_inputs_add_with_key(utxo_input_ht **inputs, byte_t const tx_id[], uint16_t index, byte_t const pub[],
-                             byte_t const priv[]);
+size_t utxo_inputs_serialize_len(utxo_inputs_list_t *inputs);
 
 /**
  * @brief Serialize inputs to a buffer
  *
- * @param[in] inputs An utxo input hash table
+ * @param[in] inputs An utxo input list
  * @param[out] buf A buffer for serialization
- * @return size_t number of bytes write to the buffer
+ * @param[in] buf_len The length of buffer
+ * @return size_t number of bytes written to the buffer
  */
-size_t utxo_inputs_serialization(utxo_input_ht **inputs, byte_t buf[]);
+size_t utxo_inputs_serialize(utxo_inputs_list_t *inputs, byte_t buf[], size_t buf_len);
 
 /**
- * @brief Print an utxo input hash table.
+ * @brief Deserialize binary data to a utxo input list object
  *
- * @param[in] inputs An utxo input hash table.
+ * @param[in] buf The buffer holds a serialized data
+ * @param[in] buf_len The length of the buffer
+ * @return utxo_inputs_list_t* The deserialized utxo input list, NULL on errors
  */
-void utxo_inputs_print(utxo_input_ht **inputs);
+utxo_inputs_list_t *utxo_inputs_deserialize(byte_t buf[], size_t buf_len);
+
+/**
+ * @brief Print an utxo input list.
+ *
+ * @param[in] inputs An utxo input list.
+ * @param[in] indentation Tab indentation when printing utxo output list
+ */
+void utxo_inputs_print(utxo_inputs_list_t *inputs, uint8_t indentation);
 
 #ifdef __cplusplus
 }

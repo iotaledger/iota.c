@@ -8,6 +8,8 @@
 
 #include "core/types.h"
 
+#define UTXO_OUTPUT_MAX_COUNT 127
+
 /**
  * @brief UTXO output types
  *
