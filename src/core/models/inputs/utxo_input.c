@@ -28,7 +28,7 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
     return -1;
   }
 
-  if (index <= UTXO_INPUT_MIN_INDEX || index >= UTXO_OUTPUT_MAX_COUNT) {
+  if (index >= UTXO_OUTPUT_MAX_COUNT) {
     printf("[%s:%d] invalid index\n", __func__, __LINE__);
     return -1;
   }
