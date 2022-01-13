@@ -28,12 +28,11 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
     return -1;
   }
 
-  if (index >= UTXO_OUTPUT_MAX_COUNT) {
+  if (index <= UTXO_INPUT_MIN_INDEX || index >= UTXO_OUTPUT_MAX_COUNT) {
     printf("[%s:%d] invalid index\n", __func__, __LINE__);
     return -1;
   }
 
-  // Check if list can accomodate new input
   if (utxo_inputs_count(*inputs) >= UTXO_INPUT_MAX_COUNT) {
     printf("[%s:%d] inputs count exceeded max count %d\n", __func__, __LINE__, UTXO_OUTPUT_MAX_COUNT);
     return -1;
@@ -46,13 +45,13 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
   }
 
   // Check if transaction id already exist in list
-  if (utxo_inputs_find_by_id(*inputs, id) != NULL) {
+  if(utxo_inputs_find_by_id(*inputs, id) != NULL) {
     printf("[%s:%d] transaction id already present in input list\n", __func__, __LINE__);
     return -1;
   }
 
   // Check if index already exist in list
-  if (utxo_inputs_find_by_index(*inputs, index) != NULL) {
+  if(utxo_inputs_find_by_index(*inputs, index) != NULL) {
     printf("[%s:%d] index already present in input list\n", __func__, __LINE__);
     return -1;
   }
@@ -95,7 +94,7 @@ utxo_input_t *utxo_inputs_find_by_id(utxo_inputs_list_t *inputs, byte_t id[]) {
     return NULL;
   }
 
-  if (id == NULL) {
+  if(id == NULL) {
     printf("[%s:%d] invalid transaction id\n", __func__, __LINE__);
     return NULL;
   }
@@ -118,7 +117,7 @@ utxo_input_t *utxo_inputs_find_by_index(utxo_inputs_list_t *inputs, uint16_t ind
     return NULL;
   }
 
-  if (index >= UTXO_OUTPUT_MAX_COUNT) {
+  if (index <= 0 || index >= UTXO_OUTPUT_MAX_COUNT) {
     printf("[%s:%d] invalid index\n", __func__, __LINE__);
     return NULL;
   }
@@ -146,10 +145,15 @@ size_t utxo_inputs_serialize_len(utxo_inputs_list_t *inputs) {
   // Inputs count
   len += sizeof(uint16_t);
 
-  // Len of a single input
-  size_t single_input_len = sizeof(uint8_t) + TRANSACTION_ID_BYTES + sizeof(uint16_t);
-
-  len += single_input_len * utxo_inputs_count(inputs);
+  utxo_inputs_list_t *elm;
+  LL_FOREACH(inputs, elm) {
+    // Input type len
+    len += sizeof(uint8_t);
+    // transaction id len
+    len += TRANSACTION_ID_BYTES;
+    // Transaction Output Index len
+    len += sizeof(uint16_t);
+  }
 
   return len;
 }
