@@ -12,8 +12,6 @@
 #include "core/models/outputs/outputs.h"
 #include "utlist.h"
 
-#define UTXO_OUTPUT_MAX_COUNT 127
-
 utxo_outputs_list_t *utxo_outputs_new() { return NULL; }
 
 void utxo_outputs_free(utxo_outputs_list_t *outputs) {
