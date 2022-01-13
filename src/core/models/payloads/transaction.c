@@ -152,12 +152,25 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint8_t);
 
   es->inputs = utxo_inputs_deserialize(&buf[offset], buf_len - offset);
+  if (es->inputs == NULL) {
+    tx_essence_free(es);
+    return NULL;
+  }
   offset += utxo_inputs_serialize_len(es->inputs);
 
   es->outputs = utxo_outputs_deserialize(&buf[offset], buf_len - offset);
+  if (es->outputs == NULL) {
+    tx_essence_free(es);
+    return NULL;
+  }
   offset += utxo_outputs_serialize_len(es->outputs);
 
   // transaction type
+  if (buf_len < offset + sizeof(uint32_t)) {
+    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+    tx_essence_free(es);
+    return NULL;
+  }
   memcpy(&es->payload_len, &buf[offset], sizeof(uint32_t));
   offset += sizeof(uint32_t);
 
@@ -165,13 +178,14 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
     // To Do - Deserialize indexation payload
   }
 
-return es;
+  return es;
 }
 
 void tx_essence_print(transaction_essence_t* es) {
   printf("transaction essence:[\n");
   utxo_inputs_print(es->inputs, 0);
   utxo_outputs_print(es->outputs, 0);
+  // TBD - print payloads
   printf("]\n");
 }
 
@@ -270,8 +284,8 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
   return expected_bytes;
 }
 
-transaction_payload_t *tx_payload_deserialize(byte_t buf[], size_t buf_len) {
-    if (buf == NULL || buf_len < 2) {
+transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
+  if (buf == NULL || buf_len < 2) {
     printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
     return NULL;
   }
@@ -287,9 +301,9 @@ transaction_payload_t *tx_payload_deserialize(byte_t buf[], size_t buf_len) {
   tx_payload->essence = tx_essence_deserialize(&buf[offset], buf_len - offset);
   offset += tx_essence_serialize_length(tx_payload->essence);
 
-  //To Do - Unlock Block Deserialize
+  // To Do - Unlock Block Deserialize
 
-return tx_payload;
+  return tx_payload;
 }
 
 void tx_payload_print(transaction_payload_t* tx) {
