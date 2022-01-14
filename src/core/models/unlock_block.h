@@ -119,7 +119,7 @@ uint16_t unlock_blocks_count(unlock_list_t* blocks);
  *
  * @param[in] blocks The head of list
  * @param[in] pub_key A ed25519 public key
- * @return int32_t if not found return -1 else retrun the index
+ * @return int32_t if not found return -1 else return the index
  */
 int32_t unlock_blocks_find_pub(unlock_list_t* blocks, byte_t const* const pub_key);
 

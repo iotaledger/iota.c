@@ -107,7 +107,7 @@ size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[], size_t buf_le
 
 native_tokens_t *native_tokens_deserialize(byte_t buf[], size_t buf_len) {
   if (!buf || buf_len < 2) {
-    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 

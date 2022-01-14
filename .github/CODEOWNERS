@@ -1,5 +1,4 @@
 # See https://help.github.com/articles/about-codeowners/
 # for more details about CODEOWNERS file
 
-* @oopsmonk
-
+@iotaledger/client-c

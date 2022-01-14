@@ -42,7 +42,7 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
     return NULL;
   }
 
-  // Currently only SIMPLE_TOKEN_SCHEME is supported
+  // Currently, only SIMPLE_TOKEN_SCHEME is supported
   if (token_scheme != SIMPLE_TOKEN_SCHEME) {
     printf("[%s:%d] token scheme not supported\n", __func__, __LINE__);
     return NULL;
@@ -92,7 +92,7 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
   // Copy token tag, 12 bytes
   memcpy(output->token_tag, token_tag, TOKEN_TAG_BYTES_LEN);
 
-  // Store ciruclating supply of tokens
+  // Store circulating supply of tokens
   output->circ_supply = malloc(sizeof(uint256_t));
   memcpy(output->circ_supply, circ_supply, sizeof(uint256_t));
 
@@ -248,7 +248,7 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
 
 output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   if (buf == NULL || buf_len == 0) {
-    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
