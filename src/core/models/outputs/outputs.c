@@ -231,7 +231,7 @@ size_t utxo_outputs_serialize(utxo_outputs_list_t *outputs, byte_t buf[], size_t
 
 utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len) {
   if (buf == NULL || buf_len < 2) {
-    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 

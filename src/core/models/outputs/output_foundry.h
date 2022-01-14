@@ -35,7 +35,7 @@ typedef struct {
   uint256_t* circ_supply;                 ///< The circulating supply of tokens controlled by this foundry
   uint256_t* max_supply;                  ///< The maximum supply of tokens controlled by this foundry
   token_scheme_e token_scheme;            ///< The token scheme used by this foundry
-  feat_blk_list_t* feature_blocks;        ///< The feature blocks which modulate the constrants on this output
+  feat_blk_list_t* feature_blocks;        ///< The feature blocks which modulate the constraints on this output
 } output_foundry_t;
 
 #ifdef __cplusplus
