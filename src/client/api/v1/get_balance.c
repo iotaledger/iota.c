@@ -107,7 +107,7 @@ int get_balance(iota_client_conf_t const *conf, bool is_bech32, char const addr[
     return -1;
   }
 
-  if (strlen(addr) != IOTA_ADDRESS_HEX_BYTES) {
+  if (strlen(addr) != ADDRESS_ED25519_HEX_BYTES) {
     printf("[%s:%d]: get_balance failed (invalid addr length)\n", __func__, __LINE__);
     return -1;
   }

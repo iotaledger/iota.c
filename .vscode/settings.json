@@ -6,7 +6,7 @@
         "-DCryptoUse:STRING=openssl",
         "-DIOTA_TESTS:BOOL=TRUE",
         "-DIOTA_ASAN_ENABLED:BOOL=TRUE",
-        "-DWITH_IOTA_CORE:BOOL=TRUE"
+        "-DWITH_IOTA_CLIENT:BOOL=TRUE"
     ],
     "cmakeFormat.args": [
         "--config-file",
