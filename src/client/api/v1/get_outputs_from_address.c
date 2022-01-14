@@ -146,7 +146,7 @@ int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, cha
   }
 
   size_t addr_len = strlen(addr);
-  if (addr_len != IOTA_ADDRESS_HEX_BYTES) {
+  if (addr_len != ADDRESS_ED25519_HEX_BYTES) {
     printf("[%s:%d] incorrect length of the address\n", __func__, __LINE__);
     return -1;
   }

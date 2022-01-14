@@ -45,7 +45,7 @@ int core_message_sign_transaction(core_message_t* msg) {
     return -1;
   }
 
-  size_t serialized_size = tx_essence_serialize(tx->essence, b_essence);
+  size_t serialized_size = tx_essence_serialize(tx->essence, b_essence, essence_len);
   if (serialized_size != essence_len) {
     printf("[%s:%d] serialize length miss match\n", __func__, __LINE__);
     free(b_essence);
@@ -59,7 +59,8 @@ int core_message_sign_transaction(core_message_t* msg) {
     return -1;
   }
 
-  // create unlocked blocks and sign tx essence
+  // FIXME, create unlocked blocks and sign tx essence
+#if 0
   utxo_input_ht *elm, *tmp;
   HASH_ITER(hh, tx->essence->inputs, elm, tmp) {
     // create a ref block, if public key exists in unlocked_sig
@@ -89,7 +90,7 @@ int core_message_sign_transaction(core_message_t* msg) {
       }
     }
   }
-
+#endif
   if (b_essence) {
     free(b_essence);
   }

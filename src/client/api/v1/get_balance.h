@@ -16,12 +16,12 @@
  *
  */
 typedef struct {
-  uint8_t address_type;                  ///< 0 = ED25519 address
-  uint64_t balance;                      ///< amount of balance
-  char address[IOTA_ADDRESS_HEX_BYTES];  ///< hex address string, ex:
-                                         ///< 7ED3D67FC7B619E72E588F51FEF2379E43E6E9A856635843B3F29AA3A3F1F006
-  bool dust_allowed;                     ///< Dust allowance output to the transaction allowed or not
-  uint64_t ledger_idx;                   ///< Ledger Index
+  uint8_t address_type;                     ///< 0 = ED25519 address
+  uint64_t balance;                         ///< amount of balance
+  char address[ADDRESS_ED25519_HEX_BYTES];  ///< hex address string, ex:
+                                            ///< 7ED3D67FC7B619E72E588F51FEF2379E43E6E9A856635843B3F29AA3A3F1F006
+  bool dust_allowed;                        ///< Dust allowance output to the transaction allowed or not
+  uint64_t ledger_idx;                      ///< Ledger Index
 } get_balance_t;
 
 /**

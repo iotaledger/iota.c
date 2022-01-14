@@ -652,7 +652,7 @@ void test_feat_block_list_clone() {
   // add an indexaction tag
   byte_t tag[MAX_INDEX_TAG_BYTES] = {};
   iota_crypto_randombytes(tag, sizeof(tag));
-  TEST_ASSERT(feat_blk_list_add_indexaction(&blk_list, tag, sizeof(tag)) == 0);
+  TEST_ASSERT(feat_blk_list_add_indexation(&blk_list, tag, sizeof(tag)) == 0);
 
   // check length of the list
   TEST_ASSERT(feat_blk_list_len(blk_list) == 9);
@@ -724,8 +724,8 @@ void test_feat_block_list_clone() {
   tmp_blk = feat_blk_list_get(new_blk_list, 8);
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_INDEXATION_BLOCK);
-  TEST_ASSERT(((feat_indexaction_blk_t*)tmp_blk->block)->tag_len == sizeof(tag));
-  TEST_ASSERT_EQUAL_MEMORY(((feat_indexaction_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
+  TEST_ASSERT(((feat_indexation_blk_t*)tmp_blk->block)->tag_len == sizeof(tag));
+  TEST_ASSERT_EQUAL_MEMORY(((feat_indexation_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
 
   // clean up
   free_feat_blk_list(new_blk_list);
