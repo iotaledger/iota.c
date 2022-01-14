@@ -169,7 +169,7 @@ static int deser_tx_outputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
         cJSON *addr_type = cJSON_GetObjectItemCaseSensitive(tx_address_obj, JSON_KEY_TYPE);
         if (addr_type) {
           // check outputs/address/type
-          if (cJSON_IsNumber(addr_type) && addr_type->valueint == ADDRESS_VER_ED25519) {
+          if (cJSON_IsNumber(addr_type) && addr_type->valueint == ADDRESS_TYPE_ED25519) {
             cJSON *addr = cJSON_GetObjectItemCaseSensitive(tx_address_obj, JSON_KEY_ADDR);
             if (cJSON_IsString(addr) && cJSON_IsNumber(tx_amount_obj)) {
               payload_tx_output_t output = {};
@@ -225,7 +225,7 @@ static int deser_tx_blocks(cJSON *blocks_obj, payload_tx_t *payload_tx) {
       if (sig_obj) {
         cJSON *sig_type = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_TYPE);
         if (cJSON_IsNumber(sig_type)) {
-          if (sig_type->valueint == ADDRESS_VER_ED25519) {
+          if (sig_type->valueint == ADDRESS_TYPE_ED25519) {
             cJSON *pub = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_PUB_KEY);
             cJSON *sig = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_SIG);
             if (cJSON_IsString(pub) && cJSON_IsString(sig)) {

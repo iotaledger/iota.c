@@ -782,8 +782,8 @@ feat_blk_list_t* feat_blk_list_clone(feat_blk_list_t const* const list) {
                                          ((feat_metadata_blk_t*)elm->blk->block)->data_len);
         break;
       case FEAT_INDEXATION_BLOCK:
-        res = feat_blk_list_add_indexaction(&new_list, ((feat_indexaction_blk_t*)elm->blk->block)->tag,
-                                            ((feat_indexaction_blk_t*)elm->blk->block)->tag_len);
+        res = feat_blk_list_add_indexation(&new_list, ((feat_indexation_blk_t*)elm->blk->block)->tag,
+                                           ((feat_indexation_blk_t*)elm->blk->block)->tag_len);
         break;
       default:
         break;
