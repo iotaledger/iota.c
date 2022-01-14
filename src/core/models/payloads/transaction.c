@@ -25,7 +25,7 @@ void tx_essence_free(transaction_essence_t* es) {
     utxo_outputs_free(es->outputs);
 
     if (es->payload) {
-      // TODO support other payloads
+      // TODO: support other payloads
       indexation_free(es->payload);
     }
     free(es);
@@ -175,7 +175,7 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint32_t);
 
   if (es->payload_len > 0) {
-    // To Do - Deserialize indexation payload
+    // TODO: Deserialize indexation payload
   }
 
   return es;
@@ -185,7 +185,7 @@ void tx_essence_print(transaction_essence_t* es) {
   printf("transaction essence:[\n");
   utxo_inputs_print(es->inputs, 0);
   utxo_outputs_print(es->outputs, 0);
-  // TBD - print payloads
+  // TODO: print payloads
   printf("]\n");
 }
 
@@ -301,7 +301,7 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
   tx_payload->essence = tx_essence_deserialize(&buf[offset], buf_len - offset);
   offset += tx_essence_serialize_length(tx_payload->essence);
 
-  // To Do - Unlock Block Deserialize
+  // TODO: Unlock Block Deserialize
 
   return tx_payload;
 }
