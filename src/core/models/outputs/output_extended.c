@@ -10,7 +10,7 @@
 #include "uthash.h"
 #include "utlist.h"
 
-// minumum dust allowance
+// minimum dust allowance
 #define MIN_DUST_ALLOWANCE 1000000
 
 // maximum number of feature blocks
@@ -94,8 +94,8 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
           break;
         }
         case FEAT_INDEXATION_BLOCK: {
-          feat_indexaction_blk_t* indexation = (feat_indexaction_blk_t*)feat->blk->block;
-          res = feat_blk_list_add_indexaction(&output->feature_blocks, indexation->tag, indexation->tag_len);
+          feat_indexation_blk_t* indexation = (feat_indexation_blk_t*)feat->blk->block;
+          res = feat_blk_list_add_indexation(&output->feature_blocks, indexation->tag, indexation->tag_len);
           break;
         }
         default:
@@ -199,7 +199,7 @@ size_t output_extended_serialize(output_extended_t* output, byte_t buf[], size_t
 
 output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   if (buf == NULL || buf_len == 0) {
-    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 

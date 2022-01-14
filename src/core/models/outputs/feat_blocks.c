@@ -8,7 +8,7 @@
 
 static feat_metadata_blk_t* new_feat_metadata(byte_t const data[], uint32_t data_len) {
   if (!data || data_len == 0) {
-    printf("[%s:%d] invalid paramter\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -35,13 +35,13 @@ static void free_feat_metadata(feat_metadata_blk_t* meta) {
   }
 }
 
-static feat_indexaction_blk_t* new_feat_indexaztion(byte_t const tag[], uint8_t tag_len) {
+static feat_indexation_blk_t* new_feat_indexation(byte_t const tag[], uint8_t tag_len) {
   if (!tag || tag_len == 0) {
-    printf("[%s:%d] invalid paramter\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
-  feat_indexaction_blk_t* idx = malloc(sizeof(feat_indexaction_blk_t));
+  feat_indexation_blk_t* idx = malloc(sizeof(feat_indexation_blk_t));
   if (idx) {
     memcpy(idx->tag, tag, tag_len);
     idx->tag_len = tag_len;
@@ -57,7 +57,7 @@ static int feat_blk_type_sort(feat_blk_list_t* blk1, feat_blk_list_t* blk2) {
 
 feat_block_t* new_feat_blk_sender(address_t const* const addr) {
   if (!addr) {
-    printf("[%s:%d] invalid paramter\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -76,7 +76,7 @@ feat_block_t* new_feat_blk_sender(address_t const* const addr) {
 
 feat_block_t* new_feat_blk_issuer(address_t const* const addr) {
   if (!addr) {
-    printf("[%s:%d] invalid paramter\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -170,7 +170,7 @@ feat_block_t* new_feat_blk_eu(uint32_t time) {
 
 feat_block_t* new_feat_blk_metadata(byte_t const data[], uint32_t data_len) {
   if (!data) {
-    printf("[%s:%d] invalid paramter\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -187,22 +187,22 @@ feat_block_t* new_feat_blk_metadata(byte_t const data[], uint32_t data_len) {
   return blk;
 }
 
-feat_block_t* new_feat_blk_indexaction(byte_t const tag[], uint8_t tag_len) {
+feat_block_t* new_feat_blk_indexation(byte_t const tag[], uint8_t tag_len) {
   if (!tag) {
-    printf("[%s:%d] invalid paramter\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
   feat_block_t* blk = malloc(sizeof(feat_block_t));
   if (blk) {
-    blk->block = malloc(sizeof(feat_indexaction_blk_t));
+    blk->block = malloc(sizeof(feat_indexation_blk_t));
     if (!blk->block) {
       free(blk);
       return NULL;
     }
     blk->type = FEAT_INDEXATION_BLOCK;
-    ((feat_indexaction_blk_t*)blk->block)->tag_len = tag_len;
-    memcpy(((feat_indexaction_blk_t*)blk->block)->tag, tag, tag_len);
+    ((feat_indexation_blk_t*)blk->block)->tag_len = tag_len;
+    memcpy(((feat_indexation_blk_t*)blk->block)->tag, tag, tag_len);
     return blk;
   }
   return blk;
@@ -210,7 +210,7 @@ feat_block_t* new_feat_blk_indexaction(byte_t const tag[], uint8_t tag_len) {
 
 size_t feat_blk_serialize_len(feat_block_t const* const blk) {
   if (!blk) {
-    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return 0;
   }
 
@@ -233,16 +233,16 @@ size_t feat_blk_serialize_len(feat_block_t const* const blk) {
       return sizeof(uint8_t) + sizeof(uint32_t) + ((feat_metadata_blk_t*)blk->block)->data_len;
     case FEAT_INDEXATION_BLOCK:
       // block type + tag len + tag
-      return sizeof(uint8_t) + sizeof(uint8_t) + ((feat_indexaction_blk_t*)blk->block)->tag_len;
+      return sizeof(uint8_t) + sizeof(uint8_t) + ((feat_indexation_blk_t*)blk->block)->tag_len;
     default:
-      printf("[%s:%d] unknow featrue block type\n", __func__, __LINE__);
+      printf("[%s:%d] unknown feature block type\n", __func__, __LINE__);
       return 0;
   }
 }
 
 size_t feat_blk_serialize(feat_block_t* blk, byte_t buf[], size_t buf_len) {
   if (!blk || !buf || buf_len == 0) {
-    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return 0;
   }
 
@@ -282,9 +282,9 @@ size_t feat_blk_serialize(feat_block_t* blk, byte_t buf[], size_t buf_len) {
       break;
     case FEAT_INDEXATION_BLOCK:
       // serialize tag_len and tag
-      memcpy(buf + sizeof(uint8_t), &((feat_indexaction_blk_t*)blk->block)->tag_len, sizeof(uint8_t));
-      memcpy(buf + sizeof(uint8_t) + sizeof(uint8_t), ((feat_indexaction_blk_t*)blk->block)->tag,
-             ((feat_indexaction_blk_t*)blk->block)->tag_len);
+      memcpy(buf + sizeof(uint8_t), &((feat_indexation_blk_t*)blk->block)->tag_len, sizeof(uint8_t));
+      memcpy(buf + sizeof(uint8_t) + sizeof(uint8_t), ((feat_indexation_blk_t*)blk->block)->tag,
+             ((feat_indexation_blk_t*)blk->block)->tag_len);
       break;
     default:
       break;
@@ -294,7 +294,7 @@ size_t feat_blk_serialize(feat_block_t* blk, byte_t buf[], size_t buf_len) {
 
 feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len) {
   if (!buf || buf_len == 0) {
-    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -392,7 +392,7 @@ feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len) {
       // get tag length
       uint32_t tag_len = 0;
       memcpy(&tag_len, buf + sizeof(uint8_t), sizeof(uint8_t));
-      blk->block = new_feat_indexaztion(buf + offset, tag_len);
+      blk->block = new_feat_indexation(buf + offset, tag_len);
       if (!blk->block) {
         printf("[%s:%d] deserialize metadata failed\n", __func__, __LINE__);
         free_feat_blk(blk);
@@ -452,8 +452,8 @@ void feat_blk_print(feat_block_t* blk) {
       dump_hex_str(((feat_metadata_blk_t*)blk->block)->data, ((feat_metadata_blk_t*)blk->block)->data_len);
       break;
     case FEAT_INDEXATION_BLOCK:
-      printf("Indexaction: ");
-      dump_hex_str(((feat_indexaction_blk_t*)blk->block)->tag, ((feat_indexaction_blk_t*)blk->block)->tag_len);
+      printf("Indexation: ");
+      dump_hex_str(((feat_indexation_blk_t*)blk->block)->tag, ((feat_indexation_blk_t*)blk->block)->tag_len);
       break;
     default:
       break;
@@ -653,7 +653,7 @@ int feat_blk_list_add_metadata(feat_blk_list_t** list, byte_t const data[], uint
   return -1;
 }
 
-int feat_blk_list_add_indexaction(feat_blk_list_t** list, byte_t const tag[], uint8_t tag_len) {
+int feat_blk_list_add_indexation(feat_blk_list_t** list, byte_t const tag[], uint8_t tag_len) {
   // check if list length is reached the limitation
   if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
     return -1;
@@ -661,7 +661,7 @@ int feat_blk_list_add_indexaction(feat_blk_list_t** list, byte_t const tag[], ui
 
   feat_blk_list_t* next = malloc(sizeof(feat_blk_list_t));
   if (next) {
-    next->blk = new_feat_blk_indexaction(tag, tag_len);
+    next->blk = new_feat_blk_indexation(tag, tag_len);
     if (next->blk) {
       LL_APPEND(*list, next);
       return 0;

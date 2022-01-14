@@ -218,7 +218,7 @@ void test_uint256_sub() {
   free(str2);
   free(str3);
 
-  //=====Test substraction from maximum unsigned 256-bit number=====
+  //=====Test subtraction from maximum unsigned 256-bit number=====
   num1.bits[0] = 0xFFFFFFFFFFFFFFFF;
   num1.bits[1] = 0xFFFFFFFFFFFFFFFF;
   num1.bits[2] = 0xFFFFFFFFFFFFFFFF;
@@ -268,7 +268,7 @@ void test_uint256_sub() {
   free(str2);
   free(str3);
 
-  //=====Subtrahend number is bigger then minued number=====
+  //=====Subtrahend number is bigger then minuend number=====
   num1.bits[0] = 0xEEEEEEEEEEEEEEEE;
   num1.bits[1] = 0xEEEEEEEEEEEEEEEE;
   num1.bits[2] = 0xEEEEEEEEEEEEEEEE;

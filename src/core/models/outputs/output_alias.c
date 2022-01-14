@@ -9,7 +9,7 @@
 #include "uthash.h"
 #include "utlist.h"
 
-// minumum dust allowance
+// minimum dust allowance
 #define MIN_DUST_ALLOWANCE 1000000
 
 // maximum number of feature blocks
@@ -279,7 +279,7 @@ size_t output_alias_serialize(output_alias_t* output, byte_t buf[], size_t buf_l
 
 output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   if (buf == NULL || buf_len == 0) {
-    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 

@@ -16,7 +16,7 @@ unlock_list_t* unlock_blocks_new() { return NULL; }
 
 int unlock_blocks_add(unlock_list_t** blocks, unlock_block_t* block) {
   if (block->type == UNLOCK_BLOCK_TYPE_SIGNATURE) {
-    // Signature unlock block must be unique. There must not be any other signature unlock blocks in the unlock block
+    // Signature unlock block must be unique. There must not be any other signature unlock blocks in unlock block
     // list with the same signature.
     unlock_list_t* elm = NULL;
     LL_FOREACH(*blocks, elm) {
@@ -191,7 +191,7 @@ size_t unlock_blocks_serialize_length(unlock_list_t* blocks) {
     } else if (elm->block.type == UNLOCK_BLOCK_TYPE_NFT) {
       serialized_size += UNLOCK_NFT_SERIALIZE_BYTES;
     } else {
-      printf("[%s:%d] Unkown unlocked block type\n", __func__, __LINE__);
+      printf("[%s:%d] Unknown unlocked block type\n", __func__, __LINE__);
       return 0;
     }
   }
@@ -271,8 +271,8 @@ void unlock_blocks_print(unlock_list_t* blocks) {
     printf("unlocked blocks[\n");
     LL_FOREACH(blocks, elm) {
       if (elm->block.type == UNLOCK_BLOCK_TYPE_SIGNATURE) {  // signature block
-        printf("\tSignautre block[ ");
-        printf("Type: %s\n", ((byte_t*)elm->block.block_data)[0] ? "UNKNOW" : "ED25519");
+        printf("\tSignature block[ ");
+        printf("Type: %s\n", ((byte_t*)elm->block.block_data)[0] ? "UNKNOWN" : "ED25519");
         printf("\tPub key: ");
         dump_hex(elm->block.block_data + 1, ED_PUBLIC_KEY_BYTES);
         printf("\tSignature: ");
@@ -288,7 +288,7 @@ void unlock_blocks_print(unlock_list_t* blocks) {
         printf("\tNFT block[ ");
         printf("ref: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
       } else {
-        printf("[%s:%d] Unkown unlocked block type\n", __func__, __LINE__);
+        printf("[%s:%d] Unknown unlocked block type\n", __func__, __LINE__);
         // return 0;
       }
     }

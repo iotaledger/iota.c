@@ -270,21 +270,21 @@ void test_metadata() {
   free_feat_blk(deser_blk);
 }
 
-void test_indexaction() {
+void test_indexation() {
   byte_t serialized_blk[96] = {};
 
-  // create a Indexaction block
+  // create an Indexation block
   byte_t tag[MAX_INDEX_TAG_BYTES] = {};
   iota_crypto_randombytes(tag, sizeof(tag));
 
-  feat_block_t* idx_blk = new_feat_blk_indexaction(tag, sizeof(tag));
+  feat_block_t* idx_blk = new_feat_blk_indexation(tag, sizeof(tag));
   TEST_ASSERT_NOT_NULL(idx_blk);
   feat_blk_print(idx_blk);
 
   // validate object
   TEST_ASSERT(idx_blk->type == FEAT_INDEXATION_BLOCK);
-  TEST_ASSERT(((feat_indexaction_blk_t*)idx_blk->block)->tag_len == sizeof(tag));
-  TEST_ASSERT_EQUAL_MEMORY(tag, ((feat_indexaction_blk_t*)idx_blk->block)->tag, sizeof(tag));
+  TEST_ASSERT(((feat_indexation_blk_t*)idx_blk->block)->tag_len == sizeof(tag));
+  TEST_ASSERT_EQUAL_MEMORY(tag, ((feat_indexation_blk_t*)idx_blk->block)->tag, sizeof(tag));
 
   // serialization
   TEST_ASSERT(feat_blk_serialize(idx_blk, serialized_blk, 1) == 0);  // expect serialize failed
@@ -296,11 +296,10 @@ void test_indexaction() {
 
   // validate
   TEST_ASSERT(idx_blk->type == deser_blk->type);
-  TEST_ASSERT(((feat_indexaction_blk_t*)idx_blk->block)->tag_len ==
-              ((feat_indexaction_blk_t*)deser_blk->block)->tag_len);
-  TEST_ASSERT_EQUAL_MEMORY(((feat_indexaction_blk_t*)idx_blk->block)->tag,
-                           ((feat_indexaction_blk_t*)deser_blk->block)->tag,
-                           ((feat_indexaction_blk_t*)idx_blk->block)->tag_len);
+  TEST_ASSERT(((feat_indexation_blk_t*)idx_blk->block)->tag_len == ((feat_indexation_blk_t*)deser_blk->block)->tag_len);
+  TEST_ASSERT_EQUAL_MEMORY(((feat_indexation_blk_t*)idx_blk->block)->tag,
+                           ((feat_indexation_blk_t*)deser_blk->block)->tag,
+                           ((feat_indexation_blk_t*)idx_blk->block)->tag_len);
 
   // clean up
   free_feat_blk(idx_blk);
@@ -342,10 +341,10 @@ void test_feat_block_list_append_all() {
   byte_t meta_data[256] = {};
   iota_crypto_randombytes(meta_data, sizeof(meta_data));
   TEST_ASSERT(feat_blk_list_add_metadata(&blk_list, meta_data, sizeof(meta_data)) == 0);
-  // add an indexaction tag
+  // add an indexation tag
   byte_t tag[MAX_INDEX_TAG_BYTES] = {};
   iota_crypto_randombytes(tag, sizeof(tag));
-  TEST_ASSERT(feat_blk_list_add_indexaction(&blk_list, tag, sizeof(tag)) == 0);
+  TEST_ASSERT(feat_blk_list_add_indexation(&blk_list, tag, sizeof(tag)) == 0);
 
   // check length of the list
   TEST_ASSERT(feat_blk_list_len(blk_list) == 9);
@@ -419,12 +418,12 @@ void test_feat_block_list_append_all() {
   TEST_ASSERT(((feat_metadata_blk_t*)tmp_blk->block)->data_len == sizeof(meta_data));
   TEST_ASSERT_EQUAL_MEMORY(((feat_metadata_blk_t*)tmp_blk->block)->data, meta_data, sizeof(meta_data));
 
-  // 8: should be indexaction
+  // 8: should be indexation
   tmp_blk = feat_blk_list_get(deser_list, 8);
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_INDEXATION_BLOCK);
-  TEST_ASSERT(((feat_indexaction_blk_t*)tmp_blk->block)->tag_len == sizeof(tag));
-  TEST_ASSERT_EQUAL_MEMORY(((feat_indexaction_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
+  TEST_ASSERT(((feat_indexation_blk_t*)tmp_blk->block)->tag_len == sizeof(tag));
+  TEST_ASSERT_EQUAL_MEMORY(((feat_indexation_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
 
   // clean up
   free_feat_blk_list(deser_list);
@@ -457,10 +456,10 @@ void test_feat_block_list_sort() {
   // add a timelock milestone index
   uint32_t tmi_value = 12345678;
   TEST_ASSERT(feat_blk_list_add_tmi(&blk_list, tmi_value) == 0);
-  // add an indexaction tag
+  // add an indexation tag
   byte_t tag[MAX_INDEX_TAG_BYTES] = {};
   iota_crypto_randombytes(tag, sizeof(tag));
-  TEST_ASSERT(feat_blk_list_add_indexaction(&blk_list, tag, sizeof(tag)) == 0);
+  TEST_ASSERT(feat_blk_list_add_indexation(&blk_list, tag, sizeof(tag)) == 0);
   // add a expiration milestone index
   uint32_t emi_value = 145982608;
   TEST_ASSERT(feat_blk_list_add_emi(&blk_list, emi_value) == 0);
@@ -508,12 +507,12 @@ void test_feat_block_list_sort() {
   TEST_ASSERT(tmp_blk->type == FEAT_TIMELOCK_MS_INDEX_BLOCK);
   TEST_ASSERT(*(uint32_t*)tmp_blk->block == tmi_value);
 
-  // 5: should be indexaction
+  // 5: should be indexation
   tmp_blk = feat_blk_list_get(blk_list, 5);
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_INDEXATION_BLOCK);
-  TEST_ASSERT(((feat_indexaction_blk_t*)tmp_blk->block)->tag_len == sizeof(tag));
-  TEST_ASSERT_EQUAL_MEMORY(((feat_indexaction_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
+  TEST_ASSERT(((feat_indexation_blk_t*)tmp_blk->block)->tag_len == sizeof(tag));
+  TEST_ASSERT_EQUAL_MEMORY(((feat_indexation_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
 
   // 6: should be expiration milestone index
   tmp_blk = feat_blk_list_get(blk_list, 6);
@@ -603,12 +602,12 @@ void test_feat_block_list_sort() {
   TEST_ASSERT(((feat_metadata_blk_t*)tmp_blk->block)->data_len == sizeof(meta_data));
   TEST_ASSERT_EQUAL_MEMORY(((feat_metadata_blk_t*)tmp_blk->block)->data, meta_data, sizeof(meta_data));
 
-  // 8: should be indexaction
+  // 8: should be indexation
   tmp_blk = feat_blk_list_get(deser_list, 8);
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_INDEXATION_BLOCK);
-  TEST_ASSERT(((feat_indexaction_blk_t*)tmp_blk->block)->tag_len == sizeof(tag));
-  TEST_ASSERT_EQUAL_MEMORY(((feat_indexaction_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
+  TEST_ASSERT(((feat_indexation_blk_t*)tmp_blk->block)->tag_len == sizeof(tag));
+  TEST_ASSERT_EQUAL_MEMORY(((feat_indexation_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
 
   // clean up
   free_feat_blk_list(deser_list);
@@ -744,7 +743,7 @@ int main() {
   RUN_TEST(test_expiration_milestone_index);
   RUN_TEST(test_expiration_unix);
   RUN_TEST(test_metadata);
-  RUN_TEST(test_indexaction);
+  RUN_TEST(test_indexation);
   RUN_TEST(test_feat_block_list_append_all);
   RUN_TEST(test_feat_block_list_sort);
   RUN_TEST(test_feat_block_list_clone);

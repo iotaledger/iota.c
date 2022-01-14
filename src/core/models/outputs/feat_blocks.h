@@ -62,9 +62,9 @@ typedef struct metadata_blks {
  *
  */
 typedef struct index_blks {
-  uint8_t tag_len;                  ///< the length of Indexaction Tag.
+  uint8_t tag_len;                  ///< the length of Indexation Tag.
   byte_t tag[MAX_INDEX_TAG_BYTES];  ///< Indexation Tag, max length is 64 bytes.
-} feat_indexaction_blk_t;
+} feat_indexation_blk_t;
 
 /**
  * @brief A list of feature blocks
@@ -166,13 +166,13 @@ feat_block_t* new_feat_blk_eu(uint32_t time);
 feat_block_t* new_feat_blk_metadata(byte_t const data[], uint32_t data_len);
 
 /**
- * @brief New an Indexaction feature block
+ * @brief New an Indexation feature block
  *
- * @param[in] tag The indexaction tag in binary form
- * @param[in] tag_len The length of the indexaction tag in bytes
+ * @param[in] tag The indexation tag in binary form
+ * @param[in] tag_len The length of the indexation tag in bytes
  * @return feat_block_t*
  */
-feat_block_t* new_feat_blk_indexaction(byte_t const tag[], uint8_t tag_len);
+feat_block_t* new_feat_blk_indexation(byte_t const tag[], uint8_t tag_len);
 
 /**
  * @brief Get the length of the serialized feature block in bytes
@@ -202,7 +202,7 @@ size_t feat_blk_serialize(feat_block_t* blk, byte_t buf[], size_t buf_len);
 feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len);
 
 /**
- * @brief free a featrue block
+ * @brief free a feature block
  *
  * @param[in] blk A feature block object
  */
@@ -313,14 +313,14 @@ int feat_blk_list_add_eu(feat_blk_list_t** list, uint32_t time);
 int feat_blk_list_add_metadata(feat_blk_list_t** list, byte_t const data[], uint32_t data_len);
 
 /**
- * @brief Add an indexaction to the list
+ * @brief Add an indexation to the list
  *
  * @param[in,out] list A feature list
  * @param[in] tag A buffer holds the tag
  * @param[in] tag_len The length of the tag
  * @return int 0 on success
  */
-int feat_blk_list_add_indexaction(feat_blk_list_t** list, byte_t const tag[], uint8_t tag_len);
+int feat_blk_list_add_indexation(feat_blk_list_t** list, byte_t const tag[], uint8_t tag_len);
 
 /**
  * @brief Get the expected serialize length of the feature block list
