@@ -36,26 +36,6 @@ The RESTful API is low level client implementation based on [RFC: REST Node API]
   :members:
 ```
 
-## [Get Balance](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_balance.h)
-
-```{eval-rst}
-.. doxygenfunction:: get_balance
-```
-
-### Response
-
-```{eval-rst}
-.. doxygenstruct:: res_balance_t
-  :members:
-```
-
-### Balance object
-
-```{eval-rst}
-.. doxygenstruct:: get_balance_t
-  :members:
-```
-
 ## [Get Health](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_health.h)
 
 ```{eval-rst}
