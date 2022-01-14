@@ -26,7 +26,7 @@ target_sources(
           "models/outputs/output_nft.c"
           "models/outputs/native_tokens.c"
           "models/outputs/outputs.c"
-          #"models/payloads/transaction.c"
+          "models/payloads/transaction.c"
           "models/payloads/indexation.c"
           #"models/message.c"
           "models/unlock_block.c"
@@ -45,7 +45,7 @@ target_sources(
          "models/outputs/output_nft.h"
          "models/outputs/native_tokens.h"
          "models/outputs/outputs.h"
-         #"models/payloads/transaction.h"
+         "models/payloads/transaction.h"
          "models/payloads/indexation.h"
          #"models/message.h"
          "models/unlock_block.h")
