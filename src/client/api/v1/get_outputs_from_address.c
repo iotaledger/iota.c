@@ -146,13 +146,13 @@ int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, cha
   }
 
   // compose restful api command
-  char cmd_buffer[99] = {0};  // 99 = max size of api path(34) + IOTA_ADDRESS_HEX_BYTES(64) + 1
+  char cmd_buffer[112] = {0};  // 99 = max size of api path(47) + IOTA_ADDRESS_HEX_BYTES(64) + 1
   int snprintf_ret;
 
   if (is_bech32) {
-    snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v1/addresses/%s/outputs", addr);
+    snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/addresses/%s/outputs", addr);
   } else {
-    snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v1/addresses/ed25519/%s/outputs", addr);
+    snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/addresses/ed25519/%s/outputs", addr);
   }
 
   // check if data stored is not more than buffer length
