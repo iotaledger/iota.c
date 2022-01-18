@@ -1,8 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_API_V1_OUTPUTS_FROM_ADDRESS_H__
-#define __CLIENT_API_V1_OUTPUTS_FROM_ADDRESS_H__
+#ifndef __CLIENT_API_RESTFUL_OUTPUTS_FROM_ADDRESS_H__
+#define __CLIENT_API_RESTFUL_OUTPUTS_FROM_ADDRESS_H__
 
 #include "utarray.h"
 

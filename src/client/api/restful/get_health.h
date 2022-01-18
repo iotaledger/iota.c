@@ -1,8 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_API_V1_HEALTH_H__
-#define __CLIENT_API_V1_HEALTH_H__
+#ifndef __CLIENT_API_RESTFUL_HEALTH_H__
+#define __CLIENT_API_RESTFUL_HEALTH_H__
 
 #include <stdbool.h>
 #include <stdint.h>

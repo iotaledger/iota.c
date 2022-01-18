@@ -1,8 +1,8 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_API_V1_RES_ERR_H__
-#define __CLIENT_API_V1_RES_ERR_H__
+#ifndef __CLIENT_API_RESTFUL_RES_ERR_H__
+#define __CLIENT_API_RESTFUL_RES_ERR_H__
 
 #include <stdint.h>
 

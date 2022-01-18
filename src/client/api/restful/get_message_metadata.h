@@ -1,8 +1,8 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_API_V1_MSG_META_H__
-#define __CLIENT_API_V1_MSG_META_H__
+#ifndef __CLIENT_API_RESTFUL_MSG_META_H__
+#define __CLIENT_API_RESTFUL_MSG_META_H__
 
 #include <stdint.h>
 
@@ -94,4 +94,4 @@ int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res
 }
 #endif
 
-#endif  // __CLIENT_API_V1_MSG_META_H__
+#endif  // __CLIENT_API_RESTFUL_MSG_META_H__
