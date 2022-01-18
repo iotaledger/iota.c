@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "client/api/v1/get_message.h"
+#include "client/api/restful/get_message.h"
 
 static char const *const mainnet_hrp = "iota";
 
