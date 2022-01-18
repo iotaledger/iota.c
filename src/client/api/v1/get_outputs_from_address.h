@@ -16,7 +16,6 @@
  *
  */
 typedef struct {
-  char address[ADDRESS_ED25519_HEX_BYTES + 1];  ///< hex-encoded string with null terminator.
   uint32_t max_results;                         ///< The number of results it can return at most.
   uint32_t count;                               ///< The actual number of found results.
   UT_array *outputs;                            ///< output IDs

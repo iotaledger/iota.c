@@ -16,15 +16,13 @@ void tearDown(void) {}
 void test_deser_outputs() {
   // empty output ids
   char const* const data_empty =
-      "{\"data\":{\"address\":\"017ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f0\",\"maxResults\":1000,"
+      "{\"data\":{\"maxResults\":1000,"
       "\"count\":0,\"outputIds\":[],\"ledgerIndex\":837834}}";
 
   res_outputs_address_t* res = res_outputs_address_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(deser_outputs_from_address(data_empty, res) == 0);
   TEST_ASSERT(res->is_error == false);
-  TEST_ASSERT_EQUAL_MEMORY("017ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f0",
-                           res->u.output_ids->address, sizeof(res->u.output_ids->address));
   TEST_ASSERT(res->u.output_ids->max_results == 1000);
   TEST_ASSERT(res->u.output_ids->count == 0);
   TEST_ASSERT(utarray_len(res->u.output_ids->outputs) == 0);
@@ -34,15 +32,13 @@ void test_deser_outputs() {
 
   // with output ids
   char const* const data_1 =
-      "{\"data\":{\"address\":\"7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006\",\"maxResults\":1000,"
+      "{\"data\":{\"maxResults\":1000,"
       "\"count\":2,\"outputIds\":[\"1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
       "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}}";
   res = res_outputs_address_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(deser_outputs_from_address(data_1, res) == 0);
   TEST_ASSERT(res->is_error == false);
-  TEST_ASSERT_EQUAL_MEMORY("7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006",
-                           res->u.output_ids->address, sizeof(res->u.output_ids->address));
   TEST_ASSERT(res->u.output_ids->max_results == 1000);
   TEST_ASSERT(res_outputs_address_output_id_count(res) == 2);
   TEST_ASSERT(utarray_len(res->u.output_ids->outputs) == 2);
@@ -132,7 +128,6 @@ void test_get_output_ids() {
   int ret = get_outputs_from_address(&ctx, false, addr1, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
-  TEST_ASSERT_EQUAL_STRING(addr1, res->u.output_ids->address);
 
   // Re initializing res
   res_outputs_address_free(res);
