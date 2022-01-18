@@ -18,6 +18,10 @@
 #define IOTA_MESSAGE_ID_BYTES 32
 // Message ID in hex string form
 #define IOTA_MESSAGE_ID_HEX_BYTES (IOTA_MESSAGE_ID_BYTES * 2)
+// Transaction ID in binary form
+#define IOTA_TRANSACTION_ID_BYTES 32
+// Transaction ID in hex string form
+#define IOTA_TRANSACTION_ID_HEX_BYTES (IOTA_TRANSACTION_ID_BYTES * 2)
 
 /**
  * @brief A message object

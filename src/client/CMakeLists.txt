@@ -26,6 +26,7 @@ target_sources(
           "api/v1/send_message.c"
           "api/v1/find_message.c"
           "api/v1/get_outputs_from_address.c"
+          "api/v1/get_transaction_included_message.c"
   PUBLIC "network/http.h"
          "api/json_utils.h"
          "api/json_keys.h"
@@ -43,6 +44,7 @@ target_sources(
          "api/v1/find_message.h"
          "api/v1/get_outputs_from_address.h"
          "client_service.h"
+         "api/v1/get_transaction_included_message.h"
          )
 
 if(MQTT_CLIENT_ENABLE)
