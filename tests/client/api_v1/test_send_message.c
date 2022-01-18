@@ -6,9 +6,9 @@
 
 #include "test_config.h"
 
-#include "client/api/v1/get_output.h"
-#include "client/api/v1/get_outputs_from_address.h"
-#include "client/api/v1/send_message.h"
+#include "client/api/restful/get_output.h"
+#include "client/api/restful/get_outputs_from_address.h"
+#include "client/api/restful/send_message.h"
 #include "core/utils/byte_buffer.h"
 
 #include "core/address.h"

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
-#include "client/api/v1/find_message.h"
+#include "client/api/restful/find_message.h"
 #include "test_config.h"
 
 void setUp(void) {}

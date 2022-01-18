@@ -6,7 +6,7 @@
 
 #include "test_config.h"
 
-#include "client/api/v1/get_output.h"
+#include "client/api/restful/get_output.h"
 
 void setUp(void) {}
 

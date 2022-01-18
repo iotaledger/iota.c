@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-#include "client/api/v1/get_node_info.h"
+#include "client/api/restful/get_node_info.h"
 
 int main(void) {
   iota_client_conf_t ctx = {.host = "chrysalis-nodes.iota.org", .port = 443, .use_tls = true};

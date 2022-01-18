@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
-#include "client/api/v1/get_message_children.h"
+#include "client/api/restful/get_message_children.h"
 #include "test_config.h"
 
 void setUp(void) {}

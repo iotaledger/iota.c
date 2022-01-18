@@ -6,7 +6,7 @@
 
 #include "test_config.h"
 
-#include "client/api/v1/get_health.h"
+#include "client/api/restful/get_health.h"
 
 void setUp(void) {}
 

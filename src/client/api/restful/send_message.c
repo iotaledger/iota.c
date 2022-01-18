@@ -5,8 +5,8 @@
 
 #include "client/api/json_utils.h"
 #include "client/api/message_builder.h"
-#include "client/api/v1/get_tips.h"
-#include "client/api/v1/send_message.h"
+#include "client/api/restful/get_tips.h"
+#include "client/api/restful/send_message.h"
 #include "core/utils/iota_str.h"
 
 char const* const cmd_msg = "/api/v1/messages";

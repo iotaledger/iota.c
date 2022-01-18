@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "client/api/json_keys.h"
-#include "client/api/v1/response_error.h"
+#include "client/api/restful/response_error.h"
 #include "core/utils/allocator.h"
 
 void res_err_free(res_err_t *err) {

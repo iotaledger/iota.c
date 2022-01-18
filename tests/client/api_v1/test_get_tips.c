@@ -6,7 +6,7 @@
 
 #include "test_config.h"
 
-#include "client/api/v1/get_tips.h"
+#include "client/api/restful/get_tips.h"
 
 void setUp(void) {}
 

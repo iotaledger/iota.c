@@ -7,7 +7,7 @@
 #include "test_config.h"
 #include "utarray.h"
 
-#include "client/api/v1/get_node_info.h"
+#include "client/api/restful/get_node_info.h"
 
 void setUp(void) {}
 

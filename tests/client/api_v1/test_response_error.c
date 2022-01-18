@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
-#include "client/api/v1/response_error.h"
+#include "client/api/restful/response_error.h"
 
 void setUp(void) {}
 

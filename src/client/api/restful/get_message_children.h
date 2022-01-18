@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 
-#include "client/api/v1/response_error.h"
+#include "client/api/restful/response_error.h"
 #include "client/client_service.h"
 #include "core/models/message.h"
 #include "core/types.h"

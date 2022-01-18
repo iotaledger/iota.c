@@ -6,7 +6,7 @@
 
 #include "utarray.h"
 
-#include "client/api/v1/response_error.h"
+#include "client/api/restful/response_error.h"
 #include "client/client_service.h"
 #include "core/address.h"
 #include "core/types.h"

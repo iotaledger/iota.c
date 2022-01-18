@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "client/api/json_utils.h"
-#include "client/api/v1/get_message_children.h"
+#include "client/api/restful/get_message_children.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 

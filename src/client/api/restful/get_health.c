@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "client/api/v1/get_health.h"
+#include "client/api/restful/get_health.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 

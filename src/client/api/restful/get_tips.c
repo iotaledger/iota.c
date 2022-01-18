@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "client/api/json_utils.h"
-#include "client/api/v1/get_tips.h"
+#include "client/api/restful/get_tips.h"
 #include "core/utils/iota_str.h"
 
 int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
