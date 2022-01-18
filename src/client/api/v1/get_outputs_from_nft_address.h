@@ -75,7 +75,7 @@ char *res_outputs_nft_address_output_id(res_outputs_nft_address_t *res, size_t i
  * @param[out] res The response object
  * @return int 0 on successful
  */
-int deserialize_outputs_from_nft_address(char const *const j_str, res_outputs_nft_address_t *res);
+int deser_outputs_from_nft_address(char const *const j_str, res_outputs_nft_address_t *res);
 
 /**
  * @brief Gets output IDs from a given NFT address

@@ -17,7 +17,7 @@ void test_deserialize_outputs() {
 
   res_outputs_alias_address_t* res = res_outputs_alias_address_new();
   TEST_ASSERT_NOT_NULL(res);
-  TEST_ASSERT(deserialize_outputs_from_alias_address(data_empty, res) == 0);
+  TEST_ASSERT(deser_outputs_from_alias_address(data_empty, res) == 0);
   TEST_ASSERT(res->is_error == false);
   TEST_ASSERT(res->u.output_ids->max_results == 1000);
   TEST_ASSERT(res->u.output_ids->count == 0);
@@ -32,7 +32,7 @@ void test_deserialize_outputs() {
       "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}}";
   res = res_outputs_alias_address_new();
   TEST_ASSERT_NOT_NULL(res);
-  TEST_ASSERT(deserialize_outputs_from_alias_address(data_1, res) == 0);
+  TEST_ASSERT(deser_outputs_from_alias_address(data_1, res) == 0);
   TEST_ASSERT(res->is_error == false);
   TEST_ASSERT(res->u.output_ids->max_results == 1000);
   TEST_ASSERT(res_outputs_alias_address_output_id_count(res) == 2);
@@ -53,7 +53,7 @@ void test_deserialize_outputs_err() {
 
   res_outputs_alias_address_t* res = res_outputs_alias_address_new();
   TEST_ASSERT_NOT_NULL(res);
-  int ret = deserialize_outputs_from_alias_address(small_addr_err_400, res);
+  int ret = deser_outputs_from_alias_address(small_addr_err_400, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == true);
   TEST_ASSERT_EQUAL_STRING(res->u.error->code, "400");
@@ -69,7 +69,7 @@ void test_deserialize_outputs_err() {
 
   res = res_outputs_alias_address_new();
   TEST_ASSERT_NOT_NULL(res);
-  ret = deserialize_outputs_from_alias_address(big_addr_err_400, res);
+  ret = deser_outputs_from_alias_address(big_addr_err_400, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == true);
   TEST_ASSERT_EQUAL_STRING(res->u.error->code, "400");

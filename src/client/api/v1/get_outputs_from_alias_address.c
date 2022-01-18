@@ -69,7 +69,7 @@ char *res_outputs_alias_address_output_id(res_outputs_alias_address_t *res, size
   return NULL;
 }
 
-int deserialize_outputs_from_alias_address(char const *const j_str, res_outputs_alias_address_t *res) {
+int deser_outputs_from_alias_address(char const *const j_str, res_outputs_alias_address_t *res) {
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
@@ -169,7 +169,7 @@ int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const ad
   if ((ret = http_client_get(&http_conf, http_res, &status)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
-    ret = deserialize_outputs_from_alias_address((char const *const)http_res->data, res);
+    ret = deser_outputs_from_alias_address((char const *const)http_res->data, res);
   }
 
 done:
