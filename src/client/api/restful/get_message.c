@@ -6,6 +6,7 @@
 
 #include "client/api/json_utils.h"
 #include "client/api/restful/get_message.h"
+#include "client/api/tx_outputs.h"
 #include "client/network/http.h"
 #include "core/address.h"
 #include "core/utils/iota_str.h"
@@ -151,49 +152,38 @@ static int deser_tx_outputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
   }
 
   /*
+  Example for extended output:
   "outputs": [
-    { "type": 0,
-      "address": {
-        "type": 0,
-        "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
-      },
-      "amount": 10000000 } ],
+    { "type": 3,
+      "amount": 10000000,
+      "nativeTokens": [],
+      "unlockConditions": [],
+      "blocks": [] }
+  ],
   */
   if (cJSON_IsArray(out_obj)) {
     cJSON *elm = NULL;
     cJSON_ArrayForEach(elm, out_obj) {
-      cJSON *tx_address_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_ADDR);
-      cJSON *tx_amount_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_AMOUNT);
-      // check outputs/address and output/amount
-      if (tx_address_obj && tx_amount_obj) {
-        cJSON *addr_type = cJSON_GetObjectItemCaseSensitive(tx_address_obj, JSON_KEY_TYPE);
-        if (addr_type) {
-          // check outputs/address/type
-          if (cJSON_IsNumber(addr_type) && addr_type->valueint == ADDRESS_TYPE_ED25519) {
-            cJSON *addr = cJSON_GetObjectItemCaseSensitive(tx_address_obj, JSON_KEY_ADDR);
-            if (cJSON_IsString(addr) && cJSON_IsNumber(tx_amount_obj)) {
-              payload_tx_output_t output = {};
-              memcpy(output.address, addr->valuestring, sizeof(output.address));
-              output.amount = (uint64_t)tx_amount_obj->valuedouble;
-              // add the output element to payload
-              utarray_push_back(payload_tx->outputs, &output);
-            } else {
-              printf("[%s:%d] address is not a string or amount is not an number\n", __func__, __LINE__);
-              return -1;
-            }
+      cJSON *tx_type_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TYPE);
 
-          } else {
-            printf("[%s:%d] only support ed25519 address\n", __func__, __LINE__);
-            return -1;
-          }
+      // check output type
+      if (!cJSON_IsNumber(tx_type_obj)) {
+        printf("[%s:%d] %s must be a number\n", __func__, __LINE__, JSON_KEY_TYPE);
+        break;
+      }
 
-        } else {
-          printf("[%s:%d] parsing address type failed\n", __func__, __LINE__);
-          return -1;
-        }
+      int res = -1;
+      if (tx_type_obj->valueint == OUTPUT_EXTENDED) {
+        res = deser_tx_extended_output(elm, payload_tx);
+      } else if (tx_type_obj->valueint == OUTPUT_ALIAS) {
+        res = deser_tx_alias_output(elm, payload_tx);
+      } else if (tx_type_obj->valueint == OUTPUT_FOUNDRY) {
+        res = deser_tx_foundry_output(elm, payload_tx);
+      } else if (tx_type_obj->valueint == OUTPUT_NFT) {
+        res = deser_tx_nft_output(elm, payload_tx);
       } else {
-        printf("[%s:%d] parsing outputs array failed\n", __func__, __LINE__);
-        return -1;
+        printf("[%s:%d] Unsupported output block type\n", __func__, __LINE__);
+        break;
       }
     }
   } else {

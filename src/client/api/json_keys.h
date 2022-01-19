@@ -61,5 +61,9 @@ static char const* const JSON_KEY_LMT = "latestMilestoneTimestamp";
 static char const* const JSON_KEY_CHILDREN_MSG_IDS = "childrenMessageIds";
 static char const* const JSON_KEY_LEDGER_IDX = "ledgerIndex";
 static char const* const JSON_KEY_DUST_ALLOWED = "dustAllowed";
+static char const* const JSON_KEY_ID = "id";
+static char const* const JSON_KEY_NATIVE_TOKENS = "nativeTokens";
+static char const* const JSON_KEY_UNLOCK_CONDITIONS = "unlockConditions";
+static char const* const JSON_KEY_FEAT_BLOCKS = "blocks";
 
 #endif

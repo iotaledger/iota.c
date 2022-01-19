@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/message.h"
+#include "client/api/tx_outputs.h"
 
 static const UT_icd ut_tx_inputs_icd = {sizeof(payload_tx_input_t), NULL, NULL, NULL};
 static const UT_icd ut_tx_outputs_icd = {sizeof(payload_tx_output_t), NULL, NULL, NULL};
@@ -266,26 +267,6 @@ uint32_t payload_tx_inputs_tx_output_index(payload_tx_t const *const tx, size_t 
 size_t payload_tx_outputs_count(payload_tx_t const *const tx) {
   if (tx) {
     return utarray_len(tx->outputs);
-  }
-  return 0;
-}
-
-char *payload_tx_outputs_address(payload_tx_t const *const tx, size_t index) {
-  if (tx) {
-    payload_tx_output_t *out = (payload_tx_output_t *)utarray_eltptr(tx->outputs, index);
-    if (out) {
-      return out->address;
-    }
-  }
-  return NULL;
-}
-
-uint64_t payload_tx_outputs_amount(payload_tx_t const *const tx, size_t index) {
-  if (tx) {
-    payload_tx_output_t *out = (payload_tx_output_t *)utarray_eltptr(tx->outputs, index);
-    if (out) {
-      return out->amount;
-    }
   }
   return 0;
 }

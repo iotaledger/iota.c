@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "core/models/outputs/outputs.h"
 #include "core/types.h"
 #include "core/utils/byte_buffer.h"
 #include "utarray.h"
@@ -44,8 +45,8 @@ typedef struct {
 } payload_tx_input_t;
 
 typedef struct {
-  uint64_t amount;
-  char address[API_ADDR_HEX_STR_LEN];
+  utxo_output_type_t output_type;  ///< 3: Extended output, 4: Alias output, 5: Foundry output, 6: NFT output
+  void *output;                    ///< Pointer to an output
 } payload_tx_output_t;
 
 /**
@@ -200,24 +201,6 @@ uint32_t payload_tx_inputs_tx_output_index(payload_tx_t const *const tx, size_t 
  * @return size_t
  */
 size_t payload_tx_outputs_count(payload_tx_t const *const tx);
-
-/**
- * @brief Get address from outputs
- *
- * @param[in] tx A transaction payload object
- * @param[in] index The index of the output
- * @return char*
- */
-char *payload_tx_outputs_address(payload_tx_t const *const tx, size_t index);
-
-/**
- * @brief Get amount from outputs
- *
- * @param[in] tx A transaction payload object
- * @param[in] index The index of the output
- * @return uint64_t
- */
-uint64_t payload_tx_outputs_amount(payload_tx_t const *const tx, size_t index);
 
 /**
  * @brief Get unlocked block size
