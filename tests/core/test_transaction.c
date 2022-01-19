@@ -49,7 +49,8 @@ static output_extended_t* create_output_extended() {
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = new_feat_blk_list();
   feat_blk_list_add_sender(&feat_blocks, &addr);
-  feat_blk_list_add_ddr(&feat_blocks, 1000000);
+  // FIXME
+  // feat_blk_list_add_ddr(&feat_blocks, 1000000);
 
   // create Extended Output
   output_extended_t* output = output_extended_new(&addr, 123456789, native_tokens, feat_blocks);
@@ -217,7 +218,8 @@ static output_nft_t* create_output_nft() {
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = new_feat_blk_list();
   feat_blk_list_add_sender(&feat_blocks, &addr);
-  feat_blk_list_add_ddr(&feat_blocks, 1000000);
+  // FIXME
+  // feat_blk_list_add_ddr(&feat_blocks, 1000000);
 
   // create NFT Output
   output_nft_t* output =

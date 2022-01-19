@@ -8,31 +8,30 @@
 
 #include "core/address.h"
 #include "core/types.h"
-#include "uthash.h"
+// #include "uthash.h"
 
 /*
- * Feature Blocks represents the feature of the Output.
- * Each Output must not contain more than one feature block of each type
- * and not all block types are supported for each output type.
+ * New output features that do not introduce unlocking conditions, but rather add new functionality and add constraints
+ * on output creation are grouped under Feature Blocks. Each Output must not contain more than one feature block of each
+ * type and not all block types are supported for each output type.
  */
 
-// Maximum possible length in bytes of an Indexation Tag.
+// Maximum possible length in bytes of a Tag
 #define MAX_INDEX_TAG_BYTES 64
+// Maximun possible length in bytes of Metadata
+#define MAX_METADATA_LGN_BYTES 1024
 
 /**
  * @brief all feature block types
  *
  */
 typedef enum {
-  FEAT_SENDER_BLOCK = 0,
-  FEAT_ISSUER_BLOCK,
-  FEAT_DUST_DEP_RET_BLOCK,
-  FEAT_TIMELOCK_MS_INDEX_BLOCK,
-  FEAT_TIMELOCK_UNIX_BLOCK,
-  FEAT_EXPIRATION_MS_INDEX_BLOCK,
-  FEAT_EXPIRATION_UNIX_BLOCK,
-  FEAT_METADATA_BLOCK,
-  FEAT_INDEXATION_BLOCK
+  FEAT_SENDER_BLOCK = 0,  // Sender block is used to specify the validated sender of an output.
+  FEAT_ISSUER_BLOCK,      // Issuer block is a special case of the sender block that is only supported by outputs that
+                          // implement a UTXO state machine with chain constraint(Alias, NFT).
+  FEAT_METADATA_BLOCK,    // Metadata block carries additional binary data for outputs
+  FEAT_TAG_BLOCK          // Tag block is used to tag outputs with an index, so they can be retrieved via the Tag not
+                          // only their address.
 } feat_block_e;
 
 /**
@@ -56,15 +55,15 @@ typedef struct metadata_blks {
 } feat_metadata_blk_t;
 
 /**
- * @brief Indexation Blocks
+ * @brief Tag Blocks
  *
  * Defines an indexation tag to which the output will be indexed. Creates an indexation lookup in nodes
  *
  */
-typedef struct index_blks {
+typedef struct tag_blks {
   uint8_t tag_len;                  ///< the length of Indexation Tag.
   byte_t tag[MAX_INDEX_TAG_BYTES];  ///< Indexation Tag, max length is 64 bytes.
-} feat_indexation_blk_t;
+} feat_tag_blk_t;
 
 /**
  * @brief A list of feature blocks
@@ -100,61 +99,6 @@ feat_block_t* new_feat_blk_sender(address_t const* const addr);
 feat_block_t* new_feat_blk_issuer(address_t const* const addr);
 
 /**
- * @brief New a Dust Deposit Return feature block
- *
- * Defines the amount of IOTAs that have to be returned to Sender.
- *
- * @param[in] amount Amount of IOTA tokens the consuming transaction
- * should deposit to the address defined in Sender Block.
- * @return feat_block_t*
- */
-feat_block_t* new_feat_blk_ddr(uint64_t amount);
-
-/**
- * @brief New a Timelock Milestone Index feature block
- *
- * Defines a milestone index until which the output can not be unlocked.
- *
- * @param[in] ms_idx The milestone index starting from which the output can be consumed.
- * @return feat_block_t*
- */
-feat_block_t* new_feat_blk_tmi(uint32_t ms_idx);
-
-/**
- * @brief New a Timelock Unix feature block
- *
- * Defines a unix time until which the output can not be unlocked.
- *
- * @param[in] time Unix time (seconds since Unix epoch) starting from which the output can be consumed.
- * @return feat_block_t*
- */
-feat_block_t* new_feat_blk_tu(uint32_t time);
-
-/**
- * @brief New an Expiration Milestone Index feature block
- *
- * Defines a milestone index until which only Address is allowed to unlock the output.
- * After the milestone index, only Sender can unlock it..
- *
- * @param[in] ms_idx Before this milestone index, Address is allowed to unlock the output,
- * after that only the address defined in Sender Block.
- * @return feat_block_t*
- */
-feat_block_t* new_feat_blk_emi(uint32_t ms_idx);
-
-/**
- * @brief New an Expiration Unix feature block
- *
- * Defines a unix time until which only Address is allowed to unlock the output.
- * After the expiration time, only Sender can unlock it.
- *
- * @param[in] time Before this unix time, Address is allowed to unlock the output,
- * after that only the address defined in Sender Block.
- * @return feat_block_t*
- */
-feat_block_t* new_feat_blk_eu(uint32_t time);
-
-/**
  * @brief New a Metadata feature block
  *
  * Defines metadata (arbitrary binary data) that will be stored in the output.
@@ -166,13 +110,13 @@ feat_block_t* new_feat_blk_eu(uint32_t time);
 feat_block_t* new_feat_blk_metadata(byte_t const data[], uint32_t data_len);
 
 /**
- * @brief New an Indexation feature block
+ * @brief New a Tag feature block
  *
- * @param[in] tag The indexation tag in binary form
- * @param[in] tag_len The length of the indexation tag in bytes
+ * @param[in] tag The Tag in binary form
+ * @param[in] tag_len The length of the Tag in bytes
  * @return feat_block_t*
  */
-feat_block_t* new_feat_blk_indexation(byte_t const tag[], uint8_t tag_len);
+feat_block_t* new_feat_blk_tag(byte_t const tag[], uint8_t tag_len);
 
 /**
  * @brief Get the length of the serialized feature block in bytes
@@ -240,7 +184,7 @@ uint8_t feat_blk_list_len(feat_blk_list_t* list);
 feat_block_t* feat_blk_list_get(feat_blk_list_t* list, uint8_t index);
 
 /**
- * @brief Add a sender feature block to the list
+ * @brief Add a Sender feature block to the list
  *
  * @param[in, out] list A feature list
  * @param[in] addr An address of the sender
@@ -249,7 +193,7 @@ feat_block_t* feat_blk_list_get(feat_blk_list_t* list, uint8_t index);
 int feat_blk_list_add_sender(feat_blk_list_t** list, address_t const* const addr);
 
 /**
- * @brief Add an issuer feature block to the list
+ * @brief Add an Issuer feature block to the list
  *
  * @param[in,out] list A feature list
  * @param[in] addr An address of the issuer
@@ -258,52 +202,7 @@ int feat_blk_list_add_sender(feat_blk_list_t** list, address_t const* const addr
 int feat_blk_list_add_issuer(feat_blk_list_t** list, address_t const* const addr);
 
 /**
- * @brief Add a dust deposit return feature to the list
- *
- * @param[in,out] list A feature list
- * @param[in] amount The amount
- * @return int 0 on success
- */
-int feat_blk_list_add_ddr(feat_blk_list_t** list, uint64_t amount);
-
-/**
- * @brief Add timelock milestone index to the list
- *
- * @param[in,out] list A feature list
- * @param[in] index The milestone index
- * @return int 0 on success
- */
-int feat_blk_list_add_tmi(feat_blk_list_t** list, uint32_t index);
-
-/**
- * @brief Add a timelock Unix to the list
- *
- * @param[in,out] list A feature list
- * @param[in] time The Unix timestamp
- * @return int 0 on success
- */
-int feat_blk_list_add_tu(feat_blk_list_t** list, uint32_t time);
-
-/**
- * @brief Add an expiration milestone index to the list
- *
- * @param[in,out] list A feature list
- * @param[in] index The milestone index
- * @return int 0 on success
- */
-int feat_blk_list_add_emi(feat_blk_list_t** list, uint32_t index);
-
-/**
- * @brief Add an expiration Unix to the list
- *
- * @param[in,out] list A feature list
- * @param[in] time The Unix timestamp
- * @return int 0 on success
- */
-int feat_blk_list_add_eu(feat_blk_list_t** list, uint32_t time);
-
-/**
- * @brief Add a metadata to the list
+ * @brief Add a Metadata to the list
  *
  * @param[in,out] list A feature list
  * @param[in] data A buffer holds the metadata
@@ -313,14 +212,14 @@ int feat_blk_list_add_eu(feat_blk_list_t** list, uint32_t time);
 int feat_blk_list_add_metadata(feat_blk_list_t** list, byte_t const data[], uint32_t data_len);
 
 /**
- * @brief Add an indexation to the list
+ * @brief Add a Tag block to the list
  *
  * @param[in,out] list A feature list
  * @param[in] tag A buffer holds the tag
  * @param[in] tag_len The length of the tag
  * @return int 0 on success
  */
-int feat_blk_list_add_indexation(feat_blk_list_t** list, byte_t const tag[], uint8_t tag_len);
+int feat_blk_list_add_tag(feat_blk_list_t** list, byte_t const tag[], uint8_t tag_len);
 
 /**
  * @brief Get the expected serialize length of the feature block list
