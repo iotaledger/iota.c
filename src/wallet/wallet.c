@@ -5,11 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "client/api/v1/get_balance.h"
-#include "client/api/v1/get_node_info.h"
-#include "client/api/v1/get_output.h"
-#include "client/api/v1/get_outputs_from_address.h"
-#include "client/api/v1/send_message.h"
+#include "client/api/restful/get_balance.h"
+#include "client/api/restful/get_node_info.h"
+#include "client/api/restful/get_output.h"
+#include "client/api/restful/get_outputs_from_address.h"
+#include "client/api/restful/send_message.h"
 #include "core/models/message.h"
 #include "core/utils/byte_buffer.h"
 #include "wallet/wallet.h"
