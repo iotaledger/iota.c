@@ -19,6 +19,8 @@
 #define MAX_INDEX_TAG_BYTES 64
 // Maximun possible length in bytes of Metadata
 #define MAX_METADATA_LGN_BYTES 1024
+// Maximun Feature Blocks in a list
+#define MAX_FEATURE_BLOCK_COUNT 3
 
 /**
  * @brief all feature block types
