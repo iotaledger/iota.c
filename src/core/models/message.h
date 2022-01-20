@@ -23,6 +23,10 @@
 // Transaction ID in hex string form
 #define IOTA_TRANSACTION_ID_HEX_BYTES (IOTA_TRANSACTION_ID_BYTES * 2)
 
+// FIXME Move those define to some appropriate header file
+#define API_MSG_ID_HEX_STR_LEN (64 + 1)
+#define API_SIGNATURE_HEX_STR_LEN (128 + 1)
+
 typedef enum {
   MSG_PAYLOAD_TRANSACTION = 0,
   MSG_PAYLOAD_MILESTONE,
@@ -84,6 +88,15 @@ void core_message_add_parent(core_message_t* msg, byte_t const msg_id[]);
  * @return size_t
  */
 size_t core_message_parent_len(core_message_t* msg);
+
+/**
+ * @brief Gets a parent ID by a given index
+ *
+ * @param[in] msg A message object
+ * @param[in] index A index of a message ID
+ * @return char*
+ */
+char* core_message_get_parent_id(core_message_t* msg, size_t index);
 
 #ifdef __cplusplus
 }

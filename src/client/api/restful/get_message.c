@@ -1,6 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -390,10 +391,12 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
     }
 
     // network ID
-    if ((ret = json_get_uint64(data_obj, JSON_KEY_NET_ID, &res->u.msg->network_id)) != 0) {
+    char network_id[32];
+    if ((ret = json_get_string(data_obj, JSON_KEY_NET_ID, network_id, sizeof(network_id))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
       goto end;
     }
+    sscanf(network_id, "%" SCNu64, &res->u.msg->network_id);
 
     // parentMessageIds
     if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_PARENT_IDS, res->u.msg->parents)) != 0) {
@@ -404,10 +407,12 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
     }
 
     // nonce
-    if ((ret = json_get_uint64(data_obj, JSON_KEY_NONCE, &res->u.msg->nonce)) != 0) {
+    char nonce[32];
+    if ((ret = json_get_string(data_obj, JSON_KEY_NONCE, nonce, sizeof(nonce))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NONCE);
       goto end;
     }
+    sscanf(nonce, "%" SCNu64, &res->u.msg->nonce);
 
     cJSON *payload = cJSON_GetObjectItemCaseSensitive(data_obj, JSON_KEY_PAYLOAD);
     if (payload) {
@@ -491,22 +496,20 @@ done:
   return ret;
 }
 
-// FIXME
-/*size_t get_message_milestone_signature_count(res_message_t const *const res) {
+size_t get_message_milestone_signature_count(res_message_t const *const res) {
   if (res) {
-    if (!res->is_error && res->u.msg->type == MSG_PAYLOAD_MILESTONE) {
-      payload_milestone_t *milestone = (payload_milestone_t *)res->u.msg->payload;
+    if (!res->is_error && res->u.msg->payload_type == MSG_PAYLOAD_MILESTONE) {
+      milestone_t *milestone = (milestone_t *)res->u.msg->payload;
       return utarray_len(milestone->signatures);
     }
   }
   return 0;
-}*/
+}
 
-// FIXME
-/*char *get_message_milestone_signature(res_message_t const *const res, size_t index) {
+char *get_message_milestone_signature(res_message_t const *const res, size_t index) {
   if (res) {
-    if (!res->is_error && res->u.msg->type == MSG_PAYLOAD_MILESTONE) {
-      payload_milestone_t *milestone = (payload_milestone_t *)res->u.msg->payload;
+    if (!res->is_error && res->u.msg->payload_type == MSG_PAYLOAD_MILESTONE) {
+      milestone_t *milestone = (milestone_t *)res->u.msg->payload;
       if (utarray_len(milestone->signatures)) {
         char **p = (char **)utarray_eltptr(milestone->signatures, index);
         return *p;
@@ -514,7 +517,7 @@ done:
     }
   }
   return NULL;
-}*/
+}
 
 msg_payload_type_t get_message_payload_type(res_message_t const *const res) {
   if (res) {

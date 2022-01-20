@@ -9,10 +9,20 @@
 indexation_t *indexation_new() {
   indexation_t *idx = malloc(sizeof(indexation_t));
   if (idx) {
-    idx->index = NULL;
-    idx->data = NULL;
+    idx->data = byte_buf_new();
+    if (idx->data) {
+      idx->index = byte_buf_new();
+      if (idx->index) {
+        return idx;
+      }
+      byte_buf_free(idx->data);
+      free(idx);
+      return NULL;
+    }
+    free(idx);
+    return NULL;
   }
-  return idx;
+  return NULL;
 }
 
 void indexation_free(indexation_t *idx) {
