@@ -8,7 +8,6 @@
 
 #include "core/address.h"
 #include "core/types.h"
-// #include "uthash.h"
 
 /*
  * New output features that do not introduce unlocking conditions, but rather add new functionality and add constraints
@@ -49,7 +48,7 @@ typedef struct {
  * Defines metadata (arbitrary binary data) that will be stored in the output
  *
  */
-typedef struct metadata_blks {
+typedef struct {
   uint32_t data_len;  ///< the data length of the Metadata, max length is TBD.
   byte_t* data;       ///< the data of Metadata.
 } feat_metadata_blk_t;
@@ -60,7 +59,7 @@ typedef struct metadata_blks {
  * Defines an indexation tag to which the output will be indexed. Creates an indexation lookup in nodes
  *
  */
-typedef struct tag_blks {
+typedef struct {
   uint8_t tag_len;                  ///< the length of Indexation Tag.
   byte_t tag[MAX_INDEX_TAG_BYTES];  ///< Indexation Tag, max length is 64 bytes.
 } feat_tag_blk_t;
