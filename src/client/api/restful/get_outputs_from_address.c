@@ -6,8 +6,8 @@
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 
-static get_outputs_address_t *outputs_new() {
-  get_outputs_address_t *ids = malloc(sizeof(get_outputs_address_t));
+static get_outputs_id_t *outputs_new() {
+  get_outputs_id_t *ids = malloc(sizeof(get_outputs_id_t));
   if (ids) {
     ids->count = 0;
     ids->max_results = 0;
@@ -17,7 +17,7 @@ static get_outputs_address_t *outputs_new() {
   return NULL;
 }
 
-static void outputs_free(get_outputs_address_t *ids) {
+static void outputs_free(get_outputs_id_t *ids) {
   if (ids) {
     if (ids->outputs) {
       utarray_free(ids->outputs);
@@ -26,8 +26,8 @@ static void outputs_free(get_outputs_address_t *ids) {
   }
 }
 
-res_outputs_address_t *res_outputs_address_new() {
-  res_outputs_address_t *res = malloc(sizeof(res_outputs_address_t));
+res_outputs_id_t *res_outputs_new() {
+  res_outputs_id_t *res = malloc(sizeof(res_outputs_id_t));
   if (res) {
     res->is_error = false;
     res->u.output_ids = NULL;
@@ -36,7 +36,7 @@ res_outputs_address_t *res_outputs_address_new() {
   return NULL;
 }
 
-void res_outputs_address_free(res_outputs_address_t *res) {
+void res_outputs_free(res_outputs_id_t *res) {
   if (res) {
     if (res->is_error) {
       res_err_free(res->u.error);
@@ -49,7 +49,7 @@ void res_outputs_address_free(res_outputs_address_t *res) {
   }
 }
 
-char *res_outputs_address_output_id(res_outputs_address_t *res, size_t index) {
+char *res_outputs_output_id(res_outputs_id_t *res, size_t index) {
   if (res == NULL) {
     return NULL;
   }
@@ -61,13 +61,13 @@ char *res_outputs_address_output_id(res_outputs_address_t *res, size_t index) {
   return NULL;
 }
 
-size_t res_outputs_address_output_id_count(res_outputs_address_t *res) {
+size_t res_outputs_output_id_count(res_outputs_id_t *res) {
   if (res == NULL) {
     return 0;
   }
   return utarray_len(res->u.output_ids->outputs);
 }
-int deser_outputs_from_address(char const *const j_str, res_outputs_address_t *res) {
+int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
   int ret = -1;
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
@@ -127,12 +127,34 @@ end:
   return ret;
 }
 
-int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, char const addr[],
-                             res_outputs_address_t *res) {
+static int get_outputs_api_call(iota_client_conf_t const *conf, char *cmd_buffer, res_outputs_id_t *res) {
   int ret = -1;
-  long st = 0;
-  byte_buf_t *http_res = NULL;
 
+  // http client configuration
+  http_client_config_t http_conf = {
+      .host = conf->host, .path = cmd_buffer, .use_tls = conf->use_tls, .port = conf->port};
+
+  byte_buf_t *http_res = NULL;
+  if ((http_res = byte_buf_new()) == NULL) {
+    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+    goto done;
+  }
+
+  // send request via http client
+  long st = 0;
+  if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
+    byte_buf2str(http_res);
+    // json deserialization
+    ret = deser_outputs((char const *const)http_res->data, res);
+  }
+
+done:
+  // Cleanup http_res buffer
+  byte_buf_free(http_res);
+  return ret;
+}
+
+int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, char const addr[], res_outputs_id_t *res) {
   if (conf == NULL || addr == NULL || res == NULL) {
     // invalid parameters
     return -1;
@@ -157,27 +179,60 @@ int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, cha
   // check if data stored is not more than buffer length
   if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
     printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
-    goto done;
+    return -1;
   }
 
-  // http client configuration
-  http_client_config_t http_conf = {
-      .host = conf->host, .path = cmd_buffer, .use_tls = conf->use_tls, .port = conf->port};
+  return get_outputs_api_call(conf, cmd_buffer, res);
+}
 
-  if ((http_res = byte_buf_new()) == NULL) {
-    printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    goto done;
+int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res) {
+  if (conf == NULL || addr == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
   }
 
-  // send request via http client
-  if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
-    byte_buf2str(http_res);
-    // json deserialization
-    ret = deser_outputs_from_address((char const *const)http_res->data, res);
+  size_t addr_len = strlen(addr);
+  if (addr_len != ADDRESS_NFT_HEX_BYTES) {
+    printf("[%s:%d] incorrect length of an address\n", __func__, __LINE__);
+    return -1;
   }
 
-done:
-  // cleanup command
-  byte_buf_free(http_res);
-  return ret;
+  int ret = -1;
+
+  // compose restful api command
+  char cmd_buffer[84] = {0};  // 84 = max size of api path(43) + ADDRESS_NFT_HEX_BYTES(40) + 1
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/addresses/nft/%s/outputs", addr);
+
+  // check if data stored is not more than buffer length
+  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
+    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
+    return -1;
+  }
+
+  return get_outputs_api_call(conf, cmd_buffer, res);
+}
+
+int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res) {
+  if (conf == NULL || addr == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
+  size_t addr_len = strlen(addr);
+  if (addr_len != ADDRESS_ALIAS_HEX_BYTES) {
+    printf("[%s:%d] incorrect length of an address\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // compose restful api command
+  char cmd_buffer[86] = {0};  // 86 = max size of api path(45) + ADDRESS_ALIAS_HEX_BYTES(40) + 1
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/addresses/alias/%s/outputs", addr);
+
+  // check if data stored is not more than buffer length
+  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
+    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
+    return -1;
+  }
+
+  return get_outputs_api_call(conf, cmd_buffer, res);
 }

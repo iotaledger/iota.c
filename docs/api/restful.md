@@ -147,14 +147,14 @@ The RESTful API is low level client implementation based on [RFC: REST Node API]
 ### Response
 
 ```{eval-rst}
-.. doxygenstruct:: res_outputs_address_t
+.. doxygenstruct:: res_outputs_id_t
   :members:
 ```
 
 ### Address Outputs Object
 
 ```{eval-rst}
-.. doxygenstruct:: get_outputs_address_t
+.. doxygenstruct:: get_outputs_id_t
   :members:
 ```
 

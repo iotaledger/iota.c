@@ -20,7 +20,7 @@ typedef struct {
   uint32_t count;        ///< The actual number of found results.
   UT_array *outputs;     ///< output IDs
   uint64_t ledger_idx;   ///< The ledger index at which the output was queried at.
-} get_outputs_address_t;
+} get_outputs_id_t;
 
 /**
  * @brief The response of get outputs from address
@@ -29,10 +29,10 @@ typedef struct {
 typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;                   ///< Error message if is_error is True
-    get_outputs_address_t *output_ids;  ///< an output object if is_error is False
+    res_err_t *error;              ///< Error message if is_error is True
+    get_outputs_id_t *output_ids;  ///< an output object if is_error is False
   } u;
-} res_outputs_address_t;
+} res_outputs_id_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,16 +41,16 @@ extern "C" {
 /**
  * @brief Allocats an output address response object
  *
- * @return res_outputs_address_t*
+ * @return res_outputs_id_t*
  */
-res_outputs_address_t *res_outputs_address_new();
+res_outputs_id_t *res_outputs_new();
 
 /**
  * @brief Frees an output address response object
  *
  * @param[in] res A response object
  */
-void res_outputs_address_free(res_outputs_address_t *res);
+void res_outputs_free(res_outputs_id_t *res);
 
 /**
  * @brief Gets an output id by given index
@@ -59,7 +59,7 @@ void res_outputs_address_free(res_outputs_address_t *res);
  * @param[in] index The index of output id
  * @return char* A pointer to a string
  */
-char *res_outputs_address_output_id(res_outputs_address_t *res, size_t index);
+char *res_outputs_output_id(res_outputs_id_t *res, size_t index);
 
 /**
  * @brief Gets the output id count
@@ -67,16 +67,16 @@ char *res_outputs_address_output_id(res_outputs_address_t *res, size_t index);
  * @param[in] res A response object
  * @return size_t The length of output ids
  */
-size_t res_outputs_address_output_id_count(res_outputs_address_t *res);
+size_t res_outputs_output_id_count(res_outputs_id_t *res);
 
 /**
- * @brief Outouts from address deserialization
+ * @brief Deserialize outputs
  *
  * @param[in] j_str A string of a JSON object
  * @param[out] res The response object
  * @return int 0 on successful
  */
-int deser_outputs_from_address(char const *const j_str, res_outputs_address_t *res);
+int deser_outputs(char const *const j_str, res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given address
@@ -87,8 +87,27 @@ int deser_outputs_from_address(char const *const j_str, res_outputs_address_t *r
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, char const addr[],
-                             res_outputs_address_t *res);
+int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, char const addr[], res_outputs_id_t *res);
+
+/**
+ * @brief Gets output IDs from a given NFT address
+ *
+ * @param[in] conf The client endpoint configuration
+ * @param[in] addr An NFT address in hex string format
+ * @param[out] res A response object
+ * @return int 0 on successful
+ */
+int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
+
+/**
+ * @brief Gets output IDs from a given Alias address
+ *
+ * @param[in] conf The client endpoint configuration
+ * @param[in] addr An Alias address in hex string format
+ * @param[out] res A response object
+ * @return int 0 on successful
+ */
+int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
 
 #ifdef __cplusplus
 }
