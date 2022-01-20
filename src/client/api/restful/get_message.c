@@ -5,8 +5,8 @@
 #include <stdlib.h>
 
 #include "client/api/json_utils.h"
+#include "client/api/message_tx_outputs.h"
 #include "client/api/restful/get_message.h"
-#include "client/api/tx_outputs.h"
 #include "client/network/http.h"
 #include "core/address.h"
 #include "core/utils/iota_str.h"
@@ -174,13 +174,13 @@ static int deser_tx_outputs(cJSON *essence_obj, payload_tx_t *payload_tx) {
 
       int res = -1;
       if (tx_type_obj->valueint == OUTPUT_EXTENDED) {
-        res = deser_tx_extended_output(elm, payload_tx);
+        res = deser_message_tx_extended_output(elm, payload_tx);
       } else if (tx_type_obj->valueint == OUTPUT_ALIAS) {
-        res = deser_tx_alias_output(elm, payload_tx);
+        res = deser_message_tx_alias_output(elm, payload_tx);
       } else if (tx_type_obj->valueint == OUTPUT_FOUNDRY) {
-        res = deser_tx_foundry_output(elm, payload_tx);
+        res = deser_message_tx_foundry_output(elm, payload_tx);
       } else if (tx_type_obj->valueint == OUTPUT_NFT) {
-        res = deser_tx_nft_output(elm, payload_tx);
+        res = deser_message_tx_nft_output(elm, payload_tx);
       } else {
         printf("[%s:%d] Unsupported output block type\n", __func__, __LINE__);
         break;

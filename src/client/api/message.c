@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/message.h"
-#include "client/api/tx_outputs.h"
+#include "client/api/message_tx_outputs.h"
 
 static const UT_icd ut_tx_inputs_icd = {sizeof(payload_tx_input_t), NULL, NULL, NULL};
 static const UT_icd ut_tx_outputs_icd = {sizeof(payload_tx_output_t), NULL, NULL, NULL};
