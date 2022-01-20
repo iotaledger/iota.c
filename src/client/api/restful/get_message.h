@@ -7,7 +7,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "client/api/message.h"
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
 #include "core/models/message.h"
@@ -19,8 +18,8 @@
 typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;  ///< Error message if is_error is True
-    message_t *msg;    ///< a message object if is_error is False
+    res_err_t *error;     ///< Error message if is_error is True
+    core_message_t *msg;  ///< a message object if is_error is False
   } u;
 } res_message_t;
 

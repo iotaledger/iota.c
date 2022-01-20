@@ -4,13 +4,14 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "core/models/message.h"
 #include "core/models/payloads/transaction.h"
 #include "utlist.h"
 
 transaction_essence_t* tx_essence_new() {
   transaction_essence_t* es = malloc(sizeof(transaction_essence_t));
   if (es) {
-    es->tx_type = 0;  // 0 to denote a transaction essence.
+    es->tx_type = MSG_PAYLOAD_TRANSACTION;  // 0 to denote a transaction essence.
     es->inputs = utxo_inputs_new();
     es->outputs = utxo_outputs_new();
     es->payload = NULL;
@@ -55,7 +56,7 @@ int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* paylo
     return -1;
   }
   // TODO: support indexation payload at this moment
-  if (type == 2) {
+  if (type == MSG_PAYLOAD_INDEXATION) {
     es->payload = payload;
     es->payload_len = indexation_serialize_length(payload);
   } else {
@@ -192,7 +193,7 @@ void tx_essence_print(transaction_essence_t* es) {
 transaction_payload_t* tx_payload_new() {
   transaction_payload_t* tx = malloc(sizeof(transaction_payload_t));
   if (tx) {
-    tx->type = 0;  // 0 to denote a Transaction payload.
+    tx->type = MSG_PAYLOAD_TRANSACTION;  // 0 to denote a Transaction payload.
     tx->essence = tx_essence_new();
     tx->unlock_blocks = unlock_blocks_new();
     if (tx->essence == NULL) {
@@ -273,7 +274,7 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
 
   byte_t* offset = buf;
   // write payload type
-  memset(offset, 0, sizeof(payload_t));
+  memset(offset, MSG_PAYLOAD_TRANSACTION, sizeof(payload_t));
   offset += sizeof(payload_t);
   // write essence
   size_t essence_len = tx_essence_serialize_length(tx->essence);

@@ -1,6 +1,6 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
-
+/*
 #include "client/api/message.h"
 #include "client/api/message_tx_outputs.h"
 
@@ -317,3 +317,4 @@ uint16_t payload_tx_blocks_reference(payload_tx_t const *const tx, size_t index)
   }
   return UINT16_MAX;
 }
+*/

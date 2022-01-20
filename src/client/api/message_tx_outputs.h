@@ -3,7 +3,7 @@
 
 #ifndef __CLIENT_API_MESSAGE_TX_OUTPUTS_H__
 #define __CLIENT_API_MESSAGE_TX_OUTPUTS_H__
-
+/*
 #include <stdint.h>
 
 #include "cJSON.h"
@@ -106,5 +106,5 @@ int deser_message_tx_nft_output(cJSON *output_obj, payload_tx_t *payload_tx);
 #ifdef __cplusplus
 }
 #endif
-
+*/
 #endif  // __CLIENT_API_MESSAGE_TX_OUTPUTS_H__

@@ -23,6 +23,13 @@
 // Transaction ID in hex string form
 #define IOTA_TRANSACTION_ID_HEX_BYTES (IOTA_TRANSACTION_ID_BYTES * 2)
 
+typedef enum {
+  MSG_PAYLOAD_TRANSACTION = 0,
+  MSG_PAYLOAD_MILESTONE,
+  MSG_PAYLOAD_INDEXATION,
+  MSG_PAYLOAD_UNKNOW = UINT32_MAX - 1,
+} msg_payload_type_t;
+
 /**
  * @brief A message object
  *

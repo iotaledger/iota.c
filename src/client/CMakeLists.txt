@@ -13,7 +13,6 @@ target_sources(
   iota_client
   PRIVATE "network/http_curl.c"
           "api/json_utils.c"
-          "api/message.c"
           "api/message_tx_outputs.c"
           # "api/message_builder.c"
           "api/restful/get_node_info.c"
@@ -31,7 +30,6 @@ target_sources(
   PUBLIC "network/http.h"
          "api/json_utils.h"
          "api/json_keys.h"
-         "api/message.h"
          "api/message_tx_outputs.h"
          # "api/message_builder.h"
          "api/restful/get_node_info.h"

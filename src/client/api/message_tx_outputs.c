@@ -2,10 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/message_tx_outputs.h"
+#include "cJSON.h"
 #include "client/api/json_keys.h"
 #include "core/address.h"
+#include "core/models/outputs/native_tokens.h"
+#include "core/models/outputs/output_extended.h"
+#include "core/models/payloads/transaction.h"
+#include "utarray.h"
 
-static int deser_native_tokens(cJSON *output_obj, UT_array *native_tokens) {
+static int deser_native_tokens(cJSON *output_obj, native_tokens_t *native_tokens) {
   /*
   "nativeTokens": [
     { "id": "9s8dfzh987shfd098fjhg0b98du",
@@ -21,12 +26,13 @@ static int deser_native_tokens(cJSON *output_obj, UT_array *native_tokens) {
       cJSON *tx_token_amount_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_AMOUNT);
 
       if (cJSON_IsString(tx_token_id_obj) && cJSON_IsString(tx_token_amount_obj)) {
-        tx_native_token_t new_native_token = {};
-        memcpy(new_native_token.id, tx_token_id_obj->valuestring, sizeof(new_native_token.id));
+        native_tokens_t new_native_token = {};
+        memcpy(new_native_token.token_id, tx_token_id_obj->valuestring, sizeof(new_native_token.token_id));
         memcpy(&new_native_token.amount, tx_token_amount_obj->valuestring, sizeof(new_native_token.amount));
 
         // add native token to array
-        utarray_push_back(native_tokens, &new_native_token);
+        // FIXME
+        // utarray_push_back(native_tokens, &new_native_token);
       } else {
         printf("[%s:%d] %s or %s is not a string\n", __func__, __LINE__, JSON_KEY_ID, JSON_KEY_AMOUNT);
         return -1;
@@ -69,11 +75,12 @@ static int deser_address_unlock(cJSON *unlock_cond_obj, UT_array *unlock_conditi
   char *address = deser_address(unlock_cond_obj, JSON_KEY_ADDR);
 
   if (address) {
-    tx_address_unlock_cond_t unlock_address = {};
+    // FIXME
+    /*tx_address_unlock_cond_t unlock_address = {};
     memcpy(unlock_address.address, address, sizeof(unlock_address.address));
 
     // add address unlock to array
-    utarray_push_back(unlock_conditions, &unlock_address);
+    utarray_push_back(unlock_conditions, &unlock_address);*/
     return 0;
   }
 
@@ -92,12 +99,13 @@ static int deser_dust_deposit_return_unlock(cJSON *unlock_cond_obj, UT_array *un
   cJSON *tx_amount_obj = cJSON_GetObjectItemCaseSensitive(unlock_cond_obj, JSON_KEY_AMOUNT);
 
   if (address && cJSON_IsNumber(tx_amount_obj)) {
-    tx_dust_deposit_return_unlock_cond_t unlock_dust_deposit_return = {};
+    // FIXME
+    /*tx_dust_deposit_return_unlock_cond_t unlock_dust_deposit_return = {};
     memcpy(unlock_dust_deposit_return.address, address, sizeof(unlock_dust_deposit_return.address));
     unlock_dust_deposit_return.amount = tx_amount_obj->valueint;
 
     // add address unlock to array
-    utarray_push_back(unlock_conditions, &unlock_dust_deposit_return);
+    utarray_push_back(unlock_conditions, &unlock_dust_deposit_return);*/
     return 0;
   }
 
@@ -116,7 +124,8 @@ static int deser_unlock_conditions(cJSON *output_obj, UT_array *unlock_condition
       cJSON *tx_unlock_condition_type_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TYPE);
       if (cJSON_IsNumber(tx_unlock_condition_type_obj)) {
         switch (tx_unlock_condition_type_obj->valueint) {
-          case UNLOCK_CONDITION_ADDRESS:
+            // FIXME
+          /*case UNLOCK_CONDITION_ADDRESS:
             if (deser_address_unlock(elm, unlock_conditions) != 0) {
               printf("[%s:%d] parsing address unlock failed\n", __func__, __LINE__);
               return -1;
@@ -131,7 +140,7 @@ static int deser_unlock_conditions(cJSON *output_obj, UT_array *unlock_condition
           case UNLOCK_CONDITION_STATE_CONTROLLER_ADDRESS:
             break;
           case UNLOCK_CONDITION_GOVERNOR_ADDRESS:
-            break;
+            break;*/
           default:
             break;
         }
@@ -145,9 +154,9 @@ static int deser_unlock_conditions(cJSON *output_obj, UT_array *unlock_condition
   return 0;
 }
 
-static int deser_feat_blocks(cJSON *output_obj, UT_array *feat_blocks) { return 0; }
+static int deser_feat_blocks(cJSON *output_obj, feat_blk_list_t *feat_blocks) { return 0; }
 
-int deser_message_tx_extended_output(cJSON *output_obj, payload_tx_t *payload_tx) {
+int deser_message_tx_extended_output(cJSON *output_obj, transaction_payload_t *payload_tx) {
   if (output_obj == NULL || payload_tx == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
@@ -164,7 +173,7 @@ int deser_message_tx_extended_output(cJSON *output_obj, payload_tx_t *payload_tx
   */
 
   int ret = -1;
-  tx_extended_output_t output = {};
+  output_extended_t output = {};
 
   cJSON *tx_amount_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_AMOUNT);
   if (tx_amount_obj && cJSON_IsNumber(tx_amount_obj)) {
@@ -175,33 +184,35 @@ int deser_message_tx_extended_output(cJSON *output_obj, payload_tx_t *payload_tx
   }
 
   cJSON *nativeTokens_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_NATIVE_TOKENS);
-  if (!cJSON_IsArray(nativeTokens_obj) || (deser_native_tokens(nativeTokens_obj, output.nativeTokens) != 0)) {
+  if (!cJSON_IsArray(nativeTokens_obj) || (deser_native_tokens(nativeTokens_obj, output.native_tokens) != 0)) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
     goto end;
   }
 
-  cJSON *unlock_conditions_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_UNLOCK_CONDITIONS);
+  // FIXME
+  /*cJSON *unlock_conditions_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_UNLOCK_CONDITIONS);
   if (!cJSON_IsArray(unlock_conditions_obj) ||
       (deser_unlock_conditions(unlock_conditions_obj, output.unlockConds) != 0)) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_UNLOCK_CONDITIONS);
     goto end;
-  }
+  }*/
 
   cJSON *feature_blocks_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS);
-  if (!cJSON_IsArray(feature_blocks_obj) || (deser_feat_blocks(feature_blocks_obj, output.featBlocks) != 0)) {
+  if (!cJSON_IsArray(feature_blocks_obj) || (deser_feat_blocks(feature_blocks_obj, output.feature_blocks) != 0)) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
     goto end;
   }
 
   // add the output element to payload
-  utarray_push_back(payload_tx->outputs, &output);
+  // FIXME
+  // utarray_push_back(payload_tx->essence->outputs, &output);
 
 end:
   return ret;
 }
 
-int deser_message_tx_alias_output(cJSON *output_obj, payload_tx_t *payload_tx) { return 0; }
+int deser_message_tx_alias_output(cJSON *output_obj, transaction_payload_t *payload_tx) { return 0; }
 
-int deser_message_tx_foundry_output(cJSON *output_obj, payload_tx_t *payload_tx) { return 0; }
+int deser_message_tx_foundry_output(cJSON *output_obj, transaction_payload_t *payload_tx) { return 0; }
 
-int deser_message_tx_nft_output(cJSON *output_obj, payload_tx_t *payload_tx) { return 0; }
+int deser_message_tx_nft_output(cJSON *output_obj, transaction_payload_t *payload_tx) { return 0; }
