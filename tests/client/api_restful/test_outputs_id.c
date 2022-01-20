@@ -6,7 +6,7 @@
 
 #include "test_config.h"
 
-#include "client/api/restful/get_outputs_from_address.h"
+#include "client/api/restful/get_outputs_id.h"
 #include "ctype.h"
 
 void setUp(void) {}

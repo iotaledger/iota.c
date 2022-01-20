@@ -138,7 +138,7 @@ The RESTful API is low level client implementation based on [RFC: REST Node API]
   :members:
 ```
 
-## [Get Outputs From Address](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/get_outputs_from_address.h)
+## [Get Outputs From Address](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/get_outputs_id.h)
 
 ```{eval-rst}
 .. doxygenfunction:: get_outputs_from_address
