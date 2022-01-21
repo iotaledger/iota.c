@@ -133,7 +133,6 @@ static int get_outputs_api_call(iota_client_conf_t const *conf, char *cmd_buffer
     return -1;
   }
 
-  // send request via http client
   long st = 0;
   int ret = -1;
   // send request via http client
