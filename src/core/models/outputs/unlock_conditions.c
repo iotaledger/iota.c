@@ -9,7 +9,7 @@
 #include "core/models/outputs/unlock_conditions.h"
 #include "utlist.h"
 
-static unlock_cond_dust_t* new_cond_dust(address_t const* const addr, uint64_t amount) {
+static unlock_cond_dust_t* cond_dust_new(address_t const* const addr, uint64_t amount) {
   if (!addr || amount == 0) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
@@ -45,7 +45,7 @@ static size_t cond_dust_serialize(unlock_cond_dust_t* dust, byte_t buf[], size_t
   return offset;
 }
 
-static void free_cond_dust(unlock_cond_dust_t* dust) {
+static void cond_dust_free(unlock_cond_dust_t* dust) {
   if (dust) {
     if (dust->addr) {
       free_address(dust->addr);
@@ -63,21 +63,21 @@ static unlock_cond_dust_t* cond_dust_deserialize(byte_t buf[], size_t buf_len) {
       size_t offset = address_serialized_len(d->addr);
       if (buf_len < (offset + sizeof(d->amount))) {
         printf("[%s:%d] insufficient buffer size\n", __func__, __LINE__);
-        free_cond_dust(d);
+        cond_dust_free(d);
         return NULL;
       }
       // amount
       memcpy(&d->amount, buf + address_serialized_len(d->addr), sizeof(d->amount));
     } else {
       printf("[%s:%d] address serialization failed\n", __func__, __LINE__);
-      free_cond_dust(d);
+      cond_dust_free(d);
       return NULL;
     }
   }
   return d;
 }
 
-static unlock_cond_timelock_t* new_cond_timelock(uint32_t milestone, uint32_t time) {
+static unlock_cond_timelock_t* cond_timelock_new(uint32_t milestone, uint32_t time) {
   if (milestone == 0 && time == 0) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
@@ -120,13 +120,13 @@ static unlock_cond_timelock_t* cond_timelock_deserialize(byte_t buf[], size_t bu
   return t;
 }
 
-static void free_cond_timelock(unlock_cond_timelock_t* timelock) {
+static void cond_timelock_free(unlock_cond_timelock_t* timelock) {
   if (timelock) {
     free(timelock);
   }
 }
 
-static unlock_cond_expir_t* new_cond_expir(address_t const* const addr, uint32_t milestone, uint32_t time) {
+static unlock_cond_expir_t* cond_expir_new(address_t const* const addr, uint32_t milestone, uint32_t time) {
   if (!addr || (milestone == 0 && time == 0)) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
@@ -167,7 +167,7 @@ static size_t cond_expir_serialize(unlock_cond_expir_t* e, byte_t buf[], size_t 
   return offset;
 }
 
-static void free_cond_expir(unlock_cond_expir_t* expir) {
+static void cond_expir_free(unlock_cond_expir_t* expir) {
   if (expir) {
     if (expir->addr) {
       free_address(expir->addr);
@@ -184,14 +184,14 @@ static unlock_cond_expir_t* cond_expir_deserialize(byte_t buf[], size_t buf_len)
       size_t offset = address_serialized_len(e->addr);
       if ((buf_len - offset) < (sizeof(e->milestone) + sizeof(e->time))) {
         printf("[%s:%d] insufficient buffer size\n", __func__, __LINE__);
-        free_cond_expir(e);
+        cond_expir_free(e);
         return NULL;
       }
       // deserialize milestone and time
       memcpy(&e->milestone, buf + offset, sizeof(e->milestone));
       memcpy(&e->time, buf + offset + sizeof(e->milestone), sizeof(e->time));
     } else {
-      free_cond_expir(e);
+      cond_expir_free(e);
       return NULL;
     }
   }
@@ -203,7 +203,7 @@ static int cond_blk_type_sort(cond_blk_list_t* blk1, cond_blk_list_t* blk2) {
   return memcmp(&blk1->blk->type, &blk2->blk->type, sizeof(uint8_t));
 }
 
-unlock_cond_blk_t* new_cond_blk_addr(address_t const* const addr) {
+unlock_cond_blk_t* cond_blk_addr_new(address_t const* const addr) {
   if (!addr) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
@@ -222,7 +222,7 @@ unlock_cond_blk_t* new_cond_blk_addr(address_t const* const addr) {
   return blk;
 }
 
-unlock_cond_blk_t* new_cond_blk_dust(address_t const* const addr, uint64_t amount) {
+unlock_cond_blk_t* cond_blk_dust_new(address_t const* const addr, uint64_t amount) {
   if (!addr) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
@@ -230,7 +230,7 @@ unlock_cond_blk_t* new_cond_blk_dust(address_t const* const addr, uint64_t amoun
 
   unlock_cond_blk_t* blk = malloc(sizeof(unlock_cond_blk_t));
   if (blk) {
-    blk->block = new_cond_dust(addr, amount);
+    blk->block = cond_dust_new(addr, amount);
     if (!blk->block) {
       free(blk);
       return NULL;
@@ -241,10 +241,10 @@ unlock_cond_blk_t* new_cond_blk_dust(address_t const* const addr, uint64_t amoun
   return blk;
 }
 
-unlock_cond_blk_t* new_cond_blk_timelock(uint32_t milestone, uint32_t time) {
+unlock_cond_blk_t* cond_blk_timelock_new(uint32_t milestone, uint32_t time) {
   unlock_cond_blk_t* blk = malloc(sizeof(unlock_cond_blk_t));
   if (blk) {
-    blk->block = new_cond_timelock(milestone, time);
+    blk->block = cond_timelock_new(milestone, time);
     if (!blk->block) {
       free(blk);
       return NULL;
@@ -255,10 +255,10 @@ unlock_cond_blk_t* new_cond_blk_timelock(uint32_t milestone, uint32_t time) {
   return blk;
 }
 
-unlock_cond_blk_t* new_cond_blk_expir(address_t const* const addr, uint32_t milestone, uint32_t time) {
+unlock_cond_blk_t* cond_blk_expir_new(address_t const* const addr, uint32_t milestone, uint32_t time) {
   unlock_cond_blk_t* blk = malloc(sizeof(unlock_cond_blk_t));
   if (blk) {
-    blk->block = new_cond_expir(addr, milestone, time);
+    blk->block = cond_expir_new(addr, milestone, time);
     if (!blk->block) {
       free(blk);
       return NULL;
@@ -269,7 +269,7 @@ unlock_cond_blk_t* new_cond_blk_expir(address_t const* const addr, uint32_t mile
   return blk;
 }
 
-unlock_cond_blk_t* new_cond_blk_state(address_t const* const addr) {
+unlock_cond_blk_t* cond_blk_state_new(address_t const* const addr) {
   if (!addr) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
@@ -288,7 +288,7 @@ unlock_cond_blk_t* new_cond_blk_state(address_t const* const addr) {
   return blk;
 }
 
-unlock_cond_blk_t* new_cond_blk_governor(address_t const* const addr) {
+unlock_cond_blk_t* cond_blk_governor_new(address_t const* const addr) {
   if (!addr) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
@@ -427,30 +427,30 @@ unlock_cond_blk_t* cond_blk_clone(unlock_cond_blk_t* blk) {
 
   switch (blk->type) {
     case UNLOCK_COND_ADDRESS:
-      return new_cond_blk_addr((address_t*)blk->block);
+      return cond_blk_addr_new((address_t*)blk->block);
     case UNLOCK_COND_DUST: {
       unlock_cond_dust_t* dust = (unlock_cond_dust_t*)blk->block;
-      return new_cond_blk_dust(dust->addr, dust->amount);
+      return cond_blk_dust_new(dust->addr, dust->amount);
     }
     case UNLOCK_COND_TIMELOCK: {
       unlock_cond_timelock_t* t = (unlock_cond_timelock_t*)blk->block;
-      return new_cond_blk_timelock(t->milestone, t->time);
+      return cond_blk_timelock_new(t->milestone, t->time);
     }
     case UNLOCK_COND_EXPIRATION: {
       unlock_cond_expir_t* e = (unlock_cond_expir_t*)blk->block;
-      return new_cond_blk_expir(e->addr, e->milestone, e->time);
+      return cond_blk_expir_new(e->addr, e->milestone, e->time);
     }
     case UNLOCK_COND_STATE:
-      return new_cond_blk_state((address_t*)blk->block);
+      return cond_blk_state_new((address_t*)blk->block);
     case UNLOCK_COND_GOVERNOR:
-      return new_cond_blk_governor((address_t*)blk->block);
+      return cond_blk_governor_new((address_t*)blk->block);
     default:
       break;
   }
   return NULL;
 }
 
-void free_cond_blk(unlock_cond_blk_t* blk) {
+void cond_blk_free(unlock_cond_blk_t* blk) {
   if (blk) {
     switch (blk->type) {
       case UNLOCK_COND_ADDRESS:
@@ -459,13 +459,13 @@ void free_cond_blk(unlock_cond_blk_t* blk) {
         free_address((address_t*)blk->block);
         break;
       case UNLOCK_COND_DUST:
-        free_cond_dust((unlock_cond_dust_t*)blk->block);
+        cond_dust_free((unlock_cond_dust_t*)blk->block);
         break;
       case UNLOCK_COND_TIMELOCK:
-        free_cond_timelock((unlock_cond_timelock_t*)blk->block);
+        cond_timelock_free((unlock_cond_timelock_t*)blk->block);
         break;
       case UNLOCK_COND_EXPIRATION:
-        free_cond_expir((unlock_cond_expir_t*)blk->block);
+        cond_expir_free((unlock_cond_expir_t*)blk->block);
         break;
     }
     free(blk);
@@ -508,7 +508,7 @@ void cond_blk_print(unlock_cond_blk_t* blk) {
   }
 }
 
-cond_blk_list_t* new_cond_blk_list() { return NULL; }
+cond_blk_list_t* cond_blk_list_new() { return NULL; }
 
 int cond_blk_list_add(cond_blk_list_t** list, unlock_cond_blk_t* blk) {
   // at most one of each block
@@ -638,7 +638,7 @@ cond_blk_list_t* cond_blk_list_deserialize(byte_t buf[], size_t buf_len) {
     return NULL;
   }
 
-  cond_blk_list_t* list = new_cond_blk_list();
+  cond_blk_list_t* list = cond_blk_list_new();
   size_t offset = sizeof(uint8_t);
   uint8_t blk_cnt = buf[0];
   for (uint8_t i = 0; i < blk_cnt; i++) {
@@ -651,23 +651,23 @@ cond_blk_list_t* cond_blk_list_deserialize(byte_t buf[], size_t buf_len) {
         LL_APPEND(list, new_cond);
       } else {
         free(new_cond);
-        free_cond_blk_list(list);
+        cond_blk_list_free(list);
         return NULL;
       }
     } else {
       // error on new condition block list
-      free_cond_blk_list(list);
+      cond_blk_list_free(list);
       return NULL;
     }
   }
   return list;
 }
 
-void free_cond_blk_list(cond_blk_list_t* list) {
+void cond_blk_list_free(cond_blk_list_t* list) {
   cond_blk_list_t *elm, *tmp;
   if (list) {
     LL_FOREACH_SAFE(list, elm, tmp) {
-      free_cond_blk(elm->blk);
+      cond_blk_free(elm->blk);
       LL_DELETE(list, elm);
       free(elm);
     }
@@ -679,12 +679,12 @@ cond_blk_list_t* cond_blk_list_clone(cond_blk_list_t const* const list) {
     return NULL;
   }
 
-  cond_blk_list_t* new_list = new_cond_blk_list();
+  cond_blk_list_t* new_list = cond_blk_list_new();
   cond_blk_list_t* elm;
   LL_FOREACH((cond_blk_list_t*)list, elm) {
     if (cond_blk_list_add(&new_list, elm->blk) != 0) {
       printf("[%s:%d] add condition block to list failed\n", __func__, __LINE__);
-      free_cond_blk_list(new_list);
+      cond_blk_list_free(new_list);
       return NULL;
     }
   }

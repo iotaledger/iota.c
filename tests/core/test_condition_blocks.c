@@ -15,14 +15,14 @@ void tearDown(void) {}
 
 void test_condition_addr() {
   // should be NULL
-  TEST_ASSERT_NULL(new_cond_blk_addr(NULL));
+  TEST_ASSERT_NULL(cond_blk_addr_new(NULL));
 
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
 
-  unlock_cond_blk_t* b = new_cond_blk_addr(&addr);
+  unlock_cond_blk_t* b = cond_blk_addr_new(&addr);
   TEST_ASSERT_NOT_NULL(b);
   // should be address unlock condition
   TEST_ASSERT(b->type == UNLOCK_COND_ADDRESS);
@@ -44,20 +44,20 @@ void test_condition_addr() {
   TEST_ASSERT_TRUE(address_equal((address_t*)b->block, (address_t*)deser_blk->block));
 
   // clean up
-  free_cond_blk(deser_blk);
-  free_cond_blk(b);
+  cond_blk_free(deser_blk);
+  cond_blk_free(b);
 }
 
 void test_condition_dust() {
   // should be NULL
-  TEST_ASSERT_NULL(new_cond_blk_dust(NULL, 1000000));
+  TEST_ASSERT_NULL(cond_blk_dust_new(NULL, 1000000));
 
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
 
-  unlock_cond_blk_t* b = new_cond_blk_dust(&addr, 100000000);
+  unlock_cond_blk_t* b = cond_blk_dust_new(&addr, 100000000);
   TEST_ASSERT_NOT_NULL(b);
   // should be dist deposit unlock condition
   TEST_ASSERT(b->type == UNLOCK_COND_DUST);
@@ -81,29 +81,29 @@ void test_condition_dust() {
   TEST_ASSERT(((unlock_cond_dust_t*)b->block)->amount == ((unlock_cond_dust_t*)deser_blk->block)->amount);
 
   // clean up
-  free_cond_blk(deser_blk);
-  free_cond_blk(b);
+  cond_blk_free(deser_blk);
+  cond_blk_free(b);
 }
 
 void test_condition_timelock() {
   // should be NULL, Timelock condition is invalid if Milestone Index and Unix time are zero.
-  TEST_ASSERT_NULL(new_cond_blk_timelock(0, 0));
+  TEST_ASSERT_NULL(cond_blk_timelock_new(0, 0));
 
-  unlock_cond_blk_t* b = new_cond_blk_timelock(100, 123);
+  unlock_cond_blk_t* b = cond_blk_timelock_new(100, 123);
   TEST_ASSERT_NOT_NULL(b);
   TEST_ASSERT(b->type == UNLOCK_COND_TIMELOCK);
   TEST_ASSERT(((unlock_cond_timelock_t*)b->block)->milestone == 100);
   TEST_ASSERT(((unlock_cond_timelock_t*)b->block)->time == 123);
-  free_cond_blk(b);
+  cond_blk_free(b);
 
-  b = new_cond_blk_timelock(0, 123);
+  b = cond_blk_timelock_new(0, 123);
   TEST_ASSERT_NOT_NULL(b);
   TEST_ASSERT(b->type == UNLOCK_COND_TIMELOCK);
   TEST_ASSERT(((unlock_cond_timelock_t*)b->block)->milestone == 0);
   TEST_ASSERT(((unlock_cond_timelock_t*)b->block)->time == 123);
-  free_cond_blk(b);
+  cond_blk_free(b);
 
-  b = new_cond_blk_timelock(100, 0);
+  b = cond_blk_timelock_new(100, 0);
   TEST_ASSERT_NOT_NULL(b);
   TEST_ASSERT(b->type == UNLOCK_COND_TIMELOCK);
   TEST_ASSERT(((unlock_cond_timelock_t*)b->block)->milestone == 100);
@@ -126,30 +126,30 @@ void test_condition_timelock() {
   TEST_ASSERT(((unlock_cond_timelock_t*)b->block)->time == ((unlock_cond_timelock_t*)deser_blk->block)->time);
 
   // clean up
-  free_cond_blk(deser_blk);
-  free_cond_blk(b);
+  cond_blk_free(deser_blk);
+  cond_blk_free(b);
 }
 
 void test_condition_expiration() {
   // should be NULL
-  TEST_ASSERT_NULL(new_cond_blk_expir(NULL, 0, 100));
+  TEST_ASSERT_NULL(cond_blk_expir_new(NULL, 0, 100));
 
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
   // should be NULL
-  TEST_ASSERT_NULL(new_cond_blk_expir(&addr, 0, 0));
+  TEST_ASSERT_NULL(cond_blk_expir_new(&addr, 0, 0));
 
-  unlock_cond_blk_t* b = new_cond_blk_expir(&addr, 0, 1023);
+  unlock_cond_blk_t* b = cond_blk_expir_new(&addr, 0, 1023);
   TEST_ASSERT_NOT_NULL(b);
   TEST_ASSERT(b->type == UNLOCK_COND_EXPIRATION);
   TEST_ASSERT_TRUE(address_equal(&addr, ((unlock_cond_expir_t*)b->block)->addr));
   TEST_ASSERT(((unlock_cond_expir_t*)b->block)->milestone == 0);
   TEST_ASSERT(((unlock_cond_expir_t*)b->block)->time == 1023);
-  free_cond_blk(b);
+  cond_blk_free(b);
 
-  b = new_cond_blk_expir(&addr, 100, 0);
+  b = cond_blk_expir_new(&addr, 100, 0);
   TEST_ASSERT_NOT_NULL(b);
   TEST_ASSERT(b->type == UNLOCK_COND_EXPIRATION);
   TEST_ASSERT_TRUE(address_equal(&addr, ((unlock_cond_expir_t*)b->block)->addr));
@@ -175,20 +175,20 @@ void test_condition_expiration() {
   TEST_ASSERT(((unlock_cond_expir_t*)b->block)->time == ((unlock_cond_expir_t*)deser_blk->block)->time);
 
   // clean up
-  free_cond_blk(deser_blk);
-  free_cond_blk(b);
+  cond_blk_free(deser_blk);
+  cond_blk_free(b);
 }
 
 void test_condition_state() {
   // should be NULL
-  TEST_ASSERT_NULL(new_cond_blk_state(NULL));
+  TEST_ASSERT_NULL(cond_blk_state_new(NULL));
 
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
 
-  unlock_cond_blk_t* b = new_cond_blk_state(&addr);
+  unlock_cond_blk_t* b = cond_blk_state_new(&addr);
   TEST_ASSERT_NOT_NULL(b);
   // should be address unlock condition
   TEST_ASSERT(b->type == UNLOCK_COND_STATE);
@@ -210,20 +210,20 @@ void test_condition_state() {
   TEST_ASSERT_TRUE(address_equal((address_t*)b->block, (address_t*)deser_blk->block));
 
   // clean up
-  free_cond_blk(deser_blk);
-  free_cond_blk(b);
+  cond_blk_free(deser_blk);
+  cond_blk_free(b);
 }
 
 void test_condition_governor() {
   // should be NULL
-  TEST_ASSERT_NULL(new_cond_blk_governor(NULL));
+  TEST_ASSERT_NULL(cond_blk_governor_new(NULL));
 
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
 
-  unlock_cond_blk_t* b = new_cond_blk_governor(&addr);
+  unlock_cond_blk_t* b = cond_blk_governor_new(&addr);
   TEST_ASSERT_NOT_NULL(b);
   // should be address unlock condition
   TEST_ASSERT(b->type == UNLOCK_COND_GOVERNOR);
@@ -245,8 +245,8 @@ void test_condition_governor() {
   TEST_ASSERT_TRUE(address_equal((address_t*)b->block, (address_t*)deser_blk->block));
 
   // clean up
-  free_cond_blk(deser_blk);
-  free_cond_blk(b);
+  cond_blk_free(deser_blk);
+  cond_blk_free(b);
 }
 
 void test_condition_list() {
@@ -256,13 +256,13 @@ void test_condition_list() {
   iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
 
   // empty list
-  cond_blk_list_t* list = new_cond_blk_list();
+  cond_blk_list_t* list = cond_blk_list_new();
   TEST_ASSERT_NULL(list);
   TEST_ASSERT(cond_blk_list_len(list) == 0);
 
   unlock_cond_blk_t* blk = NULL;
   // 0: add timelock
-  blk = new_cond_blk_timelock(100, 0);
+  blk = cond_blk_timelock_new(100, 0);
   TEST_ASSERT(cond_blk_list_add(&list, blk) == 0);
   TEST_ASSERT(cond_blk_list_len(list) == 1);
   // add one more timelock, should be failed
@@ -270,8 +270,8 @@ void test_condition_list() {
   TEST_ASSERT(cond_blk_list_len(list) == 1);
 
   // 1: add state controller
-  free_cond_blk(blk);
-  blk = new_cond_blk_state(&addr);
+  cond_blk_free(blk);
+  blk = cond_blk_state_new(&addr);
   TEST_ASSERT(cond_blk_list_add(&list, blk) == 0);
   TEST_ASSERT(cond_blk_list_len(list) == 2);
   // add one more state controller, should be failed
@@ -279,8 +279,8 @@ void test_condition_list() {
   TEST_ASSERT(cond_blk_list_len(list) == 2);
 
   // 2: add Address unlock condition
-  free_cond_blk(blk);
-  blk = new_cond_blk_addr(&addr);
+  cond_blk_free(blk);
+  blk = cond_blk_addr_new(&addr);
   TEST_ASSERT(cond_blk_list_add(&list, blk) == 0);
   TEST_ASSERT(cond_blk_list_len(list) == 3);
   // add one more address, should be failed
@@ -288,8 +288,8 @@ void test_condition_list() {
   TEST_ASSERT(cond_blk_list_len(list) == 3);
 
   // 3: add Governor unlock condition
-  free_cond_blk(blk);
-  blk = new_cond_blk_governor(&addr);
+  cond_blk_free(blk);
+  blk = cond_blk_governor_new(&addr);
   TEST_ASSERT(cond_blk_list_add(&list, blk) == 0);
   TEST_ASSERT(cond_blk_list_len(list) == 4);
   // add one more address, should be failed
@@ -297,8 +297,8 @@ void test_condition_list() {
   TEST_ASSERT(cond_blk_list_len(list) == 4);
 
   // 4: add Dust Deposit
-  free_cond_blk(blk);
-  blk = new_cond_blk_dust(&addr, 1000000);
+  cond_blk_free(blk);
+  blk = cond_blk_dust_new(&addr, 1000000);
   TEST_ASSERT(cond_blk_list_add(&list, blk) == 0);
   TEST_ASSERT(cond_blk_list_len(list) == 5);
   // add one more address, should be failed
@@ -306,15 +306,15 @@ void test_condition_list() {
   TEST_ASSERT(cond_blk_list_len(list) == 5);
 
   // 5: add Expiration unlock condition
-  free_cond_blk(blk);
-  blk = new_cond_blk_expir(&addr, 321, 1234546);
+  cond_blk_free(blk);
+  blk = cond_blk_expir_new(&addr, 321, 1234546);
   TEST_ASSERT(cond_blk_list_add(&list, blk) == 0);
   TEST_ASSERT(cond_blk_list_len(list) == 6);
   // add one more address, should be failed
   TEST_ASSERT(cond_blk_list_add(&list, blk) != 0);
   TEST_ASSERT(cond_blk_list_len(list) == 6);
   // no needed
-  free_cond_blk(blk);
+  cond_blk_free(blk);
 
   cond_blk_list_print(list, 0);
   // check the adding order
@@ -342,8 +342,8 @@ void test_condition_list() {
   TEST_ASSERT(cond_blk_list_get(list, 5)->type == UNLOCK_COND_GOVERNOR);
 
   // clean up
-  free_cond_blk_list(list);
-  free_cond_blk_list(list2);
+  cond_blk_list_free(list);
+  cond_blk_list_free(list2);
 }
 
 void test_condition_list_syntactic() {
@@ -353,26 +353,26 @@ void test_condition_list_syntactic() {
   iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
 
   // empty list
-  cond_blk_list_t* list = new_cond_blk_list();
+  cond_blk_list_t* list = cond_blk_list_new();
   TEST_ASSERT_NULL(list);
   TEST_ASSERT(cond_blk_list_len(list) == 0);
   TEST_ASSERT(cond_blk_list_syntactic(&list) != 0);
 
   unlock_cond_blk_t* blk = NULL;
   // 0: add timelock
-  blk = new_cond_blk_timelock(100, 0);
+  blk = cond_blk_timelock_new(100, 0);
   TEST_ASSERT(cond_blk_list_add(&list, blk) == 0);
   // 1: add state controller
-  free_cond_blk(blk);
-  blk = new_cond_blk_state(&addr);
+  cond_blk_free(blk);
+  blk = cond_blk_state_new(&addr);
   TEST_ASSERT(cond_blk_list_add(&list, blk) == 0);
   // 2: add Address unlock condition
-  free_cond_blk(blk);
-  blk = new_cond_blk_addr(&addr);
+  cond_blk_free(blk);
+  blk = cond_blk_addr_new(&addr);
   TEST_ASSERT(cond_blk_list_add(&list, blk) == 0);
   // 3: add Governor unlock condition
-  free_cond_blk(blk);
-  blk = new_cond_blk_governor(&addr);
+  cond_blk_free(blk);
+  blk = cond_blk_governor_new(&addr);
   TEST_ASSERT(cond_blk_list_add(&list, blk) == 0);
 
   // syntactic check
@@ -397,9 +397,9 @@ void test_condition_list_syntactic() {
   TEST_ASSERT(cond_blk_list_get(deser_list, 3)->type == UNLOCK_COND_GOVERNOR);
 
   // no needed
-  free_cond_blk(blk);
-  free_cond_blk_list(list);
-  free_cond_blk_list(deser_list);
+  cond_blk_free(blk);
+  cond_blk_list_free(list);
+  cond_blk_list_free(deser_list);
 }
 
 int main() {

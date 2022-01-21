@@ -100,7 +100,7 @@ extern "C" {
  * @param[in] addr An address object
  * @return unlock_cond_blk_t*
  */
-unlock_cond_blk_t* new_cond_blk_addr(address_t const* const addr);
+unlock_cond_blk_t* cond_blk_addr_new(address_t const* const addr);
 
 /**
  * @brief Create a Dust Deposit Return Unlock Condition block
@@ -111,7 +111,7 @@ unlock_cond_blk_t* new_cond_blk_addr(address_t const* const addr);
  * @param[in] amount The return amount
  * @return unlock_cond_blk_t*
  */
-unlock_cond_blk_t* new_cond_blk_dust(address_t const* const addr, uint64_t amount);
+unlock_cond_blk_t* cond_blk_dust_new(address_t const* const addr, uint64_t amount);
 
 /**
  * @brief Create a Timelock Unlock Condition block
@@ -122,7 +122,7 @@ unlock_cond_blk_t* new_cond_blk_dust(address_t const* const addr, uint64_t amoun
  * @param[in] time An Unix timestamp in seconds
  * @return unlock_cond_blk_t*
  */
-unlock_cond_blk_t* new_cond_blk_timelock(uint32_t milestone, uint32_t time);
+unlock_cond_blk_t* cond_blk_timelock_new(uint32_t milestone, uint32_t time);
 
 /**
  * @brief Create a Expiration Unlock Condition block
@@ -135,7 +135,7 @@ unlock_cond_blk_t* new_cond_blk_timelock(uint32_t milestone, uint32_t time);
  * @param[in] time An Unix timestamp in seconds
  * @return unlock_cond_blk_t*
  */
-unlock_cond_blk_t* new_cond_blk_expir(address_t const* const addr, uint32_t milestone, uint32_t time);
+unlock_cond_blk_t* cond_blk_expir_new(address_t const* const addr, uint32_t milestone, uint32_t time);
 
 /**
  * @brief Create a State Controll Address Unlock Condition block
@@ -143,7 +143,7 @@ unlock_cond_blk_t* new_cond_blk_expir(address_t const* const addr, uint32_t mile
  * @param[in] addr The state controll address
  * @return unlock_cond_blk_t*
  */
-unlock_cond_blk_t* new_cond_blk_state(address_t const* const addr);
+unlock_cond_blk_t* cond_blk_state_new(address_t const* const addr);
 
 /**
  * @brief Create a Governor Address Unlock Condition
@@ -151,7 +151,7 @@ unlock_cond_blk_t* new_cond_blk_state(address_t const* const addr);
  * @param[in] addr The governor address
  * @return unlock_cond_blk_t*
  */
-unlock_cond_blk_t* new_cond_blk_governor(address_t const* const addr);
+unlock_cond_blk_t* cond_blk_governor_new(address_t const* const addr);
 
 /**
  * @brief Get the serialize bytes of the block
@@ -193,7 +193,7 @@ unlock_cond_blk_t* cond_blk_clone(unlock_cond_blk_t* blk);
  *
  * @param[in] blk An unlock condition
  */
-void free_cond_blk(unlock_cond_blk_t* blk);
+void cond_blk_free(unlock_cond_blk_t* blk);
 
 /**
  * @brief Print out an unlock condition block
@@ -207,7 +207,7 @@ void cond_blk_print(unlock_cond_blk_t* blk);
  *
  * @return cond_blk_list_t*
  */
-cond_blk_list_t* new_cond_blk_list();
+cond_blk_list_t* cond_blk_list_new();
 
 /**
  * @brief Add an unlock condition to the list
@@ -291,7 +291,7 @@ cond_blk_list_t* cond_blk_list_deserialize(byte_t buf[], size_t buf_len);
  *
  * @param[in] list An unlock condition list
  */
-void free_cond_blk_list(cond_blk_list_t* list);
+void cond_blk_list_free(cond_blk_list_t* list);
 
 /**
  * @brief Clone an unlock condition list
