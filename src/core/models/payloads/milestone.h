@@ -29,14 +29,31 @@ extern "C" {
  *
  * @return milestone_t*
  */
-milestone_t *payload_milestone_new();
+milestone_t *milestone_payload_new();
 
 /**
  * @brief Free a milestone payload object
  *
  * @param[in] ms A milestone object
  */
-void payload_milestone_free(milestone_t *ms);
+void milestone_payload_free(milestone_t *ms);
+
+/**
+ * @brief Get signature count in a milestone
+ *
+ * @param[in] ms The milestone object
+ * @return size_t
+ */
+size_t milestone_payload_get_signature_count(milestone_t *ms);
+
+/**
+ * @brief Get a signature string from a milestone at index
+ *
+ * @param[in] ms The milestone object
+ * @param[in] index The index of signature
+ * @return char* NULL on failed.
+ */
+char *milestone_payload_get_signature(milestone_t *ms, size_t index);
 
 #ifdef __cplusplus
 }

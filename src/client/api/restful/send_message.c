@@ -160,11 +160,11 @@ int send_message(iota_client_conf_t const* const conf, core_message_t* msg, res_
 
   // serialize message
   switch (msg->payload_type) {
-    case MSG_PAYLOAD_TRANSACTION:
-    case MSG_PAYLOAD_MILESTONE:
+    case CORE_MESSAGE_PAYLOAD_TRANSACTION:
+    case CORE_MESSAGE_PAYLOAD_MILESTONE:
       printf("[%s:%d] not supported, use send_core_message instead\n", __func__, __LINE__);
       break;
-    case MSG_PAYLOAD_INDEXATION:
+    case CORE_MESSAGE_PAYLOAD_INDEXATION:
       ret = serialize_indexation(msg, json_data);
       break;
     default:
@@ -235,7 +235,7 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
   }
 
   // this is an indexation payload
-  msg->payload_type = MSG_PAYLOAD_INDEXATION;
+  msg->payload_type = CORE_MESSAGE_PAYLOAD_INDEXATION;
   msg->payload = idx;
   utarray_concat(msg->parents, tips->u.tips);
 

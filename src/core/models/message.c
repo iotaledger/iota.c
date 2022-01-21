@@ -16,7 +16,7 @@ core_message_t* core_message_new() {
   if (msg) {
     msg->network_id = 0;
     utarray_new(msg->parents, &ut_str_icd);
-    msg->payload_type = MSG_PAYLOAD_UNKNOW;  // invalid payload type
+    msg->payload_type = CORE_MESSAGE_PAYLOAD_UNKNOW;  // invalid payload type
     msg->payload = NULL;
     msg->nonce = 0;
   }
@@ -31,7 +31,7 @@ int core_message_sign_transaction(core_message_t* msg) {
     return -1;
   }
 
-  if (msg->payload_type != MSG_PAYLOAD_TRANSACTION || msg->payload == NULL) {
+  if (msg->payload_type != CORE_MESSAGE_PAYLOAD_TRANSACTION || msg->payload == NULL) {
     printf("[%s:%d] invalid payload\n", __func__, __LINE__);
     return -1;
   }
@@ -100,10 +100,10 @@ int core_message_sign_transaction(core_message_t* msg) {
 void core_message_free(core_message_t* msg) {
   if (msg) {
     if (msg->payload) {
-      if (msg->payload_type == MSG_PAYLOAD_TRANSACTION) {
+      if (msg->payload_type == CORE_MESSAGE_PAYLOAD_TRANSACTION) {
         tx_payload_free((transaction_payload_t*)msg->payload);
       }
-      if (msg->payload_type == MSG_PAYLOAD_INDEXATION) {
+      if (msg->payload_type == CORE_MESSAGE_PAYLOAD_INDEXATION) {
         indexation_free((indexation_t*)msg->payload);
       }
       // TODO support other payload
@@ -133,4 +133,11 @@ char* core_message_get_parent_id(core_message_t* msg, size_t index) {
     }
   }
   return NULL;
+}
+
+core_message_payload_type_t core_message_get_payload_type(core_message_t* msg) {
+  if (msg) {
+    return msg->payload_type;
+  }
+  return CORE_MESSAGE_PAYLOAD_UNKNOW;
 }

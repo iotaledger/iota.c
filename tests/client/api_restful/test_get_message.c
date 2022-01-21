@@ -23,56 +23,22 @@ void test_get_msg_by_id() {
     printf("API response: %s\n", msg->u.error->msg);
   } else {
     switch (msg->u.msg->payload_type) {
-      case MSG_PAYLOAD_TRANSACTION:
+      case CORE_MESSAGE_PAYLOAD_TRANSACTION:
         printf("it's a transaction message\n");
         break;
-      case MSG_PAYLOAD_INDEXATION:
+      case CORE_MESSAGE_PAYLOAD_INDEXATION:
         printf("it's an indexation message\n");
         break;
-      case MSG_PAYLOAD_MILESTONE:
+      case CORE_MESSAGE_PAYLOAD_MILESTONE:
         printf("it's a milestone message\n");
         break;
-      case MSG_PAYLOAD_UNKNOW:
+      case CORE_MESSAGE_PAYLOAD_UNKNOW:
       default:
         printf("Unknow message\n");
         break;
     }
   }
   res_message_free(msg);
-}
-
-void test_deser_indexation() {
-  char const* const idx_res =
-      "{\"data\":{\"networkId\":\"9466822412763346725\",\"parentMessageIds\":["
-      "\"4f73928a39988fe2d1d15b4aa161c6ba0a64e4d164c481f4cc67c51e316c034e\","
-      "\"84cd7f307aecc96fe070a701fae586c95736a9dd6fee18df5319da422575f0f7\","
-      "\"aea5b8d4844574a8b0b30d4796523d9012d10fdb32347145172a73a51fc9ed9d\","
-      "\"f3b616c2669da3f3fbbafc56fb83213d58238e4a4504d360500b9c6f0c78738c\"],\"payload\":{\"type\":2,\"index\":"
-      "\"Foo\",\"data\":"
-      "\"426172\"},\"nonce\":\"567803\"}}";
-  res_message_t* res = res_message_new();
-  TEST_ASSERT_NOT_NULL(res);
-  TEST_ASSERT(deser_get_message(idx_res, res) == 0);
-  TEST_ASSERT(res->is_error == false);
-
-  core_message_t* msg = res->u.msg;
-  TEST_ASSERT_EQUAL_UINT64(9466822412763346725U, msg->network_id);
-  TEST_ASSERT_EQUAL_UINT64(567803, msg->nonce);
-  TEST_ASSERT_EQUAL_INT(4, core_message_parent_len(msg));
-  TEST_ASSERT_EQUAL_MEMORY("4f73928a39988fe2d1d15b4aa161c6ba0a64e4d164c481f4cc67c51e316c034e",
-                           core_message_get_parent_id(msg, 0), API_MSG_ID_HEX_STR_LEN);
-  TEST_ASSERT_EQUAL_MEMORY("84cd7f307aecc96fe070a701fae586c95736a9dd6fee18df5319da422575f0f7",
-                           core_message_get_parent_id(msg, 1), API_MSG_ID_HEX_STR_LEN);
-  TEST_ASSERT_EQUAL_MEMORY("aea5b8d4844574a8b0b30d4796523d9012d10fdb32347145172a73a51fc9ed9d",
-                           core_message_get_parent_id(msg, 2), API_MSG_ID_HEX_STR_LEN);
-  TEST_ASSERT_EQUAL_MEMORY("f3b616c2669da3f3fbbafc56fb83213d58238e4a4504d360500b9c6f0c78738c",
-                           core_message_get_parent_id(msg, 3), API_MSG_ID_HEX_STR_LEN);
-  TEST_ASSERT(msg->payload_type == MSG_PAYLOAD_INDEXATION);
-  indexation_t* idx = (indexation_t*)msg->payload;
-  TEST_ASSERT_EQUAL_STRING("Foo", idx->index->data);
-  TEST_ASSERT_EQUAL_STRING("426172", idx->data->data);
-
-  res_message_free(res);
 }
 
 void test_deser_milestone() {
@@ -115,22 +81,22 @@ void test_deser_milestone() {
                            core_message_get_parent_id(msg, 3), 64);
   TEST_ASSERT_EQUAL_MEMORY("fe63a9194eadb45e456a3c618d970119dbcac25221dbf5f53e5a838ef6ef518a",
                            core_message_get_parent_id(msg, 4), 64);
-  TEST_ASSERT(msg->payload_type == MSG_PAYLOAD_MILESTONE);
+  TEST_ASSERT(msg->payload_type == CORE_MESSAGE_PAYLOAD_MILESTONE);
 
   milestone_t* ms = (milestone_t*)msg->payload;
   TEST_ASSERT(1613651642 == ms->timestamp);
   TEST_ASSERT(123519 == ms->index);
   TEST_ASSERT_EQUAL_MEMORY("0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8",
                            ms->inclusion_merkle_proof, 64);
-  TEST_ASSERT(2 == get_message_milestone_signature_count(res));
+  TEST_ASSERT(2 == milestone_payload_get_signature_count(ms));
   TEST_ASSERT_EQUAL_MEMORY(
       "2ef781713287ba11efd0f3be37a49c2a08a8fdd1099b36e6fb7c9cb290b1711dd4fe08489ecd3872ac663bebebedd27cd73325d53315421d"
       "923b77ffd9ab3b0c",
-      get_message_milestone_signature(res, 0), API_SIGNATURE_HEX_STR_LEN);
+      milestone_payload_get_signature(ms, 0), API_SIGNATURE_HEX_STR_LEN);
   TEST_ASSERT_EQUAL_MEMORY(
       "c42983ce8e619787bbb5aa89cb0987cf08a26a2e4080039614e3c56e766bc86dce50d6e7dc6907edf653e9cc92c89405389fbc71e759c254"
       "fa2aa571a93d850f",
-      get_message_milestone_signature(res, 1), API_SIGNATURE_HEX_STR_LEN);
+      milestone_payload_get_signature(ms, 1), API_SIGNATURE_HEX_STR_LEN);
 
   res_message_free(res);
 }
@@ -168,7 +134,7 @@ void test_deser_tx1() {
                            core_message_get_parent_id(msg, 2), 64);
   TEST_ASSERT_EQUAL_MEMORY("ede431f8907b30c81eee57db80109af0b8b91683c0be2cc3b685bcdc14dbdca5",
                            core_message_get_parent_id(msg, 3), 64);
-  TEST_ASSERT(get_message_payload_type(res) == MSG_PAYLOAD_TRANSACTION);
+  TEST_ASSERT(core_message_get_payload_type(res->u.msg) == CORE_MESSAGE_PAYLOAD_TRANSACTION);
 
   transaction_payload_t* tx = (transaction_payload_t*)msg->payload;
   // validate input transaction ID and transaction output index
@@ -418,7 +384,6 @@ void test_deser_tx_with_index() {
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_deser_indexation);
   RUN_TEST(test_deser_milestone);
   RUN_TEST(test_deser_tx1);
   // RUN_TEST(test_deser_tx2);

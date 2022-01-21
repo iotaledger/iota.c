@@ -11,90 +11,49 @@
 #include "core/address.h"
 #include "core/utils/iota_str.h"
 
-static int deser_milestone(cJSON *milestone, res_message_t *res) {
-  if (milestone == NULL || res == NULL) {
+static int deser_milestone(cJSON *milestone_obj, res_message_t *res) {
+  if (milestone_obj == NULL || res == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
   int ret = -1;
-  milestone_t *ms = payload_milestone_new();
+  milestone_t *ms = milestone_payload_new();
   if (ms == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
     return -1;
   }
 
   // parsing index
-  if ((ret = json_get_uint64(milestone, JSON_KEY_INDEX, &ms->index)) != 0) {
+  if ((ret = json_get_uint64(milestone_obj, JSON_KEY_INDEX, &ms->index)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_INDEX);
     goto end;
   }
 
   // parsing timestamp
-  if ((ret = json_get_uint64(milestone, JSON_KEY_TIMESTAMP, &ms->timestamp)) != 0) {
+  if ((ret = json_get_uint64(milestone_obj, JSON_KEY_TIMESTAMP, &ms->timestamp)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TIMESTAMP);
     goto end;
   }
 
   // parsing inclusion Merkle proof
-  if ((ret = json_get_string(milestone, JSON_KEY_INCLUSION_MKL, ms->inclusion_merkle_proof,
+  if ((ret = json_get_string(milestone_obj, JSON_KEY_INCLUSION_MKL, ms->inclusion_merkle_proof,
                              sizeof(ms->inclusion_merkle_proof))) != 0) {
     printf("[%s:%d]: parsing %s string failed\n", __func__, __LINE__, JSON_KEY_INCLUSION_MKL);
     goto end;
   }
 
   // parsing signatures
-  if ((ret = json_string_array_to_utarray(milestone, JSON_KEY_SIGNATURES, ms->signatures)) != 0) {
+  if ((ret = json_string_array_to_utarray(milestone_obj, JSON_KEY_SIGNATURES, ms->signatures)) != 0) {
     printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_SIGNATURES);
   }
 
 end:
   if (ret != 0) {
-    payload_milestone_free(ms);
+    milestone_payload_free(ms);
     res->u.msg->payload = NULL;
   } else {
     res->u.msg->payload = (void *)ms;
-  }
-
-  return ret;
-}
-
-static int deser_tx_indexation(cJSON *json, indexation_t *idx) {
-  if (json == NULL || idx == NULL) {
-    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
-  int ret = -1;
-  if ((ret = json_get_byte_buf_str(json, JSON_KEY_INDEX, idx->index)) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_INDEX);
-  } else {
-    if ((ret = json_get_byte_buf_str(json, JSON_KEY_DATA, idx->data)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_DATA);
-    }
-  }
-  return ret;
-}
-
-static int deser_msg_indexation(cJSON *idx_obj, res_message_t *res) {
-  if (idx_obj == NULL || res == NULL) {
-    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
-  indexation_t *idx = indexation_new();
-  if (idx == NULL) {
-    printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    return -1;
-  }
-
-  int ret = -1;
-  ret = deser_tx_indexation(idx_obj, idx);
-  if (ret != 0) {
-    indexation_free(idx);
-    res->u.msg->payload = NULL;
-  } else {
-    res->u.msg->payload = (void *)idx;
   }
 
   return ret;
@@ -216,7 +175,7 @@ static int deser_tx_outputs(cJSON *essence_obj, transaction_payload_t *payload_t
   return 0;
 }
 
-static int deser_tx_blocks(cJSON *blocks_obj, transaction_payload_t *payload_tx) {
+static int deser_tx_unlock_blocks(cJSON *blocks_obj, transaction_payload_t *payload_tx) {
   if (blocks_obj == NULL || payload_tx == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -323,19 +282,20 @@ static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
       */
       cJSON *payload_type = cJSON_GetObjectItemCaseSensitive(payload_obj, JSON_KEY_TYPE);
       if (cJSON_IsNumber(payload_type)) {
-        if (payload_type->valueint == MSG_PAYLOAD_INDEXATION) {
-          indexation_t *idx = indexation_new();
+        // FIXME
+        if (payload_type->valueint == 2) {
+          /*indexation_t *idx = indexation_new();
           if (idx == NULL) {
             printf("[%s:%d]: allocate index payload failed\n", __func__, __LINE__);
           } else {
-            if (deser_tx_indexation(payload_obj, idx) != 0) {
+            if (deser_indexation(payload_obj, idx) != 0) {
               printf("[%s:%d]: parsing index payload failed\n", __func__, __LINE__);
               indexation_free(idx);
             } else {
-              tx->type = MSG_PAYLOAD_INDEXATION;
+              tx->type = CORE_MESSAGE_PAYLOAD_INDEXATION;
               tx->essence->payload = idx;
             }
-          }
+          }*/
         } else {
           printf("[%s:%d]: payload type %d is not supported\n", __func__, __LINE__, payload_type->valueint);
         }
@@ -347,7 +307,7 @@ static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
     // unlock blocks
     cJSON *blocks_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, JSON_KEY_UNLOCK_BLOCKS);
     if (cJSON_IsArray(blocks_obj)) {
-      ret = deser_tx_blocks(blocks_obj, tx);
+      ret = deser_tx_unlock_blocks(blocks_obj, tx);
     } else {
       printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_UNLOCK_BLOCKS);
     }
@@ -398,6 +358,7 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
 
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
+    printf("[%s:%d]: parsing JSON message failed\n", __func__, __LINE__);
     return -1;
   }
 
@@ -452,14 +413,11 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
       }
 
       switch (res->u.msg->payload_type) {
-        case MSG_PAYLOAD_TRANSACTION:
+        case CORE_MESSAGE_PAYLOAD_TRANSACTION:
           ret = deser_transaction(payload, res);
           break;
-        case MSG_PAYLOAD_MILESTONE:
+        case CORE_MESSAGE_PAYLOAD_MILESTONE:
           ret = deser_milestone(payload, res);
-          break;
-        case MSG_PAYLOAD_INDEXATION:
-          ret = deser_msg_indexation(payload, res);
           break;
         default:
           // do nothing
@@ -497,6 +455,7 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
+
   // composing API command
   snprintf(cmd->buf, cmd->cap, "%s%s", cmd_str, msg_id);
   cmd->len = strlen(cmd->buf);
@@ -524,36 +483,4 @@ done:
   iota_str_destroy(cmd);
   byte_buf_free(http_res);
   return ret;
-}
-
-size_t get_message_milestone_signature_count(res_message_t const *const res) {
-  if (res) {
-    if (!res->is_error && res->u.msg->payload_type == MSG_PAYLOAD_MILESTONE) {
-      milestone_t *milestone = (milestone_t *)res->u.msg->payload;
-      return utarray_len(milestone->signatures);
-    }
-  }
-  return 0;
-}
-
-char *get_message_milestone_signature(res_message_t const *const res, size_t index) {
-  if (res) {
-    if (!res->is_error && res->u.msg->payload_type == MSG_PAYLOAD_MILESTONE) {
-      milestone_t *milestone = (milestone_t *)res->u.msg->payload;
-      if (utarray_len(milestone->signatures)) {
-        char **p = (char **)utarray_eltptr(milestone->signatures, index);
-        return *p;
-      }
-    }
-  }
-  return NULL;
-}
-
-msg_payload_type_t get_message_payload_type(res_message_t const *const res) {
-  if (res) {
-    if (!res->is_error) {
-      return res->u.msg->payload_type;
-    }
-  }
-  return MSG_PAYLOAD_UNKNOW;
 }

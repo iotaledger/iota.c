@@ -63,7 +63,7 @@ int deser_get_transaction_included_message(char const *const j_str, res_message_
   }
 
   // only transaction payload is a valid payload for a deserialized message
-  if (!res->is_error && res->u.msg->payload_type != MSG_PAYLOAD_TRANSACTION) {
+  if (!res->is_error && res->u.msg->payload_type != CORE_MESSAGE_PAYLOAD_TRANSACTION) {
     return -1;
   }
 

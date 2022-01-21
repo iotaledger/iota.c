@@ -28,11 +28,11 @@
 #define API_SIGNATURE_HEX_STR_LEN (128 + 1)
 
 typedef enum {
-  MSG_PAYLOAD_TRANSACTION = 0,
-  MSG_PAYLOAD_MILESTONE,
-  MSG_PAYLOAD_INDEXATION,
-  MSG_PAYLOAD_UNKNOW = UINT32_MAX - 1,
-} msg_payload_type_t;
+  CORE_MESSAGE_PAYLOAD_TRANSACTION = 0,
+  CORE_MESSAGE_PAYLOAD_MILESTONE,
+  CORE_MESSAGE_PAYLOAD_INDEXATION,
+  CORE_MESSAGE_PAYLOAD_UNKNOW = UINT32_MAX - 1,
+} core_message_payload_type_t;
 
 /**
  * @brief A message object
@@ -97,6 +97,14 @@ size_t core_message_parent_len(core_message_t* msg);
  * @return char*
  */
 char* core_message_get_parent_id(core_message_t* msg, size_t index);
+
+/**
+ * @brief Get the message payload type
+ *
+ * @param[in] msg The message object
+ * @return core_message_payload_type_t
+ */
+core_message_payload_type_t core_message_get_payload_type(core_message_t* msg);
 
 #ifdef __cplusplus
 }
