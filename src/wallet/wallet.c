@@ -8,7 +8,7 @@
 #include "client/api/restful/get_balance.h"
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_output.h"
-#include "client/api/restful/get_outputs_from_address.h"
+#include "client/api/restful/get_outputs_id.h"
 #include "client/api/restful/send_message.h"
 #include "core/models/message.h"
 #include "core/utils/byte_buffer.h"
@@ -105,7 +105,7 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, bool ch
   byte_t send_addr[ED25519_ADDRESS_BYTES] = {};
   byte_t tmp_tx_id[TRANSACTION_ID_BYTES] = {};
   ed25519_keypair_t addr_keypair = {};
-  res_outputs_address_t* outputs_res = NULL;
+  res_outputs_id_t* outputs_res = NULL;
   transaction_payload_t* tx_payload = NULL;
   int ret = -1;
 
@@ -125,7 +125,7 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, bool ch
 
   // get outputs
   bin_2_hex(send_addr, sizeof(send_addr), tmp_addr, sizeof(tmp_addr));
-  if (!(outputs_res = res_outputs_address_new())) {
+  if (!(outputs_res = res_outputs_new())) {
     printf("[%s:%d] Err: invalid length of path\n", __func__, __LINE__);
     return NULL;
   }
@@ -145,11 +145,11 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, bool ch
     goto done;
   }
 
-  size_t out_counts = res_outputs_address_output_id_count(outputs_res);
+  size_t out_counts = res_outputs_output_id_count(outputs_res);
   // get outputs and tx id and tx output index from genesis
   uint64_t total_balance = 0;
   for (size_t i = 0; i < out_counts; i++) {
-    char* output_id = res_outputs_address_output_id(outputs_res, i);
+    char* output_id = res_outputs_output_id(outputs_res, i);
     res_output_t out_id_res = {};
     ret = get_output(&w->endpoint, output_id, &out_id_res);
     if (out_id_res.is_error) {
@@ -201,7 +201,7 @@ static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, bool ch
   }
 
 done:
-  res_outputs_address_free(outputs_res);
+  res_outputs_free(outputs_res);
 
   if (ret == -1) {
     tx_payload_free(tx_payload);
