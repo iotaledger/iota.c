@@ -16,8 +16,8 @@ void tearDown(void) {}
 void test_deser_outputs() {
   // empty output ids
   char const* const data_empty =
-      "{\"data\":{\"limit\":1000,"
-      "\"count\":0,\"outputIds\":[],\"ledgerIndex\":837834}}";
+      "{\"limit\":1000,"
+      "\"count\":0,\"data\":[],\"ledgerIndex\":837834}";
 
   res_outputs_id_t* res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
