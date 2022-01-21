@@ -25,7 +25,7 @@ target_sources(
           "api/restful/get_message.c"
           "api/restful/send_message.c"
           "api/restful/find_message.c"
-          "api/restful/get_outputs_from_address.c"
+          "api/restful/get_outputs_id.c"
           "api/restful/get_transaction_included_message.c"
   PUBLIC "network/http.h"
          "api/json_utils.h"
@@ -42,7 +42,7 @@ target_sources(
          "api/restful/get_message.h"
          "api/restful/send_message.h"
          "api/restful/find_message.h"
-         "api/restful/get_outputs_from_address.h"
+         "api/restful/get_outputs_id.h"
          "client_service.h"
          "api/restful/get_transaction_included_message.h"
          )

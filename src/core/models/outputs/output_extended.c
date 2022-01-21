@@ -65,7 +65,7 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
   }
 
   if (feat_blocks != NULL) {
-    output->feature_blocks = new_feat_blk_list();
+    output->feature_blocks = feat_blk_list_new();
     feat_blk_list_t* feat;
     int res;
     LL_FOREACH(feat_blocks, feat) {
@@ -73,29 +73,14 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
         case FEAT_SENDER_BLOCK:
           res = feat_blk_list_add_sender(&output->feature_blocks, feat->blk->block);
           break;
-        case FEAT_DUST_DEP_RET_BLOCK:
-          res = feat_blk_list_add_ddr(&output->feature_blocks, *((uint64_t*)feat->blk->block));
-          break;
-        case FEAT_TIMELOCK_MS_INDEX_BLOCK:
-          res = feat_blk_list_add_tmi(&output->feature_blocks, *((uint32_t*)feat->blk->block));
-          break;
-        case FEAT_TIMELOCK_UNIX_BLOCK:
-          res = feat_blk_list_add_tu(&output->feature_blocks, *((uint32_t*)feat->blk->block));
-          break;
-        case FEAT_EXPIRATION_MS_INDEX_BLOCK:
-          res = feat_blk_list_add_emi(&output->feature_blocks, *((uint32_t*)feat->blk->block));
-          break;
-        case FEAT_EXPIRATION_UNIX_BLOCK:
-          res = feat_blk_list_add_eu(&output->feature_blocks, *((uint32_t*)feat->blk->block));
-          break;
         case FEAT_METADATA_BLOCK: {
           feat_metadata_blk_t* block_metadata = (feat_metadata_blk_t*)feat->blk->block;
           res = feat_blk_list_add_metadata(&output->feature_blocks, block_metadata->data, block_metadata->data_len);
           break;
         }
-        case FEAT_INDEXATION_BLOCK: {
-          feat_indexation_blk_t* indexation = (feat_indexation_blk_t*)feat->blk->block;
-          res = feat_blk_list_add_indexation(&output->feature_blocks, indexation->tag, indexation->tag_len);
+        case FEAT_TAG_BLOCK: {
+          feat_tag_blk_t* indexation = (feat_tag_blk_t*)feat->blk->block;
+          res = feat_blk_list_add_tag(&output->feature_blocks, indexation->tag, indexation->tag_len);
           break;
         }
         default:
@@ -123,7 +108,7 @@ void output_extended_free(output_extended_t* output) {
       native_tokens_free(&output->native_tokens);
     }
     if (output->feature_blocks) {
-      free_feat_blk_list(output->feature_blocks);
+      feat_blk_list_free(output->feature_blocks);
     }
     free(output);
   }

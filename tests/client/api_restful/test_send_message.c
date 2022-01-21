@@ -7,7 +7,7 @@
 #include "test_config.h"
 
 #include "client/api/restful/get_output.h"
-#include "client/api/restful/get_outputs_from_address.h"
+#include "client/api/restful/get_outputs_id.h"
 #include "client/api/restful/send_message.h"
 #include "core/utils/byte_buffer.h"
 
@@ -119,7 +119,7 @@ void test_send_core_message_tx() {
   TEST_ASSERT_NOT_NULL(tx_payload);
 
   // get outputs
-  res_outputs_address_t* res = res_outputs_address_new();
+  res_outputs_id_t* res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   int ret =
       get_outputs_from_address(&ctx, false, "6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92", res);
@@ -128,11 +128,11 @@ void test_send_core_message_tx() {
   TEST_ASSERT_EQUAL_STRING("6920b176f613ec7be59e68fc68f597eb3393af80f74c7c3db78198147d5f1f92",
                            res->u.output_ids->address);
 
-  size_t out_counts = res_outputs_address_output_id_count(res);
+  size_t out_counts = res_outputs_output_id_count(res);
   // get outputs and tx id and tx output index from genesis
   uint64_t total = 0;
   for (size_t i = 0; i < out_counts; i++) {
-    char* output_id = res_outputs_address_output_id(res, i);
+    char* output_id = res_outputs_output_id(res, i);
     res_output_t res_out = {};
     TEST_ASSERT(get_output(&ctx, output_id, &res_out) == 0);
     if (res_out.is_error) {
@@ -155,7 +155,7 @@ void test_send_core_message_tx() {
   }
 
   // no needed
-  res_outputs_address_free(res);
+  res_outputs_free(res);
 
   // create output for sending 10Mi out
   uint64_t token_send = 10000000;
