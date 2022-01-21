@@ -32,9 +32,9 @@ void test_deser_outputs() {
 
   // with output ids
   char const* const data_1 =
-      "{\"data\":{\"limit\":1000,"
-      "\"count\":2,\"outputIds\":[\"1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
-      "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}}";
+      "{\"limit\":1000,"
+      "\"count\":2,\"data\":[\"1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
+      "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}";
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(deser_outputs(data_1, res) == 0);

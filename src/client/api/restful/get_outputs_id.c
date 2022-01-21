@@ -67,6 +67,7 @@ size_t res_outputs_output_id_count(res_outputs_id_t *res) {
   }
   return utarray_len(res->u.output_ids->outputs);
 }
+
 int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
   int ret = -1;
   if (j_str == NULL || res == NULL) {
@@ -88,38 +89,31 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
     goto end;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
-  if (data_obj) {
-    res->u.output_ids = outputs_new();
-    if (res->u.output_ids == NULL) {
-      // OOM
-      printf("[%s:%d]: allocate output object failed\n", __func__, __LINE__);
-      goto end;
-    }
+  res->u.output_ids = outputs_new();
+  if (res->u.output_ids == NULL) {
+    // OOM
+    printf("[%s:%d]: allocate output object failed\n", __func__, __LINE__);
+    goto end;
+  }
 
-    if ((ret = json_get_uint32(data_obj, JSON_KEY_LIMIT, &res->u.output_ids->limit) != 0)) {
-      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LIMIT);
-      goto end;
-    }
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_LIMIT, &res->u.output_ids->limit) != 0)) {
+    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LIMIT);
+    goto end;
+  }
 
-    if ((ret = json_get_uint32(data_obj, JSON_KEY_COUNT, &res->u.output_ids->count) != 0)) {
-      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_COUNT);
-      goto end;
-    }
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_COUNT, &res->u.output_ids->count) != 0)) {
+    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_COUNT);
+    goto end;
+  }
 
-    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_OUTPUT_IDS, res->u.output_ids->outputs)) != 0) {
-      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_OUTPUT_IDS);
-      goto end;
-    }
+  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_DATA, res->u.output_ids->outputs)) != 0) {
+    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_DATA);
+    goto end;
+  }
 
-    if ((ret = json_get_uint64(data_obj, JSON_KEY_LEDGER_IDX, &res->u.output_ids->ledger_idx) != 0)) {
-      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
-      goto end;
-    }
-
-  } else {
-    // JSON format mismatched.
-    printf("[%s:%d]: parsing JSON object failed\n", __func__, __LINE__);
+  if ((ret = json_get_uint64(json_obj, JSON_KEY_LEDGER_IDX, &res->u.output_ids->ledger_idx) != 0)) {
+    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
+    goto end;
   }
 
 end:
@@ -128,28 +122,27 @@ end:
 }
 
 static int get_outputs_api_call(iota_client_conf_t const *conf, char *cmd_buffer, res_outputs_id_t *res) {
-  int ret = -1;
-
   // http client configuration
   http_client_config_t http_conf = {
       .host = conf->host, .path = cmd_buffer, .use_tls = conf->use_tls, .port = conf->port};
 
   byte_buf_t *http_res = NULL;
+
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
-    goto done;
+    return -1;
   }
 
   // send request via http client
   long st = 0;
+  int ret = -1;
+  // send request via http client
   if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
     ret = deser_outputs((char const *const)http_res->data, res);
   }
 
-done:
-  // Cleanup http_res buffer
   byte_buf_free(http_res);
   return ret;
 }
@@ -167,13 +160,16 @@ int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, cha
   }
 
   // compose restful api command
-  char cmd_buffer[112] = {0};  // 99 = max size of api path(47) + IOTA_ADDRESS_HEX_BYTES(64) + 1
+  char cmd_buffer[107] = {0};  // 107 = max size of api path(42) + IOTA_ADDRESS_HEX_BYTES(64) + 1
   int snprintf_ret;
 
   if (is_bech32) {
-    snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/addresses/%s/outputs", addr);
+    snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/outputs?addresses=%s", addr);
   } else {
-    snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/addresses/ed25519/%s/outputs", addr);
+    // TODO: handle ed25519 addresses
+    // snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/outputs?ed25519=%s",
+    // addr);
+    return -1;
   }
 
   // check if data stored is not more than buffer length
@@ -197,11 +193,9 @@ int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr
     return -1;
   }
 
-  int ret = -1;
-
   // compose restful api command
-  char cmd_buffer[84] = {0};  // 84 = max size of api path(43) + ADDRESS_NFT_HEX_BYTES(40) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/addresses/nft/%s/outputs", addr);
+  char cmd_buffer[77] = {0};  // 77 = max size of api path(36) + ADDRESS_NFT_HEX_BYTES(40) + 1
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nft?address=%s", addr);
 
   // check if data stored is not more than buffer length
   if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
@@ -225,8 +219,8 @@ int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const ad
   }
 
   // compose restful api command
-  char cmd_buffer[86] = {0};  // 86 = max size of api path(45) + ADDRESS_ALIAS_HEX_BYTES(40) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/addresses/alias/%s/outputs", addr);
+  char cmd_buffer[81] = {0};  // 81 = max size of api path(40) + ADDRESS_ALIAS_HEX_BYTES(40) + 1
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/aliases?address=%s", addr);
 
   // check if data stored is not more than buffer length
   if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
