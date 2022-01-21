@@ -51,7 +51,7 @@ void test_output_foundry() {
   byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
 
   // create Foundry Output
@@ -159,7 +159,7 @@ void test_output_foundry() {
   free(output_foundry_buf);
   byte_buf_free(metadata);
   native_tokens_free(&native_tokens);
-  free_feat_blk_list(feat_blocks);
+  feat_blk_list_free(feat_blocks);
   output_foundry_free(output);
   output_foundry_free(deser_output);
 }
@@ -183,7 +183,7 @@ void test_output_foundry_without_native_tokens() {
   byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
 
   // create Foundry Output
@@ -258,7 +258,7 @@ void test_output_foundry_without_native_tokens() {
   free(max_supply);
   free(output_foundry_buf);
   byte_buf_free(metadata);
-  free_feat_blk_list(feat_blocks);
+  feat_blk_list_free(feat_blocks);
   output_foundry_free(output);
   output_foundry_free(deser_output);
 }
@@ -409,7 +409,7 @@ void test_output_foundry_clone() {
   byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
 
   // create Foundry Output
@@ -464,7 +464,7 @@ void test_output_foundry_clone() {
   free(max_supply);
   byte_buf_free(metadata);
   native_tokens_free(&native_tokens);
-  free_feat_blk_list(feat_blocks);
+  feat_blk_list_free(feat_blocks);
   output_foundry_free(new_output);
   output_foundry_free(output);
 }
