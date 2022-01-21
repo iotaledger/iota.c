@@ -1,8 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_API_RESTFUL_OUTPUTS_FROM_ADDRESS_H__
-#define __CLIENT_API_RESTFUL_OUTPUTS_FROM_ADDRESS_H__
+#ifndef __CLIENT_API_RESTFUL_OUTPUTS_ID_H__
+#define __CLIENT_API_RESTFUL_OUTPUTS_ID_H__
 
 #include "utarray.h"
 
@@ -17,10 +17,10 @@
  */
 // TODO: Add offset field
 typedef struct {
-  uint32_t limit;  ///< The number of results it can return at most.
-  uint32_t count;        ///< The actual number of found results.
-  UT_array *outputs;     ///< output IDs
-  uint64_t ledger_idx;   ///< The ledger index at which the output was queried at.
+  uint32_t limit;       ///< The number of results it can return at most.
+  uint32_t count;       ///< The actual number of found results.
+  UT_array *outputs;    ///< output IDs
+  uint64_t ledger_idx;  ///< The ledger index at which the output was queried at.
 } get_outputs_id_t;
 
 /**
