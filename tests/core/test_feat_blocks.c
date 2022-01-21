@@ -20,7 +20,7 @@ void test_sender() {
   address_t sender_addr = {};
   sender_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(sender_addr.address, ADDRESS_ED25519_BYTES);
-  feat_block_t* sender_blk = new_feat_blk_sender(&sender_addr);
+  feat_block_t* sender_blk = feat_blk_sender_new(&sender_addr);
   TEST_ASSERT_NOT_NULL(sender_blk);
   feat_blk_print(sender_blk);
 
@@ -45,8 +45,8 @@ void test_sender() {
                            address_len((address_t*)sender_blk->block));
 
   // clean up
-  free_feat_blk(sender_blk);
-  free_feat_blk(deser_blk);
+  feat_blk_free(sender_blk);
+  feat_blk_free(deser_blk);
 }
 
 void test_issuer() {
@@ -56,7 +56,7 @@ void test_issuer() {
   address_t addr = {};
   addr.type = ADDRESS_TYPE_NFT;
   iota_crypto_randombytes(addr.address, ADDRESS_NFT_BYTES);
-  feat_block_t* issuer_blk = new_feat_blk_issuer(&addr);
+  feat_block_t* issuer_blk = feat_blk_issuer_new(&addr);
   TEST_ASSERT_NOT_NULL(issuer_blk);
   feat_blk_print(issuer_blk);
 
@@ -81,8 +81,8 @@ void test_issuer() {
                            address_len((address_t*)issuer_blk->block));
 
   // clean up
-  free_feat_blk(issuer_blk);
-  free_feat_blk(deser_blk);
+  feat_blk_free(issuer_blk);
+  feat_blk_free(deser_blk);
 }
 
 void test_metadata() {
@@ -91,7 +91,7 @@ void test_metadata() {
   // create a Metadata block
   byte_t meta_data[128] = {};
   iota_crypto_randombytes(meta_data, sizeof(meta_data));
-  feat_block_t* meta_blk = new_feat_blk_metadata(meta_data, sizeof(meta_data));
+  feat_block_t* meta_blk = feat_blk_metadata_new(meta_data, sizeof(meta_data));
   TEST_ASSERT_NOT_NULL(meta_blk);
   feat_blk_print(meta_blk);
 
@@ -116,8 +116,8 @@ void test_metadata() {
                            ((feat_metadata_blk_t*)meta_blk->block)->data_len);
 
   // clean up
-  free_feat_blk(meta_blk);
-  free_feat_blk(deser_blk);
+  feat_blk_free(meta_blk);
+  feat_blk_free(deser_blk);
 }
 
 void test_tag() {
@@ -127,7 +127,7 @@ void test_tag() {
   byte_t tag[MAX_INDEX_TAG_BYTES] = {};
   iota_crypto_randombytes(tag, sizeof(tag));
 
-  feat_block_t* idx_blk = new_feat_blk_tag(tag, sizeof(tag));
+  feat_block_t* idx_blk = feat_blk_tag_new(tag, sizeof(tag));
   TEST_ASSERT_NOT_NULL(idx_blk);
   feat_blk_print(idx_blk);
 
@@ -151,12 +151,12 @@ void test_tag() {
                            ((feat_tag_blk_t*)idx_blk->block)->tag_len);
 
   // clean up
-  free_feat_blk(idx_blk);
-  free_feat_blk(deser_blk);
+  feat_blk_free(idx_blk);
+  feat_blk_free(deser_blk);
 }
 
 void test_feat_block_list_append_all() {
-  feat_blk_list_t* blk_list = new_feat_blk_list();
+  feat_blk_list_t* blk_list = feat_blk_list_new();
   TEST_ASSERT_NULL(blk_list);
 
   // print out an empty list
@@ -190,7 +190,7 @@ void test_feat_block_list_append_all() {
   size_t exp_ser_len = feat_blk_list_serialize_len(blk_list);
   // printf("serialization len: %zu\n", exp_ser_len);
   byte_t ser_blk[512] = {};
-  TEST_ASSERT(feat_blk_list_serialize(blk_list, ser_blk, sizeof(ser_blk)) == exp_ser_len);
+  TEST_ASSERT(feat_blk_list_serialize(&blk_list, ser_blk, sizeof(ser_blk)) == exp_ser_len);
   // dump_hex(ser_blk, exp_ser_len);
   feat_blk_list_t* deser_list = feat_blk_list_deserialize(ser_blk, sizeof(ser_blk));
   TEST_ASSERT(feat_blk_list_len(deser_list) == feat_blk_list_len(blk_list));
@@ -230,27 +230,27 @@ void test_feat_block_list_append_all() {
   TEST_ASSERT_EQUAL_MEMORY(((feat_tag_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
 
   // clean up
-  free_feat_blk_list(deser_list);
-  free_feat_blk_list(blk_list);
+  feat_blk_list_free(deser_list);
+  feat_blk_list_free(blk_list);
 }
 
 void test_feat_block_list_sort() {
-  feat_blk_list_t* blk_list = new_feat_blk_list();
+  feat_blk_list_t* blk_list = feat_blk_list_new();
   TEST_ASSERT_NULL(blk_list);
 
   // print out an empty list
   feat_blk_list_print(blk_list, 0);
 
   // add feature blocks in "random" order
+  // add a Tag
+  byte_t tag[MAX_INDEX_TAG_BYTES] = {};
+  iota_crypto_randombytes(tag, sizeof(tag));
+  TEST_ASSERT(feat_blk_list_add_tag(&blk_list, tag, sizeof(tag)) == 0);
   // add a Sender
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT(feat_blk_list_add_sender(&blk_list, &test_addr) == 0);
-  // add a Tag
-  byte_t tag[MAX_INDEX_TAG_BYTES] = {};
-  iota_crypto_randombytes(tag, sizeof(tag));
-  TEST_ASSERT(feat_blk_list_add_tag(&blk_list, tag, sizeof(tag)) == 0);
   // add a Metadata
   byte_t meta_data[256] = {};
   iota_crypto_randombytes(meta_data, sizeof(meta_data));
@@ -264,19 +264,19 @@ void test_feat_block_list_sort() {
   feat_block_t* tmp_blk = NULL;
 
   // feature blocks should NOT be in ascending order based on block type
-  // 0: should be Sender
+  // 0: should be Tag
   tmp_blk = feat_blk_list_get(blk_list, 0);
-  TEST_ASSERT_NOT_NULL(tmp_blk);
-  TEST_ASSERT(tmp_blk->type == FEAT_SENDER_BLOCK);
-  TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_ED25519);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_ED25519_BYTES);
-
-  // 1: should be Tag
-  tmp_blk = feat_blk_list_get(blk_list, 1);
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_TAG_BLOCK);
   TEST_ASSERT(((feat_tag_blk_t*)tmp_blk->block)->tag_len == sizeof(tag));
   TEST_ASSERT_EQUAL_MEMORY(((feat_tag_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
+
+  // 1: should be Sender
+  tmp_blk = feat_blk_list_get(blk_list, 1);
+  TEST_ASSERT_NOT_NULL(tmp_blk);
+  TEST_ASSERT(tmp_blk->type == FEAT_SENDER_BLOCK);
+  TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_ED25519);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_ED25519_BYTES);
 
   // 2: should be metadata
   tmp_blk = feat_blk_list_get(blk_list, 2);
@@ -303,7 +303,7 @@ void test_feat_block_list_sort() {
   size_t exp_ser_len = feat_blk_list_serialize_len(blk_list);
   // printf("serialization len: %zu\n", exp_ser_len);
   byte_t ser_blk[512] = {};
-  TEST_ASSERT(feat_blk_list_serialize(blk_list, ser_blk, sizeof(ser_blk)) == exp_ser_len);
+  TEST_ASSERT(feat_blk_list_serialize(&blk_list, ser_blk, sizeof(ser_blk)) == exp_ser_len);
   // dump_hex(ser_blk, exp_ser_len);
   feat_blk_list_t* deser_list = feat_blk_list_deserialize(ser_blk, sizeof(ser_blk));
   TEST_ASSERT(feat_blk_list_len(deser_list) == feat_blk_list_len(blk_list));
@@ -347,8 +347,8 @@ void test_feat_block_list_sort() {
   TEST_ASSERT_NULL(tmp_blk);
 
   // clean up
-  free_feat_blk_list(deser_list);
-  free_feat_blk_list(blk_list);
+  feat_blk_list_free(deser_list);
+  feat_blk_list_free(blk_list);
 }
 
 void test_feat_block_list_clone() {
@@ -357,7 +357,7 @@ void test_feat_block_list_clone() {
   TEST_ASSERT_NULL(new_blk_list);
 
   //=====Test feature block list object=====
-  feat_blk_list_t* blk_list = new_feat_blk_list();
+  feat_blk_list_t* blk_list = feat_blk_list_new();
 
   // add a Sender
   address_t test_addr = {};
@@ -420,8 +420,8 @@ void test_feat_block_list_clone() {
   TEST_ASSERT_EQUAL_MEMORY(((feat_tag_blk_t*)tmp_blk->block)->tag, tag, sizeof(tag));
 
   // clean up
-  free_feat_blk_list(new_blk_list);
-  free_feat_blk_list(blk_list);
+  feat_blk_list_free(new_blk_list);
+  feat_blk_list_free(blk_list);
 }
 
 int main() {

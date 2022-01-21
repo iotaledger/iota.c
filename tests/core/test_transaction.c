@@ -47,7 +47,7 @@ static output_extended_t* create_output_extended() {
   native_tokens_add(&native_tokens, token_id3, amount3);
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_sender(&feat_blocks, &addr);
   // FIXME
   // feat_blk_list_add_ddr(&feat_blocks, 1000000);
@@ -60,7 +60,7 @@ static output_extended_t* create_output_extended() {
   free(amount2);
   free(amount3);
   native_tokens_free(&native_tokens);
-  free_feat_blk_list(feat_blocks);
+  feat_blk_list_free(feat_blocks);
 
   return output;
 }
@@ -103,7 +103,7 @@ static output_alias_t* create_output_alias() {
   byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_sender(&feat_blocks, &st_ctl);
   feat_blk_list_add_issuer(&feat_blocks, &gov_ctl);
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
@@ -119,7 +119,7 @@ static output_alias_t* create_output_alias() {
   free(amount3);
   byte_buf_free(metadata);
   native_tokens_free(&native_tokens);
-  free_feat_blk_list(feat_blocks);
+  feat_blk_list_free(feat_blocks);
 
   return output;
 }
@@ -162,7 +162,7 @@ static output_foundry_t* create_output_foundry() {
   byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
 
   // create Foundry Output
@@ -178,7 +178,7 @@ static output_foundry_t* create_output_foundry() {
   free(max_supply);
   byte_buf_free(metadata);
   native_tokens_free(&native_tokens);
-  free_feat_blk_list(feat_blocks);
+  feat_blk_list_free(feat_blocks);
 
   return output;
 }
@@ -216,7 +216,7 @@ static output_nft_t* create_output_nft() {
   byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_sender(&feat_blocks, &addr);
   // FIXME
   // feat_blk_list_add_ddr(&feat_blocks, 1000000);
@@ -232,7 +232,7 @@ static output_nft_t* create_output_nft() {
   free(amount3);
   byte_buf_free(metadata);
   native_tokens_free(&native_tokens);
-  free_feat_blk_list(feat_blocks);
+  feat_blk_list_free(feat_blocks);
 
   return output;
 }

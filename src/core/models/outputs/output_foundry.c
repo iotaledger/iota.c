@@ -105,7 +105,7 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
 
   // Store feature blocks
   if (feat_blocks != NULL) {
-    output->feature_blocks = new_feat_blk_list();
+    output->feature_blocks = feat_blk_list_new();
     feat_blk_list_t* feat;
     int res;
     LL_FOREACH(feat_blocks, feat) {
@@ -142,7 +142,7 @@ void output_foundry_free(output_foundry_t* output) {
       free(output->max_supply);
     }
     if (output->feature_blocks) {
-      free_feat_blk_list(output->feature_blocks);
+      feat_blk_list_free(output->feature_blocks);
     }
     free(output);
   }

@@ -115,7 +115,7 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
 
   // feature blocks
   if (feat_blocks != NULL) {
-    output->feature_blocks = new_feat_blk_list();
+    output->feature_blocks = feat_blk_list_new();
     feat_blk_list_t* feat;
     int res;
     LL_FOREACH(feat_blocks, feat) {
@@ -162,7 +162,7 @@ void output_alias_free(output_alias_t* output) {
       byte_buf_free(output->state_metadata);
     }
     if (output->feature_blocks) {
-      free_feat_blk_list(output->feature_blocks);
+      feat_blk_list_free(output->feature_blocks);
     }
     free(output);
   }

@@ -65,7 +65,7 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
   }
 
   if (feat_blocks != NULL) {
-    output->feature_blocks = new_feat_blk_list();
+    output->feature_blocks = feat_blk_list_new();
     feat_blk_list_t* feat;
     int res;
     LL_FOREACH(feat_blocks, feat) {
@@ -108,7 +108,7 @@ void output_extended_free(output_extended_t* output) {
       native_tokens_free(&output->native_tokens);
     }
     if (output->feature_blocks) {
-      free_feat_blk_list(output->feature_blocks);
+      feat_blk_list_free(output->feature_blocks);
     }
     free(output);
   }

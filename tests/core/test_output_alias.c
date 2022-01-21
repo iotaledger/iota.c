@@ -50,7 +50,7 @@ void test_output_alias() {
   byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_sender(&feat_blocks, &st_ctl);
   feat_blk_list_add_issuer(&feat_blocks, &gov_ctl);
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
@@ -195,7 +195,7 @@ void test_output_alias() {
   free(output_alias_buf);
   byte_buf_free(metadata);
   native_tokens_free(&native_tokens);
-  free_feat_blk_list(feat_blocks);
+  feat_blk_list_free(feat_blocks);
   output_alias_free(output);
   output_alias_free(deser_output);
 }
@@ -220,7 +220,7 @@ void test_output_alias_without_native_tokens() {
   byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_sender(&feat_blocks, &st_ctl);
   feat_blk_list_add_issuer(&feat_blocks, &gov_ctl);
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
@@ -338,7 +338,7 @@ void test_output_alias_without_native_tokens() {
   // clean up
   free(output_alias_buf);
   byte_buf_free(metadata);
-  free_feat_blk_list(feat_blocks);
+  feat_blk_list_free(feat_blocks);
   output_alias_free(output);
   output_alias_free(deser_output);
 }
@@ -381,7 +381,7 @@ void test_output_alias_without_metadata() {
   byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_sender(&feat_blocks, &st_ctl);
   feat_blk_list_add_issuer(&feat_blocks, &gov_ctl);
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
@@ -522,7 +522,7 @@ void test_output_alias_without_metadata() {
   free(output_alias_buf);
   byte_buf_free(metadata);
   native_tokens_free(&native_tokens);
-  free_feat_blk_list(feat_blocks);
+  feat_blk_list_free(feat_blocks);
   output_alias_free(output);
   output_alias_free(deser_output);
 }
@@ -725,7 +725,7 @@ void test_output_alias_clone() {
   byte_buf_t* metadata = byte_buf_new_with_data(test_data, sizeof(test_data));
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = new_feat_blk_list();
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_sender(&feat_blocks, &st_ctl);
   feat_blk_list_add_issuer(&feat_blocks, &gov_ctl);
   feat_blk_list_add_metadata(&feat_blocks, metadata->data, metadata->len);
@@ -781,7 +781,7 @@ void test_output_alias_clone() {
   free(amount3);
   byte_buf_free(metadata);
   native_tokens_free(&native_tokens);
-  free_feat_blk_list(feat_blocks);
+  feat_blk_list_free(feat_blocks);
   output_alias_free(new_output);
   output_alias_free(output);
 }

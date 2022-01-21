@@ -87,7 +87,7 @@ extern "C" {
  * @param[in] addr An address object
  * @return feat_block_t*
  */
-feat_block_t* new_feat_blk_sender(address_t const* const addr);
+feat_block_t* feat_blk_sender_new(address_t const* const addr);
 
 /**
  * @brief New an Issuer feature block
@@ -97,7 +97,7 @@ feat_block_t* new_feat_blk_sender(address_t const* const addr);
  * @param[in] addr An address object
  * @return feat_block_t*
  */
-feat_block_t* new_feat_blk_issuer(address_t const* const addr);
+feat_block_t* feat_blk_issuer_new(address_t const* const addr);
 
 /**
  * @brief New a Metadata feature block
@@ -108,7 +108,7 @@ feat_block_t* new_feat_blk_issuer(address_t const* const addr);
  * @param[in] data_len The length of the data in bytes
  * @return feat_block_t*
  */
-feat_block_t* new_feat_blk_metadata(byte_t const data[], uint32_t data_len);
+feat_block_t* feat_blk_metadata_new(byte_t const data[], uint32_t data_len);
 
 /**
  * @brief New a Tag feature block
@@ -117,7 +117,7 @@ feat_block_t* new_feat_blk_metadata(byte_t const data[], uint32_t data_len);
  * @param[in] tag_len The length of the Tag in bytes
  * @return feat_block_t*
  */
-feat_block_t* new_feat_blk_tag(byte_t const tag[], uint8_t tag_len);
+feat_block_t* feat_blk_tag_new(byte_t const tag[], uint8_t tag_len);
 
 /**
  * @brief Get the length of the serialized feature block in bytes
@@ -151,7 +151,7 @@ feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len);
  *
  * @param[in] blk A feature block object
  */
-void free_feat_blk(feat_block_t* blk);
+void feat_blk_free(feat_block_t* blk);
 
 /**
  * @brief Print a feature block object
@@ -165,7 +165,7 @@ void feat_blk_print(feat_block_t* blk);
  *
  * @return feat_blk_list_t*
  */
-feat_blk_list_t* new_feat_blk_list();
+feat_blk_list_t* feat_blk_list_new();
 
 /**
  * @brief Get the element count of the feature list
@@ -231,6 +231,13 @@ int feat_blk_list_add_tag(feat_blk_list_t** list, byte_t const tag[], uint8_t ta
 size_t feat_blk_list_serialize_len(feat_blk_list_t* list);
 
 /**
+ * @brief Sort the list in ascending order based on feature block type
+ *
+ * @param[in] list A feature list
+ */
+void feat_blk_list_sort(feat_blk_list_t** list);
+
+/**
  * @brief Serialize a feature block list to binary data
  *
  * @param[in] list A feature block list
@@ -238,7 +245,7 @@ size_t feat_blk_list_serialize_len(feat_blk_list_t* list);
  * @param[in] buf_len The length of the buffer
  * @return size_t The bytes written to the buffer, 0 on errors
  */
-size_t feat_blk_list_serialize(feat_blk_list_t* list, byte_t buf[], size_t buf_len);
+size_t feat_blk_list_serialize(feat_blk_list_t** list, byte_t buf[], size_t buf_len);
 
 /**
  * @brief Deserialize binary data to a feature list object
@@ -270,7 +277,7 @@ void feat_blk_list_print(feat_blk_list_t* list, uint8_t indentation);
  *
  * @param[in] list A feature block list
  */
-void free_feat_blk_list(feat_blk_list_t* list);
+void feat_blk_list_free(feat_blk_list_t* list);
 
 #ifdef __cplusplus
 }
