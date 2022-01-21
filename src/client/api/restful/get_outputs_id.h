@@ -109,6 +109,15 @@ int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr
  */
 int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
 
+/**
+ * @brief Gets output IDs from a given Foundry address
+ *
+ * @param[in] conf The client endpoint configuration
+ * @param[in] addr A Foundry address in hex string format
+ * @param[out] res A response object
+ * @return int 0 on successful
+ */
+int get_outputs_from_foundry_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
 #ifdef __cplusplus
 }
 #endif
