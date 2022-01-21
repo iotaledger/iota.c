@@ -257,3 +257,28 @@ int get_outputs_from_foundry_address(iota_client_conf_t const *conf, char const 
 
   return get_outputs_api_call(conf, cmd_buffer, res);
 }
+
+int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[], res_outputs_id_t *res) {
+  if (conf == NULL || nft_id == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
+  size_t id_len = strlen(nft_id);
+  if (id_len != ADDRESS_NFT_HEX_BYTES) {
+    printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // compose restful api command
+  char cmd_buffer[67] = {0};  // 67 = max size of api path(28) + ADDRESS_NFT_HEX_BYTES(40) + 1
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nft/%s", nft_id);
+
+  // check if data stored is not more than buffer length
+  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
+    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
+    return -1;
+  }
+
+  return get_outputs_api_call(conf, cmd_buffer, res);
+}
