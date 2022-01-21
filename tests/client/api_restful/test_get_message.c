@@ -56,7 +56,7 @@ void test_deser_indexation() {
   TEST_ASSERT(res->is_error == false);
 
   core_message_t* msg = res->u.msg;
-  TEST_ASSERT_EQUAL_UINT64(9466822412763346725, msg->network_id);
+  TEST_ASSERT_EQUAL_UINT64(9466822412763346725U, msg->network_id);
   TEST_ASSERT_EQUAL_UINT64(567803, msg->nonce);
   TEST_ASSERT_EQUAL_INT(4, core_message_parent_len(msg));
   TEST_ASSERT_EQUAL_MEMORY("4f73928a39988fe2d1d15b4aa161c6ba0a64e4d164c481f4cc67c51e316c034e",
@@ -102,8 +102,8 @@ void test_deser_milestone() {
   TEST_ASSERT(res->is_error == false);
 
   core_message_t* msg = res->u.msg;
-  TEST_ASSERT_EQUAL_UINT64(9466822412763346725, msg->network_id);
-  TEST_ASSERT_EQUAL_UINT64(10760600709663927622, msg->nonce);
+  TEST_ASSERT_EQUAL_UINT64(9466822412763346725U, msg->network_id);
+  TEST_ASSERT_EQUAL_UINT64(10760600709663927622U, msg->nonce);
   TEST_ASSERT_EQUAL_INT(5, core_message_parent_len(msg));
   TEST_ASSERT_EQUAL_MEMORY("7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
                            core_message_get_parent_id(msg, 0), 64);
@@ -134,7 +134,7 @@ void test_deser_milestone() {
 
   res_message_free(res);
 }
-/*
+
 void test_deser_tx1() {
   // case 1: tx payload with 1 input, 1 output, 1 signature
   char const* const tx_res1 =
@@ -156,48 +156,51 @@ void test_deser_tx1() {
   TEST_ASSERT(deser_get_message(tx_res1, res) == 0);
   TEST_ASSERT(res->is_error == false);
 
-  message_t* msg = res->u.msg;
-  TEST_ASSERT_EQUAL_STRING("6530425480034647824", msg->net_id);
-  TEST_ASSERT_EQUAL_STRING("6416754", msg->nonce);
-  TEST_ASSERT_EQUAL_INT(4, api_message_parent_count(msg));
+  core_message_t* msg = res->u.msg;
+  TEST_ASSERT_EQUAL_UINT64(6530425480034647824, msg->network_id);
+  TEST_ASSERT_EQUAL_UINT64(6416754, msg->nonce);
+  TEST_ASSERT_EQUAL_INT(4, core_message_parent_len(msg));
   TEST_ASSERT_EQUAL_MEMORY("7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
-                           api_message_parent_id(msg, 0), 64);
+                           core_message_get_parent_id(msg, 0), 64);
   TEST_ASSERT_EQUAL_MEMORY("9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c",
-                           api_message_parent_id(msg, 1), 64);
+                           core_message_get_parent_id(msg, 1), 64);
   TEST_ASSERT_EQUAL_MEMORY("ccf9bf6b76a2659f332e17bfdc20f278ce25bc45e807e89cc2ab526cd2101c52",
-                           api_message_parent_id(msg, 2), 64);
+                           core_message_get_parent_id(msg, 2), 64);
   TEST_ASSERT_EQUAL_MEMORY("ede431f8907b30c81eee57db80109af0b8b91683c0be2cc3b685bcdc14dbdca5",
-                           api_message_parent_id(msg, 3), 64);
+                           core_message_get_parent_id(msg, 3), 64);
   TEST_ASSERT(get_message_payload_type(res) == MSG_PAYLOAD_TRANSACTION);
 
-  payload_tx_t* tx = (payload_tx_t*)msg->payload;
+  transaction_payload_t* tx = (transaction_payload_t*)msg->payload;
   // validate input transaction ID and transaction output index
-  TEST_ASSERT_EQUAL_UINT32(1, payload_tx_inputs_count(tx));
+  // FIXME
+  /*TEST_ASSERT_EQUAL_UINT32(1, utxo_inputs_count(tx->essence->inputs));
   TEST_ASSERT_EQUAL_MEMORY("2bfbf7463b008c0298103121874f64b59d2b6172154aa14205db2ce0ba553b03",
                            payload_tx_inputs_tx_id(tx, 0), 64);
   TEST_ASSERT_EQUAL_UINT32(0, payload_tx_inputs_tx_output_index(tx, 0));
-  TEST_ASSERT_NULL(payload_tx_inputs_tx_id(tx, 1));
+  TEST_ASSERT_NULL(payload_tx_inputs_tx_id(tx, 1));*/
 
   // validate output address and amount
-  TEST_ASSERT_EQUAL_UINT32(1, payload_tx_outputs_count(tx));
+  // FIXME
+  /*TEST_ASSERT_EQUAL_UINT32(1, utxo_outputs_count(tx->essence->outputs));
   TEST_ASSERT_EQUAL_MEMORY("ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4",
                            payload_tx_outputs_address(tx, 0), 64);
-  TEST_ASSERT(1000 == payload_tx_outputs_amount(tx, 0));
+  TEST_ASSERT(1000 == payload_tx_outputs_amount(tx, 0));*/
 
-  TEST_ASSERT_NULL(tx->payload);
+  TEST_ASSERT_NULL(tx->essence->payload);
 
   // validate unlocked block
-  TEST_ASSERT_EQUAL_UINT32(1, payload_tx_blocks_count(tx));
+  // FIXME
+  /*TEST_ASSERT_EQUAL_UINT32(1, unlock_blocks_count(tx->unlock_blocks));
   TEST_ASSERT_EQUAL_MEMORY("dd2fb44b9809782af5f31fdbf767a39303365449308f78d6c2652ac9766dbf1a",
                            payload_tx_blocks_public_key(tx, 0), 64);
   TEST_ASSERT_EQUAL_MEMORY(
       "e625a71351bbccf87eeaad7e98f6a545306423b2aaf444792a1be8ccfdfe50b358583483c3dbc536b5842eeec381750c6b4495c14932be47"
       "c439a1a8ad242606",
-      payload_tx_blocks_signature(tx, 0), 128);
+      payload_tx_blocks_signature(tx, 0), 128);*/
 
   res_message_free(res);
 }
-
+/*
 void test_deser_tx2() {
   // case 2: tx payload with 2 inputs, 2 outputs, 2 signatures
   char const* const tx_res2 =
@@ -417,7 +420,7 @@ int main() {
 
   RUN_TEST(test_deser_indexation);
   RUN_TEST(test_deser_milestone);
-  // RUN_TEST(test_deser_tx1);
+  RUN_TEST(test_deser_tx1);
   // RUN_TEST(test_deser_tx2);
   // RUN_TEST(test_deser_tx3);
   // RUN_TEST(test_deser_tx_with_index);

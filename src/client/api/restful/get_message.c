@@ -12,6 +12,11 @@
 #include "core/utils/iota_str.h"
 
 static int deser_milestone(cJSON *milestone, res_message_t *res) {
+  if (milestone == NULL || res == NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
   int ret = -1;
   milestone_t *ms = payload_milestone_new();
   if (ms == NULL) {
@@ -55,12 +60,12 @@ end:
 }
 
 static int deser_tx_indexation(cJSON *json, indexation_t *idx) {
-  int ret = -1;
   if (json == NULL || idx == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
+  int ret = -1;
   if ((ret = json_get_byte_buf_str(json, JSON_KEY_INDEX, idx->index)) != 0) {
     printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_INDEX);
   } else {
@@ -72,13 +77,18 @@ static int deser_tx_indexation(cJSON *json, indexation_t *idx) {
 }
 
 static int deser_msg_indexation(cJSON *idx_obj, res_message_t *res) {
-  int ret = -1;
+  if (idx_obj == NULL || res == NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
   indexation_t *idx = indexation_new();
   if (idx == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
     return -1;
   }
 
+  int ret = -1;
   ret = deser_tx_indexation(idx_obj, idx);
   if (ret != 0) {
     indexation_free(idx);
@@ -91,6 +101,11 @@ static int deser_msg_indexation(cJSON *idx_obj, res_message_t *res) {
 }
 
 static int deser_tx_inputs(cJSON *essence_obj, transaction_payload_t *payload_tx) {
+  if (essence_obj == NULL || payload_tx == NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
   cJSON *in_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_INPUTS);
   if (!in_obj) {
     printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, JSON_KEY_INPUTS);
@@ -147,6 +162,11 @@ static int deser_tx_inputs(cJSON *essence_obj, transaction_payload_t *payload_tx
 }
 
 static int deser_tx_outputs(cJSON *essence_obj, transaction_payload_t *payload_tx) {
+  if (essence_obj == NULL || payload_tx == NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
   cJSON *out_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_OUTPUTS);
   if (!out_obj) {
     printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, JSON_KEY_OUTPUTS);
@@ -197,6 +217,11 @@ static int deser_tx_outputs(cJSON *essence_obj, transaction_payload_t *payload_t
 }
 
 static int deser_tx_blocks(cJSON *blocks_obj, transaction_payload_t *payload_tx) {
+  if (blocks_obj == NULL || payload_tx == NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
   /*
   "unlockBlocks": [{ "type": 0,
     "signature": {
@@ -260,13 +285,18 @@ static int deser_tx_blocks(cJSON *blocks_obj, transaction_payload_t *payload_tx)
 }
 
 static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
-  int ret = -1;
+  if (tx_obj == NULL || res == NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
 
   transaction_payload_t *tx = tx_payload_new();
   if (tx == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
     return -1;
   }
+
+  int ret = -1;
 
   // parsing essence
   cJSON *essence_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, JSON_KEY_ESSENCE);
@@ -361,7 +391,6 @@ void res_message_free(res_message_t *msg) {
 }
 
 int deser_get_message(char const *const j_str, res_message_t *res) {
-  int ret = -1;
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
@@ -372,6 +401,7 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
     return -1;
   }
 
+  int ret = -1;
   res_err_t *res_err = deser_error(json_obj);
   if (res_err) {
     // got an error response
@@ -448,14 +478,8 @@ end:
 }
 
 int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_message_t *res) {
-  int ret = -1;
-  iota_str_t *cmd = NULL;
-  byte_buf_t *http_res = NULL;
-  long st = 0;
-  char const *const cmd_str = "/api/v1/messages/";
-
   if (conf == NULL || msg_id == NULL || res == NULL) {
-    // invalid parameters
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
 
@@ -464,6 +488,9 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
     printf("[%s:%d]: invalid message id length: %zu\n", __func__, __LINE__, strlen(msg_id));
     return -1;
   }
+
+  iota_str_t *cmd = NULL;
+  char const *const cmd_str = "/api/v1/messages/";
 
   cmd = iota_str_reserve(strlen(cmd_str) + IOTA_MESSAGE_ID_HEX_BYTES + 1);
   if (cmd == NULL) {
@@ -477,12 +504,15 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
   // http client configuration
   http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
 
+  byte_buf_t *http_res = NULL;
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
     goto done;
   }
 
   // send request via http client
+  int ret = -1;
+  long st = 0;
   if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
