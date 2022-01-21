@@ -333,6 +333,51 @@ void test_get_output_ids_from_nft_id() {
   res_outputs_free(res);
 }
 
+void test_get_output_ids_from_alias_id() {
+  char alias_id[] = "23dc192ede262b3f4bce379b26c31bad029f62fe";
+  char const* const id_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  char const* const id_invalid_length = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
+
+  res_outputs_id_t* res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+
+  //=====Tests for parameters NULL cases=====
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias_id(NULL, alias_id, res));
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias_id(&ctx, NULL, res));
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias_id(&ctx, alias_id, NULL));
+
+  //=====Test invalid address len=====
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias_id(&ctx, id_invalid_length, res));
+
+  // Re initializing res
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+
+  //=====Test invalid alias address=====
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias_id(&ctx, id_invalid, res));
+  TEST_ASSERT(res->is_error);
+  if (res->is_error == true) {
+    printf("Error: %s\n", res->u.error->msg);
+  }
+
+  // Re initializing res
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+
+  //=====Test valid alias address=====
+  int ret = get_outputs_from_alias_id(&ctx, alias_id, res);
+  TEST_ASSERT(ret == 0);
+  TEST_ASSERT(res->is_error == false);
+  TEST_ASSERT(res->u.output_ids->limit == 1000);
+
+  res_outputs_free(res);
+}
+
 int main() {
   UNITY_BEGIN();
 
@@ -344,6 +389,7 @@ int main() {
   RUN_TEST(test_get_output_ids_from_alias_address);
   RUN_TEST(test_get_output_ids_from_foundry_address);
   RUN_TEST(test_get_output_ids_from_nft_id);
+  RUN_TEST(test_get_output_ids_from_alias_id);
 #endif
 
   return UNITY_END();

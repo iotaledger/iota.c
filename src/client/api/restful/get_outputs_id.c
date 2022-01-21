@@ -282,3 +282,28 @@ int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[],
 
   return get_outputs_api_call(conf, cmd_buffer, res);
 }
+
+int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_id[], res_outputs_id_t *res) {
+  if (conf == NULL || alias_id == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
+  size_t id_len = strlen(alias_id);
+  if (id_len != ADDRESS_ALIAS_HEX_BYTES) {
+    printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // compose restful api command
+  char cmd_buffer[73] = {0};  // 73 = max size of api path(32) + ADDRESS_ALIAS_HEX_BYTES(40) + 1
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/aliases/%s", alias_id);
+
+  // check if data stored is not more than buffer length
+  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
+    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
+    return -1;
+  }
+
+  return get_outputs_api_call(conf, cmd_buffer, res);
+}
