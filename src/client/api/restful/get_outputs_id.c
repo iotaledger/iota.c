@@ -10,7 +10,7 @@ static get_outputs_id_t *outputs_new() {
   get_outputs_id_t *ids = malloc(sizeof(get_outputs_id_t));
   if (ids) {
     ids->count = 0;
-    ids->max_results = 0;
+    ids->limit = 0;
     utarray_new(ids->outputs, &ut_str_icd);
     return ids;
   }
@@ -97,8 +97,8 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
       goto end;
     }
 
-    if ((ret = json_get_uint32(data_obj, JSON_KEY_MAX_RESULTS, &res->u.output_ids->max_results) != 0)) {
-      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_MAX_RESULTS);
+    if ((ret = json_get_uint32(data_obj, JSON_KEY_LIMIT, &res->u.output_ids->limit) != 0)) {
+      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LIMIT);
       goto end;
     }
 

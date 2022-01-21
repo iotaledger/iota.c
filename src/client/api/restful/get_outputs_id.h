@@ -16,7 +16,7 @@
  *
  */
 typedef struct {
-  uint32_t max_results;  ///< The number of results it can return at most.
+  uint32_t limit;  ///< The number of results it can return at most.
   uint32_t count;        ///< The actual number of found results.
   UT_array *outputs;     ///< output IDs
   uint64_t ledger_idx;   ///< The ledger index at which the output was queried at.
