@@ -15,6 +15,7 @@
  * @brief An output object
  *
  */
+// TODO: Add offset field
 typedef struct {
   uint32_t limit;  ///< The number of results it can return at most.
   uint32_t count;        ///< The actual number of found results.
@@ -118,6 +119,7 @@ int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const ad
  * @return int 0 on successful
  */
 int get_outputs_from_foundry_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
+
 #ifdef __cplusplus
 }
 #endif

@@ -147,6 +147,7 @@ static int get_outputs_api_call(iota_client_conf_t const *conf, char *cmd_buffer
   return ret;
 }
 
+// TODO: handle querry parameters - requiresDustReturn, sender and tag
 int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, char const addr[], res_outputs_id_t *res) {
   if (conf == NULL || addr == NULL || res == NULL) {
     // invalid parameters
@@ -181,6 +182,7 @@ int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, cha
   return get_outputs_api_call(conf, cmd_buffer, res);
 }
 
+// TODO: handle querry parameters - stateController, governor, issuer and sender
 int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res) {
   if (conf == NULL || addr == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
@@ -206,6 +208,7 @@ int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr
   return get_outputs_api_call(conf, cmd_buffer, res);
 }
 
+// TODO: handle querry parameters - requiresDustReturn, sender and tag
 int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res) {
   if (conf == NULL || addr == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
