@@ -307,3 +307,28 @@ int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_i
 
   return get_outputs_api_call(conf, cmd_buffer, res);
 }
+
+int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const foundry_id[], res_outputs_id_t *res) {
+  if (conf == NULL || foundry_id == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
+  size_t id_len = strlen(foundry_id);
+  if (id_len != ADDRESS_FOUNDRY_HEX_BYTES) {
+    printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // compose restful api command
+  char cmd_buffer[75] = {0};  // 75 = max size of api path(34) + ADDRESS_FOUNDRY_HEX_BYTES(40) + 1
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/foundries/%s", foundry_id);
+
+  // check if data stored is not more than buffer length
+  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
+    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
+    return -1;
+  }
+
+  return get_outputs_api_call(conf, cmd_buffer, res);
+}
