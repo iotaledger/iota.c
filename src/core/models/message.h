@@ -23,10 +23,6 @@
 // Transaction ID in hex string form
 #define IOTA_TRANSACTION_ID_HEX_BYTES (IOTA_TRANSACTION_ID_BYTES * 2)
 
-// FIXME Move those define to some appropriate header file
-#define API_MSG_ID_HEX_STR_LEN (64 + 1)
-#define API_SIGNATURE_HEX_STR_LEN (128 + 1)
-
 typedef enum {
   CORE_MESSAGE_PAYLOAD_TRANSACTION = 0,
   CORE_MESSAGE_PAYLOAD_MILESTONE,

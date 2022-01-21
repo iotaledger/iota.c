@@ -69,7 +69,7 @@ if(WITH_IOTA_CLIENT)
   add_iota_test("client/api_restful/test_find_message.c" client_find_message)
   add_iota_test("client/api_restful/test_message_meta.c" client_message_meta)
   add_iota_test("client/api_restful/test_message_children.c" client_message_children)
-  #add_iota_test("client/api_restful/test_get_transaction_included_message.c" client_get_transaction_included_message)
+  add_iota_test("client/api_restful/test_get_transaction_included_message.c" client_get_transaction_included_message)
 endif()
 
 if(MQTT_CLIENT_ENABLE)

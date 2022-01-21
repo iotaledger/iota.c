@@ -6,6 +6,7 @@
 #include <stdlib.h>
 
 #include "client/api/json_utils.h"
+#include "client/api/message_tx_outputs.h"
 #include "client/api/restful/get_message.h"
 #include "client/network/http.h"
 #include "core/address.h"
@@ -65,56 +66,60 @@ static int deser_tx_inputs(cJSON *essence_obj, transaction_payload_t *payload_tx
     return -1;
   }
 
-  cJSON *in_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_INPUTS);
-  if (!in_obj) {
-    printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, JSON_KEY_INPUTS);
-    return -1;
-  }
-
   /*
   "inputs": [
       {
         "type": 0,
         "transactionId": "2bfbf7463b008c0298103121874f64b59d2b6172154aa14205db2ce0ba553b03",
-        "transactionOutputIndex": 0
+        "transactionOutputIndex": 1
       }
     ],
   */
-  if (cJSON_IsArray(in_obj)) {
+
+  cJSON *inputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_INPUTS);
+  if (!inputs_obj) {
+    printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, JSON_KEY_INPUTS);
+    return -1;
+  }
+
+  if (cJSON_IsArray(inputs_obj)) {
     cJSON *elm = NULL;
-    cJSON_ArrayForEach(elm, in_obj) {
-      cJSON *tx_id_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_ID);
-      cJSON *tx_out_idx = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_OUT_INDEX);
-      if (tx_id_obj && tx_out_idx) {
-        // FIXME
-        /*
-        payload_tx_input_t input = {};
-        char *str = cJSON_GetStringValue(tx_id_obj);
-        if (str) {
-          memcpy(input.tx_id, str, sizeof(input.tx_id));
-        } else {
-          printf("[%s:%d] encountered non-string array member", __func__, __LINE__);
-          return -1;
+    cJSON_ArrayForEach(elm, inputs_obj) {
+      // type
+      cJSON *input_type_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TYPE);
+      if (!input_type_obj || !cJSON_IsNumber(input_type_obj)) {
+        printf("[%s:%d] %s is not a number\n", __func__, __LINE__, JSON_KEY_TYPE);
+        return -1;
+      }
+
+      // transactionId
+      cJSON *input_tx_id_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_ID);
+      byte_t tx_id[TRANSACTION_ID_BYTES];
+      if (input_tx_id_obj && cJSON_IsString(input_tx_id_obj)) {
+        char *id_str = cJSON_GetStringValue(input_tx_id_obj);
+        if (id_str) {
+          if (hex_2_bin(id_str, IOTA_TRANSACTION_ID_HEX_BYTES, tx_id, TRANSACTION_ID_BYTES) != 0) {
+            return -1;
+          }
         }
-
-        if (cJSON_IsNumber(tx_out_idx)) {
-          input.tx_output_index = tx_out_idx->valueint;
-        } else {
-          printf("[%s:%d] %s is not an number\n", __func__, __LINE__, JSON_KEY_TX_OUT_INDEX);
-          return -1;
-        }
-
-        // add the input element to payload
-        utarray_push_back(payload_tx->inputs, &input);*/
-
       } else {
-        printf("[%s:%d] parsing inputs array failed\n", __func__, __LINE__);
+        printf("[%s:%d] %s is not a string\n", __func__, __LINE__, JSON_KEY_TX_ID);
+        return -1;
+      }
+
+      // transactionOutputIndex
+      cJSON *input_tx_out_index_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_OUT_INDEX);
+      if (!input_tx_out_index_obj || !cJSON_IsNumber(input_tx_out_index_obj)) {
+        printf("[%s:%d] %s is not a number\n", __func__, __LINE__, JSON_KEY_TX_OUT_INDEX);
+        return -1;
+      }
+
+      if (utxo_inputs_add(&payload_tx->essence->inputs, input_type_obj->valueint, tx_id,
+                          input_tx_out_index_obj->valueint) != 0) {
+        printf("[%s:%d] can not add new input into a list\n", __func__, __LINE__);
         return -1;
       }
     }
-  } else {
-    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, JSON_KEY_INPUTS);
-    return -1;
   }
 
   return 0;
@@ -152,8 +157,7 @@ static int deser_tx_outputs(cJSON *essence_obj, transaction_payload_t *payload_t
         printf("[%s:%d] %s must be a number\n", __func__, __LINE__, JSON_KEY_TYPE);
         break;
       }
-      // FIXME
-      /*
+
       int res = -1;
       if (tx_type_obj->valueint == OUTPUT_EXTENDED) {
         res = deser_message_tx_extended_output(elm, payload_tx);
@@ -166,7 +170,7 @@ static int deser_tx_outputs(cJSON *essence_obj, transaction_payload_t *payload_t
       } else {
         printf("[%s:%d] Unsupported output block type\n", __func__, __LINE__);
         break;
-      }*/
+      }
     }
   } else {
     printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, JSON_KEY_OUTPUTS);

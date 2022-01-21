@@ -20,7 +20,7 @@ int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char 
 
   // compose restful API command
   char cmd_buffer[103] = {0};  // 103 = max size of api path(38) + IOTA_TRANSACTION_ID_HEX_BYTES(64) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v1/transactions/%s/included-message", tx_id);
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v2/transactions/%s/included-message", tx_id);
 
   // check if data stored is not more than buffer length
   if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
