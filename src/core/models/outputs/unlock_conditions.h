@@ -245,12 +245,19 @@ unlock_cond_blk_t* cond_blk_list_get(cond_blk_list_t* list, uint8_t index);
 unlock_cond_blk_t* cond_blk_list_get_type(cond_blk_list_t* list, unlock_cond_e type);
 
 /**
- * @brief Perfrom the syntactic check on unlock condition list
+ * @brief Sort list in ascending order based on the block type
+ *
+ * @param[in] list An unlock condition list
+ */
+void cond_blk_list_sort(cond_blk_list_t** list);
+
+/**
+ * @brief Sort and syntactic check with the given unlock condition list
  *
  * @param[in] list An unlock condition list
  * @return int 0 on success
  */
-int cond_blk_list_syntactic(cond_blk_list_t* list);
+int cond_blk_list_syntactic(cond_blk_list_t** list);
 
 /**
  * @brief Get serialized bytes of the unlock condition list
@@ -268,7 +275,7 @@ size_t cond_blk_list_serialize_len(cond_blk_list_t* list);
  * @param[in] buf_len The length of the buffer
  * @return size_t
  */
-size_t cond_blk_list_serialize(cond_blk_list_t* list, byte_t buf[], size_t buf_len);
+size_t cond_blk_list_serialize(cond_blk_list_t** list, byte_t buf[], size_t buf_len);
 
 /**
  * @brief Deserialize an unlock condition list

@@ -457,6 +457,7 @@ size_t feat_blk_list_serialize(feat_blk_list_t* list, byte_t buf[], size_t buf_l
     // block count
     buf[0] = feat_blk_list_len(list);
     // sort feature blocks in ascending order based on feature block type
+    // FIXME: sorting is not working
     LL_SORT(list, feat_blk_type_sort);
     // feature blocks
     LL_FOREACH(list, elm) { offset += feat_blk_serialize(elm->blk, buf + offset, buf_len - offset); }

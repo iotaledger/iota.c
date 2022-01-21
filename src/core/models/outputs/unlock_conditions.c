@@ -427,8 +427,6 @@ unlock_cond_blk_t* cond_blk_clone(unlock_cond_blk_t* blk) {
 
   switch (blk->type) {
     case UNLOCK_COND_ADDRESS:
-    case UNLOCK_COND_STATE:
-    case UNLOCK_COND_GOVERNOR:
       return new_cond_blk_addr((address_t*)blk->block);
     case UNLOCK_COND_DUST: {
       unlock_cond_dust_t* dust = (unlock_cond_dust_t*)blk->block;
@@ -442,6 +440,10 @@ unlock_cond_blk_t* cond_blk_clone(unlock_cond_blk_t* blk) {
       unlock_cond_expir_t* e = (unlock_cond_expir_t*)blk->block;
       return new_cond_blk_expir(e->addr, e->milestone, e->time);
     }
+    case UNLOCK_COND_STATE:
+      return new_cond_blk_state((address_t*)blk->block);
+    case UNLOCK_COND_GOVERNOR:
+      return new_cond_blk_governor((address_t*)blk->block);
     default:
       break;
   }
@@ -565,23 +567,28 @@ unlock_cond_blk_t* cond_blk_list_get_type(cond_blk_list_t* list, unlock_cond_e t
   return NULL;
 }
 
-int cond_blk_list_syntactic(cond_blk_list_t* list) {
+void cond_blk_list_sort(cond_blk_list_t** list) {
+  // sort unlock condition blocks in ascending order based on the block type
+  LL_SORT(*list, cond_blk_type_sort);
+}
+
+int cond_blk_list_syntactic(cond_blk_list_t** list) {
   // 1 ≤ Unlock Conditions Count ≤ 4
-  if (!list) {
+  if (!list || !*list) {
     printf("[%s:%d] empty list\n", __func__, __LINE__);
     return -1;
   }
 
-  if (cond_blk_list_len(list) > MAX_UNLOCK_CONDITION_BLOCK_COUNT) {
+  if (cond_blk_list_len(*list) > MAX_UNLOCK_CONDITION_BLOCK_COUNT) {
     printf("[%s:%d] Unlock condition count must less than %d\n", __func__, __LINE__, MAX_UNLOCK_CONDITION_BLOCK_COUNT);
     return -1;
   }
 
-  // sort unlock condition blocks in ascending order based on the block type
-  LL_SORT(list, cond_blk_type_sort);
+  // sort block types
+  cond_blk_list_sort(list);
 
   // Address Unlock Condition must be present
-  if (cond_blk_list_get(list, 0)->type != UNLOCK_COND_ADDRESS) {
+  if (cond_blk_list_get(*list, 0)->type != UNLOCK_COND_ADDRESS) {
     printf("[%s:%d] Address Unlock Condition must be present\n", __func__, __LINE__);
     return -1;
   }
@@ -591,17 +598,19 @@ int cond_blk_list_syntactic(cond_blk_list_t* list) {
 
 size_t cond_blk_list_serialize_len(cond_blk_list_t* list) {
   cond_blk_list_t* elm;
-  size_t len = 0;
+  // block count
+  size_t len = sizeof(uint8_t);
+  // blocks
   if (list) {
     LL_FOREACH(list, elm) { len += cond_blk_serialize_len(elm->blk); }
   }
   return len;
 }
 
-size_t cond_blk_list_serialize(cond_blk_list_t* list, byte_t buf[], size_t buf_len) {
+size_t cond_blk_list_serialize(cond_blk_list_t** list, byte_t buf[], size_t buf_len) {
   if (cond_blk_list_syntactic(list) == 0) {
     // serialized len = block count + blocks
-    size_t expected_bytes = cond_blk_list_serialize_len(list);
+    size_t expected_bytes = cond_blk_list_serialize_len(*list);
     if (buf_len < expected_bytes) {
       printf("[%s:%d] insufficent buffer size\n", __func__, __LINE__);
       return 0;
@@ -610,9 +619,9 @@ size_t cond_blk_list_serialize(cond_blk_list_t* list, byte_t buf[], size_t buf_l
     cond_blk_list_t* elm;
     size_t offset = sizeof(uint8_t);
     // block count
-    buf[0] = cond_blk_list_len(list);
+    buf[0] = cond_blk_list_len(*list);
     // serialized blocks
-    LL_FOREACH(list, elm) { offset += cond_blk_serialize(elm->blk, buf + offset, buf_len - offset); }
+    LL_FOREACH(*list, elm) { offset += cond_blk_serialize(elm->blk, buf + offset, buf_len - offset); }
     // check the length of the serialized data
     if (offset != expected_bytes) {
       printf("[%s:%d] offset is not matched with expectation\n", __func__, __LINE__);
