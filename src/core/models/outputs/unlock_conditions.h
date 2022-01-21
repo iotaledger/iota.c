@@ -287,6 +287,14 @@ cond_blk_list_t* cond_blk_list_deserialize(byte_t buf[], size_t buf_len);
 void free_cond_blk_list(cond_blk_list_t* list);
 
 /**
+ * @brief Clone an unlock condition list
+ *
+ * @param[in] list An unlock condition list
+ * @return cond_blk_list_t*
+ */
+cond_blk_list_t* cond_blk_list_clone(cond_blk_list_t const* const list);
+
+/**
  * @brief Print out the unlock condition list
  *
  * @param[in] list An unlock condition list

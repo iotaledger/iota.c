@@ -30,12 +30,12 @@ static unlock_cond_dust_t* new_cond_dust(address_t const* const addr, uint64_t a
 
 static size_t cond_dust_serialize_len(unlock_cond_dust_t* dust) {
   // return address + return amount
-  return address_serialized_len((address_t*)dust->addr) + sizeof(dust->amount);
+  return address_serialized_len(dust->addr) + sizeof(dust->amount);
 }
 
 static size_t cond_dust_serialize(unlock_cond_dust_t* dust, byte_t buf[], size_t buf_len) {
   // serialize address and amount
-  size_t offset = address_serialize((address_t*)dust->addr, buf + offset, buf_len - offset);
+  size_t offset = address_serialize(dust->addr, buf, buf_len);
   if (offset) {
     memcpy(buf + offset, &dust->amount, sizeof(dust->amount));
     offset += sizeof(dust->amount);
@@ -60,6 +60,12 @@ static unlock_cond_dust_t* cond_dust_deserialize(byte_t buf[], size_t buf_len) {
     // address
     d->addr = address_deserialize(buf, buf_len);
     if (d->addr) {
+      size_t offset = address_serialized_len(d->addr);
+      if (buf_len < (offset + sizeof(d->amount))) {
+        printf("[%s:%d] insufficient buffer size\n", __func__, __LINE__);
+        free_cond_dust(d);
+        return NULL;
+      }
       // amount
       memcpy(&d->amount, buf + address_serialized_len(d->addr), sizeof(d->amount));
     } else {
@@ -101,6 +107,11 @@ static size_t cond_timelock_serialize(unlock_cond_timelock_t* t, byte_t buf[], s
 }
 
 static unlock_cond_timelock_t* cond_timelock_deserialize(byte_t buf[], size_t buf_len) {
+  if (buf_len < sizeof(unlock_cond_timelock_t)) {
+    printf("[%s:%d] insufficient buffer size\n", __func__, __LINE__);
+    return NULL;
+  }
+
   unlock_cond_timelock_t* t = malloc(sizeof(unlock_cond_timelock_t));
   if (t) {
     memcpy(&t->milestone, buf, sizeof(t->milestone));
@@ -171,6 +182,11 @@ static unlock_cond_expir_t* cond_expir_deserialize(byte_t buf[], size_t buf_len)
     e->addr = address_deserialize(buf, buf_len);
     if (e->addr) {
       size_t offset = address_serialized_len(e->addr);
+      if ((buf_len - offset) < (sizeof(e->milestone) + sizeof(e->time))) {
+        printf("[%s:%d] insufficient buffer size\n", __func__, __LINE__);
+        free_cond_expir(e);
+        return NULL;
+      }
       // deserialize milestone and time
       memcpy(&e->milestone, buf + offset, sizeof(e->milestone));
       memcpy(&e->time, buf + offset + sizeof(e->milestone), sizeof(e->time));
@@ -339,22 +355,18 @@ size_t cond_blk_serialize(unlock_cond_blk_t* blk, byte_t buf[], size_t buf_len) 
   switch (blk->type) {
     case UNLOCK_COND_ADDRESS:
     case UNLOCK_COND_STATE:
-    case UNLOCK_COND_GOVERNOR: {
-      // serialize address object
-      size_t add_len = address_serialize((address_t*)blk->block, buf + offset, buf_len - offset);
-      if (add_len == 0) {
-        printf("[%s:%d] address serialization failed\n", __func__, __LINE__);
-      } else {
-        offset += add_len;
-      }
-    }
-      return offset;
+    case UNLOCK_COND_GOVERNOR:
+      offset += address_serialize((address_t*)blk->block, buf + offset, buf_len - offset);
+      break;
     case UNLOCK_COND_DUST:
-      return cond_dust_serialize((unlock_cond_dust_t*)blk->block, buf + offset, buf_len - offset);
+      offset += cond_dust_serialize((unlock_cond_dust_t*)blk->block, buf + offset, buf_len - offset);
+      break;
     case UNLOCK_COND_TIMELOCK:
-      return cond_timelock_serialize((unlock_cond_timelock_t*)blk->block, buf + offset, buf_len - offset);
+      offset += cond_timelock_serialize((unlock_cond_timelock_t*)blk->block, buf + offset, buf_len - offset);
+      break;
     case UNLOCK_COND_EXPIRATION:
-      return cond_expir_serialize((unlock_cond_expir_t*)blk->block, buf + offset, buf_len - offset);
+      offset += cond_expir_serialize((unlock_cond_expir_t*)blk->block, buf + offset, buf_len - offset);
+      break;
     default:
       printf("[%s:%d] invalid condition block\n", __func__, __LINE__);
       break;
@@ -443,7 +455,6 @@ void free_cond_blk(unlock_cond_blk_t* blk) {
       case UNLOCK_COND_STATE:
       case UNLOCK_COND_GOVERNOR:
         free_address((address_t*)blk->block);
-        free(blk);
         break;
       case UNLOCK_COND_DUST:
         free_cond_dust((unlock_cond_dust_t*)blk->block);
@@ -455,6 +466,7 @@ void free_cond_blk(unlock_cond_blk_t* blk) {
         free_cond_expir((unlock_cond_expir_t*)blk->block);
         break;
     }
+    free(blk);
   }
 }
 
@@ -651,6 +663,23 @@ void free_cond_blk_list(cond_blk_list_t* list) {
       free(elm);
     }
   }
+}
+
+cond_blk_list_t* cond_blk_list_clone(cond_blk_list_t const* const list) {
+  if (!list) {
+    return NULL;
+  }
+
+  cond_blk_list_t* new_list = new_cond_blk_list();
+  cond_blk_list_t* elm;
+  LL_FOREACH((cond_blk_list_t*)list, elm) {
+    if (cond_blk_list_add(&new_list, elm->blk) != 0) {
+      printf("[%s:%d] add condition block to list failed\n", __func__, __LINE__);
+      free_cond_blk_list(new_list);
+      return NULL;
+    }
+  }
+  return new_list;
 }
 
 void cond_blk_list_print(cond_blk_list_t* list, uint8_t indent) {

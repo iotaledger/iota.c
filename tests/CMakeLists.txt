@@ -51,6 +51,7 @@ if(WITH_IOTA_CORE)
   add_iota_test("core/test_indexation.c" core_indexation)
   #add_iota_test("core/test_message.c" core_message)
   add_iota_test("core/test_feat_blocks.c" core_feat_blocks)
+  add_iota_test("core/test_condition_blocks.c" core_condition_blocks)
 endif()
 
 # client test cases
