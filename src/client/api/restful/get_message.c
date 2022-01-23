@@ -76,6 +76,7 @@ static int deser_tx_inputs(cJSON *essence_obj, transaction_payload_t *payload_tx
     ],
   */
 
+  // inputs
   cJSON *inputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_INPUTS);
   if (!inputs_obj) {
     printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, JSON_KEY_INPUTS);
@@ -87,7 +88,7 @@ static int deser_tx_inputs(cJSON *essence_obj, transaction_payload_t *payload_tx
     cJSON_ArrayForEach(elm, inputs_obj) {
       // type
       cJSON *input_type_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TYPE);
-      if (!input_type_obj || !cJSON_IsNumber(input_type_obj)) {
+      if (!cJSON_IsNumber(input_type_obj)) {
         printf("[%s:%d] %s is not a number\n", __func__, __LINE__, JSON_KEY_TYPE);
         return -1;
       }
@@ -95,7 +96,7 @@ static int deser_tx_inputs(cJSON *essence_obj, transaction_payload_t *payload_tx
       // transactionId
       cJSON *input_tx_id_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_ID);
       byte_t tx_id[TRANSACTION_ID_BYTES];
-      if (input_tx_id_obj && cJSON_IsString(input_tx_id_obj)) {
+      if (cJSON_IsString(input_tx_id_obj)) {
         char *id_str = cJSON_GetStringValue(input_tx_id_obj);
         if (id_str) {
           if (hex_2_bin(id_str, IOTA_TRANSACTION_ID_HEX_BYTES, tx_id, TRANSACTION_ID_BYTES) != 0) {
@@ -109,7 +110,7 @@ static int deser_tx_inputs(cJSON *essence_obj, transaction_payload_t *payload_tx
 
       // transactionOutputIndex
       cJSON *input_tx_out_index_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_OUT_INDEX);
-      if (!input_tx_out_index_obj || !cJSON_IsNumber(input_tx_out_index_obj)) {
+      if (!cJSON_IsNumber(input_tx_out_index_obj)) {
         printf("[%s:%d] %s is not a number\n", __func__, __LINE__, JSON_KEY_TX_OUT_INDEX);
         return -1;
       }
@@ -131,12 +132,6 @@ static int deser_tx_outputs(cJSON *essence_obj, transaction_payload_t *payload_t
     return -1;
   }
 
-  cJSON *out_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_OUTPUTS);
-  if (!out_obj) {
-    printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, JSON_KEY_OUTPUTS);
-    return -1;
-  }
-
   /*
   Example for extended output:
   "outputs": [
@@ -147,15 +142,22 @@ static int deser_tx_outputs(cJSON *essence_obj, transaction_payload_t *payload_t
       "blocks": [] }
   ],
   */
-  if (cJSON_IsArray(out_obj)) {
-    cJSON *elm = NULL;
-    cJSON_ArrayForEach(elm, out_obj) {
-      cJSON *tx_type_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TYPE);
 
-      // check output type
+  // outputs
+  cJSON *outputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_OUTPUTS);
+  if (!outputs_obj) {
+    printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, JSON_KEY_OUTPUTS);
+    return -1;
+  }
+
+  if (cJSON_IsArray(outputs_obj)) {
+    cJSON *elm = NULL;
+    cJSON_ArrayForEach(elm, outputs_obj) {
+      //  type
+      cJSON *tx_type_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TYPE);
       if (!cJSON_IsNumber(tx_type_obj)) {
         printf("[%s:%d] %s must be a number\n", __func__, __LINE__, JSON_KEY_TYPE);
-        break;
+        return -1;
       }
 
       int res = -1;
@@ -169,13 +171,19 @@ static int deser_tx_outputs(cJSON *essence_obj, transaction_payload_t *payload_t
         res = deser_message_tx_nft_output(elm, payload_tx);
       } else {
         printf("[%s:%d] Unsupported output block type\n", __func__, __LINE__);
-        break;
+        return -1;
+      }
+
+      if (res == -1) {
+        printf("[%s:%d] Can not deserialize transaction output\n", __func__, __LINE__);
+        return -1;
       }
     }
   } else {
     printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, JSON_KEY_OUTPUTS);
     return -1;
   }
+
   return 0;
 }
 
@@ -186,13 +194,15 @@ static int deser_tx_unlock_blocks(cJSON *blocks_obj, transaction_payload_t *payl
   }
 
   /*
-  "unlockBlocks": [{ "type": 0,
+  "unlockBlocks": [
+  { "type": 0,
     "signature": {
       "type": 1,
       "publicKey": "dd2fb44b9809782af5f31fdbf767a39303365449308f78d6c2652ac9766dbf1a",
       "signature":
   "e625a71351bbccf87eeaad7e98f6a545306423b2aaf444792a1be8ccfdfe50b358583483c3dbc536b5842eeec381750c6b4495c14932be47c439a1a8ad242606"
-  }}]
+     }
+  }]
   */
   cJSON *elm = NULL;
   cJSON_ArrayForEach(elm, blocks_obj) {
@@ -201,7 +211,7 @@ static int deser_tx_unlock_blocks(cJSON *blocks_obj, transaction_payload_t *payl
       printf("[%s:%d] %s must be a number\n", __func__, __LINE__, JSON_KEY_TYPE);
       break;
     }
-    if (block_type->valueint == 0) {  // signature block
+    if (block_type->valueint == UNLOCK_BLOCK_TYPE_SIGNATURE) {  // signature block
       cJSON *sig_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_SIG);
       if (sig_obj) {
         cJSON *sig_type = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_TYPE);
@@ -232,7 +242,7 @@ static int deser_tx_unlock_blocks(cJSON *blocks_obj, transaction_payload_t *payl
         printf("[%s:%d] %s is not found\n", __func__, __LINE__, JSON_KEY_SIG);
         return -1;
       }
-    } else if (block_type->valueint == 1) {  // reference block
+    } else if (block_type->valueint == UNLOCK_BLOCK_TYPE_REFERENCE) {  // reference block
       cJSON *ref = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_REFERENCE);
       if (ref && cJSON_IsNumber(ref)) {
         // FIXME
