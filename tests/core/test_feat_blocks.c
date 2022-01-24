@@ -238,24 +238,40 @@ void test_feat_block_list_append_all() {
   test_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT(feat_blk_list_add_sender(&blk_list, &test_addr) == 0);
+  // adding 2nd sender should be failed
+  TEST_ASSERT(feat_blk_list_add_sender(&blk_list, &test_addr) != 0);
 
-  // add an issuer
-  test_addr.type = ADDRESS_TYPE_NFT;  // changed the type, but use the same address data
+  // add an issuer, changed the type, but use the same address data
+  test_addr.type = ADDRESS_TYPE_NFT;
   TEST_ASSERT(feat_blk_list_add_issuer(&blk_list, &test_addr) == 0);
+  // adding 2nd issuer should be failed
+  TEST_ASSERT(feat_blk_list_add_issuer(&blk_list, &test_addr) != 0);
+
   // add a metadata
-  byte_t meta_data[256] = {};
+  byte_t meta_data[80] = {};
   iota_crypto_randombytes(meta_data, sizeof(meta_data));
   TEST_ASSERT(feat_blk_list_add_metadata(&blk_list, meta_data, sizeof(meta_data)) == 0);
+  // adding 2nd metadata should be failed
+  TEST_ASSERT(feat_blk_list_add_metadata(&blk_list, meta_data, sizeof(meta_data)) != 0);
+
   // add an indexation tag
   byte_t tag[MAX_INDEX_TAG_BYTES] = {};
   iota_crypto_randombytes(tag, sizeof(tag));
   TEST_ASSERT(feat_blk_list_add_tag(&blk_list, tag, sizeof(tag)) == 0);
+  // adding 2nd tag should be failed
+  TEST_ASSERT(feat_blk_list_add_tag(&blk_list, tag, sizeof(tag)) != 0);
 
   // check length of the list
   TEST_ASSERT(feat_blk_list_len(blk_list) == 4);
 
   // print out the feature block list
   feat_blk_list_print(blk_list, 0);
+
+  // cannot add more block, the MAX block in a list is 4(MAX_FEATURE_BLOCK_COUNT)
+  TEST_ASSERT(feat_blk_list_add_sender(&blk_list, &test_addr) != 0);
+  TEST_ASSERT(feat_blk_list_add_issuer(&blk_list, &test_addr) != 0);
+  TEST_ASSERT(feat_blk_list_add_metadata(&blk_list, meta_data, sizeof(meta_data)) != 0);
+  TEST_ASSERT(feat_blk_list_add_tag(&blk_list, tag, sizeof(tag)) != 0);
 
   // serialization
   size_t exp_ser_len = feat_blk_list_serialize_len(blk_list);
@@ -267,9 +283,9 @@ void test_feat_block_list_append_all() {
   TEST_ASSERT(feat_blk_list_len(deser_list) == feat_blk_list_len(blk_list));
   feat_blk_list_print(deser_list, 0);
 
-  // check deser objects
+  // check deserialized data
   TEST_ASSERT_NULL(feat_blk_list_get(deser_list, feat_blk_list_len(deser_list)));
-  TEST_ASSERT_NULL(feat_blk_list_get(deser_list, UINT8_MAX - 1));
+  TEST_ASSERT_NULL(feat_blk_list_get(deser_list, MAX_FEATURE_BLOCK_COUNT));
   feat_block_t* tmp_blk = NULL;
 
   // 0: should be Sender
@@ -504,9 +520,9 @@ int main() {
   RUN_TEST(test_metadata_one_byte);
   RUN_TEST(test_tag_max);
   RUN_TEST(test_tag_one_byte);
-  // RUN_TEST(test_feat_block_list_append_all);
-  // RUN_TEST(test_feat_block_list_sort);
-  // RUN_TEST(test_feat_block_list_clone);
+  RUN_TEST(test_feat_block_list_append_all);
+  RUN_TEST(test_feat_block_list_sort);
+  RUN_TEST(test_feat_block_list_clone);
 
   return UNITY_END();
 }

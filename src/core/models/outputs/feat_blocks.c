@@ -406,6 +406,18 @@ uint8_t feat_blk_list_len(feat_blk_list_t* list) {
   return len;
 }
 
+feat_block_t* feat_blk_list_get_type(feat_blk_list_t* list, feat_block_e type) {
+  feat_blk_list_t* elm;
+  if (list) {
+    LL_FOREACH(list, elm) {
+      if (elm->blk->type == type) {
+        return elm->blk;
+      }
+    }
+  }
+  return NULL;
+}
+
 feat_block_t* feat_blk_list_get(feat_blk_list_t* list, uint8_t index) {
   uint8_t count = 0;
   feat_blk_list_t* elm;
@@ -428,7 +440,13 @@ int feat_blk_list_add_sender(feat_blk_list_t** list, address_t const* const addr
 
   // check if list length is reached the limitation
   if (feat_blk_list_len(*list) >= MAX_FEATURE_BLOCK_COUNT) {
-    printf("[%s:%d]list const must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    printf("[%s:%d]list count must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    return -1;
+  }
+
+  // at most one of the sender block
+  if (feat_blk_list_get_type(*list, FEAT_SENDER_BLOCK)) {
+    printf("[%s:%d] sender block has exist in the list\n", __func__, __LINE__);
     return -1;
   }
 
@@ -454,7 +472,13 @@ int feat_blk_list_add_issuer(feat_blk_list_t** list, address_t const* const addr
 
   // check if list length is reached the limitation
   if (feat_blk_list_len(*list) >= MAX_FEATURE_BLOCK_COUNT) {
-    printf("[%s:%d]list const must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    printf("[%s:%d]list count must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    return -1;
+  }
+
+  // at most one of the issuer block
+  if (feat_blk_list_get_type(*list, FEAT_ISSUER_BLOCK)) {
+    printf("[%s:%d] issuer block has exist in the list\n", __func__, __LINE__);
     return -1;
   }
 
@@ -480,7 +504,13 @@ int feat_blk_list_add_metadata(feat_blk_list_t** list, byte_t const data[], uint
 
   // check if list length is reached the limitation
   if (feat_blk_list_len(*list) >= MAX_FEATURE_BLOCK_COUNT) {
-    printf("[%s:%d]list const must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    printf("[%s:%d]list count must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    return -1;
+  }
+
+  // at most one of the metadata block
+  if (feat_blk_list_get_type(*list, FEAT_METADATA_BLOCK)) {
+    printf("[%s:%d] metadata block has exist in the list\n", __func__, __LINE__);
     return -1;
   }
 
@@ -506,7 +536,13 @@ int feat_blk_list_add_tag(feat_blk_list_t** list, byte_t const tag[], uint8_t ta
 
   // check if list length is reached the limitation
   if (feat_blk_list_len(*list) >= MAX_FEATURE_BLOCK_COUNT) {
-    printf("[%s:%d]list const must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    printf("[%s:%d]list count must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    return -1;
+  }
+
+  // at most one of the metadata block
+  if (feat_blk_list_get_type(*list, FEAT_TAG_BLOCK)) {
+    printf("[%s:%d] tag block has exist in the list\n", __func__, __LINE__);
     return -1;
   }
 

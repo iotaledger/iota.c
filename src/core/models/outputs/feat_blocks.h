@@ -176,6 +176,15 @@ feat_blk_list_t* feat_blk_list_new();
 uint8_t feat_blk_list_len(feat_blk_list_t* list);
 
 /**
+ * @brief Get a feature block pointer by a given type
+ *
+ * @param[in] list A feature block list object
+ * @param[in] type The type of feature block
+ * @return feat_block_t*
+ */
+feat_block_t* feat_blk_list_get_type(feat_blk_list_t* list, feat_block_e type);
+
+/**
  * @brief Get a feature block pointer in the list from a given index
  *
  * @param[in] list A feature list object
