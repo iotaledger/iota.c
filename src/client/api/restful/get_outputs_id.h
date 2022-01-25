@@ -120,6 +120,36 @@ int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const ad
  */
 int get_outputs_from_foundry_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
 
+/**
+ * @brief Gets output IDs from a given NFT ID
+ *
+ * @param[in] conf The client endpoint configuration
+ * @param[in] nft_id An NFT id in hex string format
+ * @param[out] res A response object
+ * @return int 0 on successful
+ */
+int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[], res_outputs_id_t *res);
+
+/**
+ * @brief Gets output IDs from a given Alias ID
+ *
+ * @param[in] conf The client endpoint configuration
+ * @param[in] alias_id An Alias id in hex string format
+ * @param[out] res A response object
+ * @return int 0 on successful
+ */
+int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_id[], res_outputs_id_t *res);
+
+/**
+ * @brief Gets output IDs from a given Foundry ID
+ *
+ * @param[in] conf The client endpoint configuration
+ * @param[in] foundry_id A Foundry id in hex string format
+ * @param[out] res A response object
+ * @return int 0 on successful
+ */
+int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const foundry_id[], res_outputs_id_t *res);
+
 #ifdef __cplusplus
 }
 #endif

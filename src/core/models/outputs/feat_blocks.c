@@ -8,9 +8,14 @@
 #include "core/models/outputs/feat_blocks.h"
 #include "utlist.h"
 
-static feat_metadata_blk_t* new_feat_metadata(byte_t const data[], uint32_t data_len) {
+static feat_metadata_blk_t* feat_metadata_new(byte_t const data[], uint32_t data_len) {
   if (!data || data_len == 0) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (data_len > MAX_METADATA_LENGTH_BYTES) {
+    printf("[%s:%d] data must smaller than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
     return NULL;
   }
 
@@ -28,7 +33,58 @@ static feat_metadata_blk_t* new_feat_metadata(byte_t const data[], uint32_t data
   return meta;
 }
 
-static void free_feat_metadata(feat_metadata_blk_t* meta) {
+static size_t feat_metadata_serialized_len(feat_metadata_blk_t* meta) {
+  if (meta) {
+    return sizeof(meta->data_len) + meta->data_len;
+  }
+  return 0;
+}
+
+static size_t feat_metadata_serialize(feat_metadata_blk_t* meta, byte_t buf[], size_t buf_len) {
+  size_t offset = 0;
+  if (meta) {
+    if (buf_len >= feat_metadata_serialized_len(meta)) {
+      memcpy(buf, &meta->data_len, sizeof(meta->data_len));
+      offset += sizeof(meta->data_len);
+      memcpy(buf + offset, meta->data, meta->data_len);
+      offset += meta->data_len;
+    } else {
+      printf("[%s:%d] insufficent buffer size\n", __func__, __LINE__);
+    }
+  }
+  return offset;
+}
+
+static feat_metadata_blk_t* feat_metadata_deserialize(byte_t const buf[], size_t buf_len) {
+  // allocate metadata object
+  feat_metadata_blk_t* meta = malloc(sizeof(feat_metadata_blk_t));
+
+  // meta/buf are not null and buf_len can contain one byte
+  if (meta && buf && (buf_len >= sizeof(meta->data_len) + sizeof(byte_t))) {
+    // fetch the length of metadata
+    size_t offset = sizeof(meta->data_len);
+    memcpy(&meta->data_len, buf, sizeof(meta->data_len));
+
+    // check if buffer length smaller than metadata length
+    if ((buf_len - offset) >= meta->data_len) {
+      // allocate metadata memory
+      meta->data = malloc(meta->data_len);
+      if (meta->data) {
+        // copy buffer data to metadata
+        memcpy(meta->data, buf + offset, meta->data_len);
+        return meta;
+      } else {
+        printf("[%s:%d] buffer length doesn't match with data length\n", __func__, __LINE__);
+      }
+    } else {
+      printf("[%s:%d] buffer length doesn't match with data length\n", __func__, __LINE__);
+    }
+  }
+  free(meta);
+  return NULL;
+}
+
+static void feat_metadata_free(feat_metadata_blk_t* meta) {
   if (meta) {
     if (meta->data) {
       free(meta->data);
@@ -37,9 +93,14 @@ static void free_feat_metadata(feat_metadata_blk_t* meta) {
   }
 }
 
-static feat_tag_blk_t* new_feat_tag(byte_t const tag[], uint8_t tag_len) {
+static feat_tag_blk_t* feat_tag_new(byte_t const tag[], uint8_t tag_len) {
   if (!tag || tag_len == 0) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (tag_len > MAX_INDEX_TAG_BYTES) {
+    printf("[%s:%d] tag length must smaller than %d\n", __func__, __LINE__, MAX_INDEX_TAG_BYTES);
     return NULL;
   }
 
@@ -50,6 +111,56 @@ static feat_tag_blk_t* new_feat_tag(byte_t const tag[], uint8_t tag_len) {
     return idx;
   }
   return idx;
+}
+
+static size_t feat_tag_serialize_len(feat_tag_blk_t* tag) {
+  if (tag) {
+    return sizeof(tag->tag_len) + tag->tag_len;
+  }
+  return 0;
+}
+
+static size_t feat_tag_serialize(feat_tag_blk_t* tag, byte_t buf[], size_t buf_len) {
+  size_t offset = 0;
+  if (tag) {
+    if (buf_len >= feat_tag_serialize_len(tag)) {
+      memcpy(buf, &tag->tag_len, sizeof(tag->tag_len));
+      offset += sizeof(tag->tag_len);
+      memcpy(buf + offset, tag->tag, tag->tag_len);
+      offset += tag->tag_len;
+    } else {
+      printf("[%s:%d] insufficent buffer size\n", __func__, __LINE__);
+    }
+  }
+  return offset;
+}
+
+static feat_tag_blk_t* feat_tag_deserialize(byte_t const buf[], size_t buf_len) {
+  // allocate tag object
+  feat_tag_blk_t* tag = malloc(sizeof(feat_tag_blk_t));
+
+  // tag/buf are not null and buf_len can contain more than one byte
+  if (tag && buf && (buf_len >= sizeof(tag->tag_len) + sizeof(byte_t))) {
+    // fetch the length of tag
+    size_t offset = sizeof(tag->tag_len);
+    memcpy(&tag->tag_len, buf, sizeof(tag->tag_len));
+
+    // check if buffer length smaller than tag length and tag length smaller than MAX_INDEX_TAG_BYTES
+    if (((buf_len - offset) >= tag->tag_len) && (tag->tag_len <= MAX_INDEX_TAG_BYTES)) {
+      memcpy(tag->tag, buf + offset, tag->tag_len);
+      return tag;
+    } else {
+      printf("[%s:%d] buffer length doesn't match with tag length\n", __func__, __LINE__);
+    }
+  }
+  free(tag);
+  return NULL;
+}
+
+static void feat_tag_free(feat_tag_blk_t* tag) {
+  if (tag) {
+    free(tag);
+  }
 }
 
 // feature blocks must be sorted in ascending order based on feature block type
@@ -103,7 +214,7 @@ feat_block_t* feat_blk_metadata_new(byte_t const data[], uint32_t data_len) {
 
   feat_block_t* blk = malloc(sizeof(feat_block_t));
   if (blk) {
-    blk->block = new_feat_metadata(data, data_len);
+    blk->block = feat_metadata_new(data, data_len);
     if (!blk->block) {
       free(blk);
       return NULL;
@@ -115,21 +226,19 @@ feat_block_t* feat_blk_metadata_new(byte_t const data[], uint32_t data_len) {
 }
 
 feat_block_t* feat_blk_tag_new(byte_t const tag[], uint8_t tag_len) {
-  if (!tag) {
+  if (!tag || !tag_len || (tag_len > MAX_INDEX_TAG_BYTES)) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
   feat_block_t* blk = malloc(sizeof(feat_block_t));
   if (blk) {
-    blk->block = malloc(sizeof(feat_tag_blk_t));
+    blk->block = feat_tag_new(tag, tag_len);
     if (!blk->block) {
       free(blk);
       return NULL;
     }
     blk->type = FEAT_TAG_BLOCK;
-    ((feat_tag_blk_t*)blk->block)->tag_len = tag_len;
-    memcpy(((feat_tag_blk_t*)blk->block)->tag, tag, tag_len);
     return blk;
   }
   return blk;
@@ -147,11 +256,11 @@ size_t feat_blk_serialize_len(feat_block_t const* const blk) {
       // block type + address
       return sizeof(uint8_t) + address_serialized_len((address_t*)blk->block);
     case FEAT_METADATA_BLOCK:
-      // block type + data len + data
-      return sizeof(uint8_t) + sizeof(uint32_t) + ((feat_metadata_blk_t*)blk->block)->data_len;
+      // block type + metadata block
+      return sizeof(uint8_t) + feat_metadata_serialized_len((feat_metadata_blk_t*)blk->block);
     case FEAT_TAG_BLOCK:
-      // block type + tag len + tag
-      return sizeof(uint8_t) + sizeof(uint8_t) + ((feat_tag_blk_t*)blk->block)->tag_len;
+      // block type + tag block
+      return sizeof(uint8_t) + feat_tag_serialize_len((feat_tag_blk_t*)blk->block);
     default:
       printf("[%s:%d] unknown feature block type\n", __func__, __LINE__);
       return 0;
@@ -170,33 +279,29 @@ size_t feat_blk_serialize(feat_block_t* blk, byte_t buf[], size_t buf_len) {
     return 0;
   }
 
+  size_t offset = 0;
   // fillin block type
   memcpy(buf, &blk->type, sizeof(uint8_t));
+  offset += sizeof(uint8_t);
 
   switch (blk->type) {
     case FEAT_SENDER_BLOCK:
     case FEAT_ISSUER_BLOCK:
       // serialize address object
-      if (address_serialize((address_t*)blk->block, buf + 1, buf_len - 1) != 0) {
-        printf("[%s:%d] address serialization failed\n", __func__, __LINE__);
-      }
+      offset += address_serialize((address_t*)blk->block, buf + offset, buf_len - offset);
       break;
     case FEAT_METADATA_BLOCK:
-      // serialize data_len and data
-      memcpy(buf + sizeof(uint8_t), &((feat_metadata_blk_t*)blk->block)->data_len, sizeof(uint32_t));
-      memcpy(buf + sizeof(uint8_t) + sizeof(uint32_t), ((feat_metadata_blk_t*)blk->block)->data,
-             ((feat_metadata_blk_t*)blk->block)->data_len);
+      // serialize metadata
+      offset += feat_metadata_serialize((feat_metadata_blk_t*)blk->block, buf + offset, buf_len - offset);
       break;
     case FEAT_TAG_BLOCK:
-      // serialize tag_len and tag
-      memcpy(buf + sizeof(uint8_t), &((feat_tag_blk_t*)blk->block)->tag_len, sizeof(uint8_t));
-      memcpy(buf + sizeof(uint8_t) + sizeof(uint8_t), ((feat_tag_blk_t*)blk->block)->tag,
-             ((feat_tag_blk_t*)blk->block)->tag_len);
+      // serialize tag block
+      offset += feat_tag_serialize((feat_tag_blk_t*)blk->block, buf + offset, buf_len - offset);
       break;
     default:
       break;
   }
-  return expected_bytes;
+  return offset;
 }
 
 feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len) {
@@ -211,69 +316,30 @@ feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len) {
     return NULL;
   }
 
+  size_t offset = sizeof(uint8_t);
   // fetch block type
   blk->type = buf[0];
   blk->block = NULL;
 
   switch (blk->type) {
     case FEAT_SENDER_BLOCK:
-    case FEAT_ISSUER_BLOCK: {
-      // serialize address
-      address_t* addr = malloc(sizeof(address_t));
-      if (!addr) {
-        feat_blk_free(blk);
-        printf("[%s:%d] new address failed\n", __func__, __LINE__);
-        return NULL;
-      }
-      // fetch address type
-      addr->type = buf[1];
-      // point address object to the feature block member
-      blk->block = addr;
-      // validating data length for address object
-      if (buf_len < (sizeof(uint8_t) + address_serialized_len(addr))) {
-        printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-        feat_blk_free(blk);
-        return NULL;
-      }
-      memcpy(addr->address, buf + sizeof(uint8_t) * 2, address_len(addr));
-    } break;
-
-    case FEAT_METADATA_BLOCK: {
-      uint32_t offset = sizeof(uint8_t) + sizeof(uint32_t);
-      if (buf_len <= offset) {
-        printf("[%s:%d] buffer size is insufficient\n", __func__, __LINE__);
-        feat_blk_free(blk);
-        return NULL;
-      }
-      // get data length
-      uint32_t data_len = 0;
-      memcpy(&data_len, buf + sizeof(uint8_t), sizeof(uint32_t));
-      blk->block = new_feat_metadata(buf + offset, data_len);
-      if (!blk->block) {
-        printf("[%s:%d] deserialize metadata failed\n", __func__, __LINE__);
-        feat_blk_free(blk);
-        return NULL;
-      }
-    } break;
-    case FEAT_TAG_BLOCK: {
-      uint32_t offset = sizeof(uint8_t) + sizeof(uint8_t);
-      if (buf_len <= offset) {
-        printf("[%s:%d] buffer size is insufficient\n", __func__, __LINE__);
-        feat_blk_free(blk);
-        return NULL;
-      }
-      // get tag length
-      uint32_t tag_len = 0;
-      memcpy(&tag_len, buf + sizeof(uint8_t), sizeof(uint8_t));
-      blk->block = new_feat_tag(buf + offset, tag_len);
-      if (!blk->block) {
-        printf("[%s:%d] deserialize metadata failed\n", __func__, __LINE__);
-        feat_blk_free(blk);
-        return NULL;
-      }
-    } break;
+    case FEAT_ISSUER_BLOCK:
+      blk->block = address_deserialize(buf + offset, buf_len - offset);
+      break;
+    case FEAT_METADATA_BLOCK:
+      blk->block = feat_metadata_deserialize(buf + offset, buf_len - offset);
+      break;
+    case FEAT_TAG_BLOCK:
+      blk->block = feat_tag_deserialize(buf + offset, buf_len - offset);
+      break;
     default:
       break;
+  }
+
+  if (!blk->block) {
+    printf("[%s:%d] block deserialization failed\n", __func__, __LINE__);
+    feat_blk_free(blk);
+    return NULL;
   }
   return blk;
 }
@@ -281,10 +347,19 @@ feat_block_t* feat_blk_deserialize(byte_t buf[], size_t buf_len) {
 void feat_blk_free(feat_block_t* blk) {
   if (blk) {
     if (blk->block) {
-      if (blk->type == FEAT_METADATA_BLOCK) {
-        free_feat_metadata((feat_metadata_blk_t*)blk->block);
-      } else {
-        free(blk->block);
+      switch (blk->type) {
+        case FEAT_ISSUER_BLOCK:
+        case FEAT_SENDER_BLOCK:
+          free_address((address_t*)blk->block);
+          break;
+        case FEAT_METADATA_BLOCK:
+          feat_metadata_free((feat_metadata_blk_t*)blk->block);
+          break;
+        case FEAT_TAG_BLOCK:
+          feat_tag_free((feat_tag_blk_t*)blk->block);
+          break;
+        default:
+          break;
       }
     }
     free(blk);
@@ -331,6 +406,18 @@ uint8_t feat_blk_list_len(feat_blk_list_t* list) {
   return len;
 }
 
+feat_block_t* feat_blk_list_get_type(feat_blk_list_t* list, feat_block_e type) {
+  feat_blk_list_t* elm;
+  if (list) {
+    LL_FOREACH(list, elm) {
+      if (elm->blk->type == type) {
+        return elm->blk;
+      }
+    }
+  }
+  return NULL;
+}
+
 feat_block_t* feat_blk_list_get(feat_blk_list_t* list, uint8_t index) {
   uint8_t count = 0;
   feat_blk_list_t* elm;
@@ -347,11 +434,19 @@ feat_block_t* feat_blk_list_get(feat_blk_list_t* list, uint8_t index) {
 
 int feat_blk_list_add_sender(feat_blk_list_t** list, address_t const* const addr) {
   if (!addr) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
   // check if list length is reached the limitation
-  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+  if (feat_blk_list_len(*list) >= MAX_FEATURE_BLOCK_COUNT) {
+    printf("[%s:%d]list count must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    return -1;
+  }
+
+  // at most one of the sender block
+  if (feat_blk_list_get_type(*list, FEAT_SENDER_BLOCK)) {
+    printf("[%s:%d] sender block has exist in the list\n", __func__, __LINE__);
     return -1;
   }
 
@@ -371,11 +466,19 @@ int feat_blk_list_add_sender(feat_blk_list_t** list, address_t const* const addr
 
 int feat_blk_list_add_issuer(feat_blk_list_t** list, address_t const* const addr) {
   if (!addr) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
   // check if list length is reached the limitation
-  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+  if (feat_blk_list_len(*list) >= MAX_FEATURE_BLOCK_COUNT) {
+    printf("[%s:%d]list count must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    return -1;
+  }
+
+  // at most one of the issuer block
+  if (feat_blk_list_get_type(*list, FEAT_ISSUER_BLOCK)) {
+    printf("[%s:%d] issuer block has exist in the list\n", __func__, __LINE__);
     return -1;
   }
 
@@ -394,8 +497,20 @@ int feat_blk_list_add_issuer(feat_blk_list_t** list, address_t const* const addr
 }
 
 int feat_blk_list_add_metadata(feat_blk_list_t** list, byte_t const data[], uint32_t data_len) {
+  if (!data || !data_len) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
   // check if list length is reached the limitation
-  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+  if (feat_blk_list_len(*list) >= MAX_FEATURE_BLOCK_COUNT) {
+    printf("[%s:%d]list count must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    return -1;
+  }
+
+  // at most one of the metadata block
+  if (feat_blk_list_get_type(*list, FEAT_METADATA_BLOCK)) {
+    printf("[%s:%d] metadata block has exist in the list\n", __func__, __LINE__);
     return -1;
   }
 
@@ -414,8 +529,20 @@ int feat_blk_list_add_metadata(feat_blk_list_t** list, byte_t const data[], uint
 }
 
 int feat_blk_list_add_tag(feat_blk_list_t** list, byte_t const tag[], uint8_t tag_len) {
+  if (!tag || !tag_len) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
   // check if list length is reached the limitation
-  if (feat_blk_list_len(*list) >= UINT8_MAX - 1) {
+  if (feat_blk_list_len(*list) >= MAX_FEATURE_BLOCK_COUNT) {
+    printf("[%s:%d]list count must smaller than %d\n", __func__, __LINE__, MAX_FEATURE_BLOCK_COUNT);
+    return -1;
+  }
+
+  // at most one of the metadata block
+  if (feat_blk_list_get_type(*list, FEAT_TAG_BLOCK)) {
+    printf("[%s:%d] tag block has exist in the list\n", __func__, __LINE__);
     return -1;
   }
 
@@ -433,14 +560,15 @@ int feat_blk_list_add_tag(feat_blk_list_t** list, byte_t const tag[], uint8_t ta
 }
 
 size_t feat_blk_list_serialize_len(feat_blk_list_t* list) {
-  feat_blk_list_t* elm;
-  // feature blocks layout: Block Count + Blocks
-  // uint8_t is the serialized size of block count
-  size_t len = sizeof(uint8_t);
   if (list) {
+    feat_blk_list_t* elm;
+    // feature blocks layout: Block Count + Blocks
+    // uint8_t is the serialized size of block count
+    size_t len = sizeof(uint8_t);
     LL_FOREACH(list, elm) { len += feat_blk_serialize_len(elm->blk); }
+    return len;
   }
-  return len;
+  return 0;
 }
 
 void feat_blk_list_sort(feat_blk_list_t** list) {
@@ -449,21 +577,23 @@ void feat_blk_list_sort(feat_blk_list_t** list) {
 }
 
 size_t feat_blk_list_serialize(feat_blk_list_t** list, byte_t buf[], size_t buf_len) {
-  if (list || *list) {
+  if ((list || *list) && buf) {
     // serialized len = block count + blocks
     size_t expected_bytes = feat_blk_list_serialize_len(*list);
     if (buf_len < expected_bytes) {
+      printf("[%s:%d] insufficent buffer size\n", __func__, __LINE__);
       return 0;
     }
 
     size_t offset = sizeof(uint8_t);
     feat_blk_list_t* elm;
-    int ret = 0;
-    // block count
+    // fetch block count
     buf[0] = feat_blk_list_len(*list);
+
     // sort by block types
     feat_blk_list_sort(list);
-    // feature blocks
+
+    // serialize feature blocks
     LL_FOREACH(*list, elm) { offset += feat_blk_serialize(elm->blk, buf + offset, buf_len - offset); }
     // check the length of the serialized data
     if (offset != expected_bytes) {
@@ -477,6 +607,7 @@ size_t feat_blk_list_serialize(feat_blk_list_t** list, byte_t buf[], size_t buf_
 
 feat_blk_list_t* feat_blk_list_deserialize(byte_t buf[], size_t buf_len) {
   if (!buf || buf_len <= 1) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 

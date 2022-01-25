@@ -18,9 +18,9 @@
 // Maximum possible length in bytes of a Tag
 #define MAX_INDEX_TAG_BYTES 64
 // Maximun possible length in bytes of Metadata
-#define MAX_METADATA_LGN_BYTES 1024
+#define MAX_METADATA_LENGTH_BYTES 1024
 // Maximun Feature Blocks in a list
-#define MAX_FEATURE_BLOCK_COUNT 3
+#define MAX_FEATURE_BLOCK_COUNT 4
 
 /**
  * @brief all feature block types
@@ -51,7 +51,7 @@ typedef struct {
  *
  */
 typedef struct {
-  uint32_t data_len;  ///< the data length of the Metadata, max length is TBD.
+  uint32_t data_len;  ///< the data length of the Metadata
   byte_t* data;       ///< the data of Metadata.
 } feat_metadata_blk_t;
 
@@ -174,6 +174,15 @@ feat_blk_list_t* feat_blk_list_new();
  * @return uint8_t
  */
 uint8_t feat_blk_list_len(feat_blk_list_t* list);
+
+/**
+ * @brief Get a feature block pointer by a given type
+ *
+ * @param[in] list A feature block list object
+ * @param[in] type The type of feature block
+ * @return feat_block_t*
+ */
+feat_block_t* feat_blk_list_get_type(feat_blk_list_t* list, feat_block_e type);
 
 /**
  * @brief Get a feature block pointer in the list from a given index
