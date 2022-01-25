@@ -9,23 +9,25 @@
 #include "core/address.h"
 #include "core/models/outputs/feat_blocks.h"
 #include "core/models/outputs/native_tokens.h"
+#include "core/models/outputs/unlock_conditions.h"
 #include "core/types.h"
 #include "core/utils/byte_buffer.h"
 
 /**
- * @brief An output type which represents an alias account.
+ * @brief The Alias account object
+ *
+ * Describes an alias account in the ledger that can be controlled by the state and governance controllers
  *
  */
 typedef struct {
   uint64_t amount;                       ///< The amount of IOTA tokens held by the output
   native_tokens_t* native_tokens;        ///< The native tokens held by the output
   byte_t alias_id[ADDRESS_ALIAS_BYTES];  ///< The identifier of this alias account
-  address_t* st_ctl;           ///< State Controller, the entity which is allowed to control this alias account state
-  address_t* gov_ctl;          ///< Governance Controller, the entity which is allowed to govern this alias account
-  uint32_t state_index;        ///< The index of the state
-  byte_buf_t* state_metadata;  ///< The state of the alias account which can only be mutated by the state controller
+  uint32_t state_index;        ///< A counter that must increase by 1 every time the alisa is state transitioned
+  byte_buf_t* state_metadata;  ///< Metadata that can only be changed by the state controller
   uint32_t foundry_counter;    ///< The counter that denotes the number of foundries created by this alias account
-  feat_blk_list_t* feature_blocks;  ///< The feature blocks which modulate the constraints on the output
+  cond_blk_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
+  feat_blk_list_t* feature_blocks;     ///< Define functionality of this output
 } output_alias_t;
 
 #ifdef __cplusplus
@@ -38,19 +40,18 @@ extern "C" {
  * @param[in] amount The amount of IOTA tokens to held by the output
  * @param[in] tokens Set of native tokens held by the output
  * @param[in] alias_id The identifier of this alias account
- * @param[in] st_ctl State Controller, the entity which is allowed to control this alias account state
- * @param[in] gov_ctl Governance Controller, the entity which is allowed to govern this alias account
  * @param[in] state_index The index of the state
  * @param[in] metadata Arbitrary immutable binary data attached to this alias account
  * @param[in] metadata_len Length of metadata byte array
  * @param[in] foundry_counter The counter that denotes the number of foundries created by this alias account
+ * @param[in] cond_blocks Set of unlock condition blocks
  * @param[in] feat_blocks Set of feature blocks
  *
  * @return output_alias_t* or NULL on failure
  */
-output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_t alias_id[], address_t* st_ctl,
-                                 address_t* gov_ctl, uint32_t state_index, byte_t* metadata, uint32_t metadata_len,
-                                 uint32_t foundry_counter, feat_blk_list_t* feat_blocks);
+output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_t alias_id[], uint32_t state_index,
+                                 byte_t* metadata, uint32_t metadata_len, uint32_t foundry_counter,
+                                 cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks);
 
 /**
  * @brief Free Alias Output object.

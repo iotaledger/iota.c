@@ -9,25 +9,43 @@
 #include "uthash.h"
 #include "utlist.h"
 
-// minimum dust allowance
-#define MIN_DUST_ALLOWANCE 1000000
-
 // maximum number of feature blocks
-#define MAX_FEATURE_BLOCKS_COUNT 3
+#define MAX_ALIAS_FEATURE_BLOCKS_COUNT 3
 
-output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_t alias_id[], address_t* st_ctl,
-                                 address_t* gov_ctl, uint32_t state_index, byte_t* metadata, uint32_t metadata_len,
-                                 uint32_t foundry_counter, feat_blk_list_t* feat_blocks) {
-  if (alias_id == NULL || st_ctl == NULL || gov_ctl == NULL) {
+output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_t alias_id[], uint32_t state_index,
+                                 byte_t* metadata, uint32_t metadata_len, uint32_t foundry_counter,
+                                 cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks) {
+  if (alias_id == NULL || cond_blocks == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
-  if (amount < MIN_DUST_ALLOWANCE) {
-    printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
+  // FIXME: amount must fulfill the Byte Cost Dust Protection
+  // if (amount < MIN_DUST_ALLOWANCE) {
+  //   printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
+  //   return NULL;
+  // }
+
+  // Unlock condition count must be 2
+  if (cond_blk_list_len(cond_blocks) != 2) {
+    printf("[%s:%d] Unlock condition count must be 2\n", __func__, __LINE__);
+    return NULL;
+  } else {
+    // unlock condition must be UNLOCK_COND_STATE and UNLOCK_COND_GOVERNOR
+    if (!cond_blk_list_get_type(cond_blocks, UNLOCK_COND_STATE) ||
+        !cond_blk_list_get_type(cond_blocks, UNLOCK_COND_GOVERNOR)) {
+      printf("[%s:%d] Unlock condition must be State Controller and Governor\n", __func__, __LINE__);
+      return NULL;
+    }
+  }
+
+  // 0<= Feature block count <= 3
+  if (feat_blk_list_len(feat_blocks) > MAX_ALIAS_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_ALIAS_FEATURE_BLOCKS_COUNT);
     return NULL;
   }
 
+  // When Alias ID is zeroed out, State Index and Foundry Counter must be 0.
   if (buf_all_zeros(alias_id, ADDRESS_ALIAS_BYTES)) {
     if (state_index != 0 || foundry_counter != 0) {
       printf("[%s:%d] when alias ID is zero then state index and foundry counter must be zero\n", __func__, __LINE__);
@@ -35,18 +53,9 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
     }
   }
 
-  if (st_ctl->type == ADDRESS_TYPE_ALIAS && memcmp(st_ctl->address, alias_id, ADDRESS_ALIAS_BYTES) == 0) {
-    printf("[%s:%d] state controller address must be different than alias ID\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  if (gov_ctl->type == ADDRESS_TYPE_ALIAS && memcmp(gov_ctl->address, alias_id, ADDRESS_ALIAS_BYTES) == 0) {
-    printf("[%s:%d] governance controller address must be different than alias ID\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  if (feat_blk_list_len(feat_blocks) > MAX_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_FEATURE_BLOCKS_COUNT);
+  // State Metadata Length must not be greater than Max Metadata Length
+  if (metadata_len > MAX_METADATA_LENGTH_BYTES) {
+    printf("[%s:%d] Metadata length must no be greater than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
     return NULL;
   }
 
@@ -55,47 +64,25 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
   }
-  output->native_tokens = NULL;
-  output->st_ctl = NULL;
-  output->gov_ctl = NULL;
-  output->state_metadata = NULL;
-  output->feature_blocks = NULL;
+
+  // init the alias object
+  memset(output, 0, sizeof(output_alias_t));
 
   // amount
   output->amount = amount;
 
   // native tokens
-  if (tokens != NULL) {
-    output->native_tokens = native_tokens_new();
-    native_tokens_t *token, *token_tmp;
-    HASH_ITER(hh, tokens, token, token_tmp) {
-      int res = native_tokens_add(&output->native_tokens, token->token_id, token->amount);
-      if (res == -1) {
-        printf("[%s:%d] can not add native token to Alias output\n", __func__, __LINE__);
-        output_alias_free(output);
-        return NULL;
-      }
+  if (!tokens) {
+    output->native_tokens = native_tokens_clone(tokens);
+    if (!output->native_tokens) {
+      printf("[%s:%d]add native token to Alias output failed\n", __func__, __LINE__);
+      output_alias_free(output);
+      return NULL;
     }
   }
 
   // alias ID
   memcpy(output->alias_id, alias_id, ADDRESS_ALIAS_BYTES);
-
-  // state controller
-  output->st_ctl = address_clone(st_ctl);
-  if (!output->st_ctl) {
-    printf("[%s:%d] can not add State Controller to Alias output\n", __func__, __LINE__);
-    output_alias_free(output);
-    return NULL;
-  }
-
-  // governance controller
-  output->gov_ctl = address_clone(gov_ctl);
-  if (!output->gov_ctl) {
-    printf("[%s:%d] can not add Governance Controller to Alias output\n", __func__, __LINE__);
-    output_alias_free(output);
-    return NULL;
-  }
 
   // state index
   output->state_index = state_index;
@@ -113,35 +100,20 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
   // foundry counter
   output->foundry_counter = foundry_counter;
 
-  // feature blocks
-  if (feat_blocks != NULL) {
-    output->feature_blocks = feat_blk_list_new();
-    feat_blk_list_t* feat;
-    int res;
-    LL_FOREACH(feat_blocks, feat) {
-      switch (feat->blk->type) {
-        case FEAT_SENDER_BLOCK:
-          res = feat_blk_list_add_sender(&output->feature_blocks, feat->blk->block);
-          break;
-        case FEAT_ISSUER_BLOCK:
-          res = feat_blk_list_add_issuer(&output->feature_blocks, feat->blk->block);
-          break;
-        case FEAT_METADATA_BLOCK: {
-          feat_metadata_blk_t* block_metadata = (feat_metadata_blk_t*)feat->blk->block;
-          res = feat_blk_list_add_metadata(&output->feature_blocks, block_metadata->data, block_metadata->data_len);
-          break;
-        }
-        default:
-          printf("[%s:%d] unsupported feature block type, can not add it to Alias output\n", __func__, __LINE__);
-          output_alias_free(output);
-          return NULL;
-      }
-      if (res == -1) {
-        printf("[%s:%d] can not add feature block to Alias output\n", __func__, __LINE__);
-        output_alias_free(output);
-        return NULL;
-      }
-    }
+  // add condition blocks
+  output->unlock_conditions = cond_blk_list_clone(cond_blocks);
+  if (!output->unlock_conditions) {
+    printf("[%s:%d] can not add unlock conditions to Alias output\n", __func__, __LINE__);
+    output_alias_free(output);
+    return NULL;
+  }
+
+  // add feature blocks
+  output->feature_blocks = feat_blk_list_clone(feat_blocks);
+  if (!output->feature_blocks) {
+    printf("[%s:%d] can not add feature blocks to Alias output\n", __func__, __LINE__);
+    output_alias_free(output);
+    return NULL;
   }
 
   return output;
@@ -152,18 +124,9 @@ void output_alias_free(output_alias_t* output) {
     if (output->native_tokens) {
       native_tokens_free(&output->native_tokens);
     }
-    if (output->st_ctl) {
-      free_address(output->st_ctl);
-    }
-    if (output->gov_ctl) {
-      free_address(output->gov_ctl);
-    }
-    if (output->state_metadata) {
-      byte_buf_free(output->state_metadata);
-    }
-    if (output->feature_blocks) {
-      feat_blk_list_free(output->feature_blocks);
-    }
+    byte_buf_free(output->state_metadata);
+    cond_blk_list_free(output->unlock_conditions);
+    feat_blk_list_free(output->feature_blocks);
     free(output);
   }
 }
@@ -184,10 +147,6 @@ size_t output_alias_serialize_len(output_alias_t* output) {
   length += native_tokens_serialize_len(&output->native_tokens);
   // alias ID
   length += ADDRESS_ALIAS_BYTES;
-  // state controller
-  length += address_serialized_len(output->st_ctl);
-  // governance controller
-  length += address_serialized_len(output->gov_ctl);
   // state index
   length += sizeof(uint32_t);
   // metadata length
@@ -198,6 +157,8 @@ size_t output_alias_serialize_len(output_alias_t* output) {
   }
   // foundry counter
   length += sizeof(uint32_t);
+  // unlock conditions
+  length += cond_blk_list_serialize_len(output->unlock_conditions);
   // feature blocks
   length += feat_blk_list_serialize_len(output->feature_blocks);
 
@@ -216,65 +177,61 @@ size_t output_alias_serialize(output_alias_t* output, byte_t buf[], size_t buf_l
     return 0;
   }
 
-  byte_t* offset = buf;
+  size_t offset = 0;
 
   // fill-in Alias Output type
-  memset(offset, OUTPUT_ALIAS, sizeof(uint8_t));
+  memset(buf, OUTPUT_ALIAS, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
   // amount
-  memcpy(offset, &output->amount, sizeof(uint64_t));
+  memcpy(buf + offset, &output->amount, sizeof(uint64_t));
   offset += sizeof(uint64_t);
 
   // native tokens
+  // TODO? native token serialize with empty list
   if (output->native_tokens) {
-    offset +=
-        native_tokens_serialize(&output->native_tokens, offset, native_tokens_serialize_len(&output->native_tokens));
+    offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
   } else {
-    memset(offset, 0, sizeof(uint16_t));
+    memset(buf + offset, 0, sizeof(uint16_t));
     offset += sizeof(uint16_t);
   }
 
   // alias ID
-  memcpy(offset, output->alias_id, ADDRESS_ALIAS_BYTES);
+  memcpy(buf + offset, output->alias_id, ADDRESS_ALIAS_BYTES);
   offset += ADDRESS_ALIAS_BYTES;
 
-  // state controller
-  offset += address_serialize(output->st_ctl, offset, address_serialized_len(output->st_ctl));
-
-  // governance controller
-  offset += address_serialize(output->gov_ctl, offset, address_serialized_len(output->gov_ctl));
-
   // state index
-  memcpy(offset, &output->state_index, sizeof(uint32_t));
+  memcpy(buf + offset, &output->state_index, sizeof(uint32_t));
   offset += sizeof(uint32_t);
 
   // immutable metadata
   if (output->state_metadata) {
     uint32_t metadata_len = output->state_metadata->len;
-    memcpy(offset, &metadata_len, sizeof(uint32_t));
+    memcpy(buf + offset, &metadata_len, sizeof(uint32_t));
     offset += sizeof(uint32_t);
-    memcpy(offset, output->state_metadata->data, metadata_len);
+    memcpy(buf + offset, output->state_metadata->data, metadata_len);
     offset += metadata_len;
   } else {
-    memset(offset, 0, sizeof(uint32_t));
+    memset(buf + offset, 0, sizeof(uint32_t));
     offset += sizeof(uint32_t);
   }
 
   // foundry counter
-  memcpy(offset, &output->foundry_counter, sizeof(uint32_t));
+  memcpy(buf + offset, &output->foundry_counter, sizeof(uint32_t));
   offset += sizeof(uint32_t);
+
+  // unlock conditions
+  offset = cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
 
   // feature blocks
   if (output->feature_blocks) {
-    offset +=
-        feat_blk_list_serialize(&output->feature_blocks, offset, feat_blk_list_serialize_len(output->feature_blocks));
+    offset += feat_blk_list_serialize(&output->feature_blocks, buf + offset, buf_len - offset);
   } else {
-    memset(offset, 0, sizeof(uint8_t));
+    memset(buf + offset, 0, sizeof(uint8_t));
     offset += sizeof(uint8_t);
   }
 
-  return expected_bytes;
+  return offset;
 }
 
 output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
@@ -288,11 +245,8 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
   }
-  output->native_tokens = NULL;
-  output->st_ctl = NULL;
-  output->gov_ctl = NULL;
-  output->state_metadata = NULL;
-  output->feature_blocks = NULL;
+  // init alias object
+  memset(output, 0, sizeof(output_alias_t));
 
   size_t offset = 0;
 
@@ -336,24 +290,6 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   }
   memcpy(&output->alias_id, &buf[offset], ADDRESS_ALIAS_BYTES);
   offset += ADDRESS_ALIAS_BYTES;
-
-  // state controller
-  output->st_ctl = address_deserialize(&buf[offset], buf_len - offset);
-  if (!output->st_ctl) {
-    printf("[%s:%d] can not deserialize state controller\n", __func__, __LINE__);
-    output_alias_free(output);
-    return NULL;
-  }
-  offset += address_serialized_len(output->st_ctl);
-
-  // governance controller
-  output->gov_ctl = address_deserialize(&buf[offset], buf_len - offset);
-  if (!output->gov_ctl) {
-    printf("[%s:%d] can not deserialize governance controller\n", __func__, __LINE__);
-    output_alias_free(output);
-    return NULL;
-  }
-  offset += address_serialized_len(output->gov_ctl);
 
   // state index
   if (buf_len < offset + sizeof(uint32_t)) {
@@ -399,8 +335,25 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   memcpy(&output->foundry_counter, &buf[offset], sizeof(uint32_t));
   offset += sizeof(uint32_t);
 
+  // unlock condition blocks
+  uint8_t unlock_count = 0;
+  memcpy(&unlock_count, &buf[offset], sizeof(uint8_t));
+  if (unlock_count != 2) {
+    printf("[%s:%d] invalid unlock block count\n", __func__, __LINE__);
+    output_alias_free(output);
+    return NULL;
+  } else {
+    output->unlock_conditions = cond_blk_list_deserialize(buf + offset, buf_len - offset);
+    if (!output->unlock_conditions) {
+      printf("[%s:%d] can not deserialize unlock conditions\n", __func__, __LINE__);
+      output_alias_free(output);
+      return NULL;
+    }
+  }
+
   // feature blocks
-  uint8_t feat_block_count = *((uint8_t*)&buf[offset]);
+  uint8_t feat_block_count = 0;
+  memcpy(&feat_block_count, &buf[offset], sizeof(uint8_t));
   if (feat_block_count > 0) {
     output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
     if (!output->feature_blocks) {
@@ -423,11 +376,10 @@ output_alias_t* output_alias_clone(output_alias_t const* const output) {
     new_output->amount = output->amount;
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
     memcpy(new_output->alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
-    new_output->st_ctl = address_clone(output->st_ctl);
-    new_output->gov_ctl = address_clone(output->gov_ctl);
     new_output->state_index = output->state_index;
     new_output->state_metadata = byte_buf_clone(output->state_metadata);
     new_output->foundry_counter = output->foundry_counter;
+    new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
     new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
   }
 
@@ -450,14 +402,6 @@ void output_alias_print(output_alias_t* output, uint8_t indentation) {
   printf("%s\tAlias ID: ", PRINT_INDENTATION(indentation));
   dump_hex_str(output->alias_id, ADDRESS_ALIAS_BYTES);
 
-  // print state controller
-  printf("%s\tState Controller: ", PRINT_INDENTATION(indentation));
-  address_print(output->st_ctl);
-
-  // print governance controller
-  printf("%s\tGovernance Controller: ", PRINT_INDENTATION(indentation));
-  address_print(output->gov_ctl);
-
   printf("%s\tState Index: %" PRIu32 "\n", PRINT_INDENTATION(indentation), output->state_index);
 
   // print metadata
@@ -470,6 +414,8 @@ void output_alias_print(output_alias_t* output, uint8_t indentation) {
 
   printf("%s\tFoundry Counter: %" PRIu32 "\n", PRINT_INDENTATION(indentation), output->foundry_counter);
 
+  // print unlock condition blocks
+  cond_blk_list_print(output->unlock_conditions, indentation + 1);
   // print feature blocks
   feat_blk_list_print(output->feature_blocks, indentation + 1);
 
