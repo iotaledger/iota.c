@@ -173,7 +173,7 @@ size_t output_extended_serialize(output_extended_t* output, byte_t buf[], size_t
   // feature blocks
   if (output->feature_blocks) {
     offset +=
-        feat_blk_list_serialize(output->feature_blocks, offset, feat_blk_list_serialize_len(output->feature_blocks));
+        feat_blk_list_serialize(&output->feature_blocks, offset, feat_blk_list_serialize_len(output->feature_blocks));
   } else {
     memset(offset, 0, sizeof(uint8_t));
     offset += sizeof(uint8_t);
