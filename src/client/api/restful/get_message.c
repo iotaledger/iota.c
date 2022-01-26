@@ -8,10 +8,8 @@
 #include "client/api/json_utils.h"
 #include "client/api/restful/get_message.h"
 #include "client/api/restful/models/inputs/json_inputs.h"
-#include "client/api/restful/models/outputs/json_output_alias.h"
-#include "client/api/restful/models/outputs/json_output_extended.h"
-#include "client/api/restful/models/outputs/json_output_foundry.h"
-#include "client/api/restful/models/outputs/json_output_nft.h"
+#include "client/api/restful/models/json_unlock_blocks.h"
+#include "client/api/restful/models/outputs/json_outputs.h"
 #include "client/network/http.h"
 #include "core/address.h"
 #include "core/utils/iota_str.h"
@@ -64,137 +62,6 @@ end:
   return ret;
 }
 
-static int deser_tx_outputs(cJSON *essence_obj, transaction_payload_t *payload_tx) {
-  if (essence_obj == NULL || payload_tx == NULL) {
-    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
-  /*
-  Example for extended output:
-  "outputs": [
-    { "type": 3,
-      "amount": 10000000,
-      "nativeTokens": [],
-      "unlockConditions": [],
-      "blocks": [] }
-  ],
-  */
-
-  // outputs
-  cJSON *outputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_OUTPUTS);
-  if (!outputs_obj) {
-    printf("[%s:%d]: %s not found in the essence\n", __func__, __LINE__, JSON_KEY_OUTPUTS);
-    return -1;
-  }
-
-  if (cJSON_IsArray(outputs_obj)) {
-    cJSON *elm = NULL;
-    cJSON_ArrayForEach(elm, outputs_obj) {
-      //  type
-      cJSON *tx_type_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TYPE);
-      if (!cJSON_IsNumber(tx_type_obj)) {
-        printf("[%s:%d] %s must be a number\n", __func__, __LINE__, JSON_KEY_TYPE);
-        return -1;
-      }
-
-      int res = -1;
-      if (tx_type_obj->valueint == OUTPUT_EXTENDED) {
-        res = json_output_extended_deserialize(elm, payload_tx->essence);
-      } else if (tx_type_obj->valueint == OUTPUT_ALIAS) {
-        res = json_output_alias_deserialize(elm, payload_tx->essence);
-      } else if (tx_type_obj->valueint == OUTPUT_FOUNDRY) {
-        res = json_output_foundry_deserialize(elm, payload_tx->essence);
-      } else if (tx_type_obj->valueint == OUTPUT_NFT) {
-        res = json_output_nft_deserialize(elm, payload_tx->essence);
-      } else {
-        printf("[%s:%d] Unsupported output block type\n", __func__, __LINE__);
-        return -1;
-      }
-
-      if (res == -1) {
-        printf("[%s:%d] Can not deserialize transaction output\n", __func__, __LINE__);
-        return -1;
-      }
-    }
-  } else {
-    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, JSON_KEY_OUTPUTS);
-    return -1;
-  }
-
-  return 0;
-}
-
-static int deser_tx_unlock_blocks(cJSON *blocks_obj, transaction_payload_t *payload_tx) {
-  if (blocks_obj == NULL || payload_tx == NULL) {
-    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
-  /*
-  "unlockBlocks": [
-  { "type": 0,
-    "signature": {
-      "type": 1,
-      "publicKey": "dd2fb44b9809782af5f31fdbf767a39303365449308f78d6c2652ac9766dbf1a",
-      "signature":
-  "e625a71351bbccf87eeaad7e98f6a545306423b2aaf444792a1be8ccfdfe50b358583483c3dbc536b5842eeec381750c6b4495c14932be47c439a1a8ad242606"
-     }
-  }]
-  */
-  cJSON *elm = NULL;
-  cJSON_ArrayForEach(elm, blocks_obj) {
-    cJSON *block_type = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TYPE);
-    if (!cJSON_IsNumber(block_type)) {
-      printf("[%s:%d] %s must be a number\n", __func__, __LINE__, JSON_KEY_TYPE);
-      break;
-    }
-    if (block_type->valueint == UNLOCK_BLOCK_TYPE_SIGNATURE) {  // signature block
-      cJSON *sig_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_SIG);
-      if (sig_obj) {
-        cJSON *sig_type = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_TYPE);
-        if (cJSON_IsNumber(sig_type)) {
-          if (sig_type->valueint == ADDRESS_TYPE_ED25519) {
-            cJSON *pub = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_PUB_KEY);
-            cJSON *sig = cJSON_GetObjectItemCaseSensitive(sig_obj, JSON_KEY_SIG);
-            if (cJSON_IsString(pub) && cJSON_IsString(sig)) {
-              // FIXME
-              /*char sig_block[API_SIGNATURE_BLOCK_STR_LEN] = {};
-              sig_block[0] = sig_type->valueint;
-              memcpy(sig_block + 1, pub->valuestring, API_PUB_KEY_HEX_STR_LEN);
-              memcpy(sig_block + 1 + API_PUB_KEY_HEX_STR_LEN, sig->valuestring, API_SIGNATURE_HEX_STR_LEN);
-              payload_tx_add_sig_block(payload_tx, sig_block, API_SIGNATURE_BLOCK_STR_LEN);*/
-            } else {
-              printf("[%s:%d] publicKey or signature is not a string\n", __func__, __LINE__);
-              return -1;
-            }
-          } else {
-            printf("[%s:%d] only suppport ed25519 signature\n", __func__, __LINE__);
-            return -1;
-          }
-        } else {
-          printf("[%s:%d] signature type is not an number\n", __func__, __LINE__);
-          return -1;
-        }
-      } else {
-        printf("[%s:%d] %s is not found\n", __func__, __LINE__, JSON_KEY_SIG);
-        return -1;
-      }
-    } else if (block_type->valueint == UNLOCK_BLOCK_TYPE_REFERENCE) {  // reference block
-      cJSON *ref = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_REFERENCE);
-      if (ref && cJSON_IsNumber(ref)) {
-        // FIXME
-        // payload_tx_add_ref_block(payload_tx, ref->valueint);
-      }
-    } else {
-      printf("[%s:%d] Unsupported block type\n", __func__, __LINE__);
-      break;
-    }
-  }
-
-  return 0;
-}
-
 static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
   if (tx_obj == NULL || res == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
@@ -218,7 +85,7 @@ static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
     }
 
     // outputs array
-    if ((ret = deser_tx_outputs(essence_obj, tx)) != 0) {
+    if ((ret = json_outputs_deserialize(essence_obj, tx->essence)) != 0) {
       goto end;
     }
 
@@ -234,9 +101,9 @@ static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
       */
       cJSON *payload_type = cJSON_GetObjectItemCaseSensitive(payload_obj, JSON_KEY_TYPE);
       if (cJSON_IsNumber(payload_type)) {
-        // FIXME
         if (payload_type->valueint == 2) {
-          /*indexation_t *idx = indexation_new();
+#if 0  // FIXME
+          indexation_t *idx = indexation_new();
           if (idx == NULL) {
             printf("[%s:%d]: allocate index payload failed\n", __func__, __LINE__);
           } else {
@@ -247,7 +114,8 @@ static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
               tx->type = CORE_MESSAGE_PAYLOAD_INDEXATION;
               tx->essence->payload = idx;
             }
-          }*/
+          }
+#endif
         } else {
           printf("[%s:%d]: payload type %d is not supported\n", __func__, __LINE__, payload_type->valueint);
         }
@@ -259,7 +127,7 @@ static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
     // unlock blocks
     cJSON *blocks_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, JSON_KEY_UNLOCK_BLOCKS);
     if (cJSON_IsArray(blocks_obj)) {
-      ret = deser_tx_unlock_blocks(blocks_obj, tx);
+      ret = json_unlock_blocks_deserialize(blocks_obj, tx);
     } else {
       printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_UNLOCK_BLOCKS);
     }

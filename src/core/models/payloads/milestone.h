@@ -9,6 +9,9 @@
 #include "core/types.h"
 #include "utarray.h"
 
+// Milestone signature length in hexadecimal representation
+#define MILESTONE_SIGNATURE_HEX_STR_LEN 128
+
 // TODO update milestone structure: https://github.com/iotaledger/protocol-rfcs/pull/19
 typedef struct {
   payload_t type;  // Must be set to 1

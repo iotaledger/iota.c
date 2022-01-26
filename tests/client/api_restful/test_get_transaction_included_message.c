@@ -27,7 +27,8 @@ void test_get_transaction_included_message() {
   }
   res_message_free(msg);
 }
-/*
+
+#if 0  // FIXME
 void test_deser_tx1() {
   // case 1: tx payload with 1 input, 1 output, 1 signature
   char const* const tx_res1 =
@@ -303,15 +304,17 @@ void test_deser_tx_with_index() {
       payload_tx_blocks_signature(tx, 0), API_SIGNATURE_HEX_STR_LEN);
 
   res_message_free(res);
-}*/
+}
+#endif
 
 int main() {
   UNITY_BEGIN();
-
-  // RUN_TEST(test_deser_tx1);
-  // RUN_TEST(test_deser_tx2);
-  // RUN_TEST(test_deser_tx3);
-  // RUN_TEST(test_deser_tx_with_index);
+#if 0  // FIXME
+  RUN_TEST(test_deser_tx1);
+  RUN_TEST(test_deser_tx2);
+  RUN_TEST(test_deser_tx3);
+  RUN_TEST(test_deser_tx_with_index);
+#endif
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_transaction_included_message);
 #endif
