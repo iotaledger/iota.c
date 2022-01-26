@@ -568,7 +568,8 @@ size_t feat_blk_list_serialize_len(feat_blk_list_t* list) {
     LL_FOREACH(list, elm) { len += feat_blk_serialize_len(elm->blk); }
     return len;
   }
-  return 0;
+  // return the size of block count
+  return sizeof(uint8_t);
 }
 
 void feat_blk_list_sort(feat_blk_list_t** list) {
