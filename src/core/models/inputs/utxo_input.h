@@ -6,21 +6,21 @@
 
 #include <stdint.h>
 
+#include "core/models/message.h"
 #include "core/types.h"
 
 #define UTXO_INPUT_MIN_INDEX 0
 #define UTXO_INPUT_MAX_COUNT 127
-#define TRANSACTION_ID_BYTES 32
 
 /**
  * @brief UTXO input structure
  *
  */
 typedef struct {
-  uint8_t input_type;                  ///< The input type. Set to value 0 to denote an UTXO Input.
-  byte_t tx_id[TRANSACTION_ID_BYTES];  ///< The BLAKE2b-256 hash of the transaction payload containing the referenced
-                                       ///< output.
-  uint16_t output_index;               ///< The output index of the referenced output.
+  uint8_t input_type;                       ///< The input type. Set to value 0 to denote an UTXO Input.
+  byte_t tx_id[IOTA_TRANSACTION_ID_BYTES];  ///< The BLAKE2b-256 hash of the transaction payload containing the
+                                            ///< referenced output.
+  uint16_t output_index;                    ///< The output index of the referenced output.
 } utxo_input_t;
 
 /**
@@ -28,7 +28,7 @@ typedef struct {
  *
  */
 typedef struct utxo_inputs_list {
-  utxo_input_t *input;           //< Points to a current input
+  utxo_input_t *input;            //< Points to a current input
   struct utxo_inputs_list *next;  //< Points to a next input
 } utxo_inputs_list_t;
 
@@ -66,7 +66,7 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
  *
  * @param[in] inputs An utxo input list.
  * @return uint16_t A count of elements
-  */
+ */
 uint16_t utxo_inputs_count(utxo_inputs_list_t *inputs);
 
 /**

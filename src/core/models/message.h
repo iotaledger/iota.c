@@ -11,7 +11,6 @@
 
 #include "core/models/payloads/indexation.h"
 #include "core/models/payloads/milestone.h"
-#include "core/models/payloads/transaction.h"
 #include "core/types.h"
 
 // Message ID in binary form

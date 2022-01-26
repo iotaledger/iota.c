@@ -8,6 +8,8 @@
 #include "uthash.h"
 
 #include "core/models/message.h"
+#include "core/models/payloads/transaction.h"
+#include "crypto/iota_crypto.h"
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
 

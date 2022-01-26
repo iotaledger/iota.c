@@ -50,7 +50,7 @@ target_sources(
          "models/outputs/unlock_conditions.h"
          "models/payloads/transaction.h"
          "models/payloads/indexation.h"
-          "models/payloads/milestone.h"
+         "models/payloads/milestone.h"
          "models/message.h"
          "models/unlock_block.h")
 

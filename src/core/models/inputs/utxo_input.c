@@ -63,7 +63,7 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
     if (next->input) {
       // Currently only UTXO input is supported
       next->input->input_type = type;
-      memcpy(next->input->tx_id, id, TRANSACTION_ID_BYTES);
+      memcpy(next->input->tx_id, id, IOTA_TRANSACTION_ID_BYTES);
       next->input->output_index = index;
       LL_APPEND(*inputs, next);
       return 0;
@@ -104,7 +104,7 @@ utxo_input_t *utxo_inputs_find_by_id(utxo_inputs_list_t *inputs, byte_t id[]) {
   utxo_inputs_list_t *elm;
   if (inputs) {
     LL_FOREACH(inputs, elm) {
-      if (memcmp(elm->input->tx_id, id, TRANSACTION_ID_BYTES) == 0) {
+      if (memcmp(elm->input->tx_id, id, IOTA_TRANSACTION_ID_BYTES) == 0) {
         return elm->input;
       }
     }
@@ -147,7 +147,7 @@ size_t utxo_inputs_serialize_len(utxo_inputs_list_t *inputs) {
   len += sizeof(uint16_t);
 
   // Len of a single input
-  size_t single_input_len = sizeof(uint8_t) + TRANSACTION_ID_BYTES + sizeof(uint16_t);
+  size_t single_input_len = sizeof(uint8_t) + IOTA_TRANSACTION_ID_BYTES + sizeof(uint16_t);
 
   len += single_input_len * utxo_inputs_count(inputs);
 
@@ -187,8 +187,8 @@ size_t utxo_inputs_serialize(utxo_inputs_list_t *inputs, byte_t buf[], size_t bu
     offset += sizeof(uint8_t);
 
     // transaction id
-    memcpy(offset, elm->input->tx_id, TRANSACTION_ID_BYTES);
-    offset += TRANSACTION_ID_BYTES;
+    memcpy(offset, elm->input->tx_id, IOTA_TRANSACTION_ID_BYTES);
+    offset += IOTA_TRANSACTION_ID_BYTES;
 
     // output index
     memcpy(offset, &elm->input->output_index, sizeof(uint16_t));
@@ -241,14 +241,14 @@ utxo_inputs_list_t *utxo_inputs_deserialize(byte_t buf[], size_t buf_len) {
     offset += sizeof(uint8_t);
 
     // get transaction id
-    if (buf_len < offset + TRANSACTION_ID_BYTES) {
+    if (buf_len < offset + IOTA_TRANSACTION_ID_BYTES) {
       printf("[%s:%d] invalid data length\n", __func__, __LINE__);
       free(new_input);
       utxo_inputs_free(inputs);
       return NULL;
     }
-    memcpy(new_input->input->tx_id, &buf[offset], TRANSACTION_ID_BYTES);
-    offset += TRANSACTION_ID_BYTES;
+    memcpy(new_input->input->tx_id, &buf[offset], IOTA_TRANSACTION_ID_BYTES);
+    offset += IOTA_TRANSACTION_ID_BYTES;
 
     // get output index
     if (buf_len < offset + sizeof(uint16_t)) {
@@ -276,7 +276,7 @@ void utxo_inputs_print(utxo_inputs_list_t *inputs, uint8_t indentation) {
       printf("%s\tInput Type: %u\n", PRINT_INDENTATION(indentation), elm->input->input_type);
       // print txn id
       printf("%s\t\tTransaction ID: ", PRINT_INDENTATION(indentation));
-      dump_hex_str(elm->input->tx_id, TRANSACTION_ID_BYTES);
+      dump_hex_str(elm->input->tx_id, IOTA_TRANSACTION_ID_BYTES);
       // print output index
       printf("%s\t\tOutput Index: %u\n", PRINT_INDENTATION(indentation), elm->input->output_index);
       index++;

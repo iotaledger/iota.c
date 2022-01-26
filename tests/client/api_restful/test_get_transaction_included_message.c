@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "client/api/restful/get_transaction_included_message.h"
+#include "core/models/payloads/transaction.h"
 #include "test_config.h"
 #include "unity/unity.h"
 
@@ -12,7 +13,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_transaction_included_message() {
-  char const* const tx_id = "9cc5058a983f648a2ee86c9b07926c8aae591d1b5d8ced599a6f4a090b910bcd";
+  char const* const tx_id = "3332ee5dc4acaed46b6426d88109c90c0b1a7eddd94797c5bfc3a05397688f83";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();
@@ -23,9 +24,6 @@ void test_get_transaction_included_message() {
   } else {
     // It must be a transaction message
     TEST_ASSERT(core_message_get_payload_type(msg->u.msg) == CORE_MESSAGE_PAYLOAD_TRANSACTION);
-
-    transaction_payload_t* payload = (transaction_payload_t*)msg->u.msg->payload;
-    int test = 123;
   }
   res_message_free(msg);
 }
