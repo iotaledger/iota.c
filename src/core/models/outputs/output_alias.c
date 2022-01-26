@@ -72,14 +72,7 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
   output->amount = amount;
 
   // native tokens
-  if (!tokens) {
-    output->native_tokens = native_tokens_clone(tokens);
-    if (!output->native_tokens) {
-      printf("[%s:%d]add native token to Alias output failed\n", __func__, __LINE__);
-      output_alias_free(output);
-      return NULL;
-    }
-  }
+  output->native_tokens = native_tokens_clone(tokens);
 
   // alias ID
   memcpy(output->alias_id, alias_id, ADDRESS_ALIAS_BYTES);
@@ -110,11 +103,6 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
 
   // add feature blocks
   output->feature_blocks = feat_blk_list_clone(feat_blocks);
-  if (!output->feature_blocks) {
-    printf("[%s:%d] can not add feature blocks to Alias output\n", __func__, __LINE__);
-    output_alias_free(output);
-    return NULL;
-  }
 
   return output;
 }
@@ -221,7 +209,7 @@ size_t output_alias_serialize(output_alias_t* output, byte_t buf[], size_t buf_l
   offset += sizeof(uint32_t);
 
   // unlock conditions
-  offset = cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
+  offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
 
   // feature blocks
   if (output->feature_blocks) {
@@ -349,6 +337,7 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
       output_alias_free(output);
       return NULL;
     }
+    offset += cond_blk_list_serialize_len(output->unlock_conditions);
   }
 
   // feature blocks
@@ -409,7 +398,7 @@ void output_alias_print(output_alias_t* output, uint8_t indentation) {
   if (output->state_metadata) {
     dump_hex_str(output->state_metadata->data, output->state_metadata->len);
   } else {
-    printf("%s/\n", PRINT_INDENTATION(indentation));
+    printf("%s\n", PRINT_INDENTATION(indentation));
   }
 
   printf("%s\tFoundry Counter: %" PRIu32 "\n", PRINT_INDENTATION(indentation), output->foundry_counter);

@@ -587,11 +587,11 @@ int cond_blk_list_syntactic(cond_blk_list_t** list) {
   // sort block types
   cond_blk_list_sort(list);
 
-  // Address Unlock Condition must be present
-  if (cond_blk_list_get(*list, 0)->type != UNLOCK_COND_ADDRESS) {
-    printf("[%s:%d] Address Unlock Condition must be present\n", __func__, __LINE__);
-    return -1;
-  }
+  // // Address Unlock Condition must be present
+  // if (cond_blk_list_get(*list, 0)->type != UNLOCK_COND_ADDRESS) {
+  //   printf("[%s:%d] Address Unlock Condition must be present\n", __func__, __LINE__);
+  //   return -1;
+  // }
 
   return 0;
 }
