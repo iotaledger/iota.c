@@ -15,9 +15,10 @@ extern "C" {
  * @brief Deserialize JSON address data to address object
  *
  * @param[in] json_obj JSON object
- * @return *address_t pointer
+ * @param[out] address Deserialized address
+ * @return int 0 on success
  */
-address_t *json_parser_common_address_deserialize(cJSON *json_obj);
+int json_parser_common_address_deserialize(cJSON *json_obj, address_t *address);
 
 #ifdef __cplusplus
 }

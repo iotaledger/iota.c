@@ -14,7 +14,7 @@
 #include "core/address.h"
 #include "core/utils/iota_str.h"
 
-static int deser_milestone(cJSON *milestone_obj, res_message_t *res) {
+static int milestone_deserialize(cJSON *milestone_obj, res_message_t *res) {
   if (milestone_obj == NULL || res == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -62,7 +62,7 @@ end:
   return ret;
 }
 
-static int deser_transaction(cJSON *tx_obj, res_message_t *res) {
+static int transaction_deserialize(cJSON *tx_obj, res_message_t *res) {
   if (tx_obj == NULL || res == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -234,10 +234,10 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
 
       switch (res->u.msg->payload_type) {
         case CORE_MESSAGE_PAYLOAD_TRANSACTION:
-          ret = deser_transaction(payload, res);
+          ret = transaction_deserialize(payload, res);
           break;
         case CORE_MESSAGE_PAYLOAD_MILESTONE:
-          ret = deser_milestone(payload, res);
+          ret = milestone_deserialize(payload, res);
           break;
         default:
           // do nothing
