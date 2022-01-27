@@ -1,10 +1,10 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_API_RESTFUL_MODELS_JSON_UNLOCK_BLOCKS_H__
-#define __CLIENT_API_RESTFUL_MODELS_JSON_UNLOCK_BLOCKS_H__
+#ifndef __CLIENT_API_JSON_PARSER_UNLOCK_BLOCKS_H__
+#define __CLIENT_API_JSON_PARSER_UNLOCK_BLOCKS_H__
 
-#include "client/api/json_utils.h"
+#include "client/api/json_parser/json_utils.h"
 #include "core/models/payloads/transaction.h"
 
 #ifdef __cplusplus
@@ -24,4 +24,4 @@ int json_unlock_blocks_deserialize(cJSON *blocks_obj, transaction_payload_t *pay
 }
 #endif
 
-#endif  // __CLIENT_API_RESTFUL_MODELS_JSON_UNLOCK_BLOCKS_H__
+#endif  // __CLIENT_API_JSON_PARSER_UNLOCK_BLOCKS_H__

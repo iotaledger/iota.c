@@ -1,7 +1,7 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/restful/models/json_unlock_blocks.h"
+#include "client/api/json_parser/unlock_blocks.h"
 
 #define UNLOCK_BLOCKS_PUB_KEY_HEX_STR_LEN 64
 #define UNLOCK_BLOCKS_SIGN_HEX_STR_LEN 128

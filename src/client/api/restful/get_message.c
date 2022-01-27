@@ -5,11 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "client/api/json_utils.h"
+#include "client/api/json_parser/inputs.h"
+#include "client/api/json_parser/json_utils.h"
+#include "client/api/json_parser/outputs.h"
+#include "client/api/json_parser/unlock_blocks.h"
 #include "client/api/restful/get_message.h"
-#include "client/api/restful/models/inputs/json_inputs.h"
-#include "client/api/restful/models/json_unlock_blocks.h"
-#include "client/api/restful/models/outputs/json_outputs.h"
 #include "client/network/http.h"
 #include "core/address.h"
 #include "core/utils/iota_str.h"

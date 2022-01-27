@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#include "client/api/json_utils.h"
+#include "client/api/json_parser/json_utils.h"
 #include "client/api/restful/get_output.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"

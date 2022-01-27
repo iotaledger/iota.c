@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "client/api/json_utils.h"
+#include "client/api/json_parser/json_utils.h"
 
 json_error_t json_get_string(cJSON const* const obj, char const key[], char str[], size_t str_len) {
   if (obj == NULL || key == NULL || str == NULL) {

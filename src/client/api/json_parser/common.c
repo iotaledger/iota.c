@@ -1,7 +1,7 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/restful/models/json_parser_common.h"
+#include "client/api/json_parser/common.h"
 
 int json_parser_common_address_deserialize(cJSON *json_obj, address_t *address) {
   if (json_obj == NULL || address == NULL) {

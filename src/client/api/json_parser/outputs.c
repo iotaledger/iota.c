@@ -1,11 +1,11 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/restful/models/outputs/json_outputs.h"
-#include "client/api/restful/models/outputs/json_output_alias.h"
-#include "client/api/restful/models/outputs/json_output_extended.h"
-#include "client/api/restful/models/outputs/json_output_foundry.h"
-#include "client/api/restful/models/outputs/json_output_nft.h"
+#include "client/api/json_parser/outputs.h"
+#include "client/api/json_parser/output_alias.h"
+#include "client/api/json_parser/output_extended.h"
+#include "client/api/json_parser/output_foundry.h"
+#include "client/api/json_parser/output_nft.h"
 
 /*
   Example for extended output:

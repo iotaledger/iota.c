@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/restful/find_message.h"
-#include "client/api/json_utils.h"
+#include "client/api/json_parser/json_utils.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 
