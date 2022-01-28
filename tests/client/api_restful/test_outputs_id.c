@@ -70,8 +70,7 @@ void test_deser_outputs_err() {
 }
 
 void test_get_output_ids_from_address() {
-  char addr1[] = "017ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f0";
-  char addr_bech32[] = "iota1qpg2xkj66wwgn8p2ggnp7p582gj8g6p79us5hve2tsudzpsr2ap4skprwjg";
+  char addr[] = "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk";
   char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   char const* const addr_hex_invalid_length =
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
@@ -81,16 +80,12 @@ void test_get_output_ids_from_address() {
   TEST_ASSERT_NOT_NULL(res);
 
   // Tests for NULL cases
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(NULL, false, NULL, NULL));
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(NULL, false, NULL, res));
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, false, NULL, res));
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, true, NULL, res));
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(NULL, NULL, NULL));
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(NULL, NULL, res));
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, NULL, res));
 
-  // Test invalid address len : ed25519 address
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, false, addr_hex_invalid_length, res));
-
-  // Test invalid address len : bech32 address
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, true, addr_hex_invalid_length, res));
+  // Test invalid address len
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, addr_hex_invalid_length, res));
 
   // Re initializing res
   res_outputs_free(res);
@@ -98,8 +93,8 @@ void test_get_output_ids_from_address() {
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
 
-  // Test invalid ED25519 address
-  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_address(&ctx, false, addr_hex_invalid, res));
+  // Test invalid address
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_address(&ctx, addr_hex_invalid, res));
   TEST_ASSERT(res->is_error);
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
@@ -111,45 +106,10 @@ void test_get_output_ids_from_address() {
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
 
-  // Test invalid BECH32 address
-  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_address(&ctx, true, addr_hex_invalid, res));
-  TEST_ASSERT(res->is_error);
-  if (res->is_error == true) {
-    printf("Error: %s\n", res->u.error->msg);
-  }
-
-  // Re initializing res
-  res_outputs_free(res);
-  res = NULL;
-  res = res_outputs_new();
-  TEST_ASSERT_NOT_NULL(res);
-
-  // Tests for ed25519 address
-  int ret = get_outputs_from_address(&ctx, false, addr1, res);
+  int ret = get_outputs_from_address(&ctx, addr, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
 
-  // Re initializing res
-  res_outputs_free(res);
-  res = NULL;
-  res = res_outputs_new();
-  TEST_ASSERT_NOT_NULL(res);
-
-  // Tests for bech32 address
-  ret = get_outputs_from_address(&ctx, true, addr_bech32, res);
-  TEST_ASSERT(ret == 0);
-  TEST_ASSERT(res->is_error == false);
-
-// TODO, validate addresses
-#if 0
-  char addr_hex_str[ADDRESS_ED25519_HEX_BYTES+ 1] = {0};
-  TEST_ASSERT(address_bech32_to_hex("iota", addr_bech32, addr_hex_str, sizeof(addr_hex_str)) == 0);
-  // Converting hex string to lower case to check equality
-  for (int i = 0; i < ADDRESS_ED25519_HEX_BYTES; i++) {
-    addr_hex_str[i] = tolower(addr_hex_str[i]);
-  }
-  TEST_ASSERT_EQUAL_MEMORY(addr_hex_str, res->u.output_ids->address, ADDRESS_ED25519_HEX_BYTES);
-#endif
   res_outputs_free(res);
 }
 
