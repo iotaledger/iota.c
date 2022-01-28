@@ -221,14 +221,14 @@ int json_cond_blk_list_deserialize(cJSON *output_obj, cond_blk_list_t *blk_list)
   }
 
   // unlockBlocks array
-  cJSON *tx_unlock_conditions_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_UNLOCK_CONDITIONS);
-  if (!cJSON_IsArray(tx_unlock_conditions_obj)) {
+  cJSON *unlock_conditions_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_UNLOCK_CONDITIONS);
+  if (!cJSON_IsArray(unlock_conditions_obj)) {
     printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_UNLOCK_CONDITIONS);
     return -1;
   }
 
   cJSON *elm = NULL;
-  cJSON_ArrayForEach(elm, tx_unlock_conditions_obj) {
+  cJSON_ArrayForEach(elm, unlock_conditions_obj) {
     // type
     uint8_t unlock_cond_type;
     if (json_get_uint8(elm, JSON_KEY_TYPE, &unlock_cond_type) != JSON_OK) {
