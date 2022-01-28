@@ -28,8 +28,11 @@ int json_cond_blk_addr_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t *blk_
   unlock_cond_blk_t *unlock_blk = cond_blk_addr_new(&address);
   if (cond_blk_list_add(&blk_list, unlock_blk) != 0) {
     printf("[%s:%d] can not add new unlock condition into a list\n", __func__, __LINE__);
+    cond_blk_free(unlock_blk);
     return -1;
   }
+  cond_blk_free(unlock_blk);
+
   return 0;
 }
 
@@ -178,8 +181,11 @@ int json_cond_blk_state_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t *blk
   unlock_cond_blk_t *unlock_blk = cond_blk_state_new(&address);
   if (cond_blk_list_add(&blk_list, unlock_blk) != 0) {
     printf("[%s:%d] can not add new unlock condition into a list\n", __func__, __LINE__);
+    cond_blk_free(unlock_blk);
     return -1;
   }
+  cond_blk_free(unlock_blk);
+
   return 0;
 }
 
@@ -206,8 +212,11 @@ int json_cond_blk_governor_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t *
   unlock_cond_blk_t *unlock_blk = cond_blk_governor_new(&address);
   if (cond_blk_list_add(&blk_list, unlock_blk) != 0) {
     printf("[%s:%d] can not add new unlock condition into a list\n", __func__, __LINE__);
+    cond_blk_free(unlock_blk);
     return -1;
   }
+  cond_blk_free(unlock_blk);
+
   return 0;
 }
 
