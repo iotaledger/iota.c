@@ -83,12 +83,11 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res);
  * @brief Gets output IDs from a given address
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] is_bech32 the address type, true for bech32, false for ed25519
  * @param[in] addr An address in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_address(iota_client_conf_t const *conf, bool is_bech32, char const addr[], res_outputs_id_t *res);
+int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given NFT address
