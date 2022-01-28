@@ -75,12 +75,10 @@ int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t *f
   }
 
   // add new metadata feature block into a list
-  if (metadata_obj->valuestring != NULL) {
-    if (feat_blk_list_add_metadata(&feat_blocks, (byte_t *)metadata_obj->valuestring,
-                                   sizeof(metadata_obj->valuestring)) != 0) {
-      printf("[%s:%d] can not add new feature block into a list\n", __func__, __LINE__);
-      return -1;
-    }
+  if (feat_blk_list_add_metadata(&feat_blocks, (byte_t *)metadata_obj->valuestring,
+                                 sizeof(metadata_obj->valuestring)) != 0) {
+    printf("[%s:%d] can not add new feature block into a list\n", __func__, __LINE__);
+    return -1;
   }
 
   return 0;
@@ -103,11 +101,9 @@ int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t *feat_b
   }
 
   // add new tag feature block into a list
-  if (tag_obj->valuestring != NULL) {
-    if (feat_blk_list_add_tag(&feat_blocks, (byte_t *)tag_obj->valuestring, sizeof(tag_obj->valuestring)) != 0) {
-      printf("[%s:%d] can not add new feature block into a list\n", __func__, __LINE__);
-      return -1;
-    }
+  if (feat_blk_list_add_tag(&feat_blocks, (byte_t *)tag_obj->valuestring, sizeof(tag_obj->valuestring)) != 0) {
+    printf("[%s:%d] can not add new feature block into a list\n", __func__, __LINE__);
+    return -1;
   }
 
   return 0;
