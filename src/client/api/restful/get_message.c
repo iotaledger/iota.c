@@ -80,7 +80,7 @@ static int transaction_deserialize(cJSON *tx_obj, res_message_t *res) {
   cJSON *essence_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, JSON_KEY_ESSENCE);
   if (essence_obj) {
     // inputs array
-    if ((ret = json_inputs_deserialize(essence_obj, tx->essence)) != 0) {
+    if ((ret = json_inputs_deserialize(essence_obj, tx->essence->inputs)) != 0) {
       goto end;
     }
 
@@ -127,7 +127,7 @@ static int transaction_deserialize(cJSON *tx_obj, res_message_t *res) {
     // unlock blocks
     cJSON *blocks_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, JSON_KEY_UNLOCK_BLOCKS);
     if (cJSON_IsArray(blocks_obj)) {
-      ret = json_unlock_blocks_deserialize(blocks_obj, tx);
+      ret = json_unlock_blocks_deserialize(blocks_obj, tx->unlock_blocks);
     } else {
       printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_UNLOCK_BLOCKS);
     }

@@ -13,13 +13,13 @@
     },
   ]
 */
-int json_inputs_deserialize(cJSON *essence_obj, transaction_essence_t *essence) {
-  if (essence_obj == NULL || essence == NULL) {
+int json_inputs_deserialize(cJSON *essence_obj, utxo_inputs_list_t *inputs) {
+  if (essence_obj == NULL || inputs == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  // inputs
+  // inputs array
   cJSON *inputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_INPUTS);
   if (!cJSON_IsArray(inputs_obj)) {
     printf("[%s:%d]: %s is not an array\n", __func__, __LINE__, JSON_KEY_INPUTS);
@@ -29,35 +29,33 @@ int json_inputs_deserialize(cJSON *essence_obj, transaction_essence_t *essence) 
   cJSON *elm = NULL;
   cJSON_ArrayForEach(elm, inputs_obj) {
     // type
-    cJSON *input_type_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TYPE);
-    if (!cJSON_IsNumber(input_type_obj)) {
-      printf("[%s:%d] %s is not a number\n", __func__, __LINE__, JSON_KEY_TYPE);
+    uint8_t input_type;
+    if (json_get_uint8(elm, JSON_KEY_TYPE, &input_type) != JSON_OK) {
+      printf("[%s:%d]: getting %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_TYPE);
       return -1;
     }
 
     // transactionId
-    cJSON *input_tx_id_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_ID);
+    char transaction_id_hex[ADDRESS_ED25519_HEX_BYTES];
     byte_t tx_id[IOTA_TRANSACTION_ID_BYTES];
-    char *id_str = cJSON_GetStringValue(input_tx_id_obj);
-    if (id_str) {
-      if (hex_2_bin(id_str, IOTA_TRANSACTION_ID_HEX_BYTES, tx_id, IOTA_TRANSACTION_ID_BYTES) != 0) {
-        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
-        return -1;
-      }
-    } else {
-      printf("[%s:%d] %s is not a string\n", __func__, __LINE__, JSON_KEY_TX_ID);
+    if (json_get_string(elm, JSON_KEY_TX_ID, transaction_id_hex, IOTA_TRANSACTION_ID_HEX_BYTES) != JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_TX_ID);
+      return -1;
+    }
+    if (hex_2_bin(transaction_id_hex, IOTA_TRANSACTION_ID_HEX_BYTES, tx_id, IOTA_TRANSACTION_ID_BYTES) != 0) {
+      printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
       return -1;
     }
 
     // transactionOutputIndex
-    cJSON *input_tx_out_index_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_TX_OUT_INDEX);
-    if (!cJSON_IsNumber(input_tx_out_index_obj)) {
-      printf("[%s:%d] %s is not a number\n", __func__, __LINE__, JSON_KEY_TX_OUT_INDEX);
+    uint16_t output_index;
+    if (json_get_uint16(elm, JSON_KEY_TX_OUT_INDEX, &output_index) != JSON_OK) {
+      printf("[%s:%d]: getting %s json uint16 failed\n", __func__, __LINE__, JSON_KEY_TX_OUT_INDEX);
       return -1;
     }
 
     // add new input to inputs list
-    if (utxo_inputs_add(&essence->inputs, input_type_obj->valueint, tx_id, input_tx_out_index_obj->valueint) != 0) {
+    if (utxo_inputs_add(&inputs, input_type, tx_id, output_index) != 0) {
       printf("[%s:%d] can not add new input into a list\n", __func__, __LINE__);
       return -1;
     }

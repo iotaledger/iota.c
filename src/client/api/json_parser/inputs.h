@@ -15,10 +15,10 @@ extern "C" {
  * @brief Deserialize JSON data to an utxo input list object
  *
  * @param[in] essence_obj Essence JSON object
- * @param[out] essence Transaction essence data object
+ * @param[out] inputs An utxo input list
  * @return int 0 on success
  */
-int json_inputs_deserialize(cJSON *essence_obj, transaction_essence_t *essence);
+int json_inputs_deserialize(cJSON* essence_obj, utxo_inputs_list_t* inputs);
 
 #ifdef __cplusplus
 }

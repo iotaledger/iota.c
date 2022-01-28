@@ -15,10 +15,10 @@ extern "C" {
  * @brief Deserialize JSON data to unlock blocks list object
  *
  * @param[in] output_obj Output JSON object
- * @param[out] transaction_payload_t Transaction payload object
+ * @param[out] unlock_blocks Unlock blocks object
  * @return int 0 on success
  */
-int json_unlock_blocks_deserialize(cJSON *blocks_obj, transaction_payload_t *payload_tx);
+int json_unlock_blocks_deserialize(cJSON *blocks_obj, unlock_list_t *unlock_blocks);
 
 #ifdef __cplusplus
 }
