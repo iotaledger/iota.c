@@ -1,8 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_API_JSON_KEYS_H__
-#define __CLIENT_API_JSON_KEYS_H__
+#ifndef __CLIENT_API_JSON_PARSER_JSON_KEYS_H__
+#define __CLIENT_API_JSON_PARSER_JSON_KEYS_H__
 
 static char const* const JSON_KEY_ADDR = "address";
 static char const* const JSON_KEY_ADDR_TYPE = "addressType";
@@ -62,5 +62,9 @@ static char const* const JSON_KEY_LMT = "latestMilestoneTimestamp";
 static char const* const JSON_KEY_CHILDREN_MSG_IDS = "childrenMessageIds";
 static char const* const JSON_KEY_LEDGER_IDX = "ledgerIndex";
 static char const* const JSON_KEY_DUST_ALLOWED = "dustAllowed";
+static char const* const JSON_KEY_ID = "id";
+static char const* const JSON_KEY_NATIVE_TOKENS = "nativeTokens";
+static char const* const JSON_KEY_UNLOCK_CONDITIONS = "unlockConditions";
+static char const* const JSON_KEY_FEAT_BLOCKS = "blocks";
 
 #endif

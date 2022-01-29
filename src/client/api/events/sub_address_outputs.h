@@ -8,7 +8,6 @@
 #include <stdint.h>
 
 #include "client/api/events/node_event.h"
-#include "client/api/message.h"
 
 /**
  * @brief The output object in event

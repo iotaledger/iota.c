@@ -1,8 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_API_JSON_UTILS_H__
-#define __CLIENT_API_JSON_UTILS_H__
+#ifndef __CLIENT_API_JSON_PARSER_JSON_UTILS_H__
+#define __CLIENT_API_JSON_PARSER_JSON_UTILS_H__
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -10,7 +10,7 @@
 #include "cJSON.h"
 #include "utarray.h"
 
-#include "client/api/json_keys.h"
+#include "client/api/json_parser/json_keys.h"
 #include "core/utils/byte_buffer.h"
 
 typedef enum {

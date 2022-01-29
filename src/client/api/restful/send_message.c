@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "client/api/json_utils.h"
+#include "client/api/json_parser/json_utils.h"
 #include "client/api/message_builder.h"
 #include "client/api/restful/get_tips.h"
 #include "client/api/restful/send_message.h"
@@ -12,7 +12,7 @@
 char const* const cmd_msg = "/api/v1/messages";
 
 // create JSON object and put the JSON string in byte_buf_t that can send by http client.
-int serialize_indexation(message_t* msg, byte_buf_t* buf) {
+int serialize_indexation(core_message_t* msg, byte_buf_t* buf) {
   int ret = -1;
   byte_buf_t* hex_data = NULL;
   byte_buf_t* hex_index = NULL;
@@ -41,7 +41,7 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
     goto end;
   }
 
-  if (utarray_to_json_string_array(msg->parent_msg_ids, json_root, JSON_KEY_PARENT_IDS) != JSON_OK) {
+  if (utarray_to_json_string_array(msg->parents, json_root, JSON_KEY_PARENT_IDS) != JSON_OK) {
     printf("[%s:%d] add parents failed\n", __func__, __LINE__);
     goto end;
   }
@@ -55,7 +55,7 @@ int serialize_indexation(message_t* msg, byte_buf_t* buf) {
   */
   cJSON* json_payload = cJSON_AddObjectToObject(json_root, JSON_KEY_PAYLOAD);
   if (json_payload) {
-    payload_index_t* payload = (payload_index_t*)msg->payload;
+    indexation_t* payload = (indexation_t*)msg->payload;
     if (!cJSON_AddNumberToObject(json_payload, JSON_KEY_TYPE, 2)) {
       printf("[%s:%d] payload/type object failed\n", __func__, __LINE__);
       goto end;
@@ -147,7 +147,7 @@ end:
   return ret;
 }
 
-int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_message_t* res) {
+int send_message(iota_client_conf_t const* const conf, core_message_t* msg, res_send_message_t* res) {
   int ret = -1;
   long http_st_code = 0;
   byte_buf_t* json_data = byte_buf_new();
@@ -159,12 +159,12 @@ int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_
   }
 
   // serialize message
-  switch (msg->type) {
-    case MSG_PAYLOAD_TRANSACTION:
-    case MSG_PAYLOAD_MILESTONE:
+  switch (msg->payload_type) {
+    case CORE_MESSAGE_PAYLOAD_TRANSACTION:
+    case CORE_MESSAGE_PAYLOAD_MILESTONE:
       printf("[%s:%d] not supported, use send_core_message instead\n", __func__, __LINE__);
       break;
-    case MSG_PAYLOAD_INDEXATION:
+    case CORE_MESSAGE_PAYLOAD_INDEXATION:
       ret = serialize_indexation(msg, json_data);
       break;
     default:
@@ -198,8 +198,8 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
   int ret = -1;
   // get tips
   res_tips_t* tips = NULL;
-  message_t* msg = NULL;
-  payload_index_t* idx = NULL;
+  core_message_t* msg = NULL;
+  indexation_t* idx = NULL;
 
   if ((tips = res_tips_new()) == NULL) {
     printf("[%s:%d] allocate tips response failed\n", __func__, __LINE__);
@@ -216,7 +216,7 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
     goto done;
   }
 
-  if ((idx = payload_index_new()) == NULL) {
+  if ((idx = indexation_new()) == NULL) {
     printf("[%s:%d] allocate indexation payload failed\n", __func__, __LINE__);
     goto done;
   }
@@ -225,19 +225,19 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
   if (!byte_buf_append(idx->data, (byte_t const*)data, strlen(data) + 1) ||
       !byte_buf_append(idx->index, (byte_t const*)index, strlen(index) + 1)) {
     printf("[%s:%d] append data and index to payload failed\n", __func__, __LINE__);
-    payload_index_free(idx);
+    indexation_free(idx);
     goto done;
   }
 
-  if ((msg = api_message_new()) == NULL) {
+  if ((msg = core_message_new()) == NULL) {
     printf("[%s:%d] allocate message failed\n", __func__, __LINE__);
     goto done;
   }
 
   // this is an indexation payload
-  msg->type = MSG_PAYLOAD_INDEXATION;
+  msg->payload_type = CORE_MESSAGE_PAYLOAD_INDEXATION;
   msg->payload = idx;
-  utarray_concat(msg->parent_msg_ids, tips->u.tips);
+  utarray_concat(msg->parents, tips->u.tips);
 
   // send message to a node
   if ((ret = send_message(conf, msg, res)) != 0) {
@@ -246,7 +246,7 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
 
 done:
   res_tips_free(tips);
-  api_message_free(msg);
+  core_message_free(msg);
 
   return ret;
 }

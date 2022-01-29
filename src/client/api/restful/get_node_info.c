@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "client/api/json_utils.h"
+#include "client/api/json_parser/json_utils.h"
 #include "client/api/restful/get_node_info.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"

@@ -29,6 +29,7 @@ target_sources(
           "models/outputs/unlock_conditions.c"
           "models/payloads/transaction.c"
           "models/payloads/indexation.c"
+          "models/payloads/milestone.c"
           "models/message.c"
           "models/unlock_block.c"
   PUBLIC "address.h"
@@ -49,6 +50,7 @@ target_sources(
          "models/outputs/unlock_conditions.h"
          "models/payloads/transaction.h"
          "models/payloads/indexation.h"
+         "models/payloads/milestone.h"
          "models/message.h"
          "models/unlock_block.h")
 

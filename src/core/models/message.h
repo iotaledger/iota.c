@@ -11,13 +11,23 @@
 
 #include "core/models/payloads/indexation.h"
 #include "core/models/payloads/milestone.h"
-#include "core/models/payloads/transaction.h"
 #include "core/types.h"
 
 // Message ID in binary form
 #define IOTA_MESSAGE_ID_BYTES 32
 // Message ID in hex string form
 #define IOTA_MESSAGE_ID_HEX_BYTES (IOTA_MESSAGE_ID_BYTES * 2)
+// Transaction ID in binary form
+#define IOTA_TRANSACTION_ID_BYTES 32
+// Transaction ID in hex string form
+#define IOTA_TRANSACTION_ID_HEX_BYTES (IOTA_TRANSACTION_ID_BYTES * 2)
+
+typedef enum {
+  CORE_MESSAGE_PAYLOAD_TRANSACTION = 0,
+  CORE_MESSAGE_PAYLOAD_MILESTONE,
+  CORE_MESSAGE_PAYLOAD_INDEXATION,
+  CORE_MESSAGE_PAYLOAD_UNKNOW = UINT32_MAX - 1,
+} core_message_payload_type_t;
 
 /**
  * @brief A message object
@@ -73,6 +83,23 @@ void core_message_add_parent(core_message_t* msg, byte_t const msg_id[]);
  * @return size_t
  */
 size_t core_message_parent_len(core_message_t* msg);
+
+/**
+ * @brief Gets a parent ID by a given index
+ *
+ * @param[in] msg A message object
+ * @param[in] index A index of a message ID
+ * @return char*
+ */
+char* core_message_get_parent_id(core_message_t* msg, size_t index);
+
+/**
+ * @brief Get the message payload type
+ *
+ * @param[in] msg The message object
+ * @return core_message_payload_type_t
+ */
+core_message_payload_type_t core_message_get_payload_type(core_message_t* msg);
 
 #ifdef __cplusplus
 }

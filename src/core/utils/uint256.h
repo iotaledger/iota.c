@@ -12,6 +12,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+// Maximum possible length of a string representing 256-bit number. 78 characters + string termination character
+#define STRING_NUMBER_MAX_CHARACTERS 79
+
 /**
  * @brief A 256 bit number object.
  *

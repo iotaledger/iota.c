@@ -8,6 +8,8 @@
 #include "uthash.h"
 
 #include "core/models/message.h"
+#include "core/models/payloads/transaction.h"
+#include "crypto/iota_crypto.h"
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
 
@@ -15,8 +17,8 @@ core_message_t* core_message_new() {
   core_message_t* msg = malloc(sizeof(core_message_t));
   if (msg) {
     msg->network_id = 0;
-    utarray_new(msg->parents, &ut_msg_id_icd);
-    msg->payload_type = UINT32_MAX - 1;  // invalid payload type
+    utarray_new(msg->parents, &ut_str_icd);
+    msg->payload_type = CORE_MESSAGE_PAYLOAD_UNKNOW;  // invalid payload type
     msg->payload = NULL;
     msg->nonce = 0;
   }
@@ -31,7 +33,7 @@ int core_message_sign_transaction(core_message_t* msg) {
     return -1;
   }
 
-  if (msg->payload_type != 0 || msg->payload == NULL) {
+  if (msg->payload_type != CORE_MESSAGE_PAYLOAD_TRANSACTION || msg->payload == NULL) {
     printf("[%s:%d] invalid payload\n", __func__, __LINE__);
     return -1;
   }
@@ -100,10 +102,10 @@ int core_message_sign_transaction(core_message_t* msg) {
 void core_message_free(core_message_t* msg) {
   if (msg) {
     if (msg->payload) {
-      if (msg->payload_type == 0) {
+      if (msg->payload_type == CORE_MESSAGE_PAYLOAD_TRANSACTION) {
         tx_payload_free((transaction_payload_t*)msg->payload);
       }
-      if (msg->payload_type == 2) {
+      if (msg->payload_type == CORE_MESSAGE_PAYLOAD_INDEXATION) {
         indexation_free((indexation_t*)msg->payload);
       }
       // TODO support other payload
@@ -124,4 +126,20 @@ size_t core_message_parent_len(core_message_t* msg) {
     return utarray_len(msg->parents);
   }
   return 0;
+}
+
+char* core_message_get_parent_id(core_message_t* msg, size_t index) {
+  if (msg) {
+    if (msg->parents && (index < core_message_parent_len(msg))) {
+      return *(char**)utarray_eltptr(msg->parents, index);
+    }
+  }
+  return NULL;
+}
+
+core_message_payload_type_t core_message_get_payload_type(core_message_t* msg) {
+  if (msg) {
+    return msg->payload_type;
+  }
+  return CORE_MESSAGE_PAYLOAD_UNKNOW;
 }

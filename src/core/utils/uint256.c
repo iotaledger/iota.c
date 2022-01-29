@@ -8,9 +8,6 @@
 
 #include "core/utils/uint256.h"
 
-// Maximum possible length of a string representing 256-bit number. 78 characters + string termination character
-#define STRING_NUMBER_MAX_CHARACTERS 79
-
 // Helper functions to get higher and lower part of an uint64_t number
 #define hi(x) (x >> 32)
 #define lo(x) ((((uint64_t)0x1 << 32) - 1) & x)

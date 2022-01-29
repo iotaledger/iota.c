@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "client/api/json_keys.h"
+#include "client/api/json_parser/json_keys.h"
 #include "client/api/restful/response_error.h"
 #include "core/utils/allocator.h"
 

@@ -7,7 +7,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "client/api/message.h"
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
 #include "core/models/message.h"
@@ -45,7 +44,7 @@ int deser_send_message_response(char const* json_str, res_send_message_t* res);
  * @param[out] buf A JSON string of the message object
  * @return int 0 on success
  */
-int serialize_indexation(message_t* msg, byte_buf_t* buf);
+int serialize_indexation(core_message_t* msg, byte_buf_t* buf);
 
 /**
  * @brief Send out an indexation message
@@ -67,7 +66,7 @@ int send_indexation_msg(iota_client_conf_t const* const conf, char const index[]
  * @param[out] res The response object
  * @return int 0 on success
  */
-int send_message(iota_client_conf_t const* const conf, message_t* msg, res_send_message_t* res);
+int send_message(iota_client_conf_t const* const conf, core_message_t* msg, res_send_message_t* res);
 
 /**
  * @brief Send message thought core message object
