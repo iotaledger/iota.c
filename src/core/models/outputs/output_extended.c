@@ -7,14 +7,8 @@
 #include "core/models/outputs/output_extended.h"
 #include "core/models/outputs/outputs.h"
 #include "core/types.h"
-#include "uthash.h"
 #include "utlist.h"
 
-// minimum dust allowance
-// #define MIN_DUST_ALLOWANCE 1000000
-
-// maximum number of feature blocks
-#define MAX_FEATURE_BLOCKS_COUNT 8
 // maximum number of unlock condition blocks
 #define MAX_EXTENDED_CONDITION_BLOCKS_COUNT 4
 // maximum number of feature blocks
@@ -33,6 +27,7 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
   //   return NULL;
   // }
 
+  // validate unlock condition parameter
   if (cond_blk_list_len(cond_blocks) > MAX_EXTENDED_CONDITION_BLOCKS_COUNT) {
     printf("[%s:%d] there should be at most %d condition blocks\n", __func__, __LINE__,
            MAX_EXTENDED_CONDITION_BLOCKS_COUNT);
@@ -46,8 +41,10 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
     }
   }
 
-  if (feat_blk_list_len(feat_blocks) > MAX_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_FEATURE_BLOCKS_COUNT);
+  // validate feature block parameter
+  if (feat_blk_list_len(feat_blocks) > MAX_EXTENDED_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__,
+           MAX_EXTENDED_FEATURE_BLOCKS_COUNT);
     return NULL;
   } else {
     // must no contain FEAT_ISSUER_BLOCK
@@ -57,6 +54,7 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
     }
   }
 
+  // create an extened output object
   output_extended_t* output = malloc(sizeof(output_extended_t));
   if (!output) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
@@ -65,6 +63,7 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
   // init the extended object
   memset(output, 0, sizeof(output_extended_t));
 
+  // add address
   output->address = address_clone(addr);
   if (!output->address) {
     printf("[%s:%d] can not add address to extended output\n", __func__, __LINE__);
@@ -72,8 +71,10 @@ output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_
     return NULL;
   }
 
+  // add amount
   output->amount = amount;
 
+  // add native token
   if (tokens != NULL) {
     output->native_tokens = native_tokens_new();
     native_tokens_t *token, *token_tmp;
@@ -258,7 +259,11 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   // feature blocks
   uint8_t feat_block_count = 0;
   memcpy(&feat_block_count, &buf[offset], sizeof(uint8_t));
-  if (feat_block_count > 0) {
+  if (feat_block_count > MAX_EXTENDED_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
+    output_extended_free(output);
+    return NULL;
+  } else if (feat_block_count > 0) {
     output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
     if (!output->feature_blocks) {
       printf("[%s:%d] can not deserialize feature blocks\n", __func__, __LINE__);
