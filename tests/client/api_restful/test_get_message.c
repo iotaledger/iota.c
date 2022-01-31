@@ -99,6 +99,7 @@ void test_deser_milestone() {
       "fa2aa571a93d850f",
       milestone_payload_get_signature(ms, 1), MILESTONE_SIGNATURE_HEX_STR_LEN);
 
+  milestone_payload_free(ms);
   res_message_free(res);
 }
 

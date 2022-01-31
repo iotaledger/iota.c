@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "client/api/json_utils.h"
+#include "client/api/json_parser/json_utils.h"
 #include "unity/unity.h"
 
 void setUp(void) {}

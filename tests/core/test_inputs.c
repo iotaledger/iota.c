@@ -5,19 +5,20 @@
 #include <stdlib.h>
 
 #include "core/models/inputs/utxo_input.h"
+#include "core/models/message.h"
 #include "unity/unity.h"
 
-static byte_t tx_id0[TRANSACTION_ID_BYTES] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-static byte_t tx_id1[TRANSACTION_ID_BYTES] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-                                              255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
-                                              255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
-static byte_t tx_id2[TRANSACTION_ID_BYTES] = {126, 127, 95,  249, 151, 44,  243, 150, 40,  39, 46,
-                                              190, 54,  49,  73,  171, 165, 88,  139, 221, 25, 199,
-                                              90,  172, 252, 142, 91,  179, 113, 2,   177, 58};
-static byte_t tx_id3[TRANSACTION_ID_BYTES] = {30,  49,  142, 249, 151, 44,  243, 150, 40,  39, 46,
-                                              190, 54,  200, 73,  171, 165, 88,  139, 221, 25, 199,
-                                              90,  172, 252, 142, 91,  179, 113, 120, 110, 70};
+static byte_t tx_id0[IOTA_TRANSACTION_ID_BYTES] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+static byte_t tx_id1[IOTA_TRANSACTION_ID_BYTES] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+                                                   255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+                                                   255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+static byte_t tx_id2[IOTA_TRANSACTION_ID_BYTES] = {126, 127, 95,  249, 151, 44,  243, 150, 40,  39, 46,
+                                                   190, 54,  49,  73,  171, 165, 88,  139, 221, 25, 199,
+                                                   90,  172, 252, 142, 91,  179, 113, 2,   177, 58};
+static byte_t tx_id3[IOTA_TRANSACTION_ID_BYTES] = {30,  49,  142, 249, 151, 44,  243, 150, 40,  39, 46,
+                                                   190, 54,  200, 73,  171, 165, 88,  139, 221, 25, 199,
+                                                   90,  172, 252, 142, 91,  179, 113, 120, 110, 70};
 
 void setUp(void) {}
 
@@ -67,14 +68,14 @@ void test_utxo_input() {
   // find and validate transaction ID
   utxo_input_t* elm = utxo_inputs_find_by_id(inputs, tx_id1);
   TEST_ASSERT_NOT_NULL(elm);
-  TEST_ASSERT_EQUAL_MEMORY(tx_id1, elm->tx_id, TRANSACTION_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(tx_id1, elm->tx_id, IOTA_TRANSACTION_ID_BYTES);
   TEST_ASSERT(2 == elm->output_index);
 
   // find and validate index
   elm = utxo_inputs_find_by_index(inputs, 3);
   TEST_ASSERT_NOT_NULL(elm);
   TEST_ASSERT(3 == elm->output_index);
-  TEST_ASSERT_EQUAL_MEMORY(tx_id2, elm->tx_id, TRANSACTION_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(tx_id2, elm->tx_id, IOTA_TRANSACTION_ID_BYTES);
 
   // serialize input list and validate it
   size_t expected_serialized_len = utxo_inputs_serialize_len(inputs);
@@ -92,7 +93,7 @@ void test_utxo_input() {
   TEST_ASSERT(utxo_inputs_serialize(inputs, inputs_list_buf, expected_serialized_len) == expected_serialized_len);
 
   // deserialize outputs list and validate it
-  utxo_inputs_list_t *deser_inputs = utxo_inputs_deserialize(inputs_list_buf, 1);
+  utxo_inputs_list_t* deser_inputs = utxo_inputs_deserialize(inputs_list_buf, 1);
   TEST_ASSERT_NULL(deser_inputs);  // expect deserialization fails
   deser_inputs = utxo_inputs_deserialize(inputs_list_buf, expected_serialized_len);
   TEST_ASSERT_NOT_NULL(deser_inputs);
@@ -104,7 +105,7 @@ void test_utxo_input() {
   elm = utxo_inputs_find_by_index(deser_inputs, 3);
   TEST_ASSERT_NOT_NULL(elm);
   TEST_ASSERT(3 == elm->output_index);
-  TEST_ASSERT_EQUAL_MEMORY(tx_id2, elm->tx_id, TRANSACTION_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(tx_id2, elm->tx_id, IOTA_TRANSACTION_ID_BYTES);
 
   utxo_inputs_free(deser_inputs);
   free(inputs_list_buf);
