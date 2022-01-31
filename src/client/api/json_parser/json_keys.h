@@ -66,5 +66,6 @@ static char const* const JSON_KEY_ID = "id";
 static char const* const JSON_KEY_NATIVE_TOKENS = "nativeTokens";
 static char const* const JSON_KEY_UNLOCK_CONDITIONS = "unlockConditions";
 static char const* const JSON_KEY_FEAT_BLOCKS = "blocks";
+static char const* const JSON_KEY_TAG = "tag";
 
 #endif
