@@ -5,12 +5,13 @@
 #include "client/api/json_parser/common.h"
 
 /*
+  "type": 0,
   "address": {
     "type": 0,
     "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
   }
 */
-int json_feat_blk_sender_deserialize(cJSON *feat_block_obj, feat_blk_list_t *feat_blocks) {
+int json_feat_blk_sender_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
   if (feat_block_obj == NULL || feat_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -24,7 +25,7 @@ int json_feat_blk_sender_deserialize(cJSON *feat_block_obj, feat_blk_list_t *fea
   }
 
   // add new sender feature block into a list
-  if (feat_blk_list_add_sender(&feat_blocks, &address) != 0) {
+  if (feat_blk_list_add_sender(feat_blocks, &address) != 0) {
     printf("[%s:%d] can not add new feature block into a list\n", __func__, __LINE__);
     return -1;
   }
@@ -32,12 +33,13 @@ int json_feat_blk_sender_deserialize(cJSON *feat_block_obj, feat_blk_list_t *fea
 }
 
 /*
+  "type": 1,
   "address": {
     "type": 0,
     "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
   }
 */
-int json_feat_blk_issuer_deserialize(cJSON *feat_block_obj, feat_blk_list_t *feat_blocks) {
+int json_feat_blk_issuer_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
   if (feat_block_obj == NULL || feat_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -51,7 +53,7 @@ int json_feat_blk_issuer_deserialize(cJSON *feat_block_obj, feat_blk_list_t *fea
   }
 
   // add new issuer feature block into a list
-  if (feat_blk_list_add_issuer(&feat_blocks, &address) != 0) {
+  if (feat_blk_list_add_issuer(feat_blocks, &address) != 0) {
     printf("[%s:%d] can not add new feature block into a list\n", __func__, __LINE__);
     return -1;
   }
@@ -59,9 +61,10 @@ int json_feat_blk_issuer_deserialize(cJSON *feat_block_obj, feat_blk_list_t *fea
 }
 
 /*
+  "type": 2,
   "data": "89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b"
 */
-int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t *feat_blocks) {
+int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
   if (feat_block_obj == NULL || feat_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -75,8 +78,8 @@ int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t *f
   }
 
   // add new metadata feature block into a list
-  if (feat_blk_list_add_metadata(&feat_blocks, (byte_t *)metadata_obj->valuestring,
-                                 sizeof(metadata_obj->valuestring)) != 0) {
+  if (feat_blk_list_add_metadata(feat_blocks, (byte_t *)metadata_obj->valuestring, strlen(metadata_obj->valuestring)) !=
+      0) {
     printf("[%s:%d] can not add new feature block into a list\n", __func__, __LINE__);
     return -1;
   }
@@ -85,23 +88,24 @@ int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t *f
 }
 
 /*
-  "data": "89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b"
+  "type": 3,
+  "tag": "89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b"
 */
-int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t *feat_blocks) {
+int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
   if (feat_block_obj == NULL || feat_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
   // tag
-  cJSON *tag_obj = cJSON_GetObjectItemCaseSensitive(feat_block_obj, JSON_KEY_DATA);
+  cJSON *tag_obj = cJSON_GetObjectItemCaseSensitive(feat_block_obj, JSON_KEY_TAG);
   if (!cJSON_IsString(tag_obj)) {
-    printf("[%s:%d] %s is not a string\n", __func__, __LINE__, JSON_KEY_DATA);
+    printf("[%s:%d] %s is not a string\n", __func__, __LINE__, JSON_KEY_TAG);
     return -1;
   }
 
   // add new tag feature block into a list
-  if (feat_blk_list_add_tag(&feat_blocks, (byte_t *)tag_obj->valuestring, sizeof(tag_obj->valuestring)) != 0) {
+  if (feat_blk_list_add_tag(feat_blocks, (byte_t *)tag_obj->valuestring, strlen(tag_obj->valuestring)) != 0) {
     printf("[%s:%d] can not add new feature block into a list\n", __func__, __LINE__);
     return -1;
   }
@@ -112,7 +116,7 @@ int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t *feat_b
 /*
   "blocks": [],
 */
-int json_feat_blocks_deserialize(cJSON *output_obj, feat_blk_list_t *feat_blocks) {
+int json_feat_blocks_deserialize(cJSON *output_obj, feat_blk_list_t **feat_blocks) {
   if (output_obj == NULL || feat_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
