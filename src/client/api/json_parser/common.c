@@ -3,14 +3,14 @@
 
 #include "client/api/json_parser/common.h"
 
-int json_parser_common_address_deserialize(cJSON *json_obj, address_t *address) {
+int json_parser_common_address_deserialize(cJSON *json_obj, char const *const json_address_key, address_t *address) {
   if (json_obj == NULL || address == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
   // address array
-  cJSON *json_address_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_ADDR);
+  cJSON *json_address_obj = cJSON_GetObjectItemCaseSensitive(json_obj, json_address_key);
   if (!json_address_obj) {
     return -1;
   }

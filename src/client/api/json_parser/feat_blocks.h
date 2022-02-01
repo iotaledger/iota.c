@@ -12,13 +12,49 @@ extern "C" {
 #endif
 
 /**
+ * @brief Deserialize JSON sender feature block to feature block object
+ *
+ * @param[in] feat_block_obj Feature block JSON object
+ * @param[out] feat_blocks Feature blocks list object
+ * @return int 0 on success
+ */
+int json_feat_blk_sender_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks);
+
+/**
+ * @brief Deserialize JSON issuer feature block to feature block object
+ *
+ * @param[in] feat_block_obj Feature block JSON object
+ * @param[out] feat_blocks Feature blocks list object
+ * @return int 0 on success
+ */
+int json_feat_blk_issuer_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks);
+
+/**
+ * @brief Deserialize JSON metadata feature block to feature block object
+ *
+ * @param[in] feat_block_obj Feature block JSON object
+ * @param[out] feat_blocks Feature blocks list object
+ * @return int 0 on success
+ */
+int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks);
+
+/**
+ * @brief Deserialize JSON tag feature block to feature block object
+ *
+ * @param[in] feat_block_obj Feature block JSON object
+ * @param[out] feat_blocks Feature blocks list object
+ * @return int 0 on success
+ */
+int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks);
+
+/**
  * @brief Deserialize JSON data to feature blocks list object
  *
  * @param[in] output_obj Output JSON object
  * @param[out] feat_blocks Feature blocks list object
  * @return int 0 on success
  */
-int json_feat_blocks_deserialize(cJSON *output_obj, feat_blk_list_t *feat_blocks);
+int json_feat_blocks_deserialize(cJSON *output_obj, feat_blk_list_t **feat_blocks);
 
 #ifdef __cplusplus
 }

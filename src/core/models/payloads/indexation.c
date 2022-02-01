@@ -43,16 +43,14 @@ indexation_t *indexation_create(char const *index, byte_t data[], uint32_t data_
 
   if ((idx = indexation_new()) != NULL) {
     // add index string
-    idx->index = byte_buf_new_with_data((byte_t *)index, strlen(index) + 1);
-    if (!idx->index) {
+    if (!byte_buf_set(idx->index, (byte_t *)index, strlen(index) + 1)) {
       printf("[%s:%d] append index failed", __func__, __LINE__);
       indexation_free(idx);
       return NULL;
     }
 
     // add a binary array to data
-    idx->data = byte_buf_new_with_data(data, data_len);
-    if (!idx->data) {
+    if (!byte_buf_set(idx->data, data, data_len)) {
       printf("[%s:%d] append data failed", __func__, __LINE__);
       indexation_free(idx);
       return NULL;
