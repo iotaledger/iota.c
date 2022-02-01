@@ -13,7 +13,7 @@
     },
   ]
 */
-int json_inputs_deserialize(cJSON *essence_obj, utxo_inputs_list_t *inputs) {
+int json_inputs_deserialize(cJSON *essence_obj, utxo_inputs_list_t **inputs) {
   if (essence_obj == NULL || inputs == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -55,7 +55,7 @@ int json_inputs_deserialize(cJSON *essence_obj, utxo_inputs_list_t *inputs) {
     }
 
     // add new input to inputs list
-    if (utxo_inputs_add(&inputs, input_type, tx_id, output_index) != 0) {
+    if (utxo_inputs_add(inputs, input_type, tx_id, output_index) != 0) {
       printf("[%s:%d] can not add new input into a list\n", __func__, __LINE__);
       return -1;
     }

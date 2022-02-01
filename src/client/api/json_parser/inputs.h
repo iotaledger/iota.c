@@ -18,7 +18,7 @@ extern "C" {
  * @param[out] inputs An utxo input list
  * @return int 0 on success
  */
-int json_inputs_deserialize(cJSON* essence_obj, utxo_inputs_list_t* inputs);
+int json_inputs_deserialize(cJSON* essence_obj, utxo_inputs_list_t** inputs);
 
 #ifdef __cplusplus
 }
