@@ -10,7 +10,7 @@
     },
   ]
 */
-int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_t *native_tokens) {
+int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_t **native_tokens) {
   if (output_obj == NULL || native_tokens == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -41,7 +41,7 @@ int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_t *native_to
     uint256_t *amount = uint256_from_str(token_amount);
 
     // add new token into a list
-    if (native_tokens_add(&native_tokens, (byte_t *)token_id, amount) != 0) {
+    if (native_tokens_add(native_tokens, (byte_t *)token_id, amount) != 0) {
       printf("[%s:%d] can not add new native token into a list\n", __func__, __LINE__);
       free(amount);
       return -1;

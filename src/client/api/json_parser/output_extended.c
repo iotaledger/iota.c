@@ -23,45 +23,57 @@ int json_output_extended_deserialize(cJSON *output_obj, transaction_essence_t *e
     return -1;
   }
 
-  output_extended_t output = {};
+  int result = -1;
 
   // amount
   uint64_t amount;
   if (json_get_uint64(output_obj, JSON_KEY_AMOUNT, &amount) != JSON_OK) {
     printf("[%s:%d]: getting %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
-    return -1;
+    goto end;
   }
-  output.amount = amount;
 
   // native tokens array
-  cJSON *nativeTokens_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_NATIVE_TOKENS);
-  if (!cJSON_IsArray(nativeTokens_obj) ||
-      (json_native_tokens_deserialize(nativeTokens_obj, output.native_tokens) != 0)) {
+  native_tokens_t *tokens = native_tokens_new();
+  if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
-    return -1;
+    goto end;
   }
 
   // unlock conditions array
-  cJSON *unlock_conditions_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_UNLOCK_CONDITIONS);
-  if (!cJSON_IsArray(unlock_conditions_obj) ||
-      (json_cond_blk_list_deserialize(unlock_conditions_obj, &output.unlock_conditions) != 0)) {
+  cond_blk_list_t *cond_blocks = cond_blk_list_new();
+  if (json_cond_blk_list_deserialize(output_obj, &cond_blocks) != 0) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_UNLOCK_CONDITIONS);
-    return -1;
+    goto end;
   }
 
   // feature blocks array
-  cJSON *feature_blocks_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS);
-  if (!cJSON_IsArray(feature_blocks_obj) ||
-      (json_feat_blocks_deserialize(feature_blocks_obj, &output.feature_blocks) != 0)) {
+  feat_blk_list_t *feat_blocks = feat_blk_list_new();
+  if (json_feat_blocks_deserialize(output_obj, &feat_blocks) != 0) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
-    return -1;
+    goto end;
+  }
+
+  // create extended output
+  output_extended_t *output = output_extended_new(NULL, amount, tokens, cond_blocks, feat_blocks);
+  if (!output) {
+    printf("[%s:%d]: creating output object failed \n", __func__, __LINE__);
+    goto end;
   }
 
   // add new output into a list
-  if (tx_essence_add_output(essence, OUTPUT_EXTENDED, &output) != 0) {
+  if (tx_essence_add_output(essence, OUTPUT_EXTENDED, output) != 0) {
     printf("[%s:%d] can not add new output into a list\n", __func__, __LINE__);
-    return -1;
+    goto end;
   }
 
-  return 0;
+  // Successfully added new output into a list
+  result = 0;
+
+end:
+  native_tokens_free(&tokens);
+  cond_blk_list_free(cond_blocks);
+  feat_blk_list_free(feat_blocks);
+  output_extended_free(output);
+
+  return result;
 }
