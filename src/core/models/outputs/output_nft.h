@@ -9,6 +9,7 @@
 #include "core/address.h"
 #include "core/models/outputs/feat_blocks.h"
 #include "core/models/outputs/native_tokens.h"
+#include "core/models/outputs/unlock_conditions.h"
 #include "core/types.h"
 #include "core/utils/byte_buffer.h"
 
@@ -17,12 +18,12 @@
  *
  */
 typedef struct {
-  address_t* address;                ///< The actual address
-  uint64_t amount;                   ///< The amount of IOTA tokens held by this output
-  native_tokens_t* native_tokens;    ///< The native tokens held by the output
-  byte_t nft_id[ADDRESS_NFT_BYTES];  ///< The identifier of this NFT
-  byte_buf_t* immutable_metadata;    ///< Arbitrary immutable binary data attached to this NFT
-  feat_blk_list_t* feature_blocks;   ///< The feature blocks which modulate the constraints on the output
+  uint64_t amount;                     ///< The amount of IOTA tokens held by this output
+  native_tokens_t* native_tokens;      ///< The native tokens held by the output
+  byte_t nft_id[ADDRESS_NFT_BYTES];    ///< The identifier of this NFT
+  byte_buf_t* immutable_metadata;      ///< Arbitrary immutable binary data attached to this NFT
+  cond_blk_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
+  feat_blk_list_t* feature_blocks;     ///< The feature blocks which modulate the constraints on the output
 } output_nft_t;
 
 #ifdef __cplusplus
@@ -32,18 +33,18 @@ extern "C" {
 /**
  * @brief Create new NFT Output object.
  *
- * @param[in] addr Deposit address (Ed25519, Alias or NFT address)
  * @param[in] amount The amount of IOTA tokens to held by the output
  * @param[in] tokens Set of native tokens held by the output
  * @param[in] nft_id The identifier of this NFT
  * @param[in] metadata Arbitrary immutable binary data attached to this NFT
  * @param[in] metadata_len Length of metadata byte array
- * @param[in] feat_blocks Set of feature blocks
+ * @param[in] cond_blocks Set of unlock condition blocks
+ * @param[in] feat_blocks List of feature blocks
  *
  * @return output_nft_t* or NULL on failure
  */
-output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* tokens, byte_t nft_id[],
-                             byte_t* metadata, uint32_t metadata_len, feat_blk_list_t* feat_blocks);
+output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nft_id[], byte_t* metadata,
+                             uint32_t metadata_len, cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks);
 
 /**
  * @brief Free NFT Output object.

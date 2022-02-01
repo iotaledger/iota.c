@@ -9,53 +9,69 @@
 #include "uthash.h"
 #include "utlist.h"
 
-// minimum dust allowance
-#define MIN_DUST_ALLOWANCE 1000000
-
+// maximum number of unlock condition blocks
+#define MAX_NFT_CONDITION_BLOCKS_COUNT 4
 // maximum number of feature blocks
-#define MAX_FEATURE_BLOCKS_COUNT 9
+#define MAX_NFT_FEATURE_BLOCKS_COUNT 4
 
-output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* tokens, byte_t nft_id[],
-                             byte_t* metadata, uint32_t metadata_len, feat_blk_list_t* feat_blocks) {
-  if (addr == NULL || nft_id == NULL) {
+output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nft_id[], byte_t* metadata,
+                             uint32_t metadata_len, cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks) {
+  if (nft_id == NULL || cond_blocks == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
-  if (amount < MIN_DUST_ALLOWANCE) {
-    printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
+  // FIXME: Amount field must fulfill the dust protection requirements and must not be 0
+  // if (amount < MIN_DUST_ALLOWANCE) {
+  //   printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
+  //   return NULL;
+  // }
+
+  // validate unlock condition parameter
+  if (cond_blk_list_len(cond_blocks) > MAX_NFT_CONDITION_BLOCKS_COUNT) {
+    printf("[%s:%d] there should be at most %d condition blocks\n", __func__, __LINE__, MAX_NFT_CONDITION_BLOCKS_COUNT);
+    return NULL;
+  } else {
+    // must not contain UNLOCK_COND_STATE or UNLOCK_COND_GOVERNOR
+    if (cond_blk_list_get_type(cond_blocks, UNLOCK_COND_STATE) ||
+        cond_blk_list_get_type(cond_blocks, UNLOCK_COND_GOVERNOR)) {
+      printf("[%s:%d] State Controller/Governor conditions are not allowed\n", __func__, __LINE__);
+      return NULL;
+    }
+    // Address Unlock Condition must be present.
+    if (!cond_blk_list_get_type(cond_blocks, UNLOCK_COND_ADDRESS)) {
+      printf("[%s:%d] Address Unlock Condition must be present\n", __func__, __LINE__);
+      return NULL;
+    }
+  }
+
+  // validate feature block parameter
+  if (feat_blk_list_len(feat_blocks) > MAX_NFT_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_NFT_FEATURE_BLOCKS_COUNT);
     return NULL;
   }
 
-  if (addr->type == ADDRESS_TYPE_NFT && memcmp(addr->address, nft_id, ADDRESS_NFT_BYTES) == 0) {
-    printf("[%s:%d] address must not be the same as the NFT address derived from NFT ID\n", __func__, __LINE__);
+  // Immutable Metadata Length must not be greater than Max Metadata Length
+  if (metadata_len > MAX_METADATA_LENGTH_BYTES) {
+    printf("[%s:%d] Metadata length must no be greater than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
     return NULL;
   }
 
-  if (feat_blk_list_len(feat_blocks) > MAX_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_FEATURE_BLOCKS_COUNT);
-    return NULL;
-  }
+  // FIXME : Validation - Address field of the Address Unlock Condition must not be the same as the NFT address derived
+  // from NFT ID
 
   output_nft_t* output = malloc(sizeof(output_nft_t));
   if (!output) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
   }
-  output->address = NULL;
-  output->native_tokens = NULL;
-  output->immutable_metadata = NULL;
-  output->feature_blocks = NULL;
+  // init the nft object
+  memset(output, 0, sizeof(output_nft_t));
 
-  output->address = address_clone(addr);
-  if (!output->address) {
-    printf("[%s:%d] can not add address to NFT output\n", __func__, __LINE__);
-    output_nft_free(output);
-    return NULL;
-  }
-
+  // add amount
   output->amount = amount;
 
+  // add native tokens
   if (tokens != NULL) {
     output->native_tokens = native_tokens_new();
     native_tokens_t *token, *token_tmp;
@@ -69,8 +85,10 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
     }
   }
 
+  // add nft id
   memcpy(output->nft_id, nft_id, ADDRESS_NFT_BYTES);
 
+  // add metadata
   if (metadata_len > 0 && metadata != NULL) {
     output->immutable_metadata = byte_buf_new_with_data(metadata, metadata_len);
     if (!output->immutable_metadata) {
@@ -80,58 +98,30 @@ output_nft_t* output_nft_new(address_t* addr, uint64_t amount, native_tokens_t* 
     }
   }
 
-  if (feat_blocks != NULL) {
-    output->feature_blocks = feat_blk_list_new();
-    feat_blk_list_t* feat;
-    int res;
-    LL_FOREACH(feat_blocks, feat) {
-      switch (feat->blk->type) {
-        case FEAT_SENDER_BLOCK:
-          res = feat_blk_list_add_sender(&output->feature_blocks, feat->blk->block);
-          break;
-        case FEAT_ISSUER_BLOCK:
-          res = feat_blk_list_add_issuer(&output->feature_blocks, feat->blk->block);
-          break;
-        case FEAT_METADATA_BLOCK: {
-          feat_metadata_blk_t* block_metadata = (feat_metadata_blk_t*)feat->blk->block;
-          res = feat_blk_list_add_metadata(&output->feature_blocks, block_metadata->data, block_metadata->data_len);
-          break;
-        }
-        case FEAT_TAG_BLOCK: {
-          feat_tag_blk_t* indexation = (feat_tag_blk_t*)feat->blk->block;
-          res = feat_blk_list_add_tag(&output->feature_blocks, indexation->tag, indexation->tag_len);
-          break;
-        }
-        default:
-          printf("[%s:%d] unsupported feature block type, can not add it to NFT output\n", __func__, __LINE__);
-          output_nft_free(output);
-          return NULL;
-      }
-      if (res == -1) {
-        printf("[%s:%d] can not add feature block to NFT output\n", __func__, __LINE__);
-        output_nft_free(output);
-        return NULL;
-      }
-    }
+  // add condition blocks
+  output->unlock_conditions = cond_blk_list_clone(cond_blocks);
+  if (!output->unlock_conditions) {
+    printf("[%s:%d] can not add unlock conditions to NFT output\n", __func__, __LINE__);
+    output_nft_free(output);
+    return NULL;
   }
+
+  // add feature blocks
+  output->feature_blocks = feat_blk_list_clone(feat_blocks);
 
   return output;
 }
 
 void output_nft_free(output_nft_t* output) {
   if (output) {
-    if (output->address) {
-      free_address(output->address);
-    }
     if (output->native_tokens) {
       native_tokens_free(&output->native_tokens);
     }
     if (output->immutable_metadata) {
       byte_buf_free(output->immutable_metadata);
     }
-    if (output->feature_blocks) {
-      feat_blk_list_free(output->feature_blocks);
-    }
+    cond_blk_list_free(output->unlock_conditions);
+    feat_blk_list_free(output->feature_blocks);
     free(output);
   }
 }
@@ -146,8 +136,6 @@ size_t output_nft_serialize_len(output_nft_t* output) {
 
   // output type
   length += sizeof(uint8_t);
-  // address
-  length += address_serialized_len(output->address);
   // amount
   length += sizeof(uint64_t);
   // native tokens
@@ -160,6 +148,8 @@ size_t output_nft_serialize_len(output_nft_t* output) {
   if (output->immutable_metadata) {
     length += output->immutable_metadata->len;
   }
+  // unlock conditions
+  length += cond_blk_list_serialize_len(output->unlock_conditions);
   // feature blocks
   length += feat_blk_list_serialize_len(output->feature_blocks);
 
@@ -178,50 +168,48 @@ size_t output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) 
     return 0;
   }
 
-  byte_t* offset = buf;
+  size_t offset = 0;
 
   // fill-in NFT Output type
-  memset(offset, OUTPUT_NFT, sizeof(uint8_t));
+  memset(buf, OUTPUT_NFT, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
-  // address
-  offset += address_serialize(output->address, offset, address_serialized_len(output->address));
-
   // amount
-  memcpy(offset, &output->amount, sizeof(uint64_t));
+  memcpy(buf + offset, &output->amount, sizeof(uint64_t));
   offset += sizeof(uint64_t);
 
   // native tokens
   if (output->native_tokens) {
-    offset +=
-        native_tokens_serialize(&output->native_tokens, offset, native_tokens_serialize_len(&output->native_tokens));
+    offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
   } else {
-    memset(offset, 0, sizeof(uint16_t));
+    memset(buf + offset, 0, sizeof(uint16_t));
     offset += sizeof(uint16_t);
   }
 
   // NFT ID
-  memcpy(offset, output->nft_id, ADDRESS_NFT_BYTES);
+  memcpy(buf + offset, output->nft_id, ADDRESS_NFT_BYTES);
   offset += ADDRESS_NFT_BYTES;
 
   // immutable metadata
   if (output->immutable_metadata) {
     uint32_t metadata_len = output->immutable_metadata->len;
-    memcpy(offset, &metadata_len, sizeof(uint32_t));
+    memcpy(buf + offset, &metadata_len, sizeof(uint32_t));
     offset += sizeof(uint32_t);
-    memcpy(offset, output->immutable_metadata->data, metadata_len);
+    memcpy(buf + offset, output->immutable_metadata->data, metadata_len);
     offset += metadata_len;
   } else {
-    memset(offset, 0, sizeof(uint32_t));
+    memset(buf + offset, 0, sizeof(uint32_t));
     offset += sizeof(uint32_t);
   }
 
+  // unlock conditions
+  offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
+
   // feature blocks
   if (output->feature_blocks) {
-    offset +=
-        feat_blk_list_serialize(&output->feature_blocks, offset, feat_blk_list_serialize_len(output->feature_blocks));
+    offset += feat_blk_list_serialize(&output->feature_blocks, buf + offset, buf_len - offset);
   } else {
-    memset(offset, 0, sizeof(uint8_t));
+    memset(buf + offset, 0, sizeof(uint8_t));
     offset += sizeof(uint8_t);
   }
 
@@ -239,10 +227,7 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
   }
-  output->address = NULL;
-  output->native_tokens = NULL;
-  output->immutable_metadata = NULL;
-  output->feature_blocks = NULL;
+  memset(output, 0, sizeof(output_nft_t));
 
   size_t offset = 0;
 
@@ -253,15 +238,6 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
     return NULL;
   }
   offset += sizeof(uint8_t);
-
-  // address
-  output->address = address_deserialize(&buf[offset], buf_len - offset);
-  if (!output->address) {
-    printf("[%s:%d] can not deserialize address\n", __func__, __LINE__);
-    output_nft_free(output);
-    return NULL;
-  }
-  offset += address_serialized_len(output->address);
 
   // amount
   if (buf_len < offset + sizeof(uint64_t)) {
@@ -322,9 +298,31 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
     offset += metadata_len;
   }
 
+  // unlock condition blocks
+  uint8_t unlock_count = 0;
+  memcpy(&unlock_count, &buf[offset], sizeof(uint8_t));
+  if (unlock_count > MAX_NFT_CONDITION_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid unlock block count\n", __func__, __LINE__);
+    output_nft_free(output);
+    return NULL;
+  } else {
+    output->unlock_conditions = cond_blk_list_deserialize(buf + offset, buf_len - offset);
+    if (!output->unlock_conditions) {
+      printf("[%s:%d] can not deserialize unlock conditions\n", __func__, __LINE__);
+      output_nft_free(output);
+      return NULL;
+    }
+    offset += cond_blk_list_serialize_len(output->unlock_conditions);
+  }
+
   // feature blocks
-  uint8_t feat_block_count = *((uint8_t*)&buf[offset]);
-  if (feat_block_count > 0) {
+  uint8_t feat_block_count = 0;
+  memcpy(&feat_block_count, &buf[offset], sizeof(uint8_t));
+  if (feat_block_count > MAX_NFT_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
+    output_nft_free(output);
+    return NULL;
+  } else if (feat_block_count > 0) {
     output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
     if (!output->feature_blocks) {
       printf("[%s:%d] can not deserialize feature blocks\n", __func__, __LINE__);
@@ -333,6 +331,11 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
     }
     offset += feat_blk_list_serialize_len(output->feature_blocks);
   } else {
+    if (buf_len < offset + sizeof(uint8_t)) {
+      printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+      output_nft_free(output);
+      return NULL;
+    }
     offset += sizeof(uint8_t);
   }
 
@@ -346,11 +349,11 @@ output_nft_t* output_nft_clone(output_nft_t const* const output) {
 
   output_nft_t* new_output = malloc(sizeof(output_nft_t));
   if (new_output) {
-    new_output->address = address_clone(output->address);
     new_output->amount = output->amount;
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
     memcpy(new_output->nft_id, output->nft_id, ADDRESS_NFT_BYTES);
     new_output->immutable_metadata = byte_buf_clone(output->immutable_metadata);
+    new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
     new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
   }
 
@@ -364,8 +367,6 @@ void output_nft_print(output_nft_t* output, uint8_t indentation) {
   }
 
   printf("%sNFT Output: [\n", PRINT_INDENTATION(indentation));
-  printf("%s\tAddress: ", PRINT_INDENTATION(indentation));
-  address_print(output->address);
   printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
@@ -383,6 +384,8 @@ void output_nft_print(output_nft_t* output, uint8_t indentation) {
     printf("%s/\n", PRINT_INDENTATION(indentation));
   }
 
+  // print unlock condition blocks
+  cond_blk_list_print(output->unlock_conditions, indentation + 1);
   // print feature blocks
   feat_blk_list_print(output->feature_blocks, indentation + 1);
 
