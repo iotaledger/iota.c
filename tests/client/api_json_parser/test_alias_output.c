@@ -53,10 +53,71 @@ void test_parse_alias_output_basic() {
   tx_essence_free(essence);
 }
 
+void test_parse_alias_output_full() {
+  char const *const json_res =
+      "{\"type\":4,\"amount\":1000000,\"nativeTokens\":[{\"id\":\"9s8dfzh987shfd098fjhg0b98dus8hf998sd98\","
+      "\"amount\":\"93847598347598347598347598\"},{\"id\":\"dfgj98d9834hdesd9fzs98dfz9s8fs98dfz98s\",\"amount\":"
+      "\"7598347598347598\"}],\"aliasId\":\"testAliasID\","
+      "\"stateIndex\":12345,\"stateMetadata\":\"testMetadataTestMetadataTestMetadata\",\"foundryCounter\":54321,"
+      "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"address\":"
+      "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
+      "{\"type\":5,\"address\":{\"type\":16,\"address\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
+      "\"blocks\":[{\"type\":0,\"address\":{\"type\":0,\"address\":"
+      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":1,\"address\":{\"type\":0,"
+      "\"address\":\"2258255e7cf927a4833f457433f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,"
+      "\"data\":\"89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b\"}]}";
+
+  cJSON *json_obj = cJSON_Parse(json_res);
+  TEST_ASSERT_NOT_NULL(json_obj);
+
+  transaction_essence_t *essence = tx_essence_new();
+  int result = json_output_alias_deserialize(json_obj, essence);
+  TEST_ASSERT_EQUAL_INT(0, result);
+
+  TEST_ASSERT_EQUAL_UINT16(1, utxo_outputs_count(essence->outputs));
+  utxo_output_t *output = utxo_outputs_get(essence->outputs, 0);
+  TEST_ASSERT_EQUAL_UINT8(OUTPUT_ALIAS, output->output_type);
+
+  output_alias_t *alias_output = (output_alias_t *)output->output;
+  TEST_ASSERT_EQUAL_UINT64(1000000, alias_output->amount);
+
+  // check native tokens
+  TEST_ASSERT_NOT_NULL(alias_output->native_tokens);
+  TEST_ASSERT_EQUAL_UINT16(2, native_tokens_count(&alias_output->native_tokens));
+  TEST_ASSERT_NOT_NULL(
+      native_tokens_find_by_id(&alias_output->native_tokens, (byte_t *)"9s8dfzh987shfd098fjhg0b98dus8hf998sd98"));
+  TEST_ASSERT_NOT_NULL(
+      native_tokens_find_by_id(&alias_output->native_tokens, (byte_t *)"dfgj98d9834hdesd9fzs98dfz9s8fs98dfz98s"));
+
+  TEST_ASSERT_EQUAL_MEMORY("testAliasID", alias_output->alias_id, sizeof("testAliasID"));
+  TEST_ASSERT_EQUAL_UINT32(12345, alias_output->state_index);
+  TEST_ASSERT_EQUAL_UINT32(37, alias_output->state_metadata->len);
+  TEST_ASSERT_EQUAL_MEMORY("testMetadataTestMetadataTestMetadata", alias_output->state_metadata->data,
+                           alias_output->state_metadata->len);
+  TEST_ASSERT_EQUAL_UINT32(54321, alias_output->foundry_counter);
+
+  // check unlock conditions
+  TEST_ASSERT_NOT_NULL(alias_output->unlock_conditions);
+  TEST_ASSERT_EQUAL_UINT8(2, cond_blk_list_len(alias_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_STATE));
+  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_GOVERNOR));
+
+  // check feature blocks
+  TEST_ASSERT_NOT_NULL(alias_output->feature_blocks);
+  TEST_ASSERT_EQUAL_UINT8(3, feat_blk_list_len(alias_output->feature_blocks));
+  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->feature_blocks, FEAT_SENDER_BLOCK));
+  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->feature_blocks, FEAT_ISSUER_BLOCK));
+  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->feature_blocks, FEAT_METADATA_BLOCK));
+
+  cJSON_Delete(json_obj);
+  tx_essence_free(essence);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_parse_alias_output_basic);
+  RUN_TEST(test_parse_alias_output_full);
 
   return UNITY_END();
 }
