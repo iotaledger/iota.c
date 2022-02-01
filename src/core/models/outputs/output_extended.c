@@ -28,8 +28,9 @@ output_extended_t* output_extended_new(uint64_t amount, native_tokens_t* tokens,
   // }
 
   // validate unlock condition parameter
-  if (cond_blk_list_len(cond_blocks) > MAX_EXTENDED_CONDITION_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d condition blocks\n", __func__, __LINE__,
+  // It must hold true that 1 ≤ Unlock Conditions Count ≤ 4
+  if (cond_blk_list_len(cond_blocks) == 0 || cond_blk_list_len(cond_blocks) > MAX_EXTENDED_CONDITION_BLOCKS_COUNT) {
+    printf("[%s:%d] there should be at most %d condition blocks amd atleast 1\n", __func__, __LINE__,
            MAX_EXTENDED_CONDITION_BLOCKS_COUNT);
     return NULL;
   } else {
@@ -37,6 +38,11 @@ output_extended_t* output_extended_new(uint64_t amount, native_tokens_t* tokens,
     if (cond_blk_list_get_type(cond_blocks, UNLOCK_COND_STATE) ||
         cond_blk_list_get_type(cond_blocks, UNLOCK_COND_GOVERNOR)) {
       printf("[%s:%d] State Controller/Governor conditions are not allowed\n", __func__, __LINE__);
+      return NULL;
+    }
+    // Address Unlock Condition must be present.
+    if (!cond_blk_list_get_type(cond_blocks, UNLOCK_COND_ADDRESS)) {
+      printf("[%s:%d] Address Unlock Condition must be present\n", __func__, __LINE__);
       return NULL;
     }
   }
