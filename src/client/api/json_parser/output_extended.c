@@ -53,7 +53,7 @@ int json_output_extended_deserialize(cJSON *output_obj, transaction_essence_t *e
   // feature blocks array
   cJSON *feature_blocks_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS);
   if (!cJSON_IsArray(feature_blocks_obj) ||
-      (json_feat_blocks_deserialize(feature_blocks_obj, output.feature_blocks) != 0)) {
+      (json_feat_blocks_deserialize(feature_blocks_obj, &output.feature_blocks) != 0)) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
     return -1;
   }
