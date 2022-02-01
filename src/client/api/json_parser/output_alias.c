@@ -12,9 +12,9 @@
     { "type": 4,
       "amount": 10000000,
       "nativeTokens": [],
-      "aliasId": "gfdjoijdf8gjdfg8dj89",
+      "aliasId": "a360c46a570510f7c7d915bf0eef932e5678b386",
       "stateIndex": 12345,
-      "stateMetadata": "msoidfmsoidfmsoifjosijfoisdjfoifsdjoi",
+      "stateMetadata": "010203040506070809",
       "foundryCounter": 54321,
       "unlockConditions": [],
       "blocks": []

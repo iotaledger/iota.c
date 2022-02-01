@@ -13,7 +13,7 @@ void tearDown(void) {}
 void test_parse_ed25519_address() {
   char const* const json_res =
       "{\"address\":{\"type\":0,\"address\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}}";
+      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -23,7 +23,7 @@ void test_parse_ed25519_address() {
 
   address_t test_addr;
   test_addr.type = ADDRESS_TYPE_ED25519;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, &address));
 
