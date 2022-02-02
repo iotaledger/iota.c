@@ -26,16 +26,21 @@ int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_t **native_t
   cJSON *elm = NULL;
   cJSON_ArrayForEach(elm, native_tokens_obj) {
     // id
-    char token_id[NATIVE_TOKEN_ID_BYTES];
-    if (json_get_string(elm, JSON_KEY_ID, token_id, NATIVE_TOKEN_ID_BYTES) != JSON_OK) {
-      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ADDR);
+    char token_id_hex[NATIVE_TOKEN_ID_HEX_BYTES];
+    byte_t token_id[NATIVE_TOKEN_ID_BYTES];
+    if (json_get_string(elm, JSON_KEY_ID, token_id_hex, NATIVE_TOKEN_ID_HEX_BYTES) != JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ID);
+      return -1;
+    }
+    if (hex_2_bin(token_id_hex, NATIVE_TOKEN_ID_HEX_BYTES, token_id, NATIVE_TOKEN_ID_BYTES) != 0) {
+      printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
       return -1;
     }
 
     // amount
     char token_amount[STRING_NUMBER_MAX_CHARACTERS];
     if (json_get_string(elm, JSON_KEY_AMOUNT, token_amount, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
-      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ADDR);
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
       return -1;
     }
     uint256_t *amount = uint256_from_str(token_amount);

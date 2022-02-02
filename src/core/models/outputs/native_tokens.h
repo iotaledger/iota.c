@@ -13,6 +13,8 @@
 
 // Native Token ID length in bytes
 #define NATIVE_TOKEN_ID_BYTES 38
+// Native Token ID length in hex bytes
+#define NATIVE_TOKEN_ID_HEX_BYTES (NATIVE_TOKEN_ID_BYTES * 2)
 
 // Serialized bytes = token ID(38 bytes) + amount(uint256_t)
 #define NATIVE_TOKENS_SERIALIZED_BYTES (NATIVE_TOKEN_ID_BYTES + 32)
