@@ -54,7 +54,7 @@ int json_output_extended_deserialize(cJSON *output_obj, transaction_essence_t *e
   }
 
   // create extended output
-  output_extended_t *output = output_extended_new(NULL, amount, tokens, cond_blocks, feat_blocks);
+  output_extended_t *output = output_extended_new(amount, tokens, cond_blocks, feat_blocks);
   if (!output) {
     printf("[%s:%d]: creating output object failed \n", __func__, __LINE__);
     goto end;

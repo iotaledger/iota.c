@@ -91,11 +91,10 @@ void test_output_extended() {
   TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
 
   // create Extended Output
-  output_extended_t* output = output_extended_new(&addr, 123456789, native_tokens, unlock_conds, feat_blocks);
+  output_extended_t* output = output_extended_new(123456789, native_tokens, unlock_conds, feat_blocks);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
-  TEST_ASSERT_TRUE(address_equal(&addr, output->address));
   TEST_ASSERT(output->amount == 123456789);
 
   TEST_ASSERT_NOT_NULL(output->native_tokens);
@@ -166,8 +165,6 @@ void test_output_extended() {
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
   deser_output = output_extended_deserialize(serialized_buf, expected_serial_len);
   TEST_ASSERT_NOT_NULL(deser_output);
-  // deserialized address
-  TEST_ASSERT_TRUE(address_equal(output->address, deser_output->address));
   // deserialized amount
   TEST_ASSERT_EQUAL_UINT64(output->amount, deser_output->amount);
 
@@ -241,6 +238,7 @@ void test_output_extended() {
 void test_output_extended_without_native_tokens() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
 
   // create Feature Blocks
@@ -248,11 +246,10 @@ void test_output_extended_without_native_tokens() {
   feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta));
 
   // create Extended Output
-  output_extended_t* output = output_extended_new(&test_addr, 123456789, NULL, unlock_conds, feat_blocks);
+  output_extended_t* output = output_extended_new(123456789, NULL, unlock_conds, feat_blocks);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, output->address));
   TEST_ASSERT(output->amount == 123456789);
 
   // should be NULL
@@ -260,14 +257,18 @@ void test_output_extended_without_native_tokens() {
 
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(output->unlock_conditions));
-  // 0: Dust Return Unlock
+  TEST_ASSERT_EQUAL_UINT8(2, cond_blk_list_len(output->unlock_conditions));
+  // 0: Address Unlock
   unlock_cond_blk_t* cond_block = cond_blk_list_get(output->unlock_conditions, 0);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
+  // 1: Dust Return Unlock
+  cond_block = cond_blk_list_get(output->unlock_conditions, 1);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
   TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
   // index out of list
-  TEST_ASSERT_NULL(cond_blk_list_get(output->unlock_conditions, 1));
+  TEST_ASSERT_NULL(cond_blk_list_get(output->unlock_conditions, 2));
 
   // feature blocks should be in adding order
   TEST_ASSERT_NOT_NULL(output->feature_blocks);
@@ -295,8 +296,6 @@ void test_output_extended_without_native_tokens() {
   TEST_ASSERT_NULL(deser_output);
   deser_output = output_extended_deserialize(serialized_buf, expected_serial_len);
   TEST_ASSERT_NOT_NULL(deser_output);
-  // deserialized address
-  TEST_ASSERT_TRUE(address_equal(output->address, deser_output->address));
   // deserialized amount
   TEST_ASSERT_EQUAL_UINT64(output->amount, deser_output->amount);
 
@@ -306,14 +305,18 @@ void test_output_extended_without_native_tokens() {
   // deserialized unlock conditions
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
   // should be sorted based on block type
-  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(deser_output->unlock_conditions));
-  // 0: Dust Return Unlock
+  TEST_ASSERT_EQUAL_UINT8(2, cond_blk_list_len(deser_output->unlock_conditions));
+  // 0: Address Unlock
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 0);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
+  // 1: Dust Return Unlock
+  cond_block = cond_blk_list_get(deser_output->unlock_conditions, 1);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
   TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
   // 1: NULL
-  TEST_ASSERT_NULL(cond_blk_list_get(deser_output->unlock_conditions, 1));
+  TEST_ASSERT_NULL(cond_blk_list_get(deser_output->unlock_conditions, 2));
 
   // deserialized feature blocks
   TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);
@@ -339,14 +342,14 @@ void test_output_extended_without_native_tokens() {
 void test_output_extended_without_feature_blocks() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
 
   // create Extended Output
-  output_extended_t* output = output_extended_new(&test_addr, 123456789, native_tokens, unlock_conds, NULL);
+  output_extended_t* output = output_extended_new(123456789, native_tokens, unlock_conds, NULL);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, output->address));
   TEST_ASSERT(output->amount == 123456789);
 
   // native tokens
@@ -364,14 +367,18 @@ void test_output_extended_without_feature_blocks() {
 
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(output->unlock_conditions));
-  // 0: Dust Return Unlock
+  TEST_ASSERT_EQUAL_UINT8(2, cond_blk_list_len(output->unlock_conditions));
+  // 0: Address Unlock
   unlock_cond_blk_t* cond_block = cond_blk_list_get(output->unlock_conditions, 0);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
+  // 1: Dust Return Unlock
+  cond_block = cond_blk_list_get(output->unlock_conditions, 1);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
   TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
   // index out of list
-  TEST_ASSERT_NULL(cond_blk_list_get(output->unlock_conditions, 1));
+  TEST_ASSERT_NULL(cond_blk_list_get(output->unlock_conditions, 2));
 
   // feature blocks should be NULL
   TEST_ASSERT_NULL(output->feature_blocks);
@@ -394,8 +401,6 @@ void test_output_extended_without_feature_blocks() {
   TEST_ASSERT_NULL(deser_output);
   deser_output = output_extended_deserialize(serialized_buf, expected_serial_len);
   TEST_ASSERT_NOT_NULL(deser_output);
-  // deserialized address
-  TEST_ASSERT_TRUE(address_equal(output->address, deser_output->address));
   // deserialized amount
   TEST_ASSERT_EQUAL_UINT64(output->amount, deser_output->amount);
 
@@ -416,14 +421,18 @@ void test_output_extended_without_feature_blocks() {
   // deserialized unlock conditions
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
   // should be sorted based on block type
-  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(deser_output->unlock_conditions));
-  // 0: Dust Return Unlock
+  TEST_ASSERT_EQUAL_UINT8(2, cond_blk_list_len(deser_output->unlock_conditions));
+  // 0: Address Unlock
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 0);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
+  // 1: Dust Return Unlock
+  cond_block = cond_blk_list_get(deser_output->unlock_conditions, 1);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
   TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
   // 1: NULL
-  TEST_ASSERT_NULL(cond_blk_list_get(deser_output->unlock_conditions, 1));
+  TEST_ASSERT_NULL(cond_blk_list_get(deser_output->unlock_conditions, 2));
 
   // deserialized feature blocks
   TEST_ASSERT_NULL(deser_output->feature_blocks);
@@ -441,14 +450,14 @@ void test_output_extended_without_feature_blocks() {
 void test_output_extended_without_native_tokens_and_feature_blocks() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
 
   // create Extended Output
-  output_extended_t* output = output_extended_new(&test_addr, 123456789, NULL, unlock_conds, NULL);
+  output_extended_t* output = output_extended_new(123456789, NULL, unlock_conds, NULL);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, output->address));
   TEST_ASSERT(output->amount == 123456789);
 
   // native tokens
@@ -456,14 +465,18 @@ void test_output_extended_without_native_tokens_and_feature_blocks() {
 
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(output->unlock_conditions));
-  // 0: Dust Return Unlock
+  TEST_ASSERT_EQUAL_UINT8(2, cond_blk_list_len(output->unlock_conditions));
+  // 0: Address Unlock
   unlock_cond_blk_t* cond_block = cond_blk_list_get(output->unlock_conditions, 0);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
+  // 1: Dust Return Unlock
+  cond_block = cond_blk_list_get(output->unlock_conditions, 1);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
   TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
   // index out of list
-  TEST_ASSERT_NULL(cond_blk_list_get(output->unlock_conditions, 1));
+  TEST_ASSERT_NULL(cond_blk_list_get(output->unlock_conditions, 2));
 
   // feature blocks should be NULL
   TEST_ASSERT_NULL(output->feature_blocks);
@@ -486,8 +499,6 @@ void test_output_extended_without_native_tokens_and_feature_blocks() {
   TEST_ASSERT_NULL(deser_output);
   deser_output = output_extended_deserialize(serialized_buf, expected_serial_len);
   TEST_ASSERT_NOT_NULL(deser_output);
-  // deserialized address
-  TEST_ASSERT_TRUE(address_equal(output->address, deser_output->address));
   // deserialized amount
   TEST_ASSERT_EQUAL_UINT64(output->amount, deser_output->amount);
 
@@ -498,14 +509,18 @@ void test_output_extended_without_native_tokens_and_feature_blocks() {
   // deserialized unlock conditions
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
   // should be sorted based on block type
-  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(deser_output->unlock_conditions));
-  // 0: Dust Return Unlock
+  TEST_ASSERT_EQUAL_UINT8(2, cond_blk_list_len(deser_output->unlock_conditions));
+  // 0: Address Unlock
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 0);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
+  // 1: Dust Return Unlock
+  cond_block = cond_blk_list_get(deser_output->unlock_conditions, 1);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
   TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
   // 1: NULL
-  TEST_ASSERT_NULL(cond_blk_list_get(deser_output->unlock_conditions, 1));
+  TEST_ASSERT_NULL(cond_blk_list_get(deser_output->unlock_conditions, 2));
 
   // deserialized feature blocks
   TEST_ASSERT_NULL(deser_output->feature_blocks);
@@ -525,25 +540,25 @@ void test_output_extended_unlock_conditions() {
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
 
   // invalid: empty unlock conditions
-  TEST_ASSERT_NULL(output_extended_new(&test_addr, 123456789, NULL, NULL, NULL));
-  TEST_ASSERT_NULL(output_extended_new(&test_addr, 123456789, NULL, unlock_conds, NULL));
+  TEST_ASSERT_NULL(output_extended_new(123456789, NULL, NULL, NULL));
+  TEST_ASSERT_NULL(output_extended_new(123456789, NULL, unlock_conds, NULL));
 
   // invalid unlock conditions: State Controller/Governanor
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_state) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_gov) == 0);
-  TEST_ASSERT_NULL(output_extended_new(&test_addr, 123456789, NULL, unlock_conds, NULL));
+  TEST_ASSERT_NULL(output_extended_new(123456789, NULL, unlock_conds, NULL));
   cond_blk_list_free(unlock_conds);
 
   // invalid unlock condition: State Controller
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_state) == 0);
-  TEST_ASSERT_NULL(output_extended_new(&test_addr, 123456789, NULL, unlock_conds, NULL));
+  TEST_ASSERT_NULL(output_extended_new(123456789, NULL, unlock_conds, NULL));
   cond_blk_list_free(unlock_conds);
 
   // invalid unlock condition: Governor
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_gov) == 0);
-  TEST_ASSERT_NULL(output_extended_new(&test_addr, 123456789, NULL, unlock_conds, NULL));
+  TEST_ASSERT_NULL(output_extended_new(123456789, NULL, unlock_conds, NULL));
   cond_blk_list_free(unlock_conds);
 }
 
@@ -567,15 +582,13 @@ void test_output_extended_clone() {
   TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
 
   // create Extended Output
-  output_extended_t* output = output_extended_new(&test_addr, 123456789, native_tokens, unlock_conds, feat_blocks);
+  output_extended_t* output = output_extended_new(123456789, native_tokens, unlock_conds, feat_blocks);
   TEST_ASSERT_NOT_NULL(output);
 
   // clone Extended Output object
   new_output = output_extended_clone(output);
   TEST_ASSERT_NOT_NULL(new_output);
 
-  // validate Address
-  TEST_ASSERT_TRUE(address_equal(output->address, new_output->address));
   // validate Amount
   TEST_ASSERT(output->amount == new_output->amount);
   // validate Native Tokens

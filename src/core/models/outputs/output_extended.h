@@ -16,7 +16,6 @@
  *
  */
 typedef struct {
-  address_t* address;                  ///< Deposit address
   uint64_t amount;                     ///< The amount of IOTA tokens to held by the output
   native_tokens_t* native_tokens;      ///< The native tokens held by the output
   cond_blk_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
@@ -30,7 +29,6 @@ extern "C" {
 /**
  * @brief Create new Extended Output object
  *
- * @param[in] addr Deposit address (Ed25519, Alias or NFT address)
  * @param[in] amount The amount of IOTA tokens to held by the output
  * @param[in] tokens List of native tokens held by the output
  * @param[in] cond_blocks Set of unlock condition blocks
@@ -38,8 +36,8 @@ extern "C" {
  *
  * @return output_extended_t* or NULL on failure
  */
-output_extended_t* output_extended_new(address_t* addr, uint64_t amount, native_tokens_t* tokens,
-                                       cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks);
+output_extended_t* output_extended_new(uint64_t amount, native_tokens_t* tokens, cond_blk_list_t* cond_blocks,
+                                       feat_blk_list_t* feat_blocks);
 
 /**
  * @brief Free Extended Output object
