@@ -79,7 +79,7 @@ int json_cond_blk_dust_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk
 
 /*
   "type": 2,
-  "milestoneIndex": 45598
+  "milestoneIndex": 45598,
   "unixTime": 123123
 */
 int json_cond_blk_timelock_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
@@ -120,7 +120,7 @@ int json_cond_blk_timelock_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t *
     "type": 0,
     "address": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   },
-  "milestoneIndex": 45598
+  "milestoneIndex": 45598,
   "unixTime": 123123
 */
 int json_cond_blk_expir_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {

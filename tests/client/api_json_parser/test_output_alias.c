@@ -55,8 +55,10 @@ void test_parse_alias_output_basic() {
 
 void test_parse_alias_output_full() {
   char const *const json_res =
-      "{\"type\":4,\"amount\":1000000,\"nativeTokens\":[{\"id\":\"9s8dfzh987shfd098fjhg0b98dus8hf998sd98\","
-      "\"amount\":\"93847598347598347598347598\"},{\"id\":\"dfgj98d9834hdesd9fzs98dfz9s8fs98dfz98s\",\"amount\":"
+      "{\"type\":4,\"amount\":1000000,\"nativeTokens\":[{\"id\":"
+      "\"08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\","
+      "\"amount\":\"93847598347598347598347598\"},{\"id\":"
+      "\"09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
       "\"7598347598347598\"}],\"aliasId\":\"testAliasID\","
       "\"stateIndex\":12345,\"stateMetadata\":\"testMetadataTestMetadataTestMetadata\",\"foundryCounter\":54321,"
       "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"address\":"
@@ -84,10 +86,13 @@ void test_parse_alias_output_full() {
   // check native tokens
   TEST_ASSERT_NOT_NULL(alias_output->native_tokens);
   TEST_ASSERT_EQUAL_UINT16(2, native_tokens_count(&alias_output->native_tokens));
-  TEST_ASSERT_NOT_NULL(
-      native_tokens_find_by_id(&alias_output->native_tokens, (byte_t *)"9s8dfzh987shfd098fjhg0b98dus8hf998sd98"));
-  TEST_ASSERT_NOT_NULL(
-      native_tokens_find_by_id(&alias_output->native_tokens, (byte_t *)"dfgj98d9834hdesd9fzs98dfz9s8fs98dfz98s"));
+  byte_t token_id[NATIVE_TOKEN_ID_BYTES];
+  hex_2_bin("08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000", NATIVE_TOKEN_ID_HEX_BYTES,
+            token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(&alias_output->native_tokens, token_id));
+  hex_2_bin("09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000", NATIVE_TOKEN_ID_HEX_BYTES,
+            token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(&alias_output->native_tokens, token_id));
 
   TEST_ASSERT_EQUAL_MEMORY("testAliasID", alias_output->alias_id, sizeof("testAliasID"));
   TEST_ASSERT_EQUAL_UINT32(12345, alias_output->state_index);
@@ -113,11 +118,32 @@ void test_parse_alias_output_full() {
   tx_essence_free(essence);
 }
 
+void test_parse_alias_output_wrong_unlock_condition() {
+  char const *const json_res =
+      "{\"type\":4, \"amount\":1000000,\"nativeTokens\":[],\"aliasId\":\"testAliasID\","
+      "\"stateIndex\":12345,\"stateMetadata\":\"testMetadataTestMetadataTestMetadata\",\"foundryCounter\":54321,"
+      "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"address\":"
+      "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
+      "{\"type\":0,\"address\":{\"type\":16,\"address\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
+      "\"blocks\":[]}";
+
+  cJSON *json_obj = cJSON_Parse(json_res);
+  TEST_ASSERT_NOT_NULL(json_obj);
+
+  transaction_essence_t *essence = tx_essence_new();
+  int result = json_output_alias_deserialize(json_obj, essence);
+  TEST_ASSERT_EQUAL_INT(-1, result);
+
+  cJSON_Delete(json_obj);
+  tx_essence_free(essence);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_parse_alias_output_basic);
   RUN_TEST(test_parse_alias_output_full);
+  RUN_TEST(test_parse_alias_output_wrong_unlock_condition);
 
   return UNITY_END();
 }
