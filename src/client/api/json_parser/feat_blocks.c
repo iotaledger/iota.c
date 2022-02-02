@@ -114,7 +114,7 @@ int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_
 }
 
 /*
-  "blocks": [],
+  "featureBlocks": [],
 */
 int json_feat_blocks_deserialize(cJSON *output_obj, feat_blk_list_t **feat_blocks) {
   if (output_obj == NULL || feat_blocks == NULL) {

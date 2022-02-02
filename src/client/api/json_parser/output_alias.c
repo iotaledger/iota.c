@@ -17,7 +17,7 @@
       "stateMetadata": "010203040506070809",
       "foundryCounter": 54321,
       "unlockConditions": [],
-      "blocks": []
+      "featureBlocks": []
     }
   ]
 */

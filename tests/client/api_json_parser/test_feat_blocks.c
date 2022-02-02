@@ -107,7 +107,7 @@ void test_feat_block_tag() {
 
 void test_feat_blocks() {
   char const* const json_res =
-      "{\"blocks\":[{\"type\":0,\"address\":{\"type\":0,\"address\":"
+      "{\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"address\":"
       "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
       "{\"type\":1,\"address\":{\"type\":0,\"address\":"
       "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
@@ -135,7 +135,7 @@ void test_feat_blocks() {
 
 void test_feat_blocks_unsupported_type() {
   char const* const json_res =
-      "{\"blocks\":[{\"type\":4,\"address\":{\"type\":0,\"address\":"
+      "{\"featureBlocks\":[{\"type\":4,\"address\":{\"type\":0,\"address\":"
       "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}]}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);

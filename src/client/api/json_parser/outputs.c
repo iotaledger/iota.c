@@ -14,7 +14,7 @@
       "amount": 10000000,
       "nativeTokens": [],
       "unlockConditions": [],
-      "blocks": []
+      "featureBlocks": []
     }
   ],
 */

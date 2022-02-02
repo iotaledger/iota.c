@@ -18,7 +18,7 @@ void test_parse_alias_output_basic() {
       "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"address\":"
       "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
       "{\"type\":5,\"address\":{\"type\":16,\"address\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
-      "\"blocks\":[]}";
+      "\"featureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -64,7 +64,7 @@ void test_parse_alias_output_full() {
       "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"address\":"
       "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
       "{\"type\":5,\"address\":{\"type\":16,\"address\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
-      "\"blocks\":[{\"type\":0,\"address\":{\"type\":0,\"address\":"
+      "\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"address\":"
       "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":1,\"address\":{\"type\":0,"
       "\"address\":\"2258255e7cf927a4833f457433f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,"
       "\"data\":\"89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b\"}]}";
@@ -125,7 +125,7 @@ void test_parse_alias_output_wrong_unlock_condition() {
       "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"address\":"
       "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
       "{\"type\":0,\"address\":{\"type\":16,\"address\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
-      "\"blocks\":[]}";
+      "\"featureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
