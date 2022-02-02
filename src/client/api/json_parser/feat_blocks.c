@@ -19,7 +19,7 @@ int json_feat_blk_sender_deserialize(cJSON *feat_block_obj, feat_blk_list_t **fe
 
   // address
   address_t address;
-  if (json_parser_common_address_deserialize(feat_block_obj, &address) != 0) {
+  if (json_parser_common_address_deserialize(feat_block_obj, JSON_KEY_ADDR, &address) != 0) {
     printf("[%s:%d] can not parse address JSON object\n", __func__, __LINE__);
     return -1;
   }
@@ -47,7 +47,7 @@ int json_feat_blk_issuer_deserialize(cJSON *feat_block_obj, feat_blk_list_t **fe
 
   // address
   address_t address;
-  if (json_parser_common_address_deserialize(feat_block_obj, &address) != 0) {
+  if (json_parser_common_address_deserialize(feat_block_obj, JSON_KEY_ADDR, &address) != 0) {
     printf("[%s:%d] can not parse address JSON object\n", __func__, __LINE__);
     return -1;
   }
