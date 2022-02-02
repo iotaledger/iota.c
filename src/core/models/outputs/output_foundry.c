@@ -10,7 +10,7 @@
 output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_tokens_t* tokens, uint32_t serial_num,
                                      byte_t token_tag[], uint256_t* circ_supply, uint256_t* max_supply,
                                      token_scheme_e token_scheme, byte_t meta[], size_t meta_len) {
-  if (!alias || !circ_supply || !max_supply || !meta || meta_len == 0) {
+  if (!alias || !circ_supply || !max_supply) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
@@ -101,11 +101,13 @@ output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_t
   }
   cond_blk_free(addr_unlock);
 
-  // create metadata block
-  if (feat_blk_list_add_metadata(&output->feature_blocks, meta, meta_len) != 0) {
-    printf("[%s:%d] can not add feature block to Foundry output\n", __func__, __LINE__);
-    output_foundry_free(output);
-    return NULL;
+  if (meta && meta_len > 0) {
+    // create metadata block
+    if (feat_blk_list_add_metadata(&output->feature_blocks, meta, meta_len) != 0) {
+      printf("[%s:%d] can not add feature block to Foundry output\n", __func__, __LINE__);
+      output_foundry_free(output);
+      return NULL;
+    }
   }
   return output;
 }
@@ -199,8 +201,12 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
   // condition blocks
   offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
   // feature blocks
-  offset += feat_blk_list_serialize(&output->feature_blocks, buf + offset, buf_len - offset);
-
+  if (output->feature_blocks) {
+    offset += feat_blk_list_serialize(&output->feature_blocks, buf + offset, buf_len - offset);
+  } else {
+    memset(buf + offset, 0, sizeof(uint8_t));
+    offset += sizeof(uint8_t);
+  }
   return offset;
 }
 
@@ -315,17 +321,25 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   // feature blocks
   uint8_t feat_block_count = 0;
   memcpy(&feat_block_count, &buf[offset], sizeof(uint8_t));
-  if (feat_block_count == 1) {
+  if (feat_block_count > 1) {
+    printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
+    output_foundry_free(output);
+    return NULL;
+  } else if (feat_block_count > 0) {
     output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
     if (!output->feature_blocks) {
       printf("[%s:%d] can not deserialize feature blocks\n", __func__, __LINE__);
       output_foundry_free(output);
       return NULL;
     }
+    offset += feat_blk_list_serialize_len(output->feature_blocks);
   } else {
-    printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
-    output_foundry_free(output);
-    return NULL;
+    if (buf_len < offset + sizeof(uint8_t)) {
+      printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+      output_foundry_free(output);
+      return NULL;
+    }
+    offset += sizeof(uint8_t);
   }
 
   return output;
