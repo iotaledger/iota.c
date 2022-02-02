@@ -5,19 +5,29 @@
 
 #include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/outputs.h"
-#include "uthash.h"
 #include "utlist.h"
 
-#define MIN_DUST_ALLOWANCE 1000000
-
-output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_tokens_t* tokens, uint32_t serial_num,
+output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_tokens_t* tokens, uint32_t serial_num,
                                      byte_t token_tag[], uint256_t* circ_supply, uint256_t* max_supply,
-                                     token_scheme_e token_scheme, feat_blk_list_t* feat_blocks) {
-  if (addr == NULL || circ_supply == NULL || max_supply == NULL) {
+                                     token_scheme_e token_scheme, byte_t meta[], size_t meta_len) {
+  if (!alias || !circ_supply || !max_supply) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
+  // must be an alias address
+  if (alias->type != ADDRESS_TYPE_ALIAS) {
+    printf("[%s:%d] must be Alias address\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  // FIXME: amount must fulfill the Byte Cost Dust Protection
+  // if (amount < MIN_DUST_ALLOWANCE) {
+  //   printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
+  //   return NULL;
+  // }
+
+  // max supply must be larger than zero
   uint256_t* max_supply_check = uint256_from_str("0");
   if (!max_supply_check) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
@@ -31,11 +41,6 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
   }
 
   free(max_supply_check);
-
-  if (amount < MIN_DUST_ALLOWANCE) {
-    printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
-    return NULL;
-  }
 
   if (uint256_equal(circ_supply, max_supply) > 0) {
     printf("[%s:%d] circulating supply must not be greater than maximum supply\n", __func__, __LINE__);
@@ -54,74 +59,54 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
   }
-
-  output->address = NULL;
-  output->native_tokens = NULL;
-  output->circ_supply = NULL;
-  output->max_supply = NULL;
-  output->feature_blocks = NULL;
-
-  // Store address
-  output->address = address_clone(addr);
-  if (!output->address) {
-    printf("[%s:%d] can not add address to foundry output\n", __func__, __LINE__);
-    output_foundry_free(output);
-    return NULL;
-  }
+  memset(output, 0, sizeof(output_foundry_t));
 
   // Store amount
   output->amount = amount;
 
   // Store native tokens
   if (tokens != NULL) {
-    output->native_tokens = native_tokens_new();
-    native_tokens_t *token, *token_tmp;
-    HASH_ITER(hh, tokens, token, token_tmp) {
-      int res = native_tokens_add(&output->native_tokens, token->token_id, token->amount);
-      if (res == -1) {
-        printf("[%s:%d] can not add native token to foundry output\n", __func__, __LINE__);
-        output_foundry_free(output);
-        return NULL;
-      }
+    output->native_tokens = native_tokens_clone(tokens);
+    if (!output->native_tokens) {
+      printf("[%s:%d] can not add native token to foundry output\n", __func__, __LINE__);
+      output_foundry_free(output);
+      return NULL;
     }
   }
 
   // Store serial number
   output->serial = serial_num;
-
   // Copy token tag, 12 bytes
   memcpy(output->token_tag, token_tag, TOKEN_TAG_BYTES_LEN);
-
   // Store circulating supply of tokens
-  output->circ_supply = malloc(sizeof(uint256_t));
-  memcpy(output->circ_supply, circ_supply, sizeof(uint256_t));
-
+  memcpy(&output->circ_supply, circ_supply, sizeof(output->circ_supply));
   // Store maximum supply of tokens
-  output->max_supply = malloc(sizeof(uint256_t));
-  memcpy(output->max_supply, max_supply, sizeof(uint256_t));
-
+  memcpy(&output->max_supply, max_supply, sizeof(output->max_supply));
   // Store token scheme
   output->token_scheme = token_scheme;
 
-  // Store feature blocks
-  if (feat_blocks != NULL) {
-    output->feature_blocks = feat_blk_list_new();
-    feat_blk_list_t* feat;
-    int res;
-    LL_FOREACH(feat_blocks, feat) {
-      if (feat->blk->type == FEAT_METADATA_BLOCK) {
-        feat_metadata_blk_t* block_metadata = (feat_metadata_blk_t*)feat->blk->block;
-        res = feat_blk_list_add_metadata(&output->feature_blocks, block_metadata->data, block_metadata->data_len);
-        if (res == -1) {
-          printf("[%s:%d] can not add feature block to Foundry output\n", __func__, __LINE__);
-          output_foundry_free(output);
-          return NULL;
-        }
-      } else {
-        printf("[%s:%d] unsupported feature block type, can not add it to Foundry output\n", __func__, __LINE__);
-        output_foundry_free(output);
-        return NULL;
-      }
+  // create address unlock
+  unlock_cond_blk_t* addr_unlock = cond_blk_addr_new(alias);
+  if (!addr_unlock) {
+    printf("[%s:%d] create an address unlock condition error\n", __func__, __LINE__);
+    output_foundry_free(output);
+    return NULL;
+  }
+  // add address unlock to condition list
+  if (cond_blk_list_add(&output->unlock_conditions, addr_unlock) != 0) {
+    printf("[%s:%d] can not add unlock conditions to foundry output\n", __func__, __LINE__);
+    cond_blk_free(addr_unlock);
+    output_foundry_free(output);
+    return NULL;
+  }
+  cond_blk_free(addr_unlock);
+
+  if (meta && meta_len > 0) {
+    // create metadata block
+    if (feat_blk_list_add_metadata(&output->feature_blocks, meta, meta_len) != 0) {
+      printf("[%s:%d] can not add feature block to Foundry output\n", __func__, __LINE__);
+      output_foundry_free(output);
+      return NULL;
     }
   }
   return output;
@@ -129,21 +114,11 @@ output_foundry_t* output_foundry_new(address_t* addr, uint64_t amount, native_to
 
 void output_foundry_free(output_foundry_t* output) {
   if (output) {
-    if (output->address) {
-      free_address(output->address);
-    }
     if (output->native_tokens) {
       native_tokens_free(&output->native_tokens);
     }
-    if (output->circ_supply) {
-      free(output->circ_supply);
-    }
-    if (output->max_supply) {
-      free(output->max_supply);
-    }
-    if (output->feature_blocks) {
-      feat_blk_list_free(output->feature_blocks);
-    }
+    cond_blk_list_free(output->unlock_conditions);
+    feat_blk_list_free(output->feature_blocks);
     free(output);
   }
 }
@@ -158,22 +133,22 @@ size_t output_foundry_serialize_len(output_foundry_t* output) {
 
   // output type
   length += sizeof(uint8_t);
-  // address
-  length += address_serialized_len(output->address);
   // amount
-  length += sizeof(uint64_t);
+  length += sizeof(output->amount);
   // native tokens
   length += native_tokens_serialize_len(&output->native_tokens);
   // serial number
-  length += sizeof(uint32_t);
+  length += sizeof(output->serial);
   // token tag
   length += TOKEN_TAG_BYTES_LEN;
   // circulating supply
-  length += sizeof(uint256_t);
+  length += sizeof(output->circ_supply);
   // maximum supply
-  length += sizeof(uint256_t);
+  length += sizeof(output->max_supply);
   // token_scheme
   length += sizeof(uint8_t);
+  // unlock conditions
+  length += cond_blk_list_serialize_len(output->unlock_conditions);
   // feature blocks
   length += feat_blk_list_serialize_len(output->feature_blocks);
 
@@ -192,58 +167,47 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
     return 0;
   }
 
-  byte_t* offset = buf;
-
+  size_t offset = 0;
   // fill-in Foundry Output type
-  memset(offset, OUTPUT_FOUNDRY, sizeof(uint8_t));
+  memset(buf + offset, OUTPUT_FOUNDRY, sizeof(uint8_t));
   offset += sizeof(uint8_t);
-
-  // address
-  offset += address_serialize(output->address, offset, address_serialized_len(output->address));
-
   // amount
-  memcpy(offset, &output->amount, sizeof(uint64_t));
-  offset += sizeof(uint64_t);
+  memcpy(buf + offset, &output->amount, sizeof(output->amount));
+  offset += sizeof(output->amount);
 
   // native tokens
   if (output->native_tokens) {
-    offset +=
-        native_tokens_serialize(&output->native_tokens, offset, native_tokens_serialize_len(&output->native_tokens));
+    offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
   } else {
-    memset(offset, 0, sizeof(uint16_t));
+    memset(buf + offset, 0, sizeof(uint16_t));
     offset += sizeof(uint16_t);
   }
 
   // serial number
-  memcpy(offset, &output->serial, sizeof(uint32_t));
-  offset += sizeof(uint32_t);
-
+  memcpy(buf + offset, &output->serial, sizeof(output->serial));
+  offset += sizeof(output->serial);
   // token tag
-  memcpy(offset, output->token_tag, TOKEN_TAG_BYTES_LEN);
+  memcpy(buf + offset, output->token_tag, TOKEN_TAG_BYTES_LEN);
   offset += TOKEN_TAG_BYTES_LEN;
-
   // circulating supply
-  memcpy(offset, output->circ_supply, sizeof(uint256_t));
-  offset += sizeof(uint256_t);
-
+  memcpy(buf + offset, &output->circ_supply, sizeof(output->circ_supply));
+  offset += sizeof(output->circ_supply);
   // maximum supply
-  memcpy(offset, output->max_supply, sizeof(uint256_t));
-  offset += sizeof(uint256_t);
-
+  memcpy(buf + offset, &output->max_supply, sizeof(output->max_supply));
+  offset += sizeof(output->max_supply);
   // token scheme
-  memcpy(offset, &output->token_scheme, sizeof(uint8_t));
+  memcpy(buf + offset, &output->token_scheme, sizeof(uint8_t));
   offset += sizeof(uint8_t);
-
+  // condition blocks
+  offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
   // feature blocks
   if (output->feature_blocks) {
-    offset +=
-        feat_blk_list_serialize(&output->feature_blocks, offset, feat_blk_list_serialize_len(output->feature_blocks));
+    offset += feat_blk_list_serialize(&output->feature_blocks, buf + offset, buf_len - offset);
   } else {
-    memset(offset, 0, sizeof(uint8_t));
+    memset(buf + offset, 0, sizeof(uint8_t));
     offset += sizeof(uint8_t);
   }
-
-  return expected_bytes;
+  return offset;
 }
 
 output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
@@ -257,14 +221,9 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
   }
-  output->address = NULL;
-  output->native_tokens = NULL;
-  output->circ_supply = NULL;
-  output->max_supply = NULL;
-  output->feature_blocks = NULL;
+  memset(output, 0, sizeof(output_foundry_t));
 
   size_t offset = 0;
-
   // Check if output type is foundry output
   if (buf[offset] != OUTPUT_FOUNDRY) {
     printf("[%s:%d] buffer does not contain Foundry Output object\n", __func__, __LINE__);
@@ -273,27 +232,18 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   }
   offset += sizeof(uint8_t);
 
-  // address
-  output->address = address_deserialize(&buf[offset], buf_len - offset);
-  if (!output->address) {
-    printf("[%s:%d] can not deserialize address\n", __func__, __LINE__);
-    output_foundry_free(output);
-    return NULL;
-  }
-  offset += address_serialized_len(output->address);
-
   // amount
-  if (buf_len < offset + sizeof(uint64_t)) {
+  if (buf_len < offset + sizeof(output->amount)) {
     printf("[%s:%d] invalid data length\n", __func__, __LINE__);
     output_foundry_free(output);
     return NULL;
   }
-  memcpy(&output->amount, &buf[offset], sizeof(uint64_t));
-  offset += sizeof(uint64_t);
+  memcpy(&output->amount, &buf[offset], sizeof(output->amount));
+  offset += sizeof(output->amount);
 
   // native tokens
   uint16_t tokens_count = 0;
-  memcpy(&tokens_count, &buf[offset], sizeof(uint16_t));
+  memcpy(&tokens_count, &buf[offset], sizeof(tokens_count));
   if (tokens_count > 0) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {
@@ -303,17 +253,17 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
     }
     offset += native_tokens_serialize_len(&output->native_tokens);
   } else {
-    offset += sizeof(uint16_t);
+    offset += sizeof(tokens_count);
   }
 
   // serial number
-  if (buf_len < offset + sizeof(uint32_t)) {
+  if (buf_len < offset + sizeof(output->serial)) {
     printf("[%s:%d] invalid data length\n", __func__, __LINE__);
     output_foundry_free(output);
     return NULL;
   }
-  memcpy(&output->serial, &buf[offset], sizeof(uint32_t));
-  offset += sizeof(uint32_t);
+  memcpy(&output->serial, &buf[offset], sizeof(output->serial));
+  offset += sizeof(output->serial);
 
   // token tag
   if (buf_len < offset + TOKEN_TAG_BYTES_LEN) {
@@ -325,34 +275,22 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   offset += TOKEN_TAG_BYTES_LEN;
 
   // circulating supply
-  if (buf_len < offset + sizeof(uint256_t)) {
+  if (buf_len < offset + sizeof(output->circ_supply)) {
     printf("[%s:%d] invalid data length\n", __func__, __LINE__);
     output_foundry_free(output);
     return NULL;
   }
-  output->circ_supply = malloc(sizeof(uint256_t));
-  if (!output->circ_supply) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    output_foundry_free(output);
-    return NULL;
-  }
-  memcpy(output->circ_supply, &buf[offset], sizeof(uint256_t));
-  offset += sizeof(uint256_t);
+  memcpy(&output->circ_supply, &buf[offset], sizeof(output->circ_supply));
+  offset += sizeof(output->circ_supply);
 
   // maximum supply
-  if (buf_len < offset + sizeof(uint256_t)) {
+  if (buf_len < offset + sizeof(output->max_supply)) {
     printf("[%s:%d] invalid data length\n", __func__, __LINE__);
     output_foundry_free(output);
     return NULL;
   }
-  output->max_supply = malloc(sizeof(uint256_t));
-  if (!output->max_supply) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    output_foundry_free(output);
-    return NULL;
-  }
-  memcpy(output->max_supply, &buf[offset], sizeof(uint256_t));
-  offset += sizeof(uint256_t);
+  memcpy(&output->max_supply, &buf[offset], sizeof(output->max_supply));
+  offset += sizeof(output->max_supply);
 
   // token scheme
   if (buf_len < offset + sizeof(uint8_t)) {
@@ -363,15 +301,45 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   memcpy(&output->token_scheme, &buf[offset], sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
+  // unlock condition blocks
+  uint8_t unlock_count = 0;
+  memcpy(&unlock_count, &buf[offset], sizeof(uint8_t));
+  if (unlock_count != 1) {
+    printf("[%s:%d] invalid unlock block count\n", __func__, __LINE__);
+    output_foundry_free(output);
+    return NULL;
+  } else {
+    output->unlock_conditions = cond_blk_list_deserialize(buf + offset, buf_len - offset);
+    if (!output->unlock_conditions) {
+      printf("[%s:%d] can not deserialize unlock conditions\n", __func__, __LINE__);
+      output_foundry_free(output);
+      return NULL;
+    }
+    offset += cond_blk_list_serialize_len(output->unlock_conditions);
+  }
+
   // feature blocks
-  uint8_t feat_block_count = *((uint8_t*)&buf[offset]);
-  if (feat_block_count > 0) {
+  uint8_t feat_block_count = 0;
+  memcpy(&feat_block_count, &buf[offset], sizeof(uint8_t));
+  if (feat_block_count > 1) {
+    printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
+    output_foundry_free(output);
+    return NULL;
+  } else if (feat_block_count > 0) {
     output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
     if (!output->feature_blocks) {
       printf("[%s:%d] can not deserialize feature blocks\n", __func__, __LINE__);
       output_foundry_free(output);
       return NULL;
     }
+    offset += feat_blk_list_serialize_len(output->feature_blocks);
+  } else {
+    if (buf_len < offset + sizeof(uint8_t)) {
+      printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+      output_foundry_free(output);
+      return NULL;
+    }
+    offset += sizeof(uint8_t);
   }
 
   return output;
@@ -384,14 +352,14 @@ output_foundry_t* output_foundry_clone(output_foundry_t const* const output) {
 
   output_foundry_t* new_output = malloc(sizeof(output_foundry_t));
   if (new_output) {
-    new_output->address = address_clone(output->address);
     new_output->amount = output->amount;
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
     new_output->serial = output->serial;
     memcpy(new_output->token_tag, output->token_tag, TOKEN_TAG_BYTES_LEN);
-    new_output->circ_supply = uint256_clone(output->circ_supply);
-    new_output->max_supply = uint256_clone(output->max_supply);
+    memcpy(&new_output->circ_supply, &output->circ_supply, sizeof(output->circ_supply));
+    memcpy(&new_output->max_supply, &output->max_supply, sizeof(output->max_supply));
     new_output->token_scheme = output->token_scheme;
+    new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
     new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
   }
 
@@ -406,9 +374,6 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
 
   printf("%sFoundry Output: [\n", PRINT_INDENTATION(indentation));
 
-  printf("%s\tAddress: ", PRINT_INDENTATION(indentation));
-  address_print(output->address);
-
   printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
@@ -422,7 +387,7 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
 
   // print circulating supply
   char* circ_supply_str;
-  circ_supply_str = uint256_to_str(output->circ_supply);
+  circ_supply_str = uint256_to_str(&output->circ_supply);
   if (circ_supply_str != NULL) {
     printf("%s\tCirculating Supply: [%s]\n", PRINT_INDENTATION(indentation), circ_supply_str);
     free(circ_supply_str);
@@ -430,7 +395,7 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
 
   // print maximum supply
   char* max_supply_str;
-  max_supply_str = uint256_to_str(output->max_supply);
+  max_supply_str = uint256_to_str(&output->max_supply);
   if (max_supply_str != NULL) {
     printf("%s\tMaximum Supply: [%s]\n", PRINT_INDENTATION(indentation), max_supply_str);
     free(max_supply_str);
@@ -443,6 +408,8 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
     printf("%s\tToken Scheme: Unknown Token Scheme\n", PRINT_INDENTATION(indentation));
   }
 
+  // print unlock conditions
+  cond_blk_list_print(output->unlock_conditions, indentation + 1);
   // print feature blocks
   feat_blk_list_print(output->feature_blocks, indentation + 1);
 
