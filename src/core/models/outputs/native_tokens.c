@@ -4,7 +4,7 @@
 #include "core/models/outputs/native_tokens.h"
 
 #define NATIVE_TOKENS_MIN_COUNT 0
-#define NATIVE_TOKENS_MAX_COUNT 256
+#define NATIVE_TOKENS_MAX_COUNT 255
 
 // Native Tokens must be lexicographically sorted based on Token ID
 static int token_id_sort(native_tokens_t *token1, native_tokens_t *token2) {
@@ -61,7 +61,7 @@ size_t native_tokens_serialize_len(native_tokens_t **nt) {
   uint8_t tokens_count = native_tokens_count(nt);
 
   // Native Tokens count
-  length += sizeof(uint16_t);
+  length += sizeof(uint8_t);
 
   // serialized Native Tokens
   length += NATIVE_TOKENS_SERIALIZED_BYTES * tokens_count;
@@ -85,9 +85,9 @@ size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[], size_t buf_le
   size_t offset = 0;
 
   // Native Tokens count
-  uint16_t count = native_tokens_count(nt);
-  memcpy(buf + offset, &count, sizeof(uint16_t));
-  offset += sizeof(uint16_t);
+  uint8_t count = native_tokens_count(nt);
+  memcpy(buf + offset, &count, sizeof(uint8_t));
+  offset += sizeof(uint8_t);
 
   // sort Native Tokens in lexicographical order based on token ID
   HASH_SORT(*nt, token_id_sort);
@@ -115,20 +115,20 @@ native_tokens_t *native_tokens_deserialize(byte_t buf[], size_t buf_len) {
 
   uint16_t offset = 0;
 
-  uint16_t tokens_count = (uint16_t)buf[0];
-  offset += sizeof(uint16_t);
+  uint8_t tokens_count = (uint8_t)buf[0];
+  offset += sizeof(uint8_t);
 
   if (tokens_count == 0) {
     return nt;
   }
 
-  if (buf_len < sizeof(uint16_t) + (tokens_count * NATIVE_TOKENS_SERIALIZED_BYTES)) {
+  if (buf_len < sizeof(uint8_t) + (tokens_count * NATIVE_TOKENS_SERIALIZED_BYTES)) {
     printf("[%s:%d] invalid data length\n", __func__, __LINE__);
     native_tokens_free(&nt);
     return NULL;
   }
 
-  for (uint16_t i = 0; i < tokens_count; i++) {
+  for (uint8_t i = 0; i < tokens_count; i++) {
     native_tokens_t *token = malloc(sizeof(native_tokens_t));
     if (!token) {
       printf("[%s:%d] OOM\n", __func__, __LINE__);

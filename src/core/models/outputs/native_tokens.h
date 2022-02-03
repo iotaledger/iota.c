@@ -57,7 +57,7 @@ static native_tokens_t *native_tokens_find_by_id(native_tokens_t **nt, byte_t id
  * @param[in] nt Native Tokens set
  * @return uint16_t
  */
-static uint16_t native_tokens_count(native_tokens_t **nt) { return (uint16_t)HASH_COUNT(*nt); }
+static uint8_t native_tokens_count(native_tokens_t **nt) { return (uint8_t)HASH_COUNT(*nt); }
 
 /**
  * @brief Free Native Tokens set.
