@@ -13,9 +13,9 @@
       "amount": 10000000,
       "nativeTokens": [],
       "serialNumber": 123456,
-      "tokenTag": "987654321",
-      "circulatingSupply": "2000000000",
-      "maximumSupply": "1000000000",
+      "tokenTag": "TokenTAGDemo",
+      "circulatingSupply": "30000000000000000000000000000000000000000",
+      "maximumSupply": "20000000000000000000000000000000000000000",
       "tokenScheme": 0,
       "unlockConditions": [
         {  "type": 0,
@@ -42,6 +42,13 @@ int json_output_foundry_deserialize(cJSON *output_obj, transaction_essence_t *es
 
   int result = -1;
 
+  uint256_t *circ_supply = NULL;
+  uint256_t *max_supply = NULL;
+  native_tokens_t *tokens = native_tokens_new();
+  cond_blk_list_t *cond_blocks = cond_blk_list_new();
+  feat_blk_list_t *feat_blocks = feat_blk_list_new();
+  output_foundry_t *output = NULL;
+
   // amount
   uint64_t amount;
   if (json_get_uint64(output_obj, JSON_KEY_AMOUNT, &amount) != JSON_OK) {
@@ -50,7 +57,6 @@ int json_output_foundry_deserialize(cJSON *output_obj, transaction_essence_t *es
   }
 
   // native tokens array
-  native_tokens_t *tokens = native_tokens_new();
   if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
     goto end;
@@ -76,7 +82,7 @@ int json_output_foundry_deserialize(cJSON *output_obj, transaction_essence_t *es
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_CIRC_SUPPLY);
     goto end;
   }
-  uint256_t *circ_supply = uint256_from_str(circ_supply_str);
+  circ_supply = uint256_from_str(circ_supply_str);
 
   // maximum supply
   char max_supply_str[STRING_NUMBER_MAX_CHARACTERS];
@@ -84,7 +90,7 @@ int json_output_foundry_deserialize(cJSON *output_obj, transaction_essence_t *es
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MAX_SUPPLY);
     goto end;
   }
-  uint256_t *max_supply = uint256_from_str(max_supply_str);
+  max_supply = uint256_from_str(max_supply_str);
 
   // token scheme
   uint8_t token_scheme;
@@ -94,7 +100,6 @@ int json_output_foundry_deserialize(cJSON *output_obj, transaction_essence_t *es
   }
 
   // unlock conditions array
-  cond_blk_list_t *cond_blocks = cond_blk_list_new();
   if (json_cond_blk_list_deserialize(output_obj, &cond_blocks) != 0) {
     printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_UNLOCK_CONDITIONS);
     goto end;
@@ -111,7 +116,6 @@ int json_output_foundry_deserialize(cJSON *output_obj, transaction_essence_t *es
   }
 
   // feature blocks array
-  feat_blk_list_t *feat_blocks = feat_blk_list_new();
   if (json_feat_blocks_deserialize(output_obj, &feat_blocks) != 0) {
     printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
     goto end;
@@ -134,9 +138,8 @@ int json_output_foundry_deserialize(cJSON *output_obj, transaction_essence_t *es
   }
 
   // create foundry output
-  output_foundry_t *output =
-      output_foundry_new((address_t *)unlock_cond_address->block, amount, tokens, serial_number, token_tag, circ_supply,
-                         max_supply, token_scheme, metadata, metadata_len);
+  output = output_foundry_new((address_t *)unlock_cond_address->block, amount, tokens, serial_number, token_tag,
+                              circ_supply, max_supply, token_scheme, metadata, metadata_len);
   if (!output) {
     printf("[%s:%d]: creating output object failed\n", __func__, __LINE__);
     goto end;
@@ -152,8 +155,12 @@ int json_output_foundry_deserialize(cJSON *output_obj, transaction_essence_t *es
   result = 0;
 
 end:
-  free(circ_supply);
-  free(max_supply);
+  if (circ_supply) {
+    free(circ_supply);
+  }
+  if (max_supply) {
+    free(max_supply);
+  }
   native_tokens_free(&tokens);
   cond_blk_list_free(cond_blocks);
   feat_blk_list_free(feat_blocks);
