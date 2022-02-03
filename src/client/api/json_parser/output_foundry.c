@@ -133,8 +133,8 @@ int json_output_foundry_deserialize(cJSON *output_obj, transaction_essence_t *es
       printf("[%s:%d]: there is not a metadata feature block in a list\n", __func__, __LINE__);
       goto end;
     }
-    metadata = ((feat_metadata_blk_t *)feat_block_metadata)->data;
-    metadata_len = ((feat_metadata_blk_t *)feat_block_metadata)->data_len;
+    metadata = ((feat_metadata_blk_t *)feat_block_metadata->block)->data;
+    metadata_len = ((feat_metadata_blk_t *)feat_block_metadata->block)->data_len;
   }
 
   // create foundry output

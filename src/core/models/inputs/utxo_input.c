@@ -267,7 +267,7 @@ utxo_inputs_list_t *utxo_inputs_deserialize(byte_t buf[], size_t buf_len) {
 void utxo_inputs_print(utxo_inputs_list_t *inputs, uint8_t indentation) {
   utxo_inputs_list_t *elm;
   uint8_t index = 0;
-  printf("%sUTXO Inputs:[\n", PRINT_INDENTATION(indentation));
+  printf("%sUTXO Inputs: [\n", PRINT_INDENTATION(indentation));
   printf("%s\tInputs Count: %d\n", PRINT_INDENTATION(indentation), utxo_inputs_count(inputs));
   if (inputs) {
     LL_FOREACH(inputs, elm) {

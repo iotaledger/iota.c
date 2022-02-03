@@ -183,9 +183,9 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
 }
 
 void tx_essence_print(transaction_essence_t* es) {
-  printf("transaction essence:[\n");
-  utxo_inputs_print(es->inputs, 0);
-  utxo_outputs_print(es->outputs, 0);
+  printf("Transaction Essence: [\n");
+  utxo_inputs_print(es->inputs, 1);
+  utxo_outputs_print(es->outputs, 1);
   // TODO: print payloads
   printf("]\n");
 }
