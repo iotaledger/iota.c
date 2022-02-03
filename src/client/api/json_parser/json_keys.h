@@ -73,5 +73,10 @@ static char const* const JSON_KEY_ALIAS_ID = "aliasId";
 static char const* const JSON_KEY_STATE_INDEX = "stateIndex";
 static char const* const JSON_KEY_FOUNDRY_COUNTER = "foundryCounter";
 static char const* const JSON_KEY_STATE_METADATA = "stateMetadata";
+static char const* const JSON_KEY_SERIAL_NUMBER = "serialNumber";
+static char const* const JSON_KEY_TOKEN_TAG = "tokenTag";
+static char const* const JSON_KEY_CIRC_SUPPLY = "circulatingSupply";
+static char const* const JSON_KEY_MAX_SUPPLY = "maximumSupply";
+static char const* const JSON_KEY_TOKEN_SCHEME = "tokenScheme";
 
 #endif
