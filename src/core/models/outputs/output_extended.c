@@ -155,12 +155,7 @@ size_t output_extended_serialize(output_extended_t* output, byte_t buf[], size_t
   offset += sizeof(uint64_t);
 
   // native tokens
-  if (output->native_tokens) {
-    offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
-  } else {
-    memset(buf + offset, 0, sizeof(uint16_t));
-    offset += sizeof(uint16_t);
-  }
+  offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
 
   // unlock conditions
   offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
@@ -208,8 +203,8 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint64_t);
 
   // native tokens
-  uint16_t tokens_count = 0;
-  memcpy(&tokens_count, &buf[offset], sizeof(uint16_t));
+  uint8_t tokens_count = 0;
+  memcpy(&tokens_count, &buf[offset], sizeof(uint8_t));
   if (tokens_count > 0) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {
@@ -217,10 +212,8 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
       output_extended_free(output);
       return NULL;
     }
-    offset += native_tokens_serialize_len(&output->native_tokens);
-  } else {
-    offset += sizeof(uint16_t);
   }
+  offset += native_tokens_serialize_len(&output->native_tokens);
 
   // unlock condition blocks
   uint8_t unlock_count = 0;
