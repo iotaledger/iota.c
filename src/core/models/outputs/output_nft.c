@@ -179,12 +179,7 @@ size_t output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) 
   offset += sizeof(uint64_t);
 
   // native tokens
-  if (output->native_tokens) {
-    offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
-  } else {
-    memset(buf + offset, 0, sizeof(uint16_t));
-    offset += sizeof(uint16_t);
-  }
+  offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
 
   // NFT ID
   memcpy(buf + offset, output->nft_id, ADDRESS_NFT_BYTES);
@@ -249,8 +244,8 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint64_t);
 
   // native tokens
-  uint16_t tokens_count = 0;
-  memcpy(&tokens_count, &buf[offset], sizeof(uint16_t));
+  uint8_t tokens_count = 0;
+  memcpy(&tokens_count, &buf[offset], sizeof(uint8_t));
   if (tokens_count > 0) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {
@@ -258,10 +253,8 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
       output_nft_free(output);
       return NULL;
     }
-    offset += native_tokens_serialize_len(&output->native_tokens);
-  } else {
-    offset += sizeof(uint16_t);
   }
+  offset += native_tokens_serialize_len(&output->native_tokens);
 
   // NFT ID
   if (buf_len < offset + ADDRESS_NFT_BYTES) {

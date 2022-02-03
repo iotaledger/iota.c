@@ -113,7 +113,7 @@ void test_output_nft() {
 
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
   native_tokens_t* token = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
@@ -197,7 +197,7 @@ void test_output_nft() {
   TEST_ASSERT_EQUAL_MEMORY(test_meta, deser_output->immutable_metadata->data, deser_output->immutable_metadata->len);
 
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
   token = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
@@ -742,8 +742,7 @@ void test_output_nft_clone() {
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
   TEST_ASSERT_NOT_NULL(new_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(native_tokens_count(&output->native_tokens),
-                           native_tokens_count(&new_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&output->native_tokens), native_tokens_count(&new_output->native_tokens));
 
   TEST_ASSERT_EQUAL_MEMORY(output->nft_id, new_output->nft_id, ADDRESS_NFT_BYTES);
   TEST_ASSERT_EQUAL_INT32(output->immutable_metadata->len, new_output->immutable_metadata->len);

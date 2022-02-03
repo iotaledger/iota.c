@@ -176,13 +176,7 @@ size_t output_alias_serialize(output_alias_t* output, byte_t buf[], size_t buf_l
   offset += sizeof(uint64_t);
 
   // native tokens
-  // TODO? native token serialize with empty list
-  if (output->native_tokens) {
-    offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
-  } else {
-    memset(buf + offset, 0, sizeof(uint16_t));
-    offset += sizeof(uint16_t);
-  }
+  offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
 
   // alias ID
   memcpy(buf + offset, output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -256,8 +250,8 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint64_t);
 
   // native tokens
-  uint16_t tokens_count = 0;
-  memcpy(&tokens_count, &buf[offset], sizeof(uint16_t));
+  uint8_t tokens_count = 0;
+  memcpy(&tokens_count, &buf[offset], sizeof(uint8_t));
   if (tokens_count > 0) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {
@@ -265,10 +259,8 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
       output_alias_free(output);
       return NULL;
     }
-    offset += native_tokens_serialize_len(&output->native_tokens);
-  } else {
-    offset += sizeof(uint16_t);
   }
+  offset += native_tokens_serialize_len(&output->native_tokens);
 
   // alias ID
   if (buf_len < offset + ADDRESS_ALIAS_BYTES) {
