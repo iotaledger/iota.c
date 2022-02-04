@@ -80,7 +80,7 @@ static int transaction_deserialize(cJSON *tx_obj, res_message_t *res) {
   cJSON *essence_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, JSON_KEY_ESSENCE);
   if (essence_obj) {
     // inputs array
-    if ((ret = json_inputs_deserialize(essence_obj, tx->essence->inputs)) != 0) {
+    if ((ret = json_inputs_deserialize(essence_obj, &tx->essence->inputs)) != 0) {
       goto end;
     }
 

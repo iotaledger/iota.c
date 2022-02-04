@@ -43,6 +43,12 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
   if (feat_blk_list_len(feat_blocks) > MAX_ALIAS_FEATURE_BLOCKS_COUNT) {
     printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_ALIAS_FEATURE_BLOCKS_COUNT);
     return NULL;
+  } else {
+    // must not contain FEAT_TAG_BLOCK
+    if (feat_blk_list_get_type(feat_blocks, FEAT_TAG_BLOCK)) {
+      printf("[%s:%d] Tag feature block is not allowed\n", __func__, __LINE__);
+      return NULL;
+    }
   }
 
   // When Alias ID is zeroed out, State Index and Foundry Counter must be 0.

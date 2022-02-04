@@ -8,7 +8,7 @@
   "type": 0,
   "address": {
     "type": 0,
-    "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
+    "address": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_feat_blk_sender_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
@@ -36,7 +36,7 @@ int json_feat_blk_sender_deserialize(cJSON *feat_block_obj, feat_blk_list_t **fe
   "type": 1,
   "address": {
     "type": 0,
-    "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
+    "address": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_feat_blk_issuer_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
@@ -62,7 +62,7 @@ int json_feat_blk_issuer_deserialize(cJSON *feat_block_obj, feat_blk_list_t **fe
 
 /*
   "type": 2,
-  "data": "89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b"
+  "data": "010203040506070809"
 */
 int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
   if (feat_block_obj == NULL || feat_blocks == NULL) {
@@ -89,7 +89,7 @@ int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t **
 
 /*
   "type": 3,
-  "tag": "89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b"
+  "tag": "01020304"
 */
 int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
   if (feat_block_obj == NULL || feat_blocks == NULL) {
@@ -114,7 +114,7 @@ int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_
 }
 
 /*
-  "blocks": [],
+  "featureBlocks": [],
 */
 int json_feat_blocks_deserialize(cJSON *output_obj, feat_blk_list_t **feat_blocks) {
   if (output_obj == NULL || feat_blocks == NULL) {

@@ -18,7 +18,7 @@ extern "C" {
  * @param[out] native_tokens Transaction Native Tokens object
  * @return int 0 on success
  */
-int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_t *native_tokens);
+int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_t **native_tokens);
 
 #ifdef __cplusplus
 }

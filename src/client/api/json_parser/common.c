@@ -23,9 +23,9 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
   }
 
   // address
+  char address_hex[ADDRESS_MAX_HEX_BYTES];
   switch (address_type) {
     case ADDRESS_TYPE_ED25519: {
-      char address_hex[ADDRESS_ED25519_HEX_BYTES];
       if (json_get_string(json_address_obj, JSON_KEY_ADDR, address_hex, ADDRESS_ED25519_HEX_BYTES) != JSON_OK) {
         printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ADDR);
         return -1;
@@ -35,18 +35,36 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
         printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
         return -1;
       }
-      return 0;
+      break;
     }
-    case ADDRESS_TYPE_ALIAS:
-      // TODO support alias address type
+    case ADDRESS_TYPE_ALIAS: {
+      if (json_get_string(json_address_obj, JSON_KEY_ADDR, address_hex, ADDRESS_ALIAS_HEX_BYTES) != JSON_OK) {
+        printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ADDR);
+        return -1;
+      }
+      address->type = ADDRESS_TYPE_ALIAS;
+      if (hex_2_bin(address_hex, ADDRESS_ALIAS_HEX_BYTES, address->address, ADDRESS_ALIAS_BYTES) != 0) {
+        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
+        return -1;
+      }
       break;
-    case ADDRESS_TYPE_NFT:
-      // TODO support NFT address type
+    }
+    case ADDRESS_TYPE_NFT: {
+      if (json_get_string(json_address_obj, JSON_KEY_ADDR, address_hex, ADDRESS_NFT_HEX_BYTES) != JSON_OK) {
+        printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ADDR);
+        return -1;
+      }
+      address->type = ADDRESS_TYPE_NFT;
+      if (hex_2_bin(address_hex, ADDRESS_NFT_HEX_BYTES, address->address, ADDRESS_NFT_BYTES) != 0) {
+        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
+        return -1;
+      }
       break;
+    }
     default:
       printf("[%s:%d] unsupported address type\n", __func__, __LINE__);
       return -1;
   }
 
-  return -1;
+  return 0;
 }

@@ -13,7 +13,7 @@ void tearDown(void) {}
 void test_unlock_condition_address() {
   char const* const json_res =
       "{\"type\":0,\"address\":{\"type\":0,\"address\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}}";
+      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -28,7 +28,7 @@ void test_unlock_condition_address() {
 
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 
@@ -39,7 +39,7 @@ void test_unlock_condition_address() {
 void test_unlock_condition_dust_deposit_return() {
   char const* const json_res =
       "{\"type\":1,\"returnAddress\":{\"type\":0,\"address\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}, \"amount\":1337}";
+      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}, \"amount\":1337}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -55,7 +55,7 @@ void test_unlock_condition_dust_deposit_return() {
   unlock_cond_dust_t* cond_dust = (unlock_cond_dust_t*)cond_unlock->block;
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, cond_dust->addr));
   TEST_ASSERT_EQUAL_UINT64(1337, cond_dust->amount);
@@ -89,7 +89,7 @@ void test_unlock_condition_timelock() {
 void test_unlock_condition_expiration() {
   char const* const json_res =
       "{\"type\":3,\"returnAddress\":{\"type\":0,\"address\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}, \"milestoneIndex\": 123456789, "
+      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}, \"milestoneIndex\": 123456789, "
       "\"unixTime\":987654321}";
 
   cJSON* json_obj = cJSON_Parse(json_res);
@@ -107,7 +107,7 @@ void test_unlock_condition_expiration() {
   unlock_cond_expir_t* cond_expiration = (unlock_cond_expir_t*)cond_unlock->block;
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, cond_expiration->addr));
   TEST_ASSERT_EQUAL_UINT32(123456789, cond_expiration->milestone);
@@ -120,7 +120,7 @@ void test_unlock_condition_expiration() {
 void test_unlock_condition_state() {
   char const* const json_res =
       "{\"type\":4,\"address\":{\"type\":0,\"address\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}}";
+      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -135,7 +135,7 @@ void test_unlock_condition_state() {
 
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 
@@ -146,7 +146,7 @@ void test_unlock_condition_state() {
 void test_unlock_condition_governor() {
   char const* const json_res =
       "{\"type\":5,\"address\":{\"type\":0,\"address\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}}";
+      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -161,7 +161,7 @@ void test_unlock_condition_governor() {
 
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 
@@ -210,7 +210,7 @@ void test_unlock_conditions() {
 void test_unlock_conditions_unsupported_type() {
   char const* const json_res =
       "{\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":0,\"address\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}}]}";
+      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}]}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 

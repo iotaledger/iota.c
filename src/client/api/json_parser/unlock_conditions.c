@@ -9,7 +9,7 @@
   "type": 0,
   "address": {
     "type": 0,
-    "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
+    "address": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_cond_blk_addr_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
@@ -41,9 +41,9 @@ int json_cond_blk_addr_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk
   "type": 1,
   "returnAddress": {
     "type": 0,
-    "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
+    "address": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   },
-  "amount": 123123
+  "amount": 123456
 */
 int json_cond_blk_dust_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
   if (unlock_cond_obj == NULL || blk_list == NULL) {
@@ -79,7 +79,7 @@ int json_cond_blk_dust_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk
 
 /*
   "type": 2,
-  "milestoneIndex": 45598
+  "milestoneIndex": 45598,
   "unixTime": 123123
 */
 int json_cond_blk_timelock_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
@@ -118,9 +118,9 @@ int json_cond_blk_timelock_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t *
   "type": 3,
   "returnAddress": {
     "type": 0,
-    "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
+    "address": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   },
-  "milestoneIndex": 45598
+  "milestoneIndex": 45598,
   "unixTime": 123123
 */
 int json_cond_blk_expir_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
@@ -166,7 +166,7 @@ int json_cond_blk_expir_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **bl
   "type": 4,
   "address": {
     "type": 0,
-    "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
+    "address": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_cond_blk_state_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
@@ -198,7 +198,7 @@ int json_cond_blk_state_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **bl
   "type": 5,
   "address": {
     "type": 0,
-    "address": "ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4"
+    "address": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_cond_blk_governor_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {

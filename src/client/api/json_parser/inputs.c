@@ -8,12 +8,12 @@
   "inputs": [
     {
       "type": 0,
-      "transactionId": "2bfbf7463b008c0298103121874f64b59d2b6172154aa14205db2ce0ba553b03",
+      "transactionId": "b3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e",
       "transactionOutputIndex": 1
     },
   ]
 */
-int json_inputs_deserialize(cJSON *essence_obj, utxo_inputs_list_t *inputs) {
+int json_inputs_deserialize(cJSON *essence_obj, utxo_inputs_list_t **inputs) {
   if (essence_obj == NULL || inputs == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -55,7 +55,7 @@ int json_inputs_deserialize(cJSON *essence_obj, utxo_inputs_list_t *inputs) {
     }
 
     // add new input to inputs list
-    if (utxo_inputs_add(&inputs, input_type, tx_id, output_index) != 0) {
+    if (utxo_inputs_add(inputs, input_type, tx_id, output_index) != 0) {
       printf("[%s:%d] can not add new input into a list\n", __func__, __LINE__);
       return -1;
     }
