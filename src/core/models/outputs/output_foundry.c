@@ -176,12 +176,7 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
   offset += sizeof(output->amount);
 
   // native tokens
-  if (output->native_tokens) {
-    offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
-  } else {
-    memset(buf + offset, 0, sizeof(uint16_t));
-    offset += sizeof(uint16_t);
-  }
+  offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
 
   // serial number
   memcpy(buf + offset, &output->serial, sizeof(output->serial));
@@ -242,8 +237,8 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(output->amount);
 
   // native tokens
-  uint16_t tokens_count = 0;
-  memcpy(&tokens_count, &buf[offset], sizeof(tokens_count));
+  uint8_t tokens_count = 0;
+  memcpy(&tokens_count, &buf[offset], sizeof(uint8_t));
   if (tokens_count > 0) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {
@@ -251,10 +246,8 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
       output_foundry_free(output);
       return NULL;
     }
-    offset += native_tokens_serialize_len(&output->native_tokens);
-  } else {
-    offset += sizeof(tokens_count);
   }
+  offset += native_tokens_serialize_len(&output->native_tokens);
 
   // serial number
   if (buf_len < offset + sizeof(output->serial)) {

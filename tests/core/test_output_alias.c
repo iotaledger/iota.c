@@ -65,7 +65,7 @@ void test_output_alias() {
 
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
   native_tokens_t* token = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
@@ -127,8 +127,8 @@ void test_output_alias() {
   TEST_ASSERT_EQUAL_UINT64(output->amount, deser_output->amount);
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(native_tokens_count(&output->native_tokens),
-                           native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&output->native_tokens),
+                          native_tokens_count(&deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
   token = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
@@ -361,7 +361,7 @@ void test_output_alias_without_metadata() {
   TEST_ASSERT_EQUAL_UINT64(123456789, output->amount);
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
   native_tokens_t* token = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
@@ -425,7 +425,7 @@ void test_output_alias_without_metadata() {
 
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
   token = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
@@ -525,7 +525,7 @@ void test_output_alias_without_feature_blocks() {
 
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
   native_tokens_t* token = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
@@ -581,7 +581,7 @@ void test_output_alias_without_feature_blocks() {
 
   // deserialized tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
   token = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
@@ -683,8 +683,7 @@ void test_output_alias_clone() {
   TEST_ASSERT_EQUAL_UINT64(output->amount, new_output->amount);
   // compare native tokens
   TEST_ASSERT_NOT_NULL(new_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(native_tokens_count(&output->native_tokens),
-                           native_tokens_count(&new_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&output->native_tokens), native_tokens_count(&new_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
   native_tokens_t* token = new_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);

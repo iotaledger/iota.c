@@ -71,7 +71,7 @@ void test_output_foundry() {
 
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
   native_tokens_t* token = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
@@ -130,7 +130,7 @@ void test_output_foundry() {
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
   token = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
@@ -244,7 +244,7 @@ void test_output_foundry_without_native_tokens() {
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   // deserialized native tokens
   TEST_ASSERT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(0, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(0, native_tokens_count(&deser_output->native_tokens));
 
   // deserialized serial number
   TEST_ASSERT_EQUAL_UINT32(22, deser_output->serial);
@@ -301,7 +301,7 @@ void test_output_foundry_without_metadata() {
 
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
   native_tokens_t* token = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
@@ -355,7 +355,7 @@ void test_output_foundry_without_metadata() {
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
   token = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
@@ -474,8 +474,7 @@ void test_output_foundry_clone() {
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
   TEST_ASSERT_NOT_NULL(new_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(native_tokens_count(&output->native_tokens),
-                           native_tokens_count(&new_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&output->native_tokens), native_tokens_count(&new_output->native_tokens));
 
   // validate serial number
   TEST_ASSERT_EQUAL_UINT32(output->serial, new_output->serial);

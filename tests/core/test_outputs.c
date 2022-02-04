@@ -265,7 +265,7 @@ void test_utxo_outputs() {
   TEST_ASSERT_EQUAL_MEMORY(extended_output->address->address, extended_output_from_list->address->address,
                            ADDRESS_ED25519_BYTES);
   TEST_ASSERT_EQUAL_UINT64(extended_output->amount, extended_output_from_list->amount);
-  TEST_ASSERT_EQUAL_UINT16(native_tokens_count(&extended_output->native_tokens),
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&extended_output->native_tokens),
                            native_tokens_count(&extended_output_from_list->native_tokens));
   TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(extended_output->feature_blocks),
                           feat_blk_list_len(extended_output_from_list->feature_blocks));
@@ -274,7 +274,7 @@ void test_utxo_outputs() {
   TEST_ASSERT_EQUAL_INT(OUTPUT_ALIAS, output_from_list->output_type);
   output_alias_t* alias_output_from_list = (output_alias_t*)output_from_list->output;
   TEST_ASSERT_EQUAL_UINT64(alias_output->amount, alias_output_from_list->amount);
-  TEST_ASSERT_EQUAL_UINT16(native_tokens_count(&alias_output->native_tokens),
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&alias_output->native_tokens),
                            native_tokens_count(&alias_output_from_list->native_tokens));
   TEST_ASSERT_EQUAL_MEMORY(alias_output->alias_id, alias_output_from_list->alias_id, ADDRESS_ALIAS_BYTES);
   TEST_ASSERT_EQUAL_UINT8(alias_output->st_ctl->type, alias_output_from_list->st_ctl->type);
@@ -299,7 +299,7 @@ void test_utxo_outputs() {
   TEST_ASSERT_EQUAL_MEMORY(foundry_output->address->address, foundry_output_from_list->address->address,
                            ADDRESS_ED25519_BYTES);
   TEST_ASSERT_EQUAL_UINT64(foundry_output->amount, foundry_output_from_list->amount);
-  TEST_ASSERT_EQUAL_UINT16(native_tokens_count(&foundry_output->native_tokens),
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&foundry_output->native_tokens),
                            native_tokens_count(&foundry_output_from_list->native_tokens));
   TEST_ASSERT_EQUAL_INT32(foundry_output->serial, foundry_output_from_list->serial);
   TEST_ASSERT_EQUAL_MEMORY(foundry_output->token_tag, foundry_output_from_list->token_tag, TOKEN_TAG_BYTES_LEN);
@@ -316,7 +316,7 @@ void test_utxo_outputs() {
   TEST_ASSERT_EQUAL_UINT8(nft_output->address->type, nft_output_from_list->address->type);
   TEST_ASSERT_EQUAL_MEMORY(nft_output->address->address, nft_output_from_list->address->address, ADDRESS_NFT_BYTES);
   TEST_ASSERT_EQUAL_UINT64(nft_output->amount, nft_output_from_list->amount);
-  TEST_ASSERT_EQUAL_UINT16(native_tokens_count(&nft_output->native_tokens),
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&nft_output->native_tokens),
                            native_tokens_count(&nft_output_from_list->native_tokens));
   TEST_ASSERT_EQUAL_MEMORY(nft_output->nft_id, nft_output_from_list->nft_id, ADDRESS_NFT_BYTES);
   TEST_ASSERT_EQUAL_INT32(nft_output->immutable_metadata->len, nft_output_from_list->immutable_metadata->len);

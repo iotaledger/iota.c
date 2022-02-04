@@ -98,7 +98,7 @@ void test_output_extended() {
   TEST_ASSERT(output->amount == 123456789);
 
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
   native_tokens_t* token = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
@@ -170,7 +170,7 @@ void test_output_extended() {
 
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
   token = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
@@ -354,7 +354,7 @@ void test_output_extended_without_feature_blocks() {
 
   // native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
   native_tokens_t* token = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
@@ -406,7 +406,7 @@ void test_output_extended_without_feature_blocks() {
 
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
   token = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
@@ -504,7 +504,7 @@ void test_output_extended_without_native_tokens_and_feature_blocks() {
 
   // deserialized native tokens
   TEST_ASSERT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(0, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(0, native_tokens_count(&deser_output->native_tokens));
 
   // deserialized unlock conditions
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
@@ -594,8 +594,7 @@ void test_output_extended_clone() {
   // validate Native Tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
   TEST_ASSERT_NOT_NULL(new_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT32(native_tokens_count(&output->native_tokens),
-                           native_tokens_count(&new_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&output->native_tokens), native_tokens_count(&new_output->native_tokens));
   // validate Unlock Conditions
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
   TEST_ASSERT_NOT_NULL(new_output->unlock_conditions);
