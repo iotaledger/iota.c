@@ -78,5 +78,7 @@ static char const* const JSON_KEY_TOKEN_TAG = "tokenTag";
 static char const* const JSON_KEY_CIRC_SUPPLY = "circulatingSupply";
 static char const* const JSON_KEY_MAX_SUPPLY = "maximumSupply";
 static char const* const JSON_KEY_TOKEN_SCHEME = "tokenScheme";
+static char const* const JSON_KEY_NFT_ID = "nftId";
+static char const* const JSON_KEY_IMMUTABLE_DATA = "immutableData";
 
 #endif

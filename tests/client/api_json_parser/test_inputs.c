@@ -42,6 +42,9 @@ void test_parse_inputs() {
   TEST_ASSERT_EQUAL_UINT16(0, input->input_type);
   TEST_ASSERT_EQUAL_UINT16(4, input->output_index);
 
+  // print transaction inputs
+  utxo_inputs_print(inputs, 0);
+
   cJSON_Delete(json_obj);
   utxo_inputs_free(inputs);
 }

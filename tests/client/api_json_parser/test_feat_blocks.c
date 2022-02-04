@@ -129,6 +129,9 @@ void test_feat_blocks() {
   feat_block = feat_blk_list_get_type(blk_list, FEAT_TAG_BLOCK);
   TEST_ASSERT_NOT_NULL(feat_block);
 
+  // print feature blocks
+  feat_blk_list_print(blk_list, 0);
+
   cJSON_Delete(json_obj);
   feat_blk_list_free(blk_list);
 }
