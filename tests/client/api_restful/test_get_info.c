@@ -21,6 +21,7 @@ void test_get_info() {
   int ret = get_node_info(&ctx, info);
   TEST_ASSERT_EQUAL_INT(0, ret);
   if (info->is_error == false) {
+    node_info_print(info, 1);
     TEST_ASSERT(strlen(info->u.output_node_info->name) > 0);
     TEST_ASSERT(strlen(info->u.output_node_info->version) > 0);
     TEST_ASSERT(strlen(info->u.output_node_info->bech32hrp) > 0);

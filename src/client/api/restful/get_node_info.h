@@ -96,6 +96,13 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res);
  */
 int deser_node_info(char const *const j_str, res_node_info_t *res);
 
+/**
+ * @brief Print Node Info
+ *
+ * @param[in] res res_node_info_t*
+ * @param[in] indentation Tab indentation when printing Extended Output
+ */
+void node_info_print(res_node_info_t *res, uint8_t indentation);
 #ifdef __cplusplus
 }
 #endif

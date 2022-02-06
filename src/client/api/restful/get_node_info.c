@@ -1,6 +1,7 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -88,7 +89,6 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   }
 
   byte_buf2str(http_res);
-
   // json deserialization
   ret = deser_node_info((char const *const)http_res->data, res);
 
@@ -224,4 +224,41 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
 end:
   cJSON_Delete(json_obj);
   return ret;
+}
+
+void node_info_print(res_node_info_t *res, uint8_t indentation) {
+  if (res == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return;
+  }
+  if (res->is_error) {
+    printf("Error: %s\n", res->u.error->msg);
+  } else {
+    get_node_info_t *info = res->u.output_node_info;
+    printf("%sdata: [\n", PRINT_INDENTATION(indentation));
+    printf("%s\tname: %s\n", PRINT_INDENTATION(indentation), info->name);
+    printf("%s\tversion: %s\n", PRINT_INDENTATION(indentation), info->version);
+    printf("%s\tisHealthy: %s\n", PRINT_INDENTATION(indentation), info->is_healthy ? "True" : "False");
+    printf("%s\tnetworkId: %s\n", PRINT_INDENTATION(indentation), info->network_id);
+    printf("%s\tbech32HRP: %s\n", PRINT_INDENTATION(indentation), info->bech32hrp);
+    printf("%s\tminPoWScore: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->min_pow_score);
+    printf("%s\tmessagesPerSecond: %f\n", PRINT_INDENTATION(indentation), info->msg_per_sec);
+    printf("%s\treferencedMessagesPerSecond: %f\n", PRINT_INDENTATION(indentation), info->referenced_msg_per_sec);
+    printf("%s\treferencedRate: %f\n", PRINT_INDENTATION(indentation), info->referenced_rate);
+    printf("%s\tlatestMilestoneTimestamp: %" PRIu64 "\n", PRINT_INDENTATION(indentation),
+           info->latest_milestone_timestamp);
+    printf("%s\tlatestMilestoneIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->latest_milestone_index);
+    printf("%s\tconfirmedMilestoneIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation),
+           info->confirmed_milestone_index);
+    printf("%s\tpruningIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->pruning_milestone_index);
+    printf("%s\tfeatures: [\n", PRINT_INDENTATION(indentation));
+    int len = utarray_len(info->features);
+    for (int i = 0; i < len; i++) {
+      printf(i > 0 ? ",\n" : "");
+      printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->features, i));
+    }
+    printf("\n");
+    printf("%s\t]\n", PRINT_INDENTATION(indentation));
+    printf("%s]\n", PRINT_INDENTATION(indentation));
+  }
 }
