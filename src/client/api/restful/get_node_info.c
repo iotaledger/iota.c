@@ -190,13 +190,13 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     }
 
     // gets message per second
-    if ((ret = json_get_float(data_obj, JSON_KEY_MPS, &res->u.output_node_info->msg_pre_sec)) != 0) {
+    if ((ret = json_get_float(data_obj, JSON_KEY_MPS, &res->u.output_node_info->msg_per_sec)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MPS);
       goto end;
     }
 
     // gets referenced message per second
-    if ((ret = json_get_float(data_obj, JSON_KEY_REF_MPS, &res->u.output_node_info->referenced_msg_pre_sec)) != 0) {
+    if ((ret = json_get_float(data_obj, JSON_KEY_REF_MPS, &res->u.output_node_info->referenced_msg_per_sec)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_REF_MPS);
       goto end;
     }

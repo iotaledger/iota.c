@@ -25,8 +25,8 @@ void test_get_info() {
     TEST_ASSERT(strlen(info->u.output_node_info->version) > 0);
     TEST_ASSERT(strlen(info->u.output_node_info->bech32hrp) > 0);
     TEST_ASSERT(info->u.output_node_info->min_pow_score > 0);
-    TEST_ASSERT(info->u.output_node_info->msg_pre_sec >= 0.0);
-    TEST_ASSERT(info->u.output_node_info->referenced_msg_pre_sec >= 0.0);
+    TEST_ASSERT(info->u.output_node_info->msg_per_sec >= 0.0);
+    TEST_ASSERT(info->u.output_node_info->referenced_msg_per_sec >= 0.0);
     TEST_ASSERT(info->u.output_node_info->referenced_rate >= 0.0);
     TEST_ASSERT(info->u.output_node_info->latest_milestone_timestamp > 390326400);
     TEST_ASSERT(info->u.output_node_info->confirmed_milestone_index > 0);
@@ -62,8 +62,8 @@ void test_deser_node_info() {
   TEST_ASSERT_EQUAL_UINT64(308379, info->u.output_node_info->latest_milestone_index);
   TEST_ASSERT_EQUAL_UINT64(308379, info->u.output_node_info->confirmed_milestone_index);
   TEST_ASSERT_EQUAL_UINT64(290861, info->u.output_node_info->pruning_milestone_index);
-  TEST_ASSERT_EQUAL_FLOAT(6.1, info->u.output_node_info->msg_pre_sec);
-  TEST_ASSERT_EQUAL_FLOAT(5.3, info->u.output_node_info->referenced_msg_pre_sec);
+  TEST_ASSERT_EQUAL_FLOAT(6.1, info->u.output_node_info->msg_per_sec);
+  TEST_ASSERT_EQUAL_FLOAT(5.3, info->u.output_node_info->referenced_msg_per_sec);
   TEST_ASSERT_EQUAL_FLOAT(86.88524590163934, info->u.output_node_info->referenced_rate);
   TEST_ASSERT_EQUAL_UINT64(1620881772, info->u.output_node_info->latest_milestone_timestamp);
 

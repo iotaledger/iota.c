@@ -27,8 +27,8 @@ typedef struct {
   uint64_t confirmed_milestone_index;   ///< The current confirmed milestone's index
   uint64_t pruning_milestone_index;     ///< The milestone index at which the last pruning commenced
   uint64_t latest_milestone_timestamp;  ///< The timestamp of the latest known milestone
-  float msg_pre_sec;                    ///< The current rate of new messages per second
-  float referenced_msg_pre_sec;         ///< The current rate of referenced messages per second
+  float msg_per_sec;                    ///< The current rate of new messages per second
+  float referenced_msg_per_sec;         ///< The current rate of referenced messages per second
   float referenced_rate;  ///< The ratio of referenced messages in relation to new messages of the last confirmed
                           ///< milestone
   UT_array *features;     ///< The features this node exposes
