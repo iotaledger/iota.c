@@ -45,7 +45,8 @@ void test_deser_node_info() {
       "{\"data\":{\"name\":\"HORNET\",\"version\":\"1.0.0-alpha\",\"isHealthy\":true,\"networkId\":\"testnet7\","
       "\"bech32HRP\":\"atoi\",\"minPoWScore\":4000,\"messagesPerSecond\":6.1,\"referencedMessagesPerSecond\":5.3,"
       "\"referencedRate\":86.88524590163934,\"latestMilestoneTimestamp\":1620881772,\"latestMilestoneIndex\":308379,"
-      "\"confirmedMilestoneIndex\":308379,\"pruningIndex\":290861,\"features\":[\"PoW\"]}}";
+      "\"confirmedMilestoneIndex\":308379,\"pruningIndex\":290861,\"features\":[\"PoW\"],\"plugins\":[\"participation/"
+      "v1\",\"indexer/v1\"]}}";
 
   res_node_info_t* info = res_node_info_new();
   TEST_ASSERT_NOT_NULL(info);
@@ -70,6 +71,10 @@ void test_deser_node_info() {
 
   TEST_ASSERT_EQUAL_STRING("PoW", get_node_features_at(info, 0));
   TEST_ASSERT_EQUAL_INT(1, get_node_features_num(info));
+
+  TEST_ASSERT_EQUAL_STRING("participation/v1", get_node_plugins_at(info, 0));
+  TEST_ASSERT_EQUAL_STRING("indexer/v1", get_node_plugins_at(info, 1));
+  TEST_ASSERT_EQUAL_INT(2, get_node_plugins_num(info));
 
   res_node_info_free(info);
 }

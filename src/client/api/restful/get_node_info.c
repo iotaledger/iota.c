@@ -30,6 +30,9 @@ void res_node_info_free(res_node_info_t *res) {
         if (res->u.output_node_info->features) {
           utarray_free(res->u.output_node_info->features);
         }
+        if (res->u.output_node_info->plugins) {
+          utarray_free(res->u.output_node_info->plugins);
+        }
         free(res->u.output_node_info);
       }
     }
@@ -59,6 +62,30 @@ size_t get_node_features_num(res_node_info_t *info) {
   }
 
   return utarray_len(info->u.output_node_info->features);
+}
+
+char *get_node_plugins_at(res_node_info_t *info, size_t idx) {
+  if (info == NULL) {
+    printf("[%s:%d]: get plugins failed (null parameter)\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  int len = utarray_len(info->u.output_node_info->plugins);
+  if (idx >= len) {
+    printf("[%s:%d]: get plugins failed (invalid index)\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  return *(char **)utarray_eltptr(info->u.output_node_info->plugins, idx);
+}
+
+size_t get_node_plugins_num(res_node_info_t *info) {
+  if (info == NULL) {
+    printf("[%s:%d]: get_plugins failed (null parameter)\n", __func__, __LINE__);
+    return 0;
+  }
+
+  return utarray_len(info->u.output_node_info->plugins);
 }
 
 int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
@@ -219,6 +246,13 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_FEATURES);
       goto end;
     }
+
+    // plugins
+    utarray_new(res->u.output_node_info->plugins, &ut_str_icd);
+    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_PLUGINS, res->u.output_node_info->plugins)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_PLUGINS);
+      goto end;
+    }
   }
 
 end:
@@ -256,6 +290,14 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
     for (int i = 0; i < len; i++) {
       printf(i > 0 ? ",\n" : "");
       printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->features, i));
+    }
+    printf("\n");
+    printf("%s\t]\n", PRINT_INDENTATION(indentation));
+    printf("%s\tplugins: [\n", PRINT_INDENTATION(indentation));
+    len = utarray_len(info->plugins);
+    for (int i = 0; i < len; i++) {
+      printf(i > 0 ? ",\n" : "");
+      printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->plugins, i));
     }
     printf("\n");
     printf("%s\t]\n", PRINT_INDENTATION(indentation));
