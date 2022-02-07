@@ -77,20 +77,19 @@ int json_output_foundry_deserialize(cJSON *output_obj, transaction_essence_t *es
   }
 
   // circulation supply
-  char circ_supply_str[STRING_NUMBER_MAX_CHARACTERS];
-  if (json_get_string(output_obj, JSON_KEY_CIRC_SUPPLY, circ_supply_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+  char supply_str[STRING_NUMBER_MAX_CHARACTERS];
+  if (json_get_string(output_obj, JSON_KEY_CIRC_SUPPLY, supply_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_CIRC_SUPPLY);
     goto end;
   }
-  circ_supply = uint256_from_str(circ_supply_str);
+  circ_supply = uint256_from_str(supply_str);
 
   // maximum supply
-  char max_supply_str[STRING_NUMBER_MAX_CHARACTERS];
-  if (json_get_string(output_obj, JSON_KEY_MAX_SUPPLY, max_supply_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+  if (json_get_string(output_obj, JSON_KEY_MAX_SUPPLY, supply_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MAX_SUPPLY);
     goto end;
   }
-  max_supply = uint256_from_str(max_supply_str);
+  max_supply = uint256_from_str(supply_str);
 
   // token scheme
   uint8_t token_scheme;
