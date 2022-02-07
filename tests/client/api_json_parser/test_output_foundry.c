@@ -14,8 +14,8 @@ void tearDown(void) {}
 void test_parse_foundry_output_basic() {
   char const *const json_res =
       "{\"type\":5,\"amount\":1000000,\"nativeTokens\":[],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\","
-      "\"circulatingSupply\":\"30000000000000000000000000000000000000000\",\"maximumSupply\":"
-      "\"20000000000000000000000000000000000000000\",\"tokenScheme\":0,\"unlockConditions\":[{\"type\":0,\"address\":{"
+      "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
+      "\"30000000000000000000000000000000000000000\",\"tokenScheme\":0,\"unlockConditions\":[{\"type\":0,\"address\":{"
       "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
@@ -34,10 +34,10 @@ void test_parse_foundry_output_basic() {
   TEST_ASSERT_NULL(foundry_output->native_tokens);
   TEST_ASSERT_EQUAL_UINT32(123456, foundry_output->serial);
   TEST_ASSERT_EQUAL_MEMORY("TokenTAGDemo", foundry_output->token_tag, sizeof("TokenTAGDemo"));
-  uint256_t *circ_cupply = uint256_from_str("30000000000000000000000000000000000000000");
+  uint256_t *circ_cupply = uint256_from_str("20000000000000000000000000000000000000000");
   TEST_ASSERT_EQUAL_INT(0, uint256_equal(circ_cupply, &foundry_output->circ_supply));
   free(circ_cupply);
-  uint256_t *max_cupply = uint256_from_str("20000000000000000000000000000000000000000");
+  uint256_t *max_cupply = uint256_from_str("30000000000000000000000000000000000000000");
   TEST_ASSERT_EQUAL_INT(0, uint256_equal(max_cupply, &foundry_output->max_supply));
   free(max_cupply);
   TEST_ASSERT_EQUAL_UINT8(0, foundry_output->token_scheme);
@@ -60,8 +60,8 @@ void test_parse_foundry_output_full() {
       "\"93847598347598347598347598\"},{\"id\":"
       "\"09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
       "\"7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\","
-      "\"circulatingSupply\":\"30000000000000000000000000000000000000000\",\"maximumSupply\":"
-      "\"20000000000000000000000000000000000000000\",\"tokenScheme\":0,\"unlockConditions\":[{\"type\":0,\"address\":{"
+      "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
+      "\"30000000000000000000000000000000000000000\",\"tokenScheme\":0,\"unlockConditions\":[{\"type\":0,\"address\":{"
       "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
       "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}]}";
 
@@ -92,10 +92,10 @@ void test_parse_foundry_output_full() {
 
   TEST_ASSERT_EQUAL_UINT32(123456, foundry_output->serial);
   TEST_ASSERT_EQUAL_MEMORY("TokenTAGDemo", foundry_output->token_tag, sizeof("TokenTAGDemo"));
-  uint256_t *circ_cupply = uint256_from_str("30000000000000000000000000000000000000000");
+  uint256_t *circ_cupply = uint256_from_str("20000000000000000000000000000000000000000");
   TEST_ASSERT_EQUAL_INT(0, uint256_equal(circ_cupply, &foundry_output->circ_supply));
   free(circ_cupply);
-  uint256_t *max_cupply = uint256_from_str("20000000000000000000000000000000000000000");
+  uint256_t *max_cupply = uint256_from_str("30000000000000000000000000000000000000000");
   TEST_ASSERT_EQUAL_INT(0, uint256_equal(max_cupply, &foundry_output->max_supply));
   free(max_cupply);
   TEST_ASSERT_EQUAL_UINT8(0, foundry_output->token_scheme);
@@ -124,8 +124,8 @@ void test_parse_foundry_output_wrong_unlock_condition() {
       "\"93847598347598347598347598\"},{\"id\":"
       "\"09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
       "\"7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\","
-      "\"circulatingSupply\":\"30000000000000000000000000000000000000000\",\"maximumSupply\":"
-      "\"20000000000000000000000000000000000000000\",\"tokenScheme\":0,\"unlockConditions\":[{\"type\":4,\"address\":{"
+      "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
+      "\"30000000000000000000000000000000000000000\",\"tokenScheme\":0,\"unlockConditions\":[{\"type\":4,\"address\":{"
       "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
       "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}]}";
 
@@ -147,8 +147,8 @@ void test_parse_foundry_output_wrong_feature_block() {
       "\"93847598347598347598347598\"},{\"id\":"
       "\"09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
       "\"7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\","
-      "\"circulatingSupply\":\"30000000000000000000000000000000000000000\",\"maximumSupply\":"
-      "\"20000000000000000000000000000000000000000\",\"tokenScheme\":0,\"unlockConditions\":[{\"type\":0,\"address\":{"
+      "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
+      "\"30000000000000000000000000000000000000000\",\"tokenScheme\":0,\"unlockConditions\":[{\"type\":0,\"address\":{"
       "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":3,\"tag\":"
       "\"tagDemo_tagDemo_tagDemo\"}]}";
 
