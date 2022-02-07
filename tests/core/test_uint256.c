@@ -364,6 +364,22 @@ void test_uint256_equal() {
   free(str1);
   free(str2);
 
+  //=====num3 is greater than num4=====
+  uint256_t *num3;
+  uint256_t *num4;
+  num3 = uint256_from_str("30000000000000000000000000000000000000000");
+  num4 = uint256_from_str("20000000000000000000000000000000000000000");
+
+  res = uint256_equal(num3, num4);
+  TEST_ASSERT_EQUAL_INT(1, res);
+  str1 = uint256_to_str(&num1);
+  str2 = uint256_to_str(&num2);
+  printf("%s > %s\n", str1, str2);
+  free(str1);
+  free(str2);
+  free(num3);
+  free(num4);
+
   //=====num1 is smaller than num2=====
   num1.bits[0] = 0xE36CF8C718CD2CEC;
   num1.bits[1] = 0x6DBAA3BB90F8B53F;

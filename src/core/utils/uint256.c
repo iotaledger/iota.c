@@ -175,10 +175,18 @@ int uint256_equal(uint256_t const *a, uint256_t const *b) {
   if (a == NULL || b == NULL) {
     // invalid parameters
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return 0;
+    return -1;
   }
 
-  return memcmp(a, b, sizeof(uint256_t));
+  // little endian comparison
+  for (int8_t i = 3; i >= 0; i--) {
+    if (a->bits[i] != b->bits[i]) {
+      return a->bits[i] > b->bits[i] ? 1 : -1;
+    }
+  }
+
+  // both numbers are equal
+  return 0;
 }
 
 char *uint256_to_str(uint256_t *num) {

@@ -322,13 +322,13 @@ utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len) {
 void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation) {
   utxo_outputs_list_t *elm;
   uint8_t index = 0;
-  printf("%sUTXO Outputs:[\n", PRINT_INDENTATION(indentation));
+  printf("%sUTXO Outputs: [\n", PRINT_INDENTATION(indentation));
   printf("%s\tOutput Count: %d\n", PRINT_INDENTATION(indentation), utxo_outputs_count(outputs));
 
   // print outputs
   if (outputs) {
     LL_FOREACH(outputs, elm) {
-      printf("%s\t#%d ", PRINT_INDENTATION(indentation), index);
+      printf("%s\t#%d\n", PRINT_INDENTATION(indentation), index);
       switch (elm->output->output_type) {
         case OUTPUT_SINGLE_OUTPUT:
         case OUTPUT_DUST_ALLOWANCE:
