@@ -27,11 +27,12 @@ typedef struct {
   uint64_t confirmed_milestone_index;   ///< The current confirmed milestone's index
   uint64_t pruning_milestone_index;     ///< The milestone index at which the last pruning commenced
   uint64_t latest_milestone_timestamp;  ///< The timestamp of the latest known milestone
-  float msg_pre_sec;                    ///< The current rate of new messages per second
-  float referenced_msg_pre_sec;         ///< The current rate of referenced messages per second
+  float msg_per_sec;                    ///< The current rate of new messages per second
+  float referenced_msg_per_sec;         ///< The current rate of referenced messages per second
   float referenced_rate;  ///< The ratio of referenced messages in relation to new messages of the last confirmed
                           ///< milestone
   UT_array *features;     ///< The features this node exposes
+  UT_array *plugins;      ///< The plugins paths
   bool is_healthy;        ///< Whether the node is healthy.
 } get_node_info_t;
 
@@ -79,6 +80,22 @@ size_t get_node_features_num(res_node_info_t *info);
 char *get_node_features_at(res_node_info_t *info, size_t idx);
 
 /**
+ * @brief Gets number of node plugins
+ * @param[in] info Object with node info
+ * @return The number of plugins
+ */
+size_t get_node_plugins_num(res_node_info_t *info);
+
+/**
+ * @brief Gets strings with node plugins
+ * @param[in] info Object with node info
+ * @param[in] idx Plugin index
+ * @return char* with plugins
+ */
+
+char *get_node_plugins_at(res_node_info_t *info, size_t idx);
+
+/**
  * @brief Gets info API
  *
  * @param[in] conf The client endpoint configuration
@@ -95,6 +112,14 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res);
  * @return int 0 on success
  */
 int deser_node_info(char const *const j_str, res_node_info_t *res);
+
+/**
+ * @brief Print Node Info
+ *
+ * @param[in] res res_node_info_t*
+ * @param[in] indentation Tab indentation when printing Extended Output
+ */
+void node_info_print(res_node_info_t *res, uint8_t indentation);
 
 #ifdef __cplusplus
 }

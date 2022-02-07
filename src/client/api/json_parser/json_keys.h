@@ -15,6 +15,7 @@ static char const* const JSON_KEY_DATA = "data";
 static char const* const JSON_KEY_ERROR = "error";
 static char const* const JSON_KEY_ESSENCE = "essence";
 static char const* const JSON_KEY_FEATURES = "features";
+static char const* const JSON_KEY_PLUGINS = "plugins";
 static char const* const JSON_KEY_INCLUSION_MKL = "inclusionMerkleProof";
 static char const* const JSON_KEY_INDEX = "index";
 static char const* const JSON_KEY_INPUTS = "inputs";

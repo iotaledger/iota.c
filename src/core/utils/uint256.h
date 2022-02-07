@@ -60,8 +60,6 @@ bool uint256_sub(uint256_t *res, uint256_t *a, uint256_t *b);
 /**
  * @brief Compare two uint256 objects (numbers)
  *
- * Comparing NULL uint256 objects is undefined behaviour.
- *
  * @param[in] a A pointer to uint256 object
  * @param[in] b A pointer to uint256 object
  * @return int < 0 if a is smaller then b
