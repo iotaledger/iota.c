@@ -371,7 +371,7 @@ void test_uint256_equal() {
   num4 = uint256_from_str("20000000000000000000000000000000000000000");
 
   res = uint256_equal(num3, num4);
-  TEST_ASSERT_EQUAL_INT(30, res);
+  TEST_ASSERT_EQUAL_INT(1, res);
   str1 = uint256_to_str(&num1);
   str2 = uint256_to_str(&num2);
   printf("%s > %s\n", str1, str2);
