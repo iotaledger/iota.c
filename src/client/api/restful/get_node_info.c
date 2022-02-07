@@ -1,6 +1,7 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -28,6 +29,9 @@ void res_node_info_free(res_node_info_t *res) {
       if (res->u.output_node_info) {
         if (res->u.output_node_info->features) {
           utarray_free(res->u.output_node_info->features);
+        }
+        if (res->u.output_node_info->plugins) {
+          utarray_free(res->u.output_node_info->plugins);
         }
         free(res->u.output_node_info);
       }
@@ -60,9 +64,33 @@ size_t get_node_features_num(res_node_info_t *info) {
   return utarray_len(info->u.output_node_info->features);
 }
 
+char *get_node_plugins_at(res_node_info_t *info, size_t idx) {
+  if (info == NULL) {
+    printf("[%s:%d]: get plugins failed (null parameter)\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  int len = utarray_len(info->u.output_node_info->plugins);
+  if (idx >= len) {
+    printf("[%s:%d]: get plugins failed (invalid index)\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  return *(char **)utarray_eltptr(info->u.output_node_info->plugins, idx);
+}
+
+size_t get_node_plugins_num(res_node_info_t *info) {
+  if (info == NULL) {
+    printf("[%s:%d]: get_plugins failed (null parameter)\n", __func__, __LINE__);
+    return 0;
+  }
+
+  return utarray_len(info->u.output_node_info->plugins);
+}
+
 int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   int ret = 0;
-  char const *const cmd_info = "/api/v1/info";
+  char const *const cmd_info = "/api/v2/info";
   if (conf == NULL || res == NULL) {
     printf("[%s:%d]: get_node_info failed (null parameter)\n", __func__, __LINE__);
     return -1;
@@ -88,7 +116,6 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   }
 
   byte_buf2str(http_res);
-
   // json deserialization
   ret = deser_node_info((char const *const)http_res->data, res);
 
@@ -190,13 +217,13 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     }
 
     // gets message per second
-    if ((ret = json_get_float(data_obj, JSON_KEY_MPS, &res->u.output_node_info->msg_pre_sec)) != 0) {
+    if ((ret = json_get_float(data_obj, JSON_KEY_MPS, &res->u.output_node_info->msg_per_sec)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MPS);
       goto end;
     }
 
     // gets referenced message per second
-    if ((ret = json_get_float(data_obj, JSON_KEY_REF_MPS, &res->u.output_node_info->referenced_msg_pre_sec)) != 0) {
+    if ((ret = json_get_float(data_obj, JSON_KEY_REF_MPS, &res->u.output_node_info->referenced_msg_per_sec)) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_REF_MPS);
       goto end;
     }
@@ -219,9 +246,61 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_FEATURES);
       goto end;
     }
+
+    // plugins
+    utarray_new(res->u.output_node_info->plugins, &ut_str_icd);
+    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_PLUGINS, res->u.output_node_info->plugins)) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_PLUGINS);
+      goto end;
+    }
   }
 
 end:
   cJSON_Delete(json_obj);
   return ret;
+}
+
+void node_info_print(res_node_info_t *res, uint8_t indentation) {
+  if (res == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return;
+  }
+  if (res->is_error) {
+    printf("Error: %s\n", res->u.error->msg);
+  } else {
+    get_node_info_t *info = res->u.output_node_info;
+    printf("%sdata: [\n", PRINT_INDENTATION(indentation));
+    printf("%s\tname: %s\n", PRINT_INDENTATION(indentation), info->name);
+    printf("%s\tversion: %s\n", PRINT_INDENTATION(indentation), info->version);
+    printf("%s\tisHealthy: %s\n", PRINT_INDENTATION(indentation), info->is_healthy ? "True" : "False");
+    printf("%s\tnetworkId: %s\n", PRINT_INDENTATION(indentation), info->network_id);
+    printf("%s\tbech32HRP: %s\n", PRINT_INDENTATION(indentation), info->bech32hrp);
+    printf("%s\tminPoWScore: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->min_pow_score);
+    printf("%s\tmessagesPerSecond: %f\n", PRINT_INDENTATION(indentation), info->msg_per_sec);
+    printf("%s\treferencedMessagesPerSecond: %f\n", PRINT_INDENTATION(indentation), info->referenced_msg_per_sec);
+    printf("%s\treferencedRate: %f\n", PRINT_INDENTATION(indentation), info->referenced_rate);
+    printf("%s\tlatestMilestoneTimestamp: %" PRIu64 "\n", PRINT_INDENTATION(indentation),
+           info->latest_milestone_timestamp);
+    printf("%s\tlatestMilestoneIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->latest_milestone_index);
+    printf("%s\tconfirmedMilestoneIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation),
+           info->confirmed_milestone_index);
+    printf("%s\tpruningIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->pruning_milestone_index);
+    printf("%s\tfeatures: [\n", PRINT_INDENTATION(indentation));
+    int len = utarray_len(info->features);
+    for (int i = 0; i < len; i++) {
+      printf(i > 0 ? ",\n" : "");
+      printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->features, i));
+    }
+    printf("\n");
+    printf("%s\t]\n", PRINT_INDENTATION(indentation));
+    printf("%s\tplugins: [\n", PRINT_INDENTATION(indentation));
+    len = utarray_len(info->plugins);
+    for (int i = 0; i < len; i++) {
+      printf(i > 0 ? ",\n" : "");
+      printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->plugins, i));
+    }
+    printf("\n");
+    printf("%s\t]\n", PRINT_INDENTATION(indentation));
+    printf("%s]\n", PRINT_INDENTATION(indentation));
+  }
 }
