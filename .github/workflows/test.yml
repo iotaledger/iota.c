@@ -1,12 +1,16 @@
 name: dev-ci
 on:
   push:
-    branches: [ dev ]
+    branches:
+      - dev
+      - tokenization-sc
   pull_request:
-    branches: [ dev ]
+    branches:
+      - dev
+      - tokenization-sc
 
 jobs:
-  ninja_clang_sodium:
+  coding_style:
     runs-on: ubuntu-20.04
 
     steps:
@@ -15,13 +19,25 @@ jobs:
     - name: install requirements
       run: |
         sudo apt update
-        sudo apt install -y cppcheck ninja-build libcurl4-openssl-dev clang-format build-essential
+        sudo apt install -y cppcheck clang-format
 
     - name: Coding style check
-      run: ./tools/ci_format_check
+      run: ./tools/ci_format_check src tests examples
 
     - name: Static analysis check
       run: cppcheck --force --error-exitcode=1 -q src tests examples
+
+  ninja_clang_sodium:
+    needs: coding_style
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: install requirements
+      run: |
+        sudo apt update
+        sudo apt install -y ninja-build libcurl4-openssl-dev build-essential
 
     - name: Debug build
       run: |
@@ -39,6 +55,7 @@ jobs:
         ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
 
   make_gcc_openssl:
+    needs: coding_style
     runs-on: ubuntu-20.04
 
     steps:
@@ -65,6 +82,7 @@ jobs:
         make -j8 && make test
 
   make_gcc_mbedtls:
+    needs: coding_style
     runs-on: ubuntu-20.04
 
     steps:
@@ -91,6 +109,7 @@ jobs:
         make -j8 && make test
 
   ninja_clang_check_modules:
+    needs: coding_style
     runs-on: ubuntu-20.04
 
     steps:
