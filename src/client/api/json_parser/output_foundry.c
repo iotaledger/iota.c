@@ -14,8 +14,8 @@
       "nativeTokens": [],
       "serialNumber": 123456,
       "tokenTag": "TokenTAGDemo",
-      "circulatingSupply": "30000000000000000000000000000000000000000",
-      "maximumSupply": "20000000000000000000000000000000000000000",
+      "circulatingSupply": "20000000000000000000000000000000000000000",
+      "maximumSupply": "30000000000000000000000000000000000000000",
       "tokenScheme": 0,
       "unlockConditions": [
         {  "type": 0,
