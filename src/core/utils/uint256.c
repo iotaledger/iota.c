@@ -178,7 +178,14 @@ int uint256_equal(uint256_t const *a, uint256_t const *b) {
     return 0;
   }
 
-  return memcmp(a, b, sizeof(uint256_t));
+  // little endian comparison
+  for (int8_t i = 3; i >= 0; i--) {
+    if (a->bits[i] != b->bits[i]) {
+      return memcmp(&a->bits[i], &b->bits[i], sizeof(uint64_t));
+    }
+  }
+
+  return 0;
 }
 
 char *uint256_to_str(uint256_t *num) {
