@@ -1,4 +1,4 @@
-// Copyright 2020 IOTA Stiftungnative_tokens
+// Copyright 2022 IOTA Stiftungnative_tokens
 // SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
