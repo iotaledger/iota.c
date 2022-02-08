@@ -1,0 +1,29 @@
+name: coding-style
+
+on:
+  push:
+    branches:
+      - dev
+      - tokenization-sc
+  pull_request:
+    branches:
+      - dev
+      - tokenization-sc
+
+jobs:
+  coding_style:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install requirements
+        run: |
+          sudo apt update
+          sudo apt install -y cppcheck clang-format
+
+      - name: Coding style check
+        run: ./tools/ci_format_check src tests examples
+
+      - name: Static analysis check
+        run: cppcheck --force --error-exitcode=1 -q src tests examples
