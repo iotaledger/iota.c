@@ -1,3 +1,5 @@
+# coding style and static checks
+
 name: coding-style
 
 on:

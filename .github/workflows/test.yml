@@ -1,17 +1,10 @@
+# This workflow runs if format workflow is completed and successfully
+# workflow_run event is triggered on the default branch only
 name: tests
 on:
-  workflow_dispatch:
   workflow_run:
     workflows: [format]
     types: [completed]
-  push:
-    branches:
-      - dev
-      - tokenization-sc
-  pull_request:
-    branches:
-      - dev
-      - tokenization-sc
 
 jobs:
   ninja_clang_sodium:
