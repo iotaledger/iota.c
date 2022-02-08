@@ -10,6 +10,22 @@ void setUp(void) {}
 
 void tearDown(void) {}
 
+void test_parse_inputs_empty() {
+  char const *const json_res = "{\"inputs\":[]}";
+
+  cJSON *json_obj = cJSON_Parse(json_res);
+  TEST_ASSERT_NOT_NULL(json_obj);
+
+  utxo_inputs_list_t *inputs = utxo_inputs_new();
+  int result = json_inputs_deserialize(json_obj, &inputs);
+  TEST_ASSERT_EQUAL_INT(0, result);
+
+  TEST_ASSERT_EQUAL_UINT16(0, utxo_inputs_count(inputs));
+
+  cJSON_Delete(json_obj);
+  utxo_inputs_free(inputs);
+}
+
 void test_parse_inputs() {
   char const *const json_res =
       "{\"inputs\":[{\"type\":0,\"transactionId\":\"b3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e\","
@@ -42,6 +58,9 @@ void test_parse_inputs() {
   TEST_ASSERT_EQUAL_UINT16(0, input->input_type);
   TEST_ASSERT_EQUAL_UINT16(4, input->output_index);
 
+  // print transaction inputs
+  utxo_inputs_print(inputs, 0);
+
   cJSON_Delete(json_obj);
   utxo_inputs_free(inputs);
 }
@@ -49,6 +68,7 @@ void test_parse_inputs() {
 int main() {
   UNITY_BEGIN();
 
+  RUN_TEST(test_parse_inputs_empty);
   RUN_TEST(test_parse_inputs);
 
   return UNITY_END();

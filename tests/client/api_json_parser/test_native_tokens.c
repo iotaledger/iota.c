@@ -56,6 +56,9 @@ void test_parse_native_tokens() {
   TEST_ASSERT_EQUAL_INT(0, uint256_equal(amount, token->amount));
   free(amount);
 
+  // print native tokens
+  native_tokens_print(&tokens, 0);
+
   cJSON_Delete(json_obj);
   native_tokens_free(&tokens);
 }
