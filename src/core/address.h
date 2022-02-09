@@ -8,6 +8,9 @@
 
 #include "core/types.h"
 
+#define TO_HEX_BYTES(x) (x * 2)
+#define TO_STR_BYTES(x) (HEX_BYTES(x) + 1)
+
 // An Ed25519 address is the Blake2b-256 hash of an Ed25519 public key.
 #define ADDRESS_ED25519_BYTES 32
 #define ADDRESS_ED25519_HEX_BYTES (ADDRESS_ED25519_BYTES * 2)
@@ -27,6 +30,10 @@
 
 #define BECH32_ENCODED_NFT_ADDRESS 45
 #define BECH32_ENCODED_ALIAS_ADDRESS 45
+#define NFT_ID_BYTES 20
+#define ALIAS_ID_BYTES 20
+#define FOUNDRY_ID_BYTES 26
+
 /**
  * @brief Address types that supported by the protocol
  *

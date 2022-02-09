@@ -270,14 +270,14 @@ int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[],
   }
 
   size_t id_len = strlen(nft_id);
-  if (id_len != ADDRESS_NFT_HEX_BYTES) {
+  if (id_len != TO_HEX_BYTES(NFT_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[67] = {0};  // 67 = max size of api path(28) + ADDRESS_NFT_HEX_BYTES(40) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nft/%s", nft_id);
+  char cmd_buffer[70] = {0};  // 70 = max size of api path(29) + TO_HEX_BYTES(NFT_ID_BYTES)(40) + 1
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nfts/%s", nft_id);
 
   // check if data stored is not more than buffer length
   if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
@@ -295,13 +295,13 @@ int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_i
   }
 
   size_t id_len = strlen(alias_id);
-  if (id_len != ADDRESS_ALIAS_HEX_BYTES) {
+  if (id_len != TO_HEX_BYTES(ALIAS_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[73] = {0};  // 73 = max size of api path(32) + ADDRESS_ALIAS_HEX_BYTES(40) + 1
+  char cmd_buffer[73] = {0};  // 73 = max size of api path(32) + TO_HEX_BYTES(ALIAS_ID_BYTES)(40) + 1
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/aliases/%s", alias_id);
 
   // check if data stored is not more than buffer length
@@ -320,13 +320,13 @@ int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const found
   }
 
   size_t id_len = strlen(foundry_id);
-  if (id_len != ADDRESS_FOUNDRY_HEX_BYTES) {
+  if (id_len != TO_HEX_BYTES(FOUNDRY_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[75] = {0};  // 75 = max size of api path(34) + ADDRESS_FOUNDRY_HEX_BYTES(40) + 1
+  char cmd_buffer[87] = {0};  // 87 = max size of api path(34) + TO_HEX_BYTES(FOUNDRY_ID_BYTES)(52) + 1
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/foundries/%s", foundry_id);
 
   // check if data stored is not more than buffer length
