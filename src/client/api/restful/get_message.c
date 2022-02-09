@@ -5,10 +5,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// TODO remove
 #include "client/api/json_parser/inputs.h"
 #include "client/api/json_parser/json_utils.h"
 #include "client/api/json_parser/outputs.h"
 #include "client/api/json_parser/unlock_blocks.h"
+
+#include "client/api/json_parser/json_keys.h"
+#include "client/api/json_parser/json_utils.h"
+#include "client/api/json_parser/message.h"
 #include "client/api/restful/get_message.h"
 #include "client/network/http.h"
 #include "core/address.h"
@@ -192,61 +197,16 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
     goto end;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
-  if (data_obj) {
-    // new message object
-    res->u.msg = core_message_new();
-    if (!res->u.msg) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      goto end;
-    }
+  // allocate message object
+  res->u.msg = core_message_new();
+  if (!res->u.msg) {
+    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+    goto end;
+  }
 
-    // network ID
-    char network_id[32];
-    if ((ret = json_get_string(data_obj, JSON_KEY_NET_ID, network_id, sizeof(network_id))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
-      goto end;
-    }
-    sscanf(network_id, "%" SCNu64, &res->u.msg->network_id);
-
-    // parentMessageIds
-    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_PARENT_IDS, res->u.msg->parents)) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
-      utarray_free(res->u.msg->parents);
-      res->u.msg->parents = NULL;
-      goto end;
-    }
-
-    // nonce
-    char nonce[32];
-    if ((ret = json_get_string(data_obj, JSON_KEY_NONCE, nonce, sizeof(nonce))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NONCE);
-      goto end;
-    }
-    sscanf(nonce, "%" SCNu64, &res->u.msg->nonce);
-
-    cJSON *payload = cJSON_GetObjectItemCaseSensitive(data_obj, JSON_KEY_PAYLOAD);
-    if (payload) {
-      if ((ret = json_get_uint32(payload, JSON_KEY_TYPE, &res->u.msg->payload_type) != 0)) {
-        printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
-        goto end;
-      }
-
-      switch (res->u.msg->payload_type) {
-        case CORE_MESSAGE_PAYLOAD_TRANSACTION:
-          ret = transaction_deserialize(payload, res);
-          break;
-        case CORE_MESSAGE_PAYLOAD_MILESTONE:
-          ret = milestone_deserialize(payload, res);
-          break;
-        default:
-          // do nothing
-          break;
-      }
-
-    } else {
-      printf("[%s:%d]: invalid message: payload not found\n", __func__, __LINE__);
-    }
+  // deserialize message object
+  if ((ret = json_message_deserialize(json_obj, res->u.msg)) != 0) {
+    printf("[%s:%d]: deserialize message error\n", __func__, __LINE__);
   }
 
 end:
@@ -268,7 +228,7 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
   }
 
   iota_str_t *cmd = NULL;
-  char const *const cmd_str = "/api/v1/messages/";
+  char const *const cmd_str = "/api/v2/messages/";
 
   cmd = iota_str_reserve(strlen(cmd_str) + IOTA_MESSAGE_ID_HEX_BYTES + 1);
   if (cmd == NULL) {
