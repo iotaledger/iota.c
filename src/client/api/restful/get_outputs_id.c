@@ -194,14 +194,14 @@ int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr
   }
 
   size_t addr_len = strlen(addr);
-  if (addr_len != ADDRESS_NFT_HEX_BYTES) {
+  if (addr_len != BECH32_ENCODED_NFT_ADDRESS) {
     printf("[%s:%d] incorrect length of an address\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[77] = {0};  // 77 = max size of api path(36) + ADDRESS_NFT_HEX_BYTES(40) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nft?address=%s", addr);
+  char cmd_buffer[83] = {0};  // 83 = max size of api path(37) + BECH32_ENCODED_NFT_ADDRESS(45) + 1
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nfts?address=%s", addr);
 
   // check if data stored is not more than buffer length
   if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
@@ -220,13 +220,13 @@ int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const ad
   }
 
   size_t addr_len = strlen(addr);
-  if (addr_len != ADDRESS_ALIAS_HEX_BYTES) {
+  if (addr_len != BECH32_ENCODED_ALIAS_ADDRESS) {
     printf("[%s:%d] incorrect length of an address\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[81] = {0};  // 81 = max size of api path(40) + ADDRESS_ALIAS_HEX_BYTES(40) + 1
+  char cmd_buffer[86] = {0};  // 86 = max size of api path(40) + BECH32_ENCODED_ALIAS_ADDRESS(45) + 1
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/aliases?address=%s", addr);
 
   // check if data stored is not more than buffer length
@@ -245,13 +245,13 @@ int get_outputs_from_foundry_address(iota_client_conf_t const *conf, char const 
   }
 
   size_t addr_len = strlen(addr);
-  if (addr_len != ADDRESS_FOUNDRY_HEX_BYTES) {
+  if (addr_len != BECH32_ENCODED_ALIAS_ADDRESS) {
     printf("[%s:%d] incorrect length of an address\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[83] = {0};  // 83 = max size of api path(42) + ADDRESS_FOUNDRY_HEX_BYTES(40) + 1
+  char cmd_buffer[88] = {0};  // 88 = max size of api path(42) + BECH32_ENCODED_ALIAS_ADDRESS(45) + 1
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/foundries?address=%s", addr);
 
   // check if data stored is not more than buffer length

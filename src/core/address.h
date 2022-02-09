@@ -25,6 +25,8 @@
 #define ADDRESS_SERIALIZED_MAX_BYTES (1 + ADDRESS_ED25519_BYTES)
 #define ADDRESS_SERIALIZED_MIN_BYTES (1 + ADDRESS_ALIAS_BYTES)
 
+#define BECH32_ENCODED_NFT_ADDRESS 45
+#define BECH32_ENCODED_ALIAS_ADDRESS 45
 /**
  * @brief Address types that supported by the protocol
  *
