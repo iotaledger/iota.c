@@ -13,8 +13,6 @@
 #include "client/client_service.h"
 #include "client/network/http.h"
 
-#define STR_TIP_MSG_ID_LEN 64  // the length of message id string
-
 typedef UT_array get_tips_t;
 
 /**
@@ -34,16 +32,16 @@ extern "C" {
 #endif
 
 /**
- * @brief Allocate a get_tips response object
+ * @brief Allocate a res_tips_t response object
  *
  * @return res_tips_t*
  */
 res_tips_t *res_tips_new();
 
 /**
- * @brief Free a get_tips response object
+ * @brief Free a res_tips_t response object
  *
- * @param tips a response object
+ * @param[in] tips a response object
  */
 void res_tips_free(res_tips_t *tips);
 
@@ -65,7 +63,7 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res);
  * @param[out] res A response object of tips object
  * @return int 0 on success
  */
-int deser_get_tips(char const *const j_str, res_tips_t *res);
+int get_tips_deserialize(char const *const j_str, res_tips_t *res);
 
 /**
  * @brief Gets the number of message IDs

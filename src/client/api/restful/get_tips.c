@@ -62,13 +62,13 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
   }
 
   // json deserialization
-  int ret = deser_get_tips((char const *const)http_res->data, res);
+  int ret = get_tips_deserialize((char const *const)http_res->data, res);
   byte_buf_free(http_res);
 
   return ret;
 }
 
-int deser_get_tips(char const *const j_str, res_tips_t *res) {
+int get_tips_deserialize(char const *const j_str, res_tips_t *res) {
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
