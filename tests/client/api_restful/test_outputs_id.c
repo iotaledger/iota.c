@@ -15,33 +15,51 @@ void tearDown(void) {}
 
 void test_deser_outputs() {
   // empty output ids
-  char const* const data_empty =
-      "{\"limit\":1000,"
-      "\"count\":0,\"data\":[],\"ledgerIndex\":837834}";
+  char const* const data_empty = "{\"pageSize\":2,\"items\":[],\"ledgerIndex\":837834}";
 
   res_outputs_id_t* res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(deser_outputs(data_empty, res) == 0);
   TEST_ASSERT(res->is_error == false);
-  TEST_ASSERT(res->u.output_ids->limit == 1000);
-  TEST_ASSERT(res->u.output_ids->count == 0);
+  TEST_ASSERT(res->u.output_ids->page_size == 2);
   TEST_ASSERT(utarray_len(res->u.output_ids->outputs) == 0);
   TEST_ASSERT(res->u.output_ids->ledger_idx == 837834);
   res_outputs_free(res);
   res = NULL;
 
-  // with output ids
+  // with output ids and without cursor
   char const* const data_1 =
-      "{\"limit\":1000,"
-      "\"count\":2,\"data\":[\"1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
+      "{\"pageSize\":2,\"items\":[\"1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
       "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}";
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(deser_outputs(data_1, res) == 0);
   TEST_ASSERT(res->is_error == false);
-  TEST_ASSERT(res->u.output_ids->limit == 1000);
+  TEST_ASSERT(res->u.output_ids->page_size == 2);
   TEST_ASSERT(res_outputs_output_id_count(res) == 2);
   TEST_ASSERT(utarray_len(res->u.output_ids->outputs) == 2);
+  TEST_ASSERT_EQUAL_MEMORY("1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005",
+                           res_outputs_output_id(res, 0), 69);
+  TEST_ASSERT_EQUAL_MEMORY("ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010",
+                           res_outputs_output_id(res, 1), 69);
+  TEST_ASSERT(res->u.output_ids->ledger_idx == 837834);
+  res_outputs_free(res);
+  res = NULL;
+
+  // with output ids and without cursor
+  char const* const data_2 =
+      "{\"pageSize\":2,\"cursor\":\"62020d37c936725634911feb5a7685e715dcef50cb2b997812567021e09181ab7e67d9020100.2\","
+      "\"items\":[\"1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
+      "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}";
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+  TEST_ASSERT(deser_outputs(data_2, res) == 0);
+  TEST_ASSERT(res->is_error == false);
+  TEST_ASSERT(res->u.output_ids->page_size == 2);
+  TEST_ASSERT(res_outputs_output_id_count(res) == 2);
+  TEST_ASSERT(utarray_len(res->u.output_ids->outputs) == 2);
+  TEST_ASSERT_EQUAL_MEMORY("62020d37c936725634911feb5a7685e715dcef50cb2b997812567021e09181ab7e67d9020100.2",
+                           res->u.output_ids->cursor, 78);
   TEST_ASSERT_EQUAL_MEMORY("1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005",
                            res_outputs_output_id(res, 0), 69);
   TEST_ASSERT_EQUAL_MEMORY("ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010",
@@ -153,7 +171,6 @@ void test_get_output_ids_from_nft_address() {
   int ret = get_outputs_from_nft_address(&ctx, addr_nft, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
-  TEST_ASSERT(res->u.output_ids->limit == 1000);
 
   res_outputs_free(res);
 }
@@ -198,7 +215,6 @@ void test_get_output_ids_from_alias_address() {
   int ret = get_outputs_from_alias_address(&ctx, addr_alias, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
-  TEST_ASSERT(res->u.output_ids->limit == 1000);
 
   res_outputs_free(res);
 }
@@ -243,7 +259,6 @@ void test_get_output_ids_from_foundry_address() {
   int ret = get_outputs_from_foundry_address(&ctx, addr_foundry, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
-  TEST_ASSERT(res->u.output_ids->limit == 1000);
 
   res_outputs_free(res);
 }
@@ -288,7 +303,6 @@ void test_get_output_ids_from_nft_id() {
   int ret = get_outputs_from_nft_id(&ctx, nft_id, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
-  TEST_ASSERT(res->u.output_ids->limit == 1000);
 
   res_outputs_free(res);
 }
@@ -333,7 +347,6 @@ void test_get_output_ids_from_alias_id() {
   int ret = get_outputs_from_alias_id(&ctx, alias_id, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
-  TEST_ASSERT(res->u.output_ids->limit == 1000);
 
   res_outputs_free(res);
 }
@@ -378,7 +391,6 @@ void test_get_output_ids_from_foundry_id() {
   int ret = get_outputs_from_foundry_id(&ctx, foundry_id, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
-  TEST_ASSERT(res->u.output_ids->limit == 1000);
 
   res_outputs_free(res);
 }

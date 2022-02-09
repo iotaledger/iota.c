@@ -15,12 +15,11 @@
  * @brief An output object
  *
  */
-// TODO: Add offset field
 typedef struct {
-  uint32_t limit;       ///< The number of results it can return at most.
-  uint32_t count;       ///< The actual number of found results.
-  UT_array *outputs;    ///< output IDs
   uint64_t ledger_idx;  ///< The ledger index at which the output was queried at.
+  uint32_t page_size;   ///< The number of output id's returned in a single response.
+  char *cursor;         ///< The cursor to pass as api parameter to get the next set of results.
+  UT_array *outputs;    ///< output IDs
 } get_outputs_id_t;
 
 /**

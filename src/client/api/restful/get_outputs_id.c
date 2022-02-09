@@ -9,8 +9,9 @@
 static get_outputs_id_t *outputs_new() {
   get_outputs_id_t *ids = malloc(sizeof(get_outputs_id_t));
   if (ids) {
-    ids->count = 0;
-    ids->limit = 0;
+    ids->ledger_idx = 0;
+    ids->page_size = 0;
+    ids->cursor = NULL;
     utarray_new(ids->outputs, &ut_str_icd);
     return ids;
   }
@@ -19,6 +20,8 @@ static get_outputs_id_t *outputs_new() {
 
 static void outputs_free(get_outputs_id_t *ids) {
   if (ids) {
+    if (ids->cursor != NULL) {
+      free(ids->cursor);
     if (ids->outputs) {
       utarray_free(ids->outputs);
     }
@@ -96,23 +99,34 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
     goto end;
   }
 
-  if ((ret = json_get_uint32(json_obj, JSON_KEY_LIMIT, &res->u.output_ids->limit) != 0)) {
-    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LIMIT);
-    goto end;
-  }
-
-  if ((ret = json_get_uint32(json_obj, JSON_KEY_COUNT, &res->u.output_ids->count) != 0)) {
-    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_COUNT);
-    goto end;
-  }
-
-  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_DATA, res->u.output_ids->outputs)) != 0) {
-    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_DATA);
-    goto end;
-  }
-
-  if ((ret = json_get_uint64(json_obj, JSON_KEY_LEDGER_IDX, &res->u.output_ids->ledger_idx) != 0)) {
+  if ((ret = json_get_uint64(json_obj, JSON_KEY_LEDGER_IDX, &res->u.output_ids->ledger_idx) != JSON_OK)) {
     printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
+    goto end;
+  }
+
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_PAGE_SIZE, &res->u.output_ids->page_size) != JSON_OK)) {
+    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_PAGE_SIZE);
+    goto end;
+  }
+
+  // parse for cursor, it is an optional paramater
+  cJSON *json_cursor = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_CURSOR);
+  if (json_cursor != NULL) {
+    if (cJSON_IsString(json_cursor) && (json_cursor->valuestring != NULL)) {
+      printf("cursor len : %lu\n", strlen(json_cursor->valuestring));
+      res->u.output_ids->cursor = malloc(strlen(json_cursor->valuestring) + 1);
+      memset(res->u.output_ids->cursor, 0, strlen(json_cursor->valuestring) + 1);
+      strncpy(res->u.output_ids->cursor, json_cursor->valuestring, strlen(json_cursor->valuestring));
+      printf("cursor : %s\n", res->u.output_ids->cursor);
+    } else {
+      printf("[%s:%d] %s is not a string\n", __func__, __LINE__, JSON_KEY_CURSOR);
+      ret = JSON_NOT_STRING;
+      goto end;
+    }
+  }
+
+  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_ITEMS, res->u.output_ids->outputs)) != JSON_OK) {
+    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_ITEMS);
     goto end;
   }
 
