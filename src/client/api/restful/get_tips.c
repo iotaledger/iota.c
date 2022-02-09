@@ -8,13 +8,18 @@
 #include "core/utils/iota_str.h"
 
 int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
+  if (conf == NULL || res == NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
   int ret = -1;
-  long st = 0;
+
   byte_buf_t *http_res = NULL;
 
   // http client configuration
   http_client_config_t http_conf = {
-      .host = conf->host, .path = "/api/v1/tips", .use_tls = conf->use_tls, .port = conf->port};
+      .host = conf->host, .path = "/api/v2/tips", .use_tls = conf->use_tls, .port = conf->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: allocate response failed\n", __func__, __LINE__);
@@ -22,8 +27,13 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
   }
 
   // send request via http client
-  if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
-    byte_buf2str(http_res);
+  long status = 0;
+  if ((ret = http_client_get(&http_conf, http_res, &status)) == 0) {
+    if (byte_buf2str(http_res) != true) {
+      printf("[%s:%d]: byte buffer to string conversion failed\n", __func__, __LINE__);
+      ret = -1;
+      goto done;
+    }
     // json deserialization
     ret = deser_get_tips((char const *const)http_res->data, res);
   } else {
@@ -60,7 +70,6 @@ void res_tips_free(res_tips_t *tips) {
 }
 
 int deser_get_tips(char const *const j_str, res_tips_t *res) {
-  int ret = -1;
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
@@ -71,6 +80,8 @@ int deser_get_tips(char const *const j_str, res_tips_t *res) {
     return -1;
   }
 
+  int ret = -1;
+
   res_err_t *res_err = deser_error(json_obj);
   if (res_err) {
     // got an error response
@@ -80,16 +91,12 @@ int deser_get_tips(char const *const j_str, res_tips_t *res) {
     goto end;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
-  if (data_obj) {
-    utarray_new(res->u.tips, &ut_str_icd);
-
-    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_TIP_MSG_IDS, res->u.tips)) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TIP_MSG_IDS);
-      utarray_free(res->u.tips);
-      res->u.tips = NULL;
-      goto end;
-    }
+  utarray_new(res->u.tips, &ut_str_icd);
+  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_TIP_MSG_IDS, res->u.tips)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TIP_MSG_IDS);
+    utarray_free(res->u.tips);
+    res->u.tips = NULL;
+    goto end;
   }
 
 end:
