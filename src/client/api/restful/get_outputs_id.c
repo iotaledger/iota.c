@@ -22,6 +22,7 @@ static void outputs_free(get_outputs_id_t *ids) {
   if (ids) {
     if (ids->cursor != NULL) {
       free(ids->cursor);
+    }
     if (ids->outputs) {
       utarray_free(ids->outputs);
     }
@@ -113,11 +114,9 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
   cJSON *json_cursor = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_CURSOR);
   if (json_cursor != NULL) {
     if (cJSON_IsString(json_cursor) && (json_cursor->valuestring != NULL)) {
-      printf("cursor len : %lu\n", strlen(json_cursor->valuestring));
       res->u.output_ids->cursor = malloc(strlen(json_cursor->valuestring) + 1);
       memset(res->u.output_ids->cursor, 0, strlen(json_cursor->valuestring) + 1);
       strncpy(res->u.output_ids->cursor, json_cursor->valuestring, strlen(json_cursor->valuestring));
-      printf("cursor : %s\n", res->u.output_ids->cursor);
     } else {
       printf("[%s:%d] %s is not a string\n", __func__, __LINE__, JSON_KEY_CURSOR);
       ret = JSON_NOT_STRING;
@@ -155,7 +154,6 @@ static int get_outputs_api_call(iota_client_conf_t const *conf, char *cmd_buffer
     // json deserialization
     ret = deser_outputs((char const *const)http_res->data, res);
   }
-
   byte_buf_free(http_res);
   return ret;
 }
