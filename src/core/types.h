@@ -15,6 +15,7 @@ typedef uint8_t transaction_t;
 typedef uint8_t signature_t;
 typedef uint16_t unlock_index_t;
 
+/* clang-format off */
 /**
  * @brief Returns string representing tabulator indentation
  *
@@ -28,6 +29,7 @@ typedef uint16_t unlock_index_t;
    : (i) == 4 ? "\t\t\t\t\0"   \
    : (i) == 5 ? "\t\t\t\t\t\0" \
               : "\0")
+/* clang-format on */
 
 /**
  * @brief Prints out hexmal value in a byte array.

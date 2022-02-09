@@ -124,7 +124,7 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
  * @param[in] buf_len The length of the buffer
  * @return transaction_essence_t* The deserialized txn essence, NULL on errors
  */
-transaction_essence_t *tx_essence_deserialize(byte_t buf[], size_t buf_len);
+transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len);
 
 /**
  * @brief Print out a transaction essence
@@ -211,7 +211,7 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
  * @param[in] buf_len The length of the buffer
  * @return transaction_payload_t* The deserialized txn payload, NULL on errors
  */
-transaction_payload_t *tx_payload_deserialize(byte_t buf[], size_t buf_len);
+transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len);
 
 /**
  * @brief Print out a transaction payload
