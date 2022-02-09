@@ -5,6 +5,7 @@
 #define __CLIENT_API_JSON_PARSER_OUTPUT_ALIAS_H__
 
 #include "client/api/json_parser/json_utils.h"
+#include "core/models/outputs/output_alias.h"
 #include "core/models/payloads/transaction.h"
 
 #ifdef __cplusplus
@@ -19,6 +20,9 @@ extern "C" {
  * @return int 0 on success
  */
 int json_output_alias_deserialize(cJSON *output_obj, transaction_essence_t *essence);
+
+// TODO
+cJSON *json_output_alias_serialize(output_alias_t *alias);
 
 #ifdef __cplusplus
 }

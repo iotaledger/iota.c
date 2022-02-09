@@ -79,3 +79,8 @@ end:
 
   return result;
 }
+
+cJSON *json_output_extended_serialize(output_extended_t *extended) {
+  // TODO
+  return NULL;
+}

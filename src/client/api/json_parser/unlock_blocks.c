@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/json_parser/unlock_blocks.h"
+#include "utlist.h"
 
 #define UNLOCK_BLOCKS_PUB_KEY_HEX_STR_LEN 64
 #define UNLOCK_BLOCKS_SIGN_HEX_STR_LEN 128
@@ -188,4 +189,9 @@ int json_unlock_blocks_deserialize(cJSON *blocks_obj, unlock_list_t *unlock_bloc
   }
 
   return 0;
+}
+
+cJSON *json_unlock_blocks_serialize(unlock_list_t *blocks) {
+  // TODO
+  return NULL;
 }

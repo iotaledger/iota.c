@@ -113,3 +113,8 @@ end:
 
   return result;
 }
+
+cJSON *json_output_alias_serialize(output_alias_t *alias) {
+  // TODO
+  return NULL;
+}

@@ -167,3 +167,8 @@ end:
 
   return result;
 }
+
+cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
+  // TODO
+  return NULL;
+}

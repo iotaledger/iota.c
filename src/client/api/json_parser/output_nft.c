@@ -102,3 +102,8 @@ end:
 
   return result;
 }
+
+cJSON *json_output_nft_serialize(output_nft_t *nft) {
+  // TODO
+  return NULL;
+}

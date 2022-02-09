@@ -68,3 +68,8 @@ int json_outputs_deserialize(cJSON *essence_obj, transaction_essence_t *essence)
 
   return 0;
 }
+
+cJSON *json_outputs_serialize(utxo_outputs_list_t *outputs) {
+  // TODO
+  return NULL;
+}
