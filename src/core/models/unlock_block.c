@@ -268,28 +268,27 @@ void unlock_blocks_free(unlock_list_t* blocks) {
 void unlock_blocks_print(unlock_list_t* blocks) {
   unlock_list_t* elm;
   if (blocks) {
-    printf("unlocked blocks[\n");
+    printf("Unlocked Blocks: [\n");
     LL_FOREACH(blocks, elm) {
       if (elm->block.type == UNLOCK_BLOCK_TYPE_SIGNATURE) {  // signature block
-        printf("\tSignature block[ ");
-        printf("Type: %s\n", ((byte_t*)elm->block.block_data)[0] ? "UNKNOWN" : "ED25519");
-        printf("\tPub key: ");
+        printf("\tSignature Block: [\n");
+        printf("\t\tType: %s\n", ((byte_t*)elm->block.block_data)[0] ? "UNKNOWN" : "ED25519");
+        printf("\t\tPub key: ");
         dump_hex(elm->block.block_data + 1, ED_PUBLIC_KEY_BYTES);
-        printf("\tSignature: ");
+        printf("\t\tSignature: ");
         dump_hex(elm->block.block_data + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES);
         printf("\t]\n");
       } else if (elm->block.type == UNLOCK_BLOCK_TYPE_REFERENCE) {  // reference block
         printf("\tReference block[ ");
-        printf("ref: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
+        printf("\t\tRef: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
       } else if (elm->block.type == UNLOCK_BLOCK_TYPE_ALIAS) {  // alias block
         printf("\tAlias block[ ");
-        printf("ref: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
+        printf("\t\tRef: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
       } else if (elm->block.type == UNLOCK_BLOCK_TYPE_NFT) {  // NFT block
         printf("\tNFT block[ ");
-        printf("ref: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
+        printf("\t\tRef: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
       } else {
         printf("[%s:%d] Unknown unlocked block type\n", __func__, __LINE__);
-        // return 0;
       }
     }
     printf("]\n");
