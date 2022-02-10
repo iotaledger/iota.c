@@ -16,14 +16,18 @@ void test_parse_outputs_empty() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  transaction_essence_t *essence = tx_essence_new();
-  int result = json_outputs_deserialize(json_obj, essence);
+  // fetch output array
+  cJSON *output_data = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_OUTPUTS);
+  TEST_ASSERT_TRUE(cJSON_IsArray(output_data));
+
+  utxo_outputs_list_t *output_list = utxo_outputs_new();
+  int result = json_outputs_deserialize(output_data, &output_list);
   TEST_ASSERT_EQUAL_INT(0, result);
 
-  TEST_ASSERT_EQUAL_UINT16(0, utxo_outputs_count(essence->outputs));
+  TEST_ASSERT_EQUAL_UINT16(0, utxo_outputs_count(output_list));
 
   cJSON_Delete(json_obj);
-  tx_essence_free(essence);
+  utxo_outputs_free(output_list);
 }
 
 void test_parse_outputs() {
@@ -88,33 +92,37 @@ void test_parse_outputs() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  transaction_essence_t *essence = tx_essence_new();
-  int result = json_outputs_deserialize(json_obj, essence);
+  // fetch output array
+  cJSON *output_data = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_OUTPUTS);
+  TEST_ASSERT_TRUE(cJSON_IsArray(output_data));
+
+  utxo_outputs_list_t *output_list = utxo_outputs_new();
+  int result = json_outputs_deserialize(output_data, &output_list);
   TEST_ASSERT_EQUAL_INT(0, result);
 
-  TEST_ASSERT_EQUAL_UINT16(4, utxo_outputs_count(essence->outputs));
+  TEST_ASSERT_EQUAL_UINT16(4, utxo_outputs_count(output_list));
 
   // check extended output
-  utxo_output_t *output = utxo_outputs_get(essence->outputs, 0);
+  utxo_output_t *output = utxo_outputs_get(output_list, 0);
   TEST_ASSERT_EQUAL_UINT8(OUTPUT_EXTENDED, output->output_type);
 
   // check alias output
-  output = utxo_outputs_get(essence->outputs, 1);
+  output = utxo_outputs_get(output_list, 1);
   TEST_ASSERT_EQUAL_UINT8(OUTPUT_ALIAS, output->output_type);
 
   // check foundry output
-  output = utxo_outputs_get(essence->outputs, 2);
+  output = utxo_outputs_get(output_list, 2);
   TEST_ASSERT_EQUAL_UINT8(OUTPUT_FOUNDRY, output->output_type);
 
   // check NFT output
-  output = utxo_outputs_get(essence->outputs, 3);
+  output = utxo_outputs_get(output_list, 3);
   TEST_ASSERT_EQUAL_UINT8(OUTPUT_NFT, output->output_type);
 
-  // print transaction essence
-  tx_essence_print(essence);
+  // print output list
+  utxo_outputs_print(output_list, 0);
 
   cJSON_Delete(json_obj);
-  tx_essence_free(essence);
+  utxo_outputs_free(output_list);
 }
 
 int main() {

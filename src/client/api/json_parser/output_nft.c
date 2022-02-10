@@ -5,7 +5,6 @@
 #include "client/api/json_parser/feat_blocks.h"
 #include "client/api/json_parser/native_tokens.h"
 #include "client/api/json_parser/unlock_conditions.h"
-#include "core/models/outputs/output_nft.h"
 
 /*
   "outputs": [

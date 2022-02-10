@@ -6,7 +6,7 @@
 
 #include "client/api/json_parser/json_utils.h"
 #include "core/models/outputs/output_foundry.h"
-#include "core/models/payloads/transaction.h"
+#include "core/models/outputs/outputs.h"
 
 #ifdef __cplusplus
 extern "C" {
