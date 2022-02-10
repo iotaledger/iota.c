@@ -155,104 +155,129 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
   }
   memset(res->u.output_node_info, 0, sizeof(get_node_info_t));
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
-  if (data_obj) {
-    // gets name
-    if ((ret = json_get_string(data_obj, JSON_KEY_NAME, res->u.output_node_info->name,
-                               sizeof(res->u.output_node_info->name))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NAME);
-      goto end;
-    }
+  // gets name
+  if ((ret = json_get_string(json_obj, JSON_KEY_NAME, res->u.output_node_info->name,
+                             sizeof(res->u.output_node_info->name))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NAME);
+    goto end;
+  }
 
-    // gets version
-    if ((ret = json_get_string(data_obj, JSON_KEY_VER, res->u.output_node_info->version,
-                               sizeof(res->u.output_node_info->version))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_VER);
-      goto end;
-    }
+  // gets version
+  if ((ret = json_get_string(json_obj, JSON_KEY_VER, res->u.output_node_info->version,
+                             sizeof(res->u.output_node_info->version))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_VER);
+    goto end;
+  }
 
-    // gets isHealthy
-    if ((ret = json_get_boolean(data_obj, JSON_KEY_IS_HEALTHY, &res->u.output_node_info->is_healthy)) != 0) {
-      printf("[%s:%d]: gets %s json boolean failed\n", __func__, __LINE__, JSON_KEY_IS_HEALTHY);
-      goto end;
-    }
+  cJSON *status_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_STATUS);
 
-    // gets networkId
-    if ((ret = json_get_string(data_obj, JSON_KEY_NET_ID, res->u.output_node_info->network_id,
-                               sizeof(res->u.output_node_info->network_id))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
-      goto end;
-    }
+  // gets isHealthy
+  if ((ret = json_get_boolean(status_obj, JSON_KEY_IS_HEALTHY, &res->u.output_node_info->is_healthy)) != 0) {
+    printf("[%s:%d]: gets %s json boolean failed\n", __func__, __LINE__, JSON_KEY_IS_HEALTHY);
+    goto end;
+  }
 
-    // parsing bech32HRP
-    if ((ret = json_get_string(data_obj, JSON_KEY_BECH32HRP, res->u.output_node_info->bech32hrp,
-                               sizeof(res->u.output_node_info->bech32hrp))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_BECH32HRP);
-      goto end;
-    }
+  // gets latest milestone timestamp
+  if ((ret = json_get_uint64(status_obj, JSON_KEY_LMT, &res->u.output_node_info->latest_milestone_timestamp)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_LMT);
+    goto end;
+  }
 
-    // gets minPowScore
-    if ((ret = json_get_uint64(data_obj, JSON_KEY_MIN_POW, &res->u.output_node_info->min_pow_score)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MIN_POW);
-      goto end;
-    }
+  // gets latestMilestoneIndex
+  if ((ret = json_get_uint64(status_obj, JSON_KEY_LM_IDX, &res->u.output_node_info->latest_milestone_index)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_LM_IDX);
+    goto end;
+  }
 
-    // gets latestMilestoneIndex
-    if ((ret = json_get_uint64(data_obj, JSON_KEY_LM_IDX, &res->u.output_node_info->latest_milestone_index)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_LM_IDX);
-      goto end;
-    }
+  // gets confirmedMilestoneIndex
+  if ((ret = json_get_uint64(status_obj, JSON_KEY_CM_IDX, &res->u.output_node_info->confirmed_milestone_index)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_CM_IDX);
+    goto end;
+  }
 
-    // gets confirmedMilestoneIndex
-    if ((ret = json_get_uint64(data_obj, JSON_KEY_CM_IDX, &res->u.output_node_info->confirmed_milestone_index)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_CM_IDX);
-      goto end;
-    }
+  // gets pruningIndex
+  if ((ret = json_get_uint64(status_obj, JSON_KEY_PRUNING_IDX, &res->u.output_node_info->pruning_milestone_index)) !=
+      0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_PRUNING_IDX);
+    goto end;
+  }
 
-    // gets pruningIndex
-    if ((ret = json_get_uint64(data_obj, JSON_KEY_PRUNING_IDX, &res->u.output_node_info->pruning_milestone_index)) !=
-        0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_PRUNING_IDX);
-      goto end;
-    }
+  cJSON *metrics_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_METRICS);
 
-    // gets message per second
-    if ((ret = json_get_float(data_obj, JSON_KEY_MPS, &res->u.output_node_info->msg_per_sec)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MPS);
-      goto end;
-    }
+  // gets message per second
+  if ((ret = json_get_float(metrics_obj, JSON_KEY_MPS, &res->u.output_node_info->msg_per_sec)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MPS);
+    goto end;
+  }
 
-    // gets referenced message per second
-    if ((ret = json_get_float(data_obj, JSON_KEY_REF_MPS, &res->u.output_node_info->referenced_msg_per_sec)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_REF_MPS);
-      goto end;
-    }
+  // gets referenced message per second
+  if ((ret = json_get_float(metrics_obj, JSON_KEY_REF_MPS, &res->u.output_node_info->referenced_msg_per_sec)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_REF_MPS);
+    goto end;
+  }
 
-    // gets referenced rate
-    if ((ret = json_get_float(data_obj, JSON_KEY_REF_RATE, &res->u.output_node_info->referenced_rate)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_REF_RATE);
-      goto end;
-    }
+  // gets referenced rate
+  if ((ret = json_get_float(metrics_obj, JSON_KEY_REF_RATE, &res->u.output_node_info->referenced_rate)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_REF_RATE);
+    goto end;
+  }
 
-    // gets latest milestone timestamp
-    if ((ret = json_get_uint64(data_obj, JSON_KEY_LMT, &res->u.output_node_info->latest_milestone_timestamp)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_LMT);
-      goto end;
-    }
+  cJSON *protocol_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_PROTOCOL);
 
-    // features
-    utarray_new(res->u.output_node_info->features, &ut_str_icd);
-    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_FEATURES, res->u.output_node_info->features)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_FEATURES);
-      goto end;
-    }
+  // gets network name
+  if ((ret = json_get_string(protocol_obj, JSON_KEY_NET_NAME, res->u.output_node_info->network_name,
+                             sizeof(res->u.output_node_info->network_name))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_NAME);
+    goto end;
+  }
 
-    // plugins
-    utarray_new(res->u.output_node_info->plugins, &ut_str_icd);
-    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_PLUGINS, res->u.output_node_info->plugins)) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_PLUGINS);
-      goto end;
-    }
+  // parsing bech32HRP
+  if ((ret = json_get_string(protocol_obj, JSON_KEY_BECH32HRP, res->u.output_node_info->bech32hrp,
+                             sizeof(res->u.output_node_info->bech32hrp))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_BECH32HRP);
+    goto end;
+  }
+
+  // gets minPowScore
+  if ((ret = json_get_uint64(protocol_obj, JSON_KEY_MIN_POW, &res->u.output_node_info->min_pow_score)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MIN_POW);
+    goto end;
+  }
+
+  cJSON *rent_struct_obj = cJSON_GetObjectItemCaseSensitive(protocol_obj, JSON_KEY_RENT_STRUCTURE);
+
+  // gets vByteCost
+  if ((ret = json_get_uint16(rent_struct_obj, JSON_KEY_BYTE_COST, &res->u.output_node_info->v_byte_cost)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_BYTE_COST);
+    goto end;
+  }
+
+  // gets vByteFactorData
+  if ((ret = json_get_uint8(rent_struct_obj, JSON_KEY_BYTE_FACTOR_DATA,
+                            &res->u.output_node_info->v_byte_factor_data)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_BYTE_FACTOR_DATA);
+    goto end;
+  }
+
+  // gets vByteFactorKey
+  if ((ret = json_get_uint8(rent_struct_obj, JSON_KEY_BYTE_FACTOR_KEY, &res->u.output_node_info->v_byte_factor_key)) !=
+      0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_BYTE_FACTOR_KEY);
+    goto end;
+  }
+
+  // features
+  utarray_new(res->u.output_node_info->features, &ut_str_icd);
+  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_FEATURES, res->u.output_node_info->features)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_FEATURES);
+    goto end;
+  }
+
+  // plugins
+  utarray_new(res->u.output_node_info->plugins, &ut_str_icd);
+  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_PLUGINS, res->u.output_node_info->plugins)) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_PLUGINS);
+    goto end;
   }
 
 end:
@@ -269,22 +294,37 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
     printf("Error: %s\n", res->u.error->msg);
   } else {
     get_node_info_t *info = res->u.output_node_info;
-    printf("%sdata: [\n", PRINT_INDENTATION(indentation));
+    printf("%s{\n", PRINT_INDENTATION(indentation));
     printf("%s\tname: %s\n", PRINT_INDENTATION(indentation), info->name);
     printf("%s\tversion: %s\n", PRINT_INDENTATION(indentation), info->version);
-    printf("%s\tisHealthy: %s\n", PRINT_INDENTATION(indentation), info->is_healthy ? "True" : "False");
-    printf("%s\tnetworkId: %s\n", PRINT_INDENTATION(indentation), info->network_id);
-    printf("%s\tbech32HRP: %s\n", PRINT_INDENTATION(indentation), info->bech32hrp);
-    printf("%s\tminPoWScore: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->min_pow_score);
-    printf("%s\tmessagesPerSecond: %f\n", PRINT_INDENTATION(indentation), info->msg_per_sec);
-    printf("%s\treferencedMessagesPerSecond: %f\n", PRINT_INDENTATION(indentation), info->referenced_msg_per_sec);
-    printf("%s\treferencedRate: %f\n", PRINT_INDENTATION(indentation), info->referenced_rate);
-    printf("%s\tlatestMilestoneTimestamp: %" PRIu64 "\n", PRINT_INDENTATION(indentation),
+
+    printf("%s\tstatus:{\n", PRINT_INDENTATION(indentation));
+    printf("%s\t\tisHealthy: %s\n", PRINT_INDENTATION(indentation), info->is_healthy ? "True" : "False");
+    printf("%s\t\tlatestMilestoneTimestamp: %" PRIu64 "\n", PRINT_INDENTATION(indentation),
            info->latest_milestone_timestamp);
-    printf("%s\tlatestMilestoneIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->latest_milestone_index);
-    printf("%s\tconfirmedMilestoneIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation),
+    printf("%s\t\tlatestMilestoneIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->latest_milestone_index);
+    printf("%s\t\tconfirmedMilestoneIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation),
            info->confirmed_milestone_index);
-    printf("%s\tpruningIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->pruning_milestone_index);
+    printf("%s\t\tpruningIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->pruning_milestone_index);
+    printf("%s\t}\n", PRINT_INDENTATION(indentation));
+
+    printf("%s\tmetrics:{\n", PRINT_INDENTATION(indentation));
+    printf("%s\t\tmessagesPerSecond: %f\n", PRINT_INDENTATION(indentation), info->msg_per_sec);
+    printf("%s\t\treferencedMessagesPerSecond: %f\n", PRINT_INDENTATION(indentation), info->referenced_msg_per_sec);
+    printf("%s\t\treferencedRate: %f\n", PRINT_INDENTATION(indentation), info->referenced_rate);
+    printf("%s\t}\n", PRINT_INDENTATION(indentation));
+
+    printf("%s\tprotocol:{\n", PRINT_INDENTATION(indentation));
+    printf("%s\t\tnetworkName: %s\n", PRINT_INDENTATION(indentation), info->network_name);
+    printf("%s\t\tbech32HRP: %s\n", PRINT_INDENTATION(indentation), info->bech32hrp);
+    printf("%s\t\tminPoWScore: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->min_pow_score);
+    printf("%s\t\trentStructure:{\n", PRINT_INDENTATION(indentation));
+    printf("%s\t\t\tvByteCost: %" PRIu16 "\n", PRINT_INDENTATION(indentation), info->v_byte_cost);
+    printf("%s\t\t\tvByteFactorData: %" PRIu8 "\n", PRINT_INDENTATION(indentation), info->v_byte_factor_data);
+    printf("%s\t\t\tvByteFactorKey: %" PRIu8 "\n", PRINT_INDENTATION(indentation), info->v_byte_factor_key);
+    printf("%s\t\t}{\n", PRINT_INDENTATION(indentation));
+    printf("%s\t}\n", PRINT_INDENTATION(indentation));
+
     printf("%s\tfeatures: [\n", PRINT_INDENTATION(indentation));
     int len = utarray_len(info->features);
     for (int i = 0; i < len; i++) {
@@ -292,7 +332,7 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
       printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->features, i));
     }
     printf("\n");
-    printf("%s\t]\n", PRINT_INDENTATION(indentation));
+    printf("%s\t],\n", PRINT_INDENTATION(indentation));
     printf("%s\tplugins: [\n", PRINT_INDENTATION(indentation));
     len = utarray_len(info->plugins);
     for (int i = 0; i < len; i++) {
@@ -301,6 +341,6 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
     }
     printf("\n");
     printf("%s\t]\n", PRINT_INDENTATION(indentation));
-    printf("%s]\n", PRINT_INDENTATION(indentation));
+    printf("%s}\n", PRINT_INDENTATION(indentation));
   }
 }
