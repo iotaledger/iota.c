@@ -27,11 +27,11 @@ typedef struct {
   uint64_t pruning_milestone_index;     ///< The milestone index at which the last pruning commenced
   float msg_per_sec;                    ///< The current rate of new messages per second
   float referenced_msg_per_sec;         ///< The current rate of referenced messages per second
-  float referenced_rate;  ///< The ratio of referenced messages in relation to new messages of the last confirmed
-                          ///< milestone
-  char network_name[32];   ///< network name of this node
-  char bech32hrp[16];      ///< bech32 HRP, `atoi` for testnet and `iota` for mainnet
-  uint64_t min_pow_score;  ///< The minimum pow score of the network
+  float referenced_rate;       ///< The ratio of referenced messages in relation to new messages of the last confirmed
+                               ///< milestone
+  char network_name[32];       ///< network name of this node
+  char bech32hrp[16];          ///< bech32 HRP, `atoi` for testnet and `iota` for mainnet
+  uint64_t min_pow_score;      ///< The minimum pow score of the network
   uint16_t v_byte_cost;        ///< The Byte Cost
   uint8_t v_byte_factor_data;  ///< The Byte Factor Data
   uint8_t v_byte_factor_key;   ///< The Byte Factor Key
