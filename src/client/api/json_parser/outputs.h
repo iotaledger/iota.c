@@ -15,11 +15,11 @@ extern "C" {
 /**
  * @brief Deserialize JSON data to outputs list object
  *
- * @param[in] essence_obj Essence JSON object
- * @param[out] essence Transaction essence object
+ * @param[in] outputs_obj An outputs JSON object
+ * @param[out] outputs An output list object
  * @return int 0 on success
  */
-int json_outputs_deserialize(cJSON *essence_obj, transaction_essence_t *essence);
+int json_outputs_deserialize(cJSON *outputs_obj, utxo_outputs_list_t **outputs);
 
 // TODO
 cJSON *json_outputs_serialize(utxo_outputs_list_t *outputs);

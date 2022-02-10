@@ -18,16 +18,9 @@
     }
   ],
 */
-int json_outputs_deserialize(cJSON *essence_obj, transaction_essence_t *essence) {
-  if (essence_obj == NULL || essence == NULL) {
+int json_outputs_deserialize(cJSON *outputs_obj, utxo_outputs_list_t **outputs) {
+  if (outputs_obj == NULL || outputs == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
-  // outputs array
-  cJSON *outputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_OUTPUTS);
-  if (!cJSON_IsArray(outputs_obj)) {
-    printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_OUTPUTS);
     return -1;
   }
 
@@ -44,16 +37,16 @@ int json_outputs_deserialize(cJSON *essence_obj, transaction_essence_t *essence)
     int res = -1;
     switch (output_type) {
       case OUTPUT_EXTENDED:
-        res = json_output_extended_deserialize(elm, essence);
+        res = json_output_extended_deserialize(elm, outputs);
         break;
       case OUTPUT_ALIAS:
-        res = json_output_alias_deserialize(elm, essence);
+        res = json_output_alias_deserialize(elm, outputs);
         break;
       case OUTPUT_FOUNDRY:
-        res = json_output_foundry_deserialize(elm, essence);
+        res = json_output_foundry_deserialize(elm, outputs);
         break;
       case OUTPUT_NFT:
-        res = json_output_nft_deserialize(elm, essence);
+        res = json_output_nft_deserialize(elm, outputs);
         break;
       default:
         printf("[%s:%d] Unsupported output block type\n", __func__, __LINE__);

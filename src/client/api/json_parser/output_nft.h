@@ -16,10 +16,10 @@ extern "C" {
  * @brief Deserialize JSON data to output NFT object
  *
  * @param[in] output_obj Output JSON object
- * @param[out] essence Transaction essence object
+ * @param[out] outputs An output list object
  * @return int 0 on success
  */
-int json_output_nft_deserialize(cJSON *output_obj, transaction_essence_t *essence);
+int json_output_nft_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs);
 
 // TODO
 cJSON *json_output_nft_serialize(output_nft_t *nft);

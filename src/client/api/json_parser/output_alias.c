@@ -21,8 +21,8 @@
     }
   ]
 */
-int json_output_alias_deserialize(cJSON *output_obj, transaction_essence_t *essence) {
-  if (output_obj == NULL || essence == NULL) {
+int json_output_alias_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs) {
+  if (output_obj == NULL || outputs == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -96,7 +96,7 @@ int json_output_alias_deserialize(cJSON *output_obj, transaction_essence_t *esse
   }
 
   // add new output into a list
-  if (tx_essence_add_output(essence, OUTPUT_ALIAS, output) != 0) {
+  if (utxo_outputs_add(outputs, OUTPUT_ALIAS, output) != 0) {
     printf("[%s:%d] can not add new output into a list\n", __func__, __LINE__);
     goto end;
   }

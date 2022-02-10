@@ -18,7 +18,7 @@ extern "C" {
  * @param[out] unlock_blocks Unlock blocks object
  * @return int 0 on success
  */
-int json_unlock_blocks_deserialize(cJSON* blocks_obj, unlock_list_t* unlock_blocks);
+int json_unlock_blocks_deserialize(cJSON* blocks_obj, unlock_list_t** unlock_blocks);
 
 // TODO
 cJSON* json_unlock_blocks_serialize(unlock_list_t* blocks);

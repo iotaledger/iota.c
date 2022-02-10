@@ -31,14 +31,9 @@ int json_inputs_deserialize(cJSON *inputs_obj, utxo_inputs_list_t **inputs) {
     }
 
     // transactionId
-    char transaction_id_hex[ADDRESS_ED25519_HEX_BYTES];
     byte_t tx_id[IOTA_TRANSACTION_ID_BYTES];
-    if (json_get_string(elm, JSON_KEY_TX_ID, transaction_id_hex, IOTA_TRANSACTION_ID_HEX_BYTES) != JSON_OK) {
+    if (json_get_hex_str_to_bin(elm, JSON_KEY_TX_ID, tx_id, sizeof(tx_id)) != JSON_OK) {
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_TX_ID);
-      return -1;
-    }
-    if (hex_2_bin(transaction_id_hex, IOTA_TRANSACTION_ID_HEX_BYTES, tx_id, IOTA_TRANSACTION_ID_BYTES) != 0) {
-      printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
       return -1;
     }
 

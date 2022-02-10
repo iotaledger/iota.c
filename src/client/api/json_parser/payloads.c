@@ -87,7 +87,7 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
   if (essence_obj) {
     // inputs array
     cJSON* inputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_INPUTS);
-    if (!cJSON_IsArray(inputs_obj)) {
+    if (cJSON_IsArray(inputs_obj)) {
       if (json_inputs_deserialize(inputs_obj, &tx->essence->inputs)) {
         return -1;
       }
@@ -98,8 +98,8 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
 
     // outputs array
     cJSON* outputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_OUTPUTS);
-    if (!cJSON_IsArray(inputs_obj)) {
-      if (json_outputs_deserialize(outputs_obj, tx->essence)) {
+    if (cJSON_IsArray(outputs_obj)) {
+      if (json_outputs_deserialize(outputs_obj, &tx->essence->outputs)) {
         return -1;
       }
     } else {
@@ -111,7 +111,7 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
     cJSON* payload_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_PAYLOAD);
     if (!cJSON_IsNull(payload_obj)) {
       // TODO
-      printf("[%s:%d]: %s TODO, support payload in an essence\n", __func__, __LINE__);
+      printf("[%s:%d]: TODO, support payload in an essence\n", __func__, __LINE__);
     }
 
   } else {
@@ -122,7 +122,7 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
   // unlock blocks
   cJSON* blocks_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_UNLOCK_BLOCKS);
   if (cJSON_IsArray(blocks_obj)) {
-    if (json_unlock_blocks_deserialize(blocks_obj, tx->unlock_blocks)) {
+    if (json_unlock_blocks_deserialize(blocks_obj, &tx->unlock_blocks)) {
       return -1;
     }
   } else {
