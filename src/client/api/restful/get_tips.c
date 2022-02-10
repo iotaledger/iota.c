@@ -7,35 +7,6 @@
 #include "client/api/restful/get_tips.h"
 #include "core/utils/iota_str.h"
 
-int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
-  int ret = -1;
-  long st = 0;
-  byte_buf_t *http_res = NULL;
-
-  // http client configuration
-  http_client_config_t http_conf = {
-      .host = conf->host, .path = "/api/v1/tips", .use_tls = conf->use_tls, .port = conf->port};
-
-  if ((http_res = byte_buf_new()) == NULL) {
-    printf("[%s:%d]: allocate response failed\n", __func__, __LINE__);
-    goto done;
-  }
-
-  // send request via http client
-  if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
-    byte_buf2str(http_res);
-    // json deserialization
-    ret = deser_get_tips((char const *const)http_res->data, res);
-  } else {
-    printf("[%s:%d] network error\n", __func__, __LINE__);
-  }
-
-done:
-  byte_buf_free(http_res);
-
-  return ret;
-}
-
 res_tips_t *res_tips_new() {
   res_tips_t *tips = malloc(sizeof(res_tips_t));
   if (tips) {
@@ -59,15 +30,52 @@ void res_tips_free(res_tips_t *tips) {
   }
 }
 
-int deser_get_tips(char const *const j_str, res_tips_t *res) {
-  int ret = -1;
+int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
+  if (conf == NULL || res == NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // http client configuration
+  http_client_config_t http_conf = {
+      .host = conf->host, .path = "/api/v2/tips", .use_tls = conf->use_tls, .port = conf->port};
+
+  byte_buf_t *http_res = byte_buf_new();
+  if (!http_res) {
+    printf("[%s:%d]: allocate response failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // send request via http client
+  long status = 0;
+  if (http_client_get(&http_conf, http_res, &status) != 0) {
+    printf("[%s:%d] network error\n", __func__, __LINE__);
+    byte_buf_free(http_res);
+    return -1;
+  }
+
+  // convert response byte buffer into a string
+  if (byte_buf2str(http_res) != true) {
+    printf("[%s:%d]: byte buffer to string conversion failed\n", __func__, __LINE__);
+    byte_buf_free(http_res);
+    return -1;
+  }
+
+  // json deserialization
+  int ret = get_tips_deserialize((char const *const)http_res->data, res);
+  byte_buf_free(http_res);
+
+  return ret;
+}
+
+int get_tips_deserialize(char const *const j_str, res_tips_t *res) {
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
 
   cJSON *json_obj = cJSON_Parse(j_str);
-  if (json_obj == NULL) {
+  if (!json_obj) {
     return -1;
   }
 
@@ -76,23 +84,18 @@ int deser_get_tips(char const *const j_str, res_tips_t *res) {
     // got an error response
     res->is_error = true;
     res->u.error = res_err;
-    ret = 0;
-    goto end;
+    cJSON_Delete(json_obj);
+    return 0;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
-  if (data_obj) {
-    utarray_new(res->u.tips, &ut_str_icd);
-
-    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_TIP_MSG_IDS, res->u.tips)) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TIP_MSG_IDS);
-      utarray_free(res->u.tips);
-      res->u.tips = NULL;
-      goto end;
-    }
+  utarray_new(res->u.tips, &ut_str_icd);
+  int ret = json_string_array_to_utarray(json_obj, JSON_KEY_TIP_MSG_IDS, res->u.tips);
+  if (ret != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TIP_MSG_IDS);
+    utarray_free(res->u.tips);
+    res->u.tips = NULL;
   }
 
-end:
   cJSON_Delete(json_obj);
   return ret;
 }

@@ -13,8 +13,6 @@
 #include "client/client_service.h"
 #include "client/network/http.h"
 
-#define STR_TIP_MSG_ID_LEN 64  // the length of message id string
-
 typedef UT_array get_tips_t;
 
 /**
@@ -34,6 +32,20 @@ extern "C" {
 #endif
 
 /**
+ * @brief Allocate a res_tips_t response object
+ *
+ * @return res_tips_t*
+ */
+res_tips_t *res_tips_new();
+
+/**
+ * @brief Free a res_tips_t response object
+ *
+ * @param[in] tips a response object
+ */
+void res_tips_free(res_tips_t *tips);
+
+/**
  * @brief Gets tips
  *
  * Returns two non-lazy tips. In case the node can only provide one tip, tip1 and tip2 are identical.
@@ -43,6 +55,15 @@ extern "C" {
  * @return int 0 on success
  */
 int get_tips(iota_client_conf_t const *conf, res_tips_t *res);
+
+/**
+ * @brief Tips response deserialization
+ *
+ * @param[in] j_str A string of json object
+ * @param[out] res A response object of tips object
+ * @return int 0 on success
+ */
+int get_tips_deserialize(char const *const j_str, res_tips_t *res);
 
 /**
  * @brief Gets the number of message IDs
@@ -60,29 +81,6 @@ size_t get_tips_id_count(res_tips_t *tips);
  * @return char*
  */
 char *get_tips_id(res_tips_t *tips, size_t index);
-
-/**
- * @brief tips response deserialization
- *
- * @param[in] j_str A string of json object
- * @param[out] res A response object of tips object
- * @return int 0 on success
- */
-int deser_get_tips(char const *const j_str, res_tips_t *res);
-
-/**
- * @brief Allocate a get_tips response object
- *
- * @return res_tips_t*
- */
-res_tips_t *res_tips_new();
-
-/**
- * @brief Free a get_tips response object
- *
- * @param tips a response object
- */
-void res_tips_free(res_tips_t *tips);
 
 #ifdef __cplusplus
 }
