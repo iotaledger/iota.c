@@ -110,6 +110,9 @@ void test_parse_foundry_output_full() {
   TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(foundry_output->feature_blocks));
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(foundry_output->feature_blocks, FEAT_METADATA_BLOCK));
 
+  // print transaction essence
+  tx_essence_print(essence);
+
   cJSON_Delete(json_obj);
   tx_essence_free(essence);
 }

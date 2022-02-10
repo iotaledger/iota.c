@@ -203,6 +203,9 @@ void test_unlock_conditions() {
   cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_GOVERNOR);
   TEST_ASSERT_NOT_NULL(cond_block);
 
+  // print unlock conditions
+  cond_blk_list_print(blk_list, 0);
+
   cJSON_Delete(json_obj);
   cond_blk_list_free(blk_list);
 }
