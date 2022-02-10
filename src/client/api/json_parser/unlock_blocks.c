@@ -7,7 +7,7 @@
 #define UNLOCK_BLOCKS_SIGN_HEX_STR_LEN 128
 #define UNLOCK_BLOCKS_SIGN_BLOCK_STR_LEN (1 + UNLOCK_BLOCKS_PUB_KEY_HEX_STR_LEN + UNLOCK_BLOCKS_SIGN_HEX_STR_LEN)
 
-static int unlock_block_signature_deserialize(cJSON *elm, unlock_list_t *unlock_blocks) {
+static int unlock_block_signature_deserialize(cJSON *elm, unlock_list_t **unlock_blocks) {
   if (elm == NULL || unlock_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -15,8 +15,8 @@ static int unlock_block_signature_deserialize(cJSON *elm, unlock_list_t *unlock_
 
   // signature array
   cJSON *sig_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_SIG);
-  if (!cJSON_IsArray(sig_obj)) {
-    printf("[%s:%d]: %s is not an array\n", __func__, __LINE__, JSON_KEY_SIG);
+  if (!cJSON_IsObject(sig_obj)) {
+    printf("[%s:%d]: %s is not an object\n", __func__, __LINE__, JSON_KEY_SIG);
     return -1;
   }
 
@@ -41,13 +41,23 @@ static int unlock_block_signature_deserialize(cJSON *elm, unlock_list_t *unlock_
         printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_SIG);
         return -1;
       }
-      byte_t sig_block[UNLOCK_BLOCKS_SIGN_BLOCK_STR_LEN] = {};
+
+      byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
       sig_block[0] = sig_type;
-      memcpy(sig_block + 1, pub_key, UNLOCK_BLOCKS_PUB_KEY_HEX_STR_LEN);
-      memcpy(sig_block + 1 + UNLOCK_BLOCKS_PUB_KEY_HEX_STR_LEN, signature, UNLOCK_BLOCKS_SIGN_HEX_STR_LEN);
+
+      if (hex_2_bin(pub_key, UNLOCK_BLOCKS_PUB_KEY_HEX_STR_LEN, &sig_block[1], ED_PUBLIC_KEY_BYTES) != 0) {
+        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
+        return -1;
+      }
+
+      if (hex_2_bin(signature, UNLOCK_BLOCKS_SIGN_HEX_STR_LEN, &sig_block[1 + ED_PUBLIC_KEY_BYTES],
+                    ED_SIGNATURE_BYTES) != 0) {
+        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
+        return -1;
+      }
 
       // add signature block into a list
-      if (unlock_blocks_add_signature(&unlock_blocks, sig_block, UNLOCK_BLOCKS_SIGN_BLOCK_STR_LEN) != 0) {
+      if (unlock_blocks_add_signature(unlock_blocks, sig_block, ED25519_SIGNATURE_BLOCK_BYTES) != 0) {
         printf("[%s:%d] can not add signature unlock block into a list\n", __func__, __LINE__);
         return -1;
       }
@@ -66,7 +76,7 @@ static int unlock_block_signature_deserialize(cJSON *elm, unlock_list_t *unlock_
   return 0;
 }
 
-static int unlock_block_reference_deserialize(cJSON *elm, unlock_list_t *unlock_blocks) {
+static int unlock_block_reference_deserialize(cJSON *elm, unlock_list_t **unlock_blocks) {
   if (elm == NULL || unlock_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -80,7 +90,7 @@ static int unlock_block_reference_deserialize(cJSON *elm, unlock_list_t *unlock_
   }
 
   // add new unlock block into a list
-  if (unlock_blocks_add_reference(&unlock_blocks, reference) != 0) {
+  if (unlock_blocks_add_reference(unlock_blocks, reference) != 0) {
     printf("[%s:%d] can not add reference unlock block into a list\n", __func__, __LINE__);
     return -1;
   }
@@ -88,7 +98,7 @@ static int unlock_block_reference_deserialize(cJSON *elm, unlock_list_t *unlock_
   return 0;
 }
 
-static int unlock_block_alias_deserialize(cJSON *elm, unlock_list_t *unlock_blocks) {
+static int unlock_block_alias_deserialize(cJSON *elm, unlock_list_t **unlock_blocks) {
   if (elm == NULL || unlock_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -102,7 +112,7 @@ static int unlock_block_alias_deserialize(cJSON *elm, unlock_list_t *unlock_bloc
   }
 
   // add new unlock block into a list
-  if (unlock_blocks_add_alias(&unlock_blocks, reference) != 0) {
+  if (unlock_blocks_add_alias(unlock_blocks, reference) != 0) {
     printf("[%s:%d] can not add alias unlock block into a list\n", __func__, __LINE__);
     return -1;
   }
@@ -110,7 +120,7 @@ static int unlock_block_alias_deserialize(cJSON *elm, unlock_list_t *unlock_bloc
   return 0;
 }
 
-static int unlock_block_nft_deserialize(cJSON *elm, unlock_list_t *unlock_blocks) {
+static int unlock_block_nft_deserialize(cJSON *elm, unlock_list_t **unlock_blocks) {
   if (elm == NULL || unlock_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -124,7 +134,7 @@ static int unlock_block_nft_deserialize(cJSON *elm, unlock_list_t *unlock_blocks
   }
 
   // add new unlock block into a list
-  if (unlock_blocks_add_nft(&unlock_blocks, reference) != 0) {
+  if (unlock_blocks_add_nft(unlock_blocks, reference) != 0) {
     printf("[%s:%d] can not add NFT unlock block into a list\n", __func__, __LINE__);
     return -1;
   }
@@ -144,7 +154,7 @@ static int unlock_block_nft_deserialize(cJSON *elm, unlock_list_t *unlock_blocks
     },
   ]
 */
-int json_unlock_blocks_deserialize(cJSON *blocks_obj, unlock_list_t *unlock_blocks) {
+int json_unlock_blocks_deserialize(cJSON *blocks_obj, unlock_list_t **unlock_blocks) {
   if (blocks_obj == NULL || unlock_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
