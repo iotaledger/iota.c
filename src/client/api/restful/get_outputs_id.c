@@ -115,8 +115,7 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
   cJSON *json_cursor = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_CURSOR);
   if (json_cursor != NULL) {
     if (cJSON_IsString(json_cursor) && (json_cursor->valuestring != NULL)) {
-      res->u.output_ids->cursor = malloc(strlen(json_cursor->valuestring) + 1);
-      memset(res->u.output_ids->cursor, 0, strlen(json_cursor->valuestring) + 1);
+      res->u.output_ids->cursor = calloc(strlen(json_cursor->valuestring) + 1, 1);
       strncpy(res->u.output_ids->cursor, json_cursor->valuestring, strlen(json_cursor->valuestring));
     } else {
       printf("[%s:%d] %s is not a string\n", __func__, __LINE__, JSON_KEY_CURSOR);

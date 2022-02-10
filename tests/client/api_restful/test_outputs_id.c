@@ -38,10 +38,10 @@ void test_deser_outputs() {
   TEST_ASSERT(res->u.output_ids->page_size == 2);
   TEST_ASSERT(res_outputs_output_id_count(res) == 2);
   TEST_ASSERT(utarray_len(res->u.output_ids->outputs) == 2);
-  TEST_ASSERT_EQUAL_MEMORY("1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005",
-                           res_outputs_output_id(res, 0), 69);
-  TEST_ASSERT_EQUAL_MEMORY("ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010",
-                           res_outputs_output_id(res, 1), 69);
+  TEST_ASSERT_EQUAL_STRING("1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005",
+                           res_outputs_output_id(res, 0));
+  TEST_ASSERT_EQUAL_STRING("ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010",
+                           res_outputs_output_id(res, 1));
   TEST_ASSERT(res->u.output_ids->ledger_idx == 837834);
   res_outputs_free(res);
   res = NULL;
@@ -58,12 +58,12 @@ void test_deser_outputs() {
   TEST_ASSERT(res->u.output_ids->page_size == 2);
   TEST_ASSERT(res_outputs_output_id_count(res) == 2);
   TEST_ASSERT(utarray_len(res->u.output_ids->outputs) == 2);
-  TEST_ASSERT_EQUAL_MEMORY("62020d37c936725634911feb5a7685e715dcef50cb2b997812567021e09181ab7e67d9020100.2",
-                           res->u.output_ids->cursor, 78);
-  TEST_ASSERT_EQUAL_MEMORY("1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005",
-                           res_outputs_output_id(res, 0), 69);
-  TEST_ASSERT_EQUAL_MEMORY("ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010",
-                           res_outputs_output_id(res, 1), 69);
+  TEST_ASSERT_EQUAL_STRING("62020d37c936725634911feb5a7685e715dcef50cb2b997812567021e09181ab7e67d9020100.2",
+                           res->u.output_ids->cursor);
+  TEST_ASSERT_EQUAL_STRING("1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005",
+                           res_outputs_output_id(res, 0));
+  TEST_ASSERT_EQUAL_STRING("ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010",
+                           res_outputs_output_id(res, 1));
   TEST_ASSERT(res->u.output_ids->ledger_idx == 837834);
   res_outputs_free(res);
   res = NULL;
