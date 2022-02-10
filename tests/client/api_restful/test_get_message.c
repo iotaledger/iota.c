@@ -33,7 +33,7 @@ void test_get_msg_by_id() {
       case CORE_MESSAGE_PAYLOAD_MILESTONE:
         printf("it's a milestone message\n");
         break;
-      case CORE_MESSAGE_PAYLOAD_UNKNOW:
+      case CORE_MESSAGE_PAYLOAD_UNKNOWN:
       default:
         printf("Unknow message\n");
         break;
@@ -44,7 +44,7 @@ void test_get_msg_by_id() {
 
 void test_deser_milestone() {
   char const* const ms_res =
-      "{\"data\":{\"networkId\":\"9466822412763346725\",\"parentMessageIds\":["
+      "{\"networkId\":\"9466822412763346725\",\"parentMessageIds\":["
       "\"7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3\","
       "\"9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c\","
       "\"ccf9bf6b76a2659f332e17bfdc20f278ce25bc45e807e89cc2ab526cd2101c52\","
@@ -62,7 +62,7 @@ void test_deser_milestone() {
       "\"2ef781713287ba11efd0f3be37a49c2a08a8fdd1099b36e6fb7c9cb290b1711dd4fe08489ecd3872ac663bebebedd27cd73325d5331542"
       "1d923b77ffd9ab3b0c\","
       "\"c42983ce8e619787bbb5aa89cb0987cf08a26a2e4080039614e3c56e766bc86dce50d6e7dc6907edf653e9cc92c89405389fbc71e759c2"
-      "54fa2aa571a93d850f\"]},\"nonce\":\"10760600709663927622\"}}";
+      "54fa2aa571a93d850f\"]},\"nonce\":\"10760600709663927622\"}";
   res_message_t* res = res_message_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(deser_get_message(ms_res, res) == 0);

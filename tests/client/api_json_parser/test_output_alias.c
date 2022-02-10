@@ -115,7 +115,7 @@ void test_parse_alias_output_full() {
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->feature_blocks, FEAT_METADATA_BLOCK));
 
   // print transaction essence
-  tx_essence_print(essence);
+  tx_essence_print(essence, 0);
 
   cJSON_Delete(json_obj);
   tx_essence_free(essence);

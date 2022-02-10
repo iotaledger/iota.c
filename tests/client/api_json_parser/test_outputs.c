@@ -111,7 +111,7 @@ void test_parse_outputs() {
   TEST_ASSERT_EQUAL_UINT8(OUTPUT_NFT, output->output_type);
 
   // print transaction essence
-  tx_essence_print(essence);
+  tx_essence_print(essence, 0);
 
   cJSON_Delete(json_obj);
   tx_essence_free(essence);
