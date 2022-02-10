@@ -5,7 +5,7 @@
 #define __CLIENT_API_JSON_PARSER_UNLOCK_BLOCKS_H__
 
 #include "client/api/json_parser/json_utils.h"
-#include "core/models/payloads/transaction.h"
+#include "core/models/unlock_block.h"
 
 #ifdef __cplusplus
 extern "C" {

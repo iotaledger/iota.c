@@ -227,6 +227,21 @@ size_t unlock_blocks_serialize(unlock_list_t* blocks, byte_t buf[]) {
   return (offset - buf) / sizeof(byte_t);
 }
 
+unlock_block_t* unlock_blocks_get(unlock_list_t* blocks, uint16_t index) {
+  if (!blocks) {
+    return NULL;
+  }
+  uint16_t count = 0;
+  unlock_list_t* elm;
+  LL_FOREACH(blocks, elm) {
+    if (count == index) {
+      return &elm->block;
+    }
+    count++;
+  }
+  return NULL;
+}
+
 uint16_t unlock_blocks_count(unlock_list_t* blocks) {
   unlock_list_t* elm = NULL;
   uint16_t count = 0;
