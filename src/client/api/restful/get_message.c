@@ -127,7 +127,7 @@ static int transaction_deserialize(cJSON *tx_obj, res_message_t *res) {
     // unlock blocks
     cJSON *blocks_obj = cJSON_GetObjectItemCaseSensitive(tx_obj, JSON_KEY_UNLOCK_BLOCKS);
     if (cJSON_IsArray(blocks_obj)) {
-      ret = json_unlock_blocks_deserialize(blocks_obj, tx->unlock_blocks);
+      ret = json_unlock_blocks_deserialize(blocks_obj, &tx->unlock_blocks);
     } else {
       printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_UNLOCK_BLOCKS);
     }
@@ -192,61 +192,58 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
     goto end;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
-  if (data_obj) {
-    // new message object
-    res->u.msg = core_message_new();
-    if (!res->u.msg) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+  // new message object
+  res->u.msg = core_message_new();
+  if (!res->u.msg) {
+    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+    goto end;
+  }
+
+  // network ID
+  char network_id[32];
+  if ((ret = json_get_string(json_obj, JSON_KEY_NET_ID, network_id, sizeof(network_id))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
+    goto end;
+  }
+  sscanf(network_id, "%" SCNu64, &res->u.msg->network_id);
+
+  // parentMessageIds
+  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_PARENT_IDS, res->u.msg->parents)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
+    utarray_free(res->u.msg->parents);
+    res->u.msg->parents = NULL;
+    goto end;
+  }
+
+  // nonce
+  char nonce[32];
+  if ((ret = json_get_string(json_obj, JSON_KEY_NONCE, nonce, sizeof(nonce))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NONCE);
+    goto end;
+  }
+  sscanf(nonce, "%" SCNu64, &res->u.msg->nonce);
+
+  cJSON *payload = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_PAYLOAD);
+  if (payload) {
+    if ((ret = json_get_uint32(payload, JSON_KEY_TYPE, &res->u.msg->payload_type) != 0)) {
+      printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
       goto end;
     }
 
-    // network ID
-    char network_id[32];
-    if ((ret = json_get_string(data_obj, JSON_KEY_NET_ID, network_id, sizeof(network_id))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
-      goto end;
-    }
-    sscanf(network_id, "%" SCNu64, &res->u.msg->network_id);
-
-    // parentMessageIds
-    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_PARENT_IDS, res->u.msg->parents)) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
-      utarray_free(res->u.msg->parents);
-      res->u.msg->parents = NULL;
-      goto end;
+    switch (res->u.msg->payload_type) {
+      case CORE_MESSAGE_PAYLOAD_TRANSACTION:
+        ret = transaction_deserialize(payload, res);
+        break;
+      case CORE_MESSAGE_PAYLOAD_MILESTONE:
+        ret = milestone_deserialize(payload, res);
+        break;
+      default:
+        // do nothing
+        break;
     }
 
-    // nonce
-    char nonce[32];
-    if ((ret = json_get_string(data_obj, JSON_KEY_NONCE, nonce, sizeof(nonce))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NONCE);
-      goto end;
-    }
-    sscanf(nonce, "%" SCNu64, &res->u.msg->nonce);
-
-    cJSON *payload = cJSON_GetObjectItemCaseSensitive(data_obj, JSON_KEY_PAYLOAD);
-    if (payload) {
-      if ((ret = json_get_uint32(payload, JSON_KEY_TYPE, &res->u.msg->payload_type) != 0)) {
-        printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
-        goto end;
-      }
-
-      switch (res->u.msg->payload_type) {
-        case CORE_MESSAGE_PAYLOAD_TRANSACTION:
-          ret = transaction_deserialize(payload, res);
-          break;
-        case CORE_MESSAGE_PAYLOAD_MILESTONE:
-          ret = milestone_deserialize(payload, res);
-          break;
-        default:
-          // do nothing
-          break;
-      }
-
-    } else {
-      printf("[%s:%d]: invalid message: payload not found\n", __func__, __LINE__);
-    }
+  } else {
+    printf("[%s:%d]: invalid message: payload not found\n", __func__, __LINE__);
   }
 
 end:

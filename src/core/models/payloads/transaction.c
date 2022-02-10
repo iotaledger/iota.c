@@ -11,7 +11,7 @@
 transaction_essence_t* tx_essence_new() {
   transaction_essence_t* es = malloc(sizeof(transaction_essence_t));
   if (es) {
-    es->tx_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;  // 0 to denote a transaction essence.
+    es->tx_type = TRANSACTION_PAYLOAD_ESSENCE;  // 0 to denote a transaction essence.
     es->inputs = utxo_inputs_new();
     es->outputs = utxo_outputs_new();
     es->payload = NULL;
@@ -182,12 +182,13 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   return es;
 }
 
-void tx_essence_print(transaction_essence_t* es) {
-  printf("Transaction Essence: [\n");
-  utxo_inputs_print(es->inputs, 1);
-  utxo_outputs_print(es->outputs, 1);
+void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
+  printf("%sTransaction Essence: [\n", PRINT_INDENTATION(indentation));
+  printf("%s\tType: %d\n", PRINT_INDENTATION(indentation), es->tx_type);
+  utxo_inputs_print(es->inputs, indentation + 1);
+  utxo_outputs_print(es->outputs, indentation + 1);
   // TODO: print payloads
-  printf("]\n");
+  printf("%s]\n", PRINT_INDENTATION(indentation));
 }
 
 transaction_payload_t* tx_payload_new() {
@@ -307,10 +308,9 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
   return tx_payload;
 }
 
-void tx_payload_print(transaction_payload_t* tx) {
+void tx_payload_print(transaction_payload_t* tx, uint8_t indentation) {
   if (tx) {
-    printf("Payload type: %d\n", tx->type);
-    tx_essence_print(tx->essence);
-    unlock_blocks_print(tx->unlock_blocks);
+    tx_essence_print(tx->essence, indentation);
+    unlock_blocks_print(tx->unlock_blocks, indentation);
   }
 }
