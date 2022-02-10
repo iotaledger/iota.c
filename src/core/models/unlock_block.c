@@ -274,9 +274,9 @@ void unlock_blocks_print(unlock_list_t* blocks) {
         printf("\tSignature Block: [\n");
         printf("\t\tType: %s\n", ((byte_t*)elm->block.block_data)[0] ? "UNKNOWN" : "ED25519");
         printf("\t\tPub key: ");
-        dump_hex(elm->block.block_data + 1, ED_PUBLIC_KEY_BYTES);
+        dump_hex_str(elm->block.block_data + 1, ED_PUBLIC_KEY_BYTES);
         printf("\t\tSignature: ");
-        dump_hex(elm->block.block_data + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES);
+        dump_hex_str(elm->block.block_data + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES);
         printf("\t]\n");
       } else if (elm->block.type == UNLOCK_BLOCK_TYPE_REFERENCE) {  // reference block
         printf("\tReference block[ ");
