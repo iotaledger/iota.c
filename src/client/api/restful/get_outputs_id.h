@@ -34,35 +34,6 @@ typedef struct {
   } u;
 } res_outputs_id_t;
 
-/**
- * @brief The querry params for getting outputs api
- *
- */
-typedef struct {
-  char *address;                          ///< The Bech32-encoded address that should be searched for
-  bool has_dust_ret_cond;                 ///< The presence of dust return unlock condition
-  char *dust_ret_address;                 ///< The specific return address in the dust deposit return unlock condition
-  bool has_timelock_cond;                 ///< The presence of timelock unlock condition
-  uint32_t time_locked_before;            ///< A unix timestamp to search for outputs that are timelocked bfore it
-  uint32_t time_locked_after;             ///< A unix timestamp to search for outputs that are timelocked after it
-  uint32_t time_locked_before_milestone;  ///< The milestone index to search for outputs that are timelocked before it
-  uint32_t time_locked_after_milestone;   ///< The milestone index to search for outputs that are timelocked after it
-  bool has_expiration_cond;               ///< The presence of expiration unlock condition
-  uint32_t expires_before;                ///< A unix timestamp to search for outputs that expires before it
-  uint32_t expires_after;                 ///< A unix timestamp to search for outputs that expires after it
-  uint32_t expires_before_milestone;      ///< A milestone index to search for outputs that expires before it
-  uint32_t expires_after_milestone;       ///< A milestone index to search for outputs that expires after it
-  char *expiration_return_address;        ///< A return address to search for outputs with it in the expiration unlock
-                                          ///<  condition
-  char *bech32_sender;                    ///< A bech32 encoded validated sender to search for outputs with it
-  char *tag;                              ///< A tag block to search for outputs matching it
-  uint32_t created_before;                ///< A unix timestamp to search for outputs that was created before it
-  uint32_t created_after;                 ///< A unix timestamp to search for outputs that was created after it
-  uint32_t page_size;  /// < The maximum amount of items returned in one call. If there are more items, a cursor to the
-                       /// next page is returned too.
-  char *cursor;        ///<  A cursor to starts the search (confirmationMS+outputId.pageSize).
-} outputs_query_params_t;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
