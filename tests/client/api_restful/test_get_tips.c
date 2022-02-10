@@ -41,14 +41,14 @@ void test_deser_get_tips() {
   TEST_ASSERT(get_tips_deserialize(json_tips, res_tips) == 0);
   TEST_ASSERT(res_tips->is_error == false);
   TEST_ASSERT_EQUAL_INT(4, get_tips_id_count(res_tips));
-  TEST_ASSERT_EQUAL_MEMORY("0a7c22aa43620d938146bcfc94a40804b26a5aaf3913bdc51b2836c47650de5c", get_tips_id(res_tips, 0),
-                           IOTA_MESSAGE_ID_HEX_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY("3a3ca52a4c7d96fed4eef037db4421231f09e63a817bcf913f33c0806e565de9", get_tips_id(res_tips, 1),
-                           IOTA_MESSAGE_ID_HEX_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY("a714ca72bb21d1e69b49a272713b9a1edc4d5679695680b5f36b907c0ed0d445", get_tips_id(res_tips, 2),
-                           IOTA_MESSAGE_ID_HEX_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY("ea878b98a3eb38154993ea27d597e6cbb8fda0cd7b71cc2eb345b6c62140a6bf", get_tips_id(res_tips, 3),
-                           IOTA_MESSAGE_ID_HEX_BYTES);
+  TEST_ASSERT_EQUAL_STRING("0a7c22aa43620d938146bcfc94a40804b26a5aaf3913bdc51b2836c47650de5c",
+                           get_tips_id(res_tips, 0));
+  TEST_ASSERT_EQUAL_STRING("3a3ca52a4c7d96fed4eef037db4421231f09e63a817bcf913f33c0806e565de9",
+                           get_tips_id(res_tips, 1));
+  TEST_ASSERT_EQUAL_STRING("a714ca72bb21d1e69b49a272713b9a1edc4d5679695680b5f36b907c0ed0d445",
+                           get_tips_id(res_tips, 2));
+  TEST_ASSERT_EQUAL_STRING("ea878b98a3eb38154993ea27d597e6cbb8fda0cd7b71cc2eb345b6c62140a6bf",
+                           get_tips_id(res_tips, 3));
 
   res_tips_free(res_tips);
 }
