@@ -8,9 +8,6 @@
 
 #include "core/types.h"
 
-#define TO_HEX_BYTES(x) (x * 2)
-#define TO_STR_BYTES(x) (HEX_BYTES(x) + 1)
-
 // An Ed25519 address is the Blake2b-256 hash of an Ed25519 public key.
 #define ADDRESS_ED25519_BYTES 32
 #define ADDRESS_ED25519_HEX_BYTES (ADDRESS_ED25519_BYTES * 2)

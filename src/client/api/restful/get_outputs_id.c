@@ -5,6 +5,7 @@
 #include "client/api/json_parser/json_utils.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
+#include "core/utils/macros.h"
 
 static get_outputs_id_t *outputs_new() {
   get_outputs_id_t *ids = malloc(sizeof(get_outputs_id_t));
@@ -270,7 +271,7 @@ int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[],
   }
 
   size_t id_len = strlen(nft_id);
-  if (id_len != TO_HEX_BYTES(NFT_ID_BYTES)) {
+  if (id_len != BIN_TO_HEX_BYTES(NFT_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;
   }
@@ -295,7 +296,7 @@ int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_i
   }
 
   size_t id_len = strlen(alias_id);
-  if (id_len != TO_HEX_BYTES(ALIAS_ID_BYTES)) {
+  if (id_len != BIN_TO_HEX_BYTES(ALIAS_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;
   }
@@ -320,7 +321,7 @@ int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const found
   }
 
   size_t id_len = strlen(foundry_id);
-  if (id_len != TO_HEX_BYTES(FOUNDRY_ID_BYTES)) {
+  if (id_len != BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;
   }
