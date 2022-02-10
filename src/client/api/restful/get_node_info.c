@@ -322,7 +322,7 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
     printf("%s\t\t\tvByteCost: %" PRIu16 "\n", PRINT_INDENTATION(indentation), info->v_byte_cost);
     printf("%s\t\t\tvByteFactorData: %" PRIu8 "\n", PRINT_INDENTATION(indentation), info->v_byte_factor_data);
     printf("%s\t\t\tvByteFactorKey: %" PRIu8 "\n", PRINT_INDENTATION(indentation), info->v_byte_factor_key);
-    printf("%s\t\t}{\n", PRINT_INDENTATION(indentation));
+    printf("%s\t\t}\n", PRINT_INDENTATION(indentation));
     printf("%s\t}\n", PRINT_INDENTATION(indentation));
 
     printf("%s\tfeatures: [\n", PRINT_INDENTATION(indentation));
