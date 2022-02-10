@@ -63,9 +63,9 @@ cJSON *json_inputs_serialize(utxo_inputs_list_t *inputs) {
   char tx_id_str[BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES)] = {};
   cJSON *input_arr = NULL;
 
+  // empty array
   if (!inputs) {
-    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
-    return NULL;
+    return cJSON_CreateArray();
   }
 
   if ((input_arr = cJSON_CreateArray()) == NULL) {

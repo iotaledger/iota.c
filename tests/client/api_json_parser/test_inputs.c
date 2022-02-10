@@ -74,7 +74,26 @@ void test_deserialize_inputs() {
   utxo_inputs_free(inputs);
 }
 
-void test_serialize_inputs_empty() {}
+void test_serialize_inputs_empty() {
+  utxo_inputs_list_t *inputs = utxo_inputs_new();
+  TEST_ASSERT_NULL(inputs);
+
+  cJSON *input_data = json_inputs_serialize(inputs);
+  TEST_ASSERT_NOT_NULL(input_data);
+
+  // add data to input array
+  cJSON *inputs_obj = cJSON_CreateObject();
+  cJSON_AddItemToObject(inputs_obj, JSON_KEY_INPUTS, input_data);
+
+  // validate json string
+  char *json_str = cJSON_PrintUnformatted(inputs_obj);
+  TEST_ASSERT_NOT_NULL(json_str);
+  TEST_ASSERT_EQUAL_STRING(json_str, json_empty);
+
+  free(json_str);
+  cJSON_Delete(inputs_obj);
+  utxo_inputs_free(inputs);
+}
 
 void test_serialize_inputs() {
   utxo_inputs_list_t *inputs = utxo_inputs_new();
