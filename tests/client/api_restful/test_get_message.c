@@ -243,6 +243,7 @@ void test_deser_simple_tx() {
   sprintf(str_buff, "%" PRIu64 "", res->u.msg->nonce);
   TEST_ASSERT_EQUAL_STRING("62900", str_buff);
 
+  core_message_print(res->u.msg, 0);
   res_message_free(res);
 }
 

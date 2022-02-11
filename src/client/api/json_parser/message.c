@@ -94,6 +94,11 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
       case CORE_MESSAGE_PAYLOAD_MILESTONE:
         // TODO
         // ret = milestone_deserialize(payload, res);
+        printf("[%s:%d]: unimplemented payload type\n", __func__, __LINE__);
+        break;
+      case CORE_MESSAGE_PAYLOAD_TAGGED:
+        // TODO support tagged message
+        printf("[%s:%d]: unimplemented payload type\n", __func__, __LINE__);
         break;
       case CORE_MESSAGE_PAYLOAD_INDEXATION:
       case CORE_MESSAGE_PAYLOAD_RECEIPT:
