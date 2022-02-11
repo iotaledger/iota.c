@@ -94,7 +94,7 @@ int tx_essence_add_output(transaction_essence_t* es, utxo_output_type_t type, vo
 /**
  * @brief Add a payload to essence
  *
- * support indexation payload at this moment, type = 2
+ * support tagged data payload at this moment, type = 5
  *
  * @param[in] es An essence object
  * @param[in] type A payload type

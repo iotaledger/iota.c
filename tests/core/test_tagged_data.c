@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "core/models/payloads/tagged_data.h"
+#include "core/utils/macros.h"
 #include "crypto/iota_crypto.h"
 #include "unity/unity.h"
 
@@ -13,7 +14,9 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_tagged_data() {
-  char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD";
+  char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO";
+  byte_t tag_bin[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
+  string2hex(tag, tag_bin, BIN_TO_HEX_STR_BYTES(strlen(tag)));
   byte_t data[2048];
   iota_crypto_randombytes(data, 2048);
 
@@ -25,8 +28,8 @@ void test_tagged_data() {
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
-  TEST_ASSERT((strlen(tag) + 1) == tagged_data->tag->len);
-  TEST_ASSERT_EQUAL_STRING(tag, tagged_data->tag->data);
+  TEST_ASSERT(BIN_TO_HEX_STR_BYTES((strlen(tag))) == tagged_data->tag->len);
+  TEST_ASSERT_EQUAL_STRING(tag_bin, tagged_data->tag->data);
 
   // validate binary data
   TEST_ASSERT(sizeof(data) == tagged_data->data->len);
@@ -54,6 +57,9 @@ void test_tagged_data() {
   // validate binary data
   TEST_ASSERT(tagged_data->data->len == deser_tagged_data->data->len);
   TEST_ASSERT_EQUAL_STRING(tagged_data->data->data, deser_tagged_data->data->data);
+
+  // print tagged data payload
+  tagged_data_print(tagged_data, 0);
 
   free(serialized_buf);
   tagged_data_free(tagged_data);
@@ -103,13 +109,18 @@ void test_tagged_data_without_tag() {
   TEST_ASSERT(tagged_data->data->len == deser_tagged_data->data->len);
   TEST_ASSERT_EQUAL_STRING(tagged_data->data->data, deser_tagged_data->data->data);
 
+  // print tagged data payload
+  tagged_data_print(tagged_data, 0);
+
   free(serialized_buf);
   tagged_data_free(tagged_data);
   tagged_data_free(deser_tagged_data);
 }
 
 void test_tagged_data_without_data() {
-  char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD";
+  char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO";
+  byte_t tag_bin[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
+  string2hex(tag, tag_bin, BIN_TO_HEX_STR_BYTES(strlen(tag)));
 
   tagged_data_t* tagged_data = tagged_data_new();
   TEST_ASSERT_NOT_NULL(tagged_data);
@@ -119,8 +130,8 @@ void test_tagged_data_without_data() {
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
-  TEST_ASSERT((strlen(tag) + 1) == tagged_data->tag->len);
-  TEST_ASSERT_EQUAL_STRING(tag, tagged_data->tag->data);
+  TEST_ASSERT(BIN_TO_HEX_STR_BYTES((strlen(tag))) == tagged_data->tag->len);
+  TEST_ASSERT_EQUAL_STRING(tag_bin, tagged_data->tag->data);
 
   // validate binary data
   TEST_ASSERT(0 == tagged_data->data->len);
@@ -148,6 +159,9 @@ void test_tagged_data_without_data() {
   // validate binary data
   TEST_ASSERT(tagged_data->data->len == deser_tagged_data->data->len);
   TEST_ASSERT_NULL(deser_tagged_data->data->data);
+
+  // print tagged data payload
+  tagged_data_print(tagged_data, 0);
 
   free(serialized_buf);
   tagged_data_free(tagged_data);
@@ -194,6 +208,9 @@ void test_tagged_data_empty() {
   // validate binary data
   TEST_ASSERT(tagged_data->data->len == deser_tagged_data->data->len);
   TEST_ASSERT_NULL(deser_tagged_data->data->data);
+
+  // print tagged data payload
+  tagged_data_print(tagged_data, 0);
 
   free(serialized_buf);
   tagged_data_free(tagged_data);

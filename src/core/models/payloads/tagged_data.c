@@ -6,6 +6,7 @@
 
 #include "core/models/message.h"
 #include "core/models/payloads/tagged_data.h"
+#include "core/utils/macros.h"
 
 tagged_data_t *tagged_data_new() {
   tagged_data_t *tagged_data = calloc(1, sizeof(tagged_data_t));
@@ -37,7 +38,9 @@ tagged_data_t *tagged_data_create(char const *tag, byte_t data[], uint32_t data_
     return NULL;
   }
 
-  if ((strlen(tag) + 1) > TAGGED_DATA_TAG_MAX_LENGTH_BYTES) {
+  size_t tag_hex_len = BIN_TO_HEX_STR_BYTES(strlen(tag));
+
+  if (tag_hex_len > TAGGED_DATA_TAG_MAX_LENGTH_BYTES) {
     printf("[%s:%d] invalid tag\n", __func__, __LINE__);
     return NULL;
   }
@@ -50,7 +53,13 @@ tagged_data_t *tagged_data_create(char const *tag, byte_t data[], uint32_t data_
 
   // add tag string
   if (strlen(tag) > 0) {
-    if (!byte_buf_set(tagged_data->tag, (byte_t *)tag, strlen(tag) + 1)) {
+    byte_t tag_bin[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
+    if (string2hex(tag, tag_bin, tag_hex_len) != 0) {
+      printf("[%s:%d] can not convert string into a hex\n", __func__, __LINE__);
+      tagged_data_free(tagged_data);
+      return NULL;
+    }
+    if (!byte_buf_set(tagged_data->tag, tag_bin, tag_hex_len)) {
       printf("[%s:%d] adding tag to a tagged data failed\n", __func__, __LINE__);
       tagged_data_free(tagged_data);
       return NULL;
@@ -218,8 +227,14 @@ void tagged_data_print(tagged_data_t *tagged_data, uint8_t indentation) {
   }
 
   // tag
-  printf("%sTag: ", PRINT_INDENTATION(indentation));
-  dump_hex_str(tagged_data->tag->data, tagged_data->tag->len);
+  if (tagged_data->tag->data != NULL) {
+    char tag[TAGGED_DATA_TAG_MAX_LENGTH_BYTES / 2] = {0};
+    if (hex2string((char const *)tagged_data->tag->data, (uint8_t *)tag, TAGGED_DATA_TAG_MAX_LENGTH_BYTES) == 0) {
+      printf("%sTag: %s\n", PRINT_INDENTATION(indentation), tag);
+    }
+  } else {
+    printf("%sTag:\n", PRINT_INDENTATION(indentation));
+  }
 
   // binary data
   printf("%sData: ", PRINT_INDENTATION(indentation));
