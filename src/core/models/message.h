@@ -91,9 +91,9 @@ size_t core_message_parent_len(core_message_t* msg);
  *
  * @param[in] msg A message object
  * @param[in] index A index of a message ID
- * @return char*
+ * @return byte_t* a pointer to the binary ID
  */
-char* core_message_get_parent_id(core_message_t* msg, size_t index);
+byte_t* core_message_get_parent_id(core_message_t* msg, size_t index);
 
 /**
  * @brief Get the message payload type

@@ -19,7 +19,7 @@ core_message_t* core_message_new() {
   core_message_t* msg = malloc(sizeof(core_message_t));
   if (msg) {
     msg->network_id = 0;
-    utarray_new(msg->parents, &ut_str_icd);
+    utarray_new(msg->parents, &ut_msg_id_icd);
     msg->payload_type = CORE_MESSAGE_PAYLOAD_UNKNOWN;  // invalid payload type
     msg->payload = NULL;
     msg->nonce = 0;
@@ -129,10 +129,10 @@ size_t core_message_parent_len(core_message_t* msg) {
   return 0;
 }
 
-char* core_message_get_parent_id(core_message_t* msg, size_t index) {
+byte_t* core_message_get_parent_id(core_message_t* msg, size_t index) {
   if (msg) {
     if (msg->parents && (index < core_message_parent_len(msg))) {
-      return *(char**)utarray_eltptr(msg->parents, index);
+      return utarray_eltptr(msg->parents, index);
     }
   }
   return NULL;
@@ -155,15 +155,29 @@ void core_message_print(core_message_t* msg, uint8_t indentation) {
     size_t parent_message_len = core_message_parent_len(msg);
     printf("%s\tParent Message Count: %lu\n", PRINT_INDENTATION(indentation + 1), parent_message_len);
     for (size_t index = 0; index < parent_message_len; index++) {
-      printf("%s\t#%lu %s\n", PRINT_INDENTATION(indentation + 1), index, core_message_get_parent_id(msg, index));
+      printf("%s\t#%lu ", PRINT_INDENTATION(indentation + 1), index);
+      dump_hex_str(core_message_get_parent_id(msg, index), IOTA_MESSAGE_ID_BYTES);
     }
 
     switch (msg->payload_type) {
       case CORE_MESSAGE_PAYLOAD_TRANSACTION:
         tx_payload_print((transaction_payload_t*)msg->payload, indentation + 1);
         break;
+      case CORE_MESSAGE_PAYLOAD_MILESTONE:
+        // TODO support milestone
+        printf("[%s:%d]: unimplemented payload type\n", __func__, __LINE__);
+        break;
+      case CORE_MESSAGE_PAYLOAD_INDEXATION:
+      case CORE_MESSAGE_PAYLOAD_RECEIPT:
+      case CORE_MESSAGE_PAYLOAD_TREASURY:
+        printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
+        break;
+      case CORE_MESSAGE_PAYLOAD_TAGGED:
+        // TODO support tagged message
+        printf("[%s:%d]: unimplemented payload type\n", __func__, __LINE__);
+        break;
       default:
-        // TODO print other message payloads
+        printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
         break;
     }
 

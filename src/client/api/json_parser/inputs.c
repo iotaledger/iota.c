@@ -3,9 +3,11 @@
 
 #include "client/api/json_parser/inputs.h"
 #include "core/models/message.h"
+#include "core/utils/macros.h"
+#include "utlist.h"
 
 /*
-  "inputs": [
+  [
     {
       "type": 0,
       "transactionId": "b3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e",
@@ -13,16 +15,9 @@
     },
   ]
 */
-int json_inputs_deserialize(cJSON *essence_obj, utxo_inputs_list_t **inputs) {
-  if (essence_obj == NULL || inputs == NULL) {
+int json_inputs_deserialize(cJSON *inputs_obj, utxo_inputs_list_t **inputs) {
+  if (!inputs_obj || !inputs) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
-  // inputs array
-  cJSON *inputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_INPUTS);
-  if (!cJSON_IsArray(inputs_obj)) {
-    printf("[%s:%d]: %s is not an array\n", __func__, __LINE__, JSON_KEY_INPUTS);
     return -1;
   }
 
@@ -36,14 +31,9 @@ int json_inputs_deserialize(cJSON *essence_obj, utxo_inputs_list_t **inputs) {
     }
 
     // transactionId
-    char transaction_id_hex[ADDRESS_ED25519_HEX_BYTES];
     byte_t tx_id[IOTA_TRANSACTION_ID_BYTES];
-    if (json_get_string(elm, JSON_KEY_TX_ID, transaction_id_hex, IOTA_TRANSACTION_ID_HEX_BYTES) != JSON_OK) {
+    if (json_get_hex_str_to_bin(elm, JSON_KEY_TX_ID, tx_id, sizeof(tx_id)) != JSON_OK) {
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_TX_ID);
-      return -1;
-    }
-    if (hex_2_bin(transaction_id_hex, IOTA_TRANSACTION_ID_HEX_BYTES, tx_id, IOTA_TRANSACTION_ID_BYTES) != 0) {
-      printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
       return -1;
     }
 
@@ -62,4 +52,65 @@ int json_inputs_deserialize(cJSON *essence_obj, utxo_inputs_list_t **inputs) {
   }
 
   return 0;
+}
+
+cJSON *json_inputs_serialize(utxo_inputs_list_t *inputs) {
+  char tx_id_str[BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES)] = {};
+  cJSON *input_arr = NULL;
+
+  // empty array
+  if (!inputs) {
+    return cJSON_CreateArray();
+  }
+
+  if ((input_arr = cJSON_CreateArray()) == NULL) {
+    printf("[%s:%d] creating input array failed\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  utxo_inputs_list_t *elm;
+  LL_FOREACH(inputs, elm) {
+    cJSON *item = cJSON_CreateObject();
+    if (!item) {
+      printf("[%s:%d] creating input item object failed\n", __func__, __LINE__);
+      cJSON_Delete(input_arr);
+      return NULL;
+    }
+
+    // add type
+    if (!cJSON_AddNumberToObject(item, JSON_KEY_TYPE, 0)) {
+      printf("[%s:%d] add input type failed\n", __func__, __LINE__);
+      cJSON_Delete(item);
+      cJSON_Delete(input_arr);
+      return NULL;
+    }
+
+    // add tx id
+    if (bin_2_hex(elm->input->tx_id, IOTA_TRANSACTION_ID_BYTES, tx_id_str, sizeof(tx_id_str)) != 0) {
+      printf("[%s:%d] tx id convertion failed\n", __func__, __LINE__);
+      cJSON_Delete(item);
+      cJSON_Delete(input_arr);
+      return NULL;
+    }
+
+    if (!cJSON_AddStringToObject(item, JSON_KEY_TX_ID, tx_id_str)) {
+      printf("[%s:%d] add tx id to item failed\n", __func__, __LINE__);
+      cJSON_Delete(item);
+      cJSON_Delete(input_arr);
+      return NULL;
+    }
+
+    // add index
+    if (!cJSON_AddNumberToObject(item, JSON_KEY_TX_OUT_INDEX, elm->input->output_index)) {
+      printf("[%s:%d] add input type failed\n", __func__, __LINE__);
+      cJSON_Delete(item);
+      cJSON_Delete(input_arr);
+      return NULL;
+    }
+
+    // add item to array
+    cJSON_AddItemToArray(input_arr, item);
+  }
+
+  return input_arr;
 }

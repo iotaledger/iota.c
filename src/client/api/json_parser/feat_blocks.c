@@ -172,3 +172,8 @@ int json_feat_blocks_deserialize(cJSON *output_obj, feat_blk_list_t **feat_block
 
   return 0;
 }
+
+cJSON *json_feat_blocks_serialize(feat_blk_list_t *feat_blocks) {
+  // TODO
+  return NULL;
+}

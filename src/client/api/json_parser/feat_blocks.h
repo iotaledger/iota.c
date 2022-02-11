@@ -56,6 +56,9 @@ int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_
  */
 int json_feat_blocks_deserialize(cJSON *output_obj, feat_blk_list_t **feat_blocks);
 
+// TODO
+cJSON *json_feat_blocks_serialize(feat_blk_list_t *feat_blocks);
+
 #ifdef __cplusplus
 }
 #endif

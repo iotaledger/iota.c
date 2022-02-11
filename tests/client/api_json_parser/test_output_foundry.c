@@ -1,4 +1,4 @@
-// Copyright 2022 IOTA Stiftungnative_tokens
+// Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
@@ -21,12 +21,12 @@ void test_parse_foundry_output_basic() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  transaction_essence_t *essence = tx_essence_new();
-  int result = json_output_foundry_deserialize(json_obj, essence);
+  utxo_outputs_list_t *output_list = utxo_outputs_new();
+  int result = json_output_foundry_deserialize(json_obj, &output_list);
   TEST_ASSERT_EQUAL_INT(0, result);
 
-  TEST_ASSERT_EQUAL_UINT16(1, utxo_outputs_count(essence->outputs));
-  utxo_output_t *output = utxo_outputs_get(essence->outputs, 0);
+  TEST_ASSERT_EQUAL_UINT16(1, utxo_outputs_count(output_list));
+  utxo_output_t *output = utxo_outputs_get(output_list, 0);
   TEST_ASSERT_EQUAL_UINT8(OUTPUT_FOUNDRY, output->output_type);
 
   output_foundry_t *foundry_output = (output_foundry_t *)output->output;
@@ -50,7 +50,7 @@ void test_parse_foundry_output_basic() {
   TEST_ASSERT_NULL(foundry_output->feature_blocks);
 
   cJSON_Delete(json_obj);
-  tx_essence_free(essence);
+  utxo_outputs_free(output_list);
 }
 
 void test_parse_foundry_output_full() {
@@ -68,12 +68,12 @@ void test_parse_foundry_output_full() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  transaction_essence_t *essence = tx_essence_new();
-  int result = json_output_foundry_deserialize(json_obj, essence);
+  utxo_outputs_list_t *output_list = utxo_outputs_new();
+  int result = json_output_foundry_deserialize(json_obj, &output_list);
   TEST_ASSERT_EQUAL_INT(0, result);
 
-  TEST_ASSERT_EQUAL_UINT16(1, utxo_outputs_count(essence->outputs));
-  utxo_output_t *output = utxo_outputs_get(essence->outputs, 0);
+  TEST_ASSERT_EQUAL_UINT16(1, utxo_outputs_count(output_list));
+  utxo_output_t *output = utxo_outputs_get(output_list, 0);
   TEST_ASSERT_EQUAL_UINT8(OUTPUT_FOUNDRY, output->output_type);
 
   output_foundry_t *foundry_output = (output_foundry_t *)output->output;
@@ -110,11 +110,11 @@ void test_parse_foundry_output_full() {
   TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(foundry_output->feature_blocks));
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(foundry_output->feature_blocks, FEAT_METADATA_BLOCK));
 
-  // print transaction essence
-  tx_essence_print(essence, 0);
+  // print output list
+  utxo_outputs_print(output_list, 0);
 
   cJSON_Delete(json_obj);
-  tx_essence_free(essence);
+  utxo_outputs_free(output_list);
 }
 
 void test_parse_foundry_output_wrong_unlock_condition() {
@@ -132,12 +132,12 @@ void test_parse_foundry_output_wrong_unlock_condition() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  transaction_essence_t *essence = tx_essence_new();
-  int result = json_output_foundry_deserialize(json_obj, essence);
+  utxo_outputs_list_t *output_list = utxo_outputs_new();
+  int result = json_output_foundry_deserialize(json_obj, &output_list);
   TEST_ASSERT_EQUAL_INT(-1, result);
 
   cJSON_Delete(json_obj);
-  tx_essence_free(essence);
+  utxo_outputs_free(output_list);
 }
 
 void test_parse_foundry_output_wrong_feature_block() {
@@ -155,12 +155,12 @@ void test_parse_foundry_output_wrong_feature_block() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  transaction_essence_t *essence = tx_essence_new();
-  int result = json_output_foundry_deserialize(json_obj, essence);
+  utxo_outputs_list_t *output_list = utxo_outputs_new();
+  int result = json_output_foundry_deserialize(json_obj, &output_list);
   TEST_ASSERT_EQUAL_INT(-1, result);
 
   cJSON_Delete(json_obj);
-  tx_essence_free(essence);
+  utxo_outputs_free(output_list);
 }
 
 int main() {

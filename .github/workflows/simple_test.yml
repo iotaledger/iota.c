@@ -1,0 +1,37 @@
+# a simple check
+name: simple_test
+
+on:
+  push:
+    branches:
+      - tokenization-sc
+  pull_request:
+    branches:
+      - tokenization-sc
+
+jobs:
+  simple_make_gcc_openssl:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install requirements
+        run: |
+          sudo apt update
+          sudo apt install -y libcurl4-openssl-dev clang-format build-essential
+
+      - name: Debug build
+        run: |
+          cmake --version
+          gcc --version
+          mkdir build && cd build
+          cmake -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DIOTA_ASAN_ENABLED=ON -DCryptoUse=openssl ..
+          make -j8 && make test
+
+      - name: Release build
+        run: |
+          rm -rf build && sync
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD -DIOTA_TESTS=ON -DCryptoUse=openssl ..
+          make -j8 && make test

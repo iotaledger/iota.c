@@ -14,11 +14,19 @@ extern "C" {
 /**
  * @brief Deserialize JSON data to an utxo input list object
  *
- * @param[in] essence_obj Essence JSON object
+ * @param[in] inputs_obj inputs JSON object
  * @param[out] inputs An utxo input list
  * @return int 0 on success
  */
-int json_inputs_deserialize(cJSON* essence_obj, utxo_inputs_list_t** inputs);
+int json_inputs_deserialize(cJSON* inputs_obj, utxo_inputs_list_t** inputs);
+
+/**
+ * @brief Serialize input list to JSON object
+ *
+ * @param[in] inputs An input list object
+ * @return cJSON* NULL on errors
+ */
+cJSON* json_inputs_serialize(utxo_inputs_list_t* inputs);
 
 #ifdef __cplusplus
 }
