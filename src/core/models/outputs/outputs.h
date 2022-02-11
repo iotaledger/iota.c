@@ -6,6 +6,10 @@
 
 #include <stdint.h>
 
+#include "core/models/outputs/output_alias.h"
+#include "core/models/outputs/output_extended.h"
+#include "core/models/outputs/output_foundry.h"
+#include "core/models/outputs/output_nft.h"
 #include "core/types.h"
 
 #define UTXO_OUTPUT_MAX_COUNT 127

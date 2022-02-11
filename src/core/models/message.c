@@ -17,7 +17,7 @@ core_message_t* core_message_new() {
   core_message_t* msg = malloc(sizeof(core_message_t));
   if (msg) {
     msg->network_id = 0;
-    utarray_new(msg->parents, &ut_str_icd);
+    utarray_new(msg->parents, &ut_msg_id_icd);
     msg->payload_type = CORE_MESSAGE_PAYLOAD_UNKNOW;  // invalid payload type
     msg->payload = NULL;
     msg->nonce = 0;
@@ -128,10 +128,10 @@ size_t core_message_parent_len(core_message_t* msg) {
   return 0;
 }
 
-char* core_message_get_parent_id(core_message_t* msg, size_t index) {
+byte_t* core_message_get_parent_id(core_message_t* msg, size_t index) {
   if (msg) {
     if (msg->parents && (index < core_message_parent_len(msg))) {
-      return *(char**)utarray_eltptr(msg->parents, index);
+      return utarray_eltptr(msg->parents, index);
     }
   }
   return NULL;
