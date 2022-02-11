@@ -9,6 +9,7 @@
 #include "uthash.h"
 
 #include "core/models/message.h"
+#include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "crypto/iota_crypto.h"
 
@@ -106,10 +107,9 @@ void core_message_free(core_message_t* msg) {
       if (msg->payload_type == CORE_MESSAGE_PAYLOAD_TRANSACTION) {
         tx_payload_free((transaction_payload_t*)msg->payload);
       }
-      if (msg->payload_type == CORE_MESSAGE_PAYLOAD_INDEXATION) {
-        indexation_free((indexation_t*)msg->payload);
+      if (msg->payload_type == CORE_MESSAGE_PAYLOAD_TAGGED) {
+        tagged_data_free((tagged_data_t*)msg->payload);
       }
-      // TODO support other payload
     }
     utarray_free(msg->parents);
     free(msg);

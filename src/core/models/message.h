@@ -9,7 +9,6 @@
 
 #include "utarray.h"
 
-#include "core/models/payloads/indexation.h"
 #include "core/models/payloads/milestone.h"
 #include "core/types.h"
 
@@ -26,6 +25,9 @@ typedef enum {
   CORE_MESSAGE_PAYLOAD_TRANSACTION = 0,
   CORE_MESSAGE_PAYLOAD_MILESTONE,
   CORE_MESSAGE_PAYLOAD_INDEXATION,
+  CORE_MESSAGE_PAYLOAD_RECEIPT,
+  CORE_MESSAGE_PAYLOAD_TREASURY,
+  CORE_MESSAGE_PAYLOAD_TAGGED,
   CORE_MESSAGE_PAYLOAD_UNKNOWN = UINT32_MAX - 1,
 } core_message_payload_type_t;
 

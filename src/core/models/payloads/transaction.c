@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "core/models/message.h"
+#include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "utlist.h"
 
@@ -24,10 +25,8 @@ void tx_essence_free(transaction_essence_t* es) {
   if (es) {
     utxo_inputs_free(es->inputs);
     utxo_outputs_free(es->outputs);
-
     if (es->payload) {
-      // TODO: support other payloads
-      indexation_free(es->payload);
+      tagged_data_free(es->payload);
     }
     free(es);
   }
@@ -55,10 +54,9 @@ int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* paylo
   if (!es || !payload) {
     return -1;
   }
-  // TODO: support indexation payload at this moment
-  if (type == CORE_MESSAGE_PAYLOAD_INDEXATION) {
+  if (type == CORE_MESSAGE_PAYLOAD_TAGGED) {
     es->payload = payload;
-    es->payload_len = indexation_serialize_length(payload);
+    es->payload_len = tagged_data_serialize_len(payload);
   } else {
     return -1;
   }
@@ -127,14 +125,16 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
   offset += utxo_outputs_serialize(es->outputs, offset, output_ser_len);
 
   if (es->payload) {
-    // serialize indexation payload
+    // serialize tagged data payload
     memcpy(offset, &es->payload_len, sizeof(es->payload_len));
     offset += sizeof(es->payload_len);
-    offset += indexation_payload_serialize((indexation_t*)es->payload, offset);
+    size_t tagged_data_ser_len = tagged_data_serialize_len(es->payload);
+    offset += tagged_data_serialize((tagged_data_t*)es->payload, offset, tagged_data_ser_len);
   } else {
     memset(offset, 0, sizeof(uint32_t));
     offset += sizeof(uint32_t);
   }
+
   return expected_bytes;
 }
 
@@ -176,7 +176,11 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   offset += sizeof(uint32_t);
 
   if (es->payload_len > 0) {
-    // TODO: Deserialize indexation payload
+    es->payload = tagged_data_deserialize(&buf[offset], buf_len - offset);
+    if (es->outputs == NULL) {
+      tx_essence_free(es);
+      return NULL;
+    }
   }
 
   return es;
