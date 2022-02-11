@@ -56,3 +56,8 @@ int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_t **native_t
 
   return 0;
 }
+
+cJSON *json_native_tokens_serialize(native_tokens_t **native_tokens) {
+  // TODO
+  return NULL;
+}

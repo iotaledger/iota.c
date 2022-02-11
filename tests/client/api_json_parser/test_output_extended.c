@@ -19,12 +19,12 @@ void test_parse_extended_output_basic() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  transaction_essence_t *essence = tx_essence_new();
-  int result = json_output_extended_deserialize(json_obj, essence);
+  utxo_outputs_list_t *output_list = utxo_outputs_new();
+  int result = json_output_extended_deserialize(json_obj, &output_list);
   TEST_ASSERT_EQUAL_INT(0, result);
 
-  TEST_ASSERT_EQUAL_UINT16(1, utxo_outputs_count(essence->outputs));
-  utxo_output_t *output = utxo_outputs_get(essence->outputs, 0);
+  TEST_ASSERT_EQUAL_UINT16(1, utxo_outputs_count(output_list));
+  utxo_output_t *output = utxo_outputs_get(output_list, 0);
   TEST_ASSERT_EQUAL_UINT8(OUTPUT_EXTENDED, output->output_type);
 
   output_extended_t *extended_output = (output_extended_t *)output->output;
@@ -39,7 +39,7 @@ void test_parse_extended_output_basic() {
   TEST_ASSERT_NULL(extended_output->feature_blocks);
 
   cJSON_Delete(json_obj);
-  tx_essence_free(essence);
+  utxo_outputs_free(output_list);
 }
 
 void test_parse_extended_output_full() {
@@ -61,12 +61,12 @@ void test_parse_extended_output_full() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  transaction_essence_t *essence = tx_essence_new();
-  int result = json_output_extended_deserialize(json_obj, essence);
+  utxo_outputs_list_t *output_list = utxo_outputs_new();
+  int result = json_output_extended_deserialize(json_obj, &output_list);
   TEST_ASSERT_EQUAL_INT(0, result);
 
-  TEST_ASSERT_EQUAL_UINT16(1, utxo_outputs_count(essence->outputs));
-  utxo_output_t *output = utxo_outputs_get(essence->outputs, 0);
+  TEST_ASSERT_EQUAL_UINT16(1, utxo_outputs_count(output_list));
+  utxo_output_t *output = utxo_outputs_get(output_list, 0);
   TEST_ASSERT_EQUAL_UINT8(OUTPUT_EXTENDED, output->output_type);
 
   output_extended_t *extended_output = (output_extended_t *)output->output;
@@ -98,11 +98,11 @@ void test_parse_extended_output_full() {
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(extended_output->feature_blocks, FEAT_METADATA_BLOCK));
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(extended_output->feature_blocks, FEAT_TAG_BLOCK));
 
-  // print transaction essence
-  tx_essence_print(essence, 0);
+  // print output list
+  utxo_outputs_print(output_list, 0);
 
   cJSON_Delete(json_obj);
-  tx_essence_free(essence);
+  utxo_outputs_free(output_list);
 }
 
 void test_parse_extended_output_wrong_unlock_condition() {
@@ -113,12 +113,12 @@ void test_parse_extended_output_wrong_unlock_condition() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  transaction_essence_t *essence = tx_essence_new();
-  int result = json_output_extended_deserialize(json_obj, essence);
+  utxo_outputs_list_t *output_list = utxo_outputs_new();
+  int result = json_output_extended_deserialize(json_obj, &output_list);
   TEST_ASSERT_EQUAL_INT(-1, result);
 
   cJSON_Delete(json_obj);
-  tx_essence_free(essence);
+  utxo_outputs_free(output_list);
 }
 
 int main() {

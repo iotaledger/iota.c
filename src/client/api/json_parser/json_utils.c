@@ -28,6 +28,32 @@ json_error_t json_get_string(cJSON const* const obj, char const key[], char str[
   return JSON_OK;
 }
 
+json_error_t json_get_hex_str_to_bin(cJSON const* const obj, char const key[], byte_t bin[], size_t bin_len) {
+  if (obj == NULL || key == NULL || bin == NULL) {
+    // invalid parameters
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return JSON_INVALID_PARAMS;
+  }
+
+  cJSON* json_value = cJSON_GetObjectItemCaseSensitive(obj, key);
+  if (json_value == NULL) {
+    printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, key);
+    return JSON_KEY_NOT_FOUND;
+  }
+
+  if (cJSON_IsString(json_value) && (json_value->valuestring != NULL)) {
+    if (hex_2_bin(json_value->valuestring, strlen(json_value->valuestring), bin, bin_len) != 0) {
+      printf("[%s:%d] hex string to bin error\n", __func__, __LINE__);
+      return JSON_ERR;
+    }
+  } else {
+    printf("[%s:%d] %s is not a string\n", __func__, __LINE__, key);
+    return JSON_NOT_STRING;
+  }
+
+  return JSON_OK;
+}
+
 json_error_t json_get_byte_buf_str(cJSON const* const obj, char const key[], byte_buf_t* buf) {
   if (obj == NULL || key == NULL || buf == NULL) {
     // invalid parameters

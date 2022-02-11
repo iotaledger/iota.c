@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "core/models/outputs/output_alias.h"
-#include "core/models/outputs/output_extended.h"
-#include "core/models/outputs/output_foundry.h"
-#include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/outputs.h"
 #include "utlist.h"
 

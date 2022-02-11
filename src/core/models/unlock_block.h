@@ -115,6 +115,15 @@ int unlock_blocks_add_nft(unlock_list_t** blocks, uint16_t index);
 uint16_t unlock_blocks_count(unlock_list_t* blocks);
 
 /**
+ * @brief Get the pointer of block in the list
+ *
+ * @param[in] blocks A unlock block list
+ * @param[in] index The index of block
+ * @return unlock_block_t* A pointer to a block
+ */
+unlock_block_t* unlock_blocks_get(unlock_list_t* blocks, uint16_t index);
+
+/**
  * @brief Get the unlock block index of a given public key
  *
  * @param[in] blocks The head of list

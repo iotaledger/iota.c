@@ -2,10 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/json_parser/unlock_blocks.h"
-
-#define UNLOCK_BLOCKS_PUB_KEY_HEX_STR_LEN 64
-#define UNLOCK_BLOCKS_SIGN_HEX_STR_LEN 128
-#define UNLOCK_BLOCKS_SIGN_BLOCK_STR_LEN (1 + UNLOCK_BLOCKS_PUB_KEY_HEX_STR_LEN + UNLOCK_BLOCKS_SIGN_HEX_STR_LEN)
+#include "core/address.h"
+#include "utlist.h"
 
 static int unlock_block_signature_deserialize(cJSON *elm, unlock_list_t **unlock_blocks) {
   if (elm == NULL || unlock_blocks == NULL) {
@@ -29,30 +27,17 @@ static int unlock_block_signature_deserialize(cJSON *elm, unlock_list_t **unlock
 
   switch (sig_type) {
     case ADDRESS_TYPE_ED25519: {
+      byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+      sig_block[0] = 0;  // denote ed25519 signature
       // public key
-      char pub_key[UNLOCK_BLOCKS_PUB_KEY_HEX_STR_LEN];
-      if (json_get_string(sig_obj, JSON_KEY_PUB_KEY, pub_key, UNLOCK_BLOCKS_PUB_KEY_HEX_STR_LEN) != JSON_OK) {
+      if (json_get_hex_str_to_bin(sig_obj, JSON_KEY_PUB_KEY, sig_block + 1, ED_PUBLIC_KEY_BYTES) != JSON_OK) {
         printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_PUB_KEY);
         return -1;
       }
       // signature
-      char signature[UNLOCK_BLOCKS_SIGN_HEX_STR_LEN];
-      if (json_get_string(sig_obj, JSON_KEY_SIG, signature, UNLOCK_BLOCKS_SIGN_HEX_STR_LEN) != JSON_OK) {
+      if (json_get_hex_str_to_bin(sig_obj, JSON_KEY_SIG, sig_block + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES) !=
+          JSON_OK) {
         printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_SIG);
-        return -1;
-      }
-
-      byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
-      sig_block[0] = sig_type;
-
-      if (hex_2_bin(pub_key, UNLOCK_BLOCKS_PUB_KEY_HEX_STR_LEN, &sig_block[1], ED_PUBLIC_KEY_BYTES) != 0) {
-        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
-        return -1;
-      }
-
-      if (hex_2_bin(signature, UNLOCK_BLOCKS_SIGN_HEX_STR_LEN, &sig_block[1 + ED_PUBLIC_KEY_BYTES],
-                    ED_SIGNATURE_BYTES) != 0) {
-        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
         return -1;
       }
 
@@ -198,4 +183,9 @@ int json_unlock_blocks_deserialize(cJSON *blocks_obj, unlock_list_t **unlock_blo
   }
 
   return 0;
+}
+
+cJSON *json_unlock_blocks_serialize(unlock_list_t *blocks) {
+  // TODO
+  return NULL;
 }

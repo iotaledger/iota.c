@@ -40,6 +40,7 @@ target_sources(
          "utils/slip10.h"
          "utils/bech32.h"
          "utils/uint256.h"
+         "utils/macros.h"
          "models/inputs/utxo_input.h"
          "models/outputs/feat_blocks.h"
          "models/outputs/output_alias.h"

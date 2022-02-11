@@ -74,6 +74,9 @@ int json_cond_blk_governor_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t *
  */
 int json_cond_blk_list_deserialize(cJSON *output_obj, cond_blk_list_t **blk_list);
 
+// TODO
+cJSON *json_cond_blk_list_serialize(cond_blk_list_t **blk_list);
+
 #ifdef __cplusplus
 }
 #endif

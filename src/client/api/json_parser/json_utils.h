@@ -42,6 +42,17 @@ extern "C" {
 json_error_t json_get_string(cJSON const* const obj, char const key[], char str[], size_t str_len);
 
 /**
+ * @brief Get hex string to binary from a JSON object
+ *
+ * @param[in] obj A JSON object
+ * @param[in] key The key of element
+ * @param[out] bin A buffer holds output data
+ * @param[in] bin_len The length of buffer
+ * @return json_error_t
+ */
+json_error_t json_get_hex_str_to_bin(cJSON const* const obj, char const key[], byte_t bin[], size_t bin_len);
+
+/**
  * @brief Gets A string from a JSON object by key
  *
  * @param[in] obj A JSON object

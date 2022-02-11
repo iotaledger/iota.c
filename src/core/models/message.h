@@ -26,6 +26,9 @@ typedef enum {
   CORE_MESSAGE_PAYLOAD_TRANSACTION = 0,
   CORE_MESSAGE_PAYLOAD_MILESTONE,
   CORE_MESSAGE_PAYLOAD_INDEXATION,
+  CORE_MESSAGE_PAYLOAD_RECEIPT,
+  CORE_MESSAGE_PAYLOAD_TREASURY,
+  CORE_MESSAGE_PAYLOAD_TAGGED,
   CORE_MESSAGE_PAYLOAD_UNKNOWN = UINT32_MAX - 1,
 } core_message_payload_type_t;
 
@@ -89,9 +92,9 @@ size_t core_message_parent_len(core_message_t* msg);
  *
  * @param[in] msg A message object
  * @param[in] index A index of a message ID
- * @return char*
+ * @return byte_t* a pointer to the binary ID
  */
-char* core_message_get_parent_id(core_message_t* msg, size_t index);
+byte_t* core_message_get_parent_id(core_message_t* msg, size_t index);
 
 /**
  * @brief Get the message payload type
