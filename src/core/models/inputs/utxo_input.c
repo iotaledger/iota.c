@@ -271,7 +271,7 @@ void utxo_inputs_print(utxo_inputs_list_t *inputs, uint8_t indentation) {
   printf("%s\tInputs Count: %d\n", PRINT_INDENTATION(indentation), utxo_inputs_count(inputs));
   if (inputs) {
     LL_FOREACH(inputs, elm) {
-      printf("%s\t#%d ", PRINT_INDENTATION(indentation), index);
+      printf("%s\t#%d\n", PRINT_INDENTATION(indentation), index);
       // print input type
       printf("%s\tInput Type: %u\n", PRINT_INDENTATION(indentation), elm->input->input_type);
       // print txn id

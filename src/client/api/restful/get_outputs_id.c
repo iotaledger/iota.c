@@ -5,12 +5,14 @@
 #include "client/api/json_parser/json_utils.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
+#include "core/utils/macros.h"
 
 static get_outputs_id_t *outputs_new() {
   get_outputs_id_t *ids = malloc(sizeof(get_outputs_id_t));
   if (ids) {
-    ids->count = 0;
-    ids->limit = 0;
+    ids->ledger_idx = 0;
+    ids->page_size = 0;
+    ids->cursor = NULL;
     utarray_new(ids->outputs, &ut_str_icd);
     return ids;
   }
@@ -19,6 +21,9 @@ static get_outputs_id_t *outputs_new() {
 
 static void outputs_free(get_outputs_id_t *ids) {
   if (ids) {
+    if (ids->cursor != NULL) {
+      free(ids->cursor);
+    }
     if (ids->outputs) {
       utarray_free(ids->outputs);
     }
@@ -96,23 +101,31 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
     goto end;
   }
 
-  if ((ret = json_get_uint32(json_obj, JSON_KEY_LIMIT, &res->u.output_ids->limit) != 0)) {
-    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LIMIT);
-    goto end;
-  }
-
-  if ((ret = json_get_uint32(json_obj, JSON_KEY_COUNT, &res->u.output_ids->count) != 0)) {
-    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_COUNT);
-    goto end;
-  }
-
-  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_DATA, res->u.output_ids->outputs)) != 0) {
-    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_DATA);
-    goto end;
-  }
-
-  if ((ret = json_get_uint64(json_obj, JSON_KEY_LEDGER_IDX, &res->u.output_ids->ledger_idx) != 0)) {
+  if ((ret = json_get_uint64(json_obj, JSON_KEY_LEDGER_IDX, &res->u.output_ids->ledger_idx) != JSON_OK)) {
     printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
+    goto end;
+  }
+
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_PAGE_SIZE, &res->u.output_ids->page_size) != JSON_OK)) {
+    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_PAGE_SIZE);
+    goto end;
+  }
+
+  // parse for cursor, it is an optional paramater
+  cJSON *json_cursor = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_CURSOR);
+  if (json_cursor != NULL) {
+    if (cJSON_IsString(json_cursor) && (json_cursor->valuestring != NULL)) {
+      res->u.output_ids->cursor = malloc(strlen(json_cursor->valuestring) + 1);
+      strncpy(res->u.output_ids->cursor, json_cursor->valuestring, strlen(json_cursor->valuestring) + 1);
+    } else {
+      printf("[%s:%d] %s is not a string\n", __func__, __LINE__, JSON_KEY_CURSOR);
+      ret = JSON_NOT_STRING;
+      goto end;
+    }
+  }
+
+  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_ITEMS, res->u.output_ids->outputs)) != JSON_OK) {
+    printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_ITEMS);
     goto end;
   }
 
@@ -141,7 +154,6 @@ static int get_outputs_api_call(iota_client_conf_t const *conf, char *cmd_buffer
     // json deserialization
     ret = deser_outputs((char const *const)http_res->data, res);
   }
-
   byte_buf_free(http_res);
   return ret;
 }
@@ -182,14 +194,14 @@ int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr
   }
 
   size_t addr_len = strlen(addr);
-  if (addr_len != ADDRESS_NFT_HEX_BYTES) {
+  if (addr_len != BECH32_ENCODED_NFT_ADDRESS) {
     printf("[%s:%d] incorrect length of an address\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[77] = {0};  // 77 = max size of api path(36) + ADDRESS_NFT_HEX_BYTES(40) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nft?address=%s", addr);
+  char cmd_buffer[83] = {0};  // 83 = max size of api path(37) + BECH32_ENCODED_NFT_ADDRESS(45) + 1
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nfts?address=%s", addr);
 
   // check if data stored is not more than buffer length
   if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
@@ -208,13 +220,13 @@ int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const ad
   }
 
   size_t addr_len = strlen(addr);
-  if (addr_len != ADDRESS_ALIAS_HEX_BYTES) {
+  if (addr_len != BECH32_ENCODED_ALIAS_ADDRESS) {
     printf("[%s:%d] incorrect length of an address\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[81] = {0};  // 81 = max size of api path(40) + ADDRESS_ALIAS_HEX_BYTES(40) + 1
+  char cmd_buffer[86] = {0};  // 86 = max size of api path(40) + BECH32_ENCODED_ALIAS_ADDRESS(45) + 1
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/aliases?address=%s", addr);
 
   // check if data stored is not more than buffer length
@@ -233,13 +245,13 @@ int get_outputs_from_foundry_address(iota_client_conf_t const *conf, char const 
   }
 
   size_t addr_len = strlen(addr);
-  if (addr_len != ADDRESS_FOUNDRY_HEX_BYTES) {
+  if (addr_len != BECH32_ENCODED_ALIAS_ADDRESS) {
     printf("[%s:%d] incorrect length of an address\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[83] = {0};  // 83 = max size of api path(42) + ADDRESS_FOUNDRY_HEX_BYTES(40) + 1
+  char cmd_buffer[88] = {0};  // 88 = max size of api path(42) + BECH32_ENCODED_ALIAS_ADDRESS(45) + 1
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/foundries?address=%s", addr);
 
   // check if data stored is not more than buffer length
@@ -258,14 +270,14 @@ int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[],
   }
 
   size_t id_len = strlen(nft_id);
-  if (id_len != ADDRESS_NFT_HEX_BYTES) {
+  if (id_len != BIN_TO_HEX_BYTES(NFT_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[67] = {0};  // 67 = max size of api path(28) + ADDRESS_NFT_HEX_BYTES(40) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nft/%s", nft_id);
+  char cmd_buffer[70] = {0};  // 70 = max size of api path(29) + BIN_TO_HEX_BYTES(NFT_ID_BYTES)(40) + 1
+  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nfts/%s", nft_id);
 
   // check if data stored is not more than buffer length
   if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
@@ -283,13 +295,13 @@ int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_i
   }
 
   size_t id_len = strlen(alias_id);
-  if (id_len != ADDRESS_ALIAS_HEX_BYTES) {
+  if (id_len != BIN_TO_HEX_BYTES(ALIAS_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[73] = {0};  // 73 = max size of api path(32) + ADDRESS_ALIAS_HEX_BYTES(40) + 1
+  char cmd_buffer[73] = {0};  // 73 = max size of api path(32) + BIN_TO_HEX_BYTES(ALIAS_ID_BYTES)(40) + 1
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/aliases/%s", alias_id);
 
   // check if data stored is not more than buffer length
@@ -308,13 +320,13 @@ int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const found
   }
 
   size_t id_len = strlen(foundry_id);
-  if (id_len != ADDRESS_FOUNDRY_HEX_BYTES) {
+  if (id_len != BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;
   }
 
   // compose restful api command
-  char cmd_buffer[75] = {0};  // 75 = max size of api path(34) + ADDRESS_FOUNDRY_HEX_BYTES(40) + 1
+  char cmd_buffer[87] = {0};  // 87 = max size of api path(34) + BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES)(52) + 1
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/foundries/%s", foundry_id);
 
   // check if data stored is not more than buffer length

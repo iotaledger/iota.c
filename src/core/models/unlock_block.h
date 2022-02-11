@@ -151,8 +151,9 @@ void unlock_blocks_free(unlock_list_t* blocks);
  * @brief Print out unlocked blocks object
  *
  * @param[in] blocks An unlock block object
+ * @param[in] indentation Tab indentation when printing unlock blocks
  */
-void unlock_blocks_print(unlock_list_t* blocks);
+void unlock_blocks_print(unlock_list_t* blocks, uint8_t indentation);
 
 #ifdef __cplusplus
 }

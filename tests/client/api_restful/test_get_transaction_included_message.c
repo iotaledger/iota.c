@@ -13,7 +13,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_transaction_included_message() {
-  char const* const tx_id = "3332ee5dc4acaed46b6426d88109c90c0b1a7eddd94797c5bfc3a05397688f83";
+  char const* const tx_id = "0bbbc8cefce775e3adf9030089192b895af486c0030327cd14ae34132ad8df29";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();
@@ -24,6 +24,8 @@ void test_get_transaction_included_message() {
   } else {
     // It must be a transaction message
     TEST_ASSERT(core_message_get_payload_type(msg->u.msg) == CORE_MESSAGE_PAYLOAD_TRANSACTION);
+    // Print transaction message
+    core_message_print((msg->u.msg), 0);
   }
   res_message_free(msg);
 }
