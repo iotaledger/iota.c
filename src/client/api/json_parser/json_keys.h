@@ -12,6 +12,7 @@ static char const* const JSON_KEY_BALANCE = "balance";
 static char const* const JSON_KEY_CODE = "code";
 static char const* const JSON_KEY_COUNT = "count";
 static char const* const JSON_KEY_DATA = "data";
+static char const* const JSON_KEY_ITEMS = "items";
 static char const* const JSON_KEY_STATUS = "status";
 static char const* const JSON_KEY_METRICS = "metrics";
 static char const* const JSON_KEY_PROTOCOL = "protocol";
