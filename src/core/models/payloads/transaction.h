@@ -16,6 +16,11 @@
 
 static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
 
+typedef enum {
+  TRANSACTION_PAYLOAD_ESSENCE = 0,
+  TRANSACTION_PAYLOAD_UNKNOWN = UINT32_MAX - 1,
+} transaction_payload_type_t;
+
 /**
  * @brief Transaction Essence, the essence data making up a transaction by defining its inputs and outputs and an
  * optional payload.
@@ -124,14 +129,15 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
  * @param[in] buf_len The length of the buffer
  * @return transaction_essence_t* The deserialized txn essence, NULL on errors
  */
-transaction_essence_t *tx_essence_deserialize(byte_t buf[], size_t buf_len);
+transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len);
 
 /**
  * @brief Print out a transaction essence
  *
  * @param[in] es An essence object
+ * @param[in] indentation Tab indentation when printing transaction essence
  */
-void tx_essence_print(transaction_essence_t* es);
+void tx_essence_print(transaction_essence_t* es, uint8_t indentation);
 
 /**
  * @brief Allocate a tansaction payload object
@@ -211,14 +217,15 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
  * @param[in] buf_len The length of the buffer
  * @return transaction_payload_t* The deserialized txn payload, NULL on errors
  */
-transaction_payload_t *tx_payload_deserialize(byte_t buf[], size_t buf_len);
+transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len);
 
 /**
  * @brief Print out a transaction payload
  *
  * @param[in] tx A transaction payload
+ * @param[in] indentation Tab indentation when printing transaction payload
  */
-void tx_payload_print(transaction_payload_t* tx);
+void tx_payload_print(transaction_payload_t* tx, uint8_t indentation);
 
 #ifdef __cplusplus
 }

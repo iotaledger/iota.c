@@ -43,7 +43,7 @@ void test_get_msg_by_id() {
       case CORE_MESSAGE_PAYLOAD_TAGGED:
         printf("it's a tagged message\n");
         break;
-      case CORE_MESSAGE_PAYLOAD_UNKNOW:
+      case CORE_MESSAGE_PAYLOAD_UNKNOWN:
       default:
         printf("Unknow message\n");
         break;

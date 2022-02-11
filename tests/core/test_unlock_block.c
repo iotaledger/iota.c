@@ -52,7 +52,7 @@ void test_unlock_block() {
   unlock_blocks_add_nft(&blocks, 0);
   TEST_ASSERT_EQUAL_UINT16(4, unlock_blocks_count(blocks));
 
-  unlock_blocks_print(blocks);
+  unlock_blocks_print(blocks, 0);
 
   // serialization
   size_t len = unlock_blocks_serialize_length(blocks);

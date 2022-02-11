@@ -1,6 +1,7 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,7 +19,7 @@ core_message_t* core_message_new() {
   if (msg) {
     msg->network_id = 0;
     utarray_new(msg->parents, &ut_msg_id_icd);
-    msg->payload_type = CORE_MESSAGE_PAYLOAD_UNKNOW;  // invalid payload type
+    msg->payload_type = CORE_MESSAGE_PAYLOAD_UNKNOWN;  // invalid payload type
     msg->payload = NULL;
     msg->nonce = 0;
   }
@@ -141,5 +142,33 @@ core_message_payload_type_t core_message_get_payload_type(core_message_t* msg) {
   if (msg) {
     return msg->payload_type;
   }
-  return CORE_MESSAGE_PAYLOAD_UNKNOW;
+  return CORE_MESSAGE_PAYLOAD_UNKNOWN;
+}
+
+void core_message_print(core_message_t* msg, uint8_t indentation) {
+  printf("%sMessage: [\n", PRINT_INDENTATION(indentation));
+
+  if (msg) {
+    printf("%sNetwork Id: %" PRIu64 "\n", PRINT_INDENTATION(indentation + 1), msg->network_id);
+
+    printf("%sParent Message Ids:\n", PRINT_INDENTATION(indentation + 1));
+    size_t parent_message_len = core_message_parent_len(msg);
+    printf("%s\tParent Message Count: %lu\n", PRINT_INDENTATION(indentation + 1), parent_message_len);
+    for (size_t index = 0; index < parent_message_len; index++) {
+      printf("%s\t#%lu %s\n", PRINT_INDENTATION(indentation + 1), index, core_message_get_parent_id(msg, index));
+    }
+
+    switch (msg->payload_type) {
+      case CORE_MESSAGE_PAYLOAD_TRANSACTION:
+        tx_payload_print((transaction_payload_t*)msg->payload, indentation + 1);
+        break;
+      default:
+        // TODO print other message payloads
+        break;
+    }
+
+    printf("%sNonce: %" PRIu64 "\n", PRINT_INDENTATION(indentation + 1), msg->nonce);
+  }
+
+  printf("%s]\n", PRINT_INDENTATION(indentation));
 }

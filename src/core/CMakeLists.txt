@@ -18,6 +18,7 @@ target_sources(
           "utils/slip10.c"
           "utils/bech32.c"
           "utils/uint256.c"
+          "utils/macros.h"
           "models/inputs/utxo_input.c"
           "models/outputs/feat_blocks.c"
           "models/outputs/output_alias.c"

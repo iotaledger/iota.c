@@ -14,7 +14,7 @@ static int unlock_block_signature_deserialize(cJSON *elm, unlock_list_t **unlock
   // signature array
   cJSON *sig_obj = cJSON_GetObjectItemCaseSensitive(elm, JSON_KEY_SIG);
   if (!cJSON_IsObject(sig_obj)) {
-    printf("[%s:%d]: %s is not found\n", __func__, __LINE__, JSON_KEY_SIG);
+    printf("[%s:%d]: %s is not an object\n", __func__, __LINE__, JSON_KEY_SIG);
     return -1;
   }
 

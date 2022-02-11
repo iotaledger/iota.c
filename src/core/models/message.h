@@ -29,7 +29,7 @@ typedef enum {
   CORE_MESSAGE_PAYLOAD_RECEIPT,
   CORE_MESSAGE_PAYLOAD_TREASURY,
   CORE_MESSAGE_PAYLOAD_TAGGED,
-  CORE_MESSAGE_PAYLOAD_UNKNOW = UINT32_MAX - 1,
+  CORE_MESSAGE_PAYLOAD_UNKNOWN = UINT32_MAX - 1,
 } core_message_payload_type_t;
 
 /**
@@ -103,6 +103,14 @@ byte_t* core_message_get_parent_id(core_message_t* msg, size_t index);
  * @return core_message_payload_type_t
  */
 core_message_payload_type_t core_message_get_payload_type(core_message_t* msg);
+
+/**
+ * @brief Print out a core message
+ *
+ * @param[in] msg The message object
+ * @param[in] indentation Tab indentation when printing core message
+ */
+void core_message_print(core_message_t* msg, uint8_t indentation);
 
 #ifdef __cplusplus
 }
