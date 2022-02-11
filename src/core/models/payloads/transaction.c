@@ -128,7 +128,7 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
     // serialize tagged data payload
     memcpy(offset, &es->payload_len, sizeof(es->payload_len));
     offset += sizeof(es->payload_len);
-    size_t tagged_data_ser_len = tagged_data_serialize_len(es->payload);
+    size_t tagged_data_ser_len = tagged_data_serialize_len((tagged_data_t*)es->payload);
     offset += tagged_data_serialize((tagged_data_t*)es->payload, offset, tagged_data_ser_len);
   } else {
     memset(offset, 0, sizeof(uint32_t));
