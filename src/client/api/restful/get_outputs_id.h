@@ -12,6 +12,7 @@
 #include "core/types.h"
 
 #define INDEXER_OUTPUTS_API_PATH "/api/plugins/indexer/v1/outputs"
+#define INDEXER_ALIASES_API_PATH "/api/plugins/indexer/v1/aliases"
 
 /**
  * @brief All Query Params Type
@@ -180,11 +181,11 @@ int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr
  * @brief Gets output IDs from a given Alias address
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] addr An Alias address in hex string format
+ * @param[in] list A list of optional query params
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
+int get_outputs_from_alias(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Foundry address

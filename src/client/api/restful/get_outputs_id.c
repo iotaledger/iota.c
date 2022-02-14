@@ -15,6 +15,9 @@
 #define OUTPUTS_QUERY_TAG_KEY "tag"
 #define OUTPUTS_QUERY_PAGE_SIZE_KEY "pageSize"
 #define OUTPUTS_QUERY_CURSOR_KEY "cursor"
+#define OUTPUTS_QUERY_STATE_CTRL_KEY "stateController"
+#define OUTPUTS_QUERY_GOV_KEY "governor"
+#define OUTPUTS_QUERY_ISSUER_KEY "issuer"
 
 outputs_query_list_t *outputs_query_list_new() { return NULL; }
 
@@ -75,6 +78,21 @@ size_t get_outputs_query_str_len(outputs_query_list_t *list) {
         query_str_len += strlen(elm->query_item->param);
         query_str_len += 2;  // For "&" params seperator and "=" params assignment
         break;
+      case QUERY_PARAM_STATE_CTRL:
+        query_str_len += strlen(OUTPUTS_QUERY_STATE_CTRL_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
+      case QUERY_PARAM_GOV:
+        query_str_len += strlen(OUTPUTS_QUERY_GOV_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
+      case QUERY_PARAM_ISSUER:
+        query_str_len += strlen(OUTPUTS_QUERY_ISSUER_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
       default:
         break;
     }
@@ -125,6 +143,15 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
         break;
       case QUERY_PARAM_CURSOR:
         offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_CURSOR_KEY, elm);
+        break;
+      case QUERY_PARAM_STATE_CTRL:
+        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_STATE_CTRL_KEY, elm);
+        break;
+      case QUERY_PARAM_GOV:
+        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_GOV_KEY, elm);
+        break;
+      case QUERY_PARAM_ISSUER:
+        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_ISSUER_KEY, elm);
         break;
       default:
         break;
@@ -364,27 +391,41 @@ int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr
   return get_outputs_api_call(conf, cmd_buffer, res);
 }
 
-// TODO: handle querry parameters - requiresDustReturn, sender and tag
-int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res) {
-  if (conf == NULL || addr == NULL || res == NULL) {
+int get_outputs_from_alias(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res) {
+  if (conf == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
 
-  size_t addr_len = strlen(addr);
-  if (addr_len != BECH32_ENCODED_ALIAS_ADDRESS) {
-    printf("[%s:%d] incorrect length of an address\n", __func__, __LINE__);
-    return -1;
-  }
-
   // compose restful api command
-  char cmd_buffer[86] = {0};  // 86 = max size of api path(40) + BECH32_ENCODED_ALIAS_ADDRESS(45) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/aliases?address=%s", addr);
+  char *cmd_buffer;
+  size_t api_path_len = strlen(INDEXER_ALIASES_API_PATH);
 
-  // check if data stored is not more than buffer length
-  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
-    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
-    return -1;
+  if (list) {
+    size_t query_str_len = get_outputs_query_str_len(list);
+    char *query_str = malloc(query_str_len + 1);
+    if (!query_str) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
+    size_t len = get_outputs_query_str(list, query_str, query_str_len + 1);
+    if (len != query_str_len + 1) {
+      printf("[%s:%d]: Query string len and copied data mismatch\n", __func__, __LINE__);
+      free(query_str);
+      return -1;
+    }
+    cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
+    // copy api path
+    memcpy(cmd_buffer, INDEXER_ALIASES_API_PATH, api_path_len);
+    // add "?" query symbol
+    cmd_buffer[api_path_len] = '?';
+    // copy query strings
+    memcpy(cmd_buffer + api_path_len + 1, query_str, query_str_len + 1);
+    free(query_str);
+  } else {
+    cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
+    // copy api path
+    memcpy(cmd_buffer, INDEXER_ALIASES_API_PATH, api_path_len + 1);
   }
 
   return get_outputs_api_call(conf, cmd_buffer, res);

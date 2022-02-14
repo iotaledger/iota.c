@@ -300,51 +300,99 @@ void test_get_output_ids_from_nft_address() {
   res_outputs_free(res);
 }
 
-void test_get_output_ids_from_alias_address() {
+void test_get_output_ids_from_alias() {
   char addr_alias[] = "atoi1zpk6m4x7m2t6k5pvgs0yd2nqelfaz09ueyyv6fwn";
   char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   char const* const addr_hex_invalid_length = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  char const* const cursor = "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_outputs_id_t* res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
 
   //=====Tests for parameters NULL cases=====
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias_address(NULL, addr_alias, res));
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias_address(&ctx, NULL, res));
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias_address(&ctx, addr_alias, NULL));
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias(NULL, NULL, res));
+
+  // Test for case without query params
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, NULL, res));
+  TEST_ASSERT(res->is_error == false);
+
+  outputs_query_list_t* list = outputs_query_list_new();
+  TEST_ASSERT_NULL(list);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STATE_CTRL, addr_alias) == 0);
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias(&ctx, list, NULL));
 
   //=====Test invalid address len=====
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias_address(&ctx, addr_hex_invalid_length, res));
-
-  /* FIXME : invalid address is returning empty response without error. Fix this once aliases api has handled invalid
-   addresses
-   // Re initializing res
-   res_outputs_free(res);
-   res = NULL;
-   res = res_outputs_new();
-   TEST_ASSERT_NOT_NULL(res);
-
-   //=====Test invalid alias address=====
-
-   TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias_address(&ctx, addr_hex_invalid, res));
-   TEST_ASSERT(res->is_error);
-   if (res->is_error == true) {
-     printf("Error: %s\n", res->u.error->msg);
-   }
- */
-  // Re initializing res
   res_outputs_free(res);
   res = NULL;
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
+  outputs_query_list_free(list);
+  list = outputs_query_list_new();
+  TEST_ASSERT_NULL(list);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STATE_CTRL, addr_hex_invalid_length) == 0);
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
+  TEST_ASSERT(res->is_error);
+  if (res->is_error == true) {
+    printf("Error: %s\n", res->u.error->msg);
+  }
+
+  //=====Test invalid alias address=====
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+  outputs_query_list_free(list);
+  list = outputs_query_list_new();
+  TEST_ASSERT_NULL(list);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STATE_CTRL, addr_hex_invalid) == 0);
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
+  TEST_ASSERT(res->is_error);
+  if (res->is_error == true) {
+    printf("Error: %s\n", res->u.error->msg);
+  }
 
   //=====Test valid alias address=====
-  int ret = get_outputs_from_alias_address(&ctx, addr_alias, res);
-  TEST_ASSERT(ret == 0);
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+  outputs_query_list_free(list);
+  list = outputs_query_list_new();
+  TEST_ASSERT_NULL(list);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STATE_CTRL, addr_alias) == 0);
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
+  TEST_ASSERT(res->is_error == false);
+
+  //=====Test issuer address=====
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ISSUER, addr_alias) == 0);
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
+  TEST_ASSERT(res->is_error == false);
+
+  //=====Test Page Size=====
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_PAGE_SIZE, "2") == 0);
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
+  TEST_ASSERT(res->is_error == false);
+
+  //=====Test Cursor=====
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_CURSOR, cursor) == 0);
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
   TEST_ASSERT(res->is_error == false);
 
   res_outputs_free(res);
+  outputs_query_list_free(list);
 }
 
 void test_get_output_ids_from_foundry_address() {
@@ -535,7 +583,7 @@ int main() {
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_output_ids);
   RUN_TEST(test_get_output_ids_from_nft_address);
-  RUN_TEST(test_get_output_ids_from_alias_address);
+  RUN_TEST(test_get_output_ids_from_alias);
   RUN_TEST(test_get_output_ids_from_foundry_address);
   RUN_TEST(test_get_output_ids_from_nft_id);
   RUN_TEST(test_get_output_ids_from_alias_id);
