@@ -20,7 +20,12 @@ extern "C" {
  */
 int json_outputs_deserialize(cJSON *outputs_obj, utxo_outputs_list_t **outputs);
 
-// TODO
+/**
+ * @brief Serialise an output list to a JSON object
+ *
+ * @param[in] outputs An output list
+ * @return cJSON* NULL on errors
+ */
 cJSON *json_outputs_serialize(utxo_outputs_list_t *outputs);
 
 #ifdef __cplusplus
