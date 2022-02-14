@@ -19,12 +19,8 @@ tagged_data_t *tagged_data_new() {
 
 void tagged_data_free(tagged_data_t *tagged_data) {
   if (tagged_data) {
-    if (tagged_data->tag) {
-      byte_buf_free(tagged_data->tag);
-    }
-    if (tagged_data->data) {
-      byte_buf_free(tagged_data->data);
-    }
+    byte_buf_free(tagged_data->tag);
+    byte_buf_free(tagged_data->data);
     free(tagged_data);
   }
 }
