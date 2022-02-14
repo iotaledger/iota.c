@@ -185,7 +185,7 @@ int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_alias(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
+int get_alias_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Foundry address

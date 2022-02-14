@@ -391,7 +391,7 @@ int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr
   return get_outputs_api_call(conf, cmd_buffer, res);
 }
 
-int get_outputs_from_alias(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res) {
+int get_alias_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res) {
   if (conf == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;

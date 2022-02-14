@@ -311,16 +311,16 @@ void test_get_alias_outputs() {
   TEST_ASSERT_NOT_NULL(res);
 
   //=====Tests for parameters NULL cases=====
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias(NULL, NULL, res));
+  TEST_ASSERT_EQUAL_INT(-1, get_alias_outputs(NULL, NULL, res));
 
   // Test for case without query params
-  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, NULL, res));
+  TEST_ASSERT_EQUAL_INT(0, get_alias_outputs(&ctx, NULL, res));
   TEST_ASSERT(res->is_error == false);
 
   outputs_query_list_t* list = outputs_query_list_new();
   TEST_ASSERT_NULL(list);
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STATE_CTRL, addr_alias) == 0);
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_alias(&ctx, list, NULL));
+  TEST_ASSERT_EQUAL_INT(-1, get_alias_outputs(&ctx, list, NULL));
 
   //=====Test invalid address len=====
   res_outputs_free(res);
@@ -331,7 +331,7 @@ void test_get_alias_outputs() {
   list = outputs_query_list_new();
   TEST_ASSERT_NULL(list);
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STATE_CTRL, addr_hex_invalid_length) == 0);
-  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
+  TEST_ASSERT_EQUAL_INT(0, get_alias_outputs(&ctx, list, res));
   TEST_ASSERT(res->is_error);
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
@@ -346,7 +346,7 @@ void test_get_alias_outputs() {
   list = outputs_query_list_new();
   TEST_ASSERT_NULL(list);
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STATE_CTRL, addr_hex_invalid) == 0);
-  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
+  TEST_ASSERT_EQUAL_INT(0, get_alias_outputs(&ctx, list, res));
   TEST_ASSERT(res->is_error);
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
@@ -361,7 +361,7 @@ void test_get_alias_outputs() {
   list = outputs_query_list_new();
   TEST_ASSERT_NULL(list);
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STATE_CTRL, addr_alias) == 0);
-  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
+  TEST_ASSERT_EQUAL_INT(0, get_alias_outputs(&ctx, list, res));
   TEST_ASSERT(res->is_error == false);
 
   //=====Test issuer address=====
@@ -370,7 +370,7 @@ void test_get_alias_outputs() {
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ISSUER, addr_alias) == 0);
-  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
+  TEST_ASSERT_EQUAL_INT(0, get_alias_outputs(&ctx, list, res));
   TEST_ASSERT(res->is_error == false);
 
   //=====Test Page Size=====
@@ -379,7 +379,7 @@ void test_get_alias_outputs() {
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_PAGE_SIZE, "2") == 0);
-  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
+  TEST_ASSERT_EQUAL_INT(0, get_alias_outputs(&ctx, list, res));
   TEST_ASSERT(res->is_error == false);
 
   //=====Test Cursor=====
@@ -388,7 +388,7 @@ void test_get_alias_outputs() {
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_CURSOR, cursor) == 0);
-  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_alias(&ctx, list, res));
+  TEST_ASSERT_EQUAL_INT(0, get_alias_outputs(&ctx, list, res));
   TEST_ASSERT(res->is_error == false);
 
   res_outputs_free(res);
