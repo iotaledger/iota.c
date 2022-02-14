@@ -290,7 +290,6 @@ static int get_outputs_api_call(iota_client_conf_t const *conf, char *cmd_buffer
   // send request via http client
   if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
-    printf("Response : %s\n", http_res->data);
     // json deserialization
     ret = deser_outputs((char const *const)http_res->data, res);
   }
@@ -335,8 +334,6 @@ int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, r
     // copy api path
     memcpy(cmd_buffer, INDEXER_OUTPUTS_API_PATH, api_path_len + 1);
   }
-
-  printf("CMD_BUFFER : %s\n", cmd_buffer);
 
   return get_outputs_api_call(conf, cmd_buffer, res);
 }
