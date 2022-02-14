@@ -339,6 +339,48 @@ static int get_outputs_api_call(iota_client_conf_t const *conf, char *cmd_buffer
   return ret;
 }
 
+static char *compose_api_command(outputs_query_list_t *list, char const *const api_path) {
+  char *cmd_buffer;
+  size_t api_path_len = strlen(api_path);
+
+  if (list) {
+    size_t query_str_len = get_outputs_query_str_len(list);
+    char *query_str = malloc(query_str_len + 1);
+    if (!query_str) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return NULL;
+    }
+    size_t len = get_outputs_query_str(list, query_str, query_str_len + 1);
+    if (len != query_str_len + 1) {
+      printf("[%s:%d]: Query string len and copied data mismatch\n", __func__, __LINE__);
+      free(query_str);
+      return NULL;
+    }
+    cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
+    if (!cmd_buffer) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return NULL;
+    }
+    // copy api path
+    memcpy(cmd_buffer, api_path, api_path_len);
+    // add "?" query symbol
+    cmd_buffer[api_path_len] = '?';
+    // copy query strings
+    memcpy(cmd_buffer + api_path_len + 1, query_str, query_str_len + 1);
+    free(query_str);
+  } else {
+    printf("Reached here\n");
+    cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
+    if (!cmd_buffer) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return NULL;
+    }
+    // copy api path
+    memcpy(cmd_buffer, api_path, api_path_len + 1);
+  }
+  return cmd_buffer;
+}
+
 int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res) {
   if (conf == NULL || res == NULL) {
     // invalid parameters
@@ -346,42 +388,9 @@ int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, r
   }
 
   // compose restful api command
-  char *cmd_buffer;
-  size_t api_path_len = strlen(INDEXER_OUTPUTS_API_PATH);
-
-  if (list) {
-    size_t query_str_len = get_outputs_query_str_len(list);
-    char *query_str = malloc(query_str_len + 1);
-    if (!query_str) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    size_t len = get_outputs_query_str(list, query_str, query_str_len + 1);
-    if (len != query_str_len + 1) {
-      printf("[%s:%d]: Query string len and copied data mismatch\n", __func__, __LINE__);
-      free(query_str);
-      return -1;
-    }
-    cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
-    if (!cmd_buffer) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    // copy api path
-    memcpy(cmd_buffer, INDEXER_OUTPUTS_API_PATH, api_path_len);
-    // add "?" query symbol
-    cmd_buffer[api_path_len] = '?';
-    // copy query strings
-    memcpy(cmd_buffer + api_path_len + 1, query_str, query_str_len + 1);
-    free(query_str);
-  } else {
-    cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
-    if (!cmd_buffer) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    // copy api path
-    memcpy(cmd_buffer, INDEXER_OUTPUTS_API_PATH, api_path_len + 1);
+  char *cmd_buffer = compose_api_command(list, INDEXER_OUTPUTS_API_PATH);
+  if (cmd_buffer == NULL) {
+    return -1;
   }
 
   int ret = get_outputs_api_call(conf, cmd_buffer, res);
@@ -396,42 +405,9 @@ int get_nft_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, 
   }
 
   // compose restful api command
-  char *cmd_buffer;
-  size_t api_path_len = strlen(INDEXER_NFT_API_PATH);
-
-  if (list) {
-    size_t query_str_len = get_outputs_query_str_len(list);
-    char *query_str = malloc(query_str_len + 1);
-    if (!query_str) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    size_t len = get_outputs_query_str(list, query_str, query_str_len + 1);
-    if (len != query_str_len + 1) {
-      printf("[%s:%d]: Query string len and copied data mismatch\n", __func__, __LINE__);
-      free(query_str);
-      return -1;
-    }
-    cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
-    if (!cmd_buffer) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    // copy api path
-    memcpy(cmd_buffer, INDEXER_NFT_API_PATH, api_path_len);
-    // add "?" query symbol
-    cmd_buffer[api_path_len] = '?';
-    // copy query strings
-    memcpy(cmd_buffer + api_path_len + 1, query_str, query_str_len + 1);
-    free(query_str);
-  } else {
-    cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
-    if (!cmd_buffer) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    // copy api path
-    memcpy(cmd_buffer, INDEXER_NFT_API_PATH, api_path_len + 1);
+  char *cmd_buffer = compose_api_command(list, INDEXER_NFT_API_PATH);
+  if (cmd_buffer == NULL) {
+    return -1;
   }
 
   int ret = get_outputs_api_call(conf, cmd_buffer, res);
@@ -446,42 +422,9 @@ int get_alias_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list
   }
 
   // compose restful api command
-  char *cmd_buffer;
-  size_t api_path_len = strlen(INDEXER_ALIASES_API_PATH);
-
-  if (list) {
-    size_t query_str_len = get_outputs_query_str_len(list);
-    char *query_str = malloc(query_str_len + 1);
-    if (!query_str) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    size_t len = get_outputs_query_str(list, query_str, query_str_len + 1);
-    if (len != query_str_len + 1) {
-      printf("[%s:%d]: Query string len and copied data mismatch\n", __func__, __LINE__);
-      free(query_str);
-      return -1;
-    }
-    cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
-    if (!cmd_buffer) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    // copy api path
-    memcpy(cmd_buffer, INDEXER_ALIASES_API_PATH, api_path_len);
-    // add "?" query symbol
-    cmd_buffer[api_path_len] = '?';
-    // copy query strings
-    memcpy(cmd_buffer + api_path_len + 1, query_str, query_str_len + 1);
-    free(query_str);
-  } else {
-    cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
-    if (!cmd_buffer) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    // copy api path
-    memcpy(cmd_buffer, INDEXER_ALIASES_API_PATH, api_path_len + 1);
+  char *cmd_buffer = compose_api_command(list, INDEXER_ALIASES_API_PATH);
+  if (cmd_buffer == NULL) {
+    return -1;
   }
 
   int ret = get_outputs_api_call(conf, cmd_buffer, res);
@@ -496,42 +439,9 @@ int get_foundry_outputs(iota_client_conf_t const *conf, outputs_query_list_t *li
   }
 
   // compose restful api command
-  char *cmd_buffer;
-  size_t api_path_len = strlen(INDEXER_FOUNDRY_API_PATH);
-
-  if (list) {
-    size_t query_str_len = get_outputs_query_str_len(list);
-    char *query_str = malloc(query_str_len + 1);
-    if (!query_str) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    size_t len = get_outputs_query_str(list, query_str, query_str_len + 1);
-    if (len != query_str_len + 1) {
-      printf("[%s:%d]: Query string len and copied data mismatch\n", __func__, __LINE__);
-      free(query_str);
-      return -1;
-    }
-    cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
-    if (!cmd_buffer) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    // copy api path
-    memcpy(cmd_buffer, INDEXER_FOUNDRY_API_PATH, api_path_len);
-    // add "?" query symbol
-    cmd_buffer[api_path_len] = '?';
-    // copy query strings
-    memcpy(cmd_buffer + api_path_len + 1, query_str, query_str_len + 1);
-    free(query_str);
-  } else {
-    cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
-    if (!cmd_buffer) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    // copy api path
-    memcpy(cmd_buffer, INDEXER_FOUNDRY_API_PATH, api_path_len + 1);
+  char *cmd_buffer = compose_api_command(list, INDEXER_FOUNDRY_API_PATH);
+  if (cmd_buffer == NULL) {
+    return -1;
   }
 
   int ret = get_outputs_api_call(conf, cmd_buffer, res);
