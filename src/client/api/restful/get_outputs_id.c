@@ -258,32 +258,45 @@ static int get_outputs_api_call(iota_client_conf_t const *conf, char *cmd_buffer
     ret = deser_outputs((char const *const)http_res->data, res);
   }
   byte_buf_free(http_res);
+  free(cmd_buffer);
   return ret;
 }
 
-// TODO: handle querry parameters - requiresDustReturn, sender and tag
-int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res) {
-  if (conf == NULL || addr == NULL || res == NULL) {
+int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res) {
+  if (conf == NULL || res == NULL) {
     // invalid parameters
     return -1;
   }
 
-  size_t addr_len = strlen(addr);
-  if (addr_len != ADDRESS_ED25519_HEX_BYTES) {
-    printf("[%s:%d] incorrect length of the address\n", __func__, __LINE__);
-    return -1;
-  }
-
   // compose restful api command
-  char cmd_buffer[105] = {0};  // 105 = max size of api path(40) + IOTA_ADDRESS_HEX_BYTES(64) + 1
-  int snprintf_ret;
+  char *cmd_buffer;
+  size_t api_path_len = strlen(INDEXER_OUTPUTS_API_PATH);
 
-  snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/outputs?address=%s", addr);
-
-  // check if data stored is not more than buffer length
-  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
-    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
-    return -1;
+  if (list) {
+    size_t query_str_len = get_outputs_query_str_len(list);
+    char *query_str = malloc(query_str_len + 1);
+    if (!query_str) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
+    size_t len = get_outputs_query_str(list, query_str, query_str_len + 1);
+    if (len != query_str_len + 1) {
+      printf("[%s:%d]: Query string len and copied data mismatch\n", __func__, __LINE__);
+      free(query_str);
+      return -1;
+    }
+    cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
+    // copy api path
+    memcpy(cmd_buffer, INDEXER_OUTPUTS_API_PATH, api_path_len);
+    // add "?" query symbol
+    cmd_buffer[api_path_len] = '?';
+    // copy query strings
+    memcpy(cmd_buffer + api_path_len + 1, query_str, query_str_len + 1);
+    free(query_str);
+  } else {
+    cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
+    // copy api path
+    memcpy(cmd_buffer, INDEXER_OUTPUTS_API_PATH, api_path_len + 1);
   }
 
   return get_outputs_api_call(conf, cmd_buffer, res);

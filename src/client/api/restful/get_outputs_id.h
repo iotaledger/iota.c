@@ -108,6 +108,7 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
  *
  */
 void outputs_query_list_free(outputs_query_list_t *list);
+
 /**
  * @brief Allocats an output address response object
  *
@@ -152,11 +153,11 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res);
  * @brief Gets output IDs from a given address
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] addr An address in hex string format
+ * @param[in] list A list of optional query params
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
+int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given NFT address
