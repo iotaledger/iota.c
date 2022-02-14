@@ -14,6 +14,7 @@
 #define INDEXER_OUTPUTS_API_PATH "/api/plugins/indexer/v1/outputs"
 #define INDEXER_ALIASES_API_PATH "/api/plugins/indexer/v1/aliases"
 #define INDEXER_NFT_API_PATH "/api/plugins/indexer/v1/nfts"
+#define INDEXER_FOUNDRY_API_PATH "/api/plugins/indexer/v1/foundries"
 
 /**
  * @brief All Query Params Type
@@ -192,11 +193,11 @@ int get_alias_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list
  * @brief Gets output IDs from a given Foundry address
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] addr A Foundry address in hex string format
+ * @param[in] list A list of optional query params
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_foundry_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
+int get_foundry_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given NFT ID
