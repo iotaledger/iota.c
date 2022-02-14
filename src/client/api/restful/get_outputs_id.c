@@ -124,7 +124,7 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
   // Check if buffer length is sufficient for holding query string
   size_t query_str_len = get_outputs_query_str_len(list);
   if (query_str_len == 0) {
-    printf("[%s:%d] No Element in Listn", __func__, __LINE__);
+    printf("[%s:%d] No element in query list\n", __func__, __LINE__);
     return 0;
   }
   if (buf_len < query_str_len + 1) {
