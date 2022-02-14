@@ -47,7 +47,7 @@ static json_error_t json_string_array_to_msg_ids(cJSON const* const obj, char co
   return JSON_OK;
 }
 
-// json object to messate object
+// json object to message object
 int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
   if (!msg || !json_obj) {
     printf("[%s:%d]: invalid parameter\n", __func__, __LINE__);
@@ -55,13 +55,12 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
   }
 
   int ret = -1;
-  // network ID
-  char str_buff[32];
-  if ((ret = json_get_string(json_obj, JSON_KEY_NET_ID, str_buff, sizeof(str_buff))) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
+
+  // protocolVersion
+  if ((ret = json_get_uint8(json_obj, JSON_KEY_PROTOCOL_VERSION, &msg->protocol_version)) != 0) {
+    printf("[%s:%d]: gets %s json number failed\n", __func__, __LINE__, JSON_KEY_PROTOCOL_VERSION);
     goto end;
   }
-  sscanf(str_buff, "%" SCNu64, &msg->network_id);
 
   // parentMessageIds
   if ((ret = json_string_array_to_msg_ids(json_obj, JSON_KEY_PARENT_IDS, msg->parents)) != 0) {
@@ -72,6 +71,7 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
   }
 
   // nonce
+  char str_buff[32];
   if ((ret = json_get_string(json_obj, JSON_KEY_NONCE, str_buff, sizeof(str_buff))) != 0) {
     printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NONCE);
     goto end;
@@ -97,8 +97,7 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
         printf("[%s:%d]: unimplemented payload type\n", __func__, __LINE__);
         break;
       case CORE_MESSAGE_PAYLOAD_TAGGED:
-        // TODO support tagged message
-        printf("[%s:%d]: unimplemented payload type\n", __func__, __LINE__);
+        ret = json_tagged_deserialize(payload, (tagged_data_t**)(&msg->payload));
         break;
       case CORE_MESSAGE_PAYLOAD_INDEXATION:
       case CORE_MESSAGE_PAYLOAD_RECEIPT:
@@ -125,7 +124,7 @@ end:
 cJSON* json_message_serialize(core_message_t* msg) {
   /*
   {
-  "networkId": "6530425480034647824",
+  "protocolVersion": "2",
   "parentMessageIds": [
       "7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
       "9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c",
@@ -153,18 +152,10 @@ cJSON* json_message_serialize(core_message_t* msg) {
   }
 
   // add network ID
-  if (msg->network_id > 0) {
-    if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_NET_ID, msg->network_id)) {
-      printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
-      cJSON_Delete(msg_obj);
-      return NULL;
-    }
-  } else {
-    if (!cJSON_AddNullToObject(msg_obj, JSON_KEY_NET_ID)) {
-      printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
-      cJSON_Delete(msg_obj);
-      return NULL;
-    }
+  if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_PROTOCOL_VERSION, msg->protocol_version)) {
+    printf("[%s:%d] creating protocol version failed\n", __func__, __LINE__);
+    cJSON_Delete(msg_obj);
+    return NULL;
   }
 
   // add parents

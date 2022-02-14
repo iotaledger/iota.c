@@ -11,6 +11,7 @@
 tagged_data_t *tagged_data_new() {
   tagged_data_t *tagged_data = malloc(sizeof(tagged_data_t));
   if (tagged_data) {
+    tagged_data->type = CORE_MESSAGE_PAYLOAD_TAGGED;
     tagged_data->tag = NULL;
     tagged_data->data = NULL;
   }
@@ -82,7 +83,7 @@ size_t tagged_data_serialize_len(tagged_data_t *tagged_data) {
   size_t length = 0;
 
   // payload type
-  length += sizeof(uint32_t);
+  length += sizeof(tagged_data->type);
   // tag length
   length += sizeof(uint8_t);
   // tag
@@ -114,9 +115,8 @@ size_t tagged_data_serialize(tagged_data_t *tagged_data, byte_t buf[], size_t bu
   size_t offset = 0;
 
   // fill-in Tagged Data type
-  uint32_t payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
-  memcpy(buf, &payload_type, sizeof(payload_type));
-  offset += sizeof(uint32_t);
+  memcpy(buf, &tagged_data->type, sizeof(tagged_data->type));
+  offset += sizeof(tagged_data->type);
 
   if (tagged_data->tag) {
     // tag length
@@ -173,12 +173,13 @@ tagged_data_t *tagged_data_deserialize(byte_t buf[], size_t buf_len) {
     tagged_data_free(tagged_data);
     return NULL;
   }
-  if ((uint32_t)buf[offset] != CORE_MESSAGE_PAYLOAD_TAGGED) {
+  memcpy(&tagged_data->type, &buf[offset], sizeof(tagged_data->type));
+  if (tagged_data->type != CORE_MESSAGE_PAYLOAD_TAGGED) {
     printf("[%s:%d] buffer does not contain tagged data object\n", __func__, __LINE__);
     tagged_data_free(tagged_data);
     return NULL;
   }
-  offset += sizeof(uint32_t);
+  offset += sizeof(tagged_data->type);
 
   // tag length
   if (buf_len < offset + sizeof(uint8_t)) {
@@ -240,21 +241,23 @@ void tagged_data_print(tagged_data_t *tagged_data, uint8_t indentation) {
     return;
   }
 
+  printf("%sTagged Data:\n", PRINT_INDENTATION(indentation));
+
   // tag
   if (tagged_data->tag) {
     char tag[TAGGED_DATA_TAG_MAX_LENGTH_BYTES / 2] = {0};
     if (hex2string((char const *)tagged_data->tag->data, (uint8_t *)tag, TAGGED_DATA_TAG_MAX_LENGTH_BYTES / 2) == 0) {
-      printf("%sTag: %s\n", PRINT_INDENTATION(indentation), tag);
+      printf("%s\tTag: %s\n", PRINT_INDENTATION(indentation), tag);
     }
   } else {
-    printf("%sTag:\n", PRINT_INDENTATION(indentation));
+    printf("%s\tTag:\n", PRINT_INDENTATION(indentation));
   }
 
   // binary data
   if (tagged_data->data) {
-    printf("%sData: ", PRINT_INDENTATION(indentation));
+    printf("%s\tData: ", PRINT_INDENTATION(indentation));
     dump_hex_str(tagged_data->data->data, tagged_data->data->len);
   } else {
-    printf("%sData:\n", PRINT_INDENTATION(indentation));
+    printf("%s\tData:\n", PRINT_INDENTATION(indentation));
   }
 }

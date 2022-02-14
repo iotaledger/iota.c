@@ -9,7 +9,7 @@
 #include "unity/unity.h"
 
 /**
- * @brief This API has no deserialization tests because the respose object is a message object which is tested in
+ * @brief This API has no deserialization tests because the response object is a message object which is tested in
  * test_get_message.c
  *
  */
@@ -19,7 +19,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_transaction_included_message() {
-  char const* const tx_id = "0bbbc8cefce775e3adf9030089192b895af486c0030327cd14ae34132ad8df29";
+  char const* const tx_id = "dcc73ae193ac91447c02f011e432f5bd773b5ee8589c2bf859d6073e059782dd";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();

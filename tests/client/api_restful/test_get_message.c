@@ -6,6 +6,7 @@
 
 #include "client/api/restful/get_message.h"
 #include "core/models/payloads/milestone.h"
+#include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "test_config.h"
 #include "unity/unity.h"
@@ -15,7 +16,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_msg_by_id() {
-  char const* const msg_id = "89e6422b28974940af3e0750790c2a685b296cf29af28565b36cc17436f7fdf2";
+  char const* const msg_id = "51ef03aa5f0577878979feaad8c8d63639cfd3f6e93565c06bb98d20fb520f29";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();
@@ -27,12 +28,14 @@ void test_get_msg_by_id() {
     switch (msg->u.msg->payload_type) {
       case CORE_MESSAGE_PAYLOAD_TRANSACTION:
         printf("it's a transaction message\n");
+        core_message_print(msg->u.msg, 0);
         break;
       case CORE_MESSAGE_PAYLOAD_INDEXATION:
         printf("it's an indexation message\n");
         break;
       case CORE_MESSAGE_PAYLOAD_MILESTONE:
         printf("it's a milestone message\n");
+        core_message_print(msg->u.msg, 0);
         break;
       case CORE_MESSAGE_PAYLOAD_RECEIPT:
         printf("it's a receipt message\n");
@@ -42,6 +45,7 @@ void test_get_msg_by_id() {
         break;
       case CORE_MESSAGE_PAYLOAD_TAGGED:
         printf("it's a tagged message\n");
+        core_message_print(msg->u.msg, 0);
         break;
       case CORE_MESSAGE_PAYLOAD_UNKNOWN:
       default:
@@ -54,7 +58,7 @@ void test_get_msg_by_id() {
 
 void test_deser_milestone() {
   char const* const ms_res =
-      "{\"networkId\":\"8453507715857476362\",\"parentMessageIds\":["
+      "{\"protocolVersion\":2,\"parentMessageIds\":["
       "\"708300963297a4bec3fac378d24d4c4585ea69216f32dba010d6d8546942f8f6\","
       "\"70c6523d1d1b6cc8b7b8333df31027f608f97ff1681478622b1e7c1852416e61\","
       "\"862038e86f431f6727a5dd06db0cd05689b879fd4f6a9219afef90eddf1141db\","
@@ -83,7 +87,7 @@ void test_deser_milestone() {
   TEST_ASSERT(res->is_error == false);
 
   core_message_t* msg = res->u.msg;
-  TEST_ASSERT_EQUAL_UINT64(9466822412763346725U, msg->network_id);
+  TEST_ASSERT_EQUAL_UINT8(2, msg->protocol_version);
   TEST_ASSERT_EQUAL_UINT64(10760600709663927622U, msg->nonce);
   TEST_ASSERT_EQUAL_INT(5, core_message_parent_len(msg));
 
@@ -123,12 +127,12 @@ void test_deser_milestone() {
 
 void test_deser_simple_tx() {
   char const* const simple_tx =
-      "{\"networkId\":\"8453507715857476362\",\"parentMessageIds\":["
+      "{\"protocolVersion\":2,\"parentMessageIds\":["
       "\"0875901a61c4b9f2adb37121fc7946d286dae581d1a5f9cd720cb4c1f8d8f552\","
       "\"410653be41fde06bdf25aaeb764cd880f872e33e7ce1759801d75964e9dc75c7\","
       "\"b9130e8d2b928921c220bef325eb9bcad114bdbce80945565e54e8cf9664173a\","
       "\"cf94502e06fab8dcc4ef9fc94721de2e2fcaf727e0998b6489a0a5b5eead6625\"],\"payload\":{\"type\":0,\"essence\":{"
-      "\"type\":0,\"inputs\":[{\"type\":0,\"transactionId\":"
+      "\"type\":0,\"networkId\":\"8453507715857476362\",\"inputs\":[{\"type\":0,\"transactionId\":"
       "\"0000000000000000000000000000000000000000000000000000000000000000\",\"transactionOutputIndex\":0}],\"outputs\":"
       "[{\"type\":3,\"amount\":10000000,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":0,"
       "\"address\":\"21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"}}],\"featureBlocks\":[]},{"
@@ -145,10 +149,8 @@ void test_deser_simple_tx() {
   TEST_ASSERT(deser_get_message(simple_tx, res) == 0);
   TEST_ASSERT(res->is_error == false);
 
-  char str_buff[65] = {};
-  // validate network ID
-  sprintf(str_buff, "%" PRIu64 "", res->u.msg->network_id);
-  TEST_ASSERT_EQUAL_STRING("8453507715857476362", str_buff);
+  // validate protocol version ID
+  TEST_ASSERT_EQUAL_UINT8(2, res->u.msg->protocol_version);
 
   // validate parent message IDs
   byte_t tmp_id[IOTA_MESSAGE_ID_BYTES] = {};
@@ -172,6 +174,11 @@ void test_deser_simple_tx() {
   transaction_payload_t* tx = (transaction_payload_t*)res->u.msg->payload;
   // validate essence
   TEST_ASSERT(tx->essence->tx_type == 0);
+  // validate network id
+  char str_buff[65] = {};
+  sprintf(str_buff, "%" PRIu64 "", tx->essence->tx_network_id);
+  TEST_ASSERT_EQUAL_STRING("8453507715857476362", str_buff);
+
   // validate essence inputs
   TEST_ASSERT_EQUAL_UINT16(1, utxo_inputs_count(tx->essence->inputs));
   utxo_input_t* inputs = utxo_inputs_find_by_index(tx->essence->inputs, 0);
@@ -253,9 +260,10 @@ int main() {
   RUN_TEST(test_deser_simple_tx);
 #if 0  // FIXME
   RUN_TEST(test_deser_milestone);
+#endif
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_msg_by_id);
 #endif
-#endif
+
   return UNITY_END();
 }

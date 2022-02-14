@@ -40,6 +40,7 @@ static char const* const JSON_KEY_MSG_IDS = "messageIds";
 static char const* const JSON_KEY_NAME = "name";
 static char const* const JSON_KEY_NET_ID = "networkId";
 static char const* const JSON_KEY_NET_NAME = "networkName";
+static char const* const JSON_KEY_PROTOCOL_VERSION = "protocolVersion";
 static char const* const JSON_KEY_NONCE = "nonce";
 static char const* const JSON_KEY_OUTPUT = "output";
 static char const* const JSON_KEY_OUTPUTS = "outputs";
