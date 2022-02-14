@@ -109,15 +109,15 @@ size_t get_outputs_query_str_len(outputs_query_list_t *list) {
   return query_str_len;
 }
 
-static int copy_param_to_buf(char *buf, size_t offset, char *key, outputs_query_list_t *elm) {
-  int len = offset;
-  memcpy(buf + offset, key, strlen(key));
-  offset += strlen(key);
-  buf[offset++] = '=';
-  memcpy(buf + offset, elm->query_item->param, strlen(elm->query_item->param));
-  offset += strlen(elm->query_item->param);
-  buf[offset++] = '&';
-  return offset - len;
+static int copy_param_to_buf(char *buf, char *key, outputs_query_list_t *elm) {
+  int len = 0;
+  memcpy(buf + len, key, strlen(key));
+  len += strlen(key);
+  buf[len++] = '=';
+  memcpy(buf + len, elm->query_item->param, strlen(elm->query_item->param));
+  len += strlen(elm->query_item->param);
+  buf[len++] = '&';
+  return len;
 }
 
 size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_len) {
@@ -137,34 +137,34 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
   LL_FOREACH(list, elm) {
     switch (elm->query_item->type) {
       case QUERY_PARAM_ADDRESS:
-        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_ADDRESS_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_ADDRESS_KEY, elm);
         break;
       case QUERY_PARAM_DUST_RET:
-        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_DUST_RET_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_DUST_RET_KEY, elm);
         break;
       case QUERY_PARAM_DUST_RET_ADDR:
-        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_DUST_RET_ADDR_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_DUST_RET_ADDR_KEY, elm);
         break;
       case QUERY_PARAM_SENDER:
-        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_SENDER_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_SENDER_KEY, elm);
         break;
       case QUERY_PARAM_TAG:
-        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_TAG_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TAG_KEY, elm);
         break;
       case QUERY_PARAM_PAGE_SIZE:
-        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_PAGE_SIZE_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_PAGE_SIZE_KEY, elm);
         break;
       case QUERY_PARAM_CURSOR:
-        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_CURSOR_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_CURSOR_KEY, elm);
         break;
       case QUERY_PARAM_STATE_CTRL:
-        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_STATE_CTRL_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_STATE_CTRL_KEY, elm);
         break;
       case QUERY_PARAM_GOV:
-        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_GOV_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_GOV_KEY, elm);
         break;
       case QUERY_PARAM_ISSUER:
-        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_ISSUER_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_ISSUER_KEY, elm);
         break;
       default:
         break;
