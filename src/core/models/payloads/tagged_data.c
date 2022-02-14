@@ -9,30 +9,27 @@
 #include "core/utils/macros.h"
 
 tagged_data_t *tagged_data_new() {
-  tagged_data_t *tagged_data = calloc(1, sizeof(tagged_data_t));
+  tagged_data_t *tagged_data = malloc(sizeof(tagged_data_t));
   if (tagged_data) {
-    tagged_data->tag = byte_buf_new();
-    tagged_data->data = byte_buf_new();
-    if (!tagged_data->tag || !tagged_data->data) {
-      byte_buf_free(tagged_data->tag);
-      byte_buf_free(tagged_data->data);
-      free(tagged_data);
-      return NULL;
-    }
-    return tagged_data;
+    tagged_data->tag = NULL;
+    tagged_data->data = NULL;
   }
-  return NULL;
+  return tagged_data;
 }
 
 void tagged_data_free(tagged_data_t *tagged_data) {
   if (tagged_data) {
-    byte_buf_free(tagged_data->tag);
-    byte_buf_free(tagged_data->data);
+    if (tagged_data->tag) {
+      byte_buf_free(tagged_data->tag);
+    }
+    if (tagged_data->data) {
+      byte_buf_free(tagged_data->data);
+    }
     free(tagged_data);
   }
 }
 
-tagged_data_t *tagged_data_create(char const *tag, byte_t data[], uint32_t data_len) {
+tagged_data_t *tagged_data_create(char const tag[], byte_t data[], uint32_t data_len) {
   if (tag == NULL || (data_len > 0 && data == NULL)) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
@@ -53,13 +50,14 @@ tagged_data_t *tagged_data_create(char const *tag, byte_t data[], uint32_t data_
 
   // add tag string
   if (strlen(tag) > 0) {
-    byte_t tag_bin[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
-    if (string2hex(tag, tag_bin, tag_hex_len) != 0) {
+    byte_t tag_hex[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
+    if (string2hex(tag, tag_hex, tag_hex_len) != 0) {
       printf("[%s:%d] can not convert string into a hex\n", __func__, __LINE__);
       tagged_data_free(tagged_data);
       return NULL;
     }
-    if (!byte_buf_set(tagged_data->tag, tag_bin, tag_hex_len)) {
+    tagged_data->tag = byte_buf_new_with_data(tag_hex, tag_hex_len);
+    if (!tagged_data->tag) {
       printf("[%s:%d] adding tag to a tagged data failed\n", __func__, __LINE__);
       tagged_data_free(tagged_data);
       return NULL;
@@ -68,7 +66,8 @@ tagged_data_t *tagged_data_create(char const *tag, byte_t data[], uint32_t data_
 
   // add binary data
   if (data_len > 0) {
-    if (!byte_buf_set(tagged_data->data, data, data_len)) {
+    tagged_data->data = byte_buf_new_with_data(data, data_len);
+    if (!tagged_data->data) {
       printf("[%s:%d] adding data to a tagged data failed\n", __func__, __LINE__);
       tagged_data_free(tagged_data);
       return NULL;
@@ -85,16 +84,21 @@ size_t tagged_data_serialize_len(tagged_data_t *tagged_data) {
   }
 
   size_t length = 0;
+
   // payload type
   length += sizeof(uint32_t);
   // tag length
   length += sizeof(uint8_t);
   // tag
-  length += tagged_data->tag->len;
+  if (tagged_data->tag) {
+    length += tagged_data->tag->len;
+  }
   // binary data length
   length += sizeof(uint32_t);
   // binary data
-  length += tagged_data->data->len;
+  if (tagged_data->data) {
+    length += tagged_data->data->len;
+  }
 
   return length;
 }
@@ -118,24 +122,36 @@ size_t tagged_data_serialize(tagged_data_t *tagged_data, byte_t buf[], size_t bu
   memcpy(buf, &payload_type, sizeof(payload_type));
   offset += sizeof(uint32_t);
 
-  // tag length
-  memcpy(buf + offset, &tagged_data->tag->len, sizeof(uint8_t));
-  offset += sizeof(uint8_t);
+  if (tagged_data->tag) {
+    // tag length
+    memcpy(buf + offset, &tagged_data->tag->len, sizeof(uint8_t));
+    offset += sizeof(uint8_t);
 
-  // tag
-  if (tagged_data->tag->len > 0 && tagged_data->tag->data != NULL) {
-    memcpy(buf + offset, tagged_data->tag->data, tagged_data->tag->len);
-    offset += tagged_data->tag->len;
+    // tag
+    if (tagged_data->tag->len > 0) {
+      memcpy(buf + offset, tagged_data->tag->data, tagged_data->tag->len);
+      offset += tagged_data->tag->len;
+    }
+  } else {
+    // tag length is zero
+    memset(buf + offset, 0, sizeof(uint8_t));
+    offset += sizeof(uint8_t);
   }
 
-  // binary data length
-  memcpy(buf + offset, &tagged_data->data->len, sizeof(uint32_t));
-  offset += sizeof(uint32_t);
+  if (tagged_data->data) {
+    // binary data length
+    memcpy(buf + offset, &tagged_data->data->len, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
 
-  // binary data
-  if (tagged_data->data->len > 0 && tagged_data->data->data != NULL) {
-    memcpy(buf + offset, tagged_data->data->data, tagged_data->data->len);
-    offset += tagged_data->data->len;
+    // binary data
+    if (tagged_data->data->len > 0) {
+      memcpy(buf + offset, tagged_data->data->data, tagged_data->data->len);
+      offset += tagged_data->data->len;
+    }
+  } else {
+    // binary data length is zero
+    memset(buf + offset, 0, sizeof(uint32_t));
+    offset += sizeof(uint32_t);
   }
 
   return offset;
@@ -185,7 +201,8 @@ tagged_data_t *tagged_data_deserialize(byte_t buf[], size_t buf_len) {
       tagged_data_free(tagged_data);
       return NULL;
     }
-    if (byte_buf_set(tagged_data->tag, &buf[offset], tag_length) != true) {
+    tagged_data->tag = byte_buf_new_with_data(&buf[offset], tag_length);
+    if (!tagged_data->tag) {
       printf("[%s:%d] can not add tag data to a tagged data\n", __func__, __LINE__);
       tagged_data_free(tagged_data);
       return NULL;
@@ -210,7 +227,8 @@ tagged_data_t *tagged_data_deserialize(byte_t buf[], size_t buf_len) {
       tagged_data_free(tagged_data);
       return NULL;
     }
-    if (byte_buf_set(tagged_data->data, &buf[offset], data_length) != true) {
+    tagged_data->data = byte_buf_new_with_data(&buf[offset], data_length);
+    if (!tagged_data->data) {
       printf("[%s:%d] can not add binary data to a tagged data\n", __func__, __LINE__);
       tagged_data_free(tagged_data);
       return NULL;
@@ -227,9 +245,9 @@ void tagged_data_print(tagged_data_t *tagged_data, uint8_t indentation) {
   }
 
   // tag
-  if (tagged_data->tag->data != NULL) {
+  if (tagged_data->tag) {
     char tag[TAGGED_DATA_TAG_MAX_LENGTH_BYTES / 2] = {0};
-    if (hex2string((char const *)tagged_data->tag->data, (uint8_t *)tag, TAGGED_DATA_TAG_MAX_LENGTH_BYTES) == 0) {
+    if (hex2string((char const *)tagged_data->tag->data, (uint8_t *)tag, TAGGED_DATA_TAG_MAX_LENGTH_BYTES / 2) == 0) {
       printf("%sTag: %s\n", PRINT_INDENTATION(indentation), tag);
     }
   } else {
@@ -237,6 +255,10 @@ void tagged_data_print(tagged_data_t *tagged_data, uint8_t indentation) {
   }
 
   // binary data
-  printf("%sData: ", PRINT_INDENTATION(indentation));
-  dump_hex_str(tagged_data->data->data, tagged_data->data->len);
+  if (tagged_data->data) {
+    printf("%sData: ", PRINT_INDENTATION(indentation));
+    dump_hex_str(tagged_data->data->data, tagged_data->data->len);
+  } else {
+    printf("%sData:\n", PRINT_INDENTATION(indentation));
+  }
 }

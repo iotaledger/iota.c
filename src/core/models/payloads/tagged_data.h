@@ -47,7 +47,7 @@ void tagged_data_free(tagged_data_t *tagged_data);
  * @param[in] data_len The length of binary data
  * @return tagged_data_t* A pointer to tagged data object
  */
-tagged_data_t *tagged_data_create(char const *tag, byte_t data[], uint32_t data_len);
+tagged_data_t *tagged_data_create(char const tag[], byte_t data[], uint32_t data_len);
 
 /**
  * @brief Get a serialized length of a tagged data
