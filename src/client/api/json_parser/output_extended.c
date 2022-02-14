@@ -112,7 +112,7 @@ cJSON *json_output_extended_serialize(output_extended_t *extended) {
     }
 
     // feature blocks
-    tmp = json_cond_blk_list_serialize(extended->feature_blocks);
+    tmp = json_feat_blocks_serialize(extended->feature_blocks);
     if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEAT_BLOCKS, tmp)) {
       printf("[%s:%d] add feature blocks to extended error\n", __func__, __LINE__);
       cJSON_Delete(tmp);

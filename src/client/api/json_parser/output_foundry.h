@@ -21,7 +21,12 @@ extern "C" {
  */
 int json_output_foundry_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs);
 
-// TODO
+/**
+ * @brief Serialize a foundry output to a JSON object
+ *
+ * @param[in] foundry A foundry output
+ * @return cJSON* NULL on errors
+ */
 cJSON *json_output_foundry_serialize(output_foundry_t *foundry);
 
 #ifdef __cplusplus

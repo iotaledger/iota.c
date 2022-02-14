@@ -146,7 +146,6 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
     }
     if (!cJSON_AddStringToObject(alias_obj, JSON_KEY_ALIAS_ID, alias_id_str)) {
       printf("[%s:%d] add alias id into alias error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
       goto err;
     }
 
@@ -191,7 +190,7 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
     }
 
     // feature blocks
-    tmp = json_cond_blk_list_serialize(alias->feature_blocks);
+    tmp = json_feat_blocks_serialize(alias->feature_blocks);
     if (!cJSON_AddItemToObject(alias_obj, JSON_KEY_FEAT_BLOCKS, tmp)) {
       printf("[%s:%d] add feature blocks into alias error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
