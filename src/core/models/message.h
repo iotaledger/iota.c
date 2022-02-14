@@ -9,7 +9,6 @@
 
 #include "utarray.h"
 
-#include "core/models/payloads/indexation.h"
 #include "core/models/payloads/milestone.h"
 #include "core/types.h"
 

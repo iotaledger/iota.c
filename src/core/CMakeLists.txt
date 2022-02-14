@@ -29,7 +29,7 @@ target_sources(
           "models/outputs/outputs.c"
           "models/outputs/unlock_conditions.c"
           "models/payloads/transaction.c"
-          "models/payloads/indexation.c"
+          "models/payloads/tagged_data.c"
           "models/payloads/milestone.c"
           "models/message.c"
           "models/unlock_block.c"
@@ -51,7 +51,7 @@ target_sources(
          "models/outputs/outputs.h"
          "models/outputs/unlock_conditions.h"
          "models/payloads/transaction.h"
-         "models/payloads/indexation.h"
+         "models/payloads/tagged_data.h"
          "models/payloads/milestone.h"
          "models/message.h"
          "models/unlock_block.h")

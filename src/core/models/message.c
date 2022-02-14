@@ -9,6 +9,7 @@
 #include "uthash.h"
 
 #include "core/models/message.h"
+#include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "crypto/iota_crypto.h"
 
@@ -105,11 +106,10 @@ void core_message_free(core_message_t* msg) {
     if (msg->payload) {
       if (msg->payload_type == CORE_MESSAGE_PAYLOAD_TRANSACTION) {
         tx_payload_free((transaction_payload_t*)msg->payload);
+      } else if (msg->payload_type == CORE_MESSAGE_PAYLOAD_TAGGED) {
+        tagged_data_free((tagged_data_t*)msg->payload);
       }
-      if (msg->payload_type == CORE_MESSAGE_PAYLOAD_INDEXATION) {
-        indexation_free((indexation_t*)msg->payload);
-      }
-      // TODO support other payload
+      // TODO add/handle support for other payload types
     }
     utarray_free(msg->parents);
     free(msg);
@@ -173,8 +173,7 @@ void core_message_print(core_message_t* msg, uint8_t indentation) {
         printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
         break;
       case CORE_MESSAGE_PAYLOAD_TAGGED:
-        // TODO support tagged message
-        printf("[%s:%d]: unimplemented payload type\n", __func__, __LINE__);
+        tagged_data_print((tagged_data_t*)msg->payload, indentation + 1);
         break;
       default:
         printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);

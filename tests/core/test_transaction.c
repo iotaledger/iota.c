@@ -10,7 +10,6 @@
 #include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/outputs.h"
-#include "core/models/payloads/indexation.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/unlock_block.h"
 

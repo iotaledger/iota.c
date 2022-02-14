@@ -10,7 +10,6 @@
 #include "core/address.h"
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/outputs/outputs.h"
-#include "core/models/payloads/indexation.h"
 #include "core/models/unlock_block.h"
 #include "core/types.h"
 
@@ -35,7 +34,7 @@ typedef struct {
   utxo_inputs_list_t* inputs;    ///< An UTXO input list
   utxo_outputs_list_t* outputs;  ///< An UTXO output list
   uint32_t payload_len;          ///< The length in bytes of the optional payload.
-  void* payload;                 ///< An indexation payload at this moment
+  void* payload;                 ///< An tagged data payload at this moment
 } transaction_essence_t;
 
 /**
@@ -95,7 +94,7 @@ int tx_essence_add_output(transaction_essence_t* es, utxo_output_type_t type, vo
 /**
  * @brief Add a payload to essence
  *
- * support indexation payload at this moment, type = 2
+ * support tagged data payload at this moment, type = 5
  *
  * @param[in] es An essence object
  * @param[in] type A payload type
