@@ -25,8 +25,16 @@ int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e t
   outputs_query_list_t *next = malloc(sizeof(outputs_query_list_t));
   if (next) {
     next->query_item = malloc(sizeof(outputs_query_params_t));
+    if (!next->query_item) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
     next->query_item->type = type;
     next->query_item->param = malloc(strlen(param) + 1);
+    if (!next->query_item->param) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
     memcpy(next->query_item->param, param, strlen(param) + 1);
     if (next->query_item) {
       LL_APPEND(*list, next);
@@ -348,6 +356,10 @@ int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, r
       return -1;
     }
     cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
+    if (!cmd_buffer) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
     // copy api path
     memcpy(cmd_buffer, INDEXER_OUTPUTS_API_PATH, api_path_len);
     // add "?" query symbol
@@ -357,6 +369,10 @@ int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, r
     free(query_str);
   } else {
     cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
+    if (!cmd_buffer) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
     // copy api path
     memcpy(cmd_buffer, INDEXER_OUTPUTS_API_PATH, api_path_len + 1);
   }
@@ -390,6 +406,10 @@ int get_nft_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, 
       return -1;
     }
     cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
+    if (!cmd_buffer) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
     // copy api path
     memcpy(cmd_buffer, INDEXER_NFT_API_PATH, api_path_len);
     // add "?" query symbol
@@ -399,6 +419,10 @@ int get_nft_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, 
     free(query_str);
   } else {
     cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
+    if (!cmd_buffer) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
     // copy api path
     memcpy(cmd_buffer, INDEXER_NFT_API_PATH, api_path_len + 1);
   }
@@ -432,6 +456,10 @@ int get_alias_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list
       return -1;
     }
     cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
+    if (!cmd_buffer) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
     // copy api path
     memcpy(cmd_buffer, INDEXER_ALIASES_API_PATH, api_path_len);
     // add "?" query symbol
@@ -441,6 +469,10 @@ int get_alias_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list
     free(query_str);
   } else {
     cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
+    if (!cmd_buffer) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
     // copy api path
     memcpy(cmd_buffer, INDEXER_ALIASES_API_PATH, api_path_len + 1);
   }
@@ -474,6 +506,10 @@ int get_foundry_outputs(iota_client_conf_t const *conf, outputs_query_list_t *li
       return -1;
     }
     cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
+    if (!cmd_buffer) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
     // copy api path
     memcpy(cmd_buffer, INDEXER_FOUNDRY_API_PATH, api_path_len);
     // add "?" query symbol
@@ -483,6 +519,10 @@ int get_foundry_outputs(iota_client_conf_t const *conf, outputs_query_list_t *li
     free(query_str);
   } else {
     cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
+    if (!cmd_buffer) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
     // copy api path
     memcpy(cmd_buffer, INDEXER_FOUNDRY_API_PATH, api_path_len + 1);
   }
