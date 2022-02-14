@@ -9,6 +9,7 @@
 #include "client/api/json_parser/payloads.h"
 #include "client/api/json_parser/unlock_blocks.h"
 #include "core/models/payloads/tagged_data.h"
+#include "core/utils/macros.h"
 
 static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   /*
@@ -16,7 +17,7 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
     "type": 0,
     "inputs": input_array
     "outputs": output_array
-    "payload": null
+    "payload": payload object
   }
   */
 
@@ -42,7 +43,7 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   }
 
   // "type": 0 to denote a Transaction Essence.
-  if (!cJSON_AddNumberToObject(es_obj, JSON_KEY_TYPE, 0)) {
+  if (!cJSON_AddNumberToObject(es_obj, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TRANSACTION)) {
     printf("[%s:%d] add tx type failed\n", __func__, __LINE__);
     cJSON_Delete(es_obj);
     return NULL;
@@ -68,7 +69,7 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   if (es->payload) {
     if ((payload_obj = json_tagged_serialize(es->payload)) == NULL) {
       printf("[%s:%d] add payload failed\n", __func__, __LINE__);
-      cJSON_Delete(payload_obj);
+      cJSON_Delete(es_obj);
       return NULL;
     }
     cJSON_AddItemToObject(es_obj, JSON_KEY_PAYLOAD, payload_obj);
@@ -204,7 +205,7 @@ cJSON* json_transaction_serialize(transaction_payload_t* tx) {
   }
 
   // "type": 0,
-  if (!cJSON_AddNumberToObject(tx_payload, JSON_KEY_TYPE, 0)) {
+  if (!cJSON_AddNumberToObject(tx_payload, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TRANSACTION)) {
     printf("[%s:%d] add payload type failed\n", __func__, __LINE__);
     cJSON_Delete(tx_payload);
     return NULL;
@@ -251,7 +252,7 @@ cJSON* json_tagged_serialize(tagged_data_t* tagged_data) {
   }
 
   // "type": 5,
-  if (!cJSON_AddNumberToObject(tagged_data_payload, JSON_KEY_TYPE, 0)) {
+  if (!cJSON_AddNumberToObject(tagged_data_payload, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TAGGED)) {
     printf("[%s:%d] add payload type failed\n", __func__, __LINE__);
     cJSON_Delete(tagged_data_payload);
     return NULL;
@@ -275,11 +276,25 @@ cJSON* json_tagged_serialize(tagged_data_t* tagged_data) {
 
   // data
   if (tagged_data->data) {
-    if (!cJSON_AddStringToObject(tagged_data_payload, JSON_KEY_DATA, (const char* const)tagged_data->data->data)) {
-      printf("[%s:%d] add data type failed\n", __func__, __LINE__);
+    char* data_str = malloc(BIN_TO_HEX_STR_BYTES(tagged_data->data->len));
+    if (!data_str) {
+      printf("[%s:%d] OOM\n", __func__, __LINE__);
       cJSON_Delete(tagged_data_payload);
       return NULL;
     }
+    if (bin_2_hex(tagged_data->data->data, tagged_data->data->len, data_str, sizeof(data_str)) != 0) {
+      printf("[%s:%d] bin to hex data conversion failed\n", __func__, __LINE__);
+      cJSON_Delete(tagged_data_payload);
+      free(data_str);
+      return NULL;
+    }
+    if (!cJSON_AddStringToObject(tagged_data_payload, JSON_KEY_DATA, data_str)) {
+      printf("[%s:%d] add data type failed\n", __func__, __LINE__);
+      cJSON_Delete(tagged_data_payload);
+      free(data_str);
+      return NULL;
+    }
+    free(data_str);
   } else {
     // add a null data to tagged data
     if (!cJSON_AddNullToObject(tagged_data_payload, JSON_KEY_DATA)) {

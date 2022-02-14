@@ -108,8 +108,9 @@ void core_message_free(core_message_t* msg) {
         tx_payload_free((transaction_payload_t*)msg->payload);
       } else if (msg->payload_type == CORE_MESSAGE_PAYLOAD_TAGGED) {
         tagged_data_free((tagged_data_t*)msg->payload);
+      } else {
+        printf("[%s:%d] unsupported payload type\n", __func__, __LINE__);
       }
-      // TODO add/handle support for other payload types
     }
     utarray_free(msg->parents);
     free(msg);

@@ -25,7 +25,7 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx);
  * @brief Serialize a transaction payload object to JSON object
  *
  * @param[in] tx A transaction payload object
- * @return cJSON*
+ * @return cJSON* NULL on errors
  */
 cJSON* json_transaction_serialize(transaction_payload_t* tx);
 
@@ -42,7 +42,7 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_t** tagged_data);
  * @brief Serialize a tagged data payload object to JSON object
  *
  * @param[in] tagged_data A tagged data object
- * @return cJSON*
+ * @return cJSON* NULL on errors
  */
 cJSON* json_tagged_serialize(tagged_data_t* tagged_data);
 
