@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/json_parser/native_tokens.h"
+#include "core/utils/macros.h"
+#include "uthash.h"
 
 /*
   "nativeTokens": [
@@ -57,7 +59,47 @@ int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_t **native_t
   return 0;
 }
 
-cJSON *json_native_tokens_serialize(native_tokens_t **native_tokens) {
-  // TODO
-  return NULL;
+cJSON *json_native_tokens_serialize(native_tokens_t *native_tokens) {
+  cJSON *tokens = cJSON_CreateArray();
+  if (tokens) {
+    if (!native_tokens) {
+      // empty native tokens
+      return tokens;
+    }
+
+    char token_id[BIN_TO_HEX_STR_BYTES(NATIVE_TOKEN_ID_BYTES)] = {};
+    native_tokens_t *elm, *tmp;
+    HASH_ITER(hh, native_tokens, elm, tmp) {
+      cJSON *item = cJSON_CreateObject();
+      if (item) {
+        // add token id
+        if (bin_2_hex(elm->token_id, NATIVE_TOKEN_ID_BYTES, token_id, sizeof(token_id)) != 0) {
+          goto item_err;
+        }
+        cJSON_AddStringToObject(item, JSON_KEY_ID, token_id);
+
+        // add amount
+        char *amount = uint256_to_str(elm->amount);
+        if (!amount) {
+          goto item_err;
+        }
+        cJSON_AddStringToObject(item, JSON_KEY_AMOUNT, amount);
+        free(amount);
+      } else {
+        printf("[%s:%d] new json object error\n", __func__, __LINE__);
+        cJSON_Delete(tokens);
+        return NULL;
+      }
+
+      // add item to array
+      if (cJSON_AddItemToArray(tokens, item) == cJSON_False) {
+      item_err:
+        printf("[%s:%d] add item to array error\n", __func__, __LINE__);
+        cJSON_Delete(item);
+        cJSON_Delete(tokens);
+        return NULL;
+      }
+    }
+  }
+  return tokens;
 }

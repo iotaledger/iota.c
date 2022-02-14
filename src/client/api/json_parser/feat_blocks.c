@@ -289,6 +289,11 @@ cJSON *json_feat_blocks_serialize(feat_blk_list_t *feat_blocks) {
   // create block array
   cJSON *blocks = cJSON_CreateArray();
   if (blocks) {
+    if (!feat_blocks) {
+      // empty feature blocks
+      return blocks;
+    }
+
     cJSON *item = NULL;
     feat_blk_list_t *elm;
     LL_FOREACH(feat_blocks, elm) {
@@ -309,19 +314,20 @@ cJSON *json_feat_blocks_serialize(feat_blk_list_t *feat_blocks) {
           printf("[%s:%d] unsupported feature block\n", __func__, __LINE__);
           break;
       }
-    }
 
-    if (item) {
-      if (cJSON_AddItemToArray(blocks, item) == cJSON_False) {
-        printf("[%s:%d] add block to array error\n", __func__, __LINE__);
-        cJSON_Delete(item);
+      if (item) {
+        // add item to array
+        if (cJSON_AddItemToArray(blocks, item) == cJSON_False) {
+          printf("[%s:%d] add block to array error\n", __func__, __LINE__);
+          cJSON_Delete(item);
+          cJSON_Delete(blocks);
+          return NULL;
+        }
+      } else {
+        printf("[%s:%d] serialize feature block error\n", __func__, __LINE__);
         cJSON_Delete(blocks);
         return NULL;
       }
-    } else {
-      printf("[%s:%d] serialize feature block error\n", __func__, __LINE__);
-      cJSON_Delete(blocks);
-      return NULL;
     }
   }
 
