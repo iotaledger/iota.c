@@ -119,10 +119,12 @@ void test_deser_outputs_err() {
 
 void test_get_output_ids() {
   char addr[] = "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk";
+  char dust_ret_addr[] = "atoi1qpszqzadsym6wpppd6z037dvlejmjuke7s24hm95s9fg9vpua7vluehe53e";
   char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   char const* const addr_hex_invalid_length =
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   char const* const cursor = "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
+  char const* const tag = "4ec7f23a";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_outputs_id_t* res = res_outputs_new();
@@ -205,6 +207,47 @@ void test_get_output_ids() {
   TEST_ASSERT_NOT_NULL(res);
 
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_CURSOR, cursor) == 0);
+  ret = get_outputs_id(&ctx, list, res);
+  TEST_ASSERT(ret == 0);
+  TEST_ASSERT(res->is_error == false);
+
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+
+  // TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_DUST_RET, "true") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_DUST_RET, "false") == 0);
+  ret = get_outputs_id(&ctx, list, res);
+  TEST_ASSERT(ret == 0);
+  TEST_ASSERT(res->is_error == false);
+
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_DUST_RET_ADDR, dust_ret_addr) == 0);
+  ret = get_outputs_id(&ctx, list, res);
+  TEST_ASSERT(ret == 0);
+  TEST_ASSERT(res->is_error == false);
+
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_SENDER, addr) == 0);
+  ret = get_outputs_id(&ctx, list, res);
+  TEST_ASSERT(ret == 0);
+  TEST_ASSERT(res->is_error == false);
+
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_TAG, tag) == 0);
   ret = get_outputs_id(&ctx, list, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);

@@ -9,6 +9,10 @@
 #include "utlist.h"
 
 #define OUTPUTS_QUERY_ADDRESS_KEY "address"
+#define OUTPUTS_QUERY_DUST_RET_KEY "hasDustReturnCondition"
+#define OUTPUTS_QUERY_DUST_RET_ADDR_KEY "dustReturnAddress"
+#define OUTPUTS_QUERY_SENDER_KEY "sender"
+#define OUTPUTS_QUERY_TAG_KEY "tag"
 #define OUTPUTS_QUERY_PAGE_SIZE_KEY "pageSize"
 #define OUTPUTS_QUERY_CURSOR_KEY "cursor"
 
@@ -38,6 +42,26 @@ size_t get_outputs_query_str_len(outputs_query_list_t *list) {
     switch (elm->query_item->type) {
       case QUERY_PARAM_ADDRESS:
         query_str_len += strlen(OUTPUTS_QUERY_ADDRESS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
+      case QUERY_PARAM_DUST_RET:
+        query_str_len += strlen(OUTPUTS_QUERY_DUST_RET_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
+      case QUERY_PARAM_DUST_RET_ADDR:
+        query_str_len += strlen(OUTPUTS_QUERY_DUST_RET_ADDR_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
+      case QUERY_PARAM_SENDER:
+        query_str_len += strlen(OUTPUTS_QUERY_SENDER_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
+      case QUERY_PARAM_TAG:
+        query_str_len += strlen(OUTPUTS_QUERY_TAG_KEY);
         query_str_len += strlen(elm->query_item->param);
         query_str_len += 2;  // For "&" params seperator and "=" params assignment
         break;
@@ -83,6 +107,18 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
     switch (elm->query_item->type) {
       case QUERY_PARAM_ADDRESS:
         offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_ADDRESS_KEY, elm);
+        break;
+      case QUERY_PARAM_DUST_RET:
+        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_DUST_RET_KEY, elm);
+        break;
+      case QUERY_PARAM_DUST_RET_ADDR:
+        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_DUST_RET_ADDR_KEY, elm);
+        break;
+      case QUERY_PARAM_SENDER:
+        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_SENDER_KEY, elm);
+        break;
+      case QUERY_PARAM_TAG:
+        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_TAG_KEY, elm);
         break;
       case QUERY_PARAM_PAGE_SIZE:
         offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_PAGE_SIZE_KEY, elm);
@@ -254,6 +290,7 @@ static int get_outputs_api_call(iota_client_conf_t const *conf, char *cmd_buffer
   // send request via http client
   if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
+    printf("Response : %s\n", http_res->data);
     // json deserialization
     ret = deser_outputs((char const *const)http_res->data, res);
   }
@@ -298,6 +335,8 @@ int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, r
     // copy api path
     memcpy(cmd_buffer, INDEXER_OUTPUTS_API_PATH, api_path_len + 1);
   }
+
+  printf("CMD_BUFFER : %s\n", cmd_buffer);
 
   return get_outputs_api_call(conf, cmd_buffer, res);
 }
