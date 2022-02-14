@@ -21,9 +21,15 @@ void test_query_params() {
       "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
   outputs_query_list_t* list = outputs_query_list_new();
   TEST_ASSERT_NULL(list);
+  // Check len qyery string len for empty list
+  size_t query_str_len = get_outputs_query_str_len(list);
+  TEST_ASSERT_EQUAL(0, query_str_len);
+  char query_str[10];
+  size_t ret = get_outputs_query_str(list, query_str, 10);
+  TEST_ASSERT_EQUAL(0, ret);
   // Add address query parameter
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ADDRESS, addr) == 0);
-  size_t query_str_len = get_outputs_query_str_len(list);
+  query_str_len = get_outputs_query_str_len(list);
   TEST_ASSERT_EQUAL(72, query_str_len);
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_PAGE_SIZE, "2") == 0);
   query_str_len = get_outputs_query_str_len(list);
@@ -34,7 +40,7 @@ void test_query_params() {
   TEST_ASSERT_NOT_EQUAL(0, query_str_len);
   char* buffer = malloc(query_str_len + 1);
   TEST_ASSERT_NOT_NULL(buffer);
-  size_t ret = get_outputs_query_str(list, buffer, query_str_len + 1);
+  ret = get_outputs_query_str(list, buffer, query_str_len + 1);
   TEST_ASSERT_NOT_EQUAL(0, ret);
   TEST_ASSERT_EQUAL(ret, query_str_len + 1);
   printf("Query String : %s\n", buffer);

@@ -102,7 +102,10 @@ size_t get_outputs_query_str_len(outputs_query_list_t *list) {
         break;
     }
   }
-  query_str_len--;  // Remove the "&" params seperator at the end
+  // check if there was at least one item in the list
+  if (query_str_len > 0) {
+    query_str_len--;  // Remove the "&" params seperator at the end
+  }
   return query_str_len;
 }
 
@@ -120,8 +123,13 @@ static int copy_param_to_buf(char *buf, size_t offset, char *key, outputs_query_
 size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_len) {
   // Check if buffer length is sufficient for holding query string
   size_t query_str_len = get_outputs_query_str_len(list);
+  if (query_str_len == 0) {
+    printf("[%s:%d] No Element in Listn", __func__, __LINE__);
+    return 0;
+  }
   if (buf_len < query_str_len + 1) {
     printf("[%s:%d] buffer length not sufficient\n", __func__, __LINE__);
+    return 0;
   }
 
   size_t offset = 0;
@@ -162,7 +170,9 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
         break;
     }
   }
-  buf[offset - 1] = 0;  // Replace the "&" at the end with '\0'
+  if (buf[offset - 1] == '&') {
+    buf[offset - 1] = 0;  // Replace the "&" at the end with '\0'
+  }
   return offset;
 }
 
