@@ -6,6 +6,109 @@
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
+#include "utlist.h"
+
+#define OUTPUTS_QUERY_ADDRESS_KEY "address"
+#define OUTPUTS_QUERY_PAGE_SIZE_KEY "pageSize"
+#define OUTPUTS_QUERY_CURSOR_KEY "cursor"
+
+outputs_query_list_t *outputs_query_list_new() { return NULL; }
+
+int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e type, char const *const param) {
+  outputs_query_list_t *next = malloc(sizeof(outputs_query_list_t));
+  if (next) {
+    next->query_item = malloc(sizeof(outputs_query_params_t));
+    next->query_item->type = type;
+    next->query_item->param = malloc(strlen(param) + 1);
+    memcpy(next->query_item->param, param, strlen(param) + 1);
+    if (next->query_item) {
+      LL_APPEND(*list, next);
+      return 0;
+    } else {
+      free(next);
+    }
+  }
+  return -1;
+}
+
+size_t get_outputs_query_str_len(outputs_query_list_t *list) {
+  size_t query_str_len = 0;
+  outputs_query_list_t *elm;
+  LL_FOREACH(list, elm) {
+    switch (elm->query_item->type) {
+      case QUERY_PARAM_ADDRESS:
+        query_str_len += strlen(OUTPUTS_QUERY_ADDRESS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
+      case QUERY_PARAM_PAGE_SIZE:
+        query_str_len += strlen(OUTPUTS_QUERY_PAGE_SIZE_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
+      case QUERY_PARAM_CURSOR:
+        query_str_len += strlen(OUTPUTS_QUERY_CURSOR_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
+      default:
+        break;
+    }
+  }
+  query_str_len--;  // Remove the "&" params seperator at the end
+  return query_str_len;
+}
+
+static int copy_param_to_buf(char *buf, size_t offset, char *key, outputs_query_list_t *elm) {
+  int len = offset;
+  memcpy(buf + offset, key, strlen(key));
+  offset += strlen(key);
+  buf[offset++] = '=';
+  memcpy(buf + offset, elm->query_item->param, strlen(elm->query_item->param));
+  offset += strlen(elm->query_item->param);
+  buf[offset++] = '&';
+  return offset - len;
+}
+
+size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_len) {
+  // Check if buffer length is sufficient for holding query string
+  size_t query_str_len = get_outputs_query_str_len(list);
+  if (buf_len < query_str_len + 1) {
+    printf("[%s:%d] buffer length not sufficient\n", __func__, __LINE__);
+  }
+
+  size_t offset = 0;
+  outputs_query_list_t *elm;
+  LL_FOREACH(list, elm) {
+    switch (elm->query_item->type) {
+      case QUERY_PARAM_ADDRESS:
+        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_ADDRESS_KEY, elm);
+        break;
+      case QUERY_PARAM_PAGE_SIZE:
+        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_PAGE_SIZE_KEY, elm);
+        break;
+      case QUERY_PARAM_CURSOR:
+        offset += copy_param_to_buf(buf, offset, OUTPUTS_QUERY_CURSOR_KEY, elm);
+        break;
+      default:
+        break;
+    }
+  }
+  buf[offset - 1] = 0;  // Replace the "&" at the end with '\0'
+  return offset;
+}
+
+void outputs_query_list_free(outputs_query_list_t *list) {
+  outputs_query_list_t *elm, *tmp;
+  if (list) {
+    LL_FOREACH_SAFE(list, elm, tmp) {
+      free(elm->query_item->param);
+      free(elm->query_item);
+      LL_DELETE(list, elm);
+      free(elm);
+    }
+  }
+}
 
 static get_outputs_id_t *outputs_new() {
   get_outputs_id_t *ids = malloc(sizeof(get_outputs_id_t));

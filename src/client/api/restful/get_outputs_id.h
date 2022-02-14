@@ -11,6 +11,36 @@
 #include "core/address.h"
 #include "core/types.h"
 
+#define INDEXER_OUTPUTS_API_PATH "/api/plugins/indexer/v1/outputs"
+
+/**
+ * @brief All Query Params Type
+ *
+ */
+typedef enum {
+  QUERY_PARAM_ADDRESS = 0,  ///< The Bech32-encoded address that should be used to query outputs
+  QUERY_PARAM_PAGE_SIZE,    ///< The maximum amount of items returned in one api call
+  QUERY_PARAM_CURSOR        ///<  A cursor to start the query (confirmationMS+outputId.pageSize)
+} outputs_query_params_e;
+
+/**
+ * @brief A Query Param Onject
+ *
+ */
+typedef struct {
+  outputs_query_params_e type;  ///< The type of query param
+  char *param;                  ///< Query param data
+} outputs_query_params_t;
+
+/**
+ * @brief A list of outputs query parameters
+ *
+ */
+typedef struct outputs_query_list {
+  outputs_query_params_t *query_item;  ///< Points to a query parameter object
+  struct outputs_query_list *next;     ///< Points to next query parameter object
+} outputs_query_list_t;
+
 /**
  * @brief An output object
  *
@@ -38,6 +68,46 @@ typedef struct {
 extern "C" {
 #endif
 
+/**
+ * @brief New outputs query params list
+ *
+ * @return outputs_query_list_t*
+ */
+outputs_query_list_t *outputs_query_list_new();
+
+/**
+ * @brief Add a querry parameter to the list
+ *
+ * @param[in] list A query item list
+ * @param[in] type A query parameter type
+ * @param[in] param A query parameter
+ * @return int 0 on success
+ */
+int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e type, char const *const param);
+
+/**
+ * @brief Get the length of query string present in list
+ *
+ * @param[in] list A query item list
+ * @return size_t Query string len
+ */
+size_t get_outputs_query_str_len(outputs_query_list_t *list);
+
+/**
+ * @brief Get the query string present in list
+ *
+ * @param[in] list A query item list
+ * @param[in] buf A buffer to hold query string
+ * @param[in] buf_len The length of the buffer
+ * @return size_t Query string len
+ */
+size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_len);
+
+/**
+ * @brief Free query list
+ *
+ */
+void outputs_query_list_free(outputs_query_list_t *list);
 /**
  * @brief Allocats an output address response object
  *
