@@ -365,27 +365,41 @@ int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, r
   return get_outputs_api_call(conf, cmd_buffer, res);
 }
 
-// TODO: handle querry parameters - stateController, governor, issuer and sender
-int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res) {
-  if (conf == NULL || addr == NULL || res == NULL) {
+int get_nft_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res) {
+  if (conf == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
 
-  size_t addr_len = strlen(addr);
-  if (addr_len != BECH32_ENCODED_NFT_ADDRESS) {
-    printf("[%s:%d] incorrect length of an address\n", __func__, __LINE__);
-    return -1;
-  }
-
   // compose restful api command
-  char cmd_buffer[83] = {0};  // 83 = max size of api path(37) + BECH32_ENCODED_NFT_ADDRESS(45) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nfts?address=%s", addr);
+  char *cmd_buffer;
+  size_t api_path_len = strlen(INDEXER_NFT_API_PATH);
 
-  // check if data stored is not more than buffer length
-  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
-    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
-    return -1;
+  if (list) {
+    size_t query_str_len = get_outputs_query_str_len(list);
+    char *query_str = malloc(query_str_len + 1);
+    if (!query_str) {
+      printf("[%s:%d]: OOM\n", __func__, __LINE__);
+      return -1;
+    }
+    size_t len = get_outputs_query_str(list, query_str, query_str_len + 1);
+    if (len != query_str_len + 1) {
+      printf("[%s:%d]: Query string len and copied data mismatch\n", __func__, __LINE__);
+      free(query_str);
+      return -1;
+    }
+    cmd_buffer = malloc(api_path_len + 1 + query_str_len + 1);  // api_path + '?' + query_str + '\0'
+    // copy api path
+    memcpy(cmd_buffer, INDEXER_NFT_API_PATH, api_path_len);
+    // add "?" query symbol
+    cmd_buffer[api_path_len] = '?';
+    // copy query strings
+    memcpy(cmd_buffer + api_path_len + 1, query_str, query_str_len + 1);
+    free(query_str);
+  } else {
+    cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
+    // copy api path
+    memcpy(cmd_buffer, INDEXER_NFT_API_PATH, api_path_len + 1);
   }
 
   return get_outputs_api_call(conf, cmd_buffer, res);

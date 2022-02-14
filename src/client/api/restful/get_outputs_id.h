@@ -13,6 +13,7 @@
 
 #define INDEXER_OUTPUTS_API_PATH "/api/plugins/indexer/v1/outputs"
 #define INDEXER_ALIASES_API_PATH "/api/plugins/indexer/v1/aliases"
+#define INDEXER_NFT_API_PATH "/api/plugins/indexer/v1/nfts"
 
 /**
  * @brief All Query Params Type
@@ -175,7 +176,7 @@ int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, r
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
+int get_nft_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Alias address
