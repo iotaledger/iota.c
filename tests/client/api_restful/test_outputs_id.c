@@ -300,7 +300,7 @@ void test_get_output_ids_from_nft_address() {
   res_outputs_free(res);
 }
 
-void test_get_output_ids_from_alias() {
+void test_get_alias_outputs() {
   char addr_alias[] = "atoi1zpk6m4x7m2t6k5pvgs0yd2nqelfaz09ueyyv6fwn";
   char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   char const* const addr_hex_invalid_length = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
@@ -583,7 +583,7 @@ int main() {
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_output_ids);
   RUN_TEST(test_get_output_ids_from_nft_address);
-  RUN_TEST(test_get_output_ids_from_alias);
+  RUN_TEST(test_get_alias_outputs);
   RUN_TEST(test_get_output_ids_from_foundry_address);
   RUN_TEST(test_get_output_ids_from_nft_id);
   RUN_TEST(test_get_output_ids_from_alias_id);
