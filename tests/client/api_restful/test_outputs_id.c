@@ -13,6 +13,36 @@ void setUp(void) {}
 
 void tearDown(void) {}
 
+void test_query_params() {
+  char addr[] = "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk";
+  char const* const cursor = "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
+  char const* const expected_query_str =
+      "address=atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&pageSize=2&cursor="
+      "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
+  outputs_query_list_t* list = outputs_query_list_new();
+  TEST_ASSERT_NULL(list);
+  // Add address query parameter
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ADDRESS, addr) == 0);
+  size_t query_str_len = get_outputs_query_str_len(list);
+  TEST_ASSERT_EQUAL(72, query_str_len);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_PAGE_SIZE, "2") == 0);
+  query_str_len = get_outputs_query_str_len(list);
+  TEST_ASSERT_EQUAL(83, query_str_len);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_CURSOR, cursor) == 0);
+  query_str_len = get_outputs_query_str_len(list);
+  TEST_ASSERT_EQUAL(169, query_str_len);
+  TEST_ASSERT_NOT_EQUAL(0, query_str_len);
+  char* buffer = malloc(query_str_len + 1);
+  TEST_ASSERT_NOT_NULL(buffer);
+  size_t ret = get_outputs_query_str(list, buffer, query_str_len + 1);
+  TEST_ASSERT_NOT_EQUAL(0, ret);
+  TEST_ASSERT_EQUAL(ret, query_str_len + 1);
+  printf("Query String : %s\n", buffer);
+  TEST_ASSERT_EQUAL_STRING(buffer, expected_query_str);
+  free(buffer);
+  outputs_query_list_free(list);
+}
+
 void test_deser_outputs() {
   // empty output ids
   char const* const data_empty = "{\"pageSize\":2,\"items\":[],\"ledgerIndex\":837834}";
@@ -87,23 +117,20 @@ void test_deser_outputs_err() {
   res_outputs_free(res);
 }
 
-void test_get_output_ids_from_address() {
+void test_get_output_ids() {
   char addr[] = "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk";
   char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   char const* const addr_hex_invalid_length =
       "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  char const* const cursor = "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_outputs_id_t* res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
 
   // Tests for NULL cases
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(NULL, NULL, NULL));
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(NULL, NULL, res));
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, NULL, res));
-
-  // Test invalid address len
-  TEST_ASSERT_EQUAL_INT(-1, get_outputs_from_address(&ctx, addr_hex_invalid_length, res));
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_id(NULL, NULL, NULL));
+  TEST_ASSERT_EQUAL_INT(-1, get_outputs_id(NULL, NULL, res));
 
   // Re initializing res
   res_outputs_free(res);
@@ -111,23 +138,78 @@ void test_get_output_ids_from_address() {
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
 
-  // Test invalid address
-  TEST_ASSERT_EQUAL_INT(0, get_outputs_from_address(&ctx, addr_hex_invalid, res));
+  // Test for /outputs without query params
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_id(&ctx, NULL, res));
+  TEST_ASSERT(res->is_error == false);
+
+  // Re initializing res
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+
+  // Test invalid address len
+  outputs_query_list_t* list = outputs_query_list_new();
+  TEST_ASSERT_NULL(list);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ADDRESS, addr_hex_invalid_length) == 0);
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_id(&ctx, list, res));
   TEST_ASSERT(res->is_error);
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
   }
 
   // Re initializing res
+  outputs_query_list_free(list);
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+  list = outputs_query_list_new();
+  TEST_ASSERT_NULL(list);
+
+  // Test invalid address
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ADDRESS, addr_hex_invalid) == 0);
+  TEST_ASSERT_EQUAL_INT(0, get_outputs_id(&ctx, list, res));
+  TEST_ASSERT(res->is_error);
+  if (res->is_error == true) {
+    printf("Error: %s\n", res->u.error->msg);
+  }
+
+  // Re initializing res
+  outputs_query_list_free(list);
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+  list = outputs_query_list_new();
+  TEST_ASSERT_NULL(list);
+
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ADDRESS, addr) == 0);
+  int ret = get_outputs_id(&ctx, list, res);
+  TEST_ASSERT(ret == 0);
+  TEST_ASSERT(res->is_error == false);
+
   res_outputs_free(res);
   res = NULL;
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
 
-  int ret = get_outputs_from_address(&ctx, addr, res);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_PAGE_SIZE, "2") == 0);
+  ret = get_outputs_id(&ctx, list, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
 
+  res_outputs_free(res);
+  res = NULL;
+  res = res_outputs_new();
+  TEST_ASSERT_NOT_NULL(res);
+
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_CURSOR, cursor) == 0);
+  ret = get_outputs_id(&ctx, list, res);
+  TEST_ASSERT(ret == 0);
+  TEST_ASSERT(res->is_error == false);
+
+  outputs_query_list_free(list);
   res_outputs_free(res);
 }
 
@@ -404,11 +486,11 @@ void test_get_output_ids_from_foundry_id() {
 
 int main() {
   UNITY_BEGIN();
-
+  RUN_TEST(test_query_params);
   RUN_TEST(test_deser_outputs);
   RUN_TEST(test_deser_outputs_err);
 #if TEST_TANGLE_ENABLE
-  RUN_TEST(test_get_output_ids_from_address);
+  RUN_TEST(test_get_output_ids);
   RUN_TEST(test_get_output_ids_from_nft_address);
   RUN_TEST(test_get_output_ids_from_alias_address);
   RUN_TEST(test_get_output_ids_from_foundry_address);
