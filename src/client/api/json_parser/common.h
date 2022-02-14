@@ -21,6 +21,14 @@ extern "C" {
  */
 int json_parser_common_address_deserialize(cJSON *json_obj, char const *const json_address_key, address_t *address);
 
+/**
+ * @brief Serialize An address to JSON object
+ *
+ * @param[in] address An address object
+ * @return cJSON* NULL on error
+ */
+cJSON *json_parser_common_address_serialize(address_t *address);
+
 #ifdef __cplusplus
 }
 #endif

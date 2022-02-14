@@ -3,6 +3,8 @@
 
 #include "client/api/json_parser/feat_blocks.h"
 #include "client/api/json_parser/common.h"
+#include "core/utils/macros.h"
+#include "utlist.h"
 
 /*
   "type": 0,
@@ -30,6 +32,30 @@ int json_feat_blk_sender_deserialize(cJSON *feat_block_obj, feat_blk_list_t **fe
     return -1;
   }
   return 0;
+}
+
+static cJSON *json_feat_blk_sender_serialize(feat_block_t *block) {
+  if (!block || block->type != FEAT_SENDER_BLOCK) {
+    printf("[%s:%d] invalid block\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  cJSON *sender_obj = cJSON_CreateObject();
+  if (sender_obj) {
+    // add type to sender
+    cJSON_AddNumberToObject(sender_obj, JSON_KEY_TYPE, FEAT_SENDER_BLOCK);
+
+    // add address to sender
+    cJSON *addr = json_parser_common_address_serialize((address_t *)block->block);
+    if (addr) {
+      cJSON_AddObjectToObject(addr, JSON_KEY_ADDR);
+    } else {
+      printf("[%s:%d] adding address into block error\n", __func__, __LINE__);
+      cJSON_Delete(sender_obj);
+      return NULL;
+    }
+  }
+  return sender_obj;
 }
 
 /*
@@ -60,6 +86,30 @@ int json_feat_blk_issuer_deserialize(cJSON *feat_block_obj, feat_blk_list_t **fe
   return 0;
 }
 
+static cJSON *json_feat_blk_issuer_serialize(feat_block_t *block) {
+  if (!block || block->type != FEAT_ISSUER_BLOCK) {
+    printf("[%s:%d] invalid block\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  cJSON *issuer_obj = cJSON_CreateObject();
+  if (issuer_obj) {
+    // add type
+    cJSON_AddNumberToObject(issuer_obj, JSON_KEY_TYPE, FEAT_ISSUER_BLOCK);
+
+    // add address
+    cJSON *addr = json_parser_common_address_serialize((address_t *)block->block);
+    if (addr) {
+      cJSON_AddObjectToObject(addr, JSON_KEY_ADDR);
+    } else {
+      printf("[%s:%d] adding address into block error\n", __func__, __LINE__);
+      cJSON_Delete(issuer_obj);
+      return NULL;
+    }
+  }
+  return issuer_obj;
+}
+
 /*
   "type": 2,
   "data": "010203040506070809"
@@ -87,6 +137,41 @@ int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t **
   return 0;
 }
 
+static cJSON *json_feat_blk_metadata_serialize(feat_metadata_blk_t *block) {
+  if (!block) {
+    printf("[%s:%d] invalid block\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  cJSON *meta = cJSON_CreateObject();
+  if (meta) {
+    // add type
+    cJSON_AddNumberToObject(meta, JSON_KEY_TYPE, FEAT_METADATA_BLOCK);
+
+    // add metadata
+    char *data_str = malloc(BIN_TO_HEX_STR_BYTES(block->data_len));
+    if (!data_str) {
+      printf("[%s:%d] allocate data error\n", __func__, __LINE__);
+      cJSON_Delete(meta);
+      return NULL;
+    }
+
+    // TODO, is data contain data length in JSON object?
+    // convert data to hex string
+    if (bin_2_hex(block->data, block->data_len, data_str, BIN_TO_HEX_STR_BYTES(block->data_len)) != 0) {
+      printf("[%s:%d] convert data to hex string error\n", __func__, __LINE__);
+      cJSON_Delete(meta);
+      free(data_str);
+      return NULL;
+    }
+
+    // add string to json
+    cJSON_AddStringToObject(meta, JSON_KEY_DATA, data_str);
+    free(data_str);
+  }
+  return meta;
+}
+
 /*
   "type": 3,
   "tag": "01020304"
@@ -111,6 +196,33 @@ int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_
   }
 
   return 0;
+}
+
+static cJSON *json_feat_blk_tag_serialize(feat_tag_blk_t *block) {
+  if (!block) {
+    printf("[%s:%d] invalid block\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  cJSON *meta = cJSON_CreateObject();
+  if (meta) {
+    // add type
+    cJSON_AddNumberToObject(meta, JSON_KEY_TYPE, FEAT_TAG_BLOCK);
+
+    // add tag
+    char tag_str[BIN_TO_HEX_STR_BYTES(MAX_INDEX_TAG_BYTES)] = {};
+    // TODO, is tag contain tag length in JSON object?
+    // convert tag to hex string
+    if (bin_2_hex(block->tag, block->tag_len, tag_str, sizeof(tag_str)) != 0) {
+      printf("[%s:%d] convert tag to hex string error\n", __func__, __LINE__);
+      cJSON_Delete(meta);
+      return NULL;
+    }
+
+    // add string to json
+    cJSON_AddStringToObject(meta, JSON_KEY_DATA, tag_str);
+  }
+  return meta;
 }
 
 /*
@@ -165,7 +277,7 @@ int json_feat_blocks_deserialize(cJSON *output_obj, feat_blk_list_t **feat_block
         }
         break;
       default:
-        printf("[%s:%d] unsupported unlock condition\n", __func__, __LINE__);
+        printf("[%s:%d] unsupported feature block\n", __func__, __LINE__);
         return -1;
     }
   }
@@ -174,6 +286,44 @@ int json_feat_blocks_deserialize(cJSON *output_obj, feat_blk_list_t **feat_block
 }
 
 cJSON *json_feat_blocks_serialize(feat_blk_list_t *feat_blocks) {
-  // TODO
-  return NULL;
+  // create block array
+  cJSON *blocks = cJSON_CreateArray();
+  if (blocks) {
+    cJSON *item = NULL;
+    feat_blk_list_t *elm;
+    LL_FOREACH(feat_blocks, elm) {
+      switch (elm->blk->type) {
+        case FEAT_SENDER_BLOCK:
+          item = json_feat_blk_sender_serialize(elm->blk);
+          break;
+        case FEAT_ISSUER_BLOCK:
+          item = json_feat_blk_issuer_serialize(elm->blk);
+          break;
+        case FEAT_METADATA_BLOCK:
+          item = json_feat_blk_metadata_serialize((feat_metadata_blk_t *)elm->blk);
+          break;
+        case FEAT_TAG_BLOCK:
+          item = json_feat_blk_tag_serialize((feat_tag_blk_t *)elm->blk);
+          break;
+        default:
+          printf("[%s:%d] unsupported feature block\n", __func__, __LINE__);
+          break;
+      }
+    }
+
+    if (item) {
+      if (cJSON_AddItemToArray(blocks, item) == cJSON_False) {
+        printf("[%s:%d] add block to array error\n", __func__, __LINE__);
+        cJSON_Delete(item);
+        cJSON_Delete(blocks);
+        return NULL;
+      }
+    } else {
+      printf("[%s:%d] serialize feature block error\n", __func__, __LINE__);
+      cJSON_Delete(blocks);
+      return NULL;
+    }
+  }
+
+  return blocks;
 }
