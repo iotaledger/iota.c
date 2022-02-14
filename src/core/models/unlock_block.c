@@ -296,13 +296,13 @@ void unlock_blocks_print(unlock_list_t* blocks, uint8_t indentation) {
         printf("%s\t]\n", PRINT_INDENTATION(indentation));
       } else if (elm->block.type == UNLOCK_BLOCK_TYPE_REFERENCE) {  // reference block
         printf("%s\tReference block[ ", PRINT_INDENTATION(indentation));
-        printf("%s\t\tRef: %" PRIu16 " ]\n", PRINT_INDENTATION(indentation), *(unlock_index_t*)elm->block.block_data);
+        printf("Ref: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
       } else if (elm->block.type == UNLOCK_BLOCK_TYPE_ALIAS) {  // alias block
         printf("%s\tAlias block[ ", PRINT_INDENTATION(indentation));
-        printf("%s\t\tRef: %" PRIu16 " ]\n", PRINT_INDENTATION(indentation), *(unlock_index_t*)elm->block.block_data);
+        printf("Ref: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
       } else if (elm->block.type == UNLOCK_BLOCK_TYPE_NFT) {  // NFT block
         printf("%s\tNFT block[ ", PRINT_INDENTATION(indentation));
-        printf("%s\t\tRef: %" PRIu16 " ]\n", PRINT_INDENTATION(indentation), *(unlock_index_t*)elm->block.block_data);
+        printf("Ref: %" PRIu16 " ]\n", *(unlock_index_t*)elm->block.block_data);
       } else {
         printf("[%s:%d] Unknown unlocked block type\n", __func__, __LINE__);
       }
