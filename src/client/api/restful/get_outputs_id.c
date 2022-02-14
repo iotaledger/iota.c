@@ -25,20 +25,17 @@ int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e t
   outputs_query_list_t *next = malloc(sizeof(outputs_query_list_t));
   if (next) {
     next->query_item = malloc(sizeof(outputs_query_params_t));
-    if (!next->query_item) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    next->query_item->type = type;
-    next->query_item->param = malloc(strlen(param) + 1);
-    if (!next->query_item->param) {
-      printf("[%s:%d]: OOM\n", __func__, __LINE__);
-      return -1;
-    }
-    memcpy(next->query_item->param, param, strlen(param) + 1);
     if (next->query_item) {
-      LL_APPEND(*list, next);
-      return 0;
+      next->query_item->type = type;
+      next->query_item->param = malloc(strlen(param) + 1);
+      if (next->query_item->param) {
+        memcpy(next->query_item->param, param, strlen(param) + 1);
+        LL_APPEND(*list, next);
+        return 0;
+      } else {
+        free(next->query_item);
+        free(next);
+      }
     } else {
       free(next);
     }
