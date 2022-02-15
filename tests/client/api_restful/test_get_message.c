@@ -15,7 +15,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_msg_by_id() {
-  char const* const msg_id = "89e6422b28974940af3e0750790c2a685b296cf29af28565b36cc17436f7fdf2";
+  char const* const msg_id = "9fcb00f23d9f794ceb82930ffe6657e16032c72818ccaadb991e4b9b0190660c";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();
@@ -282,10 +282,8 @@ int main() {
 
   RUN_TEST(test_deser_simple_tx);
   RUN_TEST(test_deser_milestone);
-#if 0  // FIXME
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_msg_by_id);
-#endif
 #endif
   return UNITY_END();
 }
