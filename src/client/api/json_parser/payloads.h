@@ -11,6 +11,8 @@
 extern "C" {
 #endif
 
+int milestone_deserialize(cJSON* payload, milestone_t* ms);
+
 // TODO
 int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx);
 

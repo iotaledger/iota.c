@@ -33,7 +33,7 @@ static int milestone_deserialize(cJSON *milestone_obj, res_message_t *res) {
   }
 
   // parsing index
-  if ((ret = json_get_uint64(milestone_obj, JSON_KEY_INDEX, &ms->index)) != 0) {
+  if ((ret = json_get_uint32(milestone_obj, JSON_KEY_INDEX, &ms->index)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_INDEX);
     goto end;
   }
@@ -44,12 +44,38 @@ static int milestone_deserialize(cJSON *milestone_obj, res_message_t *res) {
     goto end;
   }
 
+  // parsing parents
+  if ((ret = json_string_array_to_utarray(milestone_obj, JSON_KEY_PARENT_IDS, ms->parents)) != 0) {
+    printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
+  }
+
   // parsing inclusion Merkle proof
   if ((ret = json_get_string(milestone_obj, JSON_KEY_INCLUSION_MKL, ms->inclusion_merkle_proof,
                              sizeof(ms->inclusion_merkle_proof))) != 0) {
     printf("[%s:%d]: parsing %s string failed\n", __func__, __LINE__, JSON_KEY_INCLUSION_MKL);
     goto end;
   }
+
+  // parsing next Pow score
+  if ((ret = json_get_uint32(milestone_obj, JSON_KEY_NEXT_POW_SCORE, &ms->next_pow_score)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE);
+    goto end;
+  }
+
+  // parsing next Pow score milestone index
+  if ((ret = json_get_uint32(milestone_obj, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX,
+                             &ms->next_pow_score_milestone_index)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX);
+    goto end;
+  }
+
+  // parsing public keys
+  if ((ret = json_string_array_to_utarray(milestone_obj, JSON_KEY_PUBLIC_KEYS, ms->pub_keys)) != 0) {
+    printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_PUBLIC_KEYS);
+  }
+
+  // parsing receipt
+  // TODO parse receipt
 
   // parsing signatures
   if ((ret = json_string_array_to_utarray(milestone_obj, JSON_KEY_SIGNATURES, ms->signatures)) != 0) {

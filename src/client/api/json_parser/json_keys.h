@@ -91,5 +91,8 @@ static char const* const JSON_KEY_MAX_SUPPLY = "maximumSupply";
 static char const* const JSON_KEY_TOKEN_SCHEME = "tokenScheme";
 static char const* const JSON_KEY_NFT_ID = "nftId";
 static char const* const JSON_KEY_IMMUTABLE_DATA = "immutableData";
+static char const* const JSON_KEY_NEXT_POW_SCORE = "nextPoWScore";
+static char const* const JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX = "nextPoWScoreMilestoneIndex";
+static char const* const JSON_KEY_PUBLIC_KEYS = "publicKeys";
 
 #endif

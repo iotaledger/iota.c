@@ -93,6 +93,36 @@ json_error_t json_string_array_to_utarray(cJSON const* const obj, char const key
 json_error_t utarray_to_json_string_array(UT_array const* const ut, cJSON* const obj, char const* const key);
 
 /**
+ * @brief Converts array of JSON string message IDs to utarray of message IDs
+ *
+ * @param[in] obj A JSON object
+ * @param[in] key A key of JSON array
+ * @param[out] ut An utarray of message IDs
+ * @return json_error_t
+ */
+json_error_t json_string_array_to_msg_ids(cJSON const* const obj, char const key[], UT_array* ut);
+
+/**
+ * @brief Converts array of JSON string signatures to utarray of signatures
+ *
+ * @param[in] obj A JSON object
+ * @param[in] key A key of JSON array
+ * @param[out] ut An utarray of signatures
+ * @return json_error_t
+ */
+json_error_t json_string_array_to_signature(cJSON const* const obj, char const key[], UT_array* ut);
+
+/**
+ * @brief Converts array of JSON string public keys to utarray of public keys
+ *
+ * @param[in] obj A JSON object
+ * @param[in] key A key of JSON array
+ * @param[out] ut An utarray of public keys
+ * @return json_error_t
+ */
+json_error_t json_string_array_to_pub_key(cJSON const* const obj, char const key[], UT_array* ut);
+
+/**
  * @brief Gets an integer from a JSON object.
  *
  * @param[in] obj A JSON object
