@@ -46,13 +46,13 @@ extern "C" {
  * @brief Allocates message metadata response
  * @return res_msg_meta_t*
  */
-res_msg_meta_t *res_msg_meta_new();
+res_msg_meta_t *msg_meta_new();
 
 /**
  * @brief Frees a message metadata reponse object
  * @param[in] res A response object
  */
-void res_msg_meta_free(res_msg_meta_t *res);
+void msg_meta_free(res_msg_meta_t *res);
 
 /**
  * @brief message metadata JSON deserialization
@@ -61,7 +61,7 @@ void res_msg_meta_free(res_msg_meta_t *res);
  * @param[out] res A response object of message metadata
  * @return int 0 on success
  */
-int deser_msg_meta(char const *const j_str, res_msg_meta_t *res);
+int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res);
 
 /**
  * @brief Gets the number of parent messages
@@ -69,7 +69,7 @@ int deser_msg_meta(char const *const j_str, res_msg_meta_t *res);
  * @param res The metadata response
  * @return size_t The number of parent
  */
-size_t res_msg_meta_parents_len(res_msg_meta_t *res);
+size_t msg_meta_parents_len(res_msg_meta_t *res);
 
 /**
  * @brief Gets the parent message ID by a given index
@@ -78,7 +78,7 @@ size_t res_msg_meta_parents_len(res_msg_meta_t *res);
  * @param index A index
  * @return char* The string of parent message ID
  */
-char *res_msg_meta_parent_get(res_msg_meta_t *res, size_t index);
+char *msg_meta_parent_get(res_msg_meta_t *res, size_t index);
 
 /**
  * @brief Gets message metadata from a given message ID
