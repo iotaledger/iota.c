@@ -261,6 +261,7 @@ void tagged_data_print(tagged_data_t *tagged_data, uint8_t indentation) {
       if (byte_buf2str(data_str) == true) {
         printf("%s", data_str->data);
       }
+      byte_buf_free(data_str);
     }
     printf("\n");
   } else {
