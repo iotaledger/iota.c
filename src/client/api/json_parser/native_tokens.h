@@ -20,8 +20,13 @@ extern "C" {
  */
 int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_t **native_tokens);
 
-// TODO
-cJSON *json_native_tokens_serialize(native_tokens_t **native_tokens);
+/**
+ * @brief Serialize native tokens
+ *
+ * @param[in] native_tokens
+ * @return cJSON* NULL on errors
+ */
+cJSON *json_native_tokens_serialize(native_tokens_t *native_tokens);
 
 #ifdef __cplusplus
 }

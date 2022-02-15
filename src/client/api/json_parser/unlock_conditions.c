@@ -4,6 +4,7 @@
 #include "client/api/json_parser/unlock_conditions.h"
 #include "client/api/json_parser/common.h"
 #include "core/models/outputs/unlock_conditions.h"
+#include "utlist.h"
 
 /*
   "type": 0,
@@ -35,6 +36,40 @@ int json_cond_blk_addr_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk
   cond_blk_free(unlock_blk);
 
   return 0;
+}
+
+static cJSON *json_cond_blk_addr_serialize(unlock_cond_blk_t *block) {
+  if (!block || block->type != UNLOCK_COND_ADDRESS) {
+    printf("[%s:%d] invalid block\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  cJSON *addr_obj = cJSON_CreateObject();
+  if (addr_obj) {
+    // add type to sender
+    if (!cJSON_AddNumberToObject(addr_obj, JSON_KEY_TYPE, UNLOCK_COND_ADDRESS)) {
+      printf("[%s:%d] add type into block error\n", __func__, __LINE__);
+      goto err;
+    }
+
+    // add address to sender
+    cJSON *addr = json_parser_common_address_serialize((address_t *)block->block);
+    if (addr) {
+      if (!cJSON_AddObjectToObject(addr, JSON_KEY_ADDR)) {
+        printf("[%s:%d] add address into block error\n", __func__, __LINE__);
+        cJSON_Delete(addr);
+        goto err;
+      }
+    } else {
+      cJSON_Delete(addr_obj);
+      return NULL;
+    }
+  }
+  return addr_obj;
+
+err:
+  cJSON_Delete(addr_obj);
+  return NULL;
 }
 
 /*
@@ -77,6 +112,46 @@ int json_cond_blk_dust_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk
   return 0;
 }
 
+static cJSON *json_cond_blk_dust_serialize(unlock_cond_dust_t *dust) {
+  if (!dust) {
+    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  cJSON *dust_obj = cJSON_CreateObject();
+  if (dust_obj) {
+    // add type
+    if (!cJSON_AddNumberToObject(dust_obj, JSON_KEY_TYPE, UNLOCK_COND_DUST)) {
+      printf("[%s:%d] add type into block error\n", __func__, __LINE__);
+      goto err;
+    }
+
+    // add return address
+    cJSON *addr = json_parser_common_address_serialize(dust->addr);
+    if (addr) {
+      if (!cJSON_AddObjectToObject(addr, JSON_KEY_RETURN_ADDR)) {
+        printf("[%s:%d] add return address into block error\n", __func__, __LINE__);
+        cJSON_Delete(addr);
+        goto err;
+      }
+    } else {
+      printf("[%s:%d] create return address object error\n", __func__, __LINE__);
+      goto err;
+    }
+
+    // add return amount
+    if (!cJSON_AddNumberToObject(dust_obj, JSON_KEY_AMOUNT, dust->amount)) {
+      printf("[%s:%d] add return amount into block error\n", __func__, __LINE__);
+      goto err;
+    }
+  }
+  return dust_obj;
+
+err:
+  cJSON_Delete(dust_obj);
+  return NULL;
+}
+
 /*
   "type": 2,
   "milestoneIndex": 45598,
@@ -112,6 +187,32 @@ int json_cond_blk_timelock_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t *
   cond_blk_free(unlock_blk);
 
   return 0;
+}
+
+static cJSON *json_cond_blk_timelock_serialize(unlock_cond_timelock_t *timelock) {
+  cJSON *time_obj = cJSON_CreateObject();
+  if (time_obj) {
+    // add type
+    if (!cJSON_AddNumberToObject(time_obj, JSON_KEY_TYPE, UNLOCK_COND_TIMELOCK)) {
+      printf("[%s:%d] add type into block error\n", __func__, __LINE__);
+      goto err;
+    }
+    // add mileston index
+    if (!cJSON_AddNumberToObject(time_obj, JSON_KEY_MILESTONE_IDX, timelock->milestone)) {
+      printf("[%s:%d] add milestone index into block error\n", __func__, __LINE__);
+      goto err;
+    }
+    // add Unix time
+    if (!cJSON_AddNumberToObject(time_obj, JSON_KEY_UNIXTIME, timelock->time)) {
+      printf("[%s:%d] add Unix time into block error\n", __func__, __LINE__);
+      goto err;
+    }
+  }
+  return time_obj;
+
+err:
+  cJSON_Delete(time_obj);
+  return NULL;
 }
 
 /*
@@ -162,6 +263,45 @@ int json_cond_blk_expir_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **bl
   return 0;
 }
 
+static cJSON *json_cond_blk_expir_serialize(unlock_cond_expir_t *expir) {
+  cJSON *expir_obj = cJSON_CreateObject();
+  if (expir_obj) {
+    // add type
+    if (!cJSON_AddNumberToObject(expir_obj, JSON_KEY_TYPE, UNLOCK_COND_EXPIRATION)) {
+      printf("[%s:%d] add type into block error\n", __func__, __LINE__);
+      goto err;
+    }
+
+    // add return address
+    cJSON *addr = json_parser_common_address_serialize(expir->addr);
+    if (addr) {
+      if (!cJSON_AddObjectToObject(addr, JSON_KEY_ADDR)) {
+        cJSON_Delete(addr);
+        goto err;
+      }
+    } else {
+      printf("[%s:%d] add return address into block error\n", __func__, __LINE__);
+      goto err;
+    }
+
+    // add mileston index
+    if (!cJSON_AddNumberToObject(expir_obj, JSON_KEY_MILESTONE_IDX, expir->milestone)) {
+      printf("[%s:%d] add milestone index into block error\n", __func__, __LINE__);
+      goto err;
+    }
+    // add Unix time
+    if (!cJSON_AddNumberToObject(expir_obj, JSON_KEY_UNIXTIME, expir->time)) {
+      printf("[%s:%d] add Unix time into block error\n", __func__, __LINE__);
+      goto err;
+    }
+  }
+  return expir_obj;
+
+err:
+  cJSON_Delete(expir_obj);
+  return NULL;
+}
+
 /*
   "type": 4,
   "address": {
@@ -194,6 +334,40 @@ int json_cond_blk_state_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **bl
   return 0;
 }
 
+static cJSON *json_cond_blk_state_serialize(unlock_cond_blk_t *block) {
+  if (!block || block->type != UNLOCK_COND_STATE) {
+    printf("[%s:%d] invalid block\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  cJSON *addr_obj = cJSON_CreateObject();
+  if (addr_obj) {
+    // add type to sender
+    if (!cJSON_AddNumberToObject(addr_obj, JSON_KEY_TYPE, UNLOCK_COND_STATE)) {
+      printf("[%s:%d] add type into block error\n", __func__, __LINE__);
+      goto err;
+    }
+
+    // add address to sender
+    cJSON *addr = json_parser_common_address_serialize((address_t *)block->block);
+    if (addr) {
+      if (!cJSON_AddObjectToObject(addr, JSON_KEY_ADDR)) {
+        printf("[%s:%d] add address into block error\n", __func__, __LINE__);
+        cJSON_Delete(addr);
+        goto err;
+      }
+    } else {
+      cJSON_Delete(addr_obj);
+      return NULL;
+    }
+  }
+  return addr_obj;
+
+err:
+  cJSON_Delete(addr_obj);
+  return NULL;
+}
+
 /*
   "type": 5,
   "address": {
@@ -224,6 +398,40 @@ int json_cond_blk_governor_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t *
   cond_blk_free(unlock_blk);
 
   return 0;
+}
+
+static cJSON *json_cond_blk_governor_serialize(unlock_cond_blk_t *block) {
+  if (!block || block->type != UNLOCK_COND_GOVERNOR) {
+    printf("[%s:%d] invalid block\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  cJSON *addr_obj = cJSON_CreateObject();
+  if (addr_obj) {
+    // add type to sender
+    if (!cJSON_AddNumberToObject(addr_obj, JSON_KEY_TYPE, UNLOCK_COND_GOVERNOR)) {
+      printf("[%s:%d] add type into block error\n", __func__, __LINE__);
+      goto err;
+    }
+
+    // add address to sender
+    cJSON *addr = json_parser_common_address_serialize((address_t *)block->block);
+    if (addr) {
+      if (!cJSON_AddObjectToObject(addr, JSON_KEY_ADDR)) {
+        printf("[%s:%d] add address into block error\n", __func__, __LINE__);
+        cJSON_Delete(addr);
+        goto err;
+      }
+    } else {
+      cJSON_Delete(addr_obj);
+      return NULL;
+    }
+  }
+  return addr_obj;
+
+err:
+  cJSON_Delete(addr_obj);
+  return NULL;
 }
 
 /*
@@ -298,7 +506,56 @@ int json_cond_blk_list_deserialize(cJSON *output_obj, cond_blk_list_t **blk_list
   return 0;
 }
 
-cJSON *json_cond_blk_list_serialize(cond_blk_list_t **blk_list) {
-  // TODO
-  return NULL;
+cJSON *json_cond_blk_list_serialize(cond_blk_list_t *blk_list) {
+  cJSON *unlock_arr = cJSON_CreateArray();
+  if (unlock_arr) {
+    // empty list
+    if (!blk_list) {
+      return unlock_arr;
+    }
+
+    // add items to array
+    cJSON *item = NULL;
+    cond_blk_list_t *elm;
+    LL_FOREACH(blk_list, elm) {
+      switch (elm->blk->type) {
+        case UNLOCK_COND_ADDRESS:
+          item = json_cond_blk_addr_serialize(elm->blk);
+          break;
+        case UNLOCK_COND_DUST:
+          item = json_cond_blk_dust_serialize((unlock_cond_dust_t *)elm->blk);
+          break;
+        case UNLOCK_COND_TIMELOCK:
+          item = json_cond_blk_timelock_serialize((unlock_cond_timelock_t *)elm->blk);
+          break;
+        case UNLOCK_COND_EXPIRATION:
+          item = json_cond_blk_expir_serialize((unlock_cond_expir_t *)elm->blk);
+          break;
+        case UNLOCK_COND_STATE:
+          item = json_cond_blk_state_serialize(elm->blk);
+          break;
+        case UNLOCK_COND_GOVERNOR:
+          item = json_cond_blk_governor_serialize(elm->blk);
+          break;
+        default:
+          printf("[%s:%d] unsupported unlock condition block\n", __func__, __LINE__);
+          break;
+      }
+
+      if (item) {
+        // add item to array
+        if (cJSON_AddItemToArray(unlock_arr, item) == cJSON_False) {
+          printf("[%s:%d] add block to array error\n", __func__, __LINE__);
+          cJSON_Delete(item);
+          cJSON_Delete(unlock_arr);
+          return NULL;
+        }
+      } else {
+        printf("[%s:%d] serialize feature block error\n", __func__, __LINE__);
+        cJSON_Delete(unlock_arr);
+        return NULL;
+      }
+    }
+  }
+  return unlock_arr;
 }

@@ -21,7 +21,12 @@ extern "C" {
  */
 int json_output_extended_deserialize(cJSON* output_obj, utxo_outputs_list_t** outputs);
 
-// TODO
+/**
+ * @brief Serialize extended output to JSON object
+ *
+ * @param extended An extended output
+ * @return cJSON* NULL on errors
+ */
 cJSON* json_output_extended_serialize(output_extended_t* extended);
 
 #ifdef __cplusplus

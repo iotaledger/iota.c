@@ -21,7 +21,12 @@ extern "C" {
  */
 int json_output_alias_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs);
 
-// TODO
+/**
+ * @brief Serialize Alias output to JSON object
+ *
+ * @param[in] alias An alias output object
+ * @return cJSON* NULL on errors
+ */
 cJSON *json_output_alias_serialize(output_alias_t *alias);
 
 #ifdef __cplusplus

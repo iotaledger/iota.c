@@ -21,7 +21,12 @@ extern "C" {
  */
 int json_output_nft_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs);
 
-// TODO
+/**
+ * @brief Serialize a NFT output to a JSON object
+ *
+ * @param[in] nft A NFT output
+ * @return cJSON* NULL on errors
+ */
 cJSON *json_output_nft_serialize(output_nft_t *nft);
 
 #ifdef __cplusplus

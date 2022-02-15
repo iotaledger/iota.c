@@ -6,6 +6,7 @@
 #include "client/api/json_parser/output_extended.h"
 #include "client/api/json_parser/output_foundry.h"
 #include "client/api/json_parser/output_nft.h"
+#include "utlist.h"
 
 /*
   Example for extended output:
@@ -63,6 +64,52 @@ int json_outputs_deserialize(cJSON *outputs_obj, utxo_outputs_list_t **outputs) 
 }
 
 cJSON *json_outputs_serialize(utxo_outputs_list_t *outputs) {
-  // TODO
-  return NULL;
+  cJSON *output_arr = cJSON_CreateArray();
+  if (output_arr) {
+    // empty list
+    if (!outputs) {
+      return output_arr;
+    }
+
+    // add items to array
+    cJSON *item = NULL;
+    utxo_outputs_list_t *elm;
+    LL_FOREACH(outputs, elm) {
+      switch (elm->output->output_type) {
+        case OUTPUT_EXTENDED:
+          item = json_output_extended_serialize((output_extended_t *)elm->output->output);
+          break;
+        case OUTPUT_ALIAS:
+          item = json_output_alias_serialize((output_alias_t *)elm->output->output);
+          break;
+        case OUTPUT_FOUNDRY:
+          item = json_output_foundry_serialize((output_foundry_t *)elm->output->output);
+          break;
+        case OUTPUT_NFT:
+          item = json_output_nft_serialize((output_nft_t *)elm->output->output);
+          break;
+        case OUTPUT_SINGLE_OUTPUT:
+        case OUTPUT_DUST_ALLOWANCE:
+        case OUTPUT_TREASURY:
+        default:
+          printf("[%s:%d] unsupported output type\n", __func__, __LINE__);
+          break;
+      }
+
+      if (item) {
+        // add item to array
+        if (cJSON_AddItemToArray(output_arr, item) == cJSON_False) {
+          printf("[%s:%d] add output to outputs array error\n", __func__, __LINE__);
+          cJSON_Delete(item);
+          cJSON_Delete(output_arr);
+          return NULL;
+        }
+      } else {
+        printf("[%s:%d] serialize output error\n", __func__, __LINE__);
+        cJSON_Delete(output_arr);
+        return NULL;
+      }
+    }
+  }
+  return output_arr;
 }
