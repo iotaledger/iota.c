@@ -256,7 +256,13 @@ void tagged_data_print(tagged_data_t *tagged_data, uint8_t indentation) {
   // binary data
   if (tagged_data->data) {
     printf("%s\tData: ", PRINT_INDENTATION(indentation));
-    dump_hex_str(tagged_data->data->data, tagged_data->data->len);
+    byte_buf_t *data_str = byte_buf_clonen(tagged_data->data, tagged_data->data->len);
+    if (data_str) {
+      if (byte_buf2str(data_str) == true) {
+        printf("%s", data_str->data);
+      }
+    }
+    printf("\n");
   } else {
     printf("%s\tData:\n", PRINT_INDENTATION(indentation));
   }
