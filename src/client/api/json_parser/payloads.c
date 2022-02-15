@@ -108,7 +108,7 @@ static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_
       *payload_len = tagged_data_serialize_len(*tagged_data);
       break;
     default:
-      printf("[%s:%d] Unknown payload type\n", __func__, __LINE__);
+      printf("[%s:%d] Unsupported payload type\n", __func__, __LINE__);
       return -1;
   }
 
@@ -300,7 +300,7 @@ cJSON* json_tagged_serialize(tagged_data_t* tagged_data) {
 }
 
 int json_tagged_deserialize(cJSON* payload, tagged_data_t** tagged_data) {
-  if (!payload) {
+  if (!payload || !tagged_data) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -314,7 +314,7 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_t** tagged_data) {
 
   // data
   cJSON* json_data = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_DATA);
-  if (json_tag == NULL) {
+  if (json_data == NULL) {
     printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, JSON_KEY_DATA);
     return -1;
   }

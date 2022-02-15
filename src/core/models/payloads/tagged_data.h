@@ -17,7 +17,6 @@
  * The payload type of tagged data is 5
  */
 typedef struct {
-  uint32_t type;     ///< Set to value 5 to denote a Tagged Data payload.
   byte_buf_t *tag;   ///< The tag of the data
   byte_buf_t *data;  ///< Binary data
 } tagged_data_t;
