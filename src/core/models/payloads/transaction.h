@@ -30,9 +30,7 @@ typedef enum {
  *
  */
 typedef struct {
-  uint8_t tx_type;         ///< Set to value 0 to denote a Transaction Essence.
-  uint64_t tx_network_id;  ///< Network identifier. It is first 8 bytes of the `BLAKE2b-256` hash of the concatenation
-                           ///< of the network type and the protocol version string.
+  uint8_t tx_type;               ///< Set to value 0 to denote a Transaction Essence.
   utxo_inputs_list_t* inputs;    ///< An UTXO input list
   utxo_outputs_list_t* outputs;  ///< An UTXO output list
   uint32_t payload_len;          ///< The length in bytes of the optional payload.

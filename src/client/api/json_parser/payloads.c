@@ -124,14 +124,6 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
   // parsing essence
   cJSON* essence_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_ESSENCE);
   if (essence_obj) {
-    // network ID
-    char str_buff[32];
-    if ((json_get_string(essence_obj, JSON_KEY_NET_ID, str_buff, sizeof(str_buff))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
-      return -1;
-    }
-    sscanf(str_buff, "%" SCNu64, &tx->essence->tx_network_id);
-
     // inputs array
     cJSON* inputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_INPUTS);
     if (cJSON_IsArray(inputs_obj)) {

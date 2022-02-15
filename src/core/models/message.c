@@ -18,7 +18,7 @@ static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NU
 core_message_t* core_message_new() {
   core_message_t* msg = malloc(sizeof(core_message_t));
   if (msg) {
-    msg->protocol_version = 0;
+    msg->network_id = 0;
     utarray_new(msg->parents, &ut_msg_id_icd);
     msg->payload_type = CORE_MESSAGE_PAYLOAD_UNKNOWN;  // invalid payload type
     msg->payload = NULL;
@@ -150,7 +150,7 @@ void core_message_print(core_message_t* msg, uint8_t indentation) {
   printf("%sMessage: [\n", PRINT_INDENTATION(indentation));
 
   if (msg) {
-    printf("%sProtocol Version: %d\n", PRINT_INDENTATION(indentation + 1), msg->protocol_version);
+    printf("%sNetwork Id: %" PRIu64 "\n", PRINT_INDENTATION(indentation + 1), msg->network_id);
 
     printf("%sParent Message Ids:\n", PRINT_INDENTATION(indentation + 1));
     size_t parent_message_len = core_message_parent_len(msg);
