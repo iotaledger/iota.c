@@ -21,7 +21,7 @@ void test_query_params() {
       "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
   outputs_query_list_t* list = outputs_query_list_new();
   TEST_ASSERT_NULL(list);
-  // Check len qyery string len for empty list
+  // Check query string len with an empty list
   size_t query_str_len = get_outputs_query_str_len(list);
   TEST_ASSERT_EQUAL(0, query_str_len);
   char query_str[10];
@@ -128,7 +128,7 @@ void test_get_output_ids() {
   char dust_ret_addr[] = "atoi1qpszqzadsym6wpppd6z037dvlejmjuke7s24hm95s9fg9vpua7vluehe53e";
   char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   char const* const addr_hex_invalid_length =
-      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+      "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk3efg256shxtb7812b";
   char const* const cursor = "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
   char const* const tag = "4ec7f23a";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
@@ -222,8 +222,8 @@ void test_get_output_ids() {
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
 
-  // TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_DUST_RET, "true") == 0);
-  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_DUST_RET, "false") == 0);
+  // TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_DUST_RET, "true") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_DUST_RET, "false") == 0);
   ret = get_outputs_id(&ctx, list, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
@@ -265,7 +265,7 @@ void test_get_output_ids() {
 void test_get_nft_output() {
   char addr_nft[] = "atoi1zpk6m4x7m2t6k5pvgs0yd2nqelfaz09ueyyv6fwn";
   char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-  char const* const addr_hex_invalid_length = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  char const* const addr_hex_invalid_length = "atoi1zpk6m4x7m2t6k5pvgs0yd2nqelfaz09ueyyv6fwn426sdvcxjxsb628726zxsb";
   char const* const cursor = "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
@@ -323,25 +323,13 @@ void test_get_nft_output() {
   TEST_ASSERT_EQUAL_INT(0, get_nft_outputs(&ctx, list, res));
   TEST_ASSERT(res->is_error == false);
 
-  //=====Test valid nft address=====
-  outputs_query_list_free(list);
-  res_outputs_free(res);
-  res = NULL;
-  res = res_outputs_new();
-  TEST_ASSERT_NOT_NULL(res);
-  list = outputs_query_list_new();
-  TEST_ASSERT_NULL(list);
-  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ADDRESS, addr_nft) == 0);
-  TEST_ASSERT_EQUAL_INT(0, get_nft_outputs(&ctx, list, res));
-  TEST_ASSERT(res->is_error == false);
-
   //=====Test dust return condition=====
   res_outputs_free(res);
   res = NULL;
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
-  // TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_DUST_RET, "true") == 0);
-  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_DUST_RET, "false") == 0);
+  // TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_DUST_RET, "true") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_DUST_RET, "false") == 0);
   int ret = get_nft_outputs(&ctx, list, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
@@ -403,7 +391,7 @@ void test_get_nft_output() {
 void test_get_alias_outputs() {
   char addr_alias[] = "atoi1zpk6m4x7m2t6k5pvgs0yd2nqelfaz09ueyyv6fwn";
   char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-  char const* const addr_hex_invalid_length = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  char const* const addr_hex_invalid_length = "atoi1zpk6m4x7m2t6k5pvgs0yd2nqelfaz09ueyyv6fwnfgs527svshx5275";
   char const* const cursor = "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
@@ -498,7 +486,7 @@ void test_get_alias_outputs() {
 void test_get_foundry_outputs() {
   char addr_alias[] = "atoi1zpk6m4x7m2t6k5pvgs0yd2nqelfaz09ueyyv6fwn";
   char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-  char const* const addr_hex_invalid_length = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  char const* const addr_hex_invalid_length = "atoi1zpk6m4x7m2t6k5pvgs0yd2nqelfaz09ueyyv6fwndsjsh5262725sgnb";
   char const* const cursor = "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
@@ -583,7 +571,7 @@ void test_get_foundry_outputs() {
 void test_get_output_ids_from_nft_id() {
   char nft_id[] = "efdc112efe262b304bcf379b26c31bad029f61de";
   char const* const id_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-  char const* const id_invalid_length = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  char const* const id_invalid_length = "efdc112efe262b304bcf379b26c31bad029f61def346ab52ef";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_outputs_id_t* res = res_outputs_new();
@@ -628,7 +616,7 @@ void test_get_output_ids_from_nft_id() {
 void test_get_output_ids_from_alias_id() {
   char alias_id[] = "23dc192ede262b3f4bce379b26c31bad029f62fe";
   char const* const id_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-  char const* const id_invalid_length = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  char const* const id_invalid_length = "23dc192ede262b3f4bce379b26c31bad029f62fe246ec78";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_outputs_id_t* res = res_outputs_new();
@@ -673,7 +661,7 @@ void test_get_output_ids_from_alias_id() {
 void test_get_output_ids_from_foundry_id() {
   char foundry_id[] = "56ec192ede262b3f4bce379b26c31bad029f63bc23ef56ee48cf";
   char const* const id_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-  char const* const id_invalid_length = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  char const* const id_invalid_length = "56ec192ede262b3f4bce379b26c31bad029f63bc23ef56ee48cf257efc375";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_outputs_id_t* res = res_outputs_new();

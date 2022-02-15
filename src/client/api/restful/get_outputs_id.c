@@ -19,6 +19,11 @@
 #define OUTPUTS_QUERY_GOV_KEY "governor"
 #define OUTPUTS_QUERY_ISSUER_KEY "issuer"
 
+#define INDEXER_OUTPUTS_API_PATH "/api/plugins/indexer/v1/outputs"
+#define INDEXER_ALIASES_API_PATH "/api/plugins/indexer/v1/aliases"
+#define INDEXER_NFT_API_PATH "/api/plugins/indexer/v1/nfts"
+#define INDEXER_FOUNDRY_API_PATH "/api/plugins/indexer/v1/foundries"
+
 outputs_query_list_t *outputs_query_list_new() { return NULL; }
 
 int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e type, char const *const param) {
@@ -53,7 +58,7 @@ size_t get_outputs_query_str_len(outputs_query_list_t *list) {
         query_str_len += strlen(elm->query_item->param);
         query_str_len += 2;  // For "&" params seperator and "=" params assignment
         break;
-      case QUERY_PARAM_DUST_RET:
+      case QUERY_PARAM_HAS_DUST_RET:
         query_str_len += strlen(OUTPUTS_QUERY_DUST_RET_KEY);
         query_str_len += strlen(elm->query_item->param);
         query_str_len += 2;  // For "&" params seperator and "=" params assignment
@@ -139,7 +144,7 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
       case QUERY_PARAM_ADDRESS:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_ADDRESS_KEY, elm);
         break;
-      case QUERY_PARAM_DUST_RET:
+      case QUERY_PARAM_HAS_DUST_RET:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_DUST_RET_KEY, elm);
         break;
       case QUERY_PARAM_DUST_RET_ADDR:
@@ -369,7 +374,6 @@ static char *compose_api_command(outputs_query_list_t *list, char const *const a
     memcpy(cmd_buffer + api_path_len + 1, query_str, query_str_len + 1);
     free(query_str);
   } else {
-    printf("Reached here\n");
     cmd_buffer = malloc(api_path_len + 1);  // api_path + '\0'
     if (!cmd_buffer) {
       printf("[%s:%d]: OOM\n", __func__, __LINE__);

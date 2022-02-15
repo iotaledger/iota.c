@@ -11,18 +11,13 @@
 #include "core/address.h"
 #include "core/types.h"
 
-#define INDEXER_OUTPUTS_API_PATH "/api/plugins/indexer/v1/outputs"
-#define INDEXER_ALIASES_API_PATH "/api/plugins/indexer/v1/aliases"
-#define INDEXER_NFT_API_PATH "/api/plugins/indexer/v1/nfts"
-#define INDEXER_FOUNDRY_API_PATH "/api/plugins/indexer/v1/foundries"
-
 /**
  * @brief All Query Params Type
  *
  */
 typedef enum {
   QUERY_PARAM_ADDRESS = 0,    ///< The Bech32-encoded address that should be used to query outputs
-  QUERY_PARAM_DUST_RET,       ///< The presence of dust return unlock condition
+  QUERY_PARAM_HAS_DUST_RET,   ///< The presence of dust return unlock condition
   QUERY_PARAM_DUST_RET_ADDR,  ///< The specific return address in the dust deposit return unlock condition
   QUERY_PARAM_SENDER,         ///< To query outputs based on bech32-encoded sender address.
   QUERY_PARAM_TAG,            ///< A tag block to search for outputs matching it
@@ -34,7 +29,7 @@ typedef enum {
 } outputs_query_params_e;
 
 /**
- * @brief A Query Param Onject
+ * @brief A Query Param Object
  *
  */
 typedef struct {
@@ -86,7 +81,7 @@ extern "C" {
 outputs_query_list_t *outputs_query_list_new();
 
 /**
- * @brief Add a querry parameter to the list
+ * @brief Add a query parameter to the list
  *
  * @param[in] list A query item list
  * @param[in] type A query parameter type
