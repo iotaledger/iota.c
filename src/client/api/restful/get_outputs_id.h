@@ -12,6 +12,41 @@
 #include "core/types.h"
 
 /**
+ * @brief All Query Params Type
+ *
+ */
+typedef enum {
+  QUERY_PARAM_ADDRESS = 0,    ///< The Bech32-encoded address that should be used to query outputs
+  QUERY_PARAM_HAS_DUST_RET,   ///< The presence of dust return unlock condition
+  QUERY_PARAM_DUST_RET_ADDR,  ///< The specific return address in the dust deposit return unlock condition
+  QUERY_PARAM_SENDER,         ///< To query outputs based on bech32-encoded sender address.
+  QUERY_PARAM_TAG,            ///< A tag block to search for outputs matching it
+  QUERY_PARAM_PAGE_SIZE,      ///< The maximum amount of items returned in one api call
+  QUERY_PARAM_CURSOR,         ///<  A cursor to start the query (confirmationMS+outputId.pageSize)
+  QUERY_PARAM_STATE_CTRL,     ///< To query outputs based on bech32-encoded state controller address
+  QUERY_PARAM_GOV,            ///< To query outputs based on bech32-encoded governor (governance controller) address
+  QUERY_PARAM_ISSUER          ///< To query outputs based on bech32-encoded issuer address
+} outputs_query_params_e;
+
+/**
+ * @brief A Query Param Object
+ *
+ */
+typedef struct {
+  outputs_query_params_e type;  ///< The type of query param
+  char *param;                  ///< Query param data
+} outputs_query_params_t;
+
+/**
+ * @brief A list of outputs query parameters
+ *
+ */
+typedef struct outputs_query_list {
+  outputs_query_params_t *query_item;  ///< Points to a query parameter object
+  struct outputs_query_list *next;     ///< Points to next query parameter object
+} outputs_query_list_t;
+
+/**
  * @brief An output object
  *
  */
@@ -37,6 +72,47 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @brief New outputs query params list
+ *
+ * @return outputs_query_list_t*
+ */
+outputs_query_list_t *outputs_query_list_new();
+
+/**
+ * @brief Add a query parameter to the list
+ *
+ * @param[in] list A query item list
+ * @param[in] type A query parameter type
+ * @param[in] param A query parameter
+ * @return int 0 on success
+ */
+int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e type, char const *const param);
+
+/**
+ * @brief Get the length of query string present in list
+ *
+ * @param[in] list A query item list
+ * @return size_t Query string len
+ */
+size_t get_outputs_query_str_len(outputs_query_list_t *list);
+
+/**
+ * @brief Get the query string present in list
+ *
+ * @param[in] list A query item list
+ * @param[in] buf A buffer to hold query string
+ * @param[in] buf_len The length of the buffer
+ * @return size_t Query string len
+ */
+size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_len);
+
+/**
+ * @brief Free query list
+ *
+ */
+void outputs_query_list_free(outputs_query_list_t *list);
 
 /**
  * @brief Allocats an output address response object
@@ -82,11 +158,11 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res);
  * @brief Gets output IDs from a given address
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] addr An address in hex string format
+ * @param[in] list A list of optional query params
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
+int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given NFT address
@@ -96,27 +172,27 @@ int get_outputs_from_address(iota_client_conf_t const *conf, char const addr[], 
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_nft_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
+int get_nft_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Alias address
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] addr An Alias address in hex string format
+ * @param[in] list A list of optional query params
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_alias_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
+int get_alias_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Foundry address
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] addr A Foundry address in hex string format
+ * @param[in] list A list of optional query params
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_foundry_address(iota_client_conf_t const *conf, char const addr[], res_outputs_id_t *res);
+int get_foundry_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given NFT ID
