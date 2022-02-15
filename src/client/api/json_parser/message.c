@@ -60,6 +60,7 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
   char str_buff[32];
   if ((ret = json_get_string(json_obj, JSON_KEY_NET_ID, str_buff, sizeof(str_buff))) != 0) {
     printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
+    goto end;
   }
   sscanf(str_buff, "%" SCNu64, &msg->network_id);
 

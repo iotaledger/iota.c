@@ -42,7 +42,6 @@ typedef struct {
   payload_t payload_type;  ///< payload type
   void* payload;           ///< payload object, NULL is no payload
   uint64_t nonce;          ///< The nonce which lets this message fulfill the Proof-of-Work requirement.
-
 } core_message_t;
 
 #ifdef __cplusplus
