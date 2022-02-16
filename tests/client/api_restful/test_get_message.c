@@ -1,4 +1,4 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #include <inttypes.h>
@@ -151,7 +151,9 @@ void test_deser_milestone() {
                         129, tmp_sign, sizeof(tmp_sign)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_sign, milestone_payload_get_signature(ms, 1), sizeof(tmp_sign));
 
-  milestone_payload_free(ms);
+  // print core message
+  core_message_print(res->u.msg, 0);
+
   res_message_free(res);
 }
 
@@ -277,7 +279,9 @@ void test_deser_simple_tx() {
   sprintf(str_buff, "%" PRIu64 "", res->u.msg->nonce);
   TEST_ASSERT_EQUAL_STRING("62900", str_buff);
 
+  // print core message
   core_message_print(res->u.msg, 0);
+
   res_message_free(res);
 }
 

@@ -106,6 +106,8 @@ void core_message_free(core_message_t* msg) {
     if (msg->payload) {
       if (msg->payload_type == CORE_MESSAGE_PAYLOAD_TRANSACTION) {
         tx_payload_free((transaction_payload_t*)msg->payload);
+      } else if (msg->payload_type == CORE_MESSAGE_PAYLOAD_MILESTONE) {
+        milestone_payload_free((milestone_t*)msg->payload);
       } else if (msg->payload_type == CORE_MESSAGE_PAYLOAD_TAGGED) {
         tagged_data_free((tagged_data_t*)msg->payload);
       } else {
@@ -165,8 +167,7 @@ void core_message_print(core_message_t* msg, uint8_t indentation) {
         tx_payload_print((transaction_payload_t*)msg->payload, indentation + 1);
         break;
       case CORE_MESSAGE_PAYLOAD_MILESTONE:
-        // TODO support milestone
-        printf("[%s:%d]: unimplemented payload type\n", __func__, __LINE__);
+        milestone_payload_print((milestone_t*)msg->payload, indentation + 1);
         break;
       case CORE_MESSAGE_PAYLOAD_INDEXATION:
       case CORE_MESSAGE_PAYLOAD_RECEIPT:

@@ -1,4 +1,4 @@
-// Copyright 2021 IOTA Stiftung
+// Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #ifndef __CORE_MODELS_PL_MILESTONE_H__
@@ -101,6 +101,14 @@ size_t milestone_payload_get_signatures_count(milestone_t *ms);
  * @return byte_t* NULL on failed.
  */
 byte_t *milestone_payload_get_signature(milestone_t *ms, size_t index);
+
+/**
+ * @brief Print out a milestone milestone
+ *
+ * @param[in] ms The milestone object
+ * @param[in] indentation Tab indentation when printing milestone payload
+ */
+void milestone_payload_print(milestone_t *ms, uint8_t indentation);
 
 #ifdef __cplusplus
 }
