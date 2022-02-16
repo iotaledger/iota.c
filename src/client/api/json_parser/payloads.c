@@ -172,7 +172,7 @@ int milestone_deserialize(cJSON* payload, milestone_t* ms) {
   }
 
   // parsing parents
-  if ((ret = json_string_array_to_msg_ids(payload, JSON_KEY_PARENT_IDS, ms->parents)) != 0) {
+  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PARENT_IDS, ms->parents, IOTA_MESSAGE_ID_BYTES)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
     return ret;
   }
@@ -197,7 +197,8 @@ int milestone_deserialize(cJSON* payload, milestone_t* ms) {
   }
 
   // parsing public keys
-  if ((ret = json_string_array_to_pub_key(payload, JSON_KEY_PUBLIC_KEYS, ms->pub_keys)) != 0) {
+  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PUBLIC_KEYS, ms->pub_keys, MILESTONE_PUBLIC_KEY_LEN)) !=
+      0) {
     printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_PUBLIC_KEYS);
     return ret;
   }
@@ -206,7 +207,8 @@ int milestone_deserialize(cJSON* payload, milestone_t* ms) {
   // TODO parse receipt
 
   // parsing signatures
-  if ((ret = json_string_array_to_signature(payload, JSON_KEY_SIGNATURES, ms->signatures)) != 0) {
+  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_SIGNATURES, ms->signatures, MILESTONE_SIGNATURE_LEN)) !=
+      0) {
     printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_SIGNATURES);
     return ret;
   }

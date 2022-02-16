@@ -25,7 +25,7 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
   sscanf(str_buff, "%" SCNu64, &msg->network_id);
 
   // parentMessageIds
-  if ((ret = json_string_array_to_msg_ids(json_obj, JSON_KEY_PARENT_IDS, msg->parents)) != 0) {
+  if ((ret = json_string_array_to_bin_array(json_obj, JSON_KEY_PARENT_IDS, msg->parents, IOTA_MESSAGE_ID_BYTES)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
     utarray_free(msg->parents);
     msg->parents = NULL;

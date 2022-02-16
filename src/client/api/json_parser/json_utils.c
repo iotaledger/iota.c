@@ -156,15 +156,12 @@ json_error_t utarray_to_json_string_array(UT_array const* const ut, cJSON* const
   return JSON_OK;
 }
 
-json_error_t json_string_array_to_msg_ids(cJSON const* const obj, char const key[], UT_array* ut) {
-  if (obj == NULL || key == NULL) {
-    // invalid parameters
+json_error_t json_string_array_to_bin_array(cJSON const* const obj, char const key[], UT_array* ut, size_t elm_len) {
+  if (obj == NULL || key == NULL || ut == NULL || elm_len == 0) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return JSON_INVALID_PARAMS;
   }
-  byte_t tmp_id[IOTA_MESSAGE_ID_BYTES] = {};
 
-  char* str = NULL;
   cJSON* json_item = cJSON_GetObjectItemCaseSensitive(obj, key);
   if (json_item == NULL) {
     printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, key);
@@ -174,94 +171,23 @@ json_error_t json_string_array_to_msg_ids(cJSON const* const obj, char const key
   if (cJSON_IsArray(json_item)) {
     cJSON* current_obj = NULL;
     cJSON_ArrayForEach(current_obj, json_item) {
-      str = cJSON_GetStringValue(current_obj);
+      char* str = cJSON_GetStringValue(current_obj);
       if (!str) {
         printf("[%s:%d] encountered non-string array member\n", __func__, __LINE__);
         return JSON_ERR;
       }
-      // convert ID hex string to binary
-      if (hex_2_bin(str, strlen(str), tmp_id, sizeof(tmp_id)) == 0) {
-        utarray_push_back(ut, &tmp_id);
-      } else {
-        printf("[%s:%d] convert hex string to binary error\n", __func__, __LINE__);
-        return JSON_ERR;
-      }
-    }
-  } else {
-    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, key);
-    return JSON_NOT_ARRAY;
-  }
-
-  return JSON_OK;
-}
-
-json_error_t json_string_array_to_signature(cJSON const* const obj, char const key[], UT_array* ut) {
-  if (obj == NULL || key == NULL) {
-    // invalid parameters
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return JSON_INVALID_PARAMS;
-  }
-  byte_t tmp_id[MILESTONE_SIGNATURE_LENGTH] = {};
-
-  char* str = NULL;
-  cJSON* json_item = cJSON_GetObjectItemCaseSensitive(obj, key);
-  if (json_item == NULL) {
-    printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, key);
-    return JSON_KEY_NOT_FOUND;
-  }
-
-  if (cJSON_IsArray(json_item)) {
-    cJSON* current_obj = NULL;
-    cJSON_ArrayForEach(current_obj, json_item) {
-      str = cJSON_GetStringValue(current_obj);
-      if (!str) {
-        printf("[%s:%d] encountered non-string array member\n", __func__, __LINE__);
-        return JSON_ERR;
+      byte_t* tmp_id = malloc(elm_len);
+      if (!tmp_id) {
+        printf("[%s:%d] OOM\n", __func__, __LINE__);
+        return JSON_MEMORY_ERROR;
       }
       // convert ID hex string to binary
-      if (hex_2_bin(str, strlen(str), tmp_id, sizeof(tmp_id)) == 0) {
-        utarray_push_back(ut, &tmp_id);
+      if (hex_2_bin(str, strlen(str), tmp_id, elm_len) == 0) {
+        utarray_push_back(ut, tmp_id);
+        free(tmp_id);
       } else {
         printf("[%s:%d] convert hex string to binary error\n", __func__, __LINE__);
-        return JSON_ERR;
-      }
-    }
-  } else {
-    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, key);
-    return JSON_NOT_ARRAY;
-  }
-
-  return JSON_OK;
-}
-
-json_error_t json_string_array_to_pub_key(cJSON const* const obj, char const key[], UT_array* ut) {
-  if (obj == NULL || key == NULL) {
-    // invalid parameters
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return JSON_INVALID_PARAMS;
-  }
-  byte_t tmp_id[MILESTONE_PUBLIC_KEY_LENGTH] = {};
-
-  char* str = NULL;
-  cJSON* json_item = cJSON_GetObjectItemCaseSensitive(obj, key);
-  if (json_item == NULL) {
-    printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, key);
-    return JSON_KEY_NOT_FOUND;
-  }
-
-  if (cJSON_IsArray(json_item)) {
-    cJSON* current_obj = NULL;
-    cJSON_ArrayForEach(current_obj, json_item) {
-      str = cJSON_GetStringValue(current_obj);
-      if (!str) {
-        printf("[%s:%d] encountered non-string array member\n", __func__, __LINE__);
-        return JSON_ERR;
-      }
-      // convert ID hex string to binary
-      if (hex_2_bin(str, strlen(str), tmp_id, sizeof(tmp_id)) == 0) {
-        utarray_push_back(ut, &tmp_id);
-      } else {
-        printf("[%s:%d] convert hex string to binary error\n", __func__, __LINE__);
+        free(tmp_id);
         return JSON_ERR;
       }
     }

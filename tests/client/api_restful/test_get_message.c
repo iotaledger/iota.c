@@ -140,7 +140,7 @@ void test_deser_milestone() {
   // TODO check receipt
 
   // check signatures
-  byte_t tmp_sign[MILESTONE_SIGNATURE_LENGTH] = {};
+  byte_t tmp_sign[MILESTONE_SIGNATURE_LEN] = {};
   TEST_ASSERT_EQUAL_INT(2, milestone_payload_get_signatures_count(ms));
   TEST_ASSERT(hex_2_bin("a6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b"
                         "4c33cfd64dadf7bcc085a062e486c7a105",

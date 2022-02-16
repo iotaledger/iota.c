@@ -7,8 +7,8 @@
 #include "core/models/payloads/milestone.h"
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
-static const UT_icd ut_pub_key_icd = {sizeof(uint8_t) * MILESTONE_PUBLIC_KEY_LENGTH, NULL, NULL, NULL};
-static const UT_icd ut_sign_icd = {sizeof(uint8_t) * MILESTONE_SIGNATURE_LENGTH, NULL, NULL, NULL};
+static const UT_icd ut_pub_key_icd = {sizeof(uint8_t) * MILESTONE_PUBLIC_KEY_LEN, NULL, NULL, NULL};
+static const UT_icd ut_sign_icd = {sizeof(uint8_t) * MILESTONE_SIGNATURE_LEN, NULL, NULL, NULL};
 
 milestone_t *milestone_payload_new() {
   milestone_t *ms = malloc(sizeof(milestone_t));
@@ -120,7 +120,7 @@ void milestone_payload_print(milestone_t *ms, uint8_t indentation) {
     printf("%s\tPublic Keys Count: %lu\n", PRINT_INDENTATION(indentation + 1), pub_keys_len);
     for (size_t index = 0; index < pub_keys_len; index++) {
       printf("%s\t#%lu ", PRINT_INDENTATION(indentation + 1), index);
-      dump_hex_str(milestone_payload_get_pub_key(ms, index), MILESTONE_PUBLIC_KEY_LENGTH);
+      dump_hex_str(milestone_payload_get_pub_key(ms, index), MILESTONE_PUBLIC_KEY_LEN);
     }
 
     // TODO print receipt
@@ -131,7 +131,7 @@ void milestone_payload_print(milestone_t *ms, uint8_t indentation) {
     printf("%s\tSignatures Count: %lu\n", PRINT_INDENTATION(indentation + 1), signatures_len);
     for (size_t index = 0; index < signatures_len; index++) {
       printf("%s\t#%lu ", PRINT_INDENTATION(indentation + 1), index);
-      dump_hex_str(milestone_payload_get_signature(ms, index), MILESTONE_SIGNATURE_LENGTH);
+      dump_hex_str(milestone_payload_get_signature(ms, index), MILESTONE_SIGNATURE_LEN);
     }
 
     printf("%s]\n", PRINT_INDENTATION(indentation));
