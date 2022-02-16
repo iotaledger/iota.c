@@ -114,8 +114,7 @@ size_t tagged_data_serialize(tagged_data_t *tagged_data, byte_t buf[], size_t bu
   size_t offset = 0;
 
   // fill-in Tagged Data type
-  uint32_t payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
-  memcpy(buf, &payload_type, sizeof(payload_type));
+  *((uint32_t *)buf) = (uint32_t)CORE_MESSAGE_PAYLOAD_TAGGED;
   offset += sizeof(uint32_t);
 
   if (tagged_data->tag) {
@@ -240,21 +239,30 @@ void tagged_data_print(tagged_data_t *tagged_data, uint8_t indentation) {
     return;
   }
 
+  printf("%sTagged Data:\n", PRINT_INDENTATION(indentation));
+
   // tag
   if (tagged_data->tag) {
     char tag[TAGGED_DATA_TAG_MAX_LENGTH_BYTES / 2] = {0};
     if (hex2string((char const *)tagged_data->tag->data, (uint8_t *)tag, TAGGED_DATA_TAG_MAX_LENGTH_BYTES / 2) == 0) {
-      printf("%sTag: %s\n", PRINT_INDENTATION(indentation), tag);
+      printf("%s\tTag: %s\n", PRINT_INDENTATION(indentation), tag);
     }
   } else {
-    printf("%sTag:\n", PRINT_INDENTATION(indentation));
+    printf("%s\tTag:\n", PRINT_INDENTATION(indentation));
   }
 
   // binary data
   if (tagged_data->data) {
-    printf("%sData: ", PRINT_INDENTATION(indentation));
-    dump_hex_str(tagged_data->data->data, tagged_data->data->len);
+    printf("%s\tData: ", PRINT_INDENTATION(indentation));
+    byte_buf_t *data_str = byte_buf_clonen(tagged_data->data, tagged_data->data->len);
+    if (data_str) {
+      if (byte_buf2str(data_str) == true) {
+        printf("%s", data_str->data);
+      }
+      byte_buf_free(data_str);
+    }
+    printf("\n");
   } else {
-    printf("%sData:\n", PRINT_INDENTATION(indentation));
+    printf("%s\tData:\n", PRINT_INDENTATION(indentation));
   }
 }

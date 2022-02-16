@@ -92,9 +92,14 @@ int json_output_foundry_deserialize(cJSON *output_obj, utxo_outputs_list_t **out
   max_supply = uint256_from_str(supply_str);
 
   // token scheme
+  cJSON *json_token_scheme = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_TOKEN_SCHEME);
+  if (!json_token_scheme) {
+    printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, JSON_KEY_TOKEN_SCHEME);
+    goto end;
+  }
   uint8_t token_scheme;
-  if (json_get_uint8(output_obj, JSON_KEY_TOKEN_SCHEME, &token_scheme) != JSON_OK) {
-    printf("[%s:%d]: getting %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_TOKEN_SCHEME);
+  if (json_get_uint8(json_token_scheme, JSON_KEY_TYPE, &token_scheme) != JSON_OK) {
+    printf("[%s:%d]: getting %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_TYPE);
     goto end;
   }
 

@@ -189,9 +189,14 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
 void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
   printf("%sTransaction Essence: [\n", PRINT_INDENTATION(indentation));
   printf("%s\tType: %d\n", PRINT_INDENTATION(indentation), es->tx_type);
+
   utxo_inputs_print(es->inputs, indentation + 1);
   utxo_outputs_print(es->outputs, indentation + 1);
-  // TODO: print payloads
+
+  if (es->payload_len > 0) {
+    tagged_data_print((tagged_data_t*)(es->payload), indentation + 1);
+  }
+
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }
 

@@ -68,7 +68,8 @@ void test_parse_outputs() {
       "\"09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
       "\"7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\","
       "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
-      "\"30000000000000000000000000000000000000000\",\"tokenScheme\":0,\"unlockConditions\":[{\"type\":0,\"address\":{"
+      "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":0,"
+      "\"address\":{"
       "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
       "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}]},"
       // NFT output

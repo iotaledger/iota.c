@@ -6,6 +6,7 @@
 
 #include "client/api/restful/get_message.h"
 #include "core/models/payloads/milestone.h"
+#include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "test_config.h"
 #include "unity/unity.h"
@@ -27,12 +28,14 @@ void test_get_msg_by_id() {
     switch (msg->u.msg->payload_type) {
       case CORE_MESSAGE_PAYLOAD_TRANSACTION:
         printf("it's a transaction message\n");
+        core_message_print(msg->u.msg, 0);
         break;
       case CORE_MESSAGE_PAYLOAD_INDEXATION:
         printf("it's an indexation message\n");
         break;
       case CORE_MESSAGE_PAYLOAD_MILESTONE:
         printf("it's a milestone message\n");
+        core_message_print(msg->u.msg, 0);
         break;
       case CORE_MESSAGE_PAYLOAD_RECEIPT:
         printf("it's a receipt message\n");
@@ -42,6 +45,7 @@ void test_get_msg_by_id() {
         break;
       case CORE_MESSAGE_PAYLOAD_TAGGED:
         printf("it's a tagged message\n");
+        core_message_print(msg->u.msg, 0);
         break;
       case CORE_MESSAGE_PAYLOAD_UNKNOWN:
       default:

@@ -15,6 +15,7 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
   }
 
   int ret = -1;
+
   // network ID
   char str_buff[32];
   if ((ret = json_get_string(json_obj, JSON_KEY_NET_ID, str_buff, sizeof(str_buff))) != 0) {
@@ -56,8 +57,7 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
         ret = milestone_deserialize(payload, (milestone_t*)msg->payload);
         break;
       case CORE_MESSAGE_PAYLOAD_TAGGED:
-        // TODO support tagged message
-        printf("[%s:%d]: unimplemented payload type\n", __func__, __LINE__);
+        ret = json_tagged_deserialize(payload, (tagged_data_t**)(&msg->payload));
         break;
       case CORE_MESSAGE_PAYLOAD_INDEXATION:
       case CORE_MESSAGE_PAYLOAD_RECEIPT:

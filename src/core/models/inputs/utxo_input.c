@@ -46,15 +46,13 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
   }
 
   // Check if transaction id already exist in list
-  if (utxo_inputs_find_by_id(*inputs, id) != NULL) {
-    printf("[%s:%d] transaction id already present in input list\n", __func__, __LINE__);
-    return -1;
-  }
-
-  // Check if index already exist in list
-  if (utxo_inputs_find_by_index(*inputs, index) != NULL) {
-    printf("[%s:%d] index already present in input list\n", __func__, __LINE__);
-    return -1;
+  utxo_input_t *input = utxo_inputs_find_by_id(*inputs, id);
+  if (input != NULL) {
+    // Check if the duplicate transaction id has the same index,if not we can ignore
+    if (input->output_index == index) {
+      printf("[%s:%d] duplicate transaction id and output index combination present in the list\n", __func__, __LINE__);
+      return -1;
+    }
   }
 
   utxo_inputs_list_t *next = malloc(sizeof(utxo_inputs_list_t));

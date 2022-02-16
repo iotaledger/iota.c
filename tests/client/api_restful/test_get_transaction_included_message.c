@@ -9,7 +9,7 @@
 #include "unity/unity.h"
 
 /**
- * @brief This API has no deserialization tests because the respose object is a message object which is tested in
+ * @brief This API has no deserialization tests because the response object is a message object which is tested in
  * test_get_message.c
  *
  */
