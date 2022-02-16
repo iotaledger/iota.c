@@ -77,16 +77,18 @@ char *msg_meta_parent_get(res_msg_meta_t *res, size_t index) {
 }
 
 int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res) {
-  int ret = -1;
   if (j_str == NULL || res == NULL) {
-    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
   cJSON *json_obj = cJSON_Parse(j_str);
-  if (json_obj == NULL) {
+  if (!json_obj) {
+    printf("[%s:%d]: can not parse JSON object\n", __func__, __LINE__);
     return -1;
   }
+
+  int ret = -1;
 
   res_err_t *res_err = deser_error(json_obj);
   if (res_err) {
@@ -99,7 +101,7 @@ int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res) {
 
   // allocate message metadata object after parsing json object.
   res->u.meta = metadata_new();
-  if (res->u.meta == NULL) {
+  if (!res->u.meta) {
     printf("[%s:%d]: msg_meta_t object allocation failed\n", __func__, __LINE__);
     goto end;
   }
@@ -150,25 +152,24 @@ end:
 }
 
 int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res_msg_meta_t *res) {
-  int ret = -1;
-  iota_str_t *cmd = NULL;
-  byte_buf_t *http_res = NULL;
-  long st = 0;
-  char const *const cmd_prefix = "/api/v2/messages/";
-  char const *const cmd_suffix = "/metadata";
-
   if (ctx == NULL || msg_id == NULL || res == NULL) {
-    // invalid parameters
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
+
+  int ret = -1;
+
   size_t msg_str_len = strlen(msg_id);
   if (msg_str_len != IOTA_MESSAGE_ID_HEX_BYTES) {
     printf("[%s:%d] incorrect length of the message ID\n", __func__, __LINE__);
     return -1;
   }
 
-  cmd = iota_str_reserve(strlen(cmd_prefix) + msg_str_len + strlen(cmd_suffix) + 1);
-  if (cmd == NULL) {
+  char const *const cmd_prefix = "/api/v2/messages/";
+  char const *const cmd_suffix = "/metadata";
+
+  iota_str_t *cmd = iota_str_reserve(strlen(cmd_prefix) + msg_str_len + strlen(cmd_suffix) + 1);
+  if (!cmd) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
@@ -180,12 +181,14 @@ int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res
   // http client configuration
   http_client_config_t http_conf = {.host = ctx->host, .path = cmd->buf, .use_tls = ctx->use_tls, .port = ctx->port};
 
-  if ((http_res = byte_buf_new()) == NULL) {
+  byte_buf_t *http_res = byte_buf_new();
+  if (!http_res) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
     goto done;
   }
 
   // send request via http client
+  long st = 0;
   if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
