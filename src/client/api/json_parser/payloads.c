@@ -87,7 +87,7 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
 
 static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_t** tagged_data,
                                             uint32_t* payload_len) {
-  if (!essence_payload || !tagged_data) {
+  if (!essence_payload || *tagged_data != NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -300,7 +300,7 @@ cJSON* json_tagged_serialize(tagged_data_t* tagged_data) {
 }
 
 int json_tagged_deserialize(cJSON* payload, tagged_data_t** tagged_data) {
-  if (!payload || !tagged_data) {
+  if (!payload || *tagged_data != NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
