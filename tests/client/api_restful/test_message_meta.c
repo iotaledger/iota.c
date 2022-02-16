@@ -12,7 +12,7 @@ void setUp(void) {}
 
 void tearDown(void) {}
 
-void test_deser_milestone_message() {
+void test_deser_milestone_meta() {
   char const* const json_milestone =
       "{\"messageId\":\"ebe0c79284d318a1bc36f1d2b6a94ea2ada27a1334d40c565823040131aa1ab4\","
       "\"parentMessageIds\":[\"214c29ffff6dc41da6898b8fc0cce3f9409a83b96ecbef513a7f4821dc0bc439\","
@@ -49,7 +49,7 @@ void test_deser_milestone_message() {
   msg_meta_free(meta);
 }
 
-void test_deser_tx_message() {
+void test_deser_tx_meta() {
   char const* const json_tx =
       "{\"messageId\":\"021a1d70ea18bddd171b70cb8ce9f7f02f712bc4e3c8bff6c2155d57111ae660\","
       "\"parentMessageIds\":[\"0dc75a753e1d139e92aaf66e42475c144bc21a102cf6ff2e685186266354f61b\","
@@ -85,7 +85,7 @@ void test_deser_tx_message() {
   msg_meta_free(meta);
 }
 
-void test_deser_tagged_data_message() {
+void test_deser_tagged_data_meta() {
   char const* const json_tagged =
       "{\"messageId\":\"8fe7c756dcec455125ce800802cd3fbcc92164030ad9d51aa014cc1be00b8ebd\",\"parentMessageIds\":["
       "\"6a005a4390d356eb12a59128281c4123ea24a76aab2da87d572ef86a2475d143\","
@@ -170,9 +170,9 @@ void test_get_msg_meta() {
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_deser_milestone_message);
-  RUN_TEST(test_deser_tx_message);
-  RUN_TEST(test_deser_tagged_data_message);
+  RUN_TEST(test_deser_milestone_meta);
+  RUN_TEST(test_deser_tx_meta);
+  RUN_TEST(test_deser_tagged_data_meta);
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_msg_meta);
 #endif
