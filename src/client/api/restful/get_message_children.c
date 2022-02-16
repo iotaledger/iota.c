@@ -99,7 +99,7 @@ int deser_msg_children(char const *const j_str, res_msg_children_t *res) {
   // allocate message children object
   res->u.data = msg_children_new();
   if (res->u.data == NULL) {
-    printf("[%s:%d]: msg_children_t object allocation filaed\n", __func__, __LINE__);
+    printf("[%s:%d]: msg_children_t object allocation failed\n", __func__, __LINE__);
     goto end;
   }
 
@@ -194,14 +194,18 @@ void print_message_children(res_msg_children_t *res, uint8_t indentation) {
     printf("%s\tmessageId: %s\n", PRINT_INDENTATION(indentation), data->msg_id);
     printf("%s\tmaxResults: %d\n", PRINT_INDENTATION(indentation), data->max_results);
     printf("%s\tcount: %d\n", PRINT_INDENTATION(indentation), data->count);
-    printf("%s\tchildrenMessageIds: [\n", PRINT_INDENTATION(indentation));
     int len = utarray_len(data->children);
-    for (int i = 0; i < len; i++) {
-      printf(i > 0 ? ",\n" : "");
-      printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(data->children, i));
+    if (len > 0) {
+      printf("%s\tchildrenMessageIds: [\n", PRINT_INDENTATION(indentation));
+      for (int i = 0; i < len; i++) {
+        printf(i > 0 ? ",\n" : "");
+        printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(data->children, i));
+      }
+      printf("\n");
+      printf("%s\t]\n", PRINT_INDENTATION(indentation));
+    } else {
+      printf("%s\tchildrenMessageIds: []\n", PRINT_INDENTATION(indentation));
     }
-    printf("\n");
-    printf("%s\t]\n", PRINT_INDENTATION(indentation));
     printf("%s}\n", PRINT_INDENTATION(indentation));
   }
 }
