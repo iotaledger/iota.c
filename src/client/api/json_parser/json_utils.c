@@ -1,10 +1,9 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
 
 #include "client/api/json_parser/json_utils.h"
-#include "core/models/message.h"
 
 json_error_t json_get_string(cJSON const* const obj, char const key[], char str[], size_t str_len) {
   if (obj == NULL || key == NULL || str == NULL) {
@@ -181,7 +180,7 @@ json_error_t json_string_array_to_bin_array(cJSON const* const obj, char const k
         printf("[%s:%d] OOM\n", __func__, __LINE__);
         return JSON_MEMORY_ERROR;
       }
-      // convert ID hex string to binary
+      // convert hex string to binary
       if (hex_2_bin(str, strlen(str), tmp_id, elm_len) == 0) {
         utarray_push_back(ut, tmp_id);
         free(tmp_id);

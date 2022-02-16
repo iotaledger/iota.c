@@ -135,5 +135,7 @@ void milestone_payload_print(milestone_t *ms, uint8_t indentation) {
     }
 
     printf("%s]\n", PRINT_INDENTATION(indentation));
+  } else {
+    printf("%sMilestone: []\n", PRINT_INDENTATION(indentation));
   }
 }

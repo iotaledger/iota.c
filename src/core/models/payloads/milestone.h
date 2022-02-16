@@ -12,7 +12,7 @@
 // Milestone signature length in binary representation
 #define MILESTONE_SIGNATURE_LEN 64
 
-// Milestone signature length in binary representation
+// Milestone public key length in binary representation
 #define MILESTONE_PUBLIC_KEY_LEN 32
 
 typedef struct {
@@ -86,7 +86,7 @@ size_t milestone_payload_get_pub_keys_count(milestone_t *ms);
 byte_t *milestone_payload_get_pub_key(milestone_t *ms, size_t index);
 
 /**
- * @brief Get signature count in a milestone
+ * @brief Get signatures count in a milestone
  *
  * @param[in] ms The milestone object
  * @return size_t
