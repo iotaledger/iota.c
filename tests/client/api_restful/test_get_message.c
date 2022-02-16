@@ -6,6 +6,7 @@
 
 #include "client/api/restful/get_message.h"
 #include "core/models/payloads/milestone.h"
+#include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "test_config.h"
 #include "unity/unity.h"
@@ -15,7 +16,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_msg_by_id() {
-  char const* const msg_id = "89e6422b28974940af3e0750790c2a685b296cf29af28565b36cc17436f7fdf2";
+  char const* const msg_id = "8fe7c756dcec455125ce800802cd3fbcc92164030ad9d51aa014cc1be00b8ebd";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();
@@ -27,12 +28,14 @@ void test_get_msg_by_id() {
     switch (msg->u.msg->payload_type) {
       case CORE_MESSAGE_PAYLOAD_TRANSACTION:
         printf("it's a transaction message\n");
+        core_message_print(msg->u.msg, 0);
         break;
       case CORE_MESSAGE_PAYLOAD_INDEXATION:
         printf("it's an indexation message\n");
         break;
       case CORE_MESSAGE_PAYLOAD_MILESTONE:
         printf("it's a milestone message\n");
+        core_message_print(msg->u.msg, 0);
         break;
       case CORE_MESSAGE_PAYLOAD_RECEIPT:
         printf("it's a receipt message\n");
@@ -42,6 +45,7 @@ void test_get_msg_by_id() {
         break;
       case CORE_MESSAGE_PAYLOAD_TAGGED:
         printf("it's a tagged message\n");
+        core_message_print(msg->u.msg, 0);
         break;
       case CORE_MESSAGE_PAYLOAD_UNKNOWN:
       default:
@@ -253,9 +257,10 @@ int main() {
   RUN_TEST(test_deser_simple_tx);
 #if 0  // FIXME
   RUN_TEST(test_deser_milestone);
+#endif
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_msg_by_id);
 #endif
-#endif
+
   return UNITY_END();
 }

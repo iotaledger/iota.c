@@ -56,13 +56,16 @@ void test_utxo_input() {
   // Check if count of inputs is 3
   TEST_ASSERT_EQUAL_UINT16(3, utxo_inputs_count(inputs));
 
-  // trying to add txn id that is already present in list
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id1, 4) == -1);
+  // trying to add txn id that is already present in list but with non existing index
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id1, 4) == 0);
 
-  // trying to add output index that is present in list
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id3, 2) == -1);
+  // trying to add a new txn_id with output index that is present in list
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id3, 2) == 0);
 
-  // print utxo inputs list with 3 inputs
+  // trying to add txn_id and output index that is present in the list in the same input
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id2, 3) == -1);
+
+  // print utxo inputs list with 5 inputs
   utxo_inputs_print(inputs, 0);
 
   // find and validate transaction ID
@@ -99,7 +102,7 @@ void test_utxo_input() {
   TEST_ASSERT_NOT_NULL(deser_inputs);
 
   // Validate input count
-  TEST_ASSERT_EQUAL_INT(3, utxo_inputs_count(deser_inputs));
+  TEST_ASSERT_EQUAL_INT(5, utxo_inputs_count(deser_inputs));
 
   // find and validate index
   elm = utxo_inputs_find_by_index(deser_inputs, 3);
