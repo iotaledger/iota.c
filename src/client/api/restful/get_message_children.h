@@ -86,6 +86,14 @@ char *res_msg_children_get(res_msg_children_t *res, size_t index);
  */
 int get_message_children(iota_client_conf_t const *ctx, char const msg_id[], res_msg_children_t *res);
 
+/**
+ * @brief Print Message Children
+ *
+ * @param[in] res res_msg_children_t*
+ * @param[in] indentation Tab indentation when printing message children
+ */
+void print_message_children(res_msg_children_t *res, uint8_t indentation);
+
 #ifdef __cplusplus
 }
 #endif
