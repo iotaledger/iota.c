@@ -7,7 +7,7 @@
 #include "client/api/json_parser/message.h"
 #include "client/api/json_parser/payloads.h"
 
-// json object to messate object
+// json object to message object
 int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
   if (!msg || !json_obj) {
     printf("[%s:%d]: invalid parameter\n", __func__, __LINE__);
@@ -156,7 +156,7 @@ cJSON* json_message_serialize(core_message_t* msg) {
       payload = json_tagged_serialize((void*)msg->payload);
       break;
     default:
-      printf("[%s:%d] Unknow payload type\n", __func__, __LINE__);
+      printf("[%s:%d] Unknown payload type\n", __func__, __LINE__);
       break;
   }
 

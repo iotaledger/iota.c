@@ -12,8 +12,6 @@
 extern "C" {
 #endif
 
-int milestone_deserialize(cJSON* payload, milestone_t* ms);
-
 /**
  * @brief Deserialize JSON payload to transaction payload object
  *
@@ -30,6 +28,15 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx);
  * @return cJSON* NULL on errors
  */
 cJSON* json_transaction_serialize(transaction_payload_t* tx);
+
+/**
+ * @brief Deserialize JSON payload to milestone payload object
+ *
+ * @param[in] payload A payload JSON object
+ * @param[out] ms A milestone payload object
+ * @return int 0 on success
+ */
+int milestone_deserialize(cJSON* payload, milestone_t* ms);
 
 /**
  * @brief Deserialize JSON data to tagged data object
