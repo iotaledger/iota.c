@@ -106,10 +106,7 @@ void milestone_payload_print(milestone_t *ms, uint8_t indentation) {
     }
 
     printf("%s\tInclusion Merkle Proof: ", PRINT_INDENTATION(indentation));
-    for (uint i = 0; i < sizeof(ms->inclusion_merkle_proof); i++) {
-      printf("%c", ms->inclusion_merkle_proof[i]);
-    }
-    printf("\n");
+    dump_hex_str(ms->inclusion_merkle_proof, sizeof(ms->inclusion_merkle_proof));
 
     printf("%s\tNext POW Score: %d\n", PRINT_INDENTATION(indentation), ms->next_pow_score);
     printf("%s\tNext POW Score Milestone Index: %d\n", PRINT_INDENTATION(indentation),

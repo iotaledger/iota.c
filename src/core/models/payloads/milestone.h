@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "core/types.h"
+#include "crypto/iota_crypto.h"
 #include "utarray.h"
 
 // Milestone signature length in binary representation
@@ -16,19 +17,20 @@
 #define MILESTONE_PUBLIC_KEY_LEN 32
 
 typedef struct {
-  payload_t type;                   // Must be set to 1.
-  uint32_t index;                   // The index number of the milestone.
-  uint64_t timestamp;               // The Unix time (seconds since Unix epoch) at which the milestone was issued.
-  UT_array *parents;                // Parents of milestone message.
-  char inclusion_merkle_proof[64];  // The Merkle tree hash (BLAKE2b-256) of the message IDs of all the not-ignored
-                                    // state-mutating transaction payloads referenced by the milestone.
+  payload_t type;      // Must be set to 1.
+  uint32_t index;      // The index number of the milestone.
+  uint64_t timestamp;  // The Unix time (seconds since Unix epoch) at which the milestone was issued.
+  UT_array *parents;   // Parents of milestone message.
+  byte_t inclusion_merkle_proof[CRYPTO_BLAKE2B_HASH_BYTES];  // The Merkle tree hash (BLAKE2b-256) of the message IDs of
+                                                             // all the not-ignored state-mutating transaction payloads
+                                                             // referenced by the milestone.
   uint32_t
       next_pow_score;  // The new PoW score all messages should adhere to. If 0 then the PoW score should not change.
   uint32_t next_pow_score_milestone_index;  // The index of the first milestone that will require a new minimal pow
                                             // score for applying transactions. This field comes into effect only if the
                                             // Next PoW Score field is not 0.
   UT_array *pub_keys;                       // Ed25519 Public Keys
-  void *receipt;                            // TODO implement this
+  void *receipt;                            // TODO implement receipt
   UT_array *signatures;  // The Ed25519 signature signing the BLAKE2b-256 hash of the serialized Milestone Essence. The
                          // signatures must be in the same order as the specified public keys.
 } milestone_t;

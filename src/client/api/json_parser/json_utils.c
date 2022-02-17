@@ -170,23 +170,23 @@ json_error_t json_string_array_to_bin_array(cJSON const* const obj, char const k
   if (cJSON_IsArray(json_item)) {
     cJSON* current_obj = NULL;
     cJSON_ArrayForEach(current_obj, json_item) {
-      char* str = cJSON_GetStringValue(current_obj);
-      if (!str) {
+      char* elm_str = cJSON_GetStringValue(current_obj);
+      if (!elm_str) {
         printf("[%s:%d] encountered non-string array member\n", __func__, __LINE__);
         return JSON_ERR;
       }
-      byte_t* tmp_id = malloc(elm_len);
-      if (!tmp_id) {
+      byte_t* elm_bin = malloc(elm_len);
+      if (!elm_bin) {
         printf("[%s:%d] OOM\n", __func__, __LINE__);
         return JSON_MEMORY_ERROR;
       }
       // convert hex string to binary
-      if (hex_2_bin(str, strlen(str), tmp_id, elm_len) == 0) {
-        utarray_push_back(ut, tmp_id);
-        free(tmp_id);
+      if (hex_2_bin(elm_str, strlen(elm_str), elm_bin, elm_len) == 0) {
+        utarray_push_back(ut, elm_bin);
+        free(elm_bin);
       } else {
         printf("[%s:%d] convert hex string to binary error\n", __func__, __LINE__);
-        free(tmp_id);
+        free(elm_bin);
         return JSON_ERR;
       }
     }

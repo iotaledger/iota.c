@@ -177,9 +177,9 @@ int milestone_deserialize(cJSON* payload, milestone_t* ms) {
     return ret;
   }
   // parsing inclusion Merkle proof
-  if ((ret = json_get_string(payload, JSON_KEY_INCLUSION_MKL, ms->inclusion_merkle_proof,
-                             sizeof(ms->inclusion_merkle_proof))) != 0) {
-    printf("[%s:%d]: parsing %s string failed\n", __func__, __LINE__, JSON_KEY_INCLUSION_MKL);
+  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_INCLUSION_MKL, ms->inclusion_merkle_proof,
+                                     sizeof(ms->inclusion_merkle_proof))) != 0) {
+    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_INCLUSION_MKL);
     return ret;
   }
 
