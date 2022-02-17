@@ -11,16 +11,17 @@
 #include "client/client_service.h"
 #include "core/models/message.h"
 #include "core/types.h"
+#include "core/utils/macros.h"
 
 /**
  * @brief The message children object.
  *
  */
 typedef struct {
-  uint32_t max_results;                        ///< The maximum count of results that are returned by the node.
-  uint32_t count;                              ///< The actual count of results that are returned.
-  char msg_id[IOTA_MESSAGE_ID_HEX_BYTES + 1];  ///< the hex encoded message ID string
-  UT_array *children;                          ///< the hex encoded message IDs of the children of this message.
+  uint32_t max_results;  ///< The maximum count of results that are returned by the node.
+  uint32_t count;        ///< The actual count of results that are returned.
+  char msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< the hex encoded message ID string
+  UT_array *children;  ///< the hex encoded message IDs of the children of this message.
 } msg_children_t;
 
 /**
@@ -85,6 +86,14 @@ char *res_msg_children_get(res_msg_children_t *res, size_t index);
  * @return int 0 on success
  */
 int get_message_children(iota_client_conf_t const *ctx, char const msg_id[], res_msg_children_t *res);
+
+/**
+ * @brief Print Message Children
+ *
+ * @param[in] res res_msg_children_t*
+ * @param[in] indentation Tab indentation when printing message children
+ */
+void print_message_children(res_msg_children_t *res, uint8_t indentation);
 
 #ifdef __cplusplus
 }

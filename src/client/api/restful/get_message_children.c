@@ -8,6 +8,7 @@
 #include "client/api/restful/get_message_children.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
+#include "utarray.h"
 
 static msg_children_t *msg_children_new() {
   msg_children_t *ch = malloc(sizeof(msg_children_t));
@@ -95,40 +96,34 @@ int deser_msg_children(char const *const j_str, res_msg_children_t *res) {
     goto end;
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
-  if (data_obj) {
-    // allocate message metadata object after parsing json object.
-    res->u.data = msg_children_new();
-    if (res->u.data == NULL) {
-      printf("[%s:%d]: msg_children_t object allocation filaed\n", __func__, __LINE__);
-      goto end;
-    }
+  // allocate message children object
+  res->u.data = msg_children_new();
+  if (res->u.data == NULL) {
+    printf("[%s:%d]: msg_children_t object allocation failed\n", __func__, __LINE__);
+    goto end;
+  }
 
-    // message ID
-    if ((ret = json_get_string(data_obj, JSON_KEY_MSG_ID, res->u.data->msg_id, sizeof(res->u.data->msg_id))) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
-      goto end;
-    }
+  // message ID
+  if ((ret = json_get_string(json_obj, JSON_KEY_MSG_ID, res->u.data->msg_id, sizeof(res->u.data->msg_id))) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
+    goto end;
+  }
 
-    // max results
-    if ((ret = json_get_uint32(data_obj, JSON_KEY_MAX_RESULTS, &res->u.data->max_results)) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MAX_RESULTS);
-      goto end;
-    }
+  // max results
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_MAX_RESULTS, &res->u.data->max_results)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MAX_RESULTS);
+    goto end;
+  }
 
-    // count
-    if ((ret = json_get_uint32(data_obj, JSON_KEY_COUNT, &res->u.data->count)) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_COUNT);
-      goto end;
-    }
+  // count
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_COUNT, &res->u.data->count)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_COUNT);
+    goto end;
+  }
 
-    // children
-    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_CHILDREN_MSG_IDS, res->u.data->children)) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_CHILDREN_MSG_IDS);
-    }
-
-  } else {
-    printf("[%s:%d]: JSON parsing failed\n", __func__, __LINE__);
+  // children
+  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_CHILDREN_MSG_IDS, res->u.data->children)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_CHILDREN_MSG_IDS);
   }
 
 end:
@@ -141,7 +136,7 @@ int get_message_children(iota_client_conf_t const *ctx, char const msg_id[], res
   iota_str_t *cmd = NULL;
   byte_buf_t *http_res = NULL;
   long st = 0;
-  char const *const cmd_prefix = "/api/v1/messages/";
+  char const *const cmd_prefix = "/api/v2/messages/";
   char const *const cmd_suffix = "/children";
 
   if (ctx == NULL || msg_id == NULL || res == NULL) {
@@ -184,4 +179,33 @@ done:
   iota_str_destroy(cmd);
   byte_buf_free(http_res);
   return ret;
+}
+
+void print_message_children(res_msg_children_t *res, uint8_t indentation) {
+  if (res == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return;
+  }
+  if (res->is_error) {
+    printf("Error: %s\n", res->u.error->msg);
+  } else {
+    msg_children_t *data = res->u.data;
+    printf("%s{\n", PRINT_INDENTATION(indentation));
+    printf("%s\tmessageId: %s\n", PRINT_INDENTATION(indentation), data->msg_id);
+    printf("%s\tmaxResults: %d\n", PRINT_INDENTATION(indentation), data->max_results);
+    printf("%s\tcount: %d\n", PRINT_INDENTATION(indentation), data->count);
+    int len = utarray_len(data->children);
+    if (len > 0) {
+      printf("%s\tchildrenMessageIds: [\n", PRINT_INDENTATION(indentation));
+      for (int i = 0; i < len; i++) {
+        printf(i > 0 ? ",\n" : "");
+        printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(data->children, i));
+      }
+      printf("\n");
+      printf("%s\t]\n", PRINT_INDENTATION(indentation));
+    } else {
+      printf("%s\tchildrenMessageIds: []\n", PRINT_INDENTATION(indentation));
+    }
+    printf("%s}\n", PRINT_INDENTATION(indentation));
+  }
 }

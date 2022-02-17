@@ -1,4 +1,4 @@
-// Copyright 2021 IOTA Stiftung
+// Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #ifndef __CLIENT_API_RESTFUL_MSG_META_H__
@@ -46,39 +46,39 @@ extern "C" {
  * @brief Allocates message metadata response
  * @return res_msg_meta_t*
  */
-res_msg_meta_t *res_msg_meta_new();
+res_msg_meta_t *msg_meta_new();
 
 /**
- * @brief Frees a message metadata reponse object
+ * @brief Frees a message metadata response object
  * @param[in] res A response object
  */
-void res_msg_meta_free(res_msg_meta_t *res);
+void msg_meta_free(res_msg_meta_t *res);
 
 /**
- * @brief message metadata JSON deserialization
+ * @brief Message metadata JSON deserialization
  *
  * @param[in] j_str A string of json object
  * @param[out] res A response object of message metadata
  * @return int 0 on success
  */
-int deser_msg_meta(char const *const j_str, res_msg_meta_t *res);
+int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res);
 
 /**
  * @brief Gets the number of parent messages
  *
- * @param res The metadata response
- * @return size_t The number of parent
+ * @param[in] res A metadata response
+ * @return size_t A number of parent
  */
-size_t res_msg_meta_parents_len(res_msg_meta_t *res);
+size_t msg_meta_parents_len(res_msg_meta_t *res);
 
 /**
  * @brief Gets the parent message ID by a given index
  *
- * @param res The metadata respose
- * @param index A index
+ * @param[in] res A metadata response
+ * @param[in] index An index
  * @return char* The string of parent message ID
  */
-char *res_msg_meta_parent_get(res_msg_meta_t *res, size_t index);
+char *msg_meta_parent_get(res_msg_meta_t *res, size_t index);
 
 /**
  * @brief Gets message metadata from a given message ID
