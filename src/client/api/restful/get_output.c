@@ -3,16 +3,155 @@
 
 #include <inttypes.h>
 
+#include "client/api/json_parser/feat_blocks.h"
 #include "client/api/json_parser/json_utils.h"
+#include "client/api/json_parser/native_tokens.h"
+#include "client/api/json_parser/unlock_conditions.h"
+
 #include "client/api/restful/get_output.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
+
+// deserialize json object to an output object
+static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
+  if (output_obj || *output == NULL) {
+#if 0  // FIXME: support other output types
+    int ret = 0;
+    utxo_output_t *tmp_output = malloc(sizeof(utxo_output_t));
+    // output type
+    if ((ret = json_get_uint32(output_obj, JSON_KEY_TYPE, &tmp_output->output_type)) != 0) {
+      printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
+      goto end;
+    }
+    switch (tmp_output->output_type) {
+      case OUTPUT_EXTENDED:
+      case OUTPUT_ALIAS:
+      case OUTPUT_FOUNDRY:
+      case OUTPUT_NFT:
+        break;
+      default:
+        break;
+    }
+#else
+    int ret = 0;
+    utxo_output_t *tmp_output = malloc(sizeof(utxo_output_t));
+    if (tmp_output == NULL) {
+      goto end;
+    }
+    // output type
+    if ((ret = json_get_uint32(output_obj, JSON_KEY_TYPE, &tmp_output->output_type)) != 0) {
+      printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
+      goto end;
+    }
+
+    if (tmp_output->output_type != OUTPUT_EXTENDED) {
+      printf("[%s:%d]: FIXME, support other output types\n", __func__, __LINE__);
+      goto end;
+    }
+
+    native_tokens_t *tokens = native_tokens_new();
+    cond_blk_list_t *cond_blocks = cond_blk_list_new();
+    feat_blk_list_t *feat_blocks = feat_blk_list_new();
+    uint64_t amount = 0;
+    // amount
+    if ((ret = json_get_uint64(output_obj, JSON_KEY_AMOUNT, &amount)) != 0) {
+      printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
+      goto end;
+    }
+
+    if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
+      goto end;
+    }
+
+    // unlock conditions array
+    if (json_cond_blk_list_deserialize(output_obj, &cond_blocks) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_UNLOCK_CONDITIONS);
+      goto end;
+    }
+
+    // feature blocks array
+    if (json_feat_blocks_deserialize(output_obj, &feat_blocks) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
+      goto end;
+    }
+
+    // create extended output
+    tmp_output->output = output_extended_new(amount, tokens, cond_blocks, feat_blocks);
+    if (tokens) {
+      native_tokens_free(&tokens);
+    }
+    cond_blk_list_free(cond_blocks);
+    feat_blk_list_free(feat_blocks);
+    if (!tmp_output->output) {
+      printf("[%s:%d]: creating output object failed \n", __func__, __LINE__);
+      goto end;
+    }
+    *output = tmp_output;
+#endif
+    return 0;
+
+  end:
+    if (tmp_output) {
+      switch (tmp_output->output_type) {
+        case OUTPUT_EXTENDED:
+          output_extended_free((output_extended_t *)tmp_output->output);
+          break;
+        case OUTPUT_ALIAS:
+          output_alias_free((output_alias_t *)tmp_output->output);
+          break;
+        case OUTPUT_FOUNDRY:
+          output_foundry_free((output_foundry_t *)tmp_output->output);
+          break;
+        case OUTPUT_NFT:
+          output_nft_free((output_nft_t *)tmp_output->output);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+  return -1;
+}
+
+res_output_t *get_output_response_new() { return malloc(sizeof(res_output_t)); }
+
+void get_output_response_free(res_output_t *res) {
+  if (res) {
+    if (res->is_error) {
+      res_err_free(res->u.error);
+    } else {
+      switch (res->u.data->output->output_type) {
+        case OUTPUT_SINGLE_OUTPUT:
+        case OUTPUT_DUST_ALLOWANCE:
+        case OUTPUT_TREASURY:
+          printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
+          break;
+        case OUTPUT_EXTENDED:
+          output_extended_free((output_extended_t *)res->u.data->output->output);
+          break;
+        case OUTPUT_ALIAS:
+          output_alias_free((output_alias_t *)res->u.data->output->output);
+          break;
+        case OUTPUT_FOUNDRY:
+          output_foundry_free((output_foundry_t *)res->u.data->output->output);
+          break;
+        case OUTPUT_NFT:
+          output_nft_free((output_nft_t *)res->u.data->output->output);
+          break;
+      }
+      free(res->u.data->output);
+      free(res->u.data);
+    }
+    free(res);
+  }
+}
 
 int get_output(iota_client_conf_t const *conf, char const output_id[], res_output_t *res) {
   int ret = -1;
   long st = 0;
   byte_buf_t *http_res = NULL;
-  // cmd length = "/api/v1/outputs/" + IOTA_OUTPUT_ID_HEX_STR
+  // cmd length = "/api/v2/outputs/" + IOTA_OUTPUT_ID_HEX_STR
   char cmd_buffer[85] = {};
 
   if (conf == NULL || output_id == NULL || res == NULL) {
@@ -27,7 +166,7 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
   }
 
   // composing API command
-  snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v1/outputs/%s", output_id);
+  snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v2/outputs/%s", output_id);
 
   // http client configuration
   http_client_config_t http_conf = {
@@ -70,68 +209,62 @@ int deser_get_output(char const *const j_str, res_output_t *res) {
     res->u.error = res_err;
     ret = 0;
     goto end;
+  } else {
+    res->is_error = false;
+    res->u.data = malloc(sizeof(get_output_t));
+    if (res->u.data == NULL) {
+      printf("[%s:%d]: allocate data failed\n", __func__, __LINE__);
+      return -1;
+    }
   }
 
-  cJSON *data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
-  if (data_obj) {
-    // message ID
-    if ((ret = json_get_string(data_obj, JSON_KEY_MSG_ID, res->u.output.msg_id, sizeof(res->u.output.msg_id))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
-      goto end;
-    }
+  // message ID
+  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_MSG_ID, res->u.data->msg_id, sizeof(res->u.data->msg_id))) !=
+      0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
+    goto end;
+  }
 
-    // transaction ID
-    if ((ret = json_get_string(data_obj, JSON_KEY_TX_ID, res->u.output.tx_id, sizeof(res->u.output.tx_id))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TX_ID);
-      goto end;
-    }
+  // transaction ID
+  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_TX_ID, res->u.data->tx_id, sizeof(res->u.data->tx_id))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TX_ID);
+    goto end;
+  }
 
-    // output index
-    if ((ret = json_get_uint16(data_obj, JSON_KEY_OUTPUT_IDX, &res->u.output.output_idx)) != 0) {
-      printf("[%s:%d]: gets %s json uint16 failed\n", __func__, __LINE__, JSON_KEY_OUTPUT_IDX);
-      goto end;
-    }
+  // output index
+  if ((ret = json_get_uint16(json_obj, JSON_KEY_OUTPUT_IDX, &res->u.data->output_index)) != 0) {
+    printf("[%s:%d]: gets %s json uint16 failed\n", __func__, __LINE__, JSON_KEY_OUTPUT_IDX);
+    goto end;
+  }
 
-    // is spent
-    if ((ret = json_get_boolean(data_obj, JSON_KEY_IS_SPENT, &res->u.output.is_spent)) != 0) {
-      printf("[%s:%d]: gets %s json bool failed\n", __func__, __LINE__, JSON_KEY_IS_SPENT);
-      goto end;
-    }
+  // is spent
+  if ((ret = json_get_boolean(json_obj, JSON_KEY_IS_SPENT, &res->u.data->is_spent)) != 0) {
+    printf("[%s:%d]: gets %s json bool failed\n", __func__, __LINE__, JSON_KEY_IS_SPENT);
+    goto end;
+  }
 
-    // ledgerIndex
-    if ((ret = json_get_uint64(data_obj, JSON_KEY_LEDGER_IDX, &res->u.output.ledger_idx)) != 0) {
-      printf("[%s:%d]: gets %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
-      goto end;
-    }
+  // milestoneIndexBooked
+  if ((ret = json_get_uint64(json_obj, JSON_KEY_MILESTONE_INDEX_BOOKED, &res->u.data->ml_index_booked)) != 0) {
+    printf("[%s:%d]: gets %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_INDEX_BOOKED);
+    goto end;
+  }
 
-    cJSON *output_obj = cJSON_GetObjectItemCaseSensitive(data_obj, JSON_KEY_OUTPUT);
-    if (output_obj) {
-      // output type
-      if ((ret = json_get_uint32(output_obj, JSON_KEY_TYPE, &res->u.output.output_type)) != 0) {
-        printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
-        goto end;
-      }
-      // amount
-      if ((ret = json_get_uint64(output_obj, JSON_KEY_AMOUNT, &res->u.output.amount)) != 0) {
-        printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
-        goto end;
-      }
+  // milestoneTimestampBooked
+  if ((ret = json_get_uint64(json_obj, JSON_KEY_MILESTONE_TIME_BOOKED, &res->u.data->ml_time_booked)) != 0) {
+    printf("[%s:%d]: gets %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_TIME_BOOKED);
+    goto end;
+  }
 
-      cJSON *addr_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_ADDR);
-      if (addr_obj) {
-        // address type
-        if ((ret = json_get_uint32(addr_obj, JSON_KEY_TYPE, &res->u.output.address_type)) != 0) {
-          printf("[%s:%d]: gets address %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
-          goto end;
-        }
+  // ledgerIndex
+  if ((ret = json_get_uint64(json_obj, JSON_KEY_LEDGER_IDX, &res->u.data->ledger_index)) != 0) {
+    printf("[%s:%d]: gets %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
+    goto end;
+  }
 
-        // address
-        if ((ret = json_get_string(addr_obj, JSON_KEY_ADDR, res->u.output.addr, sizeof(res->u.output.addr))) != 0) {
-          printf("[%s:%d]: gets %s string failed\n", __func__, __LINE__, JSON_KEY_ADDR);
-          goto end;
-        }
-      }
-    }
+  cJSON *output_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_OUTPUT);
+  if ((ret = json_output_deserialize(output_obj, &res->u.data->output)) != 0) {
+    printf("[%s:%d]: gets output object failed\n", __func__, __LINE__);
+    goto end;
   }
 
 end:
@@ -147,15 +280,30 @@ void dump_output_response(res_output_t *res) {
   if (res->is_error) {
     printf("Error: %s\n", res->u.error->msg);
   } else {
-    get_output_t *output = &res->u.output;
-    printf("output:[\n");
-    printf("\t%s addr: %s\n", output->address_type ? "UNKNOW" : "ED25519", output->addr);
-    printf("\tmsg id: %s\n", output->msg_id);
-    printf("\ttx id: %s\n", output->tx_id);
-    printf("\tamount: %" PRIu64 "\n", output->amount);
-    printf("\toutput index: %" PRIu16 "\n", output->output_idx);
-    printf("\tis spent: %s\n", output->is_spent ? "True" : "False");
-    printf("\tledger index: %" PRIu64 "\n", output->ledger_idx);
-    printf("]\n");
+    printf("Message ID: ");
+    dump_hex_str(res->u.data->msg_id, IOTA_MESSAGE_ID_BYTES);
+    printf("Transaction ID: ");
+    dump_hex_str(res->u.data->tx_id, IOTA_TRANSACTION_ID_BYTES);
+    printf("outputIndex: %" PRIu16 "\n", res->u.data->output_index);
+    printf("isSpent: %s\n", res->u.data->is_spent ? "True" : "False");
+    printf("milestoneIndexBooked: %" PRIu64 "\n", res->u.data->ml_index_booked);
+    printf("milestoneTimestampBooked: %" PRIu64 "\n", res->u.data->ml_time_booked);
+    printf("ledgerIndex: %" PRIu64 "\n", res->u.data->ledger_index);
+    switch (res->u.data->output->output_type) {
+      case OUTPUT_EXTENDED:
+        output_extended_print((output_extended_t *)res->u.data->output->output, 0);
+        break;
+      case OUTPUT_ALIAS:
+        output_alias_print((output_alias_t *)res->u.data->output->output, 0);
+        break;
+      case OUTPUT_FOUNDRY:
+        output_foundry_print((output_foundry_t *)res->u.data->output->output, 0);
+        break;
+      case OUTPUT_NFT:
+        output_nft_print((output_nft_t *)res->u.data->output->output, 0);
+        break;
+      default:
+        break;
+    }
   }
 }
