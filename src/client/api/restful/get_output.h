@@ -10,25 +10,26 @@
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
 #include "client/network/http.h"
+#include "core/models/message.h"
+#include "core/models/outputs/outputs.h"
 
 // output id = transaction id(64 bytes) + output index(4 bytes)
 #define IOTA_OUTPUT_ID_HEX_BYTES 68
 #define IOTA_OUTPUT_ID_HEX_STR (IOTA_OUTPUT_ID_HEX_BYTES + 1)
 
 /**
- * @brief An output object
+ * @brief An output response object
  *
  */
 typedef struct {
-  char msg_id[65];        ///< the message IDs that references the output
-  char tx_id[65];         ///< the transaction ID
-  char addr[65];          ///< the address in hex string
-  uint32_t output_type;   ///< the output type
-  uint32_t address_type;  ///< the address type
-  uint64_t amount;        ///< the amount of this output
-  uint64_t ledger_idx;    ///< The ledger index at which this balance was queried at.
-  uint16_t output_idx;    ///< the index of this output
-  bool is_spent;          ///< is spent or not
+  byte_t msg_id[IOTA_MESSAGE_ID_BYTES];     ///< the message IDs that references the output
+  byte_t tx_id[IOTA_TRANSACTION_ID_BYTES];  ///< The transaction ID of this output
+  uint16_t output_index;                    ///< the index of this output
+  bool is_spent;                            ///< is spent or not
+  uint64_t ml_index_booked;                 ///< milestone index booked
+  uint64_t ml_time_booked;                  ///< milestone timestamp booked
+  uint64_t ledger_index;                    ///< ledger index
+  utxo_output_t *output;                    ///< an output object
 } get_output_t;
 
 /**
@@ -38,14 +39,28 @@ typedef struct {
 typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;     ///< Error message if is_error is True
-    get_output_t output;  ///< an output object if is_error is False
+    res_err_t *error;    ///< Error message if is_error is True
+    get_output_t *data;  ///< an output object if is_error is False
   } u;
 } res_output_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @brief Create an output response object
+ *
+ * @return res_output_t*
+ */
+res_output_t *get_output_response_new();
+
+/**
+ * @brief Free an output response object
+ *
+ * @param[in] res An output response
+ */
+void get_output_response_free(res_output_t *res);
 
 /**
  * @brief Get an output from a given output ID
