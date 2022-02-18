@@ -7,46 +7,6 @@
 #include "client/api/json_parser/message.h"
 #include "client/api/json_parser/payloads.h"
 
-// TODO, move into json utils?
-static json_error_t json_string_array_to_msg_ids(cJSON const* const obj, char const key[], UT_array* ut) {
-  if (obj == NULL || key == NULL) {
-    // invalid parameters
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return JSON_INVALID_PARAMS;
-  }
-  byte_t tmp_id[IOTA_MESSAGE_ID_BYTES] = {};
-
-  char* str = NULL;
-  cJSON* json_item = cJSON_GetObjectItemCaseSensitive(obj, key);
-  if (json_item == NULL) {
-    printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, key);
-    return JSON_KEY_NOT_FOUND;
-  }
-
-  if (cJSON_IsArray(json_item)) {
-    cJSON* current_obj = NULL;
-    cJSON_ArrayForEach(current_obj, json_item) {
-      str = cJSON_GetStringValue(current_obj);
-      if (!str) {
-        printf("[%s:%d] encountered non-string array member\n", __func__, __LINE__);
-        return JSON_ERR;
-      }
-      // convert ID hex string to binary
-      if (hex_2_bin(str, strlen(str), tmp_id, sizeof(tmp_id)) == 0) {
-        utarray_push_back(ut, &tmp_id);
-      } else {
-        printf("[%s:%d] convert hex string to binary error\n", __func__, __LINE__);
-        return JSON_ERR;
-      }
-    }
-  } else {
-    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, key);
-    return JSON_NOT_ARRAY;
-  }
-
-  return JSON_OK;
-}
-
 // json object to message object
 int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
   if (!msg || !json_obj) {
@@ -65,7 +25,7 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
   sscanf(str_buff, "%" SCNu64, &msg->network_id);
 
   // parentMessageIds
-  if ((ret = json_string_array_to_msg_ids(json_obj, JSON_KEY_PARENT_IDS, msg->parents)) != 0) {
+  if ((ret = json_string_array_to_bin_array(json_obj, JSON_KEY_PARENT_IDS, msg->parents, IOTA_MESSAGE_ID_BYTES)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
     utarray_free(msg->parents);
     msg->parents = NULL;
@@ -93,9 +53,8 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
         ret = json_transaction_deserialize(payload, (transaction_payload_t*)msg->payload);
         break;
       case CORE_MESSAGE_PAYLOAD_MILESTONE:
-        // TODO
-        // ret = milestone_deserialize(payload, res);
-        printf("[%s:%d]: unimplemented payload type\n", __func__, __LINE__);
+        msg->payload = milestone_payload_new();
+        ret = milestone_deserialize(payload, (milestone_t*)msg->payload);
         break;
       case CORE_MESSAGE_PAYLOAD_TAGGED:
         ret = json_tagged_deserialize(payload, (tagged_data_t**)(&msg->payload));
@@ -197,7 +156,7 @@ cJSON* json_message_serialize(core_message_t* msg) {
       payload = json_tagged_serialize((void*)msg->payload);
       break;
     default:
-      printf("[%s:%d] Unknow payload type\n", __func__, __LINE__);
+      printf("[%s:%d] Unknown payload type\n", __func__, __LINE__);
       break;
   }
 

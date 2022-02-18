@@ -1,4 +1,4 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #ifndef __CLIENT_API_JSON_PARSER_JSON_UTILS_H__
@@ -16,6 +16,7 @@
 typedef enum {
   JSON_OK = 0,
   JSON_INVALID_PARAMS,
+  JSON_MEMORY_ERROR,
   JSON_KEY_NOT_FOUND,
   JSON_NOT_STRING,
   JSON_NOT_BOOL,
@@ -91,6 +92,17 @@ json_error_t json_string_array_to_utarray(cJSON const* const obj, char const key
  * @return json_error_t
  */
 json_error_t utarray_to_json_string_array(UT_array const* const ut, cJSON* const obj, char const* const key);
+
+/**
+ * @brief Converts array of JSON strings to utarray of binary data
+ *
+ * @param[in] obj A JSON object
+ * @param[in] key A key of JSON array
+ * @param[out] ut An utarray of binary data
+ * @param[in] elm_len A length of each element in an utarray
+ * @return json_error_t
+ */
+json_error_t json_string_array_to_bin_array(cJSON const* const obj, char const key[], UT_array* ut, size_t elm_len);
 
 /**
  * @brief Gets an integer from a JSON object.

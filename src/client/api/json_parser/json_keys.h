@@ -93,5 +93,8 @@ static char const* const JSON_KEY_NFT_ID = "nftId";
 static char const* const JSON_KEY_IMMUTABLE_DATA = "immutableData";
 static char const* const JSON_KEY_MILESTONE_INDEX_BOOKED = "milestoneIndexBooked";
 static char const* const JSON_KEY_MILESTONE_TIME_BOOKED = "milestoneTimestampBooked";
+static char const* const JSON_KEY_NEXT_POW_SCORE = "nextPoWScore";
+static char const* const JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX = "nextPoWScoreMilestoneIndex";
+static char const* const JSON_KEY_PUBLIC_KEYS = "publicKeys";
 
 #endif

@@ -1,4 +1,4 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
@@ -152,6 +152,49 @@ json_error_t utarray_to_json_string_array(UT_array const* const ut, cJSON* const
   while ((p = (char**)utarray_next(ut, p))) {
     cJSON_AddItemToArray(array_obj, cJSON_CreateString(*p));
   }
+  return JSON_OK;
+}
+
+json_error_t json_string_array_to_bin_array(cJSON const* const obj, char const key[], UT_array* ut, size_t elm_len) {
+  if (obj == NULL || key == NULL || ut == NULL || elm_len == 0) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return JSON_INVALID_PARAMS;
+  }
+
+  cJSON* json_item = cJSON_GetObjectItemCaseSensitive(obj, key);
+  if (json_item == NULL) {
+    printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, key);
+    return JSON_KEY_NOT_FOUND;
+  }
+
+  if (cJSON_IsArray(json_item)) {
+    cJSON* current_obj = NULL;
+    cJSON_ArrayForEach(current_obj, json_item) {
+      char* elm_str = cJSON_GetStringValue(current_obj);
+      if (!elm_str) {
+        printf("[%s:%d] encountered non-string array member\n", __func__, __LINE__);
+        return JSON_ERR;
+      }
+      byte_t* elm_bin = malloc(elm_len);
+      if (!elm_bin) {
+        printf("[%s:%d] OOM\n", __func__, __LINE__);
+        return JSON_MEMORY_ERROR;
+      }
+      // convert hex string to binary
+      if (hex_2_bin(elm_str, strlen(elm_str), elm_bin, elm_len) == 0) {
+        utarray_push_back(ut, elm_bin);
+        free(elm_bin);
+      } else {
+        printf("[%s:%d] convert hex string to binary error\n", __func__, __LINE__);
+        free(elm_bin);
+        return JSON_ERR;
+      }
+    }
+  } else {
+    printf("[%s:%d] %s is not an array object\n", __func__, __LINE__, key);
+    return JSON_NOT_ARRAY;
+  }
+
   return JSON_OK;
 }
 

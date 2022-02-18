@@ -1,4 +1,4 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #include <inttypes.h>
@@ -16,7 +16,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_msg_by_id() {
-  char const* const msg_id = "8fe7c756dcec455125ce800802cd3fbcc92164030ad9d51aa014cc1be00b8ebd";
+  char const* const msg_id = "9fcb00f23d9f794ceb82930ffe6657e16032c72818ccaadb991e4b9b0190660c";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();
@@ -59,27 +59,23 @@ void test_get_msg_by_id() {
 void test_deser_milestone() {
   char const* const ms_res =
       "{\"networkId\":\"8453507715857476362\",\"parentMessageIds\":["
-      "\"708300963297a4bec3fac378d24d4c4585ea69216f32dba010d6d8546942f8f6\","
-      "\"70c6523d1d1b6cc8b7b8333df31027f608f97ff1681478622b1e7c1852416e61\","
-      "\"862038e86f431f6727a5dd06db0cd05689b879fd4f6a9219afef90eddf1141db\","
-      "\"94d6b7d3e09476b72a7a2d814e82132acafb7f9b71c519cca1086cbb88fdac01\","
-      "\"ba156f10e9af17e49b87fd9dbc42ccaee514855016a6818afa0e839a32e2f2d4\","
-      "\"ed6befb669e0c760957939b70fb19996eef043a2742e60c5b08275c62b911b0f\"],\"payload\":{\"type\":1,\"index\":3,"
-      "\"timestamp\":1644487067,\"parentMessageIds\":["
-      "\"708300963297a4bec3fac378d24d4c4585ea69216f32dba010d6d8546942f8f6\","
-      "\"70c6523d1d1b6cc8b7b8333df31027f608f97ff1681478622b1e7c1852416e61\","
-      "\"862038e86f431f6727a5dd06db0cd05689b879fd4f6a9219afef90eddf1141db\","
-      "\"94d6b7d3e09476b72a7a2d814e82132acafb7f9b71c519cca1086cbb88fdac01\","
-      "\"ba156f10e9af17e49b87fd9dbc42ccaee514855016a6818afa0e839a32e2f2d4\","
-      "\"ed6befb669e0c760957939b70fb19996eef043a2742e60c5b08275c62b911b0f\"],\"inclusionMerkleProof\":"
-      "\"0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8\",\"nextPoWScore\":0,"
-      "\"nextPoWScoreMilestoneIndex\":0,\"publicKeys\":["
+      "\"596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
+      "\"8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
+      "\"a3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
+      "\"dbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"payload\":{\"type\":1,\"index\":3,"
+      "\"timestamp\":1644478549,\"parentMessageIds\":["
+      "\"596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
+      "\"8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
+      "\"a3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
+      "\"dbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"inclusionMerkleProof\":"
+      "\"58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c\",\"nextPoWScore\":100,"
+      "\"nextPoWScoreMilestoneIndex\":200,\"publicKeys\":["
       "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c\","
       "\"f6752f5f46a53364e2ee9c4d662d762a81efd51010282a75cd6bd03f28ef349c\"],\"receipt\":null,\"signatures\":["
-      "\"ee6b8961c4216274e3d8814d0b56c1c4fbdf7b5b022ae4ce519a825064add3fa88e486ae1e4dc0eeabab7ec5dcb2a837b2babba18dfaf0"
-      "11fefac7ef68301e02\","
-      "\"fb70831b664533ed049b51ac4db3f0f56a0936dfddf72b6e6bea6a249a3550b7d90e7038b5dff822583079208040bb32dc4c4dd9617945"
-      "3969a44f93aecab600\"]},\"nonce\":\"10540996613548414064\"}";
+      "\"a6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b4c33cfd64dadf7bc"
+      "c085a062e486c7a105\","
+      "\"005af6a44ded27650c23457f540576515a1e1549ff50d1279bde77d2dd8802c8676053ec5c0939671db1c2d920b3c557389b19a7f1ad31"
+      "0dc5ed23f840ddfa05\"]},\"nonce\":\"14757395258967713456\"}";
 
   res_message_t* res = res_message_new();
   TEST_ASSERT_NOT_NULL(res);
@@ -87,41 +83,80 @@ void test_deser_milestone() {
   TEST_ASSERT(res->is_error == false);
 
   core_message_t* msg = res->u.msg;
-  TEST_ASSERT_EQUAL_UINT64(9466822412763346725U, msg->network_id);
-  TEST_ASSERT_EQUAL_UINT64(10760600709663927622U, msg->nonce);
-  TEST_ASSERT_EQUAL_INT(5, core_message_parent_len(msg));
+  TEST_ASSERT_EQUAL_UINT64(8453507715857476362, msg->network_id);
+  TEST_ASSERT_EQUAL_UINT64(14757395258967713456u, msg->nonce);
 
-#if 0  // FIXME, parent IDs are in binary form
-  TEST_ASSERT_EQUAL_MEMORY("7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
-                           core_message_get_parent_id(msg, 0), 64);
-  TEST_ASSERT_EQUAL_MEMORY("9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c",
-                           core_message_get_parent_id(msg, 1), 64);
-  TEST_ASSERT_EQUAL_MEMORY("ccf9bf6b76a2659f332e17bfdc20f278ce25bc45e807e89cc2ab526cd2101c52",
-                           core_message_get_parent_id(msg, 2), 64);
-  TEST_ASSERT_EQUAL_MEMORY("ede431f8907b30c81eee57db80109af0b8b91683c0be2cc3b685bcdc14dbdca5",
-                           core_message_get_parent_id(msg, 3), 64);
-  TEST_ASSERT_EQUAL_MEMORY("fe63a9194eadb45e456a3c618d970119dbcac25221dbf5f53e5a838ef6ef518a",
-                           core_message_get_parent_id(msg, 4), 64);
+  // check parentMessageIds
+  TEST_ASSERT_EQUAL_INT(4, core_message_parent_len(msg));
+  byte_t tmp_id[IOTA_MESSAGE_ID_BYTES] = {};
+  TEST_ASSERT(
+      hex_2_bin("596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, core_message_get_parent_id(res->u.msg, 0), sizeof(tmp_id));
+  TEST_ASSERT(
+      hex_2_bin("8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, core_message_get_parent_id(res->u.msg, 1), sizeof(tmp_id));
+  TEST_ASSERT(
+      hex_2_bin("a3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, core_message_get_parent_id(res->u.msg, 2), sizeof(tmp_id));
+  TEST_ASSERT(
+      hex_2_bin("dbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, core_message_get_parent_id(res->u.msg, 3), sizeof(tmp_id));
+
   TEST_ASSERT(msg->payload_type == CORE_MESSAGE_PAYLOAD_MILESTONE);
-#endif
 
   milestone_t* ms = (milestone_t*)msg->payload;
-  TEST_ASSERT(1613651642 == ms->timestamp);
-#if 0  // FIXME, index and signature are in binary form
-  TEST_ASSERT(123519 == ms->index);
-  TEST_ASSERT_EQUAL_MEMORY("0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8",
-                           ms->inclusion_merkle_proof, 64);
-  TEST_ASSERT(2 == milestone_payload_get_signature_count(ms));
-  TEST_ASSERT_EQUAL_MEMORY(
-      "2ef781713287ba11efd0f3be37a49c2a08a8fdd1099b36e6fb7c9cb290b1711dd4fe08489ecd3872ac663bebebedd27cd73325d53315421d"
-      "923b77ffd9ab3b0c",
-      milestone_payload_get_signature(ms, 0), MILESTONE_SIGNATURE_HEX_STR_LEN);
-  TEST_ASSERT_EQUAL_MEMORY(
-      "c42983ce8e619787bbb5aa89cb0987cf08a26a2e4080039614e3c56e766bc86dce50d6e7dc6907edf653e9cc92c89405389fbc71e759c254"
-      "fa2aa571a93d850f",
-      milestone_payload_get_signature(ms, 1), MILESTONE_SIGNATURE_HEX_STR_LEN);
-#endif
-  milestone_payload_free(ms);
+  TEST_ASSERT(3 == ms->index);
+  TEST_ASSERT(1644478549 == ms->timestamp);
+
+  // check parentMessageIds
+  TEST_ASSERT_EQUAL_INT(4, milestone_payload_get_parents_count(ms));
+  TEST_ASSERT(
+      hex_2_bin("596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, milestone_payload_get_parent(ms, 0), sizeof(tmp_id));
+  TEST_ASSERT(
+      hex_2_bin("8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, milestone_payload_get_parent(ms, 1), sizeof(tmp_id));
+  TEST_ASSERT(
+      hex_2_bin("a3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, milestone_payload_get_parent(ms, 2), sizeof(tmp_id));
+  TEST_ASSERT(
+      hex_2_bin("dbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, milestone_payload_get_parent(ms, 3), sizeof(tmp_id));
+
+  byte_t tmp_proof[CRYPTO_BLAKE2B_HASH_BYTES] = {};
+  TEST_ASSERT(hex_2_bin("58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c", 65, tmp_proof,
+                        sizeof(tmp_proof)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_proof, ms->inclusion_merkle_proof, sizeof(ms->inclusion_merkle_proof));
+
+  TEST_ASSERT(100 == ms->next_pow_score);
+  TEST_ASSERT(200 == ms->next_pow_score_milestone_index);
+
+  // check publicKeys
+  TEST_ASSERT_EQUAL_INT(2, milestone_payload_get_pub_keys_count(ms));
+  TEST_ASSERT(
+      hex_2_bin("ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, milestone_payload_get_pub_key(ms, 0), sizeof(tmp_id));
+  TEST_ASSERT(
+      hex_2_bin("f6752f5f46a53364e2ee9c4d662d762a81efd51010282a75cd6bd03f28ef349c", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, milestone_payload_get_pub_key(ms, 1), sizeof(tmp_id));
+
+  // TODO check receipt
+
+  // check signatures
+  byte_t tmp_sign[MILESTONE_SIGNATURE_LEN] = {};
+  TEST_ASSERT_EQUAL_INT(2, milestone_payload_get_signatures_count(ms));
+  TEST_ASSERT(hex_2_bin("a6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b"
+                        "4c33cfd64dadf7bcc085a062e486c7a105",
+                        129, tmp_sign, sizeof(tmp_sign)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_sign, milestone_payload_get_signature(ms, 0), sizeof(tmp_sign));
+  TEST_ASSERT(hex_2_bin("005af6a44ded27650c23457f540576515a1e1549ff50d1279bde77d2dd8802c8676053ec5c0939671db1c2d920b3c5"
+                        "57389b19a7f1ad310dc5ed23f840ddfa05",
+                        129, tmp_sign, sizeof(tmp_sign)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_sign, milestone_payload_get_signature(ms, 1), sizeof(tmp_sign));
+
+  // print core message
+  core_message_print(res->u.msg, 0);
+
   res_message_free(res);
 }
 
@@ -247,7 +282,9 @@ void test_deser_simple_tx() {
   sprintf(str_buff, "%" PRIu64 "", res->u.msg->nonce);
   TEST_ASSERT_EQUAL_STRING("62900", str_buff);
 
+  // print core message
   core_message_print(res->u.msg, 0);
+
   res_message_free(res);
 }
 
@@ -255,12 +292,9 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_deser_simple_tx);
-#if 0  // FIXME
   RUN_TEST(test_deser_milestone);
-#endif
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_msg_by_id);
 #endif
-
   return UNITY_END();
 }

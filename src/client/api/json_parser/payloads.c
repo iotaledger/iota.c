@@ -115,6 +115,107 @@ static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_
   return 0;
 }
 
+int milestone_deserialize(cJSON* payload, milestone_t* ms) {
+  /*
+  {
+    "networkId": "8453507715857476362",
+    "parentMessageIds": [
+      "596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
+      "8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
+      "a3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893",
+      "dbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff"
+    ],
+    "payload": {
+      "type": 1,
+      "index": 3,
+      "timestamp": 1644478549,
+      "parentMessageIds": [
+        "596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
+        "8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
+        "a3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893",
+        "dbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff"
+      ],
+      "inclusionMerkleProof": "58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c",
+      "nextPoWScore": 0,
+      "nextPoWScoreMilestoneIndex": 0,
+      "publicKeys": [
+        "ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c",
+        "f6752f5f46a53364e2ee9c4d662d762a81efd51010282a75cd6bd03f28ef349c"
+      ],
+      "receipt": null,
+      "signatures": [
+        "a6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b4c33cfd64dadf7bcc085a062e486c7a105",
+        "005af6a44ded27650c23457f540576515a1e1549ff50d1279bde77d2dd8802c8676053ec5c0939671db1c2d920b3c557389b19a7f1ad310dc5ed23f840ddfa05"
+      ]
+    },
+    "nonce": "14757395258967713456"
+  }
+  */
+
+  if (payload == NULL || ms == NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  int ret = -1;
+
+  // parsing index
+  if ((ret = json_get_uint32(payload, JSON_KEY_INDEX, &ms->index)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_INDEX);
+    return ret;
+  }
+
+  // parsing timestamp
+  if ((ret = json_get_uint64(payload, JSON_KEY_TIMESTAMP, &ms->timestamp)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TIMESTAMP);
+    return ret;
+  }
+
+  // parsing parents
+  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PARENT_IDS, ms->parents, IOTA_MESSAGE_ID_BYTES)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
+    return ret;
+  }
+  // parsing inclusion Merkle proof
+  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_INCLUSION_MKL, ms->inclusion_merkle_proof,
+                                     sizeof(ms->inclusion_merkle_proof))) != 0) {
+    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_INCLUSION_MKL);
+    return ret;
+  }
+
+  // parsing next Pow score
+  if ((ret = json_get_uint32(payload, JSON_KEY_NEXT_POW_SCORE, &ms->next_pow_score)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE);
+    return ret;
+  }
+
+  // parsing next Pow score milestone index
+  if ((ret = json_get_uint32(payload, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX, &ms->next_pow_score_milestone_index)) !=
+      0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX);
+    return ret;
+  }
+
+  // parsing public keys
+  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PUBLIC_KEYS, ms->pub_keys, MILESTONE_PUBLIC_KEY_LEN)) !=
+      0) {
+    printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_PUBLIC_KEYS);
+    return ret;
+  }
+
+  // parsing receipt
+  // TODO parse receipt
+
+  // parsing signatures
+  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_SIGNATURES, ms->signatures, MILESTONE_SIGNATURE_LEN)) !=
+      0) {
+    printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_SIGNATURES);
+    return ret;
+  }
+
+  return 0;
+}
+
 int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
   if (!payload || !tx) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
