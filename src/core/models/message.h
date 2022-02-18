@@ -1,4 +1,4 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #ifndef __CORE_MODELS_MESSAGE_H__
@@ -98,6 +98,24 @@ byte_t* core_message_get_parent_id(core_message_t* msg, size_t index);
  * @return core_message_payload_type_t
  */
 core_message_payload_type_t core_message_get_payload_type(core_message_t* msg);
+
+/**
+ * @brief Get the length of a serialized core message
+ *
+ * @param[in] msg The message object
+ * @return size_t The number of bytes of serialized data
+ */
+size_t core_message_serialize_len(core_message_t* msg);
+
+/**
+ * @brief Serialize core message to a buffer
+ *
+ * @param[in] msg The message object
+ * @param[out] buf A buffer holds the serialized data
+ * @param[in] buf_len The length of buffer
+ * @return size_t The bytes written is returned, 0 on errors
+ */
+size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len);
 
 /**
  * @brief Print out a core message

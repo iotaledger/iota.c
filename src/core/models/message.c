@@ -1,4 +1,4 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #include <inttypes.h>
@@ -142,6 +142,120 @@ core_message_payload_type_t core_message_get_payload_type(core_message_t* msg) {
     return msg->payload_type;
   }
   return CORE_MESSAGE_PAYLOAD_UNKNOWN;
+}
+
+size_t core_message_serialize_len(core_message_t* msg) {
+  if (msg == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return 0;
+  }
+
+  size_t length = 0;
+
+  // network Id type
+  length += sizeof(uint64_t);
+  // parents count
+  length += sizeof(uint8_t);
+  // parents
+  length += core_message_parent_len(msg) * IOTA_MESSAGE_ID_BYTES;
+  // payload length
+  length += sizeof(uint32_t);
+
+  // payload
+  switch (msg->payload_type) {
+    case CORE_MESSAGE_PAYLOAD_TRANSACTION:
+      length += tx_payload_serialize_length((transaction_payload_t*)msg->payload);
+      break;
+    case CORE_MESSAGE_PAYLOAD_TAGGED:
+      length += tagged_data_serialize_len((tagged_data_t*)(msg->payload));
+      break;
+    case CORE_MESSAGE_PAYLOAD_MILESTONE:
+    case CORE_MESSAGE_PAYLOAD_INDEXATION:
+    case CORE_MESSAGE_PAYLOAD_RECEIPT:
+    case CORE_MESSAGE_PAYLOAD_TREASURY:
+    default:
+      printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
+      return 0;
+  }
+
+  // nonce
+  length += sizeof(uint64_t);
+
+  return length;
+}
+
+size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len) {
+  if (msg == NULL || buf == NULL || buf_len == 0) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return 0;
+  }
+
+  size_t expected_bytes = core_message_serialize_len(msg);
+  if (buf_len < expected_bytes) {
+    printf("[%s:%d] buffer size is insufficient\n", __func__, __LINE__);
+    return 0;
+  }
+
+  size_t offset = 0;
+
+  // network Id
+  memcpy(buf, &msg->network_id, sizeof(uint64_t));
+  offset += sizeof(uint64_t);
+
+  // parents count
+  uint8_t parents_len = (uint8_t)core_message_parent_len(msg);
+  memset(buf + offset, parents_len, sizeof(uint8_t));
+  offset += sizeof(uint8_t);
+
+  // parents
+  for (uint index = 0; index < parents_len; index++) {
+    byte_t* parent_id = core_message_get_parent_id(msg, index);
+    memcpy(buf + offset, parent_id, sizeof(IOTA_MESSAGE_ID_BYTES));
+    offset += IOTA_MESSAGE_ID_BYTES;
+  }
+
+  // payload length
+  uint32_t payload_len = 0;
+  switch (msg->payload_type) {
+    case CORE_MESSAGE_PAYLOAD_TRANSACTION:
+      payload_len = (uint32_t)tx_payload_serialize_length((transaction_payload_t*)msg->payload);
+      break;
+    case CORE_MESSAGE_PAYLOAD_TAGGED:
+      payload_len = (uint32_t)(uint32_t)tagged_data_serialize_len((tagged_data_t*)(msg->payload));
+      break;
+    case CORE_MESSAGE_PAYLOAD_MILESTONE:
+    case CORE_MESSAGE_PAYLOAD_INDEXATION:
+    case CORE_MESSAGE_PAYLOAD_RECEIPT:
+    case CORE_MESSAGE_PAYLOAD_TREASURY:
+    default:
+      printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
+      return 0;
+  }
+  memset(buf + offset, payload_len, sizeof(uint32_t));
+  offset += sizeof(uint32_t);
+
+  // payload
+  switch (msg->payload_type) {
+    case CORE_MESSAGE_PAYLOAD_TRANSACTION:
+      offset += tx_payload_serialize((transaction_payload_t*)msg->payload, buf + offset, buf_len - offset);
+      break;
+    case CORE_MESSAGE_PAYLOAD_TAGGED:
+      offset += tagged_data_serialize((tagged_data_t*)msg->payload, buf + offset, buf_len - offset);
+      break;
+    case CORE_MESSAGE_PAYLOAD_MILESTONE:
+    case CORE_MESSAGE_PAYLOAD_INDEXATION:
+    case CORE_MESSAGE_PAYLOAD_RECEIPT:
+    case CORE_MESSAGE_PAYLOAD_TREASURY:
+    default:
+      printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
+      return 0;
+  }
+
+  // nonce
+  memcpy(buf + offset, &msg->nonce, sizeof(uint64_t));
+  offset += sizeof(uint64_t);
+
+  return offset;
 }
 
 void core_message_print(core_message_t* msg, uint8_t indentation) {
