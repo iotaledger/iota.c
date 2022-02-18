@@ -102,7 +102,7 @@ size_t native_tokens_serialize(native_tokens_t **nt, byte_t buf[], size_t buf_le
     offset += sizeof(uint256_t);
   }
 
-  return expected_bytes;
+  return offset;
 }
 
 native_tokens_t *native_tokens_deserialize(byte_t buf[], size_t buf_len) {

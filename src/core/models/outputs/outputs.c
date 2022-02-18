@@ -222,7 +222,7 @@ size_t utxo_outputs_serialize(utxo_outputs_list_t *outputs, byte_t buf[], size_t
     }
   }
 
-  return expected_bytes;
+  return offset - buf;
 }
 
 utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len) {

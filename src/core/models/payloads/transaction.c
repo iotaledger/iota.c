@@ -135,7 +135,7 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
     offset += sizeof(uint32_t);
   }
 
-  return expected_bytes;
+  return offset - buf;
 }
 
 transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
@@ -293,7 +293,7 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
   // write unlocked blocks
   offset += unlock_blocks_serialize(tx->unlock_blocks, offset);
 
-  return expected_bytes;
+  return offset - buf;
 }
 
 transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
