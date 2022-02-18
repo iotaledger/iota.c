@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "client/api/json_parser/inputs.h"
+#include "core/utils/macros.h"
 #include "unity/unity.h"
 
 void setUp(void) {}
@@ -52,16 +53,16 @@ void test_deserialize_inputs() {
   TEST_ASSERT_EQUAL_UINT16(2, utxo_inputs_count(inputs));
 
   // check 1st transaction
-  hex_2_bin("b3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e", IOTA_TRANSACTION_ID_HEX_BYTES,
-            tmp_tx_id, IOTA_TRANSACTION_ID_BYTES);
+  hex_2_bin("b3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e",
+            BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES), tmp_tx_id, IOTA_TRANSACTION_ID_BYTES);
   utxo_input_t *input = utxo_inputs_find_by_id(inputs, tmp_tx_id);
   TEST_ASSERT_NOT_NULL(input);
   TEST_ASSERT_EQUAL_UINT16(0, input->input_type);
   TEST_ASSERT_EQUAL_UINT16(1, input->output_index);
 
   // check 2nd transaction
-  hex_2_bin("c6e89ba60e64a79d174ce04a87003cf681d06f8f016909b410479bef92bf6143", IOTA_TRANSACTION_ID_HEX_BYTES,
-            tmp_tx_id, IOTA_TRANSACTION_ID_BYTES);
+  hex_2_bin("c6e89ba60e64a79d174ce04a87003cf681d06f8f016909b410479bef92bf6143",
+            BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES), tmp_tx_id, IOTA_TRANSACTION_ID_BYTES);
   input = utxo_inputs_find_by_id(inputs, tmp_tx_id);
   TEST_ASSERT_NOT_NULL(input);
   TEST_ASSERT_EQUAL_UINT16(0, input->input_type);
@@ -98,13 +99,13 @@ void test_serialize_inputs_empty() {
 void test_serialize_inputs() {
   utxo_inputs_list_t *inputs = utxo_inputs_new();
   // add 1st tx
-  hex_2_bin("b3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e", IOTA_TRANSACTION_ID_HEX_BYTES,
-            tmp_tx_id, IOTA_TRANSACTION_ID_BYTES);
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tmp_tx_id, 1) == 0);
+  hex_2_bin("b3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e",
+            BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES), tmp_tx_id, IOTA_TRANSACTION_ID_BYTES);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tmp_tx_id, 1, NULL) == 0);
   // add 2nd tx
-  hex_2_bin("c6e89ba60e64a79d174ce04a87003cf681d06f8f016909b410479bef92bf6143", IOTA_TRANSACTION_ID_HEX_BYTES,
-            tmp_tx_id, IOTA_TRANSACTION_ID_BYTES);
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tmp_tx_id, 4) == 0);
+  hex_2_bin("c6e89ba60e64a79d174ce04a87003cf681d06f8f016909b410479bef92bf6143",
+            BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES), tmp_tx_id, IOTA_TRANSACTION_ID_BYTES);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tmp_tx_id, 4, NULL) == 0);
 
   // serialize input data
   cJSON *input_data = json_inputs_serialize(inputs);

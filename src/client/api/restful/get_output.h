@@ -10,6 +10,7 @@
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
 #include "client/network/http.h"
+#include "core/models/inputs/utxo_input.h"
 #include "core/models/message.h"
 #include "core/models/outputs/outputs.h"
 
