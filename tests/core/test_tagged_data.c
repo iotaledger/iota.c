@@ -15,8 +15,6 @@ void tearDown(void) {}
 
 void test_tagged_data() {
   char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO";
-  byte_t tag_bin[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
-  string2hex(tag, tag_bin, BIN_TO_HEX_STR_BYTES(strlen(tag)));
   byte_t data[2048];
   iota_crypto_randombytes(data, 2048);
 
@@ -28,8 +26,8 @@ void test_tagged_data() {
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
-  TEST_ASSERT(BIN_TO_HEX_STR_BYTES((strlen(tag))) == tagged_data->tag->len);
-  TEST_ASSERT_EQUAL_STRING(tag_bin, tagged_data->tag->data);
+  TEST_ASSERT(strlen(tag) == tagged_data->tag->len);
+  TEST_ASSERT_EQUAL_STRING(tag, tagged_data->tag->data);
 
   // validate binary data
   TEST_ASSERT(sizeof(data) == tagged_data->data->len);
@@ -117,8 +115,6 @@ void test_tagged_data_without_tag() {
 
 void test_tagged_data_without_data() {
   char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO";
-  byte_t tag_bin[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
-  string2hex(tag, tag_bin, BIN_TO_HEX_STR_BYTES(strlen(tag)));
 
   tagged_data_t* tagged_data = tagged_data_new();
   TEST_ASSERT_NOT_NULL(tagged_data);
@@ -128,8 +124,8 @@ void test_tagged_data_without_data() {
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
-  TEST_ASSERT(BIN_TO_HEX_STR_BYTES((strlen(tag))) == tagged_data->tag->len);
-  TEST_ASSERT_EQUAL_STRING(tag_bin, tagged_data->tag->data);
+  TEST_ASSERT(strlen(tag) == tagged_data->tag->len);
+  TEST_ASSERT_EQUAL_STRING(tag, tagged_data->tag->data);
 
   // validate binary data
   TEST_ASSERT_NULL(tagged_data->data);
