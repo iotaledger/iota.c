@@ -210,7 +210,7 @@ size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len)
   // parents
   for (uint index = 0; index < parents_len; index++) {
     byte_t* parent_id = core_message_get_parent_id(msg, index);
-    memcpy(buf + offset, parent_id, sizeof(IOTA_MESSAGE_ID_BYTES));
+    memcpy(buf + offset, parent_id, IOTA_MESSAGE_ID_BYTES);
     offset += IOTA_MESSAGE_ID_BYTES;
   }
 
@@ -231,7 +231,7 @@ size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len)
       printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
       return 0;
   }
-  memset(buf + offset, payload_len, sizeof(uint32_t));
+  memcpy(buf + offset, &payload_len, sizeof(uint32_t));
   offset += sizeof(uint32_t);
 
   // payload

@@ -190,7 +190,7 @@ void test_message_with_tx_serialize() {
   TEST_ASSERT(tx_essence_add_output(essence, OUTPUT_EXTENDED, extended_output_two) == 0);
 
   // add tagged data payload
-  tagged_data_t* tagged_data = tagged_data_create("484f524e455420464155434554", NULL, 0);
+  tagged_data_t* tagged_data = tagged_data_create("HORNET FAUCET", NULL, 0);
   TEST_ASSERT_NOT_NULL(tagged_data);
   TEST_ASSERT(tx_essence_add_payload(essence, CORE_MESSAGE_PAYLOAD_TAGGED, tagged_data) == 0);
 
