@@ -317,7 +317,7 @@ cJSON *json_feat_blocks_serialize(feat_blk_list_t *feat_blocks) {
 
       if (item) {
         // add item to array
-        if (cJSON_AddItemToArray(blocks, item) == cJSON_False) {
+        if (!cJSON_AddItemToArray(blocks, item)) {
           printf("[%s:%d] add block to array error\n", __func__, __LINE__);
           cJSON_Delete(item);
           cJSON_Delete(blocks);

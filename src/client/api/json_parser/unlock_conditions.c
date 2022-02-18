@@ -544,7 +544,7 @@ cJSON *json_cond_blk_list_serialize(cond_blk_list_t *blk_list) {
 
       if (item) {
         // add item to array
-        if (cJSON_AddItemToArray(unlock_arr, item) == cJSON_False) {
+        if (!cJSON_AddItemToArray(unlock_arr, item)) {
           printf("[%s:%d] add block to array error\n", __func__, __LINE__);
           cJSON_Delete(item);
           cJSON_Delete(unlock_arr);

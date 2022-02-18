@@ -92,7 +92,7 @@ cJSON *json_native_tokens_serialize(native_tokens_t *native_tokens) {
       }
 
       // add item to array
-      if (cJSON_AddItemToArray(tokens, item) == cJSON_False) {
+      if (!cJSON_AddItemToArray(tokens, item)) {
       item_err:
         printf("[%s:%d] add item to array error\n", __func__, __LINE__);
         cJSON_Delete(item);

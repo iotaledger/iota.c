@@ -98,7 +98,7 @@ cJSON *json_outputs_serialize(utxo_outputs_list_t *outputs) {
 
       if (item) {
         // add item to array
-        if (cJSON_AddItemToArray(output_arr, item) == cJSON_False) {
+        if (!cJSON_AddItemToArray(output_arr, item)) {
           printf("[%s:%d] add output to outputs array error\n", __func__, __LINE__);
           cJSON_Delete(item);
           cJSON_Delete(output_arr);
