@@ -8,14 +8,13 @@
 #include "core/utils/bech32.h"
 #include "core/utils/byte_buffer.h"
 #include "core/utils/slip10.h"
-#include "crypto/iota_crypto.h"
 
 static int address_from_ed25519_pub(byte_t const pub_key[], address_t *addr) {
   addr->type = ADDRESS_TYPE_ED25519;
   return iota_blake2b_sum(pub_key, ED_PUBLIC_KEY_BYTES, addr->address, ADDRESS_ED25519_BYTES);
 }
 
-static int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], ed25519_keypair_t *keypair) {
+int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], ed25519_keypair_t *keypair) {
   // derive key from seed
   slip10_key_t key = {};
   int ret = 0;

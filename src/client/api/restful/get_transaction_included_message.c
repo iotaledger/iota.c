@@ -3,7 +3,9 @@
 
 #include "client/api/restful/get_transaction_included_message.h"
 #include "client/network/http.h"
+#include "core/models/inputs/utxo_input.h"
 #include "core/utils/iota_str.h"
+#include "core/utils/macros.h"
 
 int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char const tx_id[], res_message_t *res) {
   if (conf == NULL || tx_id == NULL || res == NULL) {
@@ -11,7 +13,7 @@ int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char 
     return -1;
   }
 
-  if (strlen(tx_id) != IOTA_TRANSACTION_ID_HEX_BYTES) {
+  if (strlen(tx_id) != BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES)) {
     printf("[%s:%d]: invalid transaction id length: %zu\n", __func__, __LINE__, strlen(tx_id));
     return -1;
   }

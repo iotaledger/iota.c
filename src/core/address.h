@@ -7,6 +7,7 @@
 #include <stdbool.h>
 
 #include "core/types.h"
+#include "crypto/iota_crypto.h"
 
 // An Ed25519 address is the Blake2b-256 hash of an Ed25519 public key.
 #define ADDRESS_ED25519_BYTES 32
@@ -58,6 +59,17 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @brief Derive ed25519 keypair from slip10 seed and path
+ *
+ * @param[in] seed The seed for slip10
+ * @param[in] seed_len The length of seed
+ * @param[in] path The path for slip10
+ * @param[out] keypair The derived ed25519 keypair
+ * @return int 0 on success
+ */
+int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], ed25519_keypair_t *keypair);
 
 /**
  * @brief Create an ed25519 address from slip10

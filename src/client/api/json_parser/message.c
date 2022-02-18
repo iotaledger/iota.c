@@ -6,6 +6,7 @@
 #include "client/api/json_parser/common.h"
 #include "client/api/json_parser/message.h"
 #include "client/api/json_parser/payloads.h"
+#include "core/utils/macros.h"
 
 // json object to message object
 int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
@@ -98,7 +99,7 @@ cJSON* json_message_serialize(core_message_t* msg) {
   cJSON* msg_obj = NULL;
   cJSON* payload = NULL;
   cJSON* parents = NULL;
-  char tmp_id_str[IOTA_MESSAGE_ID_BYTES * 2 + 1] = {};
+  char tmp_id_str[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)] = {};
 
   if (!msg) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);

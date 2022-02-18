@@ -6,12 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "uthash.h"
-
 #include "core/models/message.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
-#include "crypto/iota_crypto.h"
+#include "utlist.h"
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
 
@@ -63,38 +61,36 @@ int core_message_sign_transaction(core_message_t* msg) {
     return -1;
   }
 
-  // FIXME, create unlocked blocks and sign tx essence
-#if 0
-  utxo_input_ht *elm, *tmp;
-  HASH_ITER(hh, tx->essence->inputs, elm, tmp) {
-    // create a ref block, if public key exists in unlocked_sig
-    uint32_t pub_index = unlock_blocks_find_pub(tx->unlock_blocks, elm->keypair.pub);
-    if (pub_index == -1) {
-      // publick key is not found in the unlocked block
-      byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
-      sig_block[0] = ADDRESS_TYPE_ED25519;
-      memcpy(sig_block + 1, elm->keypair.pub, ED_PUBLIC_KEY_BYTES);
-      // sign transaction
-      if ((ret = iota_crypto_sign(elm->keypair.priv, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES,
-                                  sig_block + (1 + ED_PUBLIC_KEY_BYTES)))) {
-        printf("[%s:%d] signing signature failed\n", __func__, __LINE__);
-        break;
-      }
+  utxo_inputs_list_t* elm;
+  LL_FOREACH(tx->essence->inputs, elm) {
+    if (elm->input->keypair) {
+      int32_t pub_index = unlock_blocks_find_pub(tx->unlock_blocks, elm->input->keypair->pub);
+      if (pub_index == -1) {
+        // publick key is not found in the unlocked block
+        byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+        sig_block[0] = ADDRESS_TYPE_ED25519;
+        memcpy(sig_block + 1, elm->input->keypair->pub, ED_PUBLIC_KEY_BYTES);
+        // sign transaction
+        if ((ret = iota_crypto_sign(elm->input->keypair->priv, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES,
+                                    sig_block + (1 + ED_PUBLIC_KEY_BYTES)))) {
+          printf("[%s:%d] signing signature failed\n", __func__, __LINE__);
+          break;
+        }
 
-      // create a signature block
-      if ((ret = unlock_blocks_add_signature(&tx->unlock_blocks, sig_block, ED25519_SIGNATURE_BLOCK_BYTES))) {
-        printf("[%s:%d] Add signature block failed\n", __func__, __LINE__);
-        break;
-      }
-    } else {
-      // public key is found in the unlocked block
-      if ((ret = unlock_blocks_add_reference(&tx->unlock_blocks, (uint16_t)pub_index))) {
-        printf("[%s:%d] Add reference block failed\n", __func__, __LINE__);
-        break;
+        // create a signature block
+        if ((ret = unlock_blocks_add_signature(&tx->unlock_blocks, sig_block, ED25519_SIGNATURE_BLOCK_BYTES))) {
+          printf("[%s:%d] Add signature block failed\n", __func__, __LINE__);
+          break;
+        }
+      } else {
+        // public key is found in the unlocked block
+        if ((ret = unlock_blocks_add_reference(&tx->unlock_blocks, (uint16_t)pub_index))) {
+          printf("[%s:%d] Add reference block failed\n", __func__, __LINE__);
+          break;
+        }
       }
     }
   }
-#endif
   if (b_essence) {
     free(b_essence);
   }
