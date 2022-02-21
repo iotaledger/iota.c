@@ -5,6 +5,7 @@
 #include "client/api/json_parser/feat_blocks.h"
 #include "client/api/json_parser/native_tokens.h"
 #include "client/api/json_parser/unlock_conditions.h"
+#include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
 
 /*
@@ -34,8 +35,8 @@
     }
   ]
 */
-int json_output_foundry_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs) {
-  if (output_obj == NULL || outputs == NULL) {
+int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundry) {
+  if (output_obj == NULL || *foundry != NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -47,7 +48,6 @@ int json_output_foundry_deserialize(cJSON *output_obj, utxo_outputs_list_t **out
   native_tokens_t *tokens = native_tokens_new();
   cond_blk_list_t *cond_blocks = cond_blk_list_new();
   feat_blk_list_t *feat_blocks = feat_blk_list_new();
-  output_foundry_t *output = NULL;
 
   // amount
   uint64_t amount;
@@ -142,20 +142,14 @@ int json_output_foundry_deserialize(cJSON *output_obj, utxo_outputs_list_t **out
   }
 
   // create foundry output
-  output = output_foundry_new((address_t *)unlock_cond_address->block, amount, tokens, serial_number, token_tag,
-                              circ_supply, max_supply, token_scheme, metadata, metadata_len);
-  if (!output) {
-    printf("[%s:%d]: creating output object failed\n", __func__, __LINE__);
+  *foundry = output_foundry_new((address_t *)unlock_cond_address->block, amount, tokens, serial_number, token_tag,
+                                circ_supply, max_supply, token_scheme, metadata, metadata_len);
+  if (!*foundry) {
+    printf("[%s:%d]: creating foundry output object failed\n", __func__, __LINE__);
     goto end;
   }
 
-  // add new output into a list
-  if (utxo_outputs_add(outputs, OUTPUT_FOUNDRY, output) != 0) {
-    printf("[%s:%d] can not add new output into a list\n", __func__, __LINE__);
-    goto end;
-  }
-
-  // Successfully added new output into a list
+  // Successfully created new foundry output
   result = 0;
 
 end:
@@ -168,7 +162,6 @@ end:
   native_tokens_free(&tokens);
   cond_blk_list_free(cond_blocks);
   feat_blk_list_free(feat_blocks);
-  output_foundry_free(output);
 
   return result;
 }

@@ -6,7 +6,6 @@
 
 #include "client/api/json_parser/json_utils.h"
 #include "core/models/outputs/output_alias.h"
-#include "core/models/outputs/outputs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,10 +15,10 @@ extern "C" {
  * @brief Deserialize JSON data to output alias object
  *
  * @param[in] output_obj An output JSON object
- * @param[out] essence An output list object
+ * @param[out] alias A new alias object
  * @return int 0 on success
  */
-int json_output_alias_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs);
+int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias);
 
 /**
  * @brief Serialize Alias output to JSON object

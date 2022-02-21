@@ -6,7 +6,6 @@
 
 #include "client/api/json_parser/json_utils.h"
 #include "core/models/outputs/output_nft.h"
-#include "core/models/outputs/outputs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,10 +15,10 @@ extern "C" {
  * @brief Deserialize JSON data to output NFT object
  *
  * @param[in] output_obj Output JSON object
- * @param[out] outputs An output list object
+ * @param[out] nft A new NFT object
  * @return int 0 on success
  */
-int json_output_nft_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs);
+int json_output_nft_deserialize(cJSON *output_obj, output_nft_t **nft);
 
 /**
  * @brief Serialize a NFT output to a JSON object

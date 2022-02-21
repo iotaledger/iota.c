@@ -20,7 +20,7 @@
   ],
 */
 int json_outputs_deserialize(cJSON *outputs_obj, utxo_outputs_list_t **outputs) {
-  if (outputs_obj == NULL || outputs == NULL) {
+  if (outputs_obj == NULL || *outputs != NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -37,18 +37,42 @@ int json_outputs_deserialize(cJSON *outputs_obj, utxo_outputs_list_t **outputs) 
     // output
     int res = -1;
     switch (output_type) {
-      case OUTPUT_EXTENDED:
-        res = json_output_extended_deserialize(elm, outputs);
+      case OUTPUT_EXTENDED: {
+        output_extended_t *extended = NULL;
+        res = json_output_extended_deserialize(elm, &extended);
+        if (res == 0) {
+          res = utxo_outputs_add(outputs, OUTPUT_EXTENDED, extended);
+        }
+        output_extended_free(extended);
         break;
-      case OUTPUT_ALIAS:
-        res = json_output_alias_deserialize(elm, outputs);
+      }
+      case OUTPUT_ALIAS: {
+        output_alias_t *alias = NULL;
+        res = json_output_alias_deserialize(elm, &alias);
+        if (res == 0) {
+          res = utxo_outputs_add(outputs, OUTPUT_ALIAS, alias);
+        }
+        output_alias_free(alias);
         break;
-      case OUTPUT_FOUNDRY:
-        res = json_output_foundry_deserialize(elm, outputs);
+      }
+      case OUTPUT_FOUNDRY: {
+        output_foundry_t *foundry = NULL;
+        res = json_output_foundry_deserialize(elm, &foundry);
+        if (res == 0) {
+          res = utxo_outputs_add(outputs, OUTPUT_FOUNDRY, foundry);
+        }
+        output_foundry_free(foundry);
         break;
-      case OUTPUT_NFT:
-        res = json_output_nft_deserialize(elm, outputs);
+      }
+      case OUTPUT_NFT: {
+        output_nft_t *nft = NULL;
+        res = json_output_nft_deserialize(elm, &nft);
+        if (res == 0) {
+          res = utxo_outputs_add(outputs, OUTPUT_NFT, nft);
+        }
+        output_nft_free(nft);
         break;
+      }
       default:
         printf("[%s:%d] Unsupported output block type\n", __func__, __LINE__);
         return -1;

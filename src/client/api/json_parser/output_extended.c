@@ -5,6 +5,7 @@
 #include "client/api/json_parser/feat_blocks.h"
 #include "client/api/json_parser/native_tokens.h"
 #include "client/api/json_parser/unlock_conditions.h"
+#include "core/models/outputs/outputs.h"
 
 /*
   "outputs": [
@@ -16,8 +17,8 @@
     }
   ]
 */
-int json_output_extended_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs) {
-  if (output_obj == NULL || outputs == NULL) {
+int json_output_extended_deserialize(cJSON *output_obj, output_extended_t **extended) {
+  if (output_obj == NULL || *extended != NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -27,7 +28,6 @@ int json_output_extended_deserialize(cJSON *output_obj, utxo_outputs_list_t **ou
   native_tokens_t *tokens = native_tokens_new();
   cond_blk_list_t *cond_blocks = cond_blk_list_new();
   feat_blk_list_t *feat_blocks = feat_blk_list_new();
-  output_extended_t *output = NULL;
 
   // amount
   uint64_t amount;
@@ -55,26 +55,19 @@ int json_output_extended_deserialize(cJSON *output_obj, utxo_outputs_list_t **ou
   }
 
   // create extended output
-  output = output_extended_new(amount, tokens, cond_blocks, feat_blocks);
-  if (!output) {
-    printf("[%s:%d]: creating output object failed \n", __func__, __LINE__);
+  *extended = output_extended_new(amount, tokens, cond_blocks, feat_blocks);
+  if (!*extended) {
+    printf("[%s:%d]: creating extended output object failed \n", __func__, __LINE__);
     goto end;
   }
 
-  // add new output into a list
-  if (utxo_outputs_add(outputs, OUTPUT_EXTENDED, output) != 0) {
-    printf("[%s:%d] can not add new output into a list\n", __func__, __LINE__);
-    goto end;
-  }
-
-  // Successfully added new output into a list
+  // Successfully created new extended output
   result = 0;
 
 end:
   native_tokens_free(&tokens);
   cond_blk_list_free(cond_blocks);
   feat_blk_list_free(feat_blocks);
-  output_extended_free(output);
 
   return result;
 }
