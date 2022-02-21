@@ -47,6 +47,14 @@ int deser_send_message_response(char const* json_str, res_send_message_t* res);
  */
 int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg, res_send_message_t* res);
 
+/**
+ * @brief Print Send Message Response
+ *
+ * @param[in] res res_send_message_t*
+ * @param[in] indentation Tab indentation when printing response
+ */
+void res_send_message_print(res_send_message_t* res, uint8_t indentation);
+
 #ifdef __cplusplus
 }
 #endif
