@@ -10,7 +10,7 @@
 #include "core/utils/byte_buffer.h"
 
 // Binary tag data length. Hex string from tag data is 64 bytes.
-#define TAGGED_DATA_TAG_MAX_LENGTH_BYTES 32
+#define TAGGED_DATA_TAG_MAX_LENGTH_BYTES 64
 
 /**
  * @brief Tagged data structure
