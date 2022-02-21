@@ -208,7 +208,7 @@ size_t output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) 
     offset += sizeof(uint8_t);
   }
 
-  return expected_bytes;
+  return offset;
 }
 
 output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {

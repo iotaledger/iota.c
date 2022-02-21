@@ -209,7 +209,7 @@ size_t utxo_inputs_serialize(utxo_inputs_list_t *inputs, byte_t buf[], size_t bu
     offset += sizeof(uint16_t);
   }
 
-  return expected_bytes;
+  return offset - buf;
 }
 
 utxo_inputs_list_t *utxo_inputs_deserialize(byte_t buf[], size_t buf_len) {

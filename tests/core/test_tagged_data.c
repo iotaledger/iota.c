@@ -14,9 +14,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_tagged_data() {
-  char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO";
-  byte_t tag_bin[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
-  string2hex(tag, tag_bin, BIN_TO_HEX_STR_BYTES(strlen(tag)));
+  char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD!";
   byte_t data[2048];
   iota_crypto_randombytes(data, 2048);
 
@@ -28,8 +26,8 @@ void test_tagged_data() {
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
-  TEST_ASSERT(BIN_TO_HEX_STR_BYTES((strlen(tag))) == tagged_data->tag->len);
-  TEST_ASSERT_EQUAL_STRING(tag_bin, tagged_data->tag->data);
+  TEST_ASSERT(strlen(tag) == tagged_data->tag->len);
+  TEST_ASSERT_EQUAL_MEMORY(tag, tagged_data->tag->data, strlen(tag));
 
   // validate binary data
   TEST_ASSERT(sizeof(data) == tagged_data->data->len);
@@ -52,11 +50,11 @@ void test_tagged_data() {
   // check serialization and deserialization
   // validate tag
   TEST_ASSERT(tagged_data->tag->len == deser_tagged_data->tag->len);
-  TEST_ASSERT_EQUAL_STRING(tagged_data->tag->data, deser_tagged_data->tag->data);
+  TEST_ASSERT_EQUAL_MEMORY(tagged_data->tag->data, deser_tagged_data->tag->data, tagged_data->tag->len);
 
   // validate binary data
   TEST_ASSERT(tagged_data->data->len == deser_tagged_data->data->len);
-  TEST_ASSERT_EQUAL_STRING(tagged_data->data->data, deser_tagged_data->data->data);
+  TEST_ASSERT_EQUAL_MEMORY(tagged_data->data->data, deser_tagged_data->data->data, tagged_data->data->len);
 
   // print tagged data payload
   tagged_data_print(tagged_data, 0);
@@ -105,7 +103,7 @@ void test_tagged_data_without_tag() {
 
   // validate binary data
   TEST_ASSERT(tagged_data->data->len == deser_tagged_data->data->len);
-  TEST_ASSERT_EQUAL_STRING(tagged_data->data->data, deser_tagged_data->data->data);
+  TEST_ASSERT_EQUAL_MEMORY(tagged_data->data->data, deser_tagged_data->data->data, tagged_data->data->len);
 
   // print tagged data payload
   tagged_data_print(tagged_data, 0);
@@ -116,9 +114,7 @@ void test_tagged_data_without_tag() {
 }
 
 void test_tagged_data_without_data() {
-  char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO";
-  byte_t tag_bin[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
-  string2hex(tag, tag_bin, BIN_TO_HEX_STR_BYTES(strlen(tag)));
+  char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD!";
 
   tagged_data_t* tagged_data = tagged_data_new();
   TEST_ASSERT_NOT_NULL(tagged_data);
@@ -128,8 +124,8 @@ void test_tagged_data_without_data() {
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
-  TEST_ASSERT(BIN_TO_HEX_STR_BYTES((strlen(tag))) == tagged_data->tag->len);
-  TEST_ASSERT_EQUAL_STRING(tag_bin, tagged_data->tag->data);
+  TEST_ASSERT(strlen(tag) == tagged_data->tag->len);
+  TEST_ASSERT_EQUAL_MEMORY(tag, tagged_data->tag->data, strlen(tag));
 
   // validate binary data
   TEST_ASSERT_NULL(tagged_data->data);
@@ -151,7 +147,7 @@ void test_tagged_data_without_data() {
   // check serialization and deserialization
   // validate tag
   TEST_ASSERT(tagged_data->tag->len == deser_tagged_data->tag->len);
-  TEST_ASSERT_EQUAL_STRING(tagged_data->tag->data, deser_tagged_data->tag->data);
+  TEST_ASSERT_EQUAL_MEMORY(tagged_data->tag->data, deser_tagged_data->tag->data, tagged_data->tag->len);
 
   // validate binary data
   TEST_ASSERT_NULL(deser_tagged_data->data);

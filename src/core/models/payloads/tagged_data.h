@@ -9,6 +9,7 @@
 #include "core/types.h"
 #include "core/utils/byte_buffer.h"
 
+// Maximum length of tag in bytes
 #define TAGGED_DATA_TAG_MAX_LENGTH_BYTES 64
 
 /**
