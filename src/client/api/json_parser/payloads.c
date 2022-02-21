@@ -375,7 +375,10 @@ cJSON* json_tagged_serialize(tagged_data_t* tagged_data) {
       cJSON_Delete(tagged_data_payload);
       return NULL;
     }
-    if (bin_2_hex(tagged_data->data->data, tagged_data->data->len, data_str, sizeof(data_str)) != 0) {
+
+    int bin_2_hex_ret = bin_2_hex(tagged_data->data->data, tagged_data->data->len, data_str,
+                                  BIN_TO_HEX_STR_BYTES(tagged_data->data->len));
+    if (bin_2_hex_ret != 0) {
       printf("[%s:%d] bin to hex data conversion failed\n", __func__, __LINE__);
       cJSON_Delete(tagged_data_payload);
       free(data_str);
@@ -422,12 +425,22 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_t** tagged_data) {
 
   // create a new tagged data
   if (cJSON_IsString(json_tag) && cJSON_IsString(json_data)) {
-    *tagged_data =
-        tagged_data_create(json_tag->valuestring, (byte_t*)json_data->valuestring, strlen(json_data->valuestring));
+    char* tag_str = malloc((strlen(json_tag->valuestring) / 2) + 1);
+    hex2string(json_tag->valuestring, (uint8_t*)tag_str, strlen(json_tag->valuestring) / 2);
+    tag_str[(strlen(json_tag->valuestring) / 2)] = 0;
+
+    char* data_str = malloc((strlen(json_data->valuestring) / 2));
+    hex2string(json_data->valuestring, (uint8_t*)data_str, strlen(json_data->valuestring) / 2);
+
+    *tagged_data = tagged_data_create(tag_str, (byte_t*)data_str, strlen(json_data->valuestring) / 2);
     if (!*tagged_data) {
       printf("[%s:%d]: can not create a new tagged data payload\n", __func__, __LINE__);
+      free(tag_str);
+      free(data_str);
       return -1;
     }
+    free(tag_str);
+    free(data_str);
   } else {
     printf("[%s:%d] tag or data is not a string\n", __func__, __LINE__);
     return -1;
