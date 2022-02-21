@@ -5,6 +5,7 @@
 #include "client/api/json_parser/feat_blocks.h"
 #include "client/api/json_parser/native_tokens.h"
 #include "client/api/json_parser/unlock_conditions.h"
+#include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
 
 /*
@@ -19,8 +20,8 @@
     }
   ]
 */
-int json_output_nft_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs) {
-  if (output_obj == NULL || outputs == NULL) {
+int json_output_nft_deserialize(cJSON *output_obj, output_nft_t **nft) {
+  if (output_obj == NULL || *nft != NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -31,7 +32,6 @@ int json_output_nft_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs
   cond_blk_list_t *cond_blocks = cond_blk_list_new();
   feat_blk_list_t *feat_blocks = feat_blk_list_new();
   byte_buf_t *immutable_metadata = byte_buf_new();
-  output_nft_t *output = NULL;
 
   // amount
   uint64_t amount;
@@ -77,20 +77,14 @@ int json_output_nft_deserialize(cJSON *output_obj, utxo_outputs_list_t **outputs
   }
 
   // create NFT output
-  output = output_nft_new(amount, tokens, nft_id, immutable_metadata->data, immutable_metadata->len, cond_blocks,
-                          feat_blocks);
-  if (!output) {
-    printf("[%s:%d]: creating output object failed \n", __func__, __LINE__);
+  *nft = output_nft_new(amount, tokens, nft_id, immutable_metadata->data, immutable_metadata->len, cond_blocks,
+                        feat_blocks);
+  if (!*nft) {
+    printf("[%s:%d]: creating NFT output object failed \n", __func__, __LINE__);
     goto end;
   }
 
-  // add new output into a list
-  if (utxo_outputs_add(outputs, OUTPUT_NFT, output) != 0) {
-    printf("[%s:%d] can not add new output into a list\n", __func__, __LINE__);
-    goto end;
-  }
-
-  // Successfully added new output into a list
+  // Successfully created new NFT output
   result = 0;
 
 end:
@@ -98,7 +92,6 @@ end:
   cond_blk_list_free(cond_blocks);
   feat_blk_list_free(feat_blocks);
   byte_buf_free(immutable_metadata);
-  output_nft_free(output);
 
   return result;
 }

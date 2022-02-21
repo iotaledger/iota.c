@@ -5,6 +5,7 @@
 
 #include "client/api/json_parser/output_foundry.h"
 #include "core/models/outputs/output_foundry.h"
+#include "core/models/outputs/outputs.h"
 #include "unity/unity.h"
 
 void setUp(void) {}
@@ -22,15 +23,10 @@ void test_parse_foundry_output_basic() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  utxo_outputs_list_t *output_list = utxo_outputs_new();
-  int result = json_output_foundry_deserialize(json_obj, &output_list);
+  output_foundry_t *foundry_output = NULL;
+  int result = json_output_foundry_deserialize(json_obj, &foundry_output);
   TEST_ASSERT_EQUAL_INT(0, result);
 
-  TEST_ASSERT_EQUAL_UINT16(1, utxo_outputs_count(output_list));
-  utxo_output_t *output = utxo_outputs_get(output_list, 0);
-  TEST_ASSERT_EQUAL_UINT8(OUTPUT_FOUNDRY, output->output_type);
-
-  output_foundry_t *foundry_output = (output_foundry_t *)output->output;
   TEST_ASSERT_EQUAL_UINT64(1000000, foundry_output->amount);
   TEST_ASSERT_NULL(foundry_output->native_tokens);
   TEST_ASSERT_EQUAL_UINT32(123456, foundry_output->serial);
@@ -51,7 +47,7 @@ void test_parse_foundry_output_basic() {
   TEST_ASSERT_NULL(foundry_output->feature_blocks);
 
   cJSON_Delete(json_obj);
-  utxo_outputs_free(output_list);
+  output_foundry_free(foundry_output);
 }
 
 void test_parse_foundry_output_full() {
@@ -70,15 +66,10 @@ void test_parse_foundry_output_full() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  utxo_outputs_list_t *output_list = utxo_outputs_new();
-  int result = json_output_foundry_deserialize(json_obj, &output_list);
+  output_foundry_t *foundry_output = NULL;
+  int result = json_output_foundry_deserialize(json_obj, &foundry_output);
   TEST_ASSERT_EQUAL_INT(0, result);
 
-  TEST_ASSERT_EQUAL_UINT16(1, utxo_outputs_count(output_list));
-  utxo_output_t *output = utxo_outputs_get(output_list, 0);
-  TEST_ASSERT_EQUAL_UINT8(OUTPUT_FOUNDRY, output->output_type);
-
-  output_foundry_t *foundry_output = (output_foundry_t *)output->output;
   TEST_ASSERT_EQUAL_UINT64(1000000, foundry_output->amount);
 
   // check native tokens
@@ -112,11 +103,11 @@ void test_parse_foundry_output_full() {
   TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(foundry_output->feature_blocks));
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(foundry_output->feature_blocks, FEAT_METADATA_BLOCK));
 
-  // print output list
-  utxo_outputs_print(output_list, 0);
+  // print foundry output
+  output_foundry_print(foundry_output, 0);
 
   cJSON_Delete(json_obj);
-  utxo_outputs_free(output_list);
+  output_foundry_free(foundry_output);
 }
 
 void test_parse_foundry_output_wrong_unlock_condition() {
@@ -135,12 +126,12 @@ void test_parse_foundry_output_wrong_unlock_condition() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  utxo_outputs_list_t *output_list = utxo_outputs_new();
-  int result = json_output_foundry_deserialize(json_obj, &output_list);
+  output_foundry_t *foundry_output = NULL;
+  int result = json_output_foundry_deserialize(json_obj, &foundry_output);
   TEST_ASSERT_EQUAL_INT(-1, result);
 
   cJSON_Delete(json_obj);
-  utxo_outputs_free(output_list);
+  output_foundry_free(foundry_output);
 }
 
 void test_parse_foundry_output_wrong_feature_block() {
@@ -159,12 +150,12 @@ void test_parse_foundry_output_wrong_feature_block() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  utxo_outputs_list_t *output_list = utxo_outputs_new();
-  int result = json_output_foundry_deserialize(json_obj, &output_list);
+  output_foundry_t *foundry_output = NULL;
+  int result = json_output_foundry_deserialize(json_obj, &foundry_output);
   TEST_ASSERT_EQUAL_INT(-1, result);
 
   cJSON_Delete(json_obj);
-  utxo_outputs_free(output_list);
+  output_foundry_free(foundry_output);
 }
 
 int main() {
