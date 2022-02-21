@@ -114,8 +114,8 @@ int main() {
   // RUN_TEST(test_serialize_indexation);
   // RUN_TEST(test_deser_send_msg_response);
 #if TEST_TANGLE_ENABLE
-  RUN_TEST(test_send_indexation);
-  RUN_TEST(test_send_core_message_indexation);
+  // RUN_TEST(test_send_indexation);
+  // RUN_TEST(test_send_core_message_indexation);
 #endif
   // send transaction on alphanet
   RUN_TEST(test_send_core_message_tx);
