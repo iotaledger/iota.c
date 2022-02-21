@@ -44,6 +44,10 @@ end:
 int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg, res_send_message_t* res) {
   int ret = -1;
   long http_st_code = 0;
+  if (conf == NULL || msg == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
   byte_buf_t* json_data = byte_buf_new();
   byte_buf_t* node_res = byte_buf_new();
   res_tips_t* tips = NULL;
@@ -115,18 +119,4 @@ end:
   byte_buf_free(node_res);
   res_tips_free(tips);
   return ret;
-}
-
-void res_send_message_print(res_send_message_t* res, uint8_t indentation) {
-  if (res == NULL) {
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return;
-  }
-  if (res->is_error) {
-    printf("Error: %s\n", res->u.error->msg);
-  } else {
-    if (strlen(res->u.msg_id) > 0) {
-      printf("%s\tMessage Id : %s\n", PRINT_INDENTATION(indentation), res->u.msg_id);
-    }
-  }
 }
