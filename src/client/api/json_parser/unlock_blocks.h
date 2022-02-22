@@ -20,7 +20,12 @@ extern "C" {
  */
 int json_unlock_blocks_deserialize(cJSON* blocks_obj, unlock_list_t** unlock_blocks);
 
-// TODO
+/**
+ * @brief Serialize an unlock block list to a JSON object
+ *
+ * @param[in] blocks An unlock block list
+ * @return cJSON* NULL on errors
+ */
 cJSON* json_unlock_blocks_serialize(unlock_list_t* blocks);
 
 #ifdef __cplusplus
