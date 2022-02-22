@@ -43,12 +43,13 @@ void tagged_data_free(tagged_data_t *tagged_data);
 /**
  * @brief Create a tagged data object with tag and binary data
  *
- * @param[in] tag The tag of the data
- * @param[in] data Binary data
- * @param[in] data_len The length of binary data
+ * @param[in] tag The binary tag in tagged data payload
+ * @param[in] tag_len The len of the binary tag
+ * @param[in] data The binary data in tagged data payload
+ * @param[in] data_len The length of the binary data
  * @return tagged_data_t* A pointer to tagged data object
  */
-tagged_data_t *tagged_data_create(char const tag[], byte_t data[], uint32_t data_len);
+tagged_data_t *tagged_data_create(byte_t tag[], uint8_t tag_len, byte_t data[], uint32_t data_len);
 
 /**
  * @brief Get a serialized length of a tagged data

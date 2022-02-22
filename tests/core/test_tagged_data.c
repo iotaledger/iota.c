@@ -9,25 +9,28 @@
 #include "crypto/iota_crypto.h"
 #include "unity/unity.h"
 
+#define TAG_LEN 64
+#define DATA_LEN 2048
+char const* const tag_str = "HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD";
+
 void setUp(void) {}
 
 void tearDown(void) {}
 
 void test_tagged_data() {
-  char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD!";
-  byte_t data[2048];
-  iota_crypto_randombytes(data, 2048);
+  byte_t data[DATA_LEN];
+  iota_crypto_randombytes(data, DATA_LEN);
 
   tagged_data_t* tagged_data = tagged_data_new();
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_free(tagged_data);
 
-  tagged_data = tagged_data_create(tag, data, sizeof(data));
+  tagged_data = tagged_data_create((byte_t*)tag_str, TAG_LEN, data, DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
-  TEST_ASSERT(strlen(tag) == tagged_data->tag->len);
-  TEST_ASSERT_EQUAL_MEMORY(tag, tagged_data->tag->data, strlen(tag));
+  TEST_ASSERT(TAG_LEN == tagged_data->tag->len);
+  TEST_ASSERT_EQUAL_MEMORY((byte_t*)tag_str, tagged_data->tag->data, TAG_LEN);
 
   // validate binary data
   TEST_ASSERT(sizeof(data) == tagged_data->data->len);
@@ -66,14 +69,14 @@ void test_tagged_data() {
 
 void test_tagged_data_without_tag() {
   char const* const tag = "";
-  byte_t data[2048];
-  iota_crypto_randombytes(data, 2048);
+  byte_t data[DATA_LEN];
+  iota_crypto_randombytes(data, DATA_LEN);
 
   tagged_data_t* tagged_data = tagged_data_new();
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_free(tagged_data);
 
-  tagged_data = tagged_data_create(tag, data, sizeof(data));
+  tagged_data = tagged_data_create((byte_t*)tag, 0, data, DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
@@ -81,7 +84,7 @@ void test_tagged_data_without_tag() {
 
   // validate binary data
   TEST_ASSERT(sizeof(data) == tagged_data->data->len);
-  TEST_ASSERT_EQUAL_MEMORY(data, tagged_data->data->data, sizeof(data));
+  TEST_ASSERT_EQUAL_MEMORY(data, tagged_data->data->data, DATA_LEN);
 
   // serialization
   size_t serialized_len = tagged_data_serialize_len(tagged_data);
@@ -114,18 +117,16 @@ void test_tagged_data_without_tag() {
 }
 
 void test_tagged_data_without_data() {
-  char const* const tag = "HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD!";
-
   tagged_data_t* tagged_data = tagged_data_new();
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_free(tagged_data);
 
-  tagged_data = tagged_data_create(tag, NULL, 0);
+  tagged_data = tagged_data_create((byte_t*)tag_str, TAG_LEN, NULL, 0);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
-  TEST_ASSERT(strlen(tag) == tagged_data->tag->len);
-  TEST_ASSERT_EQUAL_MEMORY(tag, tagged_data->tag->data, strlen(tag));
+  TEST_ASSERT(TAG_LEN == tagged_data->tag->len);
+  TEST_ASSERT_EQUAL_MEMORY((byte_t*)tag_str, tagged_data->tag->data, TAG_LEN);
 
   // validate binary data
   TEST_ASSERT_NULL(tagged_data->data);
@@ -161,17 +162,16 @@ void test_tagged_data_without_data() {
 }
 
 void test_tagged_data_empty() {
-  char const* const tag = "";
-
   tagged_data_t* tagged_data = tagged_data_new();
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_free(tagged_data);
 
-  tagged_data = tagged_data_create(tag, NULL, 0);
+  tagged_data = tagged_data_create((byte_t*)tag_str, TAG_LEN, NULL, 0);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
-  TEST_ASSERT_NULL(tagged_data->tag);
+  TEST_ASSERT(TAG_LEN == tagged_data->tag->len);
+  TEST_ASSERT_EQUAL_MEMORY((byte_t*)tag_str, tagged_data->tag->data, TAG_LEN);
 
   // validate binary data
   TEST_ASSERT_NULL(tagged_data->data);
@@ -192,7 +192,8 @@ void test_tagged_data_empty() {
 
   // check serialization and deserialization
   // validate tag
-  TEST_ASSERT_NULL(deser_tagged_data->tag);
+  TEST_ASSERT(tagged_data->tag->len == deser_tagged_data->tag->len);
+  TEST_ASSERT_EQUAL_MEMORY(tagged_data->tag->data, deser_tagged_data->tag->data, tagged_data->tag->len);
 
   // validate binary data
   TEST_ASSERT_NULL(deser_tagged_data->data);

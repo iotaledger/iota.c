@@ -132,12 +132,12 @@ void test_message_with_tx_serialize() {
   char test_serialized_data_str[] =
       "0a6bb59d7ae450750432cb4c7602013ba16231fd9bf1bdd9c1b9a403c07dd155ff9979a72684dafdb364463ce32fb6ef011cfff38b736b46"
       "6f974a92429767650777cd9b77cf7f26bfe1a518eccfa39a03aeb4b425a51db030eeec1c32654c1c943bc008eb4dc8d862ef8728a24dc086"
-      "4a94b4f629d8ed7f56003cf84483700bac919d02622f20dc7006010000000000000001000000000000000000000000000000000000000000"
+      "4a94b4f629d8ed7f56003cf84483700bac919d02622f20dc7007010000000000000001000000000000000000000000000000000000000000"
       "00000000000000000000000000000002000380969800000000000001000021e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c"
-      "947b1d79c942000341c794d2f7df09000001000060200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe00160000"
-      "00050000000d484f524e455420464155434554000000000100000031f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162"
-      "a095cb1b51aab768dd145de99fc3710c7b05963803f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f"
-      "810ad0cc4b0210adaafd0a15af000000000000";
+      "947b1d79c942000341c794d2f7df09000001000060200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe00170000"
+      "00050000000e484f524e45542046415543455400000000000100000031f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc1"
+      "62a095cb1b51aab768dd145de99fc3710c7b05963803f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe03"
+      "4f810ad0cc4b0210adaafd0a15af000000000000";
 
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);
@@ -190,7 +190,8 @@ void test_message_with_tx_serialize() {
   TEST_ASSERT(tx_essence_add_output(essence, OUTPUT_EXTENDED, extended_output_two) == 0);
 
   // add tagged data payload
-  tagged_data_t* tagged_data = tagged_data_create("HORNET FAUCET", NULL, 0);
+  char const* const hornet_faucet = "HORNET FAUCET";
+  tagged_data_t* tagged_data = tagged_data_create((byte_t*)hornet_faucet, strlen(hornet_faucet) + 1, NULL, 0);
   TEST_ASSERT_NOT_NULL(tagged_data);
   TEST_ASSERT(tx_essence_add_payload(essence, CORE_MESSAGE_PAYLOAD_TAGGED, tagged_data) == 0);
 
@@ -235,8 +236,8 @@ void test_message_with_tagged_data_serialize() {
   char test_serialized_data_str[] =
       "0a6bb59d7ae4507504177fc9af60009e4e4e835baf7fe9f5f05aaf9b4e391e605d67cb722bf556266960f767d157c2cfb12533082abb3085"
       "a22665ef19f7bf77a3e39a2b223f33108a6af00016d7fbe8e5aa55c6688db5d5eb4241a562c4bd89ce8e6c0bc3fc3f6458fe53e33c0b9569"
-      "9172a9537f116ee6a61c2cc153e4f857071bde2f72e23132881e000000050000000a696f74612e63206c69620b00000048656c6c6f20576f"
-      "726c6460e6000000000000";
+      "9172a9537f116ee6a61c2cc153e4f857071bde2f72e23132881f000000050000000b696f74612e63206c6962000b00000048656c6c6f2057"
+      "6f726c6460e6000000000000";
 
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);
@@ -268,7 +269,8 @@ void test_message_with_tagged_data_serialize() {
 
   // create tagged data
   byte_t data[] = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64};
-  msg->payload = tagged_data_create("iota.c lib", data, sizeof(data));
+  char const* const iotac_lib = "iota.c lib";
+  msg->payload = tagged_data_create((byte_t*)iotac_lib, strlen(iotac_lib) + 1, data, sizeof(data));
 
   // add message nonce
   msg->nonce = 58976;

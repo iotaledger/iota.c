@@ -13,7 +13,7 @@ int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char 
     return -1;
   }
 
-  if (strlen(tx_id) != BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES)) {
+  if (strlen(tx_id) != BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES)) {
     printf("[%s:%d]: invalid transaction id length: %zu\n", __func__, __LINE__, strlen(tx_id));
     return -1;
   }
