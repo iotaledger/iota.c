@@ -12,7 +12,7 @@
 #include "crypto/iota_crypto.h"
 #include "test_config.h"
 
-#define TAG_TAG_LEN 14
+#define TAG_TAG_LEN 15
 #define TAG_DATA_LEN 64
 char const* const tag = "IOTA TEST DATA";
 

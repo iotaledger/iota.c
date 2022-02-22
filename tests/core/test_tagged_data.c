@@ -11,7 +11,7 @@
 
 #define TAG_LEN 64
 #define DATA_LEN 2048
-char const* const tag_str = "HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD!";
+char const* const tag_str = "HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD";
 
 void setUp(void) {}
 
