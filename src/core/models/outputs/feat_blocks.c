@@ -15,7 +15,7 @@ static feat_metadata_blk_t* feat_metadata_new(byte_t const data[], uint32_t data
   }
 
   if (data_len > MAX_METADATA_LENGTH_BYTES) {
-    printf("[%s:%d] data must smaller than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
+    printf("[%s:%d] data length must be smaller than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
     return NULL;
   }
 
