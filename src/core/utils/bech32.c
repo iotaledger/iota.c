@@ -160,39 +160,3 @@ int bech32_decode(char *hrp, uint8_t *data, size_t *data_len, const char *input)
   }
   return chk == 1;
 }
-
-int iota_addr_bech32_encode(char *output, const char *hrp, const uint8_t *addr, size_t addr_len) {
-  uint8_t data[64];
-  size_t datalen = 0;
-  bech32_convert_bits(data, &datalen, 5, addr, addr_len, 8, 1);
-  return bech32_encode(output, hrp, data, datalen);
-}
-
-int iota_addr_bech32_decode(uint8_t *addr_data, size_t *addr_len, const char *hrp, const char *addr_str) {
-  uint8_t data[64];
-  char hrp_actual[84];
-  size_t data_len = 0;
-
-  if (!bech32_decode(hrp_actual, data, &data_len, addr_str)) {
-    return 0;
-  }
-
-  if (data_len == 0 || data_len > 64) {
-    return 0;
-  }
-
-  if (strncmp(hrp, hrp_actual, 84) != 0) {
-    return 0;
-  }
-
-  // 0 is denoted as ED25519 address type
-  if (data[0] != 0) {
-    return 0;
-  }
-
-  *addr_len = 0;
-  if (!bech32_convert_bits(addr_data, addr_len, 8, data, data_len, 5, 0)) {
-    return 0;
-  }
-  return 1;
-}

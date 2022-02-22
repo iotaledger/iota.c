@@ -6,7 +6,7 @@
 #include "core/utils/allocator.h"
 #include "core/utils/byte_buffer.h"
 
-static char const* const hex_table = "0123456789ABCDEF";
+static char const* const hex_table = "0123456789abcdef";
 
 static int char2int(char input) {
   if (input >= '0' && input <= '9') return input - '0';
@@ -17,7 +17,7 @@ static int char2int(char input) {
 
 static int int2char(uint8_t input) {
   if (input <= 9) return input + '0';
-  if (input <= 15) return input - 10 + 'A';
+  if (input <= 15) return input - 10 + 'a';
   return -1;  // invalid value
 }
 

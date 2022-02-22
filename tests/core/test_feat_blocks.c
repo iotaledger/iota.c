@@ -98,11 +98,12 @@ void test_metadata_max() {
   TEST_ASSERT_EQUAL_MEMORY(meta_data, ((feat_metadata_blk_t*)meta_blk->block)->data, sizeof(meta_data));
 
   // serialization
-  byte_t serialized_blk[1200] = {};
   size_t serialize_len = feat_blk_serialize_len(meta_blk);
+  byte_t* serialized_blk = malloc(serialize_len);
+  TEST_ASSERT_NOT_NULL(serialized_blk);
   // expect serialization failed
   TEST_ASSERT(feat_blk_serialize(meta_blk, serialized_blk, sizeof(meta_data)) == 0);
-  TEST_ASSERT(feat_blk_serialize(meta_blk, serialized_blk, sizeof(serialized_blk)) == serialize_len);
+  TEST_ASSERT(feat_blk_serialize(meta_blk, serialized_blk, serialize_len) == serialize_len);
   // deserialize
   TEST_ASSERT_NULL(feat_blk_deserialize(serialized_blk, serialize_len - 1));
   feat_block_t* deser_blk = feat_blk_deserialize(serialized_blk, serialize_len);
@@ -116,6 +117,7 @@ void test_metadata_max() {
                            ((feat_metadata_blk_t*)meta_blk->block)->data_len);
 
   // clean up
+  free(serialized_blk);
   feat_blk_free(meta_blk);
   feat_blk_free(deser_blk);
 }

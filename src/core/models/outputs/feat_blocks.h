@@ -18,7 +18,7 @@
 // Maximum possible length in bytes of a Tag
 #define MAX_INDEX_TAG_BYTES 64
 // Maximun possible length in bytes of Metadata
-#define MAX_METADATA_LENGTH_BYTES 1024
+#define MAX_METADATA_LENGTH_BYTES 8192
 // Maximun Feature Blocks in a list
 #define MAX_FEATURE_BLOCK_COUNT 4
 
