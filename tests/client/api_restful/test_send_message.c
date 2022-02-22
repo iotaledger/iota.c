@@ -12,9 +12,9 @@
 #include "crypto/iota_crypto.h"
 #include "test_config.h"
 
-char const* const tag = "IOTA TAGGED DATA";
-char const* const tag_invalid_len = "IOTA TAGGED DATA, IOTA TAGGED DATA, IOTA TAGGED DATA, IOTA TAGGED DATA";
+#define TAG_TAG_LEN 14
 #define TAG_DATA_LEN 64
+char const* const tag = "IOTA TEST DATA";
 
 void setUp(void) {}
 
@@ -37,8 +37,9 @@ void test_send_core_message_tagged_data() {
   iota_crypto_randombytes(tag_data, TAG_DATA_LEN);
 
   // Create tagged data payload
-  tagged_data_t* tagged_data = tagged_data_create(tag, tag_data, TAG_DATA_LEN);
+  tagged_data_t* tagged_data = tagged_data_create((byte_t*)tag, TAG_TAG_LEN, tag_data, TAG_DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
+  tagged_data_print(tagged_data, 0);
 
   // Create a core message object
   core_message_t* msg = core_message_new();
@@ -71,12 +72,7 @@ void test_send_core_message_tagged_data() {
   tagged_data_t* tagged_data_res = (tagged_data_t*)msg_res->u.msg->payload;
 
   // Check if tag in the tagged data payload matches
-  size_t tag_hex_len = BIN_TO_HEX_STR_BYTES(strlen(tag));
-  byte_t tag_hex[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
-  TEST_ASSERT(string2hex(tag, tag_hex, tag_hex_len) == 0);
-  byte_buf_t* tag_buf = byte_buf_new_with_data(tag_hex, tag_hex_len);
-  TEST_ASSERT_EQUAL_MEMORY(tagged_data_res->tag->data, tag_buf->data, tag_buf->len);
-  byte_buf_free(tag_buf);
+  TEST_ASSERT_EQUAL_MEMORY(tagged_data_res->tag->data, (byte_t*)tag, TAG_TAG_LEN);
 
   // Check if data in the tagged data payload matches
   TEST_ASSERT_EQUAL_MEMORY(tagged_data_res->data->data, tag_data, TAG_DATA_LEN);
