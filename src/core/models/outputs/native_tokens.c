@@ -4,7 +4,7 @@
 #include "core/models/outputs/native_tokens.h"
 
 #define NATIVE_TOKENS_MIN_COUNT 0
-#define NATIVE_TOKENS_MAX_COUNT 255
+#define NATIVE_TOKENS_MAX_COUNT 64
 
 // Native Tokens must be lexicographically sorted based on Token ID
 static int token_id_sort(native_tokens_t *token1, native_tokens_t *token2) {
@@ -14,6 +14,11 @@ static int token_id_sort(native_tokens_t *token1, native_tokens_t *token2) {
 int native_tokens_add(native_tokens_t **nt, byte_t token_id[], uint256_t const *amount) {
   if (nt == NULL || token_id == NULL || amount == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (amount->bits[0] == 0 && amount->bits[1] == 0 && amount->bits[2] == 0 && amount->bits[3] == 0) {
+    printf("[%s:%d] Amount of Native Token must not be 0\n", __func__, __LINE__);
     return -1;
   }
 

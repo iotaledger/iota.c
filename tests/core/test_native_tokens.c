@@ -234,12 +234,59 @@ void test_native_tokens_clone() {
   native_tokens_free(&tokens);
 }
 
+void test_native_tokens_amount() {
+  byte_t token_id[NATIVE_TOKEN_ID_BYTES] = {
+      0xBA, 0x26, 0x7E, 0x59, 0xE5, 0x31, 0x77, 0xB3, 0x2A, 0xA9, 0xBF, 0xE,  0x56, 0x31, 0x18, 0xC9, 0xE0, 0xAD, 0xD,
+      0x76, 0x88, 0x7B, 0x65, 0xFD, 0x58, 0x75, 0xB7, 0x13, 0x29, 0x73, 0x5B, 0x94, 0x2B, 0x81, 0x6A, 0x7F, 0xE6, 0x79};
+
+  // create a Native Token with nonzero amount
+  native_tokens_t* tokens = native_tokens_new();
+  uint256_t* amount = uint256_from_str("123456789");
+  TEST_ASSERT_EQUAL_INT(0, native_tokens_add(&tokens, token_id, amount));
+  TEST_ASSERT_EQUAL_UINT8(1, native_tokens_count(&tokens));
+  free(amount);
+  native_tokens_free(&tokens);
+
+  // create a Native Token with 0 amount
+  tokens = native_tokens_new();
+  amount = uint256_from_str("0");
+  TEST_ASSERT_EQUAL_INT(-1, native_tokens_add(&tokens, token_id, amount));
+  TEST_ASSERT_EQUAL_UINT8(0, native_tokens_count(&tokens));
+  free(amount);
+  native_tokens_free(&tokens);
+}
+
+void test_native_tokens_count() {
+  byte_t token_id[NATIVE_TOKEN_ID_BYTES] = {
+      0xBA, 0x26, 0x7E, 0x59, 0xE5, 0x31, 0x77, 0xB3, 0x2A, 0xA9, 0xBF, 0xE,  0x56, 0x31, 0x18, 0xC9, 0xE0, 0xAD, 0xD,
+      0x76, 0x88, 0x7B, 0x65, 0xFD, 0x58, 0x75, 0xB7, 0x13, 0x29, 0x73, 0x5B, 0x94, 0x2B, 0x81, 0x6A, 0x7F, 0xE6, 0x79};
+
+  // create maximum number of Native Tokens
+  native_tokens_t* tokens = native_tokens_new();
+  uint256_t* amount = uint256_from_str("1000000000000000000000000000000000000000000000000000000000");
+  for (uint8_t i = 0; i < 64; i++) {
+    token_id[NATIVE_TOKEN_ID_BYTES - 1] = i;
+    TEST_ASSERT_EQUAL_INT(0, native_tokens_add(&tokens, token_id, amount));
+  }
+  TEST_ASSERT_EQUAL_UINT8(64, native_tokens_count(&tokens));
+
+  // try to add one more Native Token
+  token_id[NATIVE_TOKEN_ID_BYTES - 1] = 64;
+  TEST_ASSERT_EQUAL_INT(-1, native_tokens_add(&tokens, token_id, amount));
+  TEST_ASSERT_EQUAL_UINT8(64, native_tokens_count(&tokens));
+
+  free(amount);
+  native_tokens_free(&tokens);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_native_tokens);
   RUN_TEST(test_native_tokens_sort);
   RUN_TEST(test_native_tokens_clone);
+  RUN_TEST(test_native_tokens_amount);
+  RUN_TEST(test_native_tokens_count);
 
   return UNITY_END();
 }
