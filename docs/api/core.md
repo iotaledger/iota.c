@@ -25,7 +25,7 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: address_2_bech32
+.. doxygenfunction:: address_to_bech32
 ```
 
 ```{eval-rst}
@@ -301,11 +301,15 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ### [Bech32](https://github.com/iotaledger/iota.c/blob/dev/src/core/utils/bech32.h)
 
 ```{eval-rst}
-.. doxygenfunction:: iota_addr_bech32_encode
+.. doxygenfunction:: bech32_encode
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: iota_addr_bech32_decode
+.. doxygenfunction:: bech32_decode
+```
+
+```{eval-rst}
+.. doxygenfunction:: bech32_convert_bits
 ```
 
 ### [Slip10](https://github.com/iotaledger/iota.c/blob/dev/src/core/utils/slip10.h)
