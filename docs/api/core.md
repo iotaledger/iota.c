@@ -301,11 +301,11 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ### [Bech32](https://github.com/iotaledger/iota.c/blob/dev/src/core/utils/bech32.h)
 
 ```{eval-rst}
-.. doxygenfunction:: iota_addr_bech32_encode
+.. doxygenfunction:: address_to_bech32
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: iota_addr_bech32_decode
+.. doxygenfunction:: address_from_bech32
 ```
 
 ### [Slip10](https://github.com/iotaledger/iota.c/blob/dev/src/core/utils/slip10.h)
