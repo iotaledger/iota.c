@@ -834,6 +834,59 @@ void test_output_alias_condition_blocks() {
   cond_blk_list_free(unlock_conds);
 }
 
+void test_output_alias_state_metadata_length() {
+  native_tokens_t* native_tokens = native_tokens_new();
+  uint256_t* amount1 = uint256_from_str("111111111");
+  native_tokens_add(&native_tokens, token_id1, amount1);
+
+  // create random alias ID
+  byte_t alias_id[ADDRESS_ALIAS_BYTES];
+  iota_crypto_randombytes(alias_id, ADDRESS_ALIAS_BYTES);
+
+  // create unlock conditions
+  cond_blk_list_t* unlock_conds = cond_blk_list_new();
+  // random state controller address
+  address_t test_addr = {};
+  test_addr.type = ADDRESS_TYPE_ALIAS;
+  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
+  TEST_ASSERT_NOT_NULL(state_block);
+  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
+  TEST_ASSERT_NOT_NULL(gov_block);
+
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, gov_block) == 0);
+
+  // create Feature Blocks
+  feat_blk_list_t* feat_blocks = feat_blk_list_new();
+  TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
+
+  // create state metadata
+  byte_t meta_data[MAX_METADATA_LENGTH_BYTES] = {};
+  iota_crypto_randombytes(meta_data, sizeof(meta_data));
+
+  // create alias output with maximum state metadata length
+  output_alias_t* output = output_alias_new(123456789, native_tokens, alias_id, 123456, meta_data, sizeof(meta_data),
+                                            654321, unlock_conds, feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  output_alias_free(output);
+
+  // create alias output with too big state metadata
+  output = output_alias_new(123456789, native_tokens, alias_id, 123456, meta_data, sizeof(meta_data) + 1, 654321,
+                            unlock_conds, feat_blocks);
+  TEST_ASSERT_NULL(output);
+
+  // clean up
+  free(amount1);
+  cond_blk_free(state_block);
+  cond_blk_free(gov_block);
+  native_tokens_free(&native_tokens);
+  cond_blk_list_free(unlock_conds);
+  feat_blk_list_free(feat_blocks);
+  output_alias_free(output);
+}
+
 int main() {
   UNITY_BEGIN();
 
@@ -843,6 +896,7 @@ int main() {
   RUN_TEST(test_output_alias_without_feature_blocks);
   RUN_TEST(test_output_alias_clone);
   RUN_TEST(test_output_alias_condition_blocks);
+  RUN_TEST(test_output_alias_state_metadata_length);
 
   return UNITY_END();
 }
