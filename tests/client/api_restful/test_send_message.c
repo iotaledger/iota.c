@@ -4,13 +4,22 @@
 #include <stdio.h>
 #include <unity/unity.h>
 
+#include "test_config.h"
+
 #include "client/api/restful/get_message.h"
+#include "client/api/restful/get_output.h"
+#include "client/api/restful/get_outputs_id.h"
+#include "client/api/restful/get_tips.h"
 #include "client/api/restful/send_message.h"
+#include "core/address.h"
+#include "core/models/inputs/utxo_input.h"
+#include "core/models/outputs/outputs.h"
 #include "core/models/payloads/tagged_data.h"
+#include "core/models/payloads/transaction.h"
+#include "core/models/unlock_block.h"
 #include "core/utils/byte_buffer.h"
 #include "core/utils/macros.h"
 #include "crypto/iota_crypto.h"
-#include "test_config.h"
 
 #define TAG_TAG_LEN 15
 #define TAG_DATA_LEN 64
@@ -175,24 +184,129 @@ void test_send_core_message_tagged_data_tag_max_len() {
   res_message_free(msg_res);
 }
 
-/* TODO, send transaction on private tangle
-void test_send_core_message_tx() {
-  iota_client_conf_t ctx = {
-      .host = "localhost",
-      .port = 14265  // use default port number
-  };
+void test_send_msg_tx_extended() {
+  // use local private Tangle
+  iota_client_conf_t ctx = {.host = "localhost", .port = 14265};
 
-  // genrate ed25519 address
+  // mnemonic seed for testing
+  byte_t mnemonic_seed[64] = {0x83, 0x7D, 0x69, 0x91, 0x14, 0x64, 0x8E, 0xB,  0x36, 0x78, 0x58, 0xF0, 0xE9,
+                              0xA8, 0x4E, 0xF8, 0xBD, 0xFF, 0xD,  0xB7, 0x71, 0x4A, 0xD6, 0x3A, 0xA9, 0x52,
+                              0x32, 0x43, 0x56, 0xB6, 0x53, 0x65, 0xD0, 0xE3, 0x9A, 0x30, 0x3A, 0xC5, 0xBB,
+                              0xAE, 0x83, 0xD0, 0x13, 0xBC, 0x76, 0xB6, 0xC5, 0xE6, 0xFD, 0xCD, 0x2E, 0x72,
+                              0xEC, 0x80, 0x41, 0x33, 0xF3, 0x7B, 0xC0, 0x3E, 0x2A, 0x35, 0xC4, 0xA9};
 
-  // request found from faucet
+  // get address from mnemonic seed
+  address_t addr_send, addr_recv;
+  ed25519_keypair_t sender_key = {};
+  char bech32_sender[65] = {};
+  char bech32_receiver[65] = {};
+  // IOTA BIP44 Paths: m/44'/4128'/Account'/Change'/Index'
+  TEST_ASSERT(address_keypair_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/0'", &sender_key) ==
+              0);
+  TEST_ASSERT(ed25519_address_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/0'", &addr_send) == 0);
+  TEST_ASSERT(ed25519_address_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/1'", &addr_recv) == 0);
 
-  // create address unlock condition
+  char const* const hrp = "atoi";
+  address_to_bech32(&addr_send, hrp, bech32_sender, sizeof(bech32_sender));
+  address_to_bech32(&addr_recv, hrp, bech32_receiver, sizeof(bech32_receiver));
+  printf("sender: %s\nreceiver: %s\n", bech32_sender, bech32_receiver);
 
-  // compose basic output
+  transaction_payload_t* tx = tx_payload_new();
+  TEST_ASSERT_NOT_NULL(tx);
+
+  // get outputs from an address
+  uint64_t send_amount = 1000000;  // send out 1Mi
+  res_outputs_id_t* res = res_outputs_new();
+  outputs_query_list_t* query_param = outputs_query_list_new();
+  outputs_query_list_add(&query_param, QUERY_PARAM_ADDRESS, bech32_sender);
+  TEST_ASSERT(get_outputs_id(&ctx, query_param, res) == 0);
+  TEST_ASSERT(res_outputs_output_id_count(res) > 0);
+
+  // dump outputs for debugging
+  // for (size_t i = 0; i < res_outputs_output_id_count(res); i++) {
+  //   printf("output[%zu]: %s\n", i, res_outputs_output_id(res, i));
+  // }
+
+  // fetch output data from output IDs
+  uint64_t total_balance = 0;
+  for (size_t i = 0; i < res_outputs_output_id_count(res); i++) {
+    res_output_t* output_res = get_output_response_new();
+    printf("fetch output: %s\n", res_outputs_output_id(res, i));
+    TEST_ASSERT(get_output(&ctx, res_outputs_output_id(res, i), output_res) == 0);
+    if (!output_res->is_error) {
+      if (output_res->u.data->output->output_type == OUTPUT_EXTENDED) {
+        output_extended_t* o = (output_extended_t*)output_res->u.data->output->output;
+        total_balance += o->amount;
+        // check balane
+        if (total_balance >= send_amount) {
+          // add it to tx payload and break
+          tx_payload_add_input(tx, 0, output_res->u.data->tx_id, output_res->u.data->output_index, &sender_key);
+          get_output_response_free(output_res);
+          break;
+        } else {
+          // add it to tx payload and fetch next output data
+          tx_payload_add_input(tx, 0, output_res->u.data->tx_id, output_res->u.data->output_index, &sender_key);
+        }
+      }
+    } else {
+      printf("%s\n", output_res->u.error->msg);
+    }
+    get_output_response_free(output_res);
+  }
+
+  // not used any more
+  outputs_query_list_free(query_param);
+  res_outputs_free(res);
+
+  // check balance of sender outputs
+  TEST_ASSERT(total_balance >= send_amount);
+
+  // receiver output
+  unlock_cond_blk_t* b = cond_blk_addr_new(&addr_recv);
+  cond_blk_list_t* recv_cond = cond_blk_list_new();
+  cond_blk_list_add(&recv_cond, b);
+  output_extended_t* recv_output = output_extended_new(send_amount, NULL, recv_cond, NULL);
+  // add receiver output to tx payload
+  tx_payload_add_output(tx, OUTPUT_EXTENDED, recv_output);
+  cond_blk_free(b);
+  cond_blk_list_free(recv_cond);
+  output_extended_free(recv_output);
+
+  // if remainder is needed?
+  if (total_balance > send_amount) {
+    // remainder output
+    b = cond_blk_addr_new(&addr_send);
+    cond_blk_list_t* remainder_cond = cond_blk_list_new();
+    cond_blk_list_add(&remainder_cond, b);
+    output_extended_t* remainder_output = output_extended_new(total_balance - send_amount, NULL, remainder_cond, NULL);
+    TEST_ASSERT_NOT_NULL(remainder_output);
+    // add receiver output to output list
+    tx_payload_add_output(tx, OUTPUT_EXTENDED, remainder_output);
+    cond_blk_free(b);
+    cond_blk_list_free(remainder_cond);
+    output_extended_free(remainder_output);
+  }
+
+  // add transaction payload to message
+  core_message_t* msg = core_message_new();
+  TEST_ASSERT_NOT_NULL(msg);
+  msg->payload = tx;
+  msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  TEST_ASSERT(core_message_sign_transaction(msg) == 0);
 
   // send out message
+  res_send_message_t send_msg_res = {};
+  TEST_ASSERT(send_core_message(&ctx, msg, &send_msg_res) == 0);
+  // dump message object on terminal
+  core_message_print(msg, 0);
+  if (send_msg_res.is_error) {
+    printf("Error: %s\n", send_msg_res.u.error->msg);
+  } else {
+    printf("message ID: %s\n", send_msg_res.u.msg_id);
+  }
+
+  core_message_free(msg);
 }
-*/
 
 int main() {
   UNITY_BEGIN();
@@ -203,8 +317,8 @@ int main() {
   RUN_TEST(test_send_core_message_tagged_data_binary_tag);
   RUN_TEST(test_send_core_message_tagged_data_tag_max_len);
 #endif
-  // send transaction on alphanet
-  // RUN_TEST(test_send_core_message_tx);
+  // send transaction on local private tangle
+  // RUN_TEST(test_send_msg_tx_extended);
 
   return UNITY_END();
 }
