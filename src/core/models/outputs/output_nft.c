@@ -53,7 +53,7 @@ output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nf
 
   // Immutable Metadata Length must not be greater than Max Metadata Length
   if (metadata_len > MAX_METADATA_LENGTH_BYTES) {
-    printf("[%s:%d] Metadata length must no be greater than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
+    printf("[%s:%d] Metadata length must not be greater than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
     return NULL;
   }
 

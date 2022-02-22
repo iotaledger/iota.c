@@ -61,7 +61,7 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
 
   // State Metadata Length must not be greater than Max Metadata Length
   if (metadata_len > MAX_METADATA_LENGTH_BYTES) {
-    printf("[%s:%d] Metadata length must no be greater than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
+    printf("[%s:%d] Metadata length must not be greater than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
     return NULL;
   }
 
