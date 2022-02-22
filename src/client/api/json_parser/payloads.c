@@ -353,7 +353,7 @@ cJSON* json_tagged_serialize(tagged_data_t* tagged_data) {
 
   // tag
   if (tagged_data->tag) {
-    char tag_str[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
+    char tag_str[BIN_TO_HEX_STR_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
     if (bin_2_hex(tagged_data->tag->data, tagged_data->tag->len, tag_str,
                   BIN_TO_HEX_STR_BYTES(tagged_data->tag->len)) != 0) {
       printf("[%s:%d] bin to hex tag conversion failed\n", __func__, __LINE__);
