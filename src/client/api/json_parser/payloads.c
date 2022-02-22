@@ -425,7 +425,7 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_t** tagged_data) {
   // create a new tagged data
   if (cJSON_IsString(json_tag) && cJSON_IsString(json_data)) {
     byte_t tmp_tag[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
-    hex_2_bin(json_tag->valuestring, strlen(json_tag->valuestring), tmp_tag, strlen(json_tag->valuestring) / 2);
+    hex_2_bin(json_tag->valuestring, strlen(json_tag->valuestring), tmp_tag, sizeof(tmp_tag));
 
     byte_t* tmp_data = malloc((strlen(json_data->valuestring) / 2));
     hex_2_bin(json_data->valuestring, strlen(json_data->valuestring), tmp_data, strlen(json_data->valuestring) / 2);
