@@ -12,10 +12,6 @@
 #include "crypto/iota_crypto.h"
 #include "test_config.h"
 
-void setUp(void) {}
-
-void tearDown(void) {}
-
 #define TAG_LEN 15
 #define TAG_INVALID_LEN 70
 #define TAG_DATA_LEN 64
@@ -23,6 +19,10 @@ void tearDown(void) {}
 char const* const tag = "IOTA TAGGED DATA";
 char const* const tag_invalid_len = "IOTA TAGGED DATA, IOTA TAGGED DATA, IOTA TAGGED DATA, IOTA TAGGED DATA";
 byte_t binary_tag[TAG_LEN] = {0x13, 0x94, 0x12, 0xdd, 0x2b, 0xff, 0xd4, 0x55, 0x62, 0x90, 0xfd, 0x6f, 0xa8, 0x30, 0x1f};
+
+void setUp(void) {}
+
+void tearDown(void) {}
 
 void test_send_tagged_data() {
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
