@@ -38,12 +38,14 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   // get tips
   if ((get_tips(conf, tips)) != 0) {
     printf("[%s:%d] get tips failed\n", __func__, __LINE__);
-    goto end;
+    res_tips_free(tips);
+    return -1;
   }
 
   if (tips->is_error) {
     printf("[%s:%d] get tips failed: %s\n", __func__, __LINE__, tips->u.error->msg);
-    goto end;
+    res_tips_free(tips);
+    return -1;
   }
 
   // compose json message
@@ -64,11 +66,10 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   "nonce": ""
   }
   */
-  cJSON* msg_obj = NULL;
-  cJSON* payload = NULL;
 
   // create message object
-  if ((msg_obj = cJSON_CreateObject()) == NULL) {
+  cJSON* msg_obj = cJSON_CreateObject();
+  if (msg_obj == NULL) {
     printf("[%s:%d] creating message object failed\n", __func__, __LINE__);
     goto end;
   }
@@ -92,7 +93,8 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   }
 
   // create payload object
-  if ((payload = cJSON_CreateObject()) == NULL) {
+  cJSON* payload = cJSON_CreateObject();
+  if (payload == NULL) {
     printf("[%s:%d] creating payload object failed\n", __func__, __LINE__);
     goto end;
   }
@@ -100,6 +102,7 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   // add type to payload
   if (!cJSON_AddNumberToObject(payload, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TAGGED)) {
     printf("[%s:%d] adding type to payload failed\n", __func__, __LINE__);
+    cJSON_Delete(payload);
     goto end;
   }
 
@@ -107,10 +110,12 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   char tag_str[BIN_TO_HEX_STR_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
   if (bin_2_hex(tag, tag_len, tag_str, sizeof(tag_str)) != 0) {
     printf("[%s:%d] bin to hex tag conversion failed\n", __func__, __LINE__);
+    cJSON_Delete(payload);
     goto end;
   }
   if (!cJSON_AddStringToObject(payload, JSON_KEY_TAG, tag_str)) {
     printf("[%s:%d] adding tag to payload failed\n", __func__, __LINE__);
+    cJSON_Delete(payload);
     goto end;
   }
 
@@ -119,16 +124,19 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
     char* data_str = malloc(BIN_TO_HEX_STR_BYTES(data_len));
     if (!data_str) {
       printf("[%s:%d] OOM\n", __func__, __LINE__);
+      cJSON_Delete(payload);
       goto end;
     }
     if (bin_2_hex(data, data_len, data_str, BIN_TO_HEX_STR_BYTES(data_len)) != 0) {
       printf("[%s:%d] bin to hex data conversion failed\n", __func__, __LINE__);
       free(data_str);
+      cJSON_Delete(payload);
       goto end;
     }
     if (!cJSON_AddStringToObject(payload, JSON_KEY_DATA, data_str)) {
       printf("[%s:%d] adding tag data failed\n", __func__, __LINE__);
       free(data_str);
+      cJSON_Delete(payload);
       goto end;
     }
     free(data_str);
@@ -136,6 +144,7 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
     // add a null data to tagged data
     if (!cJSON_AddNullToObject(payload, JSON_KEY_DATA)) {
       printf("[%s:%d] adding null data payload failed\n", __func__, __LINE__);
+      cJSON_Delete(payload);
       goto end;
     }
   }
@@ -143,6 +152,7 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   // add payload to message
   if (!cJSON_AddItemToObject(msg_obj, JSON_KEY_PAYLOAD, payload)) {
     printf("[%s:%d] adding payload failed\n", __func__, __LINE__);
+    cJSON_Delete(payload);
     goto end;
   }
 
@@ -155,6 +165,10 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
 
   // put json string into byte_buf_t
   byte_buf_t* json_data = byte_buf_new_with_data((byte_t*)msg_str, strlen(msg_str) + 1);
+  if (!json_data) {
+    printf("[%s:%d] allocating buffer with message data failed\n", __func__, __LINE__);
+    goto end;
+  }
   // not needed anymore
   free(msg_str);
   // config http client
@@ -162,6 +176,10 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
       .host = conf->host, .path = "/api/v2/messages", .use_tls = conf->use_tls, .port = conf->port};
   long http_st_code = 0;
   byte_buf_t* http_res = byte_buf_new();
+  if (!http_res) {
+    printf("[%s:%d] allocating buffer for http response failed\n", __func__, __LINE__);
+    goto end;
+  }
   if ((ret = http_client_post(&http_conf, json_data, http_res, &http_st_code)) == 0) {
     // deserialize node response
     if (!byte_buf2str(http_res)) {
