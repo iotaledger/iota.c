@@ -33,10 +33,13 @@ typedef struct {
   uint8_t tx_type;      ///< Set to value 0 to denote a Transaction Essence.
   uint64_t network_id;  ///< Network identifier. It is first 8 bytes of the `BLAKE2b-256` hash of the concatenation of
                         ///< the network type and the protocol version string.
-  utxo_inputs_list_t* inputs;    ///< An UTXO input list.
-  utxo_outputs_list_t* outputs;  ///< An UTXO output list.
-  uint32_t payload_len;          ///< The length in bytes of the optional payload.
-  void* payload;                 ///< An tagged data payload at this moment.
+  utxo_inputs_list_t* inputs;                           ///< An UTXO input list.
+  byte_t inputs_commitment[CRYPTO_BLAKE2B_HASH_BYTES];  ///< BLAKE2b-256 hash of the serialized outputs referenced in
+                                                        ///< Inputs by their Output IDs (Transaction ID || Transaction
+                                                        ///< Output Index).
+  utxo_outputs_list_t* outputs;                         ///< An UTXO output list.
+  uint32_t payload_len;                                 ///< The length in bytes of the optional payload.
+  void* payload;                                        ///< An tagged data payload at this moment.
 } transaction_essence_t;
 
 /**

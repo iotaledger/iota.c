@@ -36,7 +36,7 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
     return -1;
   }
 
-  // Check if list can accomodate new input
+  // Check if list can accommodate new input
   if (utxo_inputs_count(*inputs) >= UTXO_INPUT_MAX_COUNT) {
     printf("[%s:%d] inputs count exceeded max count %d\n", __func__, __LINE__, UTXO_OUTPUT_MAX_COUNT);
     return -1;
@@ -214,7 +214,7 @@ size_t utxo_inputs_serialize(utxo_inputs_list_t *inputs, byte_t buf[], size_t bu
 
 utxo_inputs_list_t *utxo_inputs_deserialize(byte_t buf[], size_t buf_len) {
   if (buf == NULL || buf_len < 2) {
-    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 

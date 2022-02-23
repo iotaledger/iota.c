@@ -14,6 +14,7 @@ transaction_essence_t* tx_essence_new() {
     es->tx_type = TRANSACTION_PAYLOAD_ESSENCE;  // 0 to denote a transaction essence.
     es->network_id = 0;
     es->inputs = utxo_inputs_new();
+    memset(es->inputs_commitment, 0, sizeof(es->inputs_commitment));
     es->outputs = utxo_outputs_new();
     es->payload = NULL;
     es->payload_len = 0;
@@ -85,6 +86,8 @@ size_t tx_essence_serialize_length(transaction_essence_t* es) {
   length += sizeof(uint8_t);
   // input serialized len, this includes input count len
   length += utxo_inputs_serialize_len(es->inputs);
+  // inputs commitment
+  length += sizeof(es->inputs_commitment);
   // output serialized len, this includes output count len
   length += utxo_outputs_serialize_len(es->outputs);
 
@@ -127,6 +130,10 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
   size_t input_ser_len = utxo_inputs_serialize_len(es->inputs);
   offset += utxo_inputs_serialize(es->inputs, offset, input_ser_len);
 
+  // serialize inputs commitment
+  memcpy(offset, &es->inputs_commitment, CRYPTO_BLAKE2B_HASH_BYTES);
+  offset += CRYPTO_BLAKE2B_HASH_BYTES;
+
   // serialize outputs
   size_t output_ser_len = utxo_outputs_serialize_len(es->outputs);
   offset += utxo_outputs_serialize(es->outputs, offset, output_ser_len);
@@ -163,6 +170,7 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   memcpy(&es->network_id, &buf[offset], sizeof(uint64_t));
   offset += sizeof(uint64_t);
 
+  // inputs
   es->inputs = utxo_inputs_deserialize(&buf[offset], buf_len - offset);
   if (es->inputs == NULL) {
     tx_essence_free(es);
@@ -170,6 +178,11 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   }
   offset += utxo_inputs_serialize_len(es->inputs);
 
+  // inputs commitment
+  memcpy(&es->inputs_commitment, &buf[offset], CRYPTO_BLAKE2B_HASH_BYTES);
+  offset += CRYPTO_BLAKE2B_HASH_BYTES;
+
+  // outputs
   es->outputs = utxo_outputs_deserialize(&buf[offset], buf_len - offset);
   if (es->outputs == NULL) {
     tx_essence_free(es);
@@ -203,6 +216,8 @@ void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
   printf("%s\tNetwork Id: %" PRIu64 "\n", PRINT_INDENTATION(indentation), es->network_id);
 
   utxo_inputs_print(es->inputs, indentation + 1);
+  printf("%s\tInputs Commitment: ", PRINT_INDENTATION(indentation));
+  dump_hex(es->inputs_commitment, sizeof(es->inputs_commitment));
   utxo_outputs_print(es->outputs, indentation + 1);
 
   if (es->payload_len > 0) {

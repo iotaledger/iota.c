@@ -168,7 +168,8 @@ void test_deser_simple_tx() {
       "\"b9130e8d2b928921c220bef325eb9bcad114bdbce80945565e54e8cf9664173a\","
       "\"cf94502e06fab8dcc4ef9fc94721de2e2fcaf727e0998b6489a0a5b5eead6625\"],\"payload\":{\"type\":0,\"essence\":{"
       "\"type\":0,\"networkId\":\"8453507715857476362\",\"inputs\":[{\"type\":0,\"transactionId\":"
-      "\"0000000000000000000000000000000000000000000000000000000000000000\",\"transactionOutputIndex\":0}],\"outputs\":"
+      "\"0000000000000000000000000000000000000000000000000000000000000000\",\"transactionOutputIndex\":0}],"
+      "\"inputsCommitment\":\"9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9\",\"outputs\":"
       "[{\"type\":3,\"amount\":10000000,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":0,"
       "\"address\":\"21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"}}],\"featureBlocks\":[]},{"
       "\"type\":3,\"amount\":2779530273277761,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{"
@@ -221,6 +222,10 @@ void test_deser_simple_tx() {
   TEST_ASSERT(
       hex_2_bin("0000000000000000000000000000000000000000000000000000000000000000", 65, tmp_id, sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, inputs->tx_id, sizeof(tmp_id));
+  // validate essence inputs commitment
+  TEST_ASSERT(
+      hex_2_bin("9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, tx->essence->inputs_commitment, sizeof(tmp_id));
   // validate essence outputs
   TEST_ASSERT_EQUAL_UINT16(2, utxo_outputs_count(tx->essence->outputs));
   // validate output block: 0

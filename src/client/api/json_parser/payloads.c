@@ -15,9 +15,10 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   /*
   {
     "type": 0,
-    "networkId": 2229185342034412800,
-    "inputs": input_array
-    "outputs": output_array
+    "networkId": "8453507715857476362",
+    "inputs": input_array,
+    "inputsCommitment": "9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9",
+    "outputs": output_array,
     "payload": payload object
   }
   */
@@ -72,6 +73,20 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
     return NULL;
   }
   cJSON_AddItemToObject(es_obj, JSON_KEY_INPUTS, input_arr);
+
+  // inputs commitment
+  char inputs_commitment_str[BIN_TO_HEX_STR_BYTES(sizeof(es->inputs_commitment))] = {};
+  if (bin_2_hex(es->inputs_commitment, sizeof(es->inputs_commitment), inputs_commitment_str,
+                sizeof(inputs_commitment_str)) != 0) {
+    printf("[%s:%d] convert inputs commitment to hex string error\n", __func__, __LINE__);
+    cJSON_Delete(es_obj);
+    return NULL;
+  }
+  if (!cJSON_AddStringToObject(es_obj, JSON_KEY_INPUTS_COMMITMENT, inputs_commitment_str)) {
+    printf("[%s:%d] add inputs commitment to essence error\n", __func__, __LINE__);
+    cJSON_Delete(es_obj);
+    return NULL;
+  }
 
   // output array
   if ((output_arr = json_outputs_serialize(es->outputs)) == NULL) {
@@ -257,6 +272,19 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
       }
     } else {
       printf("[%s:%d]: %s is not an array\n", __func__, __LINE__, JSON_KEY_INPUTS);
+      return -1;
+    }
+
+    //  inputs commitment
+    char inputs_commitment_hex[BIN_TO_HEX_STR_BYTES(sizeof(tx->essence->inputs_commitment))];
+    if (json_get_string(essence_obj, JSON_KEY_INPUTS_COMMITMENT, (char*)inputs_commitment_hex,
+                        sizeof(inputs_commitment_hex)) != JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_INPUTS_COMMITMENT);
+      return -1;
+    }
+    if (hex_2_bin(inputs_commitment_hex, sizeof(inputs_commitment_hex), tx->essence->inputs_commitment,
+                  sizeof(tx->essence->inputs_commitment)) != 0) {
+      printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
       return -1;
     }
 
