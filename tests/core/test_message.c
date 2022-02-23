@@ -142,8 +142,8 @@ void test_message_with_tx_serialize() {
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);
 
-  // add network ID
-  msg->network_id = 8453507715857476362;
+  // add protocol version
+  msg->protocol_version = 2;
 
   // add message parents
   byte_t parent_id_1[IOTA_MESSAGE_ID_BYTES];
@@ -242,8 +242,8 @@ void test_message_with_tagged_data_serialize() {
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);
 
-  // add network ID
-  msg->network_id = 8453507715857476362;
+  // add protocol version
+  msg->protocol_version = 2;
 
   // add message parents
   byte_t parent_id_1[IOTA_MESSAGE_ID_BYTES];

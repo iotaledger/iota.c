@@ -17,13 +17,11 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
 
   int ret = -1;
 
-  // network ID
-  char str_buff[32];
-  if ((ret = json_get_string(json_obj, JSON_KEY_NET_ID, str_buff, sizeof(str_buff))) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
+  // protocol version
+  if ((ret = json_get_uint8(json_obj, JSON_KEY_PROTOCOL_VERSION, &msg->protocol_version)) != 0) {
+    printf("[%s:%d]: gets %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_PROTOCOL_VERSION);
     goto end;
   }
-  sscanf(str_buff, "%" SCNu64, &msg->network_id);
 
   // parentMessageIds
   if ((ret = json_string_array_to_bin_array(json_obj, JSON_KEY_PARENT_IDS, msg->parents, IOTA_MESSAGE_ID_BYTES)) != 0) {
@@ -34,6 +32,7 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
   }
 
   // nonce
+  char str_buff[32];
   if ((ret = json_get_string(json_obj, JSON_KEY_NONCE, str_buff, sizeof(str_buff))) != 0) {
     printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NONCE);
     goto end;
@@ -85,7 +84,7 @@ end:
 cJSON* json_message_serialize(core_message_t* msg) {
   /*
   {
-  "networkId": "6530425480034647824",
+  "protocolVersion": 2,
   "parentMessageIds": [
       "7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
       "9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c",
@@ -112,16 +111,16 @@ cJSON* json_message_serialize(core_message_t* msg) {
     return NULL;
   }
 
-  // add network ID
-  if (msg->network_id > 0) {
-    if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_NET_ID, msg->network_id)) {
-      printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
+  // add protocol version
+  if (msg->protocol_version > 0) {
+    if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_PROTOCOL_VERSION, msg->protocol_version)) {
+      printf("[%s:%d] creating protocol version failed\n", __func__, __LINE__);
       cJSON_Delete(msg_obj);
       return NULL;
     }
   } else {
-    if (!cJSON_AddNullToObject(msg_obj, JSON_KEY_NET_ID)) {
-      printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
+    if (!cJSON_AddNullToObject(msg_obj, JSON_KEY_PROTOCOL_VERSION)) {
+      printf("[%s:%d] creating protocol version failed\n", __func__, __LINE__);
       cJSON_Delete(msg_obj);
       return NULL;
     }

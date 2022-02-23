@@ -12,6 +12,7 @@ transaction_essence_t* tx_essence_new() {
   transaction_essence_t* es = malloc(sizeof(transaction_essence_t));
   if (es) {
     es->tx_type = TRANSACTION_PAYLOAD_ESSENCE;  // 0 to denote a transaction essence.
+    es->network_id = 0;
     es->inputs = utxo_inputs_new();
     es->outputs = utxo_outputs_new();
     es->payload = NULL;
@@ -80,6 +81,8 @@ size_t tx_essence_serialize_length(transaction_essence_t* es) {
 
   // transaction type(uint8_t)
   length += sizeof(uint8_t);
+  // network Id(uint8_t)
+  length += sizeof(uint8_t);
   // input serialized len, this includes input count len
   length += utxo_inputs_serialize_len(es->inputs);
   // output serialized len, this includes output count len
@@ -116,6 +119,10 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
   memcpy(offset, &es->tx_type, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
+  // serialize network Id
+  memcpy(offset, &es->network_id, sizeof(uint64_t));
+  offset += sizeof(uint64_t);
+
   // serialize inputs
   size_t input_ser_len = utxo_inputs_serialize_len(es->inputs);
   offset += utxo_inputs_serialize(es->inputs, offset, input_ser_len);
@@ -151,6 +158,10 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   // transaction type
   memcpy(&es->tx_type, &buf[offset], sizeof(uint8_t));
   offset += sizeof(uint8_t);
+
+  // network Id
+  memcpy(&es->network_id, &buf[offset], sizeof(uint64_t));
+  offset += sizeof(uint64_t);
 
   es->inputs = utxo_inputs_deserialize(&buf[offset], buf_len - offset);
   if (es->inputs == NULL) {
@@ -189,6 +200,7 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
 void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
   printf("%sTransaction Essence: [\n", PRINT_INDENTATION(indentation));
   printf("%s\tType: %d\n", PRINT_INDENTATION(indentation), es->tx_type);
+  printf("%s\tNetwork Id: %" PRIu64 "\n", PRINT_INDENTATION(indentation), es->network_id);
 
   utxo_inputs_print(es->inputs, indentation + 1);
   utxo_outputs_print(es->outputs, indentation + 1);

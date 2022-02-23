@@ -51,7 +51,7 @@ void test_send_core_message_tagged_data() {
   // Create a core message object
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);
-  msg->network_id = 0;
+  msg->protocol_version = 2;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
   msg->payload = tagged_data;
   msg->nonce = 0;
@@ -100,7 +100,7 @@ void test_send_core_message_tagged_data_binary_tag() {
   // Create a core message object
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);
-  msg->network_id = 0;
+  msg->protocol_version = 2;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
   msg->payload = tagged_data;
   msg->nonce = 0;
@@ -145,7 +145,7 @@ void test_send_core_message_tagged_data_tag_max_len() {
   // Create a core message object
   core_message_t* msg = core_message_new();
   TEST_ASSERT_NOT_NULL(msg);
-  msg->network_id = 0;
+  msg->protocol_version = 2;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
   msg->payload = tagged_data;
   msg->nonce = 0;

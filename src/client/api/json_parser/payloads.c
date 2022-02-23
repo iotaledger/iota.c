@@ -15,6 +15,7 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   /*
   {
     "type": 0,
+    "networkId": 2229185342034412800,
     "inputs": input_array
     "outputs": output_array
     "payload": payload object
@@ -47,6 +48,21 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
     printf("[%s:%d] add tx type failed\n", __func__, __LINE__);
     cJSON_Delete(es_obj);
     return NULL;
+  }
+
+  // network ID
+  if (es->network_id > 0) {
+    if (!cJSON_AddNumberToObject(es_obj, JSON_KEY_NET_ID, es->network_id)) {
+      printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
+      cJSON_Delete(es_obj);
+      return NULL;
+    }
+  } else {
+    if (!cJSON_AddNullToObject(es_obj, JSON_KEY_NET_ID)) {
+      printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
+      cJSON_Delete(es_obj);
+      return NULL;
+    }
   }
 
   // input array
@@ -118,7 +134,7 @@ static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_
 int milestone_deserialize(cJSON* payload, milestone_t* ms) {
   /*
   {
-    "networkId": "8453507715857476362",
+    "protocolVersion": 2,
     "parentMessageIds": [
       "596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
       "8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
@@ -225,6 +241,14 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
   // parsing essence
   cJSON* essence_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_ESSENCE);
   if (essence_obj) {
+    // network Id
+    char str_buff[32];
+    if ((json_get_string(essence_obj, JSON_KEY_NET_ID, str_buff, sizeof(str_buff))) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
+      return -1;
+    }
+    sscanf(str_buff, "%" SCNu64, &tx->essence->network_id);
+
     // inputs array
     cJSON* inputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_INPUTS);
     if (cJSON_IsArray(inputs_obj)) {
