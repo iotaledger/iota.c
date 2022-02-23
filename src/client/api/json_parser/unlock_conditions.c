@@ -55,7 +55,7 @@ static cJSON *json_cond_blk_addr_serialize(unlock_cond_blk_t *block) {
     // add address to sender
     cJSON *addr = json_parser_common_address_serialize((address_t *)block->block);
     if (addr) {
-      if (!cJSON_AddObjectToObject(addr, JSON_KEY_ADDR)) {
+      if (!cJSON_AddItemToObject(addr_obj, JSON_KEY_ADDR, addr)) {
         printf("[%s:%d] add address into block error\n", __func__, __LINE__);
         cJSON_Delete(addr);
         goto err;
@@ -129,7 +129,7 @@ static cJSON *json_cond_blk_dust_serialize(unlock_cond_dust_t *dust) {
     // add return address
     cJSON *addr = json_parser_common_address_serialize(dust->addr);
     if (addr) {
-      if (!cJSON_AddObjectToObject(addr, JSON_KEY_RETURN_ADDR)) {
+      if (!cJSON_AddItemToObject(dust_obj, JSON_KEY_ADDR, addr)) {
         printf("[%s:%d] add return address into block error\n", __func__, __LINE__);
         cJSON_Delete(addr);
         goto err;
@@ -275,7 +275,7 @@ static cJSON *json_cond_blk_expir_serialize(unlock_cond_expir_t *expir) {
     // add return address
     cJSON *addr = json_parser_common_address_serialize(expir->addr);
     if (addr) {
-      if (!cJSON_AddObjectToObject(addr, JSON_KEY_ADDR)) {
+      if (!cJSON_AddItemToObject(expir_obj, JSON_KEY_ADDR, addr)) {
         cJSON_Delete(addr);
         goto err;
       }
@@ -351,7 +351,7 @@ static cJSON *json_cond_blk_state_serialize(unlock_cond_blk_t *block) {
     // add address to sender
     cJSON *addr = json_parser_common_address_serialize((address_t *)block->block);
     if (addr) {
-      if (!cJSON_AddObjectToObject(addr, JSON_KEY_ADDR)) {
+      if (!cJSON_AddItemToObject(addr_obj, JSON_KEY_ADDR, addr)) {
         printf("[%s:%d] add address into block error\n", __func__, __LINE__);
         cJSON_Delete(addr);
         goto err;
@@ -417,7 +417,7 @@ static cJSON *json_cond_blk_governor_serialize(unlock_cond_blk_t *block) {
     // add address to sender
     cJSON *addr = json_parser_common_address_serialize((address_t *)block->block);
     if (addr) {
-      if (!cJSON_AddObjectToObject(addr, JSON_KEY_ADDR)) {
+      if (!cJSON_AddItemToObject(addr_obj, JSON_KEY_ADDR, addr)) {
         printf("[%s:%d] add address into block error\n", __func__, __LINE__);
         cJSON_Delete(addr);
         goto err;
