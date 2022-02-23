@@ -6,11 +6,13 @@
 #include "client/api/json_parser/json_utils.h"
 #include "client/api/restful/get_tips.h"
 #include "client/api/restful/send_tagged_data.h"
+#include "core/models/payloads/tagged_data.h"
 #include "core/utils/macros.h"
 #include "utarray.h"
 
 int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8_t tag_len, byte_t data[],
                              uint32_t data_len, res_send_message_t* res) {
+  int ret = -1;
   if (conf == NULL || tag == NULL || res == NULL) {
     // invalid parameters
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -22,19 +24,16 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
     return -1;
   }
 
-  // Max tag length allowed is 64
-  if (tag_len > 64) {
+  if (tag_len > TAGGED_DATA_TAG_MAX_LENGTH_BYTES) {
     printf("[%s:%d] invalid tag\n", __func__, __LINE__);
     return -1;
   }
 
-  res_tips_t* tips = NULL;
-  if ((tips = res_tips_new()) == NULL) {
+  res_tips_t* tips = res_tips_new();
+  if (!tips) {
     printf("[%s:%d] allocate tips response failed\n", __func__, __LINE__);
     return -1;
   }
-
-  int ret = -1;
 
   // get tips
   if ((get_tips(conf, tips)) != 0) {
@@ -105,8 +104,7 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   }
 
   // add tag
-  // max tag length is 64
-  char tag_str[BIN_TO_HEX_STR_BYTES(64)] = {0};
+  char tag_str[BIN_TO_HEX_STR_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
   if (bin_2_hex(tag, tag_len, tag_str, sizeof(tag_str)) != 0) {
     printf("[%s:%d] bin to hex tag conversion failed\n", __func__, __LINE__);
     goto end;
@@ -149,17 +147,16 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   }
 
   // json object to json string
-  char* msg_str = NULL;
-  if ((msg_str = cJSON_PrintUnformatted(msg_obj)) == NULL) {
+  char* msg_str = cJSON_PrintUnformatted(msg_obj);
+  if (msg_str == NULL) {
     printf("[%s:%d] converting json to string failed\n", __func__, __LINE__);
     goto end;
   }
 
   // put json string into byte_buf_t
-  byte_buf_t* json_data = byte_buf_new();
-  json_data->data = (byte_t*)msg_str;
-  json_data->cap = json_data->len = strlen(msg_str) + 1;
-
+  byte_buf_t* json_data = byte_buf_new_with_data((byte_t*)msg_str, strlen(msg_str) + 1);
+  // not needed anymore
+  free(msg_str);
   // config http client
   http_client_config_t http_conf = {
       .host = conf->host, .path = "/api/v2/messages", .use_tls = conf->use_tls, .port = conf->port};
@@ -167,7 +164,12 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   byte_buf_t* http_res = byte_buf_new();
   if ((ret = http_client_post(&http_conf, json_data, http_res, &http_st_code)) == 0) {
     // deserialize node response
-    byte_buf2str(http_res);
+    if (!byte_buf2str(http_res)) {
+      byte_buf_free(json_data);
+      byte_buf_free(http_res);
+      printf("[%s:%d]: buffer to string conversion failed\n", __func__, __LINE__);
+      goto end;
+    }
     ret = deser_send_message_response((char const*)http_res->data, res);
   } else {
     printf("[%s:%d]: http client post failed\n", __func__, __LINE__);

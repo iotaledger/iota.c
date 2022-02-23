@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
-#include <unity/unity.h>
 
 #include "client/api/json_parser/json_keys.h"
 #include "client/api/restful/send_tagged_data.h"
@@ -11,6 +10,7 @@
 #include "core/utils/macros.h"
 #include "crypto/iota_crypto.h"
 #include "test_config.h"
+#include "unity/unity.h"
 
 #define TAG_LEN 15
 #define TAG_INVALID_LEN 70
@@ -69,13 +69,13 @@ void test_send_tagged_data() {
   cJSON* json_data = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_DATA);
   TEST_ASSERT_NOT_NULL(json_data);
 
-  char tag_hex[TAG_LEN * 2 + 1] = {0};
+  char tag_hex[BIN_TO_HEX_STR_BYTES(TAG_LEN)] = {0};
   TEST_ASSERT(bin_2_hex((byte_t*)tag, TAG_LEN, tag_hex, sizeof(tag_hex)) == 0);
 
   // check if tag is matching
   TEST_ASSERT_EQUAL_MEMORY(tag_hex, json_tag->valuestring, TAG_LEN);
 
-  char data_hex[TAG_DATA_LEN * 2 + 1] = {0};
+  char data_hex[BIN_TO_HEX_STR_BYTES(TAG_DATA_LEN)] = {0};
   TEST_ASSERT(bin_2_hex(tag_data, TAG_DATA_LEN, data_hex, sizeof(data_hex)) == 0);
 
   // check if data is matching
@@ -122,13 +122,13 @@ void test_send_binary_tagged_data() {
   cJSON* json_data = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_DATA);
   TEST_ASSERT_NOT_NULL(json_data);
 
-  char tag_hex[TAG_LEN * 2 + 1] = {0};
+  char tag_hex[BIN_TO_HEX_STR_BYTES(TAG_LEN)] = {0};
   TEST_ASSERT(bin_2_hex(binary_tag, TAG_LEN, tag_hex, sizeof(tag_hex)) == 0);
 
   // check if tag is matching
   TEST_ASSERT_EQUAL_MEMORY(tag_hex, json_tag->valuestring, TAG_LEN);
 
-  char data_hex[TAG_DATA_LEN * 2 + 1] = {0};
+  char data_hex[BIN_TO_HEX_STR_BYTES(TAG_DATA_LEN)] = {0};
   TEST_ASSERT(bin_2_hex(tag_data, TAG_DATA_LEN, data_hex, sizeof(data_hex)) == 0);
 
   // check if data is matching

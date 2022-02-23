@@ -15,9 +15,9 @@ extern "C" {
  * @brief Send tagged data message
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] tag The tagged data payload binary tag
+ * @param[in] tag The binary tag of the tagged data payload
  * @param[in] tag_len The length of the binary tag
- * @param[in] data The tagged data payload binary data
+ * @param[in] data The binary data of the tagged data payload
  * @param[in] data_len The length of the tagged data payload binary data
  * @param[out] res An error or message ID
  * @return int 0 on success
