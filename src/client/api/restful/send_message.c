@@ -4,17 +4,18 @@
 #include <stdio.h>
 
 #include "client/api/json_parser/json_utils.h"
-#include "client/api/message_builder.h"
+#include "client/api/json_parser/message.h"
 #include "client/api/restful/get_tips.h"
 #include "client/api/restful/send_message.h"
 #include "core/utils/iota_str.h"
+#include "core/utils/macros.h"
 
-char const* const cmd_msg = "/api/v1/messages";
+char const* const cmd_msg = "/api/v2/messages";
 
 int deser_send_message_response(char const* json_str, res_send_message_t* res) {
   int ret = -1;
 
-  // {"data":{"messageId":"322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5"}}
+  // {"messageId":"322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5"}
   cJSON* json_obj = cJSON_Parse(json_str);
   if (json_obj == NULL) {
     return -1;
@@ -29,16 +30,10 @@ int deser_send_message_response(char const* json_str, res_send_message_t* res) {
     goto end;
   }
 
-  cJSON* data_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_DATA);
-  if (data_obj) {
-    // message ID
-    if ((ret = json_get_string(data_obj, JSON_KEY_MSG_ID, res->u.msg_id, sizeof(res->u.msg_id))) != 0) {
-      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
-      goto end;
-    }
-    ret = 0;
-  } else {
-    printf("[%s:%d]: %s not found failed\n", __func__, __LINE__, JSON_KEY_DATA);
+  // message ID
+  if ((ret = json_get_string(json_obj, JSON_KEY_MSG_ID, res->u.msg_id, sizeof(res->u.msg_id))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
+    ret = -1;
   }
 
 end:
@@ -49,6 +44,10 @@ end:
 int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg, res_send_message_t* res) {
   int ret = -1;
   long http_st_code = 0;
+  if (conf == NULL || msg == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
   byte_buf_t* json_data = byte_buf_new();
   byte_buf_t* node_res = byte_buf_new();
   res_tips_t* tips = NULL;
@@ -72,20 +71,33 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
 
   if (tips->is_error) {
     printf("[%s:%d] get tips failed: %s\n", __func__, __LINE__, tips->u.error->msg);
+    ret = -1;
     goto end;
   }
 
   char** p = NULL;
   while ((p = (char**)utarray_next(tips->u.tips, p))) {
-    hex_2_bin(*p, IOTA_MESSAGE_ID_HEX_BYTES, tmp_msg_parent, sizeof(tmp_msg_parent));
+    hex_2_bin(*p, BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES), tmp_msg_parent, sizeof(tmp_msg_parent));
     utarray_push_back(msg->parents, tmp_msg_parent);
   }
 
-  char* msg_str = message_to_json(msg);
-  if (!msg_str) {
-    printf("[%s:%d] build message failed\n", __func__, __LINE__);
+  // Serialize message object to json messsage
+  cJSON* msg_json = json_message_serialize(msg);
+  if (msg_json == NULL) {
+    printf("[%s:%d] message json serialization failed\n", __func__, __LINE__);
+    ret = -1;
     goto end;
   }
+
+  // json object to json string
+  char* msg_str = NULL;
+  if ((msg_str = cJSON_PrintUnformatted(msg_json)) == NULL) {
+    printf("[%s:%d] convert to string failed\n", __func__, __LINE__);
+    cJSON_Delete(msg_json);
+    ret = -1;
+    goto end;
+  }
+  cJSON_Delete(msg_json);
 
   // put json string into byte_buf_t
   json_data->data = (byte_t*)msg_str;

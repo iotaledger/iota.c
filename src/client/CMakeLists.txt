@@ -12,7 +12,6 @@ add_dependencies(iota_client iota_core)
 target_sources(
   iota_client
   PRIVATE "network/http_curl.c"
-          # "api/message_builder.c"
           "api/json_parser/common.c"
           "api/json_parser/json_utils.c"
           "api/json_parser/unlock_blocks.c"
@@ -56,7 +55,6 @@ target_sources(
          "api/json_parser/unlock_conditions.h"
          "api/json_parser/message.h"
          "api/json_parser/payloads.h"
-         # "api/message_builder.h"
          "api/restful/get_node_info.h"
          "api/restful/response_error.h"
          "api/restful/get_tips.h"

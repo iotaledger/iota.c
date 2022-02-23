@@ -25,13 +25,11 @@ void tagged_data_free(tagged_data_t *tagged_data) {
   }
 }
 
-tagged_data_t *tagged_data_create(char const tag[], byte_t data[], uint32_t data_len) {
+tagged_data_t *tagged_data_create(byte_t tag[], uint8_t tag_len, byte_t data[], uint32_t data_len) {
   if (tag == NULL || (data_len > 0 && data == NULL)) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
-
-  size_t tag_len = strlen(tag);
 
   if (tag_len > TAGGED_DATA_TAG_MAX_LENGTH_BYTES) {
     printf("[%s:%d] invalid tag\n", __func__, __LINE__);
@@ -44,9 +42,9 @@ tagged_data_t *tagged_data_create(char const tag[], byte_t data[], uint32_t data
     return NULL;
   }
 
-  // add tag string
-  if (strlen(tag) > 0) {
-    tagged_data->tag = byte_buf_new_with_data((byte_t *)tag, tag_len);
+  // add binary tag
+  if (tag_len > 0) {
+    tagged_data->tag = byte_buf_new_with_data(tag, tag_len);
     if (!tagged_data->tag) {
       printf("[%s:%d] adding tag to a tagged data failed\n", __func__, __LINE__);
       tagged_data_free(tagged_data);
