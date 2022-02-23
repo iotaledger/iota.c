@@ -28,13 +28,11 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   // get tips
   if ((get_tips(conf, tips)) != 0) {
     printf("[%s:%d] get tips failed\n", __func__, __LINE__);
-    ret = -1;
     goto end;
   }
 
   if (tips->is_error) {
     printf("[%s:%d] get tips failed: %s\n", __func__, __LINE__, tips->u.error->msg);
-    ret = -1;
     goto end;
   }
 
@@ -58,57 +56,44 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   */
   cJSON* msg_obj = NULL;
   cJSON* payload = NULL;
-  cJSON* parents = NULL;
 
   // create message object
   if ((msg_obj = cJSON_CreateObject()) == NULL) {
     printf("[%s:%d] creating message object failed\n", __func__, __LINE__);
-    ret = -1;
     goto end;
   }
 
   // Add NULL network id
   if (!cJSON_AddNullToObject(msg_obj, JSON_KEY_NET_ID)) {
     printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
-    cJSON_Delete(msg_obj);
-    ret = -1;
     goto end;
   }
 
   // add parents
-  if ((parents = cJSON_CreateArray()) == NULL) {
-    printf("[%s:%d] creating parent array failed\n", __func__, __LINE__);
-    cJSON_Delete(msg_obj);
-    ret = -1;
+  if (utarray_to_json_string_array(tips->u.tips, msg_obj, JSON_KEY_PARENT_IDS) != JSON_OK) {
+    printf("[%s:%d] adding tips array to message object failed\n", __func__, __LINE__);
     goto end;
   }
 
-  char tmp_id_str[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)] = {};
-  if (!cJSON_AddItemToObject(msg_obj, JSON_KEY_PARENT_IDS, parents)) {
-    printf("[%s:%d] adding parent array failed\n", __func__, __LINE__);
-    cJSON_Delete(msg_obj);
-    ret = -1;
-    goto end;
-  }
-  byte_t* p = NULL;
-  while ((p = (byte_t*)utarray_next(tips->u.tips, p))) {
-    bin_2_hex(p, IOTA_MESSAGE_ID_BYTES, tmp_id_str, sizeof(tmp_id_str));
-    if (!cJSON_AddItemToArray(parents, cJSON_CreateString(tmp_id_str))) {
-      printf("[%s:%d] adding id to parent array failed\n", __func__, __LINE__);
-      cJSON_Delete(msg_obj);
-      ret = -1;
-      goto end;
-    }
-  }
-
+  // add nonce
   if (!cJSON_AddNullToObject(msg_obj, JSON_KEY_NONCE)) {
     printf("[%s:%d] creating nonce failed\n", __func__, __LINE__);
-    cJSON_Delete(msg_obj);
-    ret = -1;
     goto end;
   }
 
-  printf("%s", cJSON_Print(msg_obj));
+  // create payload object
+  if ((payload = cJSON_CreateObject()) == NULL) {
+    printf("[%s:%d] creating message object failed\n", __func__, __LINE__);
+    goto end;
+  }
+
+  // Add type to payload
+  if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TAGGED)) {
+    printf("[%s:%d] adding type to payload failed\n", __func__, __LINE__);
+    goto end;
+  }
+
+  printf("%s\n", cJSON_Print(msg_obj));
 
   ret = 0;
 
