@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
-#include <unity/unity.h>
 
 #include "test_config.h"
 
@@ -20,6 +19,7 @@
 #include "core/utils/byte_buffer.h"
 #include "core/utils/macros.h"
 #include "crypto/iota_crypto.h"
+#include "unity/unity.h"
 
 #define TAG_TAG_LEN 15
 #define TAG_DATA_LEN 64
@@ -237,15 +237,13 @@ void test_send_msg_tx_extended() {
       if (output_res->u.data->output->output_type == OUTPUT_EXTENDED) {
         output_extended_t* o = (output_extended_t*)output_res->u.data->output->output;
         total_balance += o->amount;
-        // check balane
+        // add the output as a tx input into the tx payload
+        tx_payload_add_input(tx, 0, output_res->u.data->tx_id, output_res->u.data->output_index, &sender_key);
+        // check balance
         if (total_balance >= send_amount) {
-          // add it to tx payload and break
-          tx_payload_add_input(tx, 0, output_res->u.data->tx_id, output_res->u.data->output_index, &sender_key);
+          // have got sufficient amount
           get_output_response_free(output_res);
           break;
-        } else {
-          // add it to tx payload and fetch next output data
-          tx_payload_add_input(tx, 0, output_res->u.data->tx_id, output_res->u.data->output_index, &sender_key);
         }
       }
     } else {
