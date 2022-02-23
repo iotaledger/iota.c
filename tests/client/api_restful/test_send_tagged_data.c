@@ -54,7 +54,6 @@ void test_send_tagged_data() {
   TEST_ASSERT_NOT_NULL(http_res);
 
   // send request via http client
-  int ret = -1;
   long st = 0;
   TEST_ASSERT(http_client_get(&http_conf, http_res, &st) == 0);
   byte_buf2str(http_res);
@@ -108,7 +107,6 @@ void test_send_binary_tagged_data() {
   TEST_ASSERT_NOT_NULL(http_res);
 
   // send request via http client
-  int ret = -1;
   long st = 0;
   TEST_ASSERT(http_client_get(&http_conf, http_res, &st) == 0);
   byte_buf2str(http_res);
