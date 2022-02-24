@@ -99,10 +99,16 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
     goto end;
   }
 
+  // add payload to message
+  if (!cJSON_AddItemToObject(msg_obj, JSON_KEY_PAYLOAD, payload)) {
+    printf("[%s:%d] adding payload failed\n", __func__, __LINE__);
+    cJSON_Delete(payload);
+    goto end;
+  }
+
   // add type to payload
   if (!cJSON_AddNumberToObject(payload, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TAGGED)) {
     printf("[%s:%d] adding type to payload failed\n", __func__, __LINE__);
-    cJSON_Delete(payload);
     goto end;
   }
 
@@ -110,12 +116,10 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   char tag_str[BIN_TO_HEX_STR_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
   if (bin_2_hex(tag, tag_len, tag_str, sizeof(tag_str)) != 0) {
     printf("[%s:%d] bin to hex tag conversion failed\n", __func__, __LINE__);
-    cJSON_Delete(payload);
     goto end;
   }
   if (!cJSON_AddStringToObject(payload, JSON_KEY_TAG, tag_str)) {
     printf("[%s:%d] adding tag to payload failed\n", __func__, __LINE__);
-    cJSON_Delete(payload);
     goto end;
   }
 
@@ -124,19 +128,19 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
     char* data_str = malloc(BIN_TO_HEX_STR_BYTES(data_len));
     if (!data_str) {
       printf("[%s:%d] OOM\n", __func__, __LINE__);
-      cJSON_Delete(payload);
+
       goto end;
     }
     if (bin_2_hex(data, data_len, data_str, BIN_TO_HEX_STR_BYTES(data_len)) != 0) {
       printf("[%s:%d] bin to hex data conversion failed\n", __func__, __LINE__);
       free(data_str);
-      cJSON_Delete(payload);
+
       goto end;
     }
     if (!cJSON_AddStringToObject(payload, JSON_KEY_DATA, data_str)) {
       printf("[%s:%d] adding tag data failed\n", __func__, __LINE__);
       free(data_str);
-      cJSON_Delete(payload);
+
       goto end;
     }
     free(data_str);
@@ -144,16 +148,9 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
     // add a null data to tagged data
     if (!cJSON_AddNullToObject(payload, JSON_KEY_DATA)) {
       printf("[%s:%d] adding null data payload failed\n", __func__, __LINE__);
-      cJSON_Delete(payload);
+
       goto end;
     }
-  }
-
-  // add payload to message
-  if (!cJSON_AddItemToObject(msg_obj, JSON_KEY_PAYLOAD, payload)) {
-    printf("[%s:%d] adding payload failed\n", __func__, __LINE__);
-    cJSON_Delete(payload);
-    goto end;
   }
 
   // json object to json string
