@@ -219,7 +219,7 @@ void test_send_msg_tx_extended() {
   res_outputs_id_t* res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   outputs_query_list_t* query_param = outputs_query_list_new();
-  TEST_ASSERT_NOT_NULL(query_param);
+  TEST_ASSERT_NULL(query_param);
   outputs_query_list_add(&query_param, QUERY_PARAM_ADDRESS, bech32_sender);
   TEST_ASSERT(get_outputs_id(&ctx, query_param, res) == 0);
   TEST_ASSERT(res_outputs_output_id_count(res) > 0);

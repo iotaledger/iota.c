@@ -82,8 +82,8 @@ size_t tx_essence_serialize_length(transaction_essence_t* es) {
 
   // transaction type(uint8_t)
   length += sizeof(uint8_t);
-  // network Id(uint8_t)
-  length += sizeof(uint8_t);
+  // network Id(uint64_t)
+  length += sizeof(uint64_t);
   // input serialized len, this includes input count len
   length += utxo_inputs_serialize_len(es->inputs);
   // inputs commitment
@@ -217,7 +217,7 @@ void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
 
   utxo_inputs_print(es->inputs, indentation + 1);
   printf("%s\tInputs Commitment: ", PRINT_INDENTATION(indentation));
-  dump_hex(es->inputs_commitment, sizeof(es->inputs_commitment));
+  dump_hex_str(es->inputs_commitment, sizeof(es->inputs_commitment));
   utxo_outputs_print(es->outputs, indentation + 1);
 
   if (es->payload_len > 0) {

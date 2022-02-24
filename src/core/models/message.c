@@ -152,8 +152,8 @@ size_t core_message_serialize_len(core_message_t* msg) {
 
   size_t length = 0;
 
-  // network Id type
-  length += sizeof(uint64_t);
+  // protocol version
+  length += sizeof(uint8_t);
   // parents count
   length += sizeof(uint8_t);
   // parents
