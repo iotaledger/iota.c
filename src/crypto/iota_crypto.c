@@ -156,6 +156,30 @@ int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg
 #endif
 }
 
+int iota_blake2b_init(void *state, size_t out_len) {
+#if defined(CRYPTO_USE_BLAKE2B_REF)
+  return blake2b_init((blake2b_state *)state, out_len);
+#else
+#error blake2b is not defined
+#endif
+}
+
+int iota_blake2b_update(void *state, uint8_t const data[], size_t data_len) {
+#if defined(CRYPTO_USE_BLAKE2B_REF)
+  return blake2b_update((blake2b_state *)state, data, data_len);
+#else
+#error blake2b is not defined
+#endif
+}
+
+int iota_blake2b_final(void *state, uint8_t out[], size_t out_len) {
+#if defined(CRYPTO_USE_BLAKE2B_REF)
+  return blake2b_final((blake2b_state *)state, out, out_len);
+#else
+#error blake2b is not defined
+#endif
+}
+
 int iota_blake2b_sum(uint8_t const msg[], size_t msg_len, uint8_t out[], size_t out_len) {
 #if defined(CRYPTO_USE_SODIUM)
   return crypto_generichash_blake2b(out, out_len, msg, msg_len, NULL, 0);
