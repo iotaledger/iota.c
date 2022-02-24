@@ -90,8 +90,8 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
   }
 
   // json object to json string
-  char* msg_str = NULL;
-  if ((msg_str = cJSON_PrintUnformatted(msg_json)) == NULL) {
+  char* msg_str = cJSON_PrintUnformatted(msg_json);
+  if (msg_str == NULL) {
     printf("[%s:%d] convert to string failed\n", __func__, __LINE__);
     cJSON_Delete(msg_json);
     ret = -1;

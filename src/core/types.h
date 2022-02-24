@@ -39,7 +39,7 @@ typedef uint16_t unlock_index_t;
  */
 static inline void dump_hex(byte_t const data[], size_t len) {
   for (size_t i = 0; i < len; i++) {
-    printf("0x%X, ", data[i]);
+    printf("0x%x, ", data[i]);
   }
   printf("\n");
 }
@@ -52,7 +52,7 @@ static inline void dump_hex(byte_t const data[], size_t len) {
  */
 static inline void dump_hex_str(byte_t const data[], size_t len) {
   for (size_t i = 0; i < len; i++) {
-    printf("%.2X", data[i]);
+    printf("%.2x", data[i]);
   }
   printf("\n");
 }
