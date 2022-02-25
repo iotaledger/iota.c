@@ -18,7 +18,7 @@ void test_parse_foundry_output_basic() {
       "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":0,"
       "\"address\":{"
-      "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[]}";
+      "\"type\":8,\"aliasId\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -60,7 +60,7 @@ void test_parse_foundry_output_full() {
       "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":0,"
       "\"address\":{"
-      "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
+      "\"type\":8,\"aliasId\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
       "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
@@ -120,7 +120,7 @@ void test_parse_foundry_output_wrong_unlock_condition() {
       "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":4,"
       "\"address\":{"
-      "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
+      "\"type\":8,\"aliasId\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
       "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
@@ -144,7 +144,7 @@ void test_parse_foundry_output_wrong_feature_block() {
       "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":0,"
       "\"address\":{"
-      "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":3,\"tag\":"
+      "\"type\":8,\"aliasId\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":3,\"tag\":"
       "\"tagDemo_tagDemo_tagDemo\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);

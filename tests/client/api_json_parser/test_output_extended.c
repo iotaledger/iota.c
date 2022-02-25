@@ -15,7 +15,7 @@ void tearDown(void) {}
 void test_parse_extended_output_basic() {
   char const *const json_res =
       "{\"type\":3,\"amount\":1000000,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":16,"
-      "\"address\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[]}";
+      "\"nftId\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -44,12 +44,12 @@ void test_parse_extended_output_full() {
       "\"08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\","
       "\"amount\":\"93847598347598347598347598\"},{\"id\":"
       "\"09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
-      "\"7598347598347598\"}],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":16,\"address\":"
-      "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}},{\"type\":1,\"returnAddress\":{\"type\":0,\"address\":"
+      "\"7598347598347598\"}],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":16,\"nftId\":"
+      "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}},{\"type\":1,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
       "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"amount\":123456},{\"type\":2,"
-      "\"milestoneIndex\":45598,\"unixTime\":123123},{\"type\":3,\"returnAddress\":{\"type\":0,\"address\":"
+      "\"milestoneIndex\":45598,\"unixTime\":123123},{\"type\":3,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
       "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"milestoneIndex\":45598,\"unixTime\":"
-      "123123}],\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"address\":"
+      "123123}],\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":\"metadataTest_"
       "metadataTest_metadataTest_metadataTest_metadataTest\"},{\"type\":3,\"tag\":\"tagTest_tagTest_tagTest_"
       "tagTest_tagTest_tagTest\"}]}";
@@ -99,7 +99,7 @@ void test_parse_extended_output_full() {
 void test_parse_extended_output_wrong_unlock_condition() {
   char const *const json_res =
       "{\"type\":3,\"amount\":1000000,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,"
-      "\"address\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[]}";
+      "\"nftId\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
