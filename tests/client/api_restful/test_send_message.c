@@ -6,6 +6,7 @@
 #include "test_config.h"
 
 #include "client/api/restful/get_message.h"
+#include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
 #include "client/api/restful/get_tips.h"
@@ -182,8 +183,7 @@ void test_send_core_message_tagged_data_tag_max_len() {
 }
 
 void test_send_msg_tx_extended() {
-  // use local private Tangle
-  iota_client_conf_t ctx = {.host = "localhost", .port = 14265};
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   // mnemonic seed for testing
   byte_t mnemonic_seed[64] = {0x83, 0x7D, 0x69, 0x91, 0x14, 0x64, 0x8E, 0xB,  0x36, 0x78, 0x58, 0xF0, 0xE9,
@@ -208,8 +208,17 @@ void test_send_msg_tx_extended() {
   address_to_bech32(&addr_recv, hrp, bech32_receiver, sizeof(bech32_receiver));
   printf("sender: %s\nreceiver: %s\n", bech32_sender, bech32_receiver);
 
-  // TODO Get info from a node and set correct network ID in tx_payload_new function
-  transaction_payload_t* tx = tx_payload_new(0);
+  // Get info from a node and set correct network ID in protocol version
+  res_node_info_t* info = res_node_info_new();
+  int ret = get_node_info(&ctx, info);
+  TEST_ASSERT_EQUAL_INT(0, ret);
+  TEST_ASSERT_FALSE(info->is_error);
+
+  // TODO convert those numbers from node info response
+  uint64_t network_id = 2229185342034412738;
+  uint8_t ver = 2;
+
+  transaction_payload_t* tx = tx_payload_new(network_id);
   TEST_ASSERT_NOT_NULL(tx);
 
   // get outputs from an address
@@ -286,7 +295,7 @@ void test_send_msg_tx_extended() {
   }
 
   // add transaction payload to message
-  core_message_t* msg = core_message_new(2);
+  core_message_t* msg = core_message_new(ver);
   TEST_ASSERT_NOT_NULL(msg);
   msg->payload = tx;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
@@ -314,9 +323,8 @@ int main() {
   RUN_TEST(test_send_core_message_tagged_data);
   RUN_TEST(test_send_core_message_tagged_data_binary_tag);
   RUN_TEST(test_send_core_message_tagged_data_tag_max_len);
+  RUN_TEST(test_send_msg_tx_extended);
 #endif
-  // send transaction on local private tangle
-  // RUN_TEST(test_send_msg_tx_extended);
 
   return UNITY_END();
 }

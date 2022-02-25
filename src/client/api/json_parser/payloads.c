@@ -52,18 +52,12 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   }
 
   // network ID
-  if (es->network_id > 0) {
-    if (!cJSON_AddNumberToObject(es_obj, JSON_KEY_NET_ID, es->network_id)) {
-      printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
-      cJSON_Delete(es_obj);
-      return NULL;
-    }
-  } else {
-    if (!cJSON_AddNullToObject(es_obj, JSON_KEY_NET_ID)) {
-      printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
-      cJSON_Delete(es_obj);
-      return NULL;
-    }
+  char network_id[65] = {};
+  sprintf(network_id, "%" PRIu64 "", es->network_id);
+  if (!cJSON_AddStringToObject(es_obj, JSON_KEY_NET_ID, network_id)) {
+    printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
+    cJSON_Delete(es_obj);
+    return NULL;
   }
 
   // input array
