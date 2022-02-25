@@ -13,10 +13,10 @@
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
 
-core_message_t* core_message_new() {
+core_message_t* core_message_new(uint8_t ver) {
   core_message_t* msg = malloc(sizeof(core_message_t));
   if (msg) {
-    msg->protocol_version = 0;
+    msg->protocol_version = ver;
     utarray_new(msg->parents, &ut_msg_id_icd);
     msg->payload_type = CORE_MESSAGE_PAYLOAD_UNKNOWN;  // invalid payload type
     msg->payload = NULL;

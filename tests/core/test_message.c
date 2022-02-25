@@ -139,11 +139,8 @@ void test_message_with_tx_serialize() {
       "000100000031f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb1b51aab768dd145de99fc3710c7b05963803f2"
       "8c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f810ad0cc4b0210adaafd0a15af000000000000";
 
-  core_message_t* msg = core_message_new();
+  core_message_t* msg = core_message_new(2);
   TEST_ASSERT_NOT_NULL(msg);
-
-  // add protocol version
-  msg->protocol_version = 2;
 
   // add message parents
   byte_t parent_id_1[IOTA_MESSAGE_ID_BYTES];
@@ -166,7 +163,7 @@ void test_message_with_tx_serialize() {
 
   // add message payload
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
-  msg->payload = tx_payload_new();
+  msg->payload = tx_payload_new(2229185342034412800);
 
   // add message nonce
   msg->nonce = 44821;
@@ -177,9 +174,6 @@ void test_message_with_tx_serialize() {
 
   // add type
   essence->tx_type = TRANSACTION_PAYLOAD_ESSENCE;
-
-  // add network Id
-  essence->network_id = 2229185342034412800;
 
   // add input with id0
   byte_t input_id0[IOTA_TRANSACTION_ID_BYTES];
@@ -245,11 +239,8 @@ void test_message_with_tagged_data_serialize() {
       "e6a61c2cc153e4f857071bde2f72e23132881f000000050000000b696f74612e63206c6962000b00000048656c6c6f20576f726c6460e600"
       "0000000000";
 
-  core_message_t* msg = core_message_new();
+  core_message_t* msg = core_message_new(2);
   TEST_ASSERT_NOT_NULL(msg);
-
-  // add protocol version
-  msg->protocol_version = 2;
 
   // add message parents
   byte_t parent_id_1[IOTA_MESSAGE_ID_BYTES];

@@ -8,11 +8,11 @@
 #include "core/models/payloads/transaction.h"
 #include "utlist.h"
 
-transaction_essence_t* tx_essence_new() {
+transaction_essence_t* tx_essence_new(uint64_t network_id) {
   transaction_essence_t* es = malloc(sizeof(transaction_essence_t));
   if (es) {
     es->tx_type = TRANSACTION_PAYLOAD_ESSENCE;  // 0 to denote a transaction essence.
-    es->network_id = 0;
+    es->network_id = network_id;
     es->inputs = utxo_inputs_new();
     memset(es->inputs_commitment, 0, sizeof(es->inputs_commitment));
     es->outputs = utxo_outputs_new();
@@ -158,7 +158,7 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
     return NULL;
   }
 
-  transaction_essence_t* es = tx_essence_new();
+  transaction_essence_t* es = tx_essence_new(0);
 
   size_t offset = 0;
 
@@ -227,11 +227,11 @@ void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }
 
-transaction_payload_t* tx_payload_new() {
+transaction_payload_t* tx_payload_new(uint64_t network_id) {
   transaction_payload_t* tx = malloc(sizeof(transaction_payload_t));
   if (tx) {
     tx->type = CORE_MESSAGE_PAYLOAD_TRANSACTION;  // 0 to denote a Transaction payload.
-    tx->essence = tx_essence_new();
+    tx->essence = tx_essence_new(network_id);
     tx->unlock_blocks = unlock_blocks_new();
     if (tx->essence == NULL) {
       tx_payload_free(tx);
@@ -329,7 +329,7 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
     return NULL;
   }
 
-  transaction_payload_t* tx_payload = tx_payload_new();
+  transaction_payload_t* tx_payload = tx_payload_new(0);
 
   size_t offset = 0;
 

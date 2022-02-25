@@ -46,9 +46,10 @@ extern "C" {
 /**
  * @brief Allocate a core message object
  *
+ * @param[in] ver A protocol version
  * @return core_message_t*
  */
-core_message_t* core_message_new();
+core_message_t* core_message_new(uint8_t ver);
 
 /**
  * @brief Sign a transaction message

@@ -64,9 +64,10 @@ extern "C" {
 /**
  * @brief Allocate a transaction essence object
  *
+ * @param[in] network_id A network ID
  * @return transaction_essence_t*
  */
-transaction_essence_t* tx_essence_new();
+transaction_essence_t* tx_essence_new(uint64_t network_id);
 
 /**
  * @brief Free an essence object
@@ -148,9 +149,10 @@ void tx_essence_print(transaction_essence_t* es, uint8_t indentation);
 /**
  * @brief Allocate a tansaction payload object
  *
+ * @param[in] network_id A network ID
  * @return transaction_payload_t*
  */
-transaction_payload_t* tx_payload_new();
+transaction_payload_t* tx_payload_new(uint64_t network_id);
 
 /**
  * @brief Free a transaction payload object

@@ -49,7 +49,7 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
 
     switch (msg->payload_type) {
       case CORE_MESSAGE_PAYLOAD_TRANSACTION:
-        msg->payload = tx_payload_new();
+        msg->payload = tx_payload_new(0);
         ret = json_transaction_deserialize(payload, (transaction_payload_t*)msg->payload);
         break;
       case CORE_MESSAGE_PAYLOAD_MILESTONE:
@@ -112,18 +112,10 @@ cJSON* json_message_serialize(core_message_t* msg) {
   }
 
   // add protocol version
-  if (msg->protocol_version > 0) {
-    if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_PROTOCOL_VERSION, msg->protocol_version)) {
-      printf("[%s:%d] creating protocol version failed\n", __func__, __LINE__);
-      cJSON_Delete(msg_obj);
-      return NULL;
-    }
-  } else {
-    if (!cJSON_AddNullToObject(msg_obj, JSON_KEY_PROTOCOL_VERSION)) {
-      printf("[%s:%d] creating protocol version failed\n", __func__, __LINE__);
-      cJSON_Delete(msg_obj);
-      return NULL;
-    }
+  if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_PROTOCOL_VERSION, msg->protocol_version)) {
+    printf("[%s:%d] creating protocol version failed\n", __func__, __LINE__);
+    cJSON_Delete(msg_obj);
+    return NULL;
   }
 
   // add parents

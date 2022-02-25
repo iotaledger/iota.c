@@ -58,9 +58,8 @@ void test_send_core_message_tagged_data() {
   tagged_data_print(tagged_data, 0);
 
   // Create a core message object
-  core_message_t* msg = core_message_new();
+  core_message_t* msg = core_message_new(2);
   TEST_ASSERT_NOT_NULL(msg);
-  msg->protocol_version = 2;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
   msg->payload = tagged_data;
   msg->nonce = 0;
@@ -107,9 +106,8 @@ void test_send_core_message_tagged_data_binary_tag() {
   tagged_data_print(tagged_data, 0);
 
   // Create a core message object
-  core_message_t* msg = core_message_new();
+  core_message_t* msg = core_message_new(2);
   TEST_ASSERT_NOT_NULL(msg);
-  msg->protocol_version = 2;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
   msg->payload = tagged_data;
   msg->nonce = 0;
@@ -152,9 +150,8 @@ void test_send_core_message_tagged_data_tag_max_len() {
   tagged_data_print(tagged_data, 0);
 
   // Create a core message object
-  core_message_t* msg = core_message_new();
+  core_message_t* msg = core_message_new(2);
   TEST_ASSERT_NOT_NULL(msg);
-  msg->protocol_version = 2;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
   msg->payload = tagged_data;
   msg->nonce = 0;
@@ -211,7 +208,8 @@ void test_send_msg_tx_extended() {
   address_to_bech32(&addr_recv, hrp, bech32_receiver, sizeof(bech32_receiver));
   printf("sender: %s\nreceiver: %s\n", bech32_sender, bech32_receiver);
 
-  transaction_payload_t* tx = tx_payload_new();
+  // TODO Get info from a node and set correct network ID in tx_payload_new function
+  transaction_payload_t* tx = tx_payload_new(0);
   TEST_ASSERT_NOT_NULL(tx);
 
   // get outputs from an address
@@ -288,7 +286,7 @@ void test_send_msg_tx_extended() {
   }
 
   // add transaction payload to message
-  core_message_t* msg = core_message_new();
+  core_message_t* msg = core_message_new(2);
   TEST_ASSERT_NOT_NULL(msg);
   msg->payload = tx;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
