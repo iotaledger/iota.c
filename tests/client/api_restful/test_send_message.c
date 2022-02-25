@@ -214,9 +214,13 @@ void test_send_msg_tx_extended() {
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_FALSE(info->is_error);
 
-  // TODO convert those numbers from node info response
-  uint64_t network_id = 2229185342034412738;
-  uint8_t ver = 2;
+  // Set correct protocol version and network ID
+  uint8_t ver = info->u.output_node_info->protocol_version;
+  uint8_t network_id_hash[CRYPTO_BLAKE2B_HASH_BYTES];
+  uint64_t network_id;
+  iota_blake2b_sum((const uint8_t*)info->u.output_node_info->network_name,
+                   strlen(info->u.output_node_info->network_name), network_id_hash, sizeof(network_id_hash));
+  memcpy(&network_id, network_id_hash, 8);
 
   transaction_payload_t* tx = tx_payload_new(network_id);
   TEST_ASSERT_NOT_NULL(tx);
