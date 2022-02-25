@@ -46,7 +46,8 @@ void test_deser_node_info() {
       "1644469172,\"latestMilestoneIndex\":6,\"confirmedMilestoneIndex\":308379,\"pruningIndex\":290861},\"metrics\":{"
       "\"messagesPerSecond\":5.1,\"referencedMessagesPerSecond\":5.3,\"referencedRate\":86.88524590163934},"
       "\"protocol\":{"
-      "\"networkName\":\"private_tangle1\",\"bech32HRP\":\"atoi\",\"minPoWScore\":100,\"rentStructure\":{\"vByteCost\":"
+      "\"networkName\":\"private_tangle1\",\"protocolVersion\":2,\"bech32HRP\":\"atoi\",\"minPoWScore\":100,"
+      "\"rentStructure\":{\"vByteCost\":"
       "0,\"vByteFactorData\":1,\"vByteFactorKey\":10}},\"features\":[\"PoW\"],\"plugins\":[\"spammer/v1\",\"debug/"
       "v1\",\"faucet/v1\",\"indexer/v1\"]}";
 
