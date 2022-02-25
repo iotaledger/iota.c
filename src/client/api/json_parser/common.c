@@ -28,39 +28,29 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
   char address_hex[ADDRESS_MAX_HEX_BYTES];
   switch (address_type) {
     case ADDRESS_TYPE_ED25519: {
-      if (json_get_string(json_address_obj, JSON_KEY_PUB_KEY_HASH, address_hex, ADDRESS_ED25519_HEX_BYTES) != JSON_OK) {
+      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_PUB_KEY_HASH, address->address, ADDRESS_ED25519_BYTES) !=
+          JSON_OK) {
         printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_PUB_KEY_HASH);
         return -1;
       }
       address->type = ADDRESS_TYPE_ED25519;
-      if (hex_2_bin(address_hex, ADDRESS_ED25519_HEX_BYTES, address->address, ADDRESS_ED25519_BYTES) != 0) {
-        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
-        return -1;
-      }
       break;
     }
     case ADDRESS_TYPE_ALIAS: {
-      if (json_get_string(json_address_obj, JSON_KEY_ALIAS_ID, address_hex, ADDRESS_ALIAS_HEX_BYTES) != JSON_OK) {
+      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_ALIAS_ID, address->address, ADDRESS_ALIAS_BYTES) !=
+          JSON_OK) {
         printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ALIAS_ID);
         return -1;
       }
       address->type = ADDRESS_TYPE_ALIAS;
-      if (hex_2_bin(address_hex, ADDRESS_ALIAS_HEX_BYTES, address->address, ADDRESS_ALIAS_BYTES) != 0) {
-        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
-        return -1;
-      }
       break;
     }
     case ADDRESS_TYPE_NFT: {
-      if (json_get_string(json_address_obj, JSON_KEY_NFT_ID, address_hex, ADDRESS_NFT_HEX_BYTES) != JSON_OK) {
+      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_NFT_ID, address->address, ADDRESS_NFT_BYTES) != JSON_OK) {
         printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_NFT_ID);
         return -1;
       }
       address->type = ADDRESS_TYPE_NFT;
-      if (hex_2_bin(address_hex, ADDRESS_NFT_HEX_BYTES, address->address, ADDRESS_NFT_BYTES) != 0) {
-        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
-        return -1;
-      }
       break;
     }
     default:

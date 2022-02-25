@@ -276,15 +276,9 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
     }
 
     //  inputs commitment
-    char inputs_commitment_hex[BIN_TO_HEX_STR_BYTES(sizeof(tx->essence->inputs_commitment))];
-    if (json_get_string(essence_obj, JSON_KEY_INPUTS_COMMITMENT, (char*)inputs_commitment_hex,
-                        sizeof(inputs_commitment_hex)) != JSON_OK) {
+    if (json_get_hex_str_to_bin(essence_obj, JSON_KEY_INPUTS_COMMITMENT, tx->essence->inputs_commitment,
+                                sizeof(tx->essence->inputs_commitment)) != JSON_OK) {
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_INPUTS_COMMITMENT);
-      return -1;
-    }
-    if (hex_2_bin(inputs_commitment_hex, sizeof(inputs_commitment_hex), tx->essence->inputs_commitment,
-                  sizeof(tx->essence->inputs_commitment)) != 0) {
-      printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
       return -1;
     }
 
