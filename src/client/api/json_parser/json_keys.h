@@ -16,6 +16,7 @@ static char const* const JSON_KEY_ITEMS = "items";
 static char const* const JSON_KEY_STATUS = "status";
 static char const* const JSON_KEY_METRICS = "metrics";
 static char const* const JSON_KEY_PROTOCOL = "protocol";
+static char const* const JSON_KEY_PROTOCOL_VERSION = "protocolVersion";
 static char const* const JSON_KEY_RENT_STRUCTURE = "rentStructure";
 static char const* const JSON_KEY_ERROR = "error";
 static char const* const JSON_KEY_ESSENCE = "essence";
