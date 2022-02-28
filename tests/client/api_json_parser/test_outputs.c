@@ -71,7 +71,9 @@ void test_parse_outputs() {
       "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":0,"
       "\"address\":{"
       "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
-      "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}]},"
+      "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}],"
+      "\"immutableFeatureBlocks\":[{\"type\":2,\"data\":"
+      "\"immutable_metadata_immutable_metadata_immutable_metadata_immutable_metadata_immutable_metadata\"}]},"
       // NFT output
       "{\"type\":6,\"amount\":1000000,\"nativeTokens\":[{\"id\":"
       "\"08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\","
