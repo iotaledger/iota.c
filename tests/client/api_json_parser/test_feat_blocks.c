@@ -117,7 +117,7 @@ void test_feat_blocks() {
   TEST_ASSERT_NOT_NULL(json_obj);
 
   feat_blk_list_t* blk_list = feat_blk_list_new();
-  int result = json_feat_blocks_deserialize(json_obj, &blk_list);
+  int result = json_feat_blocks_deserialize(json_obj, false, &blk_list);
   TEST_ASSERT_EQUAL_INT(0, result);
   TEST_ASSERT_EQUAL_INT(4, feat_blk_list_len(blk_list));
   feat_block_t* feat_block = feat_blk_list_get_type(blk_list, FEAT_SENDER_BLOCK);
@@ -130,7 +130,7 @@ void test_feat_blocks() {
   TEST_ASSERT_NOT_NULL(feat_block);
 
   // print feature blocks
-  feat_blk_list_print(blk_list, 0);
+  feat_blk_list_print(blk_list, false, 0);
 
   cJSON_Delete(json_obj);
   feat_blk_list_free(blk_list);
@@ -144,7 +144,7 @@ void test_feat_blocks_unsupported_type() {
   TEST_ASSERT_NOT_NULL(json_obj);
 
   feat_blk_list_t* blk_list = feat_blk_list_new();
-  int result = json_feat_blocks_deserialize(json_obj, &blk_list);
+  int result = json_feat_blocks_deserialize(json_obj, false, &blk_list);
   TEST_ASSERT_EQUAL_INT(-1, result);
   TEST_ASSERT_EQUAL_INT(0, feat_blk_list_len(blk_list));
 

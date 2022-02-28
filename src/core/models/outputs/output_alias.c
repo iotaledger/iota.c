@@ -404,7 +404,7 @@ void output_alias_print(output_alias_t* output, uint8_t indentation) {
   // print unlock condition blocks
   cond_blk_list_print(output->unlock_conditions, indentation + 1);
   // print feature blocks
-  feat_blk_list_print(output->feature_blocks, indentation + 1);
+  feat_blk_list_print(output->feature_blocks, false, indentation + 1);
 
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }

@@ -62,7 +62,7 @@ void test_output_foundry() {
 
   // create Foundry Output
   output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
-                                                SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta));
+                                                SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0);
   // validation
   TEST_ASSERT_NOT_NULL(output);
 
@@ -188,7 +188,7 @@ void test_output_foundry_without_native_tokens() {
 
   // create Foundry Output
   output_foundry_t* output = output_foundry_new(&addr, 123456789, NULL, 22, token_tag, circ_supply, max_supply,
-                                                SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta));
+                                                SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0);
   // validation
   TEST_ASSERT_NOT_NULL(output);
   // validate amount
@@ -292,7 +292,7 @@ void test_output_foundry_without_metadata() {
 
   // create Foundry Output
   output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
-                                                SIMPLE_TOKEN_SCHEME, NULL, 0);
+                                                SIMPLE_TOKEN_SCHEME, NULL, 0, NULL, 0);
   // validation
   TEST_ASSERT_NOT_NULL(output);
 
@@ -418,28 +418,28 @@ void test_output_foundry_syntactic() {
 
   // invalid address type, must be alias address
   TEST_ASSERT_NULL(output_foundry_new(&ed_addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta)));
+                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0));
   TEST_ASSERT_NULL(output_foundry_new(&nft_addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta)));
+                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0));
   // invalid meta data
   TEST_ASSERT_NULL(output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, MAX_METADATA_LENGTH_BYTES + 1));
+                                      SIMPLE_TOKEN_SCHEME, test_meta, MAX_METADATA_LENGTH_BYTES + 1, NULL, 0));
 
   // invalid circulating and maximun supply
   TEST_ASSERT_NULL(output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, NULL, max_supply,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta)));
+                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0));
   TEST_ASSERT_NULL(output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, circ_supply, NULL,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta)));
+                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0));
   TEST_ASSERT_NULL(output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, NULL, NULL,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta)));
+                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0));
 
   // valid address and metadata
   output_foundry_t* output = output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, circ_supply,
-                                                max_supply, SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta));
+                                                max_supply, SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0);
   TEST_ASSERT_NOT_NULL(output);
   output_foundry_free(output);
   output = output_foundry_new(&alias_addr, 123456789, NULL, 22, token_tag, circ_supply, max_supply, SIMPLE_TOKEN_SCHEME,
-                              test_meta, sizeof(test_meta));
+                              test_meta, sizeof(test_meta), NULL, 0);
   TEST_ASSERT_NOT_NULL(output);
   output_foundry_free(output);
 }
@@ -461,7 +461,7 @@ void test_output_foundry_clone() {
 
   // create Foundry Output
   output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
-                                                SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta));
+                                                SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0);
   TEST_ASSERT_NOT_NULL(output);
 
   // clone Foundry Output object

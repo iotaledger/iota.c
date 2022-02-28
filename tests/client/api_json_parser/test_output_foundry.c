@@ -17,8 +17,8 @@ void test_parse_foundry_output_basic() {
       "{\"type\":5,\"amount\":1000000,\"nativeTokens\":[],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\","
       "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":0,"
-      "\"address\":{"
-      "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[]}";
+      "\"address\":{\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[],"
+      "\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -45,6 +45,7 @@ void test_parse_foundry_output_basic() {
   TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(foundry_output->unlock_conditions, UNLOCK_COND_ADDRESS));
 
   TEST_ASSERT_NULL(foundry_output->feature_blocks);
+  TEST_ASSERT_NULL(foundry_output->immutable_blocks);
 
   cJSON_Delete(json_obj);
   output_foundry_free(foundry_output);
@@ -59,9 +60,11 @@ void test_parse_foundry_output_full() {
       "\"7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\","
       "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":0,"
-      "\"address\":{"
-      "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
-      "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}]}";
+      "\"address\":{\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{"
+      "\"type\":2,\"data\":"
+      "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}],"
+      "\"immutableFeatureBlocks\":[{\"type\":2,\"data\":\"immutable_metadata_immutable_metadata_immutable_metadata_"
+      "immutable_metadata_immutable_metadata_immutable_metadata\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -103,6 +106,11 @@ void test_parse_foundry_output_full() {
   TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(foundry_output->feature_blocks));
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(foundry_output->feature_blocks, FEAT_METADATA_BLOCK));
 
+  // check immutable feature blocks
+  TEST_ASSERT_NOT_NULL(foundry_output->immutable_blocks);
+  TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(foundry_output->immutable_blocks));
+  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(foundry_output->immutable_blocks, FEAT_METADATA_BLOCK));
+
   // print foundry output
   output_foundry_print(foundry_output, 0);
 
@@ -121,7 +129,8 @@ void test_parse_foundry_output_wrong_unlock_condition() {
       "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":4,"
       "\"address\":{"
       "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
-      "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}]}";
+      "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}],"
+      "\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -145,7 +154,31 @@ void test_parse_foundry_output_wrong_feature_block() {
       "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":0,"
       "\"address\":{"
       "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":3,\"tag\":"
-      "\"tagDemo_tagDemo_tagDemo\"}]}";
+      "\"tagDemo_tagDemo_tagDemo\"}],\"immutableFeatureBlocks\":[]}";
+
+  cJSON *json_obj = cJSON_Parse(json_res);
+  TEST_ASSERT_NOT_NULL(json_obj);
+
+  output_foundry_t *foundry_output = NULL;
+  int result = json_output_foundry_deserialize(json_obj, &foundry_output);
+  TEST_ASSERT_EQUAL_INT(-1, result);
+
+  cJSON_Delete(json_obj);
+  output_foundry_free(foundry_output);
+}
+
+void test_parse_foundry_output_wrong_immutable_feature_block() {
+  char const *const json_res =
+      "{\"type\":5,\"amount\":1000000,\"nativeTokens\":[{\"id\":"
+      "\"08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\",\"amount\":"
+      "\"93847598347598347598347598\"},{\"id\":"
+      "\"09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
+      "\"7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\","
+      "\"circulatingSupply\":\"20000000000000000000000000000000000000000\",\"maximumSupply\":"
+      "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":0,"
+      "\"address\":{"
+      "\"type\":8,\"address\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[],"
+      "\"immutableFeatureBlocks\":[{\"type\":3,\"tag\":\"tagDemo_tagDemo_tagDemo\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -165,6 +198,7 @@ int main() {
   RUN_TEST(test_parse_foundry_output_full);
   RUN_TEST(test_parse_foundry_output_wrong_unlock_condition);
   RUN_TEST(test_parse_foundry_output_wrong_feature_block);
+  RUN_TEST(test_parse_foundry_output_wrong_immutable_feature_block);
 
   return UNITY_END();
 }

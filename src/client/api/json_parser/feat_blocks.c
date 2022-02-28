@@ -228,17 +228,28 @@ static cJSON *json_feat_blk_tag_serialize(feat_tag_blk_t *block) {
 /*
   "featureBlocks": [],
 */
-int json_feat_blocks_deserialize(cJSON *output_obj, feat_blk_list_t **feat_blocks) {
+int json_feat_blocks_deserialize(cJSON *output_obj, bool is_immutable, feat_blk_list_t **feat_blocks) {
   if (output_obj == NULL || feat_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  // blocks array
-  cJSON *feat_blocks_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS);
-  if (!cJSON_IsArray(feat_blocks_obj)) {
-    printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
-    return -1;
+  cJSON *feat_blocks_obj = NULL;
+
+  if (is_immutable) {
+    // immutable feature blocks array
+    feat_blocks_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_BLOCKS);
+    if (!cJSON_IsArray(feat_blocks_obj)) {
+      printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_IMMUTABLE_BLOCKS);
+      return -1;
+    }
+  } else {
+    // feature blocks array
+    feat_blocks_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS);
+    if (!cJSON_IsArray(feat_blocks_obj)) {
+      printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
+      return -1;
+    }
   }
 
   cJSON *elm = NULL;
