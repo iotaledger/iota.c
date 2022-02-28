@@ -277,10 +277,10 @@ feat_blk_list_t* feat_blk_list_clone(feat_blk_list_t const* const list);
  * @brief Print a feature block list
  *
  * @param[in] list A feature block list
- * @param[in] is_immutable Flag which indicates if feature block is immutable
+ * @param[in] immutable Flag which indicates if feature block is immutable
  * @param[in] indentation Tab indentation when printing feature block list
  */
-void feat_blk_list_print(feat_blk_list_t* list, bool is_immutable, uint8_t indentation);
+void feat_blk_list_print(feat_blk_list_t* list, bool immutable, uint8_t indentation);
 
 /**
  * @brief free a feature block list object

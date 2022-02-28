@@ -227,8 +227,10 @@ static cJSON *json_feat_blk_tag_serialize(feat_tag_blk_t *block) {
 
 /*
   "featureBlocks": [],
+  or
+  "immutableFeatureBlocks": [],
 */
-int json_feat_blocks_deserialize(cJSON *output_obj, bool is_immutable, feat_blk_list_t **feat_blocks) {
+int json_feat_blocks_deserialize(cJSON *output_obj, bool immutable, feat_blk_list_t **feat_blocks) {
   if (output_obj == NULL || feat_blocks == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -236,7 +238,7 @@ int json_feat_blocks_deserialize(cJSON *output_obj, bool is_immutable, feat_blk_
 
   cJSON *feat_blocks_obj = NULL;
 
-  if (is_immutable) {
+  if (immutable) {
     // immutable feature blocks array
     feat_blocks_obj = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_BLOCKS);
     if (!cJSON_IsArray(feat_blocks_obj)) {

@@ -51,11 +51,11 @@ int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_
  * @brief Deserialize JSON data to feature blocks list object
  *
  * @param[in] output_obj Output JSON object
- * @param[in] is_immutable Flag which indicates if feature block is immutable
+ * @param[in] immutable Flag which indicates if feature block is immutable
  * @param[out] feat_blocks Feature blocks list object
  * @return int 0 on success
  */
-int json_feat_blocks_deserialize(cJSON *output_obj, bool is_immutable, feat_blk_list_t **feat_blocks);
+int json_feat_blocks_deserialize(cJSON *output_obj, bool immutable, feat_blk_list_t **feat_blocks);
 
 /**
  * @brief Serialize a feature block list
