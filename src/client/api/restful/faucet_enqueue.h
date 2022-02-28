@@ -1,8 +1,8 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_FAUCET_ENQUE_H__
-#define __CLIENT_FAUCET_ENQUE_H__
+#ifndef __CLIENT_FAUCET_enqueue_H__
+#define __CLIENT_FAUCET_enqueue_H__
 
 #include <stdint.h>
 
@@ -11,7 +11,7 @@
 #include "core/address.h"
 
 /**
- * @brief Store address and waiting requests count returned in response of faucet enque request
+ * @brief Store address and waiting requests count returned in response of faucet enqueue request
  *
  */
 typedef struct {
@@ -21,14 +21,14 @@ typedef struct {
 } req_faucet_tokens_t;
 
 /**
- * @brief The response of faucet enque request
+ * @brief The response of faucet enqueue request
  *
  */
 typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
     res_err_t *error;             ///< Error message if is_error is True
-    req_faucet_tokens_t req_res;  ///< Faucet enque response if is_error is False
+    req_faucet_tokens_t req_res;  ///< Faucet enqueue response if is_error is False
   } u;
 } res_req_faucet_tokens_t;
 
@@ -37,13 +37,13 @@ extern "C" {
 #endif
 
 /**
- * @brief Faucet enque response JSON deserialization
+ * @brief Faucet enqueue response JSON deserialization
  *
  * @param[in] j_str A string of json object
  * @param[out] res A response object
  * @return int 0 on success
  */
-int deser_faucet_enque_response(char const *const j_str, res_req_faucet_tokens_t *res);
+int deser_faucet_enqueue_response(char const *const j_str, res_req_faucet_tokens_t *res);
 
 /**
  * @brief Request tokens to address from faucet

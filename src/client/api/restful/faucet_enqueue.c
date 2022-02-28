@@ -5,12 +5,12 @@
 #include <string.h>
 
 #include "client/api/json_parser/json_utils.h"
-#include "client/api/restful/faucet_enque.h"
+#include "client/api/restful/faucet_enqueue.h"
 #include "client/network/http.h"
 
-const char *const fauce_enque_api_path = "/api/plugins/faucet/v1/enqueue";
+const char *const fauce_enqueue_api_path = "/api/plugins/faucet/v1/enqueueue";
 
-int deser_faucet_enque_response(char const *const j_str, res_req_faucet_tokens_t *res) {
+int deser_faucet_enqueue_response(char const *const j_str, res_req_faucet_tokens_t *res) {
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
@@ -100,7 +100,7 @@ int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const ad
 
   // config http client
   http_client_config_t http_conf = {
-      .host = conf->host, .path = fauce_enque_api_path, .use_tls = conf->use_tls, .port = conf->port};
+      .host = conf->host, .path = fauce_enqueue_api_path, .use_tls = conf->use_tls, .port = conf->port};
 
   long http_st_code = 0;
   byte_buf_t *http_res = byte_buf_new();
@@ -117,12 +117,13 @@ int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const ad
       printf("[%s:%d]: buffer to string conversion failed\n", __func__, __LINE__);
       return -1;
     }
-    ret = deser_faucet_enque_response((char const *)http_res->data, res);
+    printf("Response : %s\n", http_res->data);
+    ret = deser_faucet_enqueue_response((char const *)http_res->data, res);
   } else {
     printf("[%s:%d]: http client post failed\n", __func__, __LINE__);
     return -1;
   }
   byte_buf_free(json_data);
   byte_buf_free(http_res);
-  return 0;
+  return ret;
 }
