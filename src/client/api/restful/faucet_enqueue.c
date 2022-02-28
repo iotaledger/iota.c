@@ -51,7 +51,6 @@ int deser_faucet_enqueue_response(char const *const j_str, res_req_faucet_tokens
 
 int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const addr_bech32[],
                                    res_req_faucet_tokens_t *res) {
-  int ret = -1;
   // Check if any of input parameters are NULL
   if (conf == NULL || addr_bech32 == NULL || res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -102,7 +101,6 @@ int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const ad
   http_client_config_t http_conf = {
       .host = conf->host, .path = fauce_enqueue_api_path, .use_tls = conf->use_tls, .port = conf->port};
 
-  long http_st_code = 0;
   byte_buf_t *http_res = byte_buf_new();
   if (!http_res) {
     printf("[%s:%d] allocating buffer for http response failed\n", __func__, __LINE__);
@@ -110,6 +108,8 @@ int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const ad
     return -1;
   }
 
+  long http_st_code = 0;
+  int ret = -1;
   if ((ret = http_client_post(&http_conf, json_data, http_res, &http_st_code)) == 0) {
     if (!byte_buf2str(http_res)) {
       byte_buf_free(json_data);

@@ -1,8 +1,8 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_FAUCET_enqueue_H__
-#define __CLIENT_FAUCET_enqueue_H__
+#ifndef __CLIENT_FAUCET_ENQUEUE_H__
+#define __CLIENT_FAUCET_ENQUEUE_H__
 
 #include <stdint.h>
 
@@ -49,6 +49,7 @@ int deser_faucet_enqueue_response(char const *const j_str, res_req_faucet_tokens
  * @brief Request tokens to address from faucet
  * @param[in] conf The client endpoint configuration
  * @param[in] addr_bech32 The bech32 address to which the tokens needs to be requested from faucet
+ * @param[out] res The faucet enqueue response object
  *
  * @return res_req_faucet_tokens_t*
  */
