@@ -25,7 +25,6 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
   }
 
   // address
-  char address_hex[ADDRESS_MAX_HEX_BYTES];
   switch (address_type) {
     case ADDRESS_TYPE_ED25519: {
       if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_PUB_KEY_HASH, address->address, ADDRESS_ED25519_BYTES) !=
