@@ -33,15 +33,15 @@ void test_send_tagged_data() {
   res.is_error = false;
 
   // invalid parameters
-  TEST_ASSERT(send_tagged_data_message(NULL, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == -1);
-  TEST_ASSERT(send_tagged_data_message(&ctx, NULL, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == -1);
-  TEST_ASSERT(send_tagged_data_message(&ctx, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, NULL) == -1);
-  TEST_ASSERT(send_tagged_data_message(&ctx, (byte_t*)tag, TAG_LEN, NULL, TAG_DATA_LEN, &res) == -1);
-  TEST_ASSERT(send_tagged_data_message(&ctx, (byte_t*)tag_invalid_len, TAG_INVALID_LEN, NULL, TAG_DATA_LEN, &res) ==
+  TEST_ASSERT(send_tagged_data_message(NULL, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == -1);
+  TEST_ASSERT(send_tagged_data_message(&ctx, 2, NULL, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == -1);
+  TEST_ASSERT(send_tagged_data_message(&ctx, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, NULL) == -1);
+  TEST_ASSERT(send_tagged_data_message(&ctx, 2, (byte_t*)tag, TAG_LEN, NULL, TAG_DATA_LEN, &res) == -1);
+  TEST_ASSERT(send_tagged_data_message(&ctx, 2, (byte_t*)tag_invalid_len, TAG_INVALID_LEN, NULL, TAG_DATA_LEN, &res) ==
               -1);
 
   // Valid data and tag
-  TEST_ASSERT(send_tagged_data_message(&ctx, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
+  TEST_ASSERT(send_tagged_data_message(&ctx, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
 
   // Get message by message id and verify tag and data
   char cmd_str[82] = {0};  // "/api/v2/messages/{messageid}"
@@ -94,7 +94,7 @@ void test_send_binary_tagged_data() {
   res.is_error = false;
 
   // Valid data and tag
-  TEST_ASSERT(send_tagged_data_message(&ctx, binary_tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
+  TEST_ASSERT(send_tagged_data_message(&ctx, 2, binary_tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
 
   // Get message by message id and verify tag and data
   char cmd_str[82] = {0};  // "/api/v2/messages/{messageid}"

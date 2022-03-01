@@ -82,6 +82,35 @@ int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg
 int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]);
 
 /**
+ * @brief Initialize Blake2b hash function
+ *
+ * @param[in] state The state of hash function
+ * @param[out] out_len  The length of output hash
+ * @return int 0 on success
+ */
+int iota_blake2b_init(void *state, size_t out_len);
+
+/**
+ * @brief Provide additional data to hash in Blake2b hash function
+ *
+ * @param[in] state The state of hash function
+ * @param[in] data The data to hash
+ * @param[in] data_len The length of data
+ * @return int 0 on success
+ */
+int iota_blake2b_update(void *state, uint8_t const data[], size_t data_len);
+
+/**
+ * @brief Finalize Blake2b hash function
+ *
+ * @param[in] state The state of hash function
+ * @param[out] out An output hash
+ * @param[out] out_len  The length of output hash
+ * @return int 0 on success
+ */
+int iota_blake2b_final(void *state, uint8_t out[], size_t out_len);
+
+/**
  * @brief Blake2b hash function
  *
  * @param[in] msg The message to hash

@@ -16,9 +16,9 @@ void test_parse_alias_output_basic() {
   char const *const json_res =
       "{\"type\":4, \"amount\":1000000,\"nativeTokens\":[],\"aliasId\":\"testAliasID\","
       "\"stateIndex\":12345,\"stateMetadata\":\"testMetadataTestMetadataTestMetadata\",\"foundryCounter\":54321,"
-      "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"address\":"
+      "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"nftId\":"
       "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
-      "{\"type\":5,\"address\":{\"type\":16,\"address\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
+      "{\"type\":5,\"address\":{\"type\":16,\"nftId\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
       "\"featureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
@@ -57,12 +57,12 @@ void test_parse_alias_output_full() {
       "\"09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
       "\"7598347598347598\"}],\"aliasId\":\"testAliasID\","
       "\"stateIndex\":12345,\"stateMetadata\":\"testMetadataTestMetadataTestMetadata\",\"foundryCounter\":54321,"
-      "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"address\":"
+      "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"nftId\":"
       "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
-      "{\"type\":5,\"address\":{\"type\":16,\"address\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
-      "\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"address\":"
+      "{\"type\":5,\"address\":{\"type\":16,\"nftId\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
+      "\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":1,\"address\":{\"type\":0,"
-      "\"address\":\"2258255e7cf927a4833f457433f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,"
+      "\"pubKeyHash\":\"2258255e7cf927a4833f457433f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,"
       "\"data\":\"89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
@@ -116,9 +116,9 @@ void test_parse_alias_output_wrong_unlock_condition() {
   char const *const json_res =
       "{\"type\":4, \"amount\":1000000,\"nativeTokens\":[],\"aliasId\":\"testAliasID\","
       "\"stateIndex\":12345,\"stateMetadata\":\"testMetadataTestMetadataTestMetadata\",\"foundryCounter\":54321,"
-      "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"address\":"
+      "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"nftId\":"
       "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
-      "{\"type\":0,\"address\":{\"type\":16,\"address\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
+      "{\"type\":0,\"address\":{\"type\":16,\"nfdId\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
       "\"featureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);

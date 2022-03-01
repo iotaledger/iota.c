@@ -25,42 +25,31 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
   }
 
   // address
-  char address_hex[ADDRESS_MAX_HEX_BYTES];
   switch (address_type) {
     case ADDRESS_TYPE_ED25519: {
-      if (json_get_string(json_address_obj, JSON_KEY_ADDR, address_hex, ADDRESS_ED25519_HEX_BYTES) != JSON_OK) {
-        printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ADDR);
+      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_PUB_KEY_HASH, address->address, ADDRESS_ED25519_BYTES) !=
+          JSON_OK) {
+        printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_PUB_KEY_HASH);
         return -1;
       }
       address->type = ADDRESS_TYPE_ED25519;
-      if (hex_2_bin(address_hex, ADDRESS_ED25519_HEX_BYTES, address->address, ADDRESS_ED25519_BYTES) != 0) {
-        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
-        return -1;
-      }
       break;
     }
     case ADDRESS_TYPE_ALIAS: {
-      if (json_get_string(json_address_obj, JSON_KEY_ADDR, address_hex, ADDRESS_ALIAS_HEX_BYTES) != JSON_OK) {
-        printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ADDR);
+      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_ALIAS_ID, address->address, ADDRESS_ALIAS_BYTES) !=
+          JSON_OK) {
+        printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ALIAS_ID);
         return -1;
       }
       address->type = ADDRESS_TYPE_ALIAS;
-      if (hex_2_bin(address_hex, ADDRESS_ALIAS_HEX_BYTES, address->address, ADDRESS_ALIAS_BYTES) != 0) {
-        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
-        return -1;
-      }
       break;
     }
     case ADDRESS_TYPE_NFT: {
-      if (json_get_string(json_address_obj, JSON_KEY_ADDR, address_hex, ADDRESS_NFT_HEX_BYTES) != JSON_OK) {
-        printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ADDR);
+      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_NFT_ID, address->address, ADDRESS_NFT_BYTES) != JSON_OK) {
+        printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_NFT_ID);
         return -1;
       }
       address->type = ADDRESS_TYPE_NFT;
-      if (hex_2_bin(address_hex, ADDRESS_NFT_HEX_BYTES, address->address, ADDRESS_NFT_BYTES) != 0) {
-        printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
-        return -1;
-      }
       break;
     }
     default:
@@ -74,7 +63,17 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
 /*
 {
   "type": 0,
-  "address": "21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942"
+  "pubKeyHash": "21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942"
+}
+or
+{
+  "type": 8,
+  "aliasId": "a3308d6262ae9921f46aa3308d6262ae9921f46a"
+}
+or
+{
+  "type": 16,
+  "nftId": "a3308d6262ae9921f46aa3308d6262ae9921f46a"
 }
 */
 cJSON *json_parser_common_address_serialize(address_t *address) {
@@ -91,27 +90,31 @@ cJSON *json_parser_common_address_serialize(address_t *address) {
     int ret = -1;
     switch (address->type) {
       case ADDRESS_TYPE_ED25519:
-        ret = bin_2_hex(address->address, ADDRESS_ED25519_BYTES, addr_str, sizeof(addr_str));
+        if ((ret = bin_2_hex(address->address, ADDRESS_ED25519_BYTES, addr_str, sizeof(addr_str))) == 0) {
+          cJSON_AddStringToObject(addr_data, JSON_KEY_PUB_KEY_HASH, addr_str);
+        }
         break;
       case ADDRESS_TYPE_ALIAS:
-        ret = bin_2_hex(address->address, ADDRESS_ALIAS_BYTES, addr_str, sizeof(addr_str));
+        if ((ret = bin_2_hex(address->address, ADDRESS_ALIAS_BYTES, addr_str, sizeof(addr_str))) == 0) {
+          cJSON_AddStringToObject(addr_data, JSON_KEY_ALIAS_ID, addr_str);
+        }
         break;
       case ADDRESS_TYPE_NFT:
-        ret = bin_2_hex(address->address, ADDRESS_NFT_BYTES, addr_str, sizeof(addr_str));
+        if ((ret = bin_2_hex(address->address, ADDRESS_NFT_BYTES, addr_str, sizeof(addr_str))) == 0) {
+          cJSON_AddStringToObject(addr_data, JSON_KEY_NFT_ID, addr_str);
+        }
         break;
       default:
         printf("[%s:%d] invalid address type\n", __func__, __LINE__);
         break;
     }
 
-    // add string to the address field
-    if (ret == 0) {
-      cJSON_AddStringToObject(addr_data, JSON_KEY_ADDR, addr_str);
-    } else {
+    if (ret != 0) {
       printf("[%s:%d] convert address to hex string failed\n", __func__, __LINE__);
       cJSON_Delete(addr_data);
       return NULL;
     }
   }
+
   return addr_data;
 }

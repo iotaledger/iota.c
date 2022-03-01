@@ -13,10 +13,10 @@
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
 
-core_message_t* core_message_new() {
+core_message_t* core_message_new(uint8_t ver) {
   core_message_t* msg = malloc(sizeof(core_message_t));
   if (msg) {
-    msg->network_id = 0;
+    msg->protocol_version = ver;
     utarray_new(msg->parents, &ut_msg_id_icd);
     msg->payload_type = CORE_MESSAGE_PAYLOAD_UNKNOWN;  // invalid payload type
     msg->payload = NULL;
@@ -152,8 +152,8 @@ size_t core_message_serialize_len(core_message_t* msg) {
 
   size_t length = 0;
 
-  // network Id type
-  length += sizeof(uint64_t);
+  // protocol version
+  length += sizeof(uint8_t);
   // parents count
   length += sizeof(uint8_t);
   // parents
@@ -198,9 +198,9 @@ size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len)
 
   size_t offset = 0;
 
-  // network Id
-  memcpy(buf, &msg->network_id, sizeof(uint64_t));
-  offset += sizeof(uint64_t);
+  // protocol version
+  memcpy(buf, &msg->protocol_version, sizeof(uint8_t));
+  offset += sizeof(uint8_t);
 
   // parents count
   uint8_t parents_len = (uint8_t)core_message_parent_len(msg);
@@ -262,7 +262,7 @@ void core_message_print(core_message_t* msg, uint8_t indentation) {
   printf("%sMessage: [\n", PRINT_INDENTATION(indentation));
 
   if (msg) {
-    printf("%sNetwork Id: %" PRIu64 "\n", PRINT_INDENTATION(indentation + 1), msg->network_id);
+    printf("%sProtocol Version: %d\n", PRINT_INDENTATION(indentation + 1), msg->protocol_version);
 
     printf("%sParent Message Ids:\n", PRINT_INDENTATION(indentation + 1));
     size_t parent_message_len = core_message_parent_len(msg);

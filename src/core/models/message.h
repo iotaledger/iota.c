@@ -32,12 +32,11 @@ typedef enum {
  *
  */
 typedef struct {
-  uint64_t network_id;  ///< Network identifier. It is first 8 bytes of the `BLAKE2b-256` hash of the concatenation of
-                        ///< the network type and the protocol version string.
-  UT_array* parents;    ///< parents of this message
-  payload_t payload_type;  ///< payload type
-  void* payload;           ///< payload object, NULL is no payload
-  uint64_t nonce;          ///< The nonce which lets this message fulfill the Proof-of-Work requirement.
+  uint8_t protocol_version;  ///< Protocol version number of message.
+  UT_array* parents;         ///< Parents of this message.
+  payload_t payload_type;    ///< Payload type.
+  void* payload;             ///< Payload object, NULL is no payload.
+  uint64_t nonce;            ///< The nonce which lets this message fulfill the Proof-of-Work requirement.
 } core_message_t;
 
 #ifdef __cplusplus
@@ -47,9 +46,10 @@ extern "C" {
 /**
  * @brief Allocate a core message object
  *
+ * @param[in] ver A protocol version
  * @return core_message_t*
  */
-core_message_t* core_message_new();
+core_message_t* core_message_new(uint8_t ver);
 
 /**
  * @brief Sign a transaction message

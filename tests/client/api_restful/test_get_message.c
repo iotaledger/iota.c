@@ -58,7 +58,7 @@ void test_get_msg_by_id() {
 
 void test_deser_milestone() {
   char const* const ms_res =
-      "{\"networkId\":\"8453507715857476362\",\"parentMessageIds\":["
+      "{\"protocolVersion\":2,\"parentMessageIds\":["
       "\"596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
       "\"8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
       "\"a3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
@@ -83,7 +83,7 @@ void test_deser_milestone() {
   TEST_ASSERT(res->is_error == false);
 
   core_message_t* msg = res->u.msg;
-  TEST_ASSERT_EQUAL_UINT64(8453507715857476362, msg->network_id);
+  TEST_ASSERT_EQUAL_UINT8(2, msg->protocol_version);
   TEST_ASSERT_EQUAL_UINT64(14757395258967713456u, msg->nonce);
 
   // check parentMessageIds
@@ -162,17 +162,18 @@ void test_deser_milestone() {
 
 void test_deser_simple_tx() {
   char const* const simple_tx =
-      "{\"networkId\":\"8453507715857476362\",\"parentMessageIds\":["
+      "{\"protocolVersion\":2,\"parentMessageIds\":["
       "\"0875901a61c4b9f2adb37121fc7946d286dae581d1a5f9cd720cb4c1f8d8f552\","
       "\"410653be41fde06bdf25aaeb764cd880f872e33e7ce1759801d75964e9dc75c7\","
       "\"b9130e8d2b928921c220bef325eb9bcad114bdbce80945565e54e8cf9664173a\","
       "\"cf94502e06fab8dcc4ef9fc94721de2e2fcaf727e0998b6489a0a5b5eead6625\"],\"payload\":{\"type\":0,\"essence\":{"
-      "\"type\":0,\"inputs\":[{\"type\":0,\"transactionId\":"
-      "\"0000000000000000000000000000000000000000000000000000000000000000\",\"transactionOutputIndex\":0}],\"outputs\":"
+      "\"type\":0,\"networkId\":\"8453507715857476362\",\"inputs\":[{\"type\":0,\"transactionId\":"
+      "\"0000000000000000000000000000000000000000000000000000000000000000\",\"transactionOutputIndex\":0}],"
+      "\"inputsCommitment\":\"9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9\",\"outputs\":"
       "[{\"type\":3,\"amount\":10000000,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":0,"
-      "\"address\":\"21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"}}],\"featureBlocks\":[]},{"
+      "\"pubKeyHash\":\"21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"}}],\"featureBlocks\":[]},{"
       "\"type\":3,\"amount\":2779530273277761,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{"
-      "\"type\":0,\"address\":\"60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe\"}}],"
+      "\"type\":0,\"pubKeyHash\":\"60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe\"}}],"
       "\"featureBlocks\":[]}],\"payload\":{\"type\":5,\"tag\":\"484f524e455420464155434554\",\"data\":\"\"}},"
       "\"unlockBlocks\":[{\"type\":0,\"signature\":{\"type\":0,\"publicKey\":"
       "\"31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\",\"signature\":"
@@ -184,10 +185,8 @@ void test_deser_simple_tx() {
   TEST_ASSERT(deser_get_message(simple_tx, res) == 0);
   TEST_ASSERT(res->is_error == false);
 
-  char str_buff[65] = {};
-  // validate network ID
-  sprintf(str_buff, "%" PRIu64 "", res->u.msg->network_id);
-  TEST_ASSERT_EQUAL_STRING("8453507715857476362", str_buff);
+  // validate protocol version
+  TEST_ASSERT_EQUAL_UINT8(2, res->u.msg->protocol_version);
 
   // validate parent message IDs
   byte_t tmp_id[IOTA_MESSAGE_ID_BYTES] = {};
@@ -211,6 +210,10 @@ void test_deser_simple_tx() {
   transaction_payload_t* tx = (transaction_payload_t*)res->u.msg->payload;
   // validate essence
   TEST_ASSERT(tx->essence->tx_type == 0);
+  // validate network ID
+  char str_buff[65] = {};
+  sprintf(str_buff, "%" PRIu64 "", tx->essence->network_id);
+  TEST_ASSERT_EQUAL_STRING("8453507715857476362", str_buff);
   // validate essence inputs
   TEST_ASSERT_EQUAL_UINT16(1, utxo_inputs_count(tx->essence->inputs));
   utxo_input_t* inputs = utxo_inputs_find_by_index(tx->essence->inputs, 0);
@@ -219,6 +222,10 @@ void test_deser_simple_tx() {
   TEST_ASSERT(
       hex_2_bin("0000000000000000000000000000000000000000000000000000000000000000", 65, tmp_id, sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, inputs->tx_id, sizeof(tmp_id));
+  // validate essence inputs commitment
+  TEST_ASSERT(
+      hex_2_bin("9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, tx->essence->inputs_commitment, sizeof(tmp_id));
   // validate essence outputs
   TEST_ASSERT_EQUAL_UINT16(2, utxo_outputs_count(tx->essence->outputs));
   // validate output block: 0

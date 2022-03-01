@@ -38,7 +38,7 @@ uint8_t address_len(address_t const *const addr) {
     case ADDRESS_TYPE_NFT:
       return ADDRESS_NFT_BYTES;
     default:
-      // unknow address type
+      // unknown address type
       return 0;
   }
 }
@@ -114,9 +114,9 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
         memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_NFT_BYTES);
         break;
       default:
-        // unknow address type
+        // unknown address type
         free_address(addr);
-        printf("[%s:%d] unknow address type\n", __func__, __LINE__);
+        printf("[%s:%d] unknown address type\n", __func__, __LINE__);
         return NULL;
     }
   }
@@ -245,8 +245,8 @@ void address_print(address_t const *const addr) {
       dump_hex_str(addr->address, ADDRESS_NFT_BYTES);
       break;
     default:
-      // unknow address type
-      printf("[%s:%d] unknow address\n", __func__, __LINE__);
+      // unknown address type
+      printf("[%s:%d] unknown address\n", __func__, __LINE__);
       break;
   }
 }
