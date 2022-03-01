@@ -10,7 +10,7 @@
 #include "core/utils/macros.h"
 #include "utarray.h"
 
-int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8_t tag_len, byte_t data[],
+int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t tag[], uint8_t tag_len, byte_t data[],
                              uint32_t data_len, res_send_message_t* res) {
   int ret = -1;
   if (conf == NULL || tag == NULL || res == NULL) {
@@ -51,7 +51,7 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
   // compose json message
   /*
   {
-  "networkId": "",
+  "protocolVersion": 2,
   "parentMessageIds": [
       "7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
       "9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c",
@@ -74,9 +74,9 @@ int send_tagged_data_message(iota_client_conf_t const* conf, byte_t tag[], uint8
     goto end;
   }
 
-  // Add NULL network id
-  if (!cJSON_AddNullToObject(msg_obj, JSON_KEY_NET_ID)) {
-    printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
+  // add protocol version
+  if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_PROTOCOL_VERSION, ver)) {
+    printf("[%s:%d] adding protocol version failed\n", __func__, __LINE__);
     goto end;
   }
 

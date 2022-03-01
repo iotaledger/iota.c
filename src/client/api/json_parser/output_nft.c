@@ -47,14 +47,9 @@ int json_output_nft_deserialize(cJSON *output_obj, output_nft_t **nft) {
   }
 
   // nftId
-  char nft_id_hex[ADDRESS_NFT_HEX_BYTES];
   byte_t nft_id[ADDRESS_NFT_BYTES];
-  if (json_get_string(output_obj, JSON_KEY_NFT_ID, (char *)nft_id_hex, ADDRESS_NFT_HEX_BYTES) != JSON_OK) {
+  if (json_get_hex_str_to_bin(output_obj, JSON_KEY_NFT_ID, nft_id, ADDRESS_NFT_BYTES) != JSON_OK) {
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_NFT_ID);
-    goto end;
-  }
-  if (hex_2_bin(nft_id_hex, ADDRESS_NFT_HEX_BYTES, nft_id, ADDRESS_NFT_BYTES) != 0) {
-    printf("[%s:%d] can not convert hex to bin number\n", __func__, __LINE__);
     goto end;
   }
 

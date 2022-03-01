@@ -6,6 +6,7 @@
 #include "test_config.h"
 
 #include "client/api/restful/get_message.h"
+#include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
 #include "client/api/restful/get_tips.h"
@@ -58,9 +59,8 @@ void test_send_core_message_tagged_data() {
   tagged_data_print(tagged_data, 0);
 
   // Create a core message object
-  core_message_t* msg = core_message_new();
+  core_message_t* msg = core_message_new(2);
   TEST_ASSERT_NOT_NULL(msg);
-  msg->network_id = 0;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
   msg->payload = tagged_data;
   msg->nonce = 0;
@@ -107,9 +107,8 @@ void test_send_core_message_tagged_data_binary_tag() {
   tagged_data_print(tagged_data, 0);
 
   // Create a core message object
-  core_message_t* msg = core_message_new();
+  core_message_t* msg = core_message_new(2);
   TEST_ASSERT_NOT_NULL(msg);
-  msg->network_id = 0;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
   msg->payload = tagged_data;
   msg->nonce = 0;
@@ -152,9 +151,8 @@ void test_send_core_message_tagged_data_tag_max_len() {
   tagged_data_print(tagged_data, 0);
 
   // Create a core message object
-  core_message_t* msg = core_message_new();
+  core_message_t* msg = core_message_new(2);
   TEST_ASSERT_NOT_NULL(msg);
-  msg->network_id = 0;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
   msg->payload = tagged_data;
   msg->nonce = 0;
@@ -185,8 +183,7 @@ void test_send_core_message_tagged_data_tag_max_len() {
 }
 
 void test_send_msg_tx_extended() {
-  // use local private Tangle
-  iota_client_conf_t ctx = {.host = "localhost", .port = 14265};
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   // mnemonic seed for testing
   byte_t mnemonic_seed[64] = {0x83, 0x7D, 0x69, 0x91, 0x14, 0x64, 0x8E, 0xB,  0x36, 0x78, 0x58, 0xF0, 0xE9,
@@ -211,7 +208,21 @@ void test_send_msg_tx_extended() {
   address_to_bech32(&addr_recv, hrp, bech32_receiver, sizeof(bech32_receiver));
   printf("sender: %s\nreceiver: %s\n", bech32_sender, bech32_receiver);
 
-  transaction_payload_t* tx = tx_payload_new();
+  // Get info from a node and set correct network ID in protocol version
+  res_node_info_t* info = res_node_info_new();
+  int ret = get_node_info(&ctx, info);
+  TEST_ASSERT_EQUAL_INT(0, ret);
+  TEST_ASSERT_FALSE(info->is_error);
+
+  // Set correct protocol version and network ID
+  uint8_t ver = info->u.output_node_info->protocol_version;
+  uint8_t network_id_hash[CRYPTO_BLAKE2B_HASH_BYTES];
+  uint64_t network_id;
+  iota_blake2b_sum((const uint8_t*)info->u.output_node_info->network_name,
+                   strlen(info->u.output_node_info->network_name), network_id_hash, sizeof(network_id_hash));
+  memcpy(&network_id, network_id_hash, sizeof(network_id));
+
+  transaction_payload_t* tx = tx_payload_new(network_id);
   TEST_ASSERT_NOT_NULL(tx);
 
   // get outputs from an address
@@ -219,7 +230,7 @@ void test_send_msg_tx_extended() {
   res_outputs_id_t* res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   outputs_query_list_t* query_param = outputs_query_list_new();
-  TEST_ASSERT_NOT_NULL(query_param);
+  TEST_ASSERT_NULL(query_param);
   outputs_query_list_add(&query_param, QUERY_PARAM_ADDRESS, bech32_sender);
   TEST_ASSERT(get_outputs_id(&ctx, query_param, res) == 0);
   TEST_ASSERT(res_outputs_output_id_count(res) > 0);
@@ -288,7 +299,7 @@ void test_send_msg_tx_extended() {
   }
 
   // add transaction payload to message
-  core_message_t* msg = core_message_new();
+  core_message_t* msg = core_message_new(ver);
   TEST_ASSERT_NOT_NULL(msg);
   msg->payload = tx;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
@@ -316,9 +327,8 @@ int main() {
   RUN_TEST(test_send_core_message_tagged_data);
   RUN_TEST(test_send_core_message_tagged_data_binary_tag);
   RUN_TEST(test_send_core_message_tagged_data_tag_max_len);
+  RUN_TEST(test_send_msg_tx_extended);
 #endif
-  // send transaction on local private tangle
-  // RUN_TEST(test_send_msg_tx_extended);
 
   return UNITY_END();
 }

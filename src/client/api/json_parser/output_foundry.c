@@ -22,7 +22,7 @@
         {  "type": 0,
            "address": {
             "type": 8,
-            "address": "194eb32b9b6c61207192c7073562a0b3adf50a7c"
+            "aliasId": "194eb32b9b6c61207192c7073562a0b3adf50a7c"
             }
         }
       ],
