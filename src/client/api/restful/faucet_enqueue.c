@@ -10,7 +10,7 @@
 
 const char *const fauce_enqueue_api_path = "/api/plugins/faucet/v1/enqueue";
 
-int deser_faucet_enqueue_response(char const *const j_str, res_req_faucet_tokens_t *res) {
+int deser_faucet_enqueue_response(char const *const j_str, res_faucet_enqueue_t *res) {
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
@@ -50,7 +50,7 @@ int deser_faucet_enqueue_response(char const *const j_str, res_req_faucet_tokens
 }
 
 int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const addr_bech32[],
-                                   res_req_faucet_tokens_t *res) {
+                                   res_faucet_enqueue_t *res) {
   // Check if any of input parameters are NULL
   if (conf == NULL || addr_bech32 == NULL || res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -58,7 +58,7 @@ int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const ad
   }
 
   // Check if addr_bech32 has minimum requred length
-  if (strlen(addr_bech32) < BECH32_ENCODED_ED25519_ADDRESS_STR_LEN) {
+  if (strlen(addr_bech32) < BECH32_ED25519_ADDRESS_STR_LEN) {
     printf("[%s:%d] invalid bech32 address\n", __func__, __LINE__);
     return -1;
   }

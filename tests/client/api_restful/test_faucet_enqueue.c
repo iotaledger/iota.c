@@ -17,9 +17,9 @@ void test_faucet_enqueue(void) {
   const char *const address_bech32_invalid = "pqoi1qqs7y6ec5vcg6cnz46vjrar2epc52lhksyar3a4zua7fg7ca08y5ymep8ab";
   const char *const address_bech32_invalid_len = "atoi1qqs7y6ec5vcg6cnz46vjrar2epc52lhksyar3a4zua7fg7ca08y5";
 
-  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
+  iota_client_conf_t ctx = {.host = FAUCET_NODE_HOST, .port = FAUCET_NODE_PORT, .use_tls = FAUCET_IS_HTTPS};
 
-  res_req_faucet_tokens_t res = {};
+  res_faucet_enqueue_t res = {};
 
   // Test NULL inputs
   TEST_ASSERT_EQUAL_INT(-1, req_tokens_to_addr_from_faucet(NULL, address_bech32, &res));

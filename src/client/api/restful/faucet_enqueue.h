@@ -10,15 +10,15 @@
 #include "client/client_service.h"
 #include "core/address.h"
 
-/**
+ /**
  * @brief Store address and waiting requests count returned in response of faucet enqueue request
  *
  */
 typedef struct {
-  char bech32_address[BECH32_ENCODED_ED25519_ADDRESS_STR_LEN + 1];  ///< The bech32 encoded address that is returned
+  char bech32_address[BECH32_ED25519_ADDRESS_STR_LEN + 1];  ///< The bech32 encoded address that is returned
                                                                     ///< in response
   uint64_t waiting_reqs_count;                                      ///< The number of requests in faucet queue
-} req_faucet_tokens_t;
+} faucet_enqueue_t;
 
 /**
  * @brief The response of faucet enqueue request
@@ -28,9 +28,9 @@ typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
     res_err_t *error;             ///< Error message if is_error is True
-    req_faucet_tokens_t req_res;  ///< Faucet enqueue response if is_error is False
+    faucet_enqueue_t req_res;  ///< Faucet enqueue response if is_error is False
   } u;
-} res_req_faucet_tokens_t;
+} res_faucet_enqueue_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,7 +43,7 @@ extern "C" {
  * @param[out] res A response object
  * @return int 0 on success
  */
-int deser_faucet_enqueue_response(char const *const j_str, res_req_faucet_tokens_t *res);
+int deser_faucet_enqueue_response(char const *const j_str, res_faucet_enqueue_t *res);
 
 /**
  * @brief Request tokens to address from faucet
@@ -51,10 +51,10 @@ int deser_faucet_enqueue_response(char const *const j_str, res_req_faucet_tokens
  * @param[in] addr_bech32 The bech32 address to which the tokens needs to be requested from faucet
  * @param[out] res The faucet enqueue response object
  *
- * @return res_req_faucet_tokens_t*
+ * @return res_faucet_enqueue_t*
  */
 int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const addr_bech32[],
-                                   res_req_faucet_tokens_t *res);
+                                   res_faucet_enqueue_t *res);
 
 #ifdef __cplusplus
 }

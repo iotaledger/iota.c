@@ -19,4 +19,8 @@
 #define TEST_IS_HTTPS 0
 #endif
 
+#define FAUCET_NODE_HOST "0.0.0.0"
+#define FAUCET_NODE_PORT 14265
+#define FAUCET_IS_HTTPS 0
+
 #endif
