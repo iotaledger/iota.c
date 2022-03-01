@@ -10,14 +10,14 @@
 #include "client/client_service.h"
 #include "core/address.h"
 
- /**
+/**
  * @brief Store address and waiting requests count returned in response of faucet enqueue request
  *
  */
 typedef struct {
   char bech32_address[BECH32_ED25519_ADDRESS_STR_LEN + 1];  ///< The bech32 encoded address that is returned
-                                                                    ///< in response
-  uint64_t waiting_reqs_count;                                      ///< The number of requests in faucet queue
+                                                            ///< in response
+  uint64_t waiting_reqs_count;                              ///< The number of requests in faucet queue
 } faucet_enqueue_t;
 
 /**
@@ -27,7 +27,7 @@ typedef struct {
 typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;             ///< Error message if is_error is True
+    res_err_t *error;          ///< Error message if is_error is True
     faucet_enqueue_t req_res;  ///< Faucet enqueue response if is_error is False
   } u;
 } res_faucet_enqueue_t;
@@ -53,8 +53,7 @@ int deser_faucet_enqueue_response(char const *const j_str, res_faucet_enqueue_t 
  *
  * @return res_faucet_enqueue_t*
  */
-int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const addr_bech32[],
-                                   res_faucet_enqueue_t *res);
+int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const addr_bech32[], res_faucet_enqueue_t *res);
 
 #ifdef __cplusplus
 }
