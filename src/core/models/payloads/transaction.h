@@ -25,16 +25,21 @@ typedef enum {
  * optional payload.
  *
  * Based on protocol design, we can have different types of input and output in a transaction.
- * At this moment, we have only utxo_input_list for intput.
+ * At this moment, we have only utxo_input_list for input.
  * For output we have extended, alias, foundry and nft output.
  *
  */
 typedef struct {
-  uint8_t tx_type;               ///< Set to value 0 to denote a Transaction Essence.
-  utxo_inputs_list_t* inputs;    ///< An UTXO input list
-  utxo_outputs_list_t* outputs;  ///< An UTXO output list
-  uint32_t payload_len;          ///< The length in bytes of the optional payload.
-  void* payload;                 ///< An tagged data payload at this moment
+  uint8_t tx_type;      ///< Set to value 0 to denote a Transaction Essence.
+  uint64_t network_id;  ///< Network identifier. It is first 8 bytes of the `BLAKE2b-256` hash of the network name
+                        ///< (identifier string of the network).
+  utxo_inputs_list_t* inputs;                           ///< An UTXO input list.
+  byte_t inputs_commitment[CRYPTO_BLAKE2B_HASH_BYTES];  ///< BLAKE2b-256 hash of the serialized outputs referenced in
+                                                        ///< Inputs by their Output IDs (Transaction ID || Transaction
+                                                        ///< Output Index).
+  utxo_outputs_list_t* outputs;                         ///< An UTXO output list.
+  uint32_t payload_len;                                 ///< The length in bytes of the optional payload.
+  void* payload;                                        ///< An tagged data payload at this moment.
 } transaction_essence_t;
 
 /**
@@ -59,9 +64,10 @@ extern "C" {
 /**
  * @brief Allocate a transaction essence object
  *
+ * @param[in] network_id A network ID
  * @return transaction_essence_t*
  */
-transaction_essence_t* tx_essence_new();
+transaction_essence_t* tx_essence_new(uint64_t network_id);
 
 /**
  * @brief Free an essence object
@@ -143,9 +149,10 @@ void tx_essence_print(transaction_essence_t* es, uint8_t indentation);
 /**
  * @brief Allocate a tansaction payload object
  *
+ * @param[in] network_id A network ID
  * @return transaction_payload_t*
  */
-transaction_payload_t* tx_payload_new();
+transaction_payload_t* tx_payload_new(uint64_t network_id);
 
 /**
  * @brief Free a transaction payload object

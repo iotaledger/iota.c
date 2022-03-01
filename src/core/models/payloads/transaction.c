@@ -8,11 +8,13 @@
 #include "core/models/payloads/transaction.h"
 #include "utlist.h"
 
-transaction_essence_t* tx_essence_new() {
+transaction_essence_t* tx_essence_new(uint64_t network_id) {
   transaction_essence_t* es = malloc(sizeof(transaction_essence_t));
   if (es) {
     es->tx_type = TRANSACTION_PAYLOAD_ESSENCE;  // 0 to denote a transaction essence.
+    es->network_id = network_id;
     es->inputs = utxo_inputs_new();
+    memset(es->inputs_commitment, 0, sizeof(es->inputs_commitment));
     es->outputs = utxo_outputs_new();
     es->payload = NULL;
     es->payload_len = 0;
@@ -80,8 +82,12 @@ size_t tx_essence_serialize_length(transaction_essence_t* es) {
 
   // transaction type(uint8_t)
   length += sizeof(uint8_t);
+  // network Id(uint64_t)
+  length += sizeof(uint64_t);
   // input serialized len, this includes input count len
   length += utxo_inputs_serialize_len(es->inputs);
+  // inputs commitment
+  length += sizeof(es->inputs_commitment);
   // output serialized len, this includes output count len
   length += utxo_outputs_serialize_len(es->outputs);
 
@@ -116,9 +122,17 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
   memcpy(offset, &es->tx_type, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
+  // serialize network Id
+  memcpy(offset, &es->network_id, sizeof(uint64_t));
+  offset += sizeof(uint64_t);
+
   // serialize inputs
   size_t input_ser_len = utxo_inputs_serialize_len(es->inputs);
   offset += utxo_inputs_serialize(es->inputs, offset, input_ser_len);
+
+  // serialize inputs commitment
+  memcpy(offset, &es->inputs_commitment, CRYPTO_BLAKE2B_HASH_BYTES);
+  offset += CRYPTO_BLAKE2B_HASH_BYTES;
 
   // serialize outputs
   size_t output_ser_len = utxo_outputs_serialize_len(es->outputs);
@@ -144,7 +158,7 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
     return NULL;
   }
 
-  transaction_essence_t* es = tx_essence_new();
+  transaction_essence_t* es = tx_essence_new(0);
 
   size_t offset = 0;
 
@@ -152,6 +166,11 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   memcpy(&es->tx_type, &buf[offset], sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
+  // network Id
+  memcpy(&es->network_id, &buf[offset], sizeof(uint64_t));
+  offset += sizeof(uint64_t);
+
+  // inputs
   es->inputs = utxo_inputs_deserialize(&buf[offset], buf_len - offset);
   if (es->inputs == NULL) {
     tx_essence_free(es);
@@ -159,6 +178,11 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   }
   offset += utxo_inputs_serialize_len(es->inputs);
 
+  // inputs commitment
+  memcpy(&es->inputs_commitment, &buf[offset], CRYPTO_BLAKE2B_HASH_BYTES);
+  offset += CRYPTO_BLAKE2B_HASH_BYTES;
+
+  // outputs
   es->outputs = utxo_outputs_deserialize(&buf[offset], buf_len - offset);
   if (es->outputs == NULL) {
     tx_essence_free(es);
@@ -189,8 +213,11 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
 void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
   printf("%sTransaction Essence: [\n", PRINT_INDENTATION(indentation));
   printf("%s\tType: %d\n", PRINT_INDENTATION(indentation), es->tx_type);
+  printf("%s\tNetwork Id: %" PRIu64 "\n", PRINT_INDENTATION(indentation), es->network_id);
 
   utxo_inputs_print(es->inputs, indentation + 1);
+  printf("%s\tInputs Commitment: ", PRINT_INDENTATION(indentation));
+  dump_hex_str(es->inputs_commitment, sizeof(es->inputs_commitment));
   utxo_outputs_print(es->outputs, indentation + 1);
 
   if (es->payload_len > 0) {
@@ -200,11 +227,11 @@ void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }
 
-transaction_payload_t* tx_payload_new() {
+transaction_payload_t* tx_payload_new(uint64_t network_id) {
   transaction_payload_t* tx = malloc(sizeof(transaction_payload_t));
   if (tx) {
     tx->type = CORE_MESSAGE_PAYLOAD_TRANSACTION;  // 0 to denote a Transaction payload.
-    tx->essence = tx_essence_new();
+    tx->essence = tx_essence_new(network_id);
     tx->unlock_blocks = unlock_blocks_new();
     if (tx->essence == NULL) {
       tx_payload_free(tx);
@@ -302,7 +329,7 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
     return NULL;
   }
 
-  transaction_payload_t* tx_payload = tx_payload_new();
+  transaction_payload_t* tx_payload = tx_payload_new(0);
 
   size_t offset = 0;
 

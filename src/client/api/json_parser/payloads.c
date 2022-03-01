@@ -15,8 +15,10 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   /*
   {
     "type": 0,
-    "inputs": input_array
-    "outputs": output_array
+    "networkId": "8453507715857476362",
+    "inputs": input_array,
+    "inputsCommitment": "9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9",
+    "outputs": output_array,
     "payload": payload object
   }
   */
@@ -49,6 +51,15 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
     return NULL;
   }
 
+  // network ID
+  char network_id[65] = {};
+  sprintf(network_id, "%" PRIu64 "", es->network_id);
+  if (!cJSON_AddStringToObject(es_obj, JSON_KEY_NET_ID, network_id)) {
+    printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
+    cJSON_Delete(es_obj);
+    return NULL;
+  }
+
   // input array
   if ((input_arr = json_inputs_serialize(es->inputs)) == NULL) {
     printf("[%s:%d] add inputs failed\n", __func__, __LINE__);
@@ -56,6 +67,20 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
     return NULL;
   }
   cJSON_AddItemToObject(es_obj, JSON_KEY_INPUTS, input_arr);
+
+  // inputs commitment
+  char inputs_commitment_str[BIN_TO_HEX_STR_BYTES(sizeof(es->inputs_commitment))] = {};
+  if (bin_2_hex(es->inputs_commitment, sizeof(es->inputs_commitment), inputs_commitment_str,
+                sizeof(inputs_commitment_str)) != 0) {
+    printf("[%s:%d] convert inputs commitment to hex string error\n", __func__, __LINE__);
+    cJSON_Delete(es_obj);
+    return NULL;
+  }
+  if (!cJSON_AddStringToObject(es_obj, JSON_KEY_INPUTS_COMMITMENT, inputs_commitment_str)) {
+    printf("[%s:%d] add inputs commitment to essence error\n", __func__, __LINE__);
+    cJSON_Delete(es_obj);
+    return NULL;
+  }
 
   // output array
   if ((output_arr = json_outputs_serialize(es->outputs)) == NULL) {
@@ -118,7 +143,7 @@ static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_
 int milestone_deserialize(cJSON* payload, milestone_t* ms) {
   /*
   {
-    "networkId": "8453507715857476362",
+    "protocolVersion": 2,
     "parentMessageIds": [
       "596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
       "8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
@@ -225,6 +250,14 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
   // parsing essence
   cJSON* essence_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_ESSENCE);
   if (essence_obj) {
+    // network Id
+    char str_buff[32];
+    if ((json_get_string(essence_obj, JSON_KEY_NET_ID, str_buff, sizeof(str_buff))) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NET_ID);
+      return -1;
+    }
+    sscanf(str_buff, "%" SCNu64, &tx->essence->network_id);
+
     // inputs array
     cJSON* inputs_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_INPUTS);
     if (cJSON_IsArray(inputs_obj)) {
@@ -233,6 +266,13 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
       }
     } else {
       printf("[%s:%d]: %s is not an array\n", __func__, __LINE__, JSON_KEY_INPUTS);
+      return -1;
+    }
+
+    //  inputs commitment
+    if (json_get_hex_str_to_bin(essence_obj, JSON_KEY_INPUTS_COMMITMENT, tx->essence->inputs_commitment,
+                                sizeof(tx->essence->inputs_commitment)) != JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_INPUTS_COMMITMENT);
       return -1;
     }
 

@@ -56,7 +56,7 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
   }
 
   // allocate message object
-  res->u.msg = core_message_new();
+  res->u.msg = core_message_new(0);
   if (!res->u.msg) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
     goto end;
