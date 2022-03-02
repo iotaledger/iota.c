@@ -16,7 +16,7 @@
       "nftId": "bebc45994f6bd9394f552b62c6e370ce1ab52d2e",
       "unlockConditions": [],
       "featureBlocks": [],
-      "immutableData": "testMetadata"
+      "immutableFeatureBlocks": []
     }
   ]
 */
@@ -31,7 +31,7 @@ int json_output_nft_deserialize(cJSON *output_obj, output_nft_t **nft) {
   native_tokens_t *tokens = native_tokens_new();
   cond_blk_list_t *cond_blocks = cond_blk_list_new();
   feat_blk_list_t *feat_blocks = feat_blk_list_new();
-  byte_buf_t *immutable_metadata = byte_buf_new();
+  feat_blk_list_t *immut_feat_blocks = feat_blk_list_new();
 
   // amount
   uint64_t amount;
@@ -65,15 +65,14 @@ int json_output_nft_deserialize(cJSON *output_obj, output_nft_t **nft) {
     goto end;
   }
 
-  // immutable metadata
-  if (json_get_byte_buf_str(output_obj, JSON_KEY_IMMUTABLE_DATA, immutable_metadata) != JSON_OK) {
-    printf("[%s:%d]: getting %s json byte buffer failed\n", __func__, __LINE__, JSON_KEY_IMMUTABLE_DATA);
+  // immutable feature blocks array
+  if (json_feat_blocks_deserialize(output_obj, true, &immut_feat_blocks) != 0) {
+    printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_IMMUTABLE_BLOCKS);
     goto end;
   }
 
   // create NFT output
-  *nft = output_nft_new(amount, tokens, nft_id, immutable_metadata->data, immutable_metadata->len, cond_blocks,
-                        feat_blocks);
+  *nft = output_nft_new(amount, tokens, nft_id, cond_blocks, feat_blocks, immut_feat_blocks);
   if (!*nft) {
     printf("[%s:%d]: creating NFT output object failed \n", __func__, __LINE__);
     goto end;
@@ -86,7 +85,7 @@ end:
   native_tokens_free(&tokens);
   cond_blk_list_free(cond_blocks);
   feat_blk_list_free(feat_blocks);
-  byte_buf_free(immutable_metadata);
+  feat_blk_list_free(immut_feat_blocks);
 
   return result;
 }
@@ -126,26 +125,6 @@ cJSON *json_output_nft_serialize(output_nft_t *nft) {
       goto err;
     }
 
-    // immutable metadata
-    char *meta = malloc(BIN_TO_HEX_STR_BYTES(nft->immutable_metadata->len));
-    if (!meta) {
-      printf("[%s:%d] allocate metadata error\n", __func__, __LINE__);
-      goto err;
-    }
-    if (bin_2_hex(nft->immutable_metadata->data, nft->immutable_metadata->len, meta,
-                  BIN_TO_HEX_STR_BYTES(nft->immutable_metadata->len)) != 0) {
-      printf("[%s:%d] convert metadata to hex string error\n", __func__, __LINE__);
-      free(meta);
-      goto err;
-    }
-    if (!cJSON_AddStringToObject(output_obj, JSON_KEY_IMMUTABLE_DATA, meta)) {
-      printf("[%s:%d] add metadata into NFT error\n", __func__, __LINE__);
-      free(meta);
-      cJSON_Delete(tmp);
-      goto err;
-    }
-    free(meta);
-
     // unlock conditions
     tmp = json_cond_blk_list_serialize(nft->unlock_conditions);
     if (!cJSON_AddItemToObject(output_obj, JSON_KEY_UNLOCK_CONDITIONS, tmp)) {
@@ -158,6 +137,14 @@ cJSON *json_output_nft_serialize(output_nft_t *nft) {
     tmp = json_feat_blocks_serialize(nft->feature_blocks);
     if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEAT_BLOCKS, tmp)) {
       printf("[%s:%d] add feature blocks to NFT error\n", __func__, __LINE__);
+      cJSON_Delete(tmp);
+      goto err;
+    }
+
+    // immutable feature blocks
+    tmp = json_feat_blocks_serialize(nft->immutable_blocks);
+    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_IMMUTABLE_BLOCKS, tmp)) {
+      printf("[%s:%d] add immutable feature blocks to NFT error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
     }
