@@ -11,7 +11,7 @@
 transaction_essence_t* tx_essence_new(uint64_t network_id) {
   transaction_essence_t* es = malloc(sizeof(transaction_essence_t));
   if (es) {
-    es->tx_type = TRANSACTION_PAYLOAD_ESSENCE;  // 0 to denote a transaction essence.
+    es->tx_type = TRANSACTION_ESSENCE_TYPE;  // 0 to denote a transaction essence.
     es->network_id = network_id;
     es->inputs = utxo_inputs_new();
     memset(es->inputs_commitment, 0, sizeof(es->inputs_commitment));

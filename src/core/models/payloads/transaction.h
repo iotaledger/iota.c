@@ -15,10 +15,8 @@
 
 static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
 
-typedef enum {
-  TRANSACTION_PAYLOAD_ESSENCE = 0,
-  TRANSACTION_PAYLOAD_UNKNOWN = UINT32_MAX - 1,
-} transaction_payload_type_t;
+// have one transaction essence only which is 0
+#define TRANSACTION_ESSENCE_TYPE 0
 
 /**
  * @brief Transaction Essence, the essence data making up a transaction by defining its inputs and outputs and an
