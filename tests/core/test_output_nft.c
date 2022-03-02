@@ -18,10 +18,8 @@ byte_t token_id2[NATIVE_TOKEN_ID_BYTES] = {0xDD, 0xA7, 0xC5, 0x79, 0x47, 0x9E, 0
 byte_t token_id3[NATIVE_TOKEN_ID_BYTES] = {0xBA, 0x26, 0x7E, 0x59, 0xE5, 0x31, 0x77, 0xB3, 0x2A, 0xA9, 0xBF, 0xEF, 0x56,
                                            0x31, 0x18, 0xC9, 0xE0, 0xAD, 0xD,  0x76, 0x88, 0x7B, 0x65, 0xFD, 0x58, 0x75,
                                            0xB7, 0x13, 0x29, 0x73, 0x5B, 0x94, 0x2B, 0x81, 0x6A, 0x7F, 0xE6, 0x79};
-byte_t token_id4[NATIVE_TOKEN_ID_BYTES] = {0x45, 0x15, 0xEF, 0x59, 0xE5, 0x34, 0x77, 0xB3, 0x2A, 0xA9, 0xBC, 0xE,  0x56,
-                                           0x31, 0x18, 0xC9, 0xD5, 0xAD, 0xD7, 0x76, 0x88, 0x7B, 0x75, 0xFD, 0x58, 0x75,
-                                           0xB7, 0x12, 0x25, 0x73, 0x5B, 0x91, 0x2B, 0x81, 0x6A, 0x7F, 0xD3, 0xEF};
 byte_t test_meta[] = "Test metadata...";
+byte_t test_immut_meta[] = "Test immutable metadata...";
 byte_t test_tag[] = "Test TAG";
 native_tokens_t* native_tokens = NULL;
 uint256_t* amount1 = NULL;
@@ -86,24 +84,26 @@ void test_output_nft() {
   address_t sender_addr = {};
   sender_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(sender_addr.address, ADDRESS_ED25519_BYTES);
-  // create random iisuer address
+  // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
-  TEST_ASSERT(feat_blk_list_add_issuer(&feat_blocks, &issuer_addr) == 0);
-  TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
-  TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) == 0);
   TEST_ASSERT(feat_blk_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag)) == 0);
+  TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) == 0);
+  TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
+  // create Immutable Feature Blocks
+  feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
+  TEST_ASSERT(feat_blk_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
+  TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
 
   // create NFT ID
   byte_t nft_id[ADDRESS_NFT_BYTES];
   iota_crypto_randombytes(nft_id, ADDRESS_NFT_BYTES);
 
   // create NFT Output
-  output_nft_t* output =
-      output_nft_new(123456789, native_tokens, nft_id, test_meta, sizeof(test_meta), unlock_conds, feat_blocks);
+  output_nft_t* output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
@@ -127,10 +127,6 @@ void test_output_nft() {
   // validate NFT ID
   TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, ADDRESS_NFT_BYTES);
 
-  // validate metadata
-  TEST_ASSERT_EQUAL_INT32(sizeof(test_meta), output->immutable_metadata->len);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, output->immutable_metadata->data, output->immutable_metadata->len);
-
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
   TEST_ASSERT_EQUAL_UINT8(4, cond_blk_list_len(output->unlock_conditions));
@@ -157,26 +153,36 @@ void test_output_nft() {
 
   // feature blocks should be in adding order
   TEST_ASSERT_NOT_NULL(output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(4, feat_blk_list_len(output->feature_blocks));
+  TEST_ASSERT_EQUAL_UINT8(3, feat_blk_list_len(output->feature_blocks));
 
-  // 1: Issuer
+  // 0: Tag
   feat_block_t* feat_block = feat_blk_list_get(output->feature_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, feat_block->type);
-  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)feat_block->block));
-  // 2: Metadata
-  feat_block = feat_blk_list_get(output->feature_blocks, 1);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
-                           ((feat_metadata_blk_t*)feat_block->block)->data_len);
-  // 3: Sender
-  feat_block = feat_blk_list_get(output->feature_blocks, 2);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
-  TEST_ASSERT_TRUE(address_equal(&sender_addr, (address_t*)feat_block->block));
-  // 4: Tag
-  feat_block = feat_blk_list_get(output->feature_blocks, 3);
   TEST_ASSERT_EQUAL_UINT8(FEAT_TAG_BLOCK, feat_block->type);
   TEST_ASSERT_EQUAL_MEMORY(test_tag, ((feat_tag_blk_t*)feat_block->block)->tag,
                            ((feat_tag_blk_t*)feat_block->block)->tag_len);
+  // 1: Sender
+  feat_block = feat_blk_list_get(output->feature_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
+  TEST_ASSERT_TRUE(address_equal(&sender_addr, (address_t*)feat_block->block));
+  // 2: Metadata
+  feat_block = feat_blk_list_get(output->feature_blocks, 2);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
+                           ((feat_metadata_blk_t*)feat_block->block)->data_len);
+
+  // immutable feature blocks should be in adding order
+  TEST_ASSERT_NOT_NULL(output->immutable_blocks);
+  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(output->immutable_blocks));
+
+  // 0: Metadata
+  feat_block_t* immut_feat_block = feat_blk_list_get(output->immutable_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(test_immut_meta, ((feat_metadata_blk_t*)immut_feat_block->block)->data,
+                           ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
+  // 1: Issuer
+  immut_feat_block = feat_blk_list_get(output->immutable_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
 
   // serialize NFT Output and validate it
   size_t output_nft_expected_len = output_nft_serialize_len(output);
@@ -193,8 +199,6 @@ void test_output_nft() {
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, ADDRESS_NFT_BYTES);
-  TEST_ASSERT_EQUAL_INT32(sizeof(test_meta), deser_output->immutable_metadata->len);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, deser_output->immutable_metadata->data, deser_output->immutable_metadata->len);
 
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
@@ -212,31 +216,42 @@ void test_output_nft() {
   // deserialized feature blocks
   TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);
   // should be sorted based on block type
-  TEST_ASSERT_EQUAL_UINT8(4, feat_blk_list_len(deser_output->feature_blocks));
+  TEST_ASSERT_EQUAL_UINT8(3, feat_blk_list_len(deser_output->feature_blocks));
   // 0: Sender
   feat_block = feat_blk_list_get(deser_output->feature_blocks, 0);
   TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
   TEST_ASSERT_TRUE(address_equal(&sender_addr, (address_t*)feat_block->block));
-  // 1: Issuer
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 1);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, feat_block->type);
-  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)feat_block->block));
   // 1: Metadata
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 2);
+  feat_block = feat_blk_list_get(deser_output->feature_blocks, 1);
   TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
                            ((feat_metadata_blk_t*)feat_block->block)->data_len);
   // 2: Tag
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 3);
+  feat_block = feat_blk_list_get(deser_output->feature_blocks, 2);
   TEST_ASSERT_EQUAL_UINT8(FEAT_TAG_BLOCK, feat_block->type);
   TEST_ASSERT_EQUAL_MEMORY(test_tag, ((feat_tag_blk_t*)feat_block->block)->tag,
                            ((feat_tag_blk_t*)feat_block->block)->tag_len);
+
+  // deserialized immutable feature blocks
+  TEST_ASSERT_NOT_NULL(deser_output->immutable_blocks);
+  // should be sorted based on block type
+  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(deser_output->immutable_blocks));
+  // 0: Issuer
+  immut_feat_block = feat_blk_list_get(deser_output->immutable_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
+  // 1: Metadata
+  immut_feat_block = feat_blk_list_get(deser_output->immutable_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(test_immut_meta, ((feat_metadata_blk_t*)immut_feat_block->block)->data,
+                           ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
 
   output_nft_print(output, 0);
 
   free(output_nft_buf);
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);
+  feat_blk_list_free(immut_feat_blocks);
   output_nft_free(deser_output);
   output_nft_free(output);
 }
@@ -253,24 +268,26 @@ void test_output_nft_without_native_tokens() {
   address_t sender_addr = {};
   sender_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(sender_addr.address, ADDRESS_ED25519_BYTES);
-  // create random iisuer address
+  // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
-  TEST_ASSERT(feat_blk_list_add_issuer(&feat_blocks, &issuer_addr) == 0);
-  TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
-  TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) == 0);
   TEST_ASSERT(feat_blk_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag)) == 0);
+  TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) == 0);
+  TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
+  // create Immutable Feature Blocks
+  feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
+  TEST_ASSERT(feat_blk_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
+  TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
 
   // create NFT ID
   byte_t nft_id[ADDRESS_NFT_BYTES];
   iota_crypto_randombytes(nft_id, ADDRESS_NFT_BYTES);
 
   // create NFT Output
-  output_nft_t* output =
-      output_nft_new(123456789, NULL, nft_id, test_meta, sizeof(test_meta), unlock_conds, feat_blocks);
+  output_nft_t* output = output_nft_new(123456789, NULL, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
@@ -283,10 +300,6 @@ void test_output_nft_without_native_tokens() {
 
   // validate NFT ID
   TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, ADDRESS_NFT_BYTES);
-
-  // validate metadata
-  TEST_ASSERT_EQUAL_INT32(sizeof(test_meta), output->immutable_metadata->len);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, output->immutable_metadata->data, output->immutable_metadata->len);
 
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -314,26 +327,36 @@ void test_output_nft_without_native_tokens() {
 
   // feature blocks should be in adding order
   TEST_ASSERT_NOT_NULL(output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(4, feat_blk_list_len(output->feature_blocks));
+  TEST_ASSERT_EQUAL_UINT8(3, feat_blk_list_len(output->feature_blocks));
 
-  // 1: Issuer
+  // 0: Tag
   feat_block_t* feat_block = feat_blk_list_get(output->feature_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, feat_block->type);
-  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)feat_block->block));
-  // 2: Metadata
-  feat_block = feat_blk_list_get(output->feature_blocks, 1);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
-                           ((feat_metadata_blk_t*)feat_block->block)->data_len);
-  // 3: Sender
-  feat_block = feat_blk_list_get(output->feature_blocks, 2);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
-  TEST_ASSERT_TRUE(address_equal(&sender_addr, (address_t*)feat_block->block));
-  // 4: Tag
-  feat_block = feat_blk_list_get(output->feature_blocks, 3);
   TEST_ASSERT_EQUAL_UINT8(FEAT_TAG_BLOCK, feat_block->type);
   TEST_ASSERT_EQUAL_MEMORY(test_tag, ((feat_tag_blk_t*)feat_block->block)->tag,
                            ((feat_tag_blk_t*)feat_block->block)->tag_len);
+  // 1: Sender
+  feat_block = feat_blk_list_get(output->feature_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
+  TEST_ASSERT_TRUE(address_equal(&sender_addr, (address_t*)feat_block->block));
+  // 2: Metadata
+  feat_block = feat_blk_list_get(output->feature_blocks, 2);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
+                           ((feat_metadata_blk_t*)feat_block->block)->data_len);
+
+  // immutable feature blocks should be in adding order
+  TEST_ASSERT_NOT_NULL(output->immutable_blocks);
+  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(output->immutable_blocks));
+
+  // 0: Metadata
+  feat_block_t* immut_feat_block = feat_blk_list_get(output->immutable_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(test_immut_meta, ((feat_metadata_blk_t*)immut_feat_block->block)->data,
+                           ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
+  // 1: Issuer
+  immut_feat_block = feat_blk_list_get(output->immutable_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
 
   // serialize NFT Output and validate it
   size_t output_nft_expected_len = output_nft_serialize_len(output);
@@ -350,178 +373,46 @@ void test_output_nft_without_native_tokens() {
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, ADDRESS_NFT_BYTES);
-  TEST_ASSERT_EQUAL_INT32(sizeof(test_meta), deser_output->immutable_metadata->len);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, deser_output->immutable_metadata->data, deser_output->immutable_metadata->len);
 
   TEST_ASSERT_NULL(deser_output->native_tokens);
 
   // deserialized feature blocks
   TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);
   // should be sorted based on block type
-  TEST_ASSERT_EQUAL_UINT8(4, feat_blk_list_len(deser_output->feature_blocks));
+  TEST_ASSERT_EQUAL_UINT8(3, feat_blk_list_len(deser_output->feature_blocks));
   // 0: Sender
   feat_block = feat_blk_list_get(deser_output->feature_blocks, 0);
   TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
   TEST_ASSERT_TRUE(address_equal(&sender_addr, (address_t*)feat_block->block));
-  // 1: Issuer
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 1);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, feat_block->type);
-  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)feat_block->block));
   // 1: Metadata
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 2);
+  feat_block = feat_blk_list_get(deser_output->feature_blocks, 1);
   TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
                            ((feat_metadata_blk_t*)feat_block->block)->data_len);
   // 2: Tag
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 3);
+  feat_block = feat_blk_list_get(deser_output->feature_blocks, 2);
   TEST_ASSERT_EQUAL_UINT8(FEAT_TAG_BLOCK, feat_block->type);
   TEST_ASSERT_EQUAL_MEMORY(test_tag, ((feat_tag_blk_t*)feat_block->block)->tag,
                            ((feat_tag_blk_t*)feat_block->block)->tag_len);
 
-  free(output_nft_buf);
-  cond_blk_list_free(unlock_conds);
-  feat_blk_list_free(feat_blocks);
-  output_nft_free(deser_output);
-  output_nft_free(output);
-}
-
-void test_output_nft_without_metadata() {
-  // create unlock conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_expir) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_timelock) == 0);
-
-  // create random sender address
-  address_t sender_addr = {};
-  sender_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(sender_addr.address, ADDRESS_ED25519_BYTES);
-  // create random iisuer address
-  address_t issuer_addr = {};
-  issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
-  // create Feature Blocks
-  feat_blk_list_t* feat_blocks = feat_blk_list_new();
-  TEST_ASSERT(feat_blk_list_add_issuer(&feat_blocks, &issuer_addr) == 0);
-  TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
-  TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) == 0);
-  TEST_ASSERT(feat_blk_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag)) == 0);
-
-  // create NFT ID
-  byte_t nft_id[ADDRESS_NFT_BYTES];
-  iota_crypto_randombytes(nft_id, ADDRESS_NFT_BYTES);
-
-  // create NFT Output
-  output_nft_t* output = output_nft_new(123456789, NULL, nft_id, NULL, 0, unlock_conds, feat_blocks);
-
-  // validation
-  TEST_ASSERT_NOT_NULL(output);
-
-  // validate amount
-  TEST_ASSERT_EQUAL_UINT64(123456789, output->amount);
-
-  // validate native tokens
-  TEST_ASSERT_NULL(output->native_tokens);
-
-  // validate NFT ID
-  TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, ADDRESS_NFT_BYTES);
-
-  // validate metadata
-  TEST_ASSERT_NULL(output->immutable_metadata);
-
-  // unlock conditions should be in adding order
-  TEST_ASSERT_NOT_NULL(output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(4, cond_blk_list_len(output->unlock_conditions));
-  // 0: Address Unlock
-  unlock_cond_blk_t* cond_block = cond_blk_list_get(output->unlock_conditions, 0);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
-  // 1: Dust Return Unlock
-  cond_block = cond_blk_list_get(output->unlock_conditions, 1);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
-  TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
-  // 2: Expiration Unlock
-  cond_block = cond_blk_list_get(output->unlock_conditions, 2);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_EXPIRATION, cond_block->type);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_expir_t*)cond_block->block)->addr));
-  TEST_ASSERT(unlock_time_ms == ((unlock_cond_expir_t*)cond_block->block)->milestone);
-  TEST_ASSERT(unlock_time_unix == ((unlock_cond_expir_t*)cond_block->block)->time);
-  // 3: Timelock Unlock
-  cond_block = cond_blk_list_get(output->unlock_conditions, 3);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_TIMELOCK, cond_block->type);
-  TEST_ASSERT(unlock_time_ms == ((unlock_cond_timelock_t*)cond_block->block)->milestone);
-  TEST_ASSERT(unlock_time_unix == ((unlock_cond_timelock_t*)cond_block->block)->time);
-
-  // feature blocks should be in adding order
-  TEST_ASSERT_NOT_NULL(output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(4, feat_blk_list_len(output->feature_blocks));
-
-  // 1: Issuer
-  feat_block_t* feat_block = feat_blk_list_get(output->feature_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, feat_block->type);
-  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)feat_block->block));
-  // 2: Metadata
-  feat_block = feat_blk_list_get(output->feature_blocks, 1);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
-                           ((feat_metadata_blk_t*)feat_block->block)->data_len);
-  // 3: Sender
-  feat_block = feat_blk_list_get(output->feature_blocks, 2);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
-  TEST_ASSERT_TRUE(address_equal(&sender_addr, (address_t*)feat_block->block));
-  // 4: Tag
-  feat_block = feat_blk_list_get(output->feature_blocks, 3);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_TAG_BLOCK, feat_block->type);
-  TEST_ASSERT_EQUAL_MEMORY(test_tag, ((feat_tag_blk_t*)feat_block->block)->tag,
-                           ((feat_tag_blk_t*)feat_block->block)->tag_len);
-
-  // serialize NFT Output and validate it
-  size_t output_nft_expected_len = output_nft_serialize_len(output);
-  TEST_ASSERT(output_nft_expected_len != 0);
-  byte_t* output_nft_buf = malloc(output_nft_expected_len);
-  TEST_ASSERT_NOT_NULL(output_nft_buf);
-  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, 1) == 0);  // expect serialization fails
-  TEST_ASSERT(output_nft_serialize(output, output_nft_buf, output_nft_expected_len) == output_nft_expected_len);
-
-  // deserialize NFT Output and validate it
-  output_nft_t* deser_output = output_nft_deserialize(output_nft_buf, 1);
-  TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
-  deser_output = output_nft_deserialize(output_nft_buf, output_nft_expected_len);
-  TEST_ASSERT_NOT_NULL(deser_output);
-  TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
-  TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, ADDRESS_NFT_BYTES);
-  TEST_ASSERT_NULL(deser_output->immutable_metadata);
-
-  TEST_ASSERT_NULL(deser_output->native_tokens);
-
-  // deserialized feature blocks
-  TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);
+  // deserialized immutable feature blocks
+  TEST_ASSERT_NOT_NULL(deser_output->immutable_blocks);
   // should be sorted based on block type
-  TEST_ASSERT_EQUAL_UINT8(4, feat_blk_list_len(deser_output->feature_blocks));
-  // 0: Sender
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
-  TEST_ASSERT_TRUE(address_equal(&sender_addr, (address_t*)feat_block->block));
-  // 1: Issuer
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 1);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, feat_block->type);
-  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)feat_block->block));
+  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(deser_output->immutable_blocks));
+  // 0: Issuer
+  immut_feat_block = feat_blk_list_get(deser_output->immutable_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
   // 1: Metadata
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 2);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
-                           ((feat_metadata_blk_t*)feat_block->block)->data_len);
-  // 2: Tag
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 3);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_TAG_BLOCK, feat_block->type);
-  TEST_ASSERT_EQUAL_MEMORY(test_tag, ((feat_tag_blk_t*)feat_block->block)->tag,
-                           ((feat_tag_blk_t*)feat_block->block)->tag_len);
+  immut_feat_block = feat_blk_list_get(deser_output->immutable_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(test_immut_meta, ((feat_metadata_blk_t*)immut_feat_block->block)->data,
+                           ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
 
   free(output_nft_buf);
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);
+  feat_blk_list_free(immut_feat_blocks);
   output_nft_free(deser_output);
   output_nft_free(output);
 }
@@ -538,8 +429,17 @@ void test_output_nft_without_feature_blocks() {
   byte_t nft_id[ADDRESS_NFT_BYTES];
   iota_crypto_randombytes(nft_id, ADDRESS_NFT_BYTES);
 
+  // create random issuer address
+  address_t issuer_addr = {};
+  issuer_addr.type = ADDRESS_TYPE_ED25519;
+  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
+  // create Immutable Feature Blocks
+  feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
+  TEST_ASSERT(feat_blk_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
+  TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
+
   // create NFT Output
-  output_nft_t* output = output_nft_new(123456789, NULL, nft_id, NULL, 0, unlock_conds, NULL);
+  output_nft_t* output = output_nft_new(123456789, NULL, nft_id, unlock_conds, NULL, immut_feat_blocks);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
@@ -552,9 +452,6 @@ void test_output_nft_without_feature_blocks() {
 
   // validate NFT ID
   TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, ADDRESS_NFT_BYTES);
-
-  // validate metadata
-  TEST_ASSERT_NULL(output->immutable_metadata);
 
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -580,8 +477,22 @@ void test_output_nft_without_feature_blocks() {
   TEST_ASSERT(unlock_time_ms == ((unlock_cond_timelock_t*)cond_block->block)->milestone);
   TEST_ASSERT(unlock_time_unix == ((unlock_cond_timelock_t*)cond_block->block)->time);
 
-  // feature blocks should be in adding order
+  // no feature blocks
   TEST_ASSERT_NULL(output->feature_blocks);
+
+  // immutable feature blocks should be in adding order
+  TEST_ASSERT_NOT_NULL(output->immutable_blocks);
+  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(output->immutable_blocks));
+
+  // 0: Metadata
+  feat_block_t* immut_feat_block = feat_blk_list_get(output->immutable_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(test_immut_meta, ((feat_metadata_blk_t*)immut_feat_block->block)->data,
+                           ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
+  // 1: Issuer
+  immut_feat_block = feat_blk_list_get(output->immutable_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
 
   // serialize NFT Output and validate it
   size_t output_nft_expected_len = output_nft_serialize_len(output);
@@ -598,16 +509,30 @@ void test_output_nft_without_feature_blocks() {
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, ADDRESS_NFT_BYTES);
-  TEST_ASSERT_NULL(deser_output->immutable_metadata);
 
   TEST_ASSERT_NULL(deser_output->native_tokens);
 
   // deserialized feature blocks
   TEST_ASSERT_NULL(deser_output->feature_blocks);
 
+  // deserialized immutable feature blocks
+  TEST_ASSERT_NOT_NULL(deser_output->immutable_blocks);
+  // should be sorted based on block type
+  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(deser_output->immutable_blocks));
+  // 0: Issuer
+  immut_feat_block = feat_blk_list_get(deser_output->immutable_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
+  // 1: Metadata
+  immut_feat_block = feat_blk_list_get(deser_output->immutable_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, immut_feat_block->type);
+  TEST_ASSERT_EQUAL_MEMORY(test_immut_meta, ((feat_metadata_blk_t*)immut_feat_block->block)->data,
+                           ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
+
   free(output_nft_buf);
   cond_blk_list_free(unlock_conds);
   output_nft_free(deser_output);
+  feat_blk_list_free(immut_feat_blocks);
   output_nft_free(output);
 }
 
@@ -634,17 +559,20 @@ void test_output_nft_validation() {
 
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
-  TEST_ASSERT(feat_blk_list_add_issuer(&feat_blocks, &issuer_addr) == 0);
   TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
   TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) == 0);
   TEST_ASSERT(feat_blk_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag)) == 0);
 
+  // create Immutable Feature Blocks
+  feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
+  TEST_ASSERT(feat_blk_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
+  TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
+
   //=====Test NULL NFT ID=====
-  output_nft_t* output =
-      output_nft_new(123456789, native_tokens, nft_id, test_meta, sizeof(test_meta), unlock_conds, feat_blocks);
+  output_nft_t* output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
   TEST_ASSERT_NOT_NULL(output);
   output_nft_free(output);
-  output = output_nft_new(123456789, native_tokens, NULL, test_meta, sizeof(test_meta), unlock_conds, feat_blocks);
+  output = output_nft_new(123456789, native_tokens, NULL, unlock_conds, feat_blocks, immut_feat_blocks);
   TEST_ASSERT_NULL(output);
 
   //=====Test address matches NFT ID=====
@@ -653,28 +581,28 @@ void test_output_nft_validation() {
       "derived from NFT ID\n");
 
   //=====Test NULL Unlock Block=====
-  output = output_nft_new(123456789, native_tokens, nft_id, test_meta, sizeof(test_meta), NULL, feat_blocks);
+  output = output_nft_new(123456789, native_tokens, nft_id, NULL, feat_blocks, immut_feat_blocks);
   TEST_ASSERT_NULL(output);
 
   //=====Test unlock condition with state controller=====
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_state) == 0);
-  output = output_nft_new(123456789, native_tokens, nft_id, test_meta, sizeof(test_meta), unlock_conds, feat_blocks);
+  output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
   TEST_ASSERT_NULL(output);
 
-  //=====Test unlock condition with governer unlock =====
+  //=====Test unlock condition with governor unlock =====
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_gov) == 0);
-  output = output_nft_new(123456789, native_tokens, nft_id, test_meta, sizeof(test_meta), unlock_conds, feat_blocks);
+  output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
   TEST_ASSERT_NULL(output);
 
   //=====Test without address unlock condition=====
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
-  output = output_nft_new(123456789, native_tokens, nft_id, test_meta, sizeof(test_meta), unlock_conds, feat_blocks);
+  output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
   TEST_ASSERT_NULL(output);
 
   //=====Test maximum unlock blocks=====
@@ -692,18 +620,24 @@ void test_output_nft_validation() {
 
   //=====Test maximum feature blocks count=====
   iota_crypto_randombytes(sender_addr.address, ADDRESS_NFT_BYTES);
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_NFT_BYTES);
   // Adding one more block should fail.
   TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) != 0);
-  TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &issuer_addr) != 0);
   byte_t test_meta_new[] = "Test metadata new";
   byte_t test_tag_new[] = "Test TAG New";
   TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta_new, sizeof(test_meta_new)) != 0);
   TEST_ASSERT(feat_blk_list_add_tag(&feat_blocks, test_tag_new, sizeof(test_tag_new)) != 0);
 
+  //=====Test maximum immutable feature blocks count=====
+  iota_crypto_randombytes(issuer_addr.address, ADDRESS_NFT_BYTES);
+  // Adding one more block should fail.
+  TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) != 0);
+  byte_t test_immut_meta_new[] = "Test metadata new";
+  TEST_ASSERT(feat_blk_list_add_metadata(&immut_feat_blocks, test_immut_meta_new, sizeof(test_immut_meta_new)) != 0);
+
   // clean up
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);
+  feat_blk_list_free(immut_feat_blocks);
   output_nft_free(output);
 }
 
@@ -728,9 +662,16 @@ void test_output_nft_clone() {
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) == 0);
 
+  // create Immutable Feature Blocks
+  // create random issuer address
+  address_t issuer_addr = {};
+  issuer_addr.type = ADDRESS_TYPE_ED25519;
+  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
+  feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
+  TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
+
   // create NFT Output
-  output_nft_t* output =
-      output_nft_new(123456789, native_tokens, nft_id, test_meta, sizeof(test_meta), unlock_conds, feat_blocks);
+  output_nft_t* output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
   TEST_ASSERT_NOT_NULL(output);
 
   // clone NFT Output object
@@ -745,18 +686,21 @@ void test_output_nft_clone() {
   TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&output->native_tokens), native_tokens_count(&new_output->native_tokens));
 
   TEST_ASSERT_EQUAL_MEMORY(output->nft_id, new_output->nft_id, ADDRESS_NFT_BYTES);
-  TEST_ASSERT_EQUAL_INT32(output->immutable_metadata->len, new_output->immutable_metadata->len);
-  TEST_ASSERT_EQUAL_MEMORY(output->immutable_metadata->data, new_output->immutable_metadata->data,
-                           output->immutable_metadata->len);
 
   // validate feature blocks
   TEST_ASSERT_NOT_NULL(output->feature_blocks);
   TEST_ASSERT_NOT_NULL(new_output->feature_blocks);
   TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(output->feature_blocks), feat_blk_list_len(new_output->feature_blocks));
 
+  // validate immutable feature blocks
+  TEST_ASSERT_NOT_NULL(output->immutable_blocks);
+  TEST_ASSERT_NOT_NULL(new_output->immutable_blocks);
+  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(output->immutable_blocks), feat_blk_list_len(new_output->immutable_blocks));
+
   // clean up
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);
+  feat_blk_list_free(immut_feat_blocks);
   output_nft_free(new_output);
   output_nft_free(output);
 }
@@ -766,7 +710,6 @@ int main() {
 
   RUN_TEST(test_output_nft);
   RUN_TEST(test_output_nft_without_native_tokens);
-  RUN_TEST(test_output_nft_without_metadata);
   RUN_TEST(test_output_nft_without_feature_blocks);
   RUN_TEST(test_output_nft_validation);
   RUN_TEST(test_output_nft_clone);
