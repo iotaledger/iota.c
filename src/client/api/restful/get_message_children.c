@@ -199,7 +199,7 @@ void print_message_children(res_msg_children_t *res, uint8_t indentation) {
       printf("%s\tchildrenMessageIds: [\n", PRINT_INDENTATION(indentation));
       for (int i = 0; i < len; i++) {
         printf(i > 0 ? ",\n" : "");
-        printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(data->children, i));
+        printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(data->children, (unsigned int)i));
       }
       printf("\n");
       printf("%s\t]\n", PRINT_INDENTATION(indentation));
