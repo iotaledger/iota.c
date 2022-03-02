@@ -117,7 +117,7 @@ void test_feat_blocks() {
   TEST_ASSERT_NOT_NULL(json_obj);
 
   feat_blk_list_t* blk_list = feat_blk_list_new();
-  int result = json_feat_blocks_deserialize(json_obj, &blk_list);
+  int result = json_feat_blocks_deserialize(json_obj, false, &blk_list);
   TEST_ASSERT_EQUAL_INT(0, result);
   TEST_ASSERT_EQUAL_INT(4, feat_blk_list_len(blk_list));
   feat_block_t* feat_block = feat_blk_list_get_type(blk_list, FEAT_SENDER_BLOCK);
@@ -130,10 +130,41 @@ void test_feat_blocks() {
   TEST_ASSERT_NOT_NULL(feat_block);
 
   // print feature blocks
-  feat_blk_list_print(blk_list, 0);
+  feat_blk_list_print(blk_list, false, 0);
 
   cJSON_Delete(json_obj);
   feat_blk_list_free(blk_list);
+}
+
+void test_immut_feat_blocks() {
+  char const* const json_res =
+      "{\"immutableFeatureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
+      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
+      "{\"type\":1,\"address\":{\"type\":0,\"pubKeyHash\":"
+      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
+      "{\"type\":2,\"data\":\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"},"
+      "{\"type\":3,\"tag\":\"tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_\"}]}";
+  cJSON* json_obj = cJSON_Parse(json_res);
+  TEST_ASSERT_NOT_NULL(json_obj);
+
+  feat_blk_list_t* immut_blk_list = feat_blk_list_new();
+  int result = json_feat_blocks_deserialize(json_obj, true, &immut_blk_list);
+  TEST_ASSERT_EQUAL_INT(0, result);
+  TEST_ASSERT_EQUAL_INT(4, feat_blk_list_len(immut_blk_list));
+  feat_block_t* immut_feat_block = feat_blk_list_get_type(immut_blk_list, FEAT_SENDER_BLOCK);
+  TEST_ASSERT_NOT_NULL(immut_feat_block);
+  immut_feat_block = feat_blk_list_get_type(immut_blk_list, FEAT_ISSUER_BLOCK);
+  TEST_ASSERT_NOT_NULL(immut_feat_block);
+  immut_feat_block = feat_blk_list_get_type(immut_blk_list, FEAT_METADATA_BLOCK);
+  TEST_ASSERT_NOT_NULL(immut_feat_block);
+  immut_feat_block = feat_blk_list_get_type(immut_blk_list, FEAT_TAG_BLOCK);
+  TEST_ASSERT_NOT_NULL(immut_feat_block);
+
+  // print immutable feature blocks
+  feat_blk_list_print(immut_blk_list, true, 0);
+
+  cJSON_Delete(json_obj);
+  feat_blk_list_free(immut_blk_list);
 }
 
 void test_feat_blocks_unsupported_type() {
@@ -144,7 +175,7 @@ void test_feat_blocks_unsupported_type() {
   TEST_ASSERT_NOT_NULL(json_obj);
 
   feat_blk_list_t* blk_list = feat_blk_list_new();
-  int result = json_feat_blocks_deserialize(json_obj, &blk_list);
+  int result = json_feat_blocks_deserialize(json_obj, false, &blk_list);
   TEST_ASSERT_EQUAL_INT(-1, result);
   TEST_ASSERT_EQUAL_INT(0, feat_blk_list_len(blk_list));
 
@@ -160,6 +191,7 @@ int main() {
   RUN_TEST(test_feat_block_metadata);
   RUN_TEST(test_feat_block_tag);
   RUN_TEST(test_feat_blocks);
+  RUN_TEST(test_immut_feat_blocks);
   RUN_TEST(test_feat_blocks_unsupported_type);
 
   return UNITY_END();
