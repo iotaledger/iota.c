@@ -104,7 +104,7 @@ void test_deser_milestone() {
 
   TEST_ASSERT(msg->payload_type == CORE_MESSAGE_PAYLOAD_MILESTONE);
 
-  milestone_t* ms = (milestone_t*)msg->payload;
+  milestone_payload_t* ms = (milestone_payload_t*)msg->payload;
   TEST_ASSERT(3 == ms->index);
   TEST_ASSERT(1644478549 == ms->timestamp);
 

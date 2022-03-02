@@ -142,8 +142,8 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
     // serialize tagged data payload
     memcpy(offset, &es->payload_len, sizeof(es->payload_len));
     offset += sizeof(es->payload_len);
-    size_t tagged_data_ser_len = tagged_data_serialize_len((tagged_data_t*)es->payload);
-    offset += tagged_data_serialize((tagged_data_t*)es->payload, offset, tagged_data_ser_len);
+    size_t tagged_data_ser_len = tagged_data_serialize_len((tagged_data_payload_t*)es->payload);
+    offset += tagged_data_serialize((tagged_data_payload_t*)es->payload, offset, tagged_data_ser_len);
   } else {
     memset(offset, 0, sizeof(uint32_t));
     offset += sizeof(uint32_t);
@@ -221,7 +221,7 @@ void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
   utxo_outputs_print(es->outputs, indentation + 1);
 
   if (es->payload_len > 0) {
-    tagged_data_print((tagged_data_t*)(es->payload), indentation + 1);
+    tagged_data_print((tagged_data_payload_t*)(es->payload), indentation + 1);
   }
 
   printf("%s]\n", PRINT_INDENTATION(indentation));

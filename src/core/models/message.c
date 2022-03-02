@@ -103,9 +103,9 @@ void core_message_free(core_message_t* msg) {
       if (msg->payload_type == CORE_MESSAGE_PAYLOAD_TRANSACTION) {
         tx_payload_free((transaction_payload_t*)msg->payload);
       } else if (msg->payload_type == CORE_MESSAGE_PAYLOAD_MILESTONE) {
-        milestone_payload_free((milestone_t*)msg->payload);
+        milestone_payload_free((milestone_payload_t*)msg->payload);
       } else if (msg->payload_type == CORE_MESSAGE_PAYLOAD_TAGGED) {
-        tagged_data_free((tagged_data_t*)msg->payload);
+        tagged_data_free((tagged_data_payload_t*)msg->payload);
       } else {
         printf("[%s:%d] unsupported payload type\n", __func__, __LINE__);
       }
@@ -167,7 +167,7 @@ size_t core_message_serialize_len(core_message_t* msg) {
       length += tx_payload_serialize_length((transaction_payload_t*)msg->payload);
       break;
     case CORE_MESSAGE_PAYLOAD_TAGGED:
-      length += tagged_data_serialize_len((tagged_data_t*)(msg->payload));
+      length += tagged_data_serialize_len((tagged_data_payload_t*)(msg->payload));
       break;
     case CORE_MESSAGE_PAYLOAD_MILESTONE:
     case CORE_MESSAGE_PAYLOAD_INDEXATION:
@@ -221,7 +221,7 @@ size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len)
       payload_len = (uint32_t)tx_payload_serialize_length((transaction_payload_t*)msg->payload);
       break;
     case CORE_MESSAGE_PAYLOAD_TAGGED:
-      payload_len = (uint32_t)(uint32_t)tagged_data_serialize_len((tagged_data_t*)(msg->payload));
+      payload_len = (uint32_t)(uint32_t)tagged_data_serialize_len((tagged_data_payload_t*)(msg->payload));
       break;
     case CORE_MESSAGE_PAYLOAD_MILESTONE:
     case CORE_MESSAGE_PAYLOAD_INDEXATION:
@@ -240,7 +240,7 @@ size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len)
       offset += tx_payload_serialize((transaction_payload_t*)msg->payload, buf + offset, buf_len - offset);
       break;
     case CORE_MESSAGE_PAYLOAD_TAGGED:
-      offset += tagged_data_serialize((tagged_data_t*)msg->payload, buf + offset, buf_len - offset);
+      offset += tagged_data_serialize((tagged_data_payload_t*)msg->payload, buf + offset, buf_len - offset);
       break;
     case CORE_MESSAGE_PAYLOAD_MILESTONE:
     case CORE_MESSAGE_PAYLOAD_INDEXATION:
@@ -277,7 +277,7 @@ void core_message_print(core_message_t* msg, uint8_t indentation) {
         tx_payload_print((transaction_payload_t*)msg->payload, indentation + 1);
         break;
       case CORE_MESSAGE_PAYLOAD_MILESTONE:
-        milestone_payload_print((milestone_t*)msg->payload, indentation + 1);
+        milestone_payload_print((milestone_payload_t*)msg->payload, indentation + 1);
         break;
       case CORE_MESSAGE_PAYLOAD_INDEXATION:
       case CORE_MESSAGE_PAYLOAD_RECEIPT:
@@ -285,7 +285,7 @@ void core_message_print(core_message_t* msg, uint8_t indentation) {
         printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
         break;
       case CORE_MESSAGE_PAYLOAD_TAGGED:
-        tagged_data_print((tagged_data_t*)msg->payload, indentation + 1);
+        tagged_data_print((tagged_data_payload_t*)msg->payload, indentation + 1);
         break;
       default:
         printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);

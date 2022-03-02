@@ -191,7 +191,7 @@ void test_message_with_tx_serialize() {
 
   // add tagged data payload
   char const* const hornet_faucet = "HORNET FAUCET";
-  tagged_data_t* tagged_data = tagged_data_create((byte_t*)hornet_faucet, strlen(hornet_faucet) + 1, NULL, 0);
+  tagged_data_payload_t* tagged_data = tagged_data_create((byte_t*)hornet_faucet, strlen(hornet_faucet) + 1, NULL, 0);
   TEST_ASSERT_NOT_NULL(tagged_data);
   TEST_ASSERT(tx_essence_add_payload(essence, CORE_MESSAGE_PAYLOAD_TAGGED, tagged_data) == 0);
 

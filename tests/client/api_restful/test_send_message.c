@@ -54,7 +54,7 @@ void test_send_core_message_tagged_data() {
   iota_crypto_randombytes(tag_data, TAG_DATA_LEN);
 
   // Create tagged data payload
-  tagged_data_t* tagged_data = tagged_data_create((byte_t*)tag, TAG_TAG_LEN, tag_data, TAG_DATA_LEN);
+  tagged_data_payload_t* tagged_data = tagged_data_create((byte_t*)tag, TAG_TAG_LEN, tag_data, TAG_DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_print(tagged_data, 0);
 
@@ -85,7 +85,7 @@ void test_send_core_message_tagged_data() {
   TEST_ASSERT_EQUAL_INT(0, get_message_by_id(&ctx, res.u.msg_id, msg_res));
 
   // Get tagged data payload from message response
-  tagged_data_t* tagged_data_res = (tagged_data_t*)msg_res->u.msg->payload;
+  tagged_data_payload_t* tagged_data_res = (tagged_data_payload_t*)msg_res->u.msg->payload;
 
   // Check if tag in the tagged data payload matches
   TEST_ASSERT_EQUAL_MEMORY(tagged_data_res->tag->data, (byte_t*)tag, TAG_TAG_LEN);
@@ -102,7 +102,7 @@ void test_send_core_message_tagged_data_binary_tag() {
   iota_crypto_randombytes(tag_data, TAG_DATA_LEN);
 
   // Create tagged data payload
-  tagged_data_t* tagged_data = tagged_data_create(binary_tag, TAG_TAG_LEN, tag_data, TAG_DATA_LEN);
+  tagged_data_payload_t* tagged_data = tagged_data_create(binary_tag, TAG_TAG_LEN, tag_data, TAG_DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_print(tagged_data, 0);
 
@@ -128,7 +128,7 @@ void test_send_core_message_tagged_data_binary_tag() {
   TEST_ASSERT_EQUAL_INT(0, get_message_by_id(&ctx, res.u.msg_id, msg_res));
 
   // Get tagged data payload from message response
-  tagged_data_t* tagged_data_res = (tagged_data_t*)msg_res->u.msg->payload;
+  tagged_data_payload_t* tagged_data_res = (tagged_data_payload_t*)msg_res->u.msg->payload;
 
   // Check if tag in the tagged data payload matches
   TEST_ASSERT_EQUAL_MEMORY(tagged_data_res->tag->data, binary_tag, TAG_TAG_LEN);
@@ -145,7 +145,7 @@ void test_send_core_message_tagged_data_tag_max_len() {
   iota_crypto_randombytes(tag_data, TAG_DATA_LEN);
 
   // Create tagged data payload
-  tagged_data_t* tagged_data =
+  tagged_data_payload_t* tagged_data =
       tagged_data_create(binary_tag_max_len, TAGGED_DATA_TAG_MAX_LENGTH_BYTES, tag_data, TAG_DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_print(tagged_data, 0);
@@ -172,7 +172,7 @@ void test_send_core_message_tagged_data_tag_max_len() {
   TEST_ASSERT_EQUAL_INT(0, get_message_by_id(&ctx, res.u.msg_id, msg_res));
 
   // Get tagged data payload from message response
-  tagged_data_t* tagged_data_res = (tagged_data_t*)msg_res->u.msg->payload;
+  tagged_data_payload_t* tagged_data_res = (tagged_data_payload_t*)msg_res->u.msg->payload;
 
   // Check if tag in the tagged data payload matches
   TEST_ASSERT_EQUAL_MEMORY(tagged_data_res->tag->data, binary_tag_max_len, TAGGED_DATA_TAG_MAX_LENGTH_BYTES);

@@ -110,7 +110,7 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   return es_obj;
 }
 
-static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_t** tagged_data,
+static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_payload_t** tagged_data,
                                             uint32_t* payload_len) {
   if (!essence_payload || *tagged_data != NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
@@ -140,7 +140,7 @@ static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_
   return 0;
 }
 
-int milestone_deserialize(cJSON* payload, milestone_t* ms) {
+int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   /*
   {
     "protocolVersion": 2,
@@ -290,7 +290,7 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
     // payload in an essence
     cJSON* payload_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_PAYLOAD);
     if (!cJSON_IsNull(payload_obj)) {
-      if (json_essence_payload_deserialize(payload_obj, (tagged_data_t**)(&tx->essence->payload),
+      if (json_essence_payload_deserialize(payload_obj, (tagged_data_payload_t**)(&tx->essence->payload),
                                            &tx->essence->payload_len) != 0) {
         return -1;
       }
@@ -363,7 +363,7 @@ cJSON* json_transaction_serialize(transaction_payload_t* tx) {
   return tx_payload;
 }
 
-cJSON* json_tagged_serialize(tagged_data_t* tagged_data) {
+cJSON* json_tagged_serialize(tagged_data_payload_t* tagged_data) {
   /*
   {
     "type": 5,
@@ -442,7 +442,7 @@ cJSON* json_tagged_serialize(tagged_data_t* tagged_data) {
   return tagged_data_payload;
 }
 
-int json_tagged_deserialize(cJSON* payload, tagged_data_t** tagged_data) {
+int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data) {
   if (!payload || *tagged_data != NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;

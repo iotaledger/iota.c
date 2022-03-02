@@ -33,7 +33,7 @@ typedef struct {
   void *receipt;                            // TODO implement receipt
   UT_array *signatures;  // The Ed25519 signature signing the BLAKE2b-256 hash of the serialized Milestone Essence. The
                          // signatures must be in the same order as the specified public keys.
-} milestone_t;
+} milestone_payload_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,16 +42,16 @@ extern "C" {
 /**
  * @brief Allocate a milestone payload object
  *
- * @return milestone_t*
+ * @return milestone_payload_t*
  */
-milestone_t *milestone_payload_new();
+milestone_payload_t *milestone_payload_new();
 
 /**
  * @brief Free a milestone payload object
  *
  * @param[in] ms A milestone object
  */
-void milestone_payload_free(milestone_t *ms);
+void milestone_payload_free(milestone_payload_t *ms);
 
 /**
  * @brief Get parents count in a milestone
@@ -59,7 +59,7 @@ void milestone_payload_free(milestone_t *ms);
  * @param[in] ms The milestone object
  * @return size_t
  */
-size_t milestone_payload_get_parents_count(milestone_t *ms);
+size_t milestone_payload_get_parents_count(milestone_payload_t *ms);
 
 /**
  * @brief Get a parent string from a milestone at index
@@ -68,7 +68,7 @@ size_t milestone_payload_get_parents_count(milestone_t *ms);
  * @param[in] index The index of parent
  * @return byte_t* NULL on failed.
  */
-byte_t *milestone_payload_get_parent(milestone_t *ms, size_t index);
+byte_t *milestone_payload_get_parent(milestone_payload_t *ms, size_t index);
 
 /**
  * @brief Get keys count in a milestone
@@ -76,7 +76,7 @@ byte_t *milestone_payload_get_parent(milestone_t *ms, size_t index);
  * @param[in] ms The milestone object
  * @return size_t
  */
-size_t milestone_payload_get_pub_keys_count(milestone_t *ms);
+size_t milestone_payload_get_pub_keys_count(milestone_payload_t *ms);
 
 /**
  * @brief Get a key string from a milestone at index
@@ -85,7 +85,7 @@ size_t milestone_payload_get_pub_keys_count(milestone_t *ms);
  * @param[in] index The index of key
  * @return byte_t* NULL on failed.
  */
-byte_t *milestone_payload_get_pub_key(milestone_t *ms, size_t index);
+byte_t *milestone_payload_get_pub_key(milestone_payload_t *ms, size_t index);
 
 /**
  * @brief Get signatures count in a milestone
@@ -93,7 +93,7 @@ byte_t *milestone_payload_get_pub_key(milestone_t *ms, size_t index);
  * @param[in] ms The milestone object
  * @return size_t
  */
-size_t milestone_payload_get_signatures_count(milestone_t *ms);
+size_t milestone_payload_get_signatures_count(milestone_payload_t *ms);
 
 /**
  * @brief Get a signature string from a milestone at index
@@ -102,7 +102,7 @@ size_t milestone_payload_get_signatures_count(milestone_t *ms);
  * @param[in] index The index of signature
  * @return byte_t* NULL on failed.
  */
-byte_t *milestone_payload_get_signature(milestone_t *ms, size_t index);
+byte_t *milestone_payload_get_signature(milestone_payload_t *ms, size_t index);
 
 /**
  * @brief Print out a milestone milestone
@@ -110,7 +110,7 @@ byte_t *milestone_payload_get_signature(milestone_t *ms, size_t index);
  * @param[in] ms The milestone object
  * @param[in] indentation Tab indentation when printing milestone payload
  */
-void milestone_payload_print(milestone_t *ms, uint8_t indentation);
+void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation);
 
 #ifdef __cplusplus
 }

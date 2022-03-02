@@ -10,8 +10,8 @@ static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NU
 static const UT_icd ut_pub_key_icd = {sizeof(uint8_t) * MILESTONE_PUBLIC_KEY_LEN, NULL, NULL, NULL};
 static const UT_icd ut_sign_icd = {sizeof(uint8_t) * MILESTONE_SIGNATURE_LEN, NULL, NULL, NULL};
 
-milestone_t *milestone_payload_new() {
-  milestone_t *ms = malloc(sizeof(milestone_t));
+milestone_payload_t *milestone_payload_new() {
+  milestone_payload_t *ms = malloc(sizeof(milestone_payload_t));
   if (ms) {
     ms->type = CORE_MESSAGE_PAYLOAD_MILESTONE;
     ms->index = 0;
@@ -27,7 +27,7 @@ milestone_t *milestone_payload_new() {
   return ms;
 }
 
-void milestone_payload_free(milestone_t *ms) {
+void milestone_payload_free(milestone_payload_t *ms) {
   if (ms) {
     if (ms->parents) {
       utarray_free(ms->parents);
@@ -42,14 +42,14 @@ void milestone_payload_free(milestone_t *ms) {
   }
 }
 
-size_t milestone_payload_get_parents_count(milestone_t *ms) {
+size_t milestone_payload_get_parents_count(milestone_payload_t *ms) {
   if (ms) {
     return utarray_len(ms->parents);
   }
   return 0;
 }
 
-byte_t *milestone_payload_get_parent(milestone_t *ms, size_t index) {
+byte_t *milestone_payload_get_parent(milestone_payload_t *ms, size_t index) {
   if (ms) {
     if (ms->parents && (index < milestone_payload_get_parents_count(ms))) {
       return utarray_eltptr(ms->parents, index);
@@ -58,14 +58,14 @@ byte_t *milestone_payload_get_parent(milestone_t *ms, size_t index) {
   return NULL;
 }
 
-size_t milestone_payload_get_pub_keys_count(milestone_t *ms) {
+size_t milestone_payload_get_pub_keys_count(milestone_payload_t *ms) {
   if (ms) {
     return utarray_len(ms->pub_keys);
   }
   return 0;
 }
 
-byte_t *milestone_payload_get_pub_key(milestone_t *ms, size_t index) {
+byte_t *milestone_payload_get_pub_key(milestone_payload_t *ms, size_t index) {
   if (ms) {
     if (ms->pub_keys && (index < milestone_payload_get_pub_keys_count(ms))) {
       return utarray_eltptr(ms->pub_keys, index);
@@ -74,14 +74,14 @@ byte_t *milestone_payload_get_pub_key(milestone_t *ms, size_t index) {
   return NULL;
 }
 
-size_t milestone_payload_get_signatures_count(milestone_t *ms) {
+size_t milestone_payload_get_signatures_count(milestone_payload_t *ms) {
   if (ms) {
     return utarray_len(ms->signatures);
   }
   return 0;
 }
 
-byte_t *milestone_payload_get_signature(milestone_t *ms, size_t index) {
+byte_t *milestone_payload_get_signature(milestone_payload_t *ms, size_t index) {
   if (ms) {
     if (ms->signatures && (index < milestone_payload_get_signatures_count(ms))) {
       return utarray_eltptr(ms->signatures, index);
@@ -90,7 +90,7 @@ byte_t *milestone_payload_get_signature(milestone_t *ms, size_t index) {
   return NULL;
 }
 
-void milestone_payload_print(milestone_t *ms, uint8_t indentation) {
+void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
   if (ms) {
     printf("%sMilestone: [\n", PRINT_INDENTATION(indentation));
 
