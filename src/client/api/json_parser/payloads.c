@@ -222,7 +222,7 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   }
 
   // parsing public keys
-  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PUBLIC_KEYS, ms->pub_keys, MILESTONE_PUBLIC_KEY_LEN)) !=
+  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PUBLIC_KEYS, ms->pub_keys, MILESTONE_PUBLIC_KEY_BYTES)) !=
       0) {
     printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_PUBLIC_KEYS);
     return ret;
@@ -232,7 +232,7 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   // TODO parse receipt
 
   // parsing signatures
-  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_SIGNATURES, ms->signatures, MILESTONE_SIGNATURE_LEN)) !=
+  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_SIGNATURES, ms->signatures, MILESTONE_SIGNATURE_BYTES)) !=
       0) {
     printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_SIGNATURES);
     return ret;

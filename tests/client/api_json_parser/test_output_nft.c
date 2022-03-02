@@ -6,6 +6,7 @@
 #include "client/api/json_parser/output_nft.h"
 #include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/outputs.h"
+#include "core/utils/macros.h"
 #include "unity/unity.h"
 
 void setUp(void) {}
@@ -30,7 +31,8 @@ void test_parse_nft_output_basic() {
 
   // check NFT ID
   byte_t nft_id_test[ADDRESS_NFT_BYTES];
-  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", ADDRESS_NFT_HEX_BYTES, nft_id_test, ADDRESS_NFT_BYTES);
+  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", BIN_TO_HEX_BYTES(ADDRESS_NFT_BYTES), nft_id_test,
+            ADDRESS_NFT_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(nft_id_test, nft_output->nft_id, ADDRESS_NFT_BYTES);
 
   // check unlock conditions
@@ -76,16 +78,17 @@ void test_parse_nft_output_full() {
   TEST_ASSERT_NOT_NULL(nft_output->native_tokens);
   TEST_ASSERT_EQUAL_UINT16(2, native_tokens_count(&nft_output->native_tokens));
   byte_t token_id[NATIVE_TOKEN_ID_BYTES];
-  hex_2_bin("08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000", NATIVE_TOKEN_ID_HEX_BYTES,
-            token_id, NATIVE_TOKEN_ID_BYTES);
+  hex_2_bin("08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000",
+            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(&nft_output->native_tokens, token_id));
-  hex_2_bin("09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000", NATIVE_TOKEN_ID_HEX_BYTES,
-            token_id, NATIVE_TOKEN_ID_BYTES);
+  hex_2_bin("09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000",
+            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(&nft_output->native_tokens, token_id));
 
   // check NFT ID
   byte_t nft_id_test[ADDRESS_NFT_BYTES];
-  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", ADDRESS_NFT_HEX_BYTES, nft_id_test, ADDRESS_NFT_BYTES);
+  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", BIN_TO_HEX_BYTES(ADDRESS_NFT_BYTES), nft_id_test,
+            ADDRESS_NFT_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(nft_id_test, nft_output->nft_id, ADDRESS_NFT_BYTES);
 
   // check unlock conditions

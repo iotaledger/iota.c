@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "client/api/json_parser/unlock_conditions.h"
+#include "core/utils/macros.h"
 #include "unity/unity.h"
 
 void setUp(void) {}
@@ -28,7 +29,7 @@ void test_unlock_condition_address() {
 
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 
@@ -55,7 +56,7 @@ void test_unlock_condition_dust_deposit_return() {
   unlock_cond_dust_t* cond_dust = (unlock_cond_dust_t*)cond_unlock->block;
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, cond_dust->addr));
   TEST_ASSERT_EQUAL_UINT64(1337, cond_dust->amount);
@@ -107,7 +108,7 @@ void test_unlock_condition_expiration() {
   unlock_cond_expir_t* cond_expiration = (unlock_cond_expir_t*)cond_unlock->block;
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, cond_expiration->addr));
   TEST_ASSERT_EQUAL_UINT32(123456789, cond_expiration->milestone);
@@ -135,7 +136,7 @@ void test_unlock_condition_state() {
 
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 
@@ -161,7 +162,7 @@ void test_unlock_condition_governor() {
 
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 

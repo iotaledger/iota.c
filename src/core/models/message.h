@@ -12,10 +12,8 @@
 #include "core/models/payloads/milestone.h"
 #include "core/types.h"
 
-// Message ID in binary form
+// Message ID length in binary form
 #define IOTA_MESSAGE_ID_BYTES 32
-// Message ID in hex string form
-#define IOTA_MESSAGE_ID_HEX_BYTES (IOTA_MESSAGE_ID_BYTES * 2)
 
 typedef enum {
   CORE_MESSAGE_PAYLOAD_TRANSACTION = 0,

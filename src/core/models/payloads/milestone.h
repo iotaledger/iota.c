@@ -11,10 +11,10 @@
 #include "utarray.h"
 
 // Milestone signature length in binary representation
-#define MILESTONE_SIGNATURE_LEN 64
+#define MILESTONE_SIGNATURE_BYTES 64
 
 // Milestone public key length in binary representation
-#define MILESTONE_PUBLIC_KEY_LEN 32
+#define MILESTONE_PUBLIC_KEY_BYTES 32
 
 typedef struct {
   payload_t type;      // Must be set to 1.

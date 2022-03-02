@@ -19,8 +19,8 @@ static output_extended_t* create_output_extended_one() {
   // create ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  TEST_ASSERT(hex_2_bin("21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942", ADDRESS_ED25519_HEX_BYTES,
-                        addr.address, ADDRESS_ED25519_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942",
+                        BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES), addr.address, ADDRESS_ED25519_BYTES) == 0);
 
   // create address unlock condition
   unlock_cond_blk_t* addr_unlock_cond = cond_blk_addr_new(&addr);
@@ -45,8 +45,8 @@ static output_extended_t* create_output_extended_two() {
   // create ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  TEST_ASSERT(hex_2_bin("60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe", ADDRESS_ED25519_HEX_BYTES,
-                        addr.address, ADDRESS_ED25519_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe",
+                        BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES), addr.address, ADDRESS_ED25519_BYTES) == 0);
 
   // create address unlock condition
   unlock_cond_blk_t* addr_unlock_cond = cond_blk_addr_new(&addr);
