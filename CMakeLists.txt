@@ -106,8 +106,6 @@ if(IOTA_ASAN_ENABLED)
       #   "-fno-sanitize-recover=undefined,unsigned-integer-overflow")
       # ~~~
       add_compile_options(
-        "-Wall"
-        "-Wextra"
         "-fsanitize=address,undefined"
         "-fno-omit-frame-pointer"
         "-fno-sanitize=unsigned-integer-overflow"

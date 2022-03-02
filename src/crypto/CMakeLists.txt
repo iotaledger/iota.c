@@ -14,6 +14,8 @@ target_sources(
 
 target_include_directories(iota_crypto PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 
+target_compile_options(iota_crypto PRIVATE -Wall -Wextra)
+
 if(__ED25519_INCLUDE)
   target_compile_definitions(iota_crypto PUBLIC CRYPTO_USE_ED25519_DONNA)
   target_link_libraries(iota_crypto INTERFACE ed25519_donna)

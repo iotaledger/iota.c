@@ -7,8 +7,6 @@ add_library(iota_client STATIC)
 # the required minimum C standard
 set_target_properties(iota_client PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 99)
 
-add_dependencies(iota_client iota_core)
-
 target_sources(
   iota_client
   PRIVATE "network/http_curl.c"
@@ -97,6 +95,8 @@ target_include_directories(
 )
 
 add_dependencies(iota_client iota_core ext_cjson)
+
+target_compile_options(iota_client PRIVATE -Wall -Wextra)
 
 target_link_libraries(
   iota_client
