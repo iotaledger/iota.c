@@ -173,7 +173,7 @@ void test_message_with_tx_serialize() {
   TEST_ASSERT_NOT_NULL(essence);
 
   // add type
-  essence->tx_type = TRANSACTION_PAYLOAD_ESSENCE;
+  essence->tx_type = TRANSACTION_ESSENCE_TYPE;
 
   // add input with id0
   byte_t input_id0[IOTA_TRANSACTION_ID_BYTES];

@@ -252,7 +252,8 @@ void test_send_msg_tx_extended() {
         output_extended_t* o = (output_extended_t*)output_res->u.data->output->output;
         total_balance += o->amount;
         // add the output as a tx input into the tx payload
-        tx_payload_add_input(tx, 0, output_res->u.data->tx_id, output_res->u.data->output_index, &sender_key);
+        TEST_ASSERT(tx_essence_add_input(tx->essence, 0, output_res->u.data->tx_id, output_res->u.data->output_index,
+                                         &sender_key) == 0);
         // check balance
         if (total_balance >= send_amount) {
           // have got sufficient amount
@@ -279,7 +280,7 @@ void test_send_msg_tx_extended() {
   cond_blk_list_add(&recv_cond, b);
   output_extended_t* recv_output = output_extended_new(send_amount, NULL, recv_cond, NULL);
   // add receiver output to tx payload
-  tx_payload_add_output(tx, OUTPUT_EXTENDED, recv_output);
+  TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_EXTENDED, recv_output) == 0);
   cond_blk_free(b);
   cond_blk_list_free(recv_cond);
   output_extended_free(recv_output);
@@ -293,7 +294,7 @@ void test_send_msg_tx_extended() {
     output_extended_t* remainder_output = output_extended_new(total_balance - send_amount, NULL, remainder_cond, NULL);
     TEST_ASSERT_NOT_NULL(remainder_output);
     // add receiver output to output list
-    tx_payload_add_output(tx, OUTPUT_EXTENDED, remainder_output);
+    TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_EXTENDED, remainder_output) == 0);
     cond_blk_free(b);
     cond_blk_list_free(remainder_cond);
     output_extended_free(remainder_output);

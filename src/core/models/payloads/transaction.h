@@ -160,47 +160,6 @@ transaction_payload_t* tx_payload_new(uint64_t network_id);
 void tx_payload_free(transaction_payload_t* tx);
 
 /**
- * @brief Add an input to the transaction payload
- *
- * @param[in] tx A transaction payload object
- * @param[in] tx_id A transaction ID
- * @param[in] index The index of the output of the referenced transaction
- * @param[in] key An ed25519 keypair
- * @return int 0 on success
- */
-int tx_payload_add_input(transaction_payload_t* tx, uint8_t type, byte_t tx_id[], uint8_t index,
-                         ed25519_keypair_t* key);
-
-/**
- * @brief Add an output to the transaction payload
- *
- * @param[in] tx A transaction payload
- * @param[in] type The output type
- * @param[in] output Pointer to an output
- * @return int 0 on success
- */
-int tx_payload_add_output(transaction_payload_t* tx, utxo_output_type_t type, void* output);
-
-/**
- * @brief Add a signature unlocked block to the transaction
- *
- * @param[in] tx A transaction payload
- * @param[in] sig_block An ed25519 signature block
- * @param[in] sig_len the length of ed25519 signature block
- * @return int 0 on success
- */
-int tx_payload_add_sig_block(transaction_payload_t* tx, byte_t* sig_block, size_t sig_len);
-
-/**
- * @brief Add a reference unlocked block to the transaction
- *
- * @param[in] tx A transaction payload
- * @param[in] ref The index of reference
- * @return int 0 on success
- */
-int tx_payload_add_ref_block(transaction_payload_t* tx, uint16_t ref);
-
-/**
  * @brief Get the serialized length of a transaction payload
  *
  * @param[in] tx A transaction payload

@@ -253,35 +253,6 @@ void tx_payload_free(transaction_payload_t* tx) {
   }
 }
 
-int tx_payload_add_input(transaction_payload_t* tx, uint8_t type, byte_t tx_id[], uint8_t index,
-                         ed25519_keypair_t* key) {
-  if (tx) {
-    return tx_essence_add_input(tx->essence, type, tx_id, index, key);
-  }
-  return -1;
-}
-
-int tx_payload_add_output(transaction_payload_t* tx, utxo_output_type_t type, void* output) {
-  if (tx) {
-    return tx_essence_add_output(tx->essence, type, output);
-  }
-  return -1;
-}
-
-int tx_payload_add_sig_block(transaction_payload_t* tx, byte_t* sig_block, size_t sig_len) {
-  if (tx) {
-    return unlock_blocks_add_signature(&tx->unlock_blocks, sig_block, sig_len);
-  }
-  return -1;
-}
-
-int tx_payload_add_ref_block(transaction_payload_t* tx, uint16_t ref) {
-  if (tx) {
-    return unlock_blocks_add_reference(&tx->unlock_blocks, ref);
-  }
-  return -1;
-}
-
 size_t tx_payload_serialize_length(transaction_payload_t* tx) {
   size_t essence_len = tx_essence_serialize_length(tx->essence);
   size_t blocks_len = unlock_blocks_serialize_length(tx->unlock_blocks);
