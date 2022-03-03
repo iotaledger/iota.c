@@ -71,7 +71,9 @@ void test_parse_outputs() {
       "\"30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":0,"
       "\"address\":{"
       "\"type\":8,\"aliasId\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
-      "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}]},"
+      "\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}],"
+      "\"immutableFeatureBlocks\":[{\"type\":2,\"data\":"
+      "\"immutable_metadata_immutable_metadata_immutable_metadata_immutable_metadata_immutable_metadata\"}]},"
       // NFT output
       "{\"type\":6,\"amount\":1000000,\"nativeTokens\":[{\"id\":"
       "\"08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\","
@@ -84,11 +86,11 @@ void test_parse_outputs() {
       "\"milestoneIndex\":45598,\"unixTime\":123123},{\"type\":3,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
       "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"milestoneIndex\":45598,\"unixTime\":"
       "123123}],\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":1,\"address\":{\"type\":0,"
-      "\"pubKeyHash\":\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
+      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
       "\"metadataTest_metadataTest_metadataTest_metadataTest_metadataTest\"},{\"type\":3,\"tag\":\"tagTest_tagTest_"
-      "tagTest_tagTest_tagTest_tagTest\"}],\"immutableData\":\"metadataTest_metadataTest_metadataTest_metadataTest\"}"
-      "]}";
+      "tagTest_tagTest_tagTest_tagTest\"}],\"immutableFeatureBlocks\":[{\"type\":1,\"address\":{\"type\":0,"
+      "\"pubKeyHash\":\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
+      "\"immutableMetadataTest_immutableMetadataTest_immutableMetadataTest_ImmutableMetadataTest\"}]}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);

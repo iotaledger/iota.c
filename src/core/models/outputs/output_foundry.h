@@ -37,6 +37,8 @@ typedef struct {
   token_scheme_e token_scheme;            ///< The token scheme used by this foundry
   cond_blk_list_t* unlock_conditions;     ///< Define how the output can be unlocked and spent
   feat_blk_list_t* feature_blocks;        ///< The feature blocks which modulate the constraints on this output
+  feat_blk_list_t* immutable_blocks;  ///< Immutable blocks are defined upon deployment of the UTXO state machine and
+                                      ///< are not allowed to change in any future state transition
 } output_foundry_t;
 
 #ifdef __cplusplus
@@ -56,11 +58,14 @@ extern "C" {
  * @param[in] token_scheme The token scheme
  * @param[in] meta The metadata
  * @param[in] meta_len The length of metadata
+ * @param[in] immut_meta The immutable metadata
+ * @param[in] immut_meta_len The length of immutable metadata
  * @return output_foundry_t*
  */
 output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_tokens_t* tokens, uint32_t serial_num,
                                      byte_t token_tag[], uint256_t* circ_supply, uint256_t* max_supply,
-                                     token_scheme_e token_scheme, byte_t meta[], size_t meta_len);
+                                     token_scheme_e token_scheme, byte_t meta[], size_t meta_len, byte_t immut_meta[],
+                                     size_t immut_meta_len);
 
 /**
  * @brief Free Foundry Output object.

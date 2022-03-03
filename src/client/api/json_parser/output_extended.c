@@ -49,7 +49,7 @@ int json_output_extended_deserialize(cJSON *output_obj, output_extended_t **exte
   }
 
   // feature blocks array
-  if (json_feat_blocks_deserialize(output_obj, &feat_blocks) != 0) {
+  if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
     goto end;
   }

@@ -680,10 +680,16 @@ feat_blk_list_t* feat_blk_list_clone(feat_blk_list_t const* const list) {
   return new_list;
 }
 
-void feat_blk_list_print(feat_blk_list_t* list, uint8_t indentation) {
+void feat_blk_list_print(feat_blk_list_t* list, bool immutable, uint8_t indentation) {
   feat_blk_list_t* elm;
   uint8_t index = 0;
-  printf("%sFeature Blocks: [\n", PRINT_INDENTATION(indentation));
+
+  if (immutable) {
+    printf("%sImmutable Feature Blocks: [\n", PRINT_INDENTATION(indentation));
+  } else {
+    printf("%sFeature Blocks: [\n", PRINT_INDENTATION(indentation));
+  }
+
   printf("%s\tBlock Count: %d\n", PRINT_INDENTATION(indentation), feat_blk_list_len(list));
   if (list) {
     LL_FOREACH(list, elm) {

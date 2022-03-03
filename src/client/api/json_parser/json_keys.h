@@ -80,6 +80,7 @@ static char const* const JSON_KEY_ID = "id";
 static char const* const JSON_KEY_NATIVE_TOKENS = "nativeTokens";
 static char const* const JSON_KEY_UNLOCK_CONDITIONS = "unlockConditions";
 static char const* const JSON_KEY_FEAT_BLOCKS = "featureBlocks";
+static char const* const JSON_KEY_IMMUTABLE_BLOCKS = "immutableFeatureBlocks";
 static char const* const JSON_KEY_TAG = "tag";
 static char const* const JSON_KEY_ALIAS_ID = "aliasId";
 static char const* const JSON_KEY_STATE_INDEX = "stateIndex";
@@ -99,5 +100,6 @@ static char const* const JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX = "nextPoWScoreMi
 static char const* const JSON_KEY_PUBLIC_KEYS = "publicKeys";
 static char const* const JSON_KEY_INPUTS_COMMITMENT = "inputsCommitment";
 static char const* const JSON_KEY_PUB_KEY_HASH = "pubKeyHash";
+static char const* const JSON_KEY_WAITING_REQUESTS = "waitingRequests";
 
 #endif

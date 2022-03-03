@@ -16,8 +16,7 @@ void test_parse_nft_output_basic() {
   char const *const json_res =
       "{\"type\":6,\"amount\":1000000,\"nativeTokens\":[],\"nftId\":\"bebc45994f6bd9394f552b62c6e370ce1ab52d2e\","
       "\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":16,\"nftId\":"
-      "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[],\"immutableData\":\"metadataTest_"
-      "metadataTest_metadataTest_metadataTest\"}";
+      "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[],\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -33,10 +32,6 @@ void test_parse_nft_output_basic() {
   byte_t nft_id_test[ADDRESS_NFT_BYTES];
   hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", ADDRESS_NFT_HEX_BYTES, nft_id_test, ADDRESS_NFT_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(nft_id_test, nft_output->nft_id, ADDRESS_NFT_BYTES);
-
-  // check immutable metadata
-  TEST_ASSERT_EQUAL_MEMORY("metadataTest_metadataTest_metadataTest_metadataTest", nft_output->immutable_metadata->data,
-                           nft_output->immutable_metadata->len);
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(nft_output->unlock_conditions);
@@ -62,10 +57,11 @@ void test_parse_nft_output_full() {
       "\"milestoneIndex\":45598,\"unixTime\":123123},{\"type\":3,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
       "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"milestoneIndex\":45598,\"unixTime\":"
       "123123}],\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":1,\"address\":{\"type\":0,"
-      "\"pubKeyHash\":\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
+      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
       "\"metadataTest_metadataTest_metadataTest_metadataTest_metadataTest\"},{\"type\":3,\"tag\":\"tagTest_tagTest_"
-      "tagTest_tagTest_tagTest_tagTest\"}],\"immutableData\":\"metadataTest_metadataTest_metadataTest_metadataTest\"}";
+      "tagTest_tagTest_tagTest_tagTest\"}],\"immutableFeatureBlocks\":[{\"type\":1,\"address\":{\"type\":0,"
+      "\"pubKeyHash\":\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
+      "\"immutableMetadataTest_immutableMetadataTest_immutableMetadataTest_ImmutableMetadataTest\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -92,10 +88,6 @@ void test_parse_nft_output_full() {
   hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", ADDRESS_NFT_HEX_BYTES, nft_id_test, ADDRESS_NFT_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(nft_id_test, nft_output->nft_id, ADDRESS_NFT_BYTES);
 
-  // check immutable metadata
-  TEST_ASSERT_EQUAL_MEMORY("metadataTest_metadataTest_metadataTest_metadataTest", nft_output->immutable_metadata->data,
-                           nft_output->immutable_metadata->len);
-
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(nft_output->unlock_conditions);
   TEST_ASSERT_EQUAL_UINT8(4, cond_blk_list_len(nft_output->unlock_conditions));
@@ -106,11 +98,16 @@ void test_parse_nft_output_full() {
 
   // check feature blocks
   TEST_ASSERT_NOT_NULL(nft_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(4, feat_blk_list_len(nft_output->feature_blocks));
+  TEST_ASSERT_EQUAL_UINT8(3, feat_blk_list_len(nft_output->feature_blocks));
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(nft_output->feature_blocks, FEAT_SENDER_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(nft_output->feature_blocks, FEAT_ISSUER_BLOCK));
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(nft_output->feature_blocks, FEAT_METADATA_BLOCK));
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(nft_output->feature_blocks, FEAT_TAG_BLOCK));
+
+  // check immutable feature blocks
+  TEST_ASSERT_NOT_NULL(nft_output->immutable_blocks);
+  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(nft_output->immutable_blocks));
+  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(nft_output->immutable_blocks, FEAT_ISSUER_BLOCK));
+  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(nft_output->immutable_blocks, FEAT_METADATA_BLOCK));
 
   // print NFT output
   output_nft_print(nft_output, 0);

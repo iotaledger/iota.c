@@ -9,7 +9,8 @@
 
 output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_tokens_t* tokens, uint32_t serial_num,
                                      byte_t token_tag[], uint256_t* circ_supply, uint256_t* max_supply,
-                                     token_scheme_e token_scheme, byte_t meta[], size_t meta_len) {
+                                     token_scheme_e token_scheme, byte_t meta[], size_t meta_len, byte_t immut_meta[],
+                                     size_t immut_meta_len) {
   if (!alias || !circ_supply || !max_supply) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
@@ -109,6 +110,15 @@ output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_t
       return NULL;
     }
   }
+
+  if (immut_meta && immut_meta_len > 0) {
+    // create immutable metadata block
+    if (feat_blk_list_add_metadata(&output->immutable_blocks, immut_meta, immut_meta_len) != 0) {
+      printf("[%s:%d] can not add immutable feature block to Foundry output\n", __func__, __LINE__);
+      output_foundry_free(output);
+      return NULL;
+    }
+  }
   return output;
 }
 
@@ -119,6 +129,7 @@ void output_foundry_free(output_foundry_t* output) {
     }
     cond_blk_list_free(output->unlock_conditions);
     feat_blk_list_free(output->feature_blocks);
+    feat_blk_list_free(output->immutable_blocks);
     free(output);
   }
 }
@@ -151,6 +162,8 @@ size_t output_foundry_serialize_len(output_foundry_t* output) {
   length += cond_blk_list_serialize_len(output->unlock_conditions);
   // feature blocks
   length += feat_blk_list_serialize_len(output->feature_blocks);
+  // immutable feature blocks
+  length += feat_blk_list_serialize_len(output->immutable_blocks);
 
   return length;
 }
@@ -198,6 +211,13 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
   // feature blocks
   if (output->feature_blocks) {
     offset += feat_blk_list_serialize(&output->feature_blocks, buf + offset, buf_len - offset);
+  } else {
+    memset(buf + offset, 0, sizeof(uint8_t));
+    offset += sizeof(uint8_t);
+  }
+  // immutable feature blocks
+  if (output->immutable_blocks) {
+    offset += feat_blk_list_serialize(&output->immutable_blocks, buf + offset, buf_len - offset);
   } else {
     memset(buf + offset, 0, sizeof(uint8_t));
     offset += sizeof(uint8_t);
@@ -335,6 +355,30 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
     offset += sizeof(uint8_t);
   }
 
+  // immutable feature blocks
+  uint8_t immut_feat_block_count = 0;
+  memcpy(&immut_feat_block_count, &buf[offset], sizeof(uint8_t));
+  if (immut_feat_block_count > 1) {
+    printf("[%s:%d] invalid immutable feature block count\n", __func__, __LINE__);
+    output_foundry_free(output);
+    return NULL;
+  } else if (immut_feat_block_count > 0) {
+    output->immutable_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
+    if (!output->immutable_blocks) {
+      printf("[%s:%d] can not deserialize immutable feature blocks\n", __func__, __LINE__);
+      output_foundry_free(output);
+      return NULL;
+    }
+    offset += feat_blk_list_serialize_len(output->immutable_blocks);
+  } else {
+    if (buf_len < offset + sizeof(uint8_t)) {
+      printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+      output_foundry_free(output);
+      return NULL;
+    }
+    offset += sizeof(uint8_t);
+  }
+
   return output;
 }
 
@@ -354,6 +398,7 @@ output_foundry_t* output_foundry_clone(output_foundry_t const* const output) {
     new_output->token_scheme = output->token_scheme;
     new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
     new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
+    new_output->immutable_blocks = feat_blk_list_clone(output->immutable_blocks);
   }
 
   return new_output;
@@ -404,7 +449,9 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
   // print unlock conditions
   cond_blk_list_print(output->unlock_conditions, indentation + 1);
   // print feature blocks
-  feat_blk_list_print(output->feature_blocks, indentation + 1);
+  feat_blk_list_print(output->feature_blocks, false, indentation + 1);
+  // print immutable feature blocks
+  feat_blk_list_print(output->immutable_blocks, true, indentation + 1);
 
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }

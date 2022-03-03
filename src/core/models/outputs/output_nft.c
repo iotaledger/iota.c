@@ -12,10 +12,12 @@
 // maximum number of unlock condition blocks
 #define MAX_NFT_CONDITION_BLOCKS_COUNT 4
 // maximum number of feature blocks
-#define MAX_NFT_FEATURE_BLOCKS_COUNT 4
+#define MAX_NFT_FEATURE_BLOCKS_COUNT 3
+// maximum number of immutable feature blocks
+#define MAX_NFT_IMMUTABLE_FEATURE_BLOCKS_COUNT 2
 
-output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nft_id[], byte_t* metadata,
-                             uint32_t metadata_len, cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks) {
+output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nft_id[], cond_blk_list_t* cond_blocks,
+                             feat_blk_list_t* feat_blocks, feat_blk_list_t* immut_feat_blocks) {
   if (nft_id == NULL || cond_blocks == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
@@ -51,9 +53,10 @@ output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nf
     return NULL;
   }
 
-  // Immutable Metadata Length must not be greater than Max Metadata Length
-  if (metadata_len > MAX_METADATA_LENGTH_BYTES) {
-    printf("[%s:%d] Metadata length must not be greater than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
+  // validate immutable feature block parameter
+  if (feat_blk_list_len(immut_feat_blocks) > MAX_NFT_IMMUTABLE_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] there should be at most %d immutable feature blocks\n", __func__, __LINE__,
+           MAX_NFT_IMMUTABLE_FEATURE_BLOCKS_COUNT);
     return NULL;
   }
 
@@ -88,16 +91,6 @@ output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nf
   // add nft id
   memcpy(output->nft_id, nft_id, ADDRESS_NFT_BYTES);
 
-  // add metadata
-  if (metadata_len > 0 && metadata != NULL) {
-    output->immutable_metadata = byte_buf_new_with_data(metadata, metadata_len);
-    if (!output->immutable_metadata) {
-      printf("[%s:%d] can not add metadata to NFT output\n", __func__, __LINE__);
-      output_nft_free(output);
-      return NULL;
-    }
-  }
-
   // add condition blocks
   output->unlock_conditions = cond_blk_list_clone(cond_blocks);
   if (!output->unlock_conditions) {
@@ -109,6 +102,9 @@ output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nf
   // add feature blocks
   output->feature_blocks = feat_blk_list_clone(feat_blocks);
 
+  // add immutable feature blocks
+  output->immutable_blocks = feat_blk_list_clone(immut_feat_blocks);
+
   return output;
 }
 
@@ -117,11 +113,9 @@ void output_nft_free(output_nft_t* output) {
     if (output->native_tokens) {
       native_tokens_free(&output->native_tokens);
     }
-    if (output->immutable_metadata) {
-      byte_buf_free(output->immutable_metadata);
-    }
     cond_blk_list_free(output->unlock_conditions);
     feat_blk_list_free(output->feature_blocks);
+    feat_blk_list_free(output->immutable_blocks);
     free(output);
   }
 }
@@ -142,16 +136,12 @@ size_t output_nft_serialize_len(output_nft_t* output) {
   length += native_tokens_serialize_len(&output->native_tokens);
   // NFT ID
   length += ADDRESS_NFT_BYTES;
-  // immutable metadata length
-  length += sizeof(uint32_t);
-  // immutable metadata
-  if (output->immutable_metadata) {
-    length += output->immutable_metadata->len;
-  }
   // unlock conditions
   length += cond_blk_list_serialize_len(output->unlock_conditions);
   // feature blocks
   length += feat_blk_list_serialize_len(output->feature_blocks);
+  // immutable feature blocks
+  length += feat_blk_list_serialize_len(output->immutable_blocks);
 
   return length;
 }
@@ -185,24 +175,20 @@ size_t output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) 
   memcpy(buf + offset, output->nft_id, ADDRESS_NFT_BYTES);
   offset += ADDRESS_NFT_BYTES;
 
-  // immutable metadata
-  if (output->immutable_metadata) {
-    uint32_t metadata_len = output->immutable_metadata->len;
-    memcpy(buf + offset, &metadata_len, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
-    memcpy(buf + offset, output->immutable_metadata->data, metadata_len);
-    offset += metadata_len;
-  } else {
-    memset(buf + offset, 0, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
-  }
-
   // unlock conditions
   offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
 
   // feature blocks
   if (output->feature_blocks) {
     offset += feat_blk_list_serialize(&output->feature_blocks, buf + offset, buf_len - offset);
+  } else {
+    memset(buf + offset, 0, sizeof(uint8_t));
+    offset += sizeof(uint8_t);
+  }
+
+  // immutable feature blocks
+  if (output->immutable_blocks) {
+    offset += feat_blk_list_serialize(&output->immutable_blocks, buf + offset, buf_len - offset);
   } else {
     memset(buf + offset, 0, sizeof(uint8_t));
     offset += sizeof(uint8_t);
@@ -265,32 +251,6 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   memcpy(&output->nft_id, &buf[offset], ADDRESS_NFT_BYTES);
   offset += ADDRESS_NFT_BYTES;
 
-  // immutable metadata length
-  if (buf_len < offset + sizeof(uint32_t)) {
-    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-    output_nft_free(output);
-    return NULL;
-  }
-  uint32_t metadata_len;
-  memcpy(&metadata_len, &buf[offset], sizeof(uint32_t));
-  offset += sizeof(uint32_t);
-
-  // immutable metadata
-  if (metadata_len > 0) {
-    if (buf_len < offset + metadata_len) {
-      printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-      output_nft_free(output);
-      return NULL;
-    }
-    output->immutable_metadata = byte_buf_new_with_data(&buf[offset], metadata_len);
-    if (!output->immutable_metadata) {
-      printf("[%s:%d] can not deserialize metadata\n", __func__, __LINE__);
-      output_nft_free(output);
-      return NULL;
-    }
-    offset += metadata_len;
-  }
-
   // unlock condition blocks
   uint8_t unlock_count = 0;
   memcpy(&unlock_count, &buf[offset], sizeof(uint8_t));
@@ -332,6 +292,30 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
     offset += sizeof(uint8_t);
   }
 
+  // immutable feature blocks
+  uint8_t immut_feat_block_count = 0;
+  memcpy(&immut_feat_block_count, &buf[offset], sizeof(uint8_t));
+  if (immut_feat_block_count > MAX_NFT_IMMUTABLE_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid immutable feature block count\n", __func__, __LINE__);
+    output_nft_free(output);
+    return NULL;
+  } else if (immut_feat_block_count > 0) {
+    output->immutable_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
+    if (!output->immutable_blocks) {
+      printf("[%s:%d] can not deserialize immutable feature blocks\n", __func__, __LINE__);
+      output_nft_free(output);
+      return NULL;
+    }
+    offset += feat_blk_list_serialize_len(output->immutable_blocks);
+  } else {
+    if (buf_len < offset + sizeof(uint8_t)) {
+      printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+      output_nft_free(output);
+      return NULL;
+    }
+    offset += sizeof(uint8_t);
+  }
+
   return output;
 }
 
@@ -345,9 +329,9 @@ output_nft_t* output_nft_clone(output_nft_t const* const output) {
     new_output->amount = output->amount;
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
     memcpy(new_output->nft_id, output->nft_id, ADDRESS_NFT_BYTES);
-    new_output->immutable_metadata = byte_buf_clone(output->immutable_metadata);
     new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
     new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
+    new_output->immutable_blocks = feat_blk_list_clone(output->immutable_blocks);
   }
 
   return new_output;
@@ -369,18 +353,12 @@ void output_nft_print(output_nft_t* output, uint8_t indentation) {
   printf("%s\tNFT ID: ", PRINT_INDENTATION(indentation));
   dump_hex_str(output->nft_id, ADDRESS_NFT_BYTES);
 
-  // print immutable metadata
-  printf("%s\tMetadata: ", PRINT_INDENTATION(indentation));
-  if (output->immutable_metadata) {
-    dump_hex_str(output->immutable_metadata->data, output->immutable_metadata->len);
-  } else {
-    printf("%s/\n", PRINT_INDENTATION(indentation));
-  }
-
   // print unlock condition blocks
   cond_blk_list_print(output->unlock_conditions, indentation + 1);
   // print feature blocks
-  feat_blk_list_print(output->feature_blocks, indentation + 1);
+  feat_blk_list_print(output->feature_blocks, false, indentation + 1);
+  // print immutable feature blocks
+  feat_blk_list_print(output->immutable_blocks, true, indentation + 1);
 
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }
