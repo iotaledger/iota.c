@@ -30,7 +30,7 @@ typedef struct {
                                             // score for applying transactions. This field comes into effect only if the
                                             // Next PoW Score field is not 0.
   UT_array *pub_keys;                       // Ed25519 Public Keys
-  void *receipt;                            // TODO implement receipt
+  void *receipt;                            // The inner payload of the milestone. Can be NULL or a Receipt.
   UT_array *signatures;  // The Ed25519 signature signing the BLAKE2b-256 hash of the serialized Milestone Essence. The
                          // signatures must be in the same order as the specified public keys.
 } milestone_t;

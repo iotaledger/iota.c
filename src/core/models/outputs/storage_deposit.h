@@ -8,13 +8,6 @@
 #include "core/models/outputs/outputs.h"
 
 /**
- * @brief Create and return default byte cost configuration
- *
- * @return *byte_cost_config_t
- */
-byte_cost_config_t *storage_deposit_get_default_config();
-
-/**
  * @brief Create new byte cost configuration
  *
  * @param[in] byte_cost Rent of a single virtual byte denoted in IOTA tokens
@@ -23,6 +16,13 @@ byte_cost_config_t *storage_deposit_get_default_config();
  * @return *byte_cost_config_t
  */
 byte_cost_config_t *storage_deposit_new_config(uint16_t byte_cost, uint8_t byte_factor_data, uint8_t byte_factor_key);
+
+/**
+ * @brief Create new default byte cost configuration
+ *
+ * @return *byte_cost_config_t
+ */
+byte_cost_config_t *storage_deposit_new_default_config();
 
 /**
  * @brief Check if a sufficient storage deposit was made for the given output

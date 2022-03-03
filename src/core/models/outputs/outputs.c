@@ -61,7 +61,7 @@ int utxo_outputs_add(utxo_outputs_list_t **outputs, byte_cost_config_t *storage_
     }
   } else {
     // use default storage deposit config if it is not provided as function argument
-    byte_cost_config_t *default_storage_config = storage_deposit_get_default_config();
+    byte_cost_config_t *default_storage_config = storage_deposit_new_default_config();
     if (storage_deposit_check_sufficient_output_deposit(default_storage_config, type, output) != true) {
       printf("[%s:%d] insufficient storage deposit for output\n", __func__, __LINE__);
       free(default_storage_config);

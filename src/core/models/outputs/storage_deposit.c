@@ -6,7 +6,6 @@
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/message.h"
 #include "core/models/outputs/storage_deposit.h"
-#include "core/utils/macros.h"
 
 // Defines the rent of a single virtual byte denoted in IOTA tokens
 #define DEFAULT_BYTE_COST 500
@@ -27,7 +26,7 @@ static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_out
     case OUTPUT_SINGLE_OUTPUT:
     case OUTPUT_DUST_ALLOWANCE:
     case OUTPUT_TREASURY:
-      printf("[%s:%d] deprecated or unsupported output\n", __func__, __LINE__);
+      printf("[%s:%d] deprecated or unsupported output type\n", __func__, __LINE__);
       return UINT64_MAX;
     case OUTPUT_EXTENDED:
       weighted_bytes = output_extended_serialize_len(output) * config->v_byte_factor_data;
@@ -46,26 +45,6 @@ static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_out
   return config->v_byte_cost * weighted_bytes + config->v_byte_offset;
 }
 
-byte_cost_config_t *storage_deposit_get_default_config() {
-  byte_cost_config_t *default_config = malloc(sizeof(byte_cost_config_t));
-  if (!default_config) {
-    printf("[%s:%d] can not create storage config\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  default_config->v_byte_cost = DEFAULT_BYTE_COST;
-  default_config->v_byte_factor_data = DEFAULT_BYTE_COST_FACTOR_DATA;
-  default_config->v_byte_factor_key = DEFAULT_BYTE_COST_FACTOR_KEY;
-
-  // size of: output ID + message ID + milestone index + confirmation unix timestamp
-  default_config->v_byte_offset = BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) * DEFAULT_BYTE_COST_FACTOR_KEY +
-                                  BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) * DEFAULT_BYTE_COST_FACTOR_DATA +
-                                  sizeof(uint64_t) * DEFAULT_BYTE_COST_FACTOR_DATA +
-                                  sizeof(uint64_t) * DEFAULT_BYTE_COST_FACTOR_DATA;
-
-  return default_config;
-}
-
 byte_cost_config_t *storage_deposit_new_config(uint16_t byte_cost, uint8_t byte_factor_data, uint8_t byte_factor_key) {
   byte_cost_config_t *config = malloc(sizeof(byte_cost_config_t));
   if (!config) {
@@ -77,13 +56,17 @@ byte_cost_config_t *storage_deposit_new_config(uint16_t byte_cost, uint8_t byte_
   config->v_byte_factor_data = byte_factor_data;
   config->v_byte_factor_key = byte_factor_key;
 
-  // size of: output ID + message ID + milestone index + confirmation unix timestamp
-  config->v_byte_offset = BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) * DEFAULT_BYTE_COST_FACTOR_KEY +
-                          BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) * DEFAULT_BYTE_COST_FACTOR_DATA +
-                          sizeof(uint64_t) * DEFAULT_BYTE_COST_FACTOR_DATA +
-                          sizeof(uint64_t) * DEFAULT_BYTE_COST_FACTOR_DATA;
+  // size of: output ID + message ID + confirmation milestone index + confirmation unix timestamp
+  config->v_byte_offset = (IOTA_OUTPUT_ID_BYTES * DEFAULT_BYTE_COST_FACTOR_KEY) +    // output ID
+                          (IOTA_MESSAGE_ID_BYTES * DEFAULT_BYTE_COST_FACTOR_DATA) +  // message ID
+                          (sizeof(uint32_t) * DEFAULT_BYTE_COST_FACTOR_DATA) +       // confirmation milestone index
+                          (sizeof(uint32_t) * DEFAULT_BYTE_COST_FACTOR_DATA);        // confirmation unix timestamp
 
   return config;
+}
+
+byte_cost_config_t *storage_deposit_new_default_config() {
+  return storage_deposit_new_config(DEFAULT_BYTE_COST, DEFAULT_BYTE_COST_FACTOR_DATA, DEFAULT_BYTE_COST_FACTOR_KEY);
 }
 
 bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config, utxo_output_type_t output_type,
@@ -101,7 +84,7 @@ bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config,
     case OUTPUT_SINGLE_OUTPUT:
     case OUTPUT_DUST_ALLOWANCE:
     case OUTPUT_TREASURY:
-      printf("[%s:%d] deprecated or unsupported output\n", __func__, __LINE__);
+      printf("[%s:%d] deprecated or unsupported output type\n", __func__, __LINE__);
       return UINT64_MAX;
     case OUTPUT_EXTENDED:
       amount = ((output_extended_t *)output)->amount;
@@ -122,8 +105,8 @@ bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config,
   }
 
   if (amount < min_storage_deposit) {
-    printf("[%s:%d] minimum storage deposit amount must be at least %" PRIu64 "Mi\n", __func__, __LINE__,
-           min_storage_deposit / 1000000);
+    printf("[%s:%d] minimum storage deposit amount must be at least %fMi\n", __func__, __LINE__,
+           min_storage_deposit / 1000000.0);
     return false;
   }
 
@@ -131,7 +114,7 @@ bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config,
     uint64_t minimum = amount - min_storage_deposit;
     uint64_t maximum = amount;
     if (((unlock_cond_dust_t *)(dust_return_cond->block))->amount < minimum ||
-        ((unlock_cond_dust_t *)(dust_return_cond->block))->amount >= maximum) {
+        ((unlock_cond_dust_t *)(dust_return_cond->block))->amount > maximum) {
       printf("[%s:%d] invalid storage deposit return amount\n", __func__, __LINE__);
       return false;
     }
