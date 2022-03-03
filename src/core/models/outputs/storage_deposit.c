@@ -56,7 +56,6 @@ byte_cost_config_t *storage_deposit_get_default_config() {
   default_config->v_byte_cost = DEFAULT_BYTE_COST;
   default_config->v_byte_factor_data = DEFAULT_BYTE_COST_FACTOR_DATA;
   default_config->v_byte_factor_key = DEFAULT_BYTE_COST_FACTOR_KEY;
-  default_config->v_byte_offset = 0;
 
   // size of: output ID + message ID + milestone index + confirmation unix timestamp
   default_config->v_byte_offset = BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) * DEFAULT_BYTE_COST_FACTOR_KEY +
@@ -67,8 +66,7 @@ byte_cost_config_t *storage_deposit_get_default_config() {
   return default_config;
 }
 
-byte_cost_config_t *storage_deposit_new_config(uint64_t byte_cost, uint64_t byte_factor_data, uint64_t byte_factor_key,
-                                               uint64_t byte_offset) {
+byte_cost_config_t *storage_deposit_new_config(uint16_t byte_cost, uint8_t byte_factor_data, uint8_t byte_factor_key) {
   byte_cost_config_t *config = malloc(sizeof(byte_cost_config_t));
   if (!config) {
     printf("[%s:%d] can not create storage config\n", __func__, __LINE__);
@@ -78,7 +76,12 @@ byte_cost_config_t *storage_deposit_new_config(uint64_t byte_cost, uint64_t byte
   config->v_byte_cost = byte_cost;
   config->v_byte_factor_data = byte_factor_data;
   config->v_byte_factor_key = byte_factor_key;
-  config->v_byte_offset = byte_offset;
+
+  // size of: output ID + message ID + milestone index + confirmation unix timestamp
+  config->v_byte_offset = BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) * DEFAULT_BYTE_COST_FACTOR_KEY +
+                          BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) * DEFAULT_BYTE_COST_FACTOR_DATA +
+                          sizeof(uint64_t) * DEFAULT_BYTE_COST_FACTOR_DATA +
+                          sizeof(uint64_t) * DEFAULT_BYTE_COST_FACTOR_DATA;
 
   return config;
 }

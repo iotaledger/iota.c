@@ -43,13 +43,14 @@ int tx_essence_add_input(transaction_essence_t* es, uint8_t type, byte_t tx_id[]
   return utxo_inputs_add(&es->inputs, type, tx_id, index, key);
 }
 
-int tx_essence_add_output(transaction_essence_t* es, utxo_output_type_t type, void* output) {
+int tx_essence_add_output(transaction_essence_t* es, byte_cost_config_t* storage_config, utxo_output_type_t type,
+                          void* output) {
   if (es == NULL || output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  return utxo_outputs_add(&es->outputs, type, output);
+  return utxo_outputs_add(&es->outputs, storage_config, type, output);
 }
 
 int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* payload) {
@@ -261,9 +262,10 @@ int tx_payload_add_input(transaction_payload_t* tx, uint8_t type, byte_t tx_id[]
   return -1;
 }
 
-int tx_payload_add_output(transaction_payload_t* tx, utxo_output_type_t type, void* output) {
+int tx_payload_add_output(transaction_payload_t* tx, byte_cost_config_t* storage_config, utxo_output_type_t type,
+                          void* output) {
   if (tx) {
-    return tx_essence_add_output(tx->essence, type, output);
+    return tx_essence_add_output(tx->essence, storage_config, type, output);
   }
   return -1;
 }

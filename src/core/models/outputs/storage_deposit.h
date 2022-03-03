@@ -20,11 +20,9 @@ byte_cost_config_t *storage_deposit_get_default_config();
  * @param[in] byte_cost Rent of a single virtual byte denoted in IOTA tokens
  * @param[in] byte_factor_data Multiplier for data fields
  * @param[in] byte_factor_key Multiplier for key fields
- * @param[in] byte_offset Additional virtual bytes
  * @return *byte_cost_config_t
  */
-byte_cost_config_t *storage_deposit_new_config(uint64_t byte_cost, uint64_t byte_factor_data, uint64_t byte_factor_key,
-                                               uint64_t byte_offset);
+byte_cost_config_t *storage_deposit_new_config(uint16_t byte_cost, uint8_t byte_factor_data, uint8_t byte_factor_key);
 
 /**
  * @brief Check if a sufficient storage deposit was made for the given output

@@ -11,10 +11,10 @@
  *
  */
 typedef struct {
-  uint64_t v_byte_cost;         ///< Defines the rent of a single virtual byte denoted in IOTA tokens
-  uint64_t v_byte_factor_data;  ///< Defines the multiplier for data fields
-  uint64_t v_byte_factor_key;   ///< Defines the multiplier for fields which can act as keys for lookups
-  uint64_t v_byte_offset;  ///< Additional virtual bytes that are caused by additional data that has to be stored in the
+  uint16_t v_byte_cost;        ///< Defines the rent of a single virtual byte denoted in IOTA tokens
+  uint8_t v_byte_factor_data;  ///< Defines the multiplier for data fields
+  uint8_t v_byte_factor_key;   ///< Defines the multiplier for fields which can act as keys for lookups
+  uint16_t v_byte_offset;  ///< Additional virtual bytes that are caused by additional data that has to be stored in the
                            ///< database but is not part of the output itself
 } byte_cost_config_t;
 
