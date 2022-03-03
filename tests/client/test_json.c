@@ -279,7 +279,6 @@ void test_json_str_arr() {
   TEST_ASSERT(json_string_array_to_utarray(NULL, " ", NULL) == JSON_INVALID_PARAMS);
 
   cJSON *json_obj = NULL;
-  char *value = NULL;
   size_t cases = sizeof(test_elm) / sizeof(json_test_case_t);
   UT_array *str_arr = NULL;
   for (size_t i = 0; i < cases; i++) {

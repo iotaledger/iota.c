@@ -92,7 +92,7 @@ byte_buf_t* byte_buf_clonen(byte_buf_t* buf, size_t length);
  * @param[in] buf A byte buffer
  * @return byte_buf_t*
  */
-static byte_buf_t* byte_buf_clone(byte_buf_t* buf) { return byte_buf_clonen(buf, buf->len); };
+byte_buf_t* byte_buf_clone(byte_buf_t* buf);
 
 /**
  * @brief Changes the buffer capacity

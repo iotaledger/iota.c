@@ -19,13 +19,14 @@ int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char 
   }
 
   int ret = -1;
+  byte_buf_t *http_res = NULL;
 
   // compose restful API command
   char cmd_buffer[103] = {0};  // 103 = max size of api path(38) + IOTA_TRANSACTION_ID_HEX_BYTES(64) + 1
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v2/transactions/%s/included-message", tx_id);
 
   // check if data stored is not more than buffer length
-  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
+  if (snprintf_ret > ((int)sizeof(cmd_buffer) - 1)) {
     printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
     goto done;
   }
@@ -33,7 +34,6 @@ int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char 
   // http client configuration
   http_client_config_t http_conf = {
       .host = conf->host, .path = cmd_buffer, .use_tls = conf->use_tls, .port = conf->port};
-  byte_buf_t *http_res = NULL;
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);

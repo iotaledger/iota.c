@@ -114,7 +114,6 @@ utxo_input_t *utxo_inputs_find_by_id(utxo_inputs_list_t *inputs, byte_t id[]) {
     return NULL;
   }
 
-  uint16_t count = 0;
   utxo_inputs_list_t *elm;
   if (inputs) {
     LL_FOREACH(inputs, elm) {
@@ -137,7 +136,6 @@ utxo_input_t *utxo_inputs_find_by_index(utxo_inputs_list_t *inputs, uint16_t ind
     return NULL;
   }
 
-  uint16_t count = 0;
   utxo_inputs_list_t *elm;
   if (inputs) {
     LL_FOREACH(inputs, elm) {

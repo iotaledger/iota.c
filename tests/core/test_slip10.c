@@ -22,7 +22,7 @@ void test_bip32path() {
     int ret = slip10_parse_path(bip32path_set[i].str, &path);
     TEST_ASSERT(ret == bip32path_set[i].err);
     if (ret == 0) {
-      TEST_ASSERT(bip32path_set[i].path_len == path.len);
+      TEST_ASSERT(bip32path_set[i].path_len == (size_t)path.len);
       TEST_ASSERT_EQUAL_MEMORY(bip32path_set[i].exp_path, path.path, path.len);
     }
   }

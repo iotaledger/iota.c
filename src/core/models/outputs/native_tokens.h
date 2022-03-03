@@ -38,7 +38,7 @@ extern "C" {
  *
  * @return native_tokens_t* a NULL pointer
  */
-static native_tokens_t *native_tokens_new() { return NULL; }
+native_tokens_t *native_tokens_new();
 
 /**
  * @brief Find Native Token by a given token ID.
@@ -47,11 +47,7 @@ static native_tokens_t *native_tokens_new() { return NULL; }
  * @param[in] id Native Token ID to be searched
  * @return native_tokens_t*
  */
-static native_tokens_t *native_tokens_find_by_id(native_tokens_t **nt, byte_t id[]) {
-  native_tokens_t *elm = NULL;
-  HASH_FIND(hh, *nt, id, NATIVE_TOKEN_ID_BYTES, elm);
-  return elm;
-}
+native_tokens_t *native_tokens_find_by_id(native_tokens_t **nt, byte_t id[]);
 
 /**
  * @brief Get a number of Native Tokens in a set.
@@ -59,23 +55,14 @@ static native_tokens_t *native_tokens_find_by_id(native_tokens_t **nt, byte_t id
  * @param[in] nt Native Tokens set
  * @return uint16_t
  */
-static uint8_t native_tokens_count(native_tokens_t **nt) { return (uint8_t)HASH_COUNT(*nt); }
+uint8_t native_tokens_count(native_tokens_t **nt);
 
 /**
  * @brief Free Native Tokens set.
  *
  * @param[in] nt Native Tokens set
  */
-static void native_tokens_free(native_tokens_t **nt) {
-  native_tokens_t *curr_elm, *tmp;
-  HASH_ITER(hh, *nt, curr_elm, tmp) {
-    HASH_DEL(*nt, curr_elm);
-    if (curr_elm->amount) {
-      free(curr_elm->amount);
-    }
-    free(curr_elm);
-  }
-}
+void native_tokens_free(native_tokens_t **nt);
 
 /**
  * @brief Add Native Token to a Native Tokens set.

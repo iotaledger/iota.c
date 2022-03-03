@@ -470,7 +470,7 @@ int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[],
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nfts/%s", nft_id);
 
   // check if data stored is not more than buffer length
-  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
+  if (snprintf_ret > ((int)sizeof(cmd_buffer) - 1)) {
     printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
     return -1;
   }
@@ -495,7 +495,7 @@ int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_i
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/aliases/%s", alias_id);
 
   // check if data stored is not more than buffer length
-  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
+  if (snprintf_ret > ((int)sizeof(cmd_buffer) - 1)) {
     printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
     return -1;
   }
@@ -520,7 +520,7 @@ int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const found
   int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/foundries/%s", foundry_id);
 
   // check if data stored is not more than buffer length
-  if (snprintf_ret > (sizeof(cmd_buffer) - 1)) {
+  if (snprintf_ret > ((int)sizeof(cmd_buffer) - 1)) {
     printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
     return -1;
   }
