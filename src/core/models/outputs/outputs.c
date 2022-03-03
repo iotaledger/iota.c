@@ -41,7 +41,8 @@ void utxo_outputs_free(utxo_outputs_list_t *outputs) {
   }
 }
 
-int utxo_outputs_add(utxo_outputs_list_t **outputs, utxo_output_type_t type, void *output) {
+int utxo_outputs_add(utxo_outputs_list_t **outputs, byte_cost_config_t *storage_config, utxo_output_type_t type,
+                     void *output) {
   if (outputs == NULL || output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -53,8 +54,11 @@ int utxo_outputs_add(utxo_outputs_list_t **outputs, utxo_output_type_t type, voi
   }
 
   // check if a sufficient storage deposit was made for the given output
-  byte_cost_config_t storage_config = storage_deposit_get_default_config();
-  if (storage_deposit_check_sufficient_output_deposit(&storage_config, type, output) != true) {
+  if (!storage_config) {
+    // use default storage deposit config if it is not provided as function argument
+    storage_config = storage_deposit_get_default_config();
+  }
+  if (storage_deposit_check_sufficient_output_deposit(storage_config, type, output) != true) {
     printf("[%s:%d] insufficient storage deposit for output\n", __func__, __LINE__);
     return -1;
   }

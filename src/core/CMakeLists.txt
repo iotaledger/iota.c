@@ -41,6 +41,7 @@ target_sources(
          "utils/uint256.h"
          "utils/macros.h"
          "models/inputs/utxo_input.h"
+         "models/outputs/byte_cost_config.h"
          "models/outputs/feat_blocks.h"
          "models/outputs/output_alias.h"
          "models/outputs/output_extended.h"
