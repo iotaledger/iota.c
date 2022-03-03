@@ -4,7 +4,7 @@
 #ifndef __CORE_MODELS_OUTPUT_STORAGE_DEPOSIT_H__
 #define __CORE_MODELS_OUTPUT_STORAGE_DEPOSIT_H__
 
-#include "core/models/outputs/byte_cost_config.h"
+#include "core/byte_cost_config.h"
 #include "core/models/outputs/outputs.h"
 
 /**

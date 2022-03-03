@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-#include "core/models/outputs/byte_cost_config.h"
+#include "core/byte_cost_config.h"
 #include "core/models/outputs/output_alias.h"
 #include "core/models/outputs/output_extended.h"
 #include "core/models/outputs/output_foundry.h"

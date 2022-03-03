@@ -1,8 +1,8 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CORE_MODELS_OUTPUT_BYTE_COST_CONFIG_H__
-#define __CORE_MODELS_OUTPUT_BYTE_COST_CONFIG_H__
+#ifndef __CORE_BYTE_COST_CONFIG_H__
+#define __CORE_BYTE_COST_CONFIG_H__
 
 #include <stdint.h>
 
@@ -18,4 +18,4 @@ typedef struct {
                            ///< database but is not part of the output itself
 } byte_cost_config_t;
 
-#endif  // __CORE_MODELS_OUTPUT_BYTE_COST_CONFIG_H__
+#endif  // __CORE_BYTE_COST_CONFIG_H__
