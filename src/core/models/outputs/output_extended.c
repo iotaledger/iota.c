@@ -21,12 +21,6 @@ output_extended_t* output_extended_new(uint64_t amount, native_tokens_t* tokens,
     return NULL;
   }
 
-  // FIXME: amount must fulfill the Byte Cost Dust Protection
-  // if (amount < MIN_DUST_ALLOWANCE) {
-  //   printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
-  //   return NULL;
-  // }
-
   // validate unlock condition parameter
   // It must hold true that 1 ≤ Unlock Conditions Count ≤ 4
   if (cond_blk_list_len(cond_blocks) == 0 || cond_blk_list_len(cond_blocks) > MAX_EXTENDED_CONDITION_BLOCKS_COUNT) {

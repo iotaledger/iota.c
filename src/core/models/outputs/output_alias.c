@@ -20,12 +20,6 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
     return NULL;
   }
 
-  // FIXME: amount must fulfill the Byte Cost Dust Protection
-  // if (amount < MIN_DUST_ALLOWANCE) {
-  //   printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
-  //   return NULL;
-  // }
-
   // Unlock condition count must be 2
   if (cond_blk_list_len(cond_blocks) != 2) {
     printf("[%s:%d] Unlock condition count must be 2\n", __func__, __LINE__);
