@@ -7,8 +7,6 @@ add_library(iota_core STATIC)
 # the required minimum C standard
 set_target_properties(iota_core PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 99)
 
-add_dependencies(iota_core iota_crypto)
-
 target_sources(
   iota_core
   PRIVATE "address.c"
@@ -58,7 +56,9 @@ target_sources(
 
 target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 
-add_dependencies(iota_core ext_uthash)
+add_dependencies(iota_core iota_crypto ext_uthash)
+
+target_compile_options(iota_core PRIVATE -Wall -Wextra)
 
 target_link_libraries(iota_core PUBLIC iota_crypto)
 

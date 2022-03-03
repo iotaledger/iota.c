@@ -263,6 +263,8 @@ byte_buf_t* byte_buf_clonen(byte_buf_t* buf, size_t len) {
   return clone;
 }
 
+byte_buf_t* byte_buf_clone(byte_buf_t* buf) { return byte_buf_clonen(buf, buf->len); }
+
 void byte_buf_print(byte_buf_t* buf) {
   printf("byte_buf: cap = %zu, len = %zu\n", buf->cap, buf->len);
   dump_hex(buf->data, buf->len);

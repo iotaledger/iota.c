@@ -46,7 +46,7 @@ char *get_node_features_at(res_node_info_t *info, size_t idx) {
     return NULL;
   }
 
-  int len = utarray_len(info->u.output_node_info->features);
+  size_t len = utarray_len(info->u.output_node_info->features);
   if (idx >= len) {
     printf("[%s:%d]: get_features failed (invalid index)\n", __func__, __LINE__);
     return NULL;
@@ -70,7 +70,7 @@ char *get_node_plugins_at(res_node_info_t *info, size_t idx) {
     return NULL;
   }
 
-  int len = utarray_len(info->u.output_node_info->plugins);
+  size_t len = utarray_len(info->u.output_node_info->plugins);
   if (idx >= len) {
     printf("[%s:%d]: get plugins failed (invalid index)\n", __func__, __LINE__);
     return NULL;
@@ -337,7 +337,7 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
     int len = utarray_len(info->features);
     for (int i = 0; i < len; i++) {
       printf(i > 0 ? ",\n" : "");
-      printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->features, i));
+      printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->features, (unsigned int)i));
     }
     printf("\n");
     printf("%s\t],\n", PRINT_INDENTATION(indentation));
@@ -345,7 +345,7 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
     len = utarray_len(info->plugins);
     for (int i = 0; i < len; i++) {
       printf(i > 0 ? ",\n" : "");
-      printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->plugins, i));
+      printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->plugins, (unsigned int)i));
     }
     printf("\n");
     printf("%s\t]\n", PRINT_INDENTATION(indentation));

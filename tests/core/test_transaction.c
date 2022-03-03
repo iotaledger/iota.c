@@ -13,11 +13,13 @@
 #include "core/models/payloads/transaction.h"
 #include "core/models/unlock_block.h"
 
+#if 0
 static byte_t tx_id0[IOTA_TRANSACTION_ID_BYTES] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 static byte_t tx_id1[IOTA_TRANSACTION_ID_BYTES] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
                                                    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
                                                    255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+#endif
 char const* const exp_index = "HELLO";
 byte_t exp_data[12] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, 0x21};
 

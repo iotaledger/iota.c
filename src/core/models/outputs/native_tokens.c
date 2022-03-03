@@ -11,6 +11,27 @@ static int token_id_sort(native_tokens_t *token1, native_tokens_t *token2) {
   return memcmp(token1->token_id, token2->token_id, NATIVE_TOKEN_ID_BYTES);
 }
 
+native_tokens_t *native_tokens_new() { return NULL; }
+
+native_tokens_t *native_tokens_find_by_id(native_tokens_t **nt, byte_t id[]) {
+  native_tokens_t *elm = NULL;
+  HASH_FIND(hh, *nt, id, NATIVE_TOKEN_ID_BYTES, elm);
+  return elm;
+}
+
+uint8_t native_tokens_count(native_tokens_t **nt) { return (uint8_t)HASH_COUNT(*nt); }
+
+void native_tokens_free(native_tokens_t **nt) {
+  native_tokens_t *curr_elm, *tmp;
+  HASH_ITER(hh, *nt, curr_elm, tmp) {
+    HASH_DEL(*nt, curr_elm);
+    if (curr_elm->amount) {
+      free(curr_elm->amount);
+    }
+    free(curr_elm);
+  }
+}
+
 int native_tokens_add(native_tokens_t **nt, byte_t token_id[], uint256_t const *amount) {
   if (nt == NULL || token_id == NULL || amount == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);

@@ -98,12 +98,17 @@ static size_t cond_timelock_serialize_len(unlock_cond_timelock_t* t) {
 }
 
 static size_t cond_timelock_serialize(unlock_cond_timelock_t* t, byte_t buf[], size_t buf_len) {
-  // serialize milestone and time
-  memcpy(buf, &t->milestone, sizeof(t->milestone));
-  size_t offset = sizeof(t->milestone);
-  memcpy(buf + offset, &t->time, sizeof(t->time));
-  offset += sizeof(t->time);
-  return offset;
+  if (buf_len >= sizeof(t->milestone) + sizeof(t->time)) {
+    // serialize milestone and time
+    memcpy(buf, &t->milestone, sizeof(t->milestone));
+    size_t offset = sizeof(t->milestone);
+    memcpy(buf + offset, &t->time, sizeof(t->time));
+    offset += sizeof(t->time);
+    return offset;
+  }
+
+  printf("[%s:%d] timelock serialization failed\n", __func__, __LINE__);
+  return 0;
 }
 
 static unlock_cond_timelock_t* cond_timelock_deserialize(byte_t buf[], size_t buf_len) {

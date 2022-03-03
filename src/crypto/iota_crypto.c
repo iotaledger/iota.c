@@ -37,6 +37,7 @@
 
 #include "crypto/iota_crypto.h"
 
+#if defined(CRYPTO_USE_SODIUM)
 // store 32 bits in big-endian
 static inline void store32_be(uint8_t dst[4], uint32_t w) {
   if (is_little_endian()) {
@@ -51,6 +52,7 @@ static inline void store32_be(uint8_t dst[4], uint32_t w) {
     memcpy(dst, &w, sizeof w);
   }
 }
+#endif
 
 void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
 #if defined(CRYPTO_USE_SODIUM)

@@ -101,16 +101,18 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
   // http client configuration
   http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
 
-  byte_buf_t *http_res = NULL;
-  if ((http_res = byte_buf_new()) == NULL) {
+  int ret = -1;
+
+  byte_buf_t *http_res = byte_buf_new();
+  if (!http_res) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
     goto done;
   }
 
   // send request via http client
-  int ret = -1;
   long st = 0;
-  if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
+  ret = http_client_get(&http_conf, http_res, &st);
+  if (ret == 0) {
     byte_buf2str(http_res);
     // json deserialization
     ret = deser_get_message((char const *const)http_res->data, res);

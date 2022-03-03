@@ -113,6 +113,10 @@ static void ed25519_vector_free(ed25519_vector_t* v) {
 
 static void hex2bin(char const str[], size_t str_len, uint8_t bin[], size_t bin_len) {
   size_t expected_bin_len = str_len / 2;
+  if (expected_bin_len > bin_len) {
+    printf("Insufficient bin array length!");
+    return;
+  }
   char* pos = (char*)str;
   for (size_t i = 0; i < expected_bin_len; i++) {
     sscanf(pos, "%2hhx", &bin[i]);
