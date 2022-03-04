@@ -10,7 +10,6 @@ set_target_properties(iota_core PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 99)
 target_sources(
   iota_core
   PRIVATE "address.c"
-          "seed.c"
           "utils/iota_str.c"
           "utils/byte_buffer.c"
           "utils/slip10.c"
@@ -32,7 +31,6 @@ target_sources(
           "models/message.c"
           "models/unlock_block.c"
   PUBLIC "address.h"
-         "seed.c"
          "utils/iota_str.h"
          "utils/byte_buffer.h"
          "utils/slip10.h"
