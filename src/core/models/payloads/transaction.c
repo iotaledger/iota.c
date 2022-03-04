@@ -261,7 +261,7 @@ size_t tx_payload_serialize_length(transaction_payload_t* tx) {
   }
 
   // payload_type + serialized essence length + serialized unlocked blocks
-  return sizeof(payload_t) + essence_len + blocks_len;
+  return sizeof(uint32_t) + essence_len + blocks_len;
 }
 
 size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_len) {
@@ -283,8 +283,8 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
 
   byte_t* offset = buf;
   // write payload type
-  memset(offset, CORE_MESSAGE_PAYLOAD_TRANSACTION, sizeof(payload_t));
-  offset += sizeof(payload_t);
+  memset(offset, CORE_MESSAGE_PAYLOAD_TRANSACTION, sizeof(uint32_t));
+  offset += sizeof(uint32_t);
   // write essence
   size_t essence_len = tx_essence_serialize_length(tx->essence);
   offset += tx_essence_serialize(tx->essence, offset, essence_len);
@@ -305,8 +305,8 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
   size_t offset = 0;
 
   // transaction payload type
-  memcpy(&tx_payload->type, &buf[offset], sizeof(payload_t));
-  offset += sizeof(payload_t);
+  memcpy(&tx_payload->type, &buf[offset], sizeof(uint32_t));
+  offset += sizeof(uint32_t);
 
   tx_payload->essence = tx_essence_deserialize(&buf[offset], buf_len - offset);
   offset += tx_essence_serialize_length(tx_payload->essence);

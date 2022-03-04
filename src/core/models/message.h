@@ -32,7 +32,7 @@ typedef enum {
 typedef struct {
   uint8_t protocol_version;  ///< Protocol version number of message.
   UT_array* parents;         ///< Parents of this message.
-  payload_t payload_type;    ///< Payload type.
+  uint32_t payload_type;     ///< Payload type, one of core_message_payload_type_t
   void* payload;             ///< Payload object, NULL is no payload.
   uint64_t nonce;            ///< The nonce which lets this message fulfill the Proof-of-Work requirement.
 } core_message_t;

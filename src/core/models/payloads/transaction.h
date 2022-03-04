@@ -24,7 +24,7 @@ static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
  *
  * Based on protocol design, we can have different types of input and output in a transaction.
  * At this moment, we have only utxo_input_list for input.
- * For output we have extended, alias, foundry and nft output.
+ * For output we have basic, alias, foundry and nft output.
  *
  */
 typedef struct {
@@ -48,7 +48,7 @@ typedef struct {
  *
  */
 typedef struct {
-  payload_t type;                  ///< Set to value 0 to denote a Transaction payload.
+  uint32_t type;                   ///< Set to value 0 to denote a Transaction payload.
   transaction_essence_t* essence;  ///< Describes the essence data making up a transaction by defining its inputs and
                                    ///< outputs and an optional payload.
   unlock_list_t* unlock_blocks;    ///< Defines a list of unlock blocks (signature, reference, alias, NFT) which unlock

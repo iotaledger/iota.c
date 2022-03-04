@@ -17,7 +17,7 @@
 #define MILESTONE_PUBLIC_KEY_BYTES 32
 
 typedef struct {
-  payload_t type;      // Must be set to 1.
+  uint32_t type;       // pyalod type, set to 1 denotes a milestone pyalod
   uint32_t index;      // The index number of the milestone.
   uint64_t timestamp;  // The Unix time (seconds since Unix epoch) at which the milestone was issued.
   UT_array *parents;   // Parents of milestone message.
