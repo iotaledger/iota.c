@@ -45,6 +45,42 @@ static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_out
   return config->v_byte_cost * weighted_bytes + config->v_byte_offset;
 }
 
+static uint64_t minimum_storage_deposit(byte_cost_config_t *config, address_t *addr) {
+  if (config == NULL || addr == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return UINT64_MAX;
+  }
+
+  // create unlock condition for address
+  cond_blk_list_t *unlock_conds = cond_blk_list_new();
+  unlock_cond_blk_t *unlock_addr = cond_blk_addr_new(addr);
+  if (!unlock_addr) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    free(unlock_conds);
+    return UINT64_MAX;
+  }
+  if (cond_blk_list_add(&unlock_conds, unlock_addr) != 0) {
+    printf("[%s:%d] failed to add address unlock condition to a list\n", __func__, __LINE__);
+    free(unlock_conds);
+    free(unlock_addr);
+    return UINT64_MAX;
+  }
+
+  output_extended_t *output = output_extended_new(0, NULL, unlock_conds, NULL);
+  if (!output) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return UINT64_MAX;
+  }
+
+  output_extended_print(output, 0);
+  uint64_t output_deposit = calc_minimum_output_deposit(config, OUTPUT_EXTENDED, output);
+
+  free(unlock_conds);
+  free(unlock_addr);
+
+  return output_deposit;
+}
+
 byte_cost_config_t *storage_deposit_new_config(uint16_t byte_cost, uint8_t byte_factor_data, uint8_t byte_factor_key) {
   byte_cost_config_t *config = malloc(sizeof(byte_cost_config_t));
   if (!config) {
@@ -57,10 +93,10 @@ byte_cost_config_t *storage_deposit_new_config(uint16_t byte_cost, uint8_t byte_
   config->v_byte_factor_key = byte_factor_key;
 
   // size of: output ID + message ID + confirmation milestone index + confirmation unix timestamp
-  config->v_byte_offset = (IOTA_OUTPUT_ID_BYTES * DEFAULT_BYTE_COST_FACTOR_KEY) +    // output ID
-                          (IOTA_MESSAGE_ID_BYTES * DEFAULT_BYTE_COST_FACTOR_DATA) +  // message ID
-                          (sizeof(uint32_t) * DEFAULT_BYTE_COST_FACTOR_DATA) +       // confirmation milestone index
-                          (sizeof(uint32_t) * DEFAULT_BYTE_COST_FACTOR_DATA);        // confirmation unix timestamp
+  config->v_byte_offset = (IOTA_OUTPUT_ID_BYTES * byte_factor_key) +    // output ID
+                          (IOTA_MESSAGE_ID_BYTES * byte_factor_data) +  // message ID
+                          (sizeof(uint32_t) * byte_factor_data) +       // confirmation milestone index
+                          (sizeof(uint32_t) * byte_factor_data);        // confirmation unix timestamp
 
   return config;
 }
@@ -85,7 +121,7 @@ bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config,
     case OUTPUT_DUST_ALLOWANCE:
     case OUTPUT_TREASURY:
       printf("[%s:%d] deprecated or unsupported output type\n", __func__, __LINE__);
-      return UINT64_MAX;
+      return false;
     case OUTPUT_EXTENDED:
       amount = ((output_extended_t *)output)->amount;
       dust_return_cond = cond_blk_list_get_type(((output_extended_t *)output)->unlock_conditions, UNLOCK_COND_DUST);
@@ -111,11 +147,25 @@ bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config,
   }
 
   if (dust_return_cond) {
-    uint64_t minimum = amount - min_storage_deposit;
-    uint64_t maximum = amount;
-    if (((unlock_cond_dust_t *)(dust_return_cond->block))->amount < minimum ||
-        ((unlock_cond_dust_t *)(dust_return_cond->block))->amount > maximum) {
-      printf("[%s:%d] invalid storage deposit return amount\n", __func__, __LINE__);
+    if (((unlock_cond_dust_t *)(dust_return_cond->block))->amount == 0) {
+      printf("[%s:%d] storage deposit return amount must not be 0\n", __func__, __LINE__);
+      return false;
+    }
+
+    uint64_t min_storage_deposit_return =
+        minimum_storage_deposit(config, ((unlock_cond_dust_t *)(dust_return_cond->block))->addr);
+    if (((unlock_cond_dust_t *)(dust_return_cond->block))->amount < min_storage_deposit_return) {
+      printf("[%s:%d] minimum storage deposit return amount must be at least %fMi\n", __func__, __LINE__,
+             min_storage_deposit_return / 1000000.0);
+      return false;
+    }
+
+    uint64_t amount_to_storage_deposit_delta = amount - ((unlock_cond_dust_t *)(dust_return_cond->block))->amount;
+    if (amount_to_storage_deposit_delta > min_storage_deposit) {
+      printf(
+          "[%s:%d] output amount must be less than minimum storage deposit amount. Dust Deposit Return Unlock is meant "
+          "to be used in microtransactions or transactions where only native tokens are sent.\n",
+          __func__, __LINE__);
       return false;
     }
   }
