@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-#include "client/api/json_parser/output_extended.h"
-#include "core/models/outputs/output_extended.h"
+#include "client/api/json_parser/output_basic.h"
+#include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
 #include "unity/unity.h"
@@ -13,7 +13,7 @@ void setUp(void) {}
 
 void tearDown(void) {}
 
-void test_parse_extended_output_basic() {
+void test_parse_basic_output_basic() {
   char const *const json_res =
       "{\"type\":3,\"amount\":1000000,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":16,"
       "\"nftId\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[]}";
@@ -21,25 +21,25 @@ void test_parse_extended_output_basic() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  output_extended_t *extended_output = NULL;
-  int result = json_output_extended_deserialize(json_obj, &extended_output);
+  output_basic_t *basic_output = NULL;
+  int result = json_output_basic_deserialize(json_obj, &basic_output);
   TEST_ASSERT_EQUAL_INT(0, result);
 
-  TEST_ASSERT_EQUAL_UINT64(1000000, extended_output->amount);
-  TEST_ASSERT_NULL(extended_output->native_tokens);
+  TEST_ASSERT_EQUAL_UINT64(1000000, basic_output->amount);
+  TEST_ASSERT_NULL(basic_output->native_tokens);
 
   // check unlock conditions
-  TEST_ASSERT_NOT_NULL(extended_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(extended_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(extended_output->unlock_conditions, UNLOCK_COND_ADDRESS));
+  TEST_ASSERT_NOT_NULL(basic_output->unlock_conditions);
+  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(basic_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_ADDRESS));
 
-  TEST_ASSERT_NULL(extended_output->feature_blocks);
+  TEST_ASSERT_NULL(basic_output->feature_blocks);
 
   cJSON_Delete(json_obj);
-  output_extended_free(extended_output);
+  output_basic_free(basic_output);
 }
 
-void test_parse_extended_output_full() {
+void test_parse_basic_output_full() {
   char const *const json_res =
       "{\"type\":3,\"amount\":1000000,\"nativeTokens\":[{\"id\":"
       "\"08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\","
@@ -58,46 +58,46 @@ void test_parse_extended_output_full() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  output_extended_t *extended_output = NULL;
-  int result = json_output_extended_deserialize(json_obj, &extended_output);
+  output_basic_t *basic_output = NULL;
+  int result = json_output_basic_deserialize(json_obj, &basic_output);
   TEST_ASSERT_EQUAL_INT(0, result);
 
-  TEST_ASSERT_EQUAL_UINT64(1000000, extended_output->amount);
+  TEST_ASSERT_EQUAL_UINT64(1000000, basic_output->amount);
 
   // check native tokens
-  TEST_ASSERT_NOT_NULL(extended_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT16(2, native_tokens_count(&extended_output->native_tokens));
+  TEST_ASSERT_NOT_NULL(basic_output->native_tokens);
+  TEST_ASSERT_EQUAL_UINT16(2, native_tokens_count(&basic_output->native_tokens));
   byte_t token_id[NATIVE_TOKEN_ID_BYTES];
   hex_2_bin("08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000",
             BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(&extended_output->native_tokens, token_id));
+  TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(&basic_output->native_tokens, token_id));
   hex_2_bin("09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000",
             BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(&extended_output->native_tokens, token_id));
+  TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(&basic_output->native_tokens, token_id));
 
   // check unlock conditions
-  TEST_ASSERT_NOT_NULL(extended_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(4, cond_blk_list_len(extended_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(extended_output->unlock_conditions, UNLOCK_COND_ADDRESS));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(extended_output->unlock_conditions, UNLOCK_COND_DUST));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(extended_output->unlock_conditions, UNLOCK_COND_TIMELOCK));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(extended_output->unlock_conditions, UNLOCK_COND_EXPIRATION));
+  TEST_ASSERT_NOT_NULL(basic_output->unlock_conditions);
+  TEST_ASSERT_EQUAL_UINT8(4, cond_blk_list_len(basic_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_ADDRESS));
+  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_DUST));
+  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_TIMELOCK));
+  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_EXPIRATION));
 
   // check feature blocks
-  TEST_ASSERT_NOT_NULL(extended_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(3, feat_blk_list_len(extended_output->feature_blocks));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(extended_output->feature_blocks, FEAT_SENDER_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(extended_output->feature_blocks, FEAT_METADATA_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(extended_output->feature_blocks, FEAT_TAG_BLOCK));
+  TEST_ASSERT_NOT_NULL(basic_output->feature_blocks);
+  TEST_ASSERT_EQUAL_UINT8(3, feat_blk_list_len(basic_output->feature_blocks));
+  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(basic_output->feature_blocks, FEAT_SENDER_BLOCK));
+  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(basic_output->feature_blocks, FEAT_METADATA_BLOCK));
+  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(basic_output->feature_blocks, FEAT_TAG_BLOCK));
 
-  // print extended output
-  output_extended_print(extended_output, 0);
+  // print basic output
+  output_basic_print(basic_output, 0);
 
   cJSON_Delete(json_obj);
-  output_extended_free(extended_output);
+  output_basic_free(basic_output);
 }
 
-void test_parse_extended_output_wrong_unlock_condition() {
+void test_parse_basic_output_wrong_unlock_condition() {
   char const *const json_res =
       "{\"type\":3,\"amount\":1000000,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,"
       "\"nftId\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[]}";
@@ -105,20 +105,20 @@ void test_parse_extended_output_wrong_unlock_condition() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  output_extended_t *extended_output = NULL;
-  int result = json_output_extended_deserialize(json_obj, &extended_output);
+  output_basic_t *basic_output = NULL;
+  int result = json_output_basic_deserialize(json_obj, &basic_output);
   TEST_ASSERT_EQUAL_INT(-1, result);
 
   cJSON_Delete(json_obj);
-  output_extended_free(extended_output);
+  output_basic_free(basic_output);
 }
 
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_parse_extended_output_basic);
-  RUN_TEST(test_parse_extended_output_full);
-  RUN_TEST(test_parse_extended_output_wrong_unlock_condition);
+  RUN_TEST(test_parse_basic_output_basic);
+  RUN_TEST(test_parse_basic_output_full);
+  RUN_TEST(test_parse_basic_output_wrong_unlock_condition);
 
   return UNITY_END();
 }

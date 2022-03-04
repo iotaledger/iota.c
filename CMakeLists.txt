@@ -49,15 +49,15 @@ endif()
 include(ExternalProject)
 
 if(IOTA_TESTS)
-include(cmake/unity.cmake)
+  include(cmake/unity.cmake)
 endif()
 
 if(WITH_IOTA_CLIENT)
-include(cmake/cjson.cmake)
+  include(cmake/cjson.cmake)
 endif()
 
 if(WITH_IOTA_CORE)
-include(cmake/uthash.cmake)
+  include(cmake/uthash.cmake)
 endif()
 
 # cryptography libs comparison https://en.wikipedia.org/wiki/Comparison_of_cryptography_libraries

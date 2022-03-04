@@ -182,7 +182,7 @@ void test_send_core_message_tagged_data_tag_max_len() {
   res_message_free(msg_res);
 }
 
-void test_send_msg_tx_extended() {
+void test_send_msg_tx_basic() {
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   // mnemonic seed for testing
@@ -248,8 +248,8 @@ void test_send_msg_tx_extended() {
     printf("fetch output: %s\n", res_outputs_output_id(res, i));
     TEST_ASSERT(get_output(&ctx, res_outputs_output_id(res, i), output_res) == 0);
     if (!output_res->is_error) {
-      if (output_res->u.data->output->output_type == OUTPUT_EXTENDED) {
-        output_extended_t* o = (output_extended_t*)output_res->u.data->output->output;
+      if (output_res->u.data->output->output_type == OUTPUT_BASIC) {
+        output_basic_t* o = (output_basic_t*)output_res->u.data->output->output;
         total_balance += o->amount;
         // add the output as a tx input into the tx payload
         TEST_ASSERT(tx_essence_add_input(tx->essence, 0, output_res->u.data->tx_id, output_res->u.data->output_index,
@@ -278,12 +278,12 @@ void test_send_msg_tx_extended() {
   unlock_cond_blk_t* b = cond_blk_addr_new(&addr_recv);
   cond_blk_list_t* recv_cond = cond_blk_list_new();
   cond_blk_list_add(&recv_cond, b);
-  output_extended_t* recv_output = output_extended_new(send_amount, NULL, recv_cond, NULL);
+  output_basic_t* recv_output = output_basic_new(send_amount, NULL, recv_cond, NULL);
   // add receiver output to tx payload
-  TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_EXTENDED, recv_output) == 0);
+  TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_BASIC, recv_output) == 0);
   cond_blk_free(b);
   cond_blk_list_free(recv_cond);
-  output_extended_free(recv_output);
+  output_basic_free(recv_output);
 
   // if remainder is needed?
   if (total_balance > send_amount) {
@@ -291,13 +291,13 @@ void test_send_msg_tx_extended() {
     b = cond_blk_addr_new(&addr_send);
     cond_blk_list_t* remainder_cond = cond_blk_list_new();
     cond_blk_list_add(&remainder_cond, b);
-    output_extended_t* remainder_output = output_extended_new(total_balance - send_amount, NULL, remainder_cond, NULL);
+    output_basic_t* remainder_output = output_basic_new(total_balance - send_amount, NULL, remainder_cond, NULL);
     TEST_ASSERT_NOT_NULL(remainder_output);
     // add receiver output to output list
-    TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_EXTENDED, remainder_output) == 0);
+    TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_BASIC, remainder_output) == 0);
     cond_blk_free(b);
     cond_blk_list_free(remainder_cond);
-    output_extended_free(remainder_output);
+    output_basic_free(remainder_output);
   }
 
   // add transaction payload to message
@@ -329,7 +329,7 @@ int main() {
   RUN_TEST(test_send_core_message_tagged_data);
   RUN_TEST(test_send_core_message_tagged_data_binary_tag);
   RUN_TEST(test_send_core_message_tagged_data_tag_max_len);
-  RUN_TEST(test_send_msg_tx_extended);
+  RUN_TEST(test_send_msg_tx_basic);
 #endif
 
   return UNITY_END();
