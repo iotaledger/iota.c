@@ -56,27 +56,26 @@ static uint64_t minimum_storage_deposit(byte_cost_config_t *config, address_t *a
   unlock_cond_blk_t *unlock_addr = cond_blk_addr_new(addr);
   if (!unlock_addr) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
-    free(unlock_conds);
     return UINT64_MAX;
   }
   if (cond_blk_list_add(&unlock_conds, unlock_addr) != 0) {
     printf("[%s:%d] failed to add address unlock condition to a list\n", __func__, __LINE__);
-    free(unlock_conds);
-    free(unlock_addr);
+    cond_blk_free(unlock_addr);
     return UINT64_MAX;
   }
 
   output_extended_t *output = output_extended_new(0, NULL, unlock_conds, NULL);
   if (!output) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
+    cond_blk_list_free(unlock_conds);
     return UINT64_MAX;
   }
 
-  output_extended_print(output, 0);
   uint64_t output_deposit = calc_minimum_output_deposit(config, OUTPUT_EXTENDED, output);
 
-  free(unlock_conds);
-  free(unlock_addr);
+  cond_blk_free(unlock_addr);
+  cond_blk_list_free(unlock_conds);
+  output_extended_free(output);
 
   return output_deposit;
 }

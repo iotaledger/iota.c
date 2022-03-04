@@ -90,6 +90,9 @@ void test_storage_deposit_check_sufficient_output_deposit() {
   TEST_ASSERT_TRUE(result);
 
   free(config);
+  cond_blk_free(unlock_addr);
+  cond_blk_free(unlock_dust);
+  cond_blk_list_free(unlock_conds);
   output_extended_free(output);
 }
 
@@ -118,6 +121,9 @@ void test_storage_deposit_check_sufficient_output_deposit_native_tokens_sent() {
   TEST_ASSERT_TRUE(result);
 
   free(config);
+  cond_blk_free(unlock_addr);
+  cond_blk_free(unlock_dust);
+  cond_blk_list_free(unlock_conds);
   output_extended_free(output);
 }
 
@@ -140,6 +146,8 @@ void test_storage_deposit_check_sufficient_output_amount_too_low() {
   TEST_ASSERT_FALSE(result);
 
   free(config);
+  cond_blk_free(unlock_addr);
+  cond_blk_list_free(unlock_conds);
   output_extended_free(output);
 }
 
@@ -167,6 +175,9 @@ void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_low
   TEST_ASSERT_FALSE(result);
 
   free(config);
+  cond_blk_free(unlock_addr);
+  cond_blk_free(unlock_dust);
+  cond_blk_list_free(unlock_conds);
   output_extended_free(output);
 }
 
@@ -195,6 +206,9 @@ void test_storage_deposit_check_sufficient_output_not_microtransaction() {
   TEST_ASSERT_FALSE(result);
 
   free(config);
+  cond_blk_free(unlock_addr);
+  cond_blk_free(unlock_dust);
+  cond_blk_list_free(unlock_conds);
   output_extended_free(output);
 }
 
