@@ -144,7 +144,7 @@ void test_output_alias() {
 
   // deserialize alias Output and validate it
   // expect deserialization fails
-  // TEST_ASSERT_NULL(output_alias_deserialize(output_serialized_buf, output_serialzed_len - 1));
+  TEST_ASSERT_NULL(output_alias_deserialize(output_serialized_buf, output_serialzed_len - 1));
   output_alias_t* deser_output = output_alias_deserialize(output_serialized_buf, output_serialzed_len);
   TEST_ASSERT_NOT_NULL(deser_output);
 

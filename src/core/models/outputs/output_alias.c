@@ -365,13 +365,25 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   // feature blocks
   uint8_t feat_block_count = 0;
   memcpy(&feat_block_count, &buf[offset], sizeof(uint8_t));
-  if (feat_block_count > 0) {
+  if (feat_block_count > MAX_ALIAS_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
+    output_alias_free(output);
+    return NULL;
+  } else if (feat_block_count > 0) {
     output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
     if (!output->feature_blocks) {
       printf("[%s:%d] can not deserialize feature blocks\n", __func__, __LINE__);
       output_alias_free(output);
       return NULL;
     }
+    offset += feat_blk_list_serialize_len(output->feature_blocks);
+  } else {
+    if (buf_len < offset + sizeof(uint8_t)) {
+      printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+      output_alias_free(output);
+      return NULL;
+    }
+    offset += sizeof(uint8_t);
   }
 
   // immutable feature blocks
