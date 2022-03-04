@@ -10,7 +10,7 @@
 #include "utlist.h"
 
 // maximum number of feature blocks
-#define MAX_ALIAS_FEATURE_BLOCKS_COUNT 3
+#define MAX_ALIAS_FEATURE_BLOCKS_COUNT 2
 // maximum number of immutable feature blocks
 #define MAX_ALIAS_IMMUTABLE_FEATURE_BLOCKS_COUNT 2
 
@@ -65,6 +65,12 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
   // State Metadata Length must not be greater than Max Metadata Length
   if (metadata_len > MAX_METADATA_LENGTH_BYTES) {
     printf("[%s:%d] Metadata length must not be greater than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
+    return NULL;
+  }
+
+  // validate feature block parameter
+  if (feat_blk_list_len(feat_blocks) > MAX_ALIAS_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_ALIAS_FEATURE_BLOCKS_COUNT);
     return NULL;
   }
 

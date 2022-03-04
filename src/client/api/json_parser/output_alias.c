@@ -198,6 +198,7 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
       cJSON_Delete(tmp);
       goto err;
     }
+
     // immutable feature blocks
     tmp = json_feat_blocks_serialize(alias->immutable_blocks);
     if (!cJSON_AddItemToObject(alias_obj, JSON_KEY_IMMUTABLE_BLOCKS, tmp)) {
