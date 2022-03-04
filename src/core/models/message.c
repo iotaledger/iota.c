@@ -221,7 +221,7 @@ size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len)
       payload_len = (uint32_t)tx_payload_serialize_length((transaction_payload_t*)msg->payload);
       break;
     case CORE_MESSAGE_PAYLOAD_TAGGED:
-      payload_len = (uint32_t)(uint32_t)tagged_data_serialize_len((tagged_data_payload_t*)(msg->payload));
+      payload_len = (uint32_t)tagged_data_serialize_len((tagged_data_payload_t*)(msg->payload));
       break;
     case CORE_MESSAGE_PAYLOAD_MILESTONE:
     case CORE_MESSAGE_PAYLOAD_INDEXATION:

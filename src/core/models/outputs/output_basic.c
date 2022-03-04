@@ -59,7 +59,7 @@ output_basic_t* output_basic_new(uint64_t amount, native_tokens_t* tokens, cond_
     }
   }
 
-  // create an extened output object
+  // create a basic output object
   output_basic_t* output = malloc(sizeof(output_basic_t));
   if (!output) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);

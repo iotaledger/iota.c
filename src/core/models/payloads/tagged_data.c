@@ -26,7 +26,7 @@ void tagged_data_free(tagged_data_payload_t *tagged_data) {
 }
 
 tagged_data_payload_t *tagged_data_create(byte_t tag[], uint8_t tag_len, byte_t data[], uint32_t data_len) {
-  if (tag == NULL || (data_len > 0 && data == NULL)) {
+  if ((tag_len > 0 && tag == NULL) || (data_len > 0 && data == NULL)) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }

@@ -68,7 +68,6 @@ void test_tagged_data() {
 }
 
 void test_tagged_data_without_tag() {
-  char const* const tag = "";
   byte_t data[DATA_LEN];
   iota_crypto_randombytes(data, DATA_LEN);
 
@@ -76,7 +75,7 @@ void test_tagged_data_without_tag() {
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_free(tagged_data);
 
-  tagged_data = tagged_data_create((byte_t*)tag, 0, data, DATA_LEN);
+  tagged_data = tagged_data_create(NULL, 0, data, DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
