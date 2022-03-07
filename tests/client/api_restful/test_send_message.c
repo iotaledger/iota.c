@@ -220,9 +220,8 @@ void test_send_msg_tx_basic() {
   uint64_t network_id;
   iota_blake2b_sum((const uint8_t*)info->u.output_node_info->network_name,
                    strlen(info->u.output_node_info->network_name), network_id_hash, sizeof(network_id_hash));
-  memcpy(&network_id, network_id_hash, sizeof(network_id));
-
   res_node_info_free(info);
+  memcpy(&network_id, network_id_hash, sizeof(network_id));
 
   transaction_payload_t* tx = tx_payload_new(network_id);
   TEST_ASSERT_NOT_NULL(tx);
