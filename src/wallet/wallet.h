@@ -18,7 +18,6 @@
 #include "client/client_service.h"
 #include "core/address.h"
 #include "core/models/message.h"
-#include "core/seed.h"
 #include "core/types.h"
 
 #ifdef __cplusplus

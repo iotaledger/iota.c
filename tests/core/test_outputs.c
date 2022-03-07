@@ -5,7 +5,7 @@
 
 #include "core/address.h"
 #include "core/models/outputs/output_alias.h"
-#include "core/models/outputs/output_extended.h"
+#include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/outputs.h"
@@ -16,7 +16,7 @@ void setUp(void) {}
 
 void tearDown(void) {}
 #if 0
-static output_extended_t* create_output_extended() {
+static output_basic_t* create_output_basic() {
   // create random ED25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
@@ -46,8 +46,8 @@ static output_extended_t* create_output_extended() {
   // FIXME
   // feat_blk_list_add_ddr(&feat_blocks, 1000000);
 
-  // create Extended Output
-  output_extended_t* output = output_extended_new(&addr, 123456789, native_tokens, feat_blocks);
+  // create Basic Output
+  output_basic_t* output = output_basic_new(&addr, 123456789, native_tokens, feat_blocks);
   TEST_ASSERT_NOT_NULL(output);
 
   free(amount1);
@@ -238,9 +238,9 @@ void test_utxo_outputs() {
   // print out an empty list
   utxo_outputs_print(outputs, 0);
 
-  // add extended output to the outputs list
-  output_extended_t* extended_output = create_output_extended();
-  TEST_ASSERT_EQUAL_INT(0, utxo_outputs_add(&outputs, OUTPUT_EXTENDED, extended_output));
+  // add basic output to the outputs list
+  output_basic_t* basic_output = create_output_basic();
+  TEST_ASSERT_EQUAL_INT(0, utxo_outputs_add(&outputs, OUTPUT_BASIC, basic_output));
 
   // add alias output to the output list
   output_alias_t* alias_output = create_output_alias();
@@ -257,18 +257,18 @@ void test_utxo_outputs() {
   // check outputs list length
   TEST_ASSERT_EQUAL_INT(4, utxo_outputs_count(outputs));
 
-  // check extended output
+  // check basic output
   utxo_output_t* output_from_list = utxo_outputs_get(outputs, 0);
-  TEST_ASSERT_EQUAL_INT(OUTPUT_EXTENDED, output_from_list->output_type);
-  output_extended_t* extended_output_from_list = (output_extended_t*)output_from_list->output;
-  TEST_ASSERT_EQUAL_UINT8(extended_output->address->type, extended_output_from_list->address->type);
-  TEST_ASSERT_EQUAL_MEMORY(extended_output->address->address, extended_output_from_list->address->address,
+  TEST_ASSERT_EQUAL_INT(OUTPUT_BASIC, output_from_list->output_type);
+  output_basic_t* basic_output_from_list = (output_basic_t*)output_from_list->output;
+  TEST_ASSERT_EQUAL_UINT8(basic_output->address->type, basic_output_from_list->address->type);
+  TEST_ASSERT_EQUAL_MEMORY(basic_output->address->address, basic_output_from_list->address->address,
                            ADDRESS_ED25519_BYTES);
-  TEST_ASSERT_EQUAL_UINT64(extended_output->amount, extended_output_from_list->amount);
-  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&extended_output->native_tokens),
-                           native_tokens_count(&extended_output_from_list->native_tokens));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(extended_output->feature_blocks),
-                          feat_blk_list_len(extended_output_from_list->feature_blocks));
+  TEST_ASSERT_EQUAL_UINT64(basic_output->amount, basic_output_from_list->amount);
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&basic_output->native_tokens),
+                           native_tokens_count(&basic_output_from_list->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(basic_output->feature_blocks),
+                          feat_blk_list_len(basic_output_from_list->feature_blocks));
 
   output_from_list = utxo_outputs_get(outputs, 1);
   TEST_ASSERT_EQUAL_INT(OUTPUT_ALIAS, output_from_list->output_type);
@@ -339,10 +339,10 @@ void test_utxo_outputs() {
   deser_outputs = utxo_outputs_deserialize(outputs_list_buf, expected_serialized_len);
   TEST_ASSERT_NOT_NULL(deser_outputs);
   TEST_ASSERT_EQUAL_INT(4, utxo_outputs_count(deser_outputs));
-  // check extended output
+  // check basic output
   output_from_list = utxo_outputs_get(deser_outputs, 0);
   TEST_ASSERT_NOT_NULL(output_from_list);
-  TEST_ASSERT_EQUAL_UINT8(OUTPUT_EXTENDED, output_from_list->output_type);
+  TEST_ASSERT_EQUAL_UINT8(OUTPUT_BASIC, output_from_list->output_type);
   TEST_ASSERT_NOT_NULL(output_from_list->output);
   // check alias output
   output_from_list = utxo_outputs_get(deser_outputs, 1);
@@ -364,7 +364,7 @@ void test_utxo_outputs() {
   utxo_outputs_print(outputs, 0);
 
   // clean up
-  output_extended_free(extended_output);
+  output_basic_free(basic_output);
   output_alias_free(alias_output);
   output_foundry_free(foundry_output);
   output_nft_free(nft_output);

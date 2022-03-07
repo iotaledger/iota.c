@@ -12,10 +12,8 @@
 #include "core/models/payloads/milestone.h"
 #include "core/types.h"
 
-// Message ID in binary form
+// Message ID length in binary form
 #define IOTA_MESSAGE_ID_BYTES 32
-// Message ID in hex string form
-#define IOTA_MESSAGE_ID_HEX_BYTES (IOTA_MESSAGE_ID_BYTES * 2)
 
 typedef enum {
   CORE_MESSAGE_PAYLOAD_TRANSACTION = 0,
@@ -34,7 +32,7 @@ typedef enum {
 typedef struct {
   uint8_t protocol_version;  ///< Protocol version number of message.
   UT_array* parents;         ///< Parents of this message.
-  payload_t payload_type;    ///< Payload type.
+  uint32_t payload_type;     ///< Payload type, one of core_message_payload_type_t
   void* payload;             ///< Payload object, NULL is no payload.
   uint64_t nonce;            ///< The nonce which lets this message fulfill the Proof-of-Work requirement.
 } core_message_t;

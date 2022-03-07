@@ -33,7 +33,7 @@ void test_parse_outputs_empty() {
 void test_parse_outputs() {
   char const *const json_res =
       "{\"outputs\":["
-      // extended output
+      // basic output
       "{\"type\":3,\"amount\":1000000,\"nativeTokens\":[{\"id\":"
       "\"08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\","
       "\"amount\":\"93847598347598347598347598\"},{\"id\":"
@@ -107,9 +107,9 @@ void test_parse_outputs() {
 
   TEST_ASSERT_EQUAL_UINT16(4, utxo_outputs_count(output_list));
 
-  // check extended output
+  // check basic output
   utxo_output_t *output = utxo_outputs_get(output_list, 0);
-  TEST_ASSERT_EQUAL_UINT8(OUTPUT_EXTENDED, output->output_type);
+  TEST_ASSERT_EQUAL_UINT8(OUTPUT_BASIC, output->output_type);
 
   // check alias output
   output = utxo_outputs_get(output_list, 1);

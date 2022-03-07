@@ -104,7 +104,7 @@ void test_deser_milestone() {
 
   TEST_ASSERT(msg->payload_type == CORE_MESSAGE_PAYLOAD_MILESTONE);
 
-  milestone_t* ms = (milestone_t*)msg->payload;
+  milestone_payload_t* ms = (milestone_payload_t*)msg->payload;
   TEST_ASSERT(3 == ms->index);
   TEST_ASSERT(1644478549 == ms->timestamp);
 
@@ -143,7 +143,7 @@ void test_deser_milestone() {
   // TODO check receipt
 
   // check signatures
-  byte_t tmp_sign[MILESTONE_SIGNATURE_LEN] = {};
+  byte_t tmp_sign[MILESTONE_SIGNATURE_BYTES] = {};
   TEST_ASSERT_EQUAL_INT(2, milestone_payload_get_signatures_count(ms));
   TEST_ASSERT(hex_2_bin("a6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b"
                         "4c33cfd64dadf7bcc085a062e486c7a105",
@@ -230,8 +230,8 @@ void test_deser_simple_tx() {
   TEST_ASSERT_EQUAL_UINT16(2, utxo_outputs_count(tx->essence->outputs));
   // validate output block: 0
   utxo_output_t* outputs = utxo_outputs_get(tx->essence->outputs, 0);
-  TEST_ASSERT(outputs->output_type == OUTPUT_EXTENDED);
-  output_extended_t* ext_output = (output_extended_t*)outputs->output;
+  TEST_ASSERT(outputs->output_type == OUTPUT_BASIC);
+  output_basic_t* ext_output = (output_basic_t*)outputs->output;
   TEST_ASSERT(ext_output->amount == 10000000);
   TEST_ASSERT_NULL(ext_output->native_tokens);
   TEST_ASSERT_NULL(ext_output->feature_blocks);
@@ -249,8 +249,8 @@ void test_deser_simple_tx() {
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, addr->address, sizeof(tmp_id));
   // validate output block: 1
   outputs = utxo_outputs_get(tx->essence->outputs, 1);
-  TEST_ASSERT(outputs->output_type == OUTPUT_EXTENDED);
-  ext_output = (output_extended_t*)outputs->output;
+  TEST_ASSERT(outputs->output_type == OUTPUT_BASIC);
+  ext_output = (output_basic_t*)outputs->output;
   TEST_ASSERT(ext_output->amount == 2779530273277761);
   TEST_ASSERT_NULL(ext_output->native_tokens);
   TEST_ASSERT_NULL(ext_output->feature_blocks);

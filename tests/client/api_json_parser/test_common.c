@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "client/api/json_parser/common.h"
+#include "core/utils/macros.h"
 #include "unity/unity.h"
 
 void setUp(void) {}
@@ -23,7 +24,7 @@ void test_parse_ed25519_address() {
 
   address_t test_addr;
   test_addr.type = ADDRESS_TYPE_ED25519;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, &address));
 
@@ -43,7 +44,7 @@ void test_parse_alias_address() {
 
   address_t test_addr;
   test_addr.type = ADDRESS_TYPE_ALIAS;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975", ADDRESS_ALIAS_HEX_BYTES, test_addr.address,
+  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975", BIN_TO_HEX_BYTES(ADDRESS_ALIAS_BYTES), test_addr.address,
             ADDRESS_ALIAS_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, &address));
 
@@ -63,7 +64,8 @@ void test_parse_nft_address() {
 
   address_t test_addr;
   test_addr.type = ADDRESS_TYPE_NFT;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975", ADDRESS_NFT_HEX_BYTES, test_addr.address, ADDRESS_NFT_BYTES);
+  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975", BIN_TO_HEX_BYTES(ADDRESS_NFT_BYTES), test_addr.address,
+            ADDRESS_NFT_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, &address));
 
   cJSON_Delete(json_obj);

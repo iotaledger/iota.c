@@ -21,7 +21,7 @@ void test_tagged_data() {
   byte_t data[DATA_LEN];
   iota_crypto_randombytes(data, DATA_LEN);
 
-  tagged_data_t* tagged_data = tagged_data_new();
+  tagged_data_payload_t* tagged_data = tagged_data_new();
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_free(tagged_data);
 
@@ -45,7 +45,7 @@ void test_tagged_data() {
   TEST_ASSERT(serialized_len == actual_len);
 
   // deserialization
-  tagged_data_t* deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len - 1);
+  tagged_data_payload_t* deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len - 1);
   TEST_ASSERT_NULL(deser_tagged_data);  // expect deserialization fails
   deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len);
   TEST_ASSERT_NOT_NULL(deser_tagged_data);
@@ -68,15 +68,14 @@ void test_tagged_data() {
 }
 
 void test_tagged_data_without_tag() {
-  char const* const tag = "";
   byte_t data[DATA_LEN];
   iota_crypto_randombytes(data, DATA_LEN);
 
-  tagged_data_t* tagged_data = tagged_data_new();
+  tagged_data_payload_t* tagged_data = tagged_data_new();
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_free(tagged_data);
 
-  tagged_data = tagged_data_create((byte_t*)tag, 0, data, DATA_LEN);
+  tagged_data = tagged_data_create(NULL, 0, data, DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
@@ -95,7 +94,7 @@ void test_tagged_data_without_tag() {
   TEST_ASSERT(serialized_len == actual_len);
 
   // deserialization
-  tagged_data_t* deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len - 1);
+  tagged_data_payload_t* deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len - 1);
   TEST_ASSERT_NULL(deser_tagged_data);  // expect deserialization fails
   deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len);
   TEST_ASSERT_NOT_NULL(deser_tagged_data);
@@ -117,7 +116,7 @@ void test_tagged_data_without_tag() {
 }
 
 void test_tagged_data_without_data() {
-  tagged_data_t* tagged_data = tagged_data_new();
+  tagged_data_payload_t* tagged_data = tagged_data_new();
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_free(tagged_data);
 
@@ -140,7 +139,7 @@ void test_tagged_data_without_data() {
   TEST_ASSERT(serialized_len == actual_len);
 
   // deserialization
-  tagged_data_t* deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len - 1);
+  tagged_data_payload_t* deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len - 1);
   TEST_ASSERT_NULL(deser_tagged_data);  // expect deserialization fails
   deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len);
   TEST_ASSERT_NOT_NULL(deser_tagged_data);
@@ -162,7 +161,7 @@ void test_tagged_data_without_data() {
 }
 
 void test_tagged_data_empty() {
-  tagged_data_t* tagged_data = tagged_data_new();
+  tagged_data_payload_t* tagged_data = tagged_data_new();
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_free(tagged_data);
 
@@ -185,7 +184,7 @@ void test_tagged_data_empty() {
   TEST_ASSERT(serialized_len == actual_len);
 
   // deserialization
-  tagged_data_t* deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len - 1);
+  tagged_data_payload_t* deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len - 1);
   TEST_ASSERT_NULL(deser_tagged_data);  // expect deserialization fails
   deser_tagged_data = tagged_data_deserialize(serialized_buf, serialized_len);
   TEST_ASSERT_NOT_NULL(deser_tagged_data);

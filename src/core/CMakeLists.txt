@@ -10,7 +10,6 @@ set_target_properties(iota_core PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 99)
 target_sources(
   iota_core
   PRIVATE "address.c"
-          "seed.c"
           "utils/iota_str.c"
           "utils/byte_buffer.c"
           "utils/slip10.c"
@@ -20,7 +19,7 @@ target_sources(
           "models/inputs/utxo_input.c"
           "models/outputs/feat_blocks.c"
           "models/outputs/output_alias.c"
-          "models/outputs/output_extended.c"
+          "models/outputs/output_basic.c"
           "models/outputs/output_foundry.c"
           "models/outputs/output_nft.c"
           "models/outputs/native_tokens.c"
@@ -32,7 +31,6 @@ target_sources(
           "models/message.c"
           "models/unlock_block.c"
   PUBLIC "address.h"
-         "seed.c"
          "utils/iota_str.h"
          "utils/byte_buffer.h"
          "utils/slip10.h"
@@ -42,7 +40,7 @@ target_sources(
          "models/inputs/utxo_input.h"
          "models/outputs/feat_blocks.h"
          "models/outputs/output_alias.h"
-         "models/outputs/output_extended.h"
+         "models/outputs/output_basic.h"
          "models/outputs/output_foundry.h"
          "models/outputs/output_nft.h"
          "models/outputs/native_tokens.h"

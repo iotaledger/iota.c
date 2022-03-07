@@ -6,7 +6,7 @@
 
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/outputs/output_alias.h"
-#include "core/models/outputs/output_extended.h"
+#include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/outputs.h"
@@ -28,7 +28,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 #if 0
-static output_extended_t* create_output_extended() {
+static output_basic_t* create_output_basic() {
   // create random ED25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
@@ -58,8 +58,8 @@ static output_extended_t* create_output_extended() {
   // FIXME
   // feat_blk_list_add_ddr(&feat_blocks, 1000000);
 
-  // create Extended Output
-  output_extended_t* output = output_extended_new(&addr, 123456789, native_tokens, feat_blocks);
+  // create Basic Output
+  output_basic_t* output = output_basic_new(&addr, 123456789, native_tokens, feat_blocks);
   TEST_ASSERT_NOT_NULL(output);
 
   free(amount1);
@@ -269,11 +269,11 @@ void test_tx_essence() {
   TEST_ASSERT(tx_essence_add_input(es, 0, tx_id1, 2) == 0);
 
   // test for -1 if output null
-  TEST_ASSERT(tx_essence_add_output(es, OUTPUT_EXTENDED, NULL) == -1);
+  TEST_ASSERT(tx_essence_add_output(es, OUTPUT_BASIC, NULL) == -1);
 
-  // add extended output to the outputs list
-  output_extended_t* extended_output = create_output_extended();
-  TEST_ASSERT_EQUAL_INT(0, tx_essence_add_output(es, OUTPUT_EXTENDED, extended_output));
+  // add basic output to the outputs list
+  output_basic_t* basic_output = create_output_basic();
+  TEST_ASSERT_EQUAL_INT(0, tx_essence_add_output(es, OUTPUT_BASIC, basic_output));
 
   // add alias output to the output list
   output_alias_t* alias_output = create_output_alias();
@@ -314,7 +314,7 @@ void test_tx_essence() {
   TEST_ASSERT_EQUAL_MEMORY(tx_id1, elm->tx_id, TRANSACTION_ID_BYTES);
 
   free(essence_buf);
-  output_extended_free(extended_output);
+  output_basic_free(basic_output);
   output_alias_free(alias_output);
   output_foundry_free(foundry_output);
   output_nft_free(nft_output);
@@ -344,9 +344,9 @@ void test_tx_payload() {
   // add input with tx_id1
   TEST_ASSERT(tx_payload_add_input(tx_payload, 0, tx_id1, 2) == 0);
 
-  // add extended output to the outputs list
-  output_extended_t* extended_output = create_output_extended();
-  TEST_ASSERT_EQUAL_INT(0, tx_payload_add_output(tx_payload, OUTPUT_EXTENDED, extended_output));
+  // add basic output to the outputs list
+  output_basic_t* basic_output = create_output_basic();
+  TEST_ASSERT_EQUAL_INT(0, tx_payload_add_output(tx_payload, OUTPUT_BASIC, basic_output));
 
   // add alias output to the output list
   output_alias_t* alias_output = create_output_alias();
@@ -382,7 +382,7 @@ void test_tx_payload() {
   // To Do - Deserialize tx_payload
 
   free(payload_buf);
-  output_extended_free(extended_output);
+  output_basic_free(basic_output);
   output_alias_free(alias_output);
   output_foundry_free(foundry_output);
   output_nft_free(nft_output);

@@ -11,7 +11,7 @@
 transaction_essence_t* tx_essence_new(uint64_t network_id) {
   transaction_essence_t* es = malloc(sizeof(transaction_essence_t));
   if (es) {
-    es->tx_type = TRANSACTION_PAYLOAD_ESSENCE;  // 0 to denote a transaction essence.
+    es->tx_type = TRANSACTION_ESSENCE_TYPE;  // 0 to denote a transaction essence.
     es->network_id = network_id;
     es->inputs = utxo_inputs_new();
     memset(es->inputs_commitment, 0, sizeof(es->inputs_commitment));
@@ -142,8 +142,8 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
     // serialize tagged data payload
     memcpy(offset, &es->payload_len, sizeof(es->payload_len));
     offset += sizeof(es->payload_len);
-    size_t tagged_data_ser_len = tagged_data_serialize_len((tagged_data_t*)es->payload);
-    offset += tagged_data_serialize((tagged_data_t*)es->payload, offset, tagged_data_ser_len);
+    size_t tagged_data_ser_len = tagged_data_serialize_len((tagged_data_payload_t*)es->payload);
+    offset += tagged_data_serialize((tagged_data_payload_t*)es->payload, offset, tagged_data_ser_len);
   } else {
     memset(offset, 0, sizeof(uint32_t));
     offset += sizeof(uint32_t);
@@ -221,7 +221,7 @@ void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
   utxo_outputs_print(es->outputs, indentation + 1);
 
   if (es->payload_len > 0) {
-    tagged_data_print((tagged_data_t*)(es->payload), indentation + 1);
+    tagged_data_print((tagged_data_payload_t*)(es->payload), indentation + 1);
   }
 
   printf("%s]\n", PRINT_INDENTATION(indentation));
@@ -253,35 +253,6 @@ void tx_payload_free(transaction_payload_t* tx) {
   }
 }
 
-int tx_payload_add_input(transaction_payload_t* tx, uint8_t type, byte_t tx_id[], uint8_t index,
-                         ed25519_keypair_t* key) {
-  if (tx) {
-    return tx_essence_add_input(tx->essence, type, tx_id, index, key);
-  }
-  return -1;
-}
-
-int tx_payload_add_output(transaction_payload_t* tx, utxo_output_type_t type, void* output) {
-  if (tx) {
-    return tx_essence_add_output(tx->essence, type, output);
-  }
-  return -1;
-}
-
-int tx_payload_add_sig_block(transaction_payload_t* tx, byte_t* sig_block, size_t sig_len) {
-  if (tx) {
-    return unlock_blocks_add_signature(&tx->unlock_blocks, sig_block, sig_len);
-  }
-  return -1;
-}
-
-int tx_payload_add_ref_block(transaction_payload_t* tx, uint16_t ref) {
-  if (tx) {
-    return unlock_blocks_add_reference(&tx->unlock_blocks, ref);
-  }
-  return -1;
-}
-
 size_t tx_payload_serialize_length(transaction_payload_t* tx) {
   size_t essence_len = tx_essence_serialize_length(tx->essence);
   size_t blocks_len = unlock_blocks_serialize_length(tx->unlock_blocks);
@@ -290,7 +261,7 @@ size_t tx_payload_serialize_length(transaction_payload_t* tx) {
   }
 
   // payload_type + serialized essence length + serialized unlocked blocks
-  return sizeof(payload_t) + essence_len + blocks_len;
+  return sizeof(uint32_t) + essence_len + blocks_len;
 }
 
 size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_len) {
@@ -312,8 +283,8 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
 
   byte_t* offset = buf;
   // write payload type
-  memset(offset, CORE_MESSAGE_PAYLOAD_TRANSACTION, sizeof(payload_t));
-  offset += sizeof(payload_t);
+  memset(offset, CORE_MESSAGE_PAYLOAD_TRANSACTION, sizeof(uint32_t));
+  offset += sizeof(uint32_t);
   // write essence
   size_t essence_len = tx_essence_serialize_length(tx->essence);
   offset += tx_essence_serialize(tx->essence, offset, essence_len);
@@ -334,8 +305,8 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
   size_t offset = 0;
 
   // transaction payload type
-  memcpy(&tx_payload->type, &buf[offset], sizeof(payload_t));
-  offset += sizeof(payload_t);
+  memcpy(&tx_payload->type, &buf[offset], sizeof(uint32_t));
+  offset += sizeof(uint32_t);
 
   tx_payload->essence = tx_essence_deserialize(&buf[offset], buf_len - offset);
   offset += tx_essence_serialize_length(tx_payload->essence);

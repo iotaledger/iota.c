@@ -8,8 +8,8 @@
 #include "core/models/payloads/tagged_data.h"
 #include "core/utils/macros.h"
 
-tagged_data_t *tagged_data_new() {
-  tagged_data_t *tagged_data = malloc(sizeof(tagged_data_t));
+tagged_data_payload_t *tagged_data_new() {
+  tagged_data_payload_t *tagged_data = malloc(sizeof(tagged_data_payload_t));
   if (tagged_data) {
     tagged_data->tag = NULL;
     tagged_data->data = NULL;
@@ -17,7 +17,7 @@ tagged_data_t *tagged_data_new() {
   return tagged_data;
 }
 
-void tagged_data_free(tagged_data_t *tagged_data) {
+void tagged_data_free(tagged_data_payload_t *tagged_data) {
   if (tagged_data) {
     byte_buf_free(tagged_data->tag);
     byte_buf_free(tagged_data->data);
@@ -25,8 +25,8 @@ void tagged_data_free(tagged_data_t *tagged_data) {
   }
 }
 
-tagged_data_t *tagged_data_create(byte_t tag[], uint8_t tag_len, byte_t data[], uint32_t data_len) {
-  if (tag == NULL || (data_len > 0 && data == NULL)) {
+tagged_data_payload_t *tagged_data_create(byte_t tag[], uint8_t tag_len, byte_t data[], uint32_t data_len) {
+  if ((tag_len > 0 && tag == NULL) || (data_len > 0 && data == NULL)) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
@@ -36,7 +36,7 @@ tagged_data_t *tagged_data_create(byte_t tag[], uint8_t tag_len, byte_t data[], 
     return NULL;
   }
 
-  tagged_data_t *tagged_data = tagged_data_new();
+  tagged_data_payload_t *tagged_data = tagged_data_new();
   if (!tagged_data) {
     printf("[%s:%d] can not create tagged data object\n", __func__, __LINE__);
     return NULL;
@@ -65,7 +65,7 @@ tagged_data_t *tagged_data_create(byte_t tag[], uint8_t tag_len, byte_t data[], 
   return tagged_data;
 }
 
-size_t tagged_data_serialize_len(tagged_data_t *tagged_data) {
+size_t tagged_data_serialize_len(tagged_data_payload_t *tagged_data) {
   if (tagged_data == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return 0;
@@ -91,7 +91,7 @@ size_t tagged_data_serialize_len(tagged_data_t *tagged_data) {
   return length;
 }
 
-size_t tagged_data_serialize(tagged_data_t *tagged_data, byte_t buf[], size_t buf_len) {
+size_t tagged_data_serialize(tagged_data_payload_t *tagged_data, byte_t buf[], size_t buf_len) {
   if (tagged_data == NULL || buf == NULL || buf_len == 0) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return 0;
@@ -145,13 +145,13 @@ size_t tagged_data_serialize(tagged_data_t *tagged_data, byte_t buf[], size_t bu
   return offset;
 }
 
-tagged_data_t *tagged_data_deserialize(byte_t buf[], size_t buf_len) {
+tagged_data_payload_t *tagged_data_deserialize(byte_t buf[], size_t buf_len) {
   if (buf == NULL || buf_len == 0) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
-  tagged_data_t *tagged_data = tagged_data_new();
+  tagged_data_payload_t *tagged_data = tagged_data_new();
   if (!tagged_data) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
@@ -226,7 +226,7 @@ tagged_data_t *tagged_data_deserialize(byte_t buf[], size_t buf_len) {
   return tagged_data;
 }
 
-void tagged_data_print(tagged_data_t *tagged_data, uint8_t indentation) {
+void tagged_data_print(tagged_data_payload_t *tagged_data, uint8_t indentation) {
   if (tagged_data == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return;
