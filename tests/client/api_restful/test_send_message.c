@@ -280,7 +280,7 @@ void test_send_msg_tx_basic() {
   cond_blk_list_add(&recv_cond, b);
   output_basic_t* recv_output = output_basic_new(send_amount, NULL, recv_cond, NULL);
   // add receiver output to tx payload
-  tx_essence_add_output(tx->essence, OUTPUT_BASIC, recv_output);
+  TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_BASIC, recv_output) == 0);
   cond_blk_free(b);
   cond_blk_list_free(recv_cond);
   output_basic_free(recv_output);
@@ -294,7 +294,7 @@ void test_send_msg_tx_basic() {
     output_basic_t* remainder_output = output_basic_new(total_balance - send_amount, NULL, remainder_cond, NULL);
     TEST_ASSERT_NOT_NULL(remainder_output);
     // add receiver output to output list
-    tx_essence_add_output(tx->essence, OUTPUT_BASIC, remainder_output);
+    TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_BASIC, remainder_output) == 0);
     cond_blk_free(b);
     cond_blk_list_free(remainder_cond);
     output_basic_free(remainder_output);
