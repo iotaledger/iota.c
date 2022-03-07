@@ -140,7 +140,7 @@ void test_storage_deposit_check_sufficient_output_amount_too_low() {
   unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&test_addr);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
 
-  output_basic_t* output = output_basic_new(23379, NULL, unlock_conds, NULL);
+  output_basic_t* output = output_basic_new(212999, NULL, unlock_conds, NULL);
 
   bool result = storage_deposit_check_sufficient_output_deposit(config, OUTPUT_BASIC, output);
   TEST_ASSERT_FALSE(result);
@@ -159,8 +159,8 @@ void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_low
 
   byte_cost_config_t* config = storage_deposit_new_default_config();
 
-  uint64_t amount = 44400;
-  uint64_t storage_deposit = 23379;  // to low return storage deposit which is 23380
+  uint64_t amount = 234000;
+  uint64_t storage_deposit = 212999;  // to low return storage deposit which is 213000
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
@@ -189,9 +189,9 @@ void test_storage_deposit_check_sufficient_output_not_microtransaction() {
 
   byte_cost_config_t* config = storage_deposit_new_default_config();
 
-  // 1000000i will be sent
-  uint64_t amount = 1044380;
-  uint64_t storage_deposit = 44380;
+  // 234001i will be sent, which is more than minimum storage protection amount for created output (234000i)
+  uint64_t amount = 447001;
+  uint64_t storage_deposit = 213000;
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();

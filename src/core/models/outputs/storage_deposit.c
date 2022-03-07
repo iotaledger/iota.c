@@ -45,39 +45,20 @@ static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_out
   return config->v_byte_cost * (weighted_bytes + config->v_byte_offset);
 }
 
-static uint64_t minimum_storage_deposit(byte_cost_config_t *config, address_t *addr) {
+// Notice, this solution is a trade-off for memory optimization that we don't create the basic output and calculate byte
+// cost from it.
+static uint64_t basic_address_storage_deposit(byte_cost_config_t *config, address_t *addr) {
   if (config == NULL || addr == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return UINT64_MAX;
   }
 
-  // create unlock condition for address
-  cond_blk_list_t *unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t *unlock_addr = cond_blk_addr_new(addr);
-  if (!unlock_addr) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return UINT64_MAX;
-  }
-  if (cond_blk_list_add(&unlock_conds, unlock_addr) != 0) {
-    printf("[%s:%d] failed to add address unlock condition to a list\n", __func__, __LINE__);
-    cond_blk_free(unlock_addr);
-    return UINT64_MAX;
-  }
+  // output serialized length = output type + amount + native tokens + unlock count + block count
+  uint64_t output_serialized_len = 12;  // 1 + 8 + 1 + 1
+  // address unlock condition = unlock type + address serialized length
+  output_serialized_len += 1 + address_serialized_len(addr);
 
-  output_basic_t *output = output_basic_new(0, NULL, unlock_conds, NULL);
-  if (!output) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    cond_blk_list_free(unlock_conds);
-    return UINT64_MAX;
-  }
-
-  uint64_t output_deposit = calc_minimum_output_deposit(config, OUTPUT_BASIC, output);
-
-  cond_blk_free(unlock_addr);
-  cond_blk_list_free(unlock_conds);
-  output_basic_free(output);
-
-  return output_deposit;
+  return config->v_byte_cost * ((output_serialized_len * config->v_byte_factor_data) + config->v_byte_offset);
 }
 
 byte_cost_config_t *storage_deposit_new_config(uint16_t byte_cost, uint8_t byte_factor_data, uint8_t byte_factor_key) {
@@ -152,7 +133,7 @@ bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config,
     }
 
     uint64_t min_storage_deposit_return =
-        minimum_storage_deposit(config, ((unlock_cond_dust_t *)(dust_return_cond->block))->addr);
+        basic_address_storage_deposit(config, ((unlock_cond_dust_t *)(dust_return_cond->block))->addr);
     if (((unlock_cond_dust_t *)(dust_return_cond->block))->amount < min_storage_deposit_return) {
       printf("[%s:%d] minimum storage deposit return amount must be at least %fMi\n", __func__, __LINE__,
              min_storage_deposit_return / 1000000.0);
