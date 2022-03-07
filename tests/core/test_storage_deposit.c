@@ -74,8 +74,8 @@ void test_storage_deposit_check_sufficient_output_deposit() {
   byte_cost_config_t* config = storage_deposit_new_default_config();
 
   // 20i will be sent
-  uint64_t amount = 44400;
-  uint64_t storage_deposit = 44380;
+  uint64_t amount = 234000;
+  uint64_t storage_deposit = 233980;
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
@@ -105,8 +105,8 @@ void test_storage_deposit_check_sufficient_output_deposit_native_tokens_sent() {
   byte_cost_config_t* config = storage_deposit_new_default_config();
 
   // In case that only some native tokens are sent, amount and storage deposit are the same
-  uint64_t amount = 44400;
-  uint64_t storage_deposit = 44400;
+  uint64_t amount = 234000;
+  uint64_t storage_deposit = 234000;
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();

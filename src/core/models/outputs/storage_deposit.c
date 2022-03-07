@@ -42,7 +42,7 @@ static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_out
       break;
   }
 
-  return config->v_byte_cost * weighted_bytes + config->v_byte_offset;
+  return config->v_byte_cost * (weighted_bytes + config->v_byte_offset);
 }
 
 static uint64_t minimum_storage_deposit(byte_cost_config_t *config, address_t *addr) {
