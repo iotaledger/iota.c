@@ -6,9 +6,6 @@
 #include <string.h>
 #include <sys/time.h>
 
-#include <sodium.h>
-#include <sodium/crypto_auth_hmacsha512.h>
-
 #include "core/address.h"
 #include "core/utils/byte_buffer.h"
 #include "core/utils/macros.h"
