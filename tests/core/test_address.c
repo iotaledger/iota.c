@@ -6,12 +6,15 @@
 #include <string.h>
 #include <sys/time.h>
 
-#include <unity/unity.h>
+#include <sodium.h>
+#include <sodium/crypto_auth_hmacsha512.h>
 
 #include "core/address.h"
 #include "core/utils/byte_buffer.h"
+#include "core/utils/macros.h"
 #include "crypto/iota_crypto.h"
 #include "test_vectors.h"
+#include "unity/unity.h"
 
 void setUp(void) {}
 
@@ -53,41 +56,58 @@ void test_ed25519_gen() {
   TEST_ASSERT(address_equal(&ed25519_addr, &from_bech32) == true);
 }
 
-static void test_address_vectors(const char vector_address_hex[]) {
-  byte_t vector_addr_byte[33] = {0};
-  TEST_ASSERT(hex_2_bin(vector_address_hex, 66, vector_addr_byte, 33) == 0);
-  // dump_hex(vector_addr_byte, 33);
+void test_vector_addresses() {
+  for (int i = 0; i < TEST_VECTORS_COUNT; i++) {
+    byte_t vector_addr_byte[33] = {0};
+    TEST_ASSERT(hex_2_bin(test_vectors[i].address, 66, vector_addr_byte, 33) == 0);
 
-  // check if address type is ed25519
-  TEST_ASSERT(vector_addr_byte[0] == ADDRESS_TYPE_ED25519);
+    // check if address type is ed25519
+    TEST_ASSERT(vector_addr_byte[0] == ADDRESS_TYPE_ED25519);
 
-  // deserialize address
-  address_t* ed25519_addr;
-  ed25519_addr = address_deserialize(vector_addr_byte, 33);
-  // dump_hex(ed25519_addr->address, 32);
+    // deserialize address
+    address_t* ed25519_addr;
+    ed25519_addr = address_deserialize(vector_addr_byte, 33);
 
-  // convert to bech32
-  char bech32_str[65] = {};
-  TEST_ASSERT(address_to_bech32(ed25519_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
-  printf("bech32 [iota] : %s\n", bech32_str);
+    // convert to bech32
+    char bech32_str[65] = {};
+    TEST_ASSERT(address_to_bech32(ed25519_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
 
-  TEST_ASSERT(str_start_with("iota1q", bech32_str) == true);
+    TEST_ASSERT(str_start_with("iota1q", bech32_str) == true);
 
-  // bech32 to address object
-  address_t from_bech32 = {};
-  TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
-  TEST_ASSERT(address_equal(ed25519_addr, &from_bech32) == true);
+    // bech32 to address object
+    address_t from_bech32 = {};
+    TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
+    TEST_ASSERT(address_equal(ed25519_addr, &from_bech32) == true);
 
-  free(ed25519_addr);
+    free(ed25519_addr);
+  }
 }
 
-void test_ed25519_vector_address() {
-  test_address_vectors(test_vector_address_1);
-  test_address_vectors(test_vector_address_2);
-  test_address_vectors(test_vector_address_3);
-  test_address_vectors(test_vector_address_4);
-  test_address_vectors(test_vector_address_5);
-  test_address_vectors(test_vector_address_6);
+void test_vector_signature_validity() {
+  for (int i = 0; i < TEST_VECTORS_COUNT; i++) {
+    // convert message hex string to byte array
+    size_t msg_len = strlen(test_vectors[i].message);
+    byte_t msg_bytes[HEX_TO_BIN_BYTES(msg_len)];
+    TEST_ASSERT_EQUAL_INT(0, hex_2_bin(test_vectors[i].message, msg_len, msg_bytes, HEX_TO_BIN_BYTES(msg_len)));
+
+    // convert pubkey hex string to byte array
+    size_t pubkey_len = strlen(test_vectors[i].pub_key);
+    byte_t pubkey_bytes[HEX_TO_BIN_BYTES(pubkey_len)];
+    TEST_ASSERT_EQUAL_INT(0,
+                          hex_2_bin(test_vectors[i].pub_key, pubkey_len, pubkey_bytes, HEX_TO_BIN_BYTES(pubkey_len)));
+
+    // convert pubkey hex string to byte array
+    size_t sig_len = strlen(test_vectors[i].signature);
+    byte_t sig_bytes[HEX_TO_BIN_BYTES(sig_len)];
+    TEST_ASSERT_EQUAL_INT(0, hex_2_bin(test_vectors[i].signature, sig_len, sig_bytes, HEX_TO_BIN_BYTES(sig_len)));
+
+    int ret = iota_crypto_sign_open(msg_bytes, HEX_TO_BIN_BYTES(msg_len), pubkey_bytes, sig_bytes);
+    if (test_vectors[i].valid == true) {
+      TEST_ASSERT_EQUAL_INT(0, ret);
+    } else {
+      TEST_ASSERT_EQUAL_INT(-1, ret);
+    }
+  }
 }
 
 void test_alias_gen() {
@@ -194,7 +214,8 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_ed25519_gen);
-  RUN_TEST(test_ed25519_vector_address);
+  RUN_TEST(test_vector_addresses);
+  RUN_TEST(test_vector_signature_validity);
   RUN_TEST(test_alias_gen);
   RUN_TEST(test_nft_gen);
   RUN_TEST(test_serializer);

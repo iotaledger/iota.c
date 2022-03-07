@@ -60,6 +60,17 @@ void iota_crypto_keypair(uint8_t const seed[], ed25519_keypair_t *keypair);
 int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, uint8_t signature[]);
 
 /**
+ * @brief verify if the signature is valid for the message and public key
+ *
+ * @param[in] msg A byte buffer holds the message data
+ * @param[in] msg_len The length of the message
+ * @param[in] pub_key The public key
+ * @param[out] signature The signature
+ * @return int 0 if valid and -1 if invalid
+ */
+int iota_crypto_sign_open(uint8_t msg[], size_t msg_len, uint8_t const pub_key[], uint8_t signature[]);
+
+/**
  * @brief HMAC-SHA-256 interface
  *
  * @param[in] secret_key The private/secret key

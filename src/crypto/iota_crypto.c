@@ -120,6 +120,17 @@ int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, ui
 #endif
 }
 
+int iota_crypto_sign_open(uint8_t msg[], size_t msg_len, uint8_t const pub_key[], uint8_t signature[]) {
+#if defined(CRYPTO_USE_SODIUM)
+  unsigned long long sign_len = ED_SIGNATURE_BYTES;
+  return crypto_sign_ed25519_open(msg, (unsigned long long *)&msg_len, signature, sign_len, pub_key);
+#elif defined(CRYPTO_USE_ED25519_DONNA)
+  return ed25519_sign_open(msg, msg_len, pub_key, signature);
+#else
+#error ed25519 is not defined
+#endif
+}
+
 int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]) {
 #if defined(CRYPTO_USE_SODIUM)
   return crypto_auth_hmacsha256(auth, msg, msg_len, secret_key);
