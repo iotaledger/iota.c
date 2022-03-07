@@ -27,9 +27,9 @@ uint256_t* amount2 = NULL;
 uint256_t* amount3 = NULL;
 
 unlock_cond_blk_t* unlock_addr = NULL;
-unlock_cond_blk_t* unlock_dust = NULL;
+unlock_cond_blk_t* unlock_storage = NULL;
 address_t test_addr = {};
-uint64_t unlock_dust_amount = 9876543210;
+uint64_t unlock_storage_amount = 9876543210;
 unlock_cond_blk_t* unlock_timelock = NULL;
 uint32_t unlock_time_ms = 1200;
 uint32_t unlock_time_unix = 164330008;
@@ -52,7 +52,7 @@ void setUp(void) {
   iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
   // create test unlock conditions
   unlock_addr = cond_blk_addr_new(&test_addr);
-  unlock_dust = cond_blk_dust_new(&test_addr, unlock_dust_amount);
+  unlock_storage = cond_blk_storage_new(&test_addr, unlock_storage_amount);
   unlock_timelock = cond_blk_timelock_new(unlock_time_ms, unlock_time_unix);
   unlock_expir = cond_blk_expir_new(&test_addr, unlock_time_ms, unlock_time_unix);
   unlock_state = cond_blk_state_new(&test_addr);
@@ -65,7 +65,7 @@ void tearDown(void) {
   free(amount3);
   native_tokens_free(&native_tokens);
   cond_blk_free(unlock_addr);
-  cond_blk_free(unlock_dust);
+  cond_blk_free(unlock_storage);
   cond_blk_free(unlock_timelock);
   cond_blk_free(unlock_expir);
   cond_blk_free(unlock_state);
@@ -75,7 +75,7 @@ void tearDown(void) {
 void test_output_basic() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_expir) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_timelock) == 0);
@@ -112,11 +112,11 @@ void test_output_basic() {
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
   TEST_ASSERT_EQUAL_UINT8(4, cond_blk_list_len(output->unlock_conditions));
-  // 0: Dust Return Unlock
+  // 0: Storage Return Unlock
   unlock_cond_blk_t* cond_block = cond_blk_list_get(output->unlock_conditions, 0);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
-  TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_STORAGE, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_storage_t*)cond_block->block)->addr));
+  TEST_ASSERT_EQUAL_UINT64(unlock_storage_amount, ((unlock_cond_storage_t*)cond_block->block)->amount);
   // 1: Address Unlock
   cond_block = cond_blk_list_get(output->unlock_conditions, 1);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
@@ -190,11 +190,11 @@ void test_output_basic() {
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 0);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
-  // 1: Dust Return Unlock
+  // 1: Storage Return Unlock
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 1);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
-  TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_STORAGE, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_storage_t*)cond_block->block)->addr));
+  TEST_ASSERT_EQUAL_UINT64(unlock_storage_amount, ((unlock_cond_storage_t*)cond_block->block)->amount);
   // 2: Timelock Unlock
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 2);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_TIMELOCK, cond_block->type);
@@ -239,7 +239,7 @@ void test_output_basic_without_native_tokens() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
 
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
@@ -262,11 +262,11 @@ void test_output_basic_without_native_tokens() {
   unlock_cond_blk_t* cond_block = cond_blk_list_get(output->unlock_conditions, 0);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
-  // 1: Dust Return Unlock
+  // 1: Storage Return Unlock
   cond_block = cond_blk_list_get(output->unlock_conditions, 1);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
-  TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_STORAGE, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_storage_t*)cond_block->block)->addr));
+  TEST_ASSERT_EQUAL_UINT64(unlock_storage_amount, ((unlock_cond_storage_t*)cond_block->block)->amount);
   // index out of list
   TEST_ASSERT_NULL(cond_blk_list_get(output->unlock_conditions, 2));
 
@@ -310,11 +310,11 @@ void test_output_basic_without_native_tokens() {
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 0);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
-  // 1: Dust Return Unlock
+  // 1: Storage Return Unlock
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 1);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
-  TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_STORAGE, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_storage_t*)cond_block->block)->addr));
+  TEST_ASSERT_EQUAL_UINT64(unlock_storage_amount, ((unlock_cond_storage_t*)cond_block->block)->amount);
   // 1: NULL
   TEST_ASSERT_NULL(cond_blk_list_get(deser_output->unlock_conditions, 2));
 
@@ -343,7 +343,7 @@ void test_output_basic_without_feature_blocks() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
 
   // create Basic Output
   output_basic_t* output = output_basic_new(123456789, native_tokens, unlock_conds, NULL);
@@ -372,11 +372,11 @@ void test_output_basic_without_feature_blocks() {
   unlock_cond_blk_t* cond_block = cond_blk_list_get(output->unlock_conditions, 0);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
-  // 1: Dust Return Unlock
+  // 1: Storage Return Unlock
   cond_block = cond_blk_list_get(output->unlock_conditions, 1);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
-  TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_STORAGE, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_storage_t*)cond_block->block)->addr));
+  TEST_ASSERT_EQUAL_UINT64(unlock_storage_amount, ((unlock_cond_storage_t*)cond_block->block)->amount);
   // index out of list
   TEST_ASSERT_NULL(cond_blk_list_get(output->unlock_conditions, 2));
 
@@ -426,11 +426,11 @@ void test_output_basic_without_feature_blocks() {
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 0);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
-  // 1: Dust Return Unlock
+  // 1: Storage Return Unlock
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 1);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
-  TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_STORAGE, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_storage_t*)cond_block->block)->addr));
+  TEST_ASSERT_EQUAL_UINT64(unlock_storage_amount, ((unlock_cond_storage_t*)cond_block->block)->amount);
   // 1: NULL
   TEST_ASSERT_NULL(cond_blk_list_get(deser_output->unlock_conditions, 2));
 
@@ -451,7 +451,7 @@ void test_output_basic_without_native_tokens_and_feature_blocks() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
 
   // create Basic Output
   output_basic_t* output = output_basic_new(123456789, NULL, unlock_conds, NULL);
@@ -470,11 +470,11 @@ void test_output_basic_without_native_tokens_and_feature_blocks() {
   unlock_cond_blk_t* cond_block = cond_blk_list_get(output->unlock_conditions, 0);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
-  // 1: Dust Return Unlock
+  // 1: Storage Return Unlock
   cond_block = cond_blk_list_get(output->unlock_conditions, 1);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
-  TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_STORAGE, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_storage_t*)cond_block->block)->addr));
+  TEST_ASSERT_EQUAL_UINT64(unlock_storage_amount, ((unlock_cond_storage_t*)cond_block->block)->amount);
   // index out of list
   TEST_ASSERT_NULL(cond_blk_list_get(output->unlock_conditions, 2));
 
@@ -514,11 +514,11 @@ void test_output_basic_without_native_tokens_and_feature_blocks() {
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 0);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_block->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, (address_t*)cond_block->block));
-  // 1: Dust Return Unlock
+  // 1: Storage Return Unlock
   cond_block = cond_blk_list_get(deser_output->unlock_conditions, 1);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_block->type);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_dust_t*)cond_block->block)->addr));
-  TEST_ASSERT_EQUAL_UINT64(unlock_dust_amount, ((unlock_cond_dust_t*)cond_block->block)->amount);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_STORAGE, cond_block->type);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_storage_t*)cond_block->block)->addr));
+  TEST_ASSERT_EQUAL_UINT64(unlock_storage_amount, ((unlock_cond_storage_t*)cond_block->block)->amount);
   // 1: NULL
   TEST_ASSERT_NULL(cond_blk_list_get(deser_output->unlock_conditions, 2));
 
@@ -570,7 +570,7 @@ void test_output_basic_clone() {
   //=====Test Basic Output object=====
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_expir) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_timelock) == 0);

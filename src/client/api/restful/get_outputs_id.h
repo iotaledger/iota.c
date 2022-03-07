@@ -16,16 +16,16 @@
  *
  */
 typedef enum {
-  QUERY_PARAM_ADDRESS = 0,    ///< The Bech32-encoded address that should be used to query outputs
-  QUERY_PARAM_HAS_DUST_RET,   ///< The presence of dust return unlock condition
-  QUERY_PARAM_DUST_RET_ADDR,  ///< The specific return address in the dust deposit return unlock condition
-  QUERY_PARAM_SENDER,         ///< To query outputs based on bech32-encoded sender address.
-  QUERY_PARAM_TAG,            ///< A tag block to search for outputs matching it
-  QUERY_PARAM_PAGE_SIZE,      ///< The maximum amount of items returned in one api call
-  QUERY_PARAM_CURSOR,         ///<  A cursor to start the query (confirmationMS+outputId.pageSize)
-  QUERY_PARAM_STATE_CTRL,     ///< To query outputs based on bech32-encoded state controller address
-  QUERY_PARAM_GOV,            ///< To query outputs based on bech32-encoded governor (governance controller) address
-  QUERY_PARAM_ISSUER          ///< To query outputs based on bech32-encoded issuer address
+  QUERY_PARAM_ADDRESS = 0,       ///< The Bech32-encoded address that should be used to query outputs
+  QUERY_PARAM_HAS_STORAGE_RET,   ///< The presence of storage return unlock condition
+  QUERY_PARAM_STORAGE_RET_ADDR,  ///< The specific return address in the storage deposit return unlock condition
+  QUERY_PARAM_SENDER,            ///< To query outputs based on bech32-encoded sender address.
+  QUERY_PARAM_TAG,               ///< A tag block to search for outputs matching it
+  QUERY_PARAM_PAGE_SIZE,         ///< The maximum amount of items returned in one api call
+  QUERY_PARAM_CURSOR,            ///<  A cursor to start the query (confirmationMS+outputId.pageSize)
+  QUERY_PARAM_STATE_CTRL,        ///< To query outputs based on bech32-encoded state controller address
+  QUERY_PARAM_GOV,               ///< To query outputs based on bech32-encoded governor (governance controller) address
+  QUERY_PARAM_ISSUER             ///< To query outputs based on bech32-encoded issuer address
 } outputs_query_params_e;
 
 /**

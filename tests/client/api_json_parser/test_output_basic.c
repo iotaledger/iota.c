@@ -79,7 +79,7 @@ void test_parse_basic_output_full() {
   TEST_ASSERT_NOT_NULL(basic_output->unlock_conditions);
   TEST_ASSERT_EQUAL_UINT8(4, cond_blk_list_len(basic_output->unlock_conditions));
   TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_ADDRESS));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_DUST));
+  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_STORAGE));
   TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_TIMELOCK));
   TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_EXPIRATION));
 

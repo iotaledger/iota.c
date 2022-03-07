@@ -113,7 +113,7 @@ bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config,
 
   uint64_t min_storage_deposit = calc_minimum_output_deposit(config, output_type, output);
   uint64_t amount = UINT64_MAX;
-  unlock_cond_blk_t *dust_return_cond = NULL;
+  unlock_cond_blk_t *storage_return_cond = NULL;
 
   switch (output_type) {
     case OUTPUT_SINGLE_OUTPUT:
@@ -123,19 +123,20 @@ bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config,
       return false;
     case OUTPUT_BASIC:
       amount = ((output_basic_t *)output)->amount;
-      dust_return_cond = cond_blk_list_get_type(((output_basic_t *)output)->unlock_conditions, UNLOCK_COND_DUST);
+      storage_return_cond = cond_blk_list_get_type(((output_basic_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
       break;
     case OUTPUT_ALIAS:
       amount = ((output_alias_t *)output)->amount;
-      dust_return_cond = cond_blk_list_get_type(((output_alias_t *)output)->unlock_conditions, UNLOCK_COND_DUST);
+      storage_return_cond = cond_blk_list_get_type(((output_alias_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
       break;
     case OUTPUT_FOUNDRY:
       amount = ((output_foundry_t *)output)->amount;
-      dust_return_cond = cond_blk_list_get_type(((output_foundry_t *)output)->unlock_conditions, UNLOCK_COND_DUST);
+      storage_return_cond =
+          cond_blk_list_get_type(((output_foundry_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
       break;
     case OUTPUT_NFT:
       amount = ((output_nft_t *)output)->amount;
-      dust_return_cond = cond_blk_list_get_type(((output_nft_t *)output)->unlock_conditions, UNLOCK_COND_DUST);
+      storage_return_cond = cond_blk_list_get_type(((output_nft_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
       break;
   }
 
@@ -145,25 +146,25 @@ bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config,
     return false;
   }
 
-  if (dust_return_cond) {
-    if (((unlock_cond_dust_t *)(dust_return_cond->block))->amount == 0) {
+  if (storage_return_cond) {
+    if (((unlock_cond_storage_t *)(storage_return_cond->block))->amount == 0) {
       printf("[%s:%d] storage deposit return amount must not be 0\n", __func__, __LINE__);
       return false;
     }
 
     uint64_t min_storage_deposit_return =
-        minimum_storage_deposit(config, ((unlock_cond_dust_t *)(dust_return_cond->block))->addr);
-    if (((unlock_cond_dust_t *)(dust_return_cond->block))->amount < min_storage_deposit_return) {
+        minimum_storage_deposit(config, ((unlock_cond_storage_t *)(storage_return_cond->block))->addr);
+    if (((unlock_cond_storage_t *)(storage_return_cond->block))->amount < min_storage_deposit_return) {
       printf("[%s:%d] minimum storage deposit return amount must be at least %fMi\n", __func__, __LINE__,
              min_storage_deposit_return / 1000000.0);
       return false;
     }
 
-    uint64_t amount_to_storage_deposit_delta = amount - ((unlock_cond_dust_t *)(dust_return_cond->block))->amount;
+    uint64_t amount_to_storage_deposit_delta = amount - ((unlock_cond_storage_t *)(storage_return_cond->block))->amount;
     if (amount_to_storage_deposit_delta > min_storage_deposit) {
       printf(
-          "[%s:%d] output amount must be less than minimum storage deposit amount. Dust Deposit Return Unlock is meant "
-          "to be used in microtransactions or transactions where only native tokens are sent.\n",
+          "[%s:%d] output amount must be less than minimum storage deposit amount. Storage Deposit Return Unlock is "
+          "meant to be used in microtransactions or transactions where only native tokens are sent.\n",
           __func__, __LINE__);
       return false;
     }

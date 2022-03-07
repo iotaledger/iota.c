@@ -58,12 +58,12 @@ size_t get_outputs_query_str_len(outputs_query_list_t *list) {
         query_str_len += strlen(elm->query_item->param);
         query_str_len += 2;  // For "&" params seperator and "=" params assignment
         break;
-      case QUERY_PARAM_HAS_DUST_RET:
+      case QUERY_PARAM_HAS_STORAGE_RET:
         query_str_len += strlen(OUTPUTS_QUERY_DUST_RET_KEY);
         query_str_len += strlen(elm->query_item->param);
         query_str_len += 2;  // For "&" params seperator and "=" params assignment
         break;
-      case QUERY_PARAM_DUST_RET_ADDR:
+      case QUERY_PARAM_STORAGE_RET_ADDR:
         query_str_len += strlen(OUTPUTS_QUERY_DUST_RET_ADDR_KEY);
         query_str_len += strlen(elm->query_item->param);
         query_str_len += 2;  // For "&" params seperator and "=" params assignment
@@ -144,10 +144,10 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
       case QUERY_PARAM_ADDRESS:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_ADDRESS_KEY, elm);
         break;
-      case QUERY_PARAM_HAS_DUST_RET:
+      case QUERY_PARAM_HAS_STORAGE_RET:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_DUST_RET_KEY, elm);
         break;
-      case QUERY_PARAM_DUST_RET_ADDR:
+      case QUERY_PARAM_STORAGE_RET_ADDR:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_DUST_RET_ADDR_KEY, elm);
         break;
       case QUERY_PARAM_SENDER:

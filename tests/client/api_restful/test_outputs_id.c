@@ -125,7 +125,7 @@ void test_deser_outputs_err() {
 
 void test_get_output_ids() {
   char addr[] = "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk";
-  char dust_ret_addr[] = "atoi1qpszqzadsym6wpppd6z037dvlejmjuke7s24hm95s9fg9vpua7vluehe53e";
+  char storage_ret_addr[] = "atoi1qpszqzadsym6wpppd6z037dvlejmjuke7s24hm95s9fg9vpua7vluehe53e";
   char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   char const* const addr_hex_invalid_length =
       "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk3efg256shxtb7812b";
@@ -222,8 +222,8 @@ void test_get_output_ids() {
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
 
-  // TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_DUST_RET, "true") == 0);
-  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_DUST_RET, "false") == 0);
+  // TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_STORAGE_RET, "true") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_STORAGE_RET, "false") == 0);
   ret = get_outputs_id(&ctx, list, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
@@ -233,7 +233,7 @@ void test_get_output_ids() {
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
 
-  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_DUST_RET_ADDR, dust_ret_addr) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STORAGE_RET_ADDR, storage_ret_addr) == 0);
   ret = get_outputs_id(&ctx, list, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
@@ -323,23 +323,23 @@ void test_get_nft_output() {
   TEST_ASSERT_EQUAL_INT(0, get_nft_outputs(&ctx, list, res));
   TEST_ASSERT(res->is_error == false);
 
-  //=====Test dust return condition=====
+  //=====Test storage return condition=====
   res_outputs_free(res);
   res = NULL;
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
-  // TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_DUST_RET, "true") == 0);
-  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_DUST_RET, "false") == 0);
+  // TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_STORAGE_RET, "true") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_STORAGE_RET, "false") == 0);
   int ret = get_nft_outputs(&ctx, list, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);
 
-  //=====Test dust return address=====
+  //=====Test storage return address=====
   res_outputs_free(res);
   res = NULL;
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
-  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_DUST_RET_ADDR, addr_nft) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STORAGE_RET_ADDR, addr_nft) == 0);
   ret = get_nft_outputs(&ctx, list, res);
   TEST_ASSERT(ret == 0);
   TEST_ASSERT(res->is_error == false);

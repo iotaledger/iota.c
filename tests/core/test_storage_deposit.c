@@ -81,8 +81,8 @@ void test_storage_deposit_check_sufficient_output_deposit() {
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&test_addr);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  unlock_cond_blk_t* unlock_dust = cond_blk_dust_new(&test_addr, storage_deposit);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
+  unlock_cond_blk_t* unlock_storage = cond_blk_storage_new(&test_addr, storage_deposit);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
@@ -91,7 +91,7 @@ void test_storage_deposit_check_sufficient_output_deposit() {
 
   free(config);
   cond_blk_free(unlock_addr);
-  cond_blk_free(unlock_dust);
+  cond_blk_free(unlock_storage);
   cond_blk_list_free(unlock_conds);
   output_basic_free(output);
 }
@@ -112,8 +112,8 @@ void test_storage_deposit_check_sufficient_output_deposit_native_tokens_sent() {
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&test_addr);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  unlock_cond_blk_t* unlock_dust = cond_blk_dust_new(&test_addr, storage_deposit);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
+  unlock_cond_blk_t* unlock_storage = cond_blk_storage_new(&test_addr, storage_deposit);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
@@ -122,7 +122,7 @@ void test_storage_deposit_check_sufficient_output_deposit_native_tokens_sent() {
 
   free(config);
   cond_blk_free(unlock_addr);
-  cond_blk_free(unlock_dust);
+  cond_blk_free(unlock_storage);
   cond_blk_list_free(unlock_conds);
   output_basic_free(output);
 }
@@ -166,8 +166,8 @@ void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_low
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&test_addr);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  unlock_cond_blk_t* unlock_dust = cond_blk_dust_new(&test_addr, storage_deposit);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
+  unlock_cond_blk_t* unlock_storage = cond_blk_storage_new(&test_addr, storage_deposit);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
@@ -176,7 +176,7 @@ void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_low
 
   free(config);
   cond_blk_free(unlock_addr);
-  cond_blk_free(unlock_dust);
+  cond_blk_free(unlock_storage);
   cond_blk_list_free(unlock_conds);
   output_basic_free(output);
 }
@@ -197,8 +197,8 @@ void test_storage_deposit_check_sufficient_output_not_microtransaction() {
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&test_addr);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  unlock_cond_blk_t* unlock_dust = cond_blk_dust_new(&test_addr, storage_deposit);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
+  unlock_cond_blk_t* unlock_storage = cond_blk_storage_new(&test_addr, storage_deposit);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
@@ -207,7 +207,7 @@ void test_storage_deposit_check_sufficient_output_not_microtransaction() {
 
   free(config);
   cond_blk_free(unlock_addr);
-  cond_blk_free(unlock_dust);
+  cond_blk_free(unlock_storage);
   cond_blk_list_free(unlock_conds);
   output_basic_free(output);
 }

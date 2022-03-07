@@ -1134,9 +1134,9 @@ void test_output_alias_condition_blocks() {
   iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
   unlock_cond_blk_t* addr_block = cond_blk_addr_new(&test_addr);
   TEST_ASSERT_NOT_NULL(addr_block);
-  // UNLOCK_COND_DUST
-  unlock_cond_blk_t* dust_block = cond_blk_dust_new(&test_addr, 100000000);
-  TEST_ASSERT_NOT_NULL(dust_block);
+  // UNLOCK_COND_STORAGE
+  unlock_cond_blk_t* storage_block = cond_blk_storage_new(&test_addr, 100000000);
+  TEST_ASSERT_NOT_NULL(storage_block);
 
   // invalid - unlock condition count must be 2
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
@@ -1149,28 +1149,28 @@ void test_output_alias_condition_blocks() {
   TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
                                     unlock_conds, feat_blocks, immut_feat_blocks));
 
-  // unlock condition with UNLOCK_COND_ADDRESS and UNLOCK_COND_DUST
+  // unlock condition with UNLOCK_COND_ADDRESS and UNLOCK_COND_STORAGE
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, addr_block) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, dust_block) == 0);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, storage_block) == 0);
   TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
                                     unlock_conds, feat_blocks, immut_feat_blocks));
 
-  // unlock condition with UNLOCK_COND_STATE and UNLOCK_COND_DUST
+  // unlock condition with UNLOCK_COND_STATE and UNLOCK_COND_STORAGE
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, dust_block) == 0);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, storage_block) == 0);
   TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
                                     unlock_conds, feat_blocks, immut_feat_blocks));
 
-  // unlock condition with UNLOCK_COND_STATE, UNLOCK_COND_GOVERNOR, and UNLOCK_COND_DUST
+  // unlock condition with UNLOCK_COND_STATE, UNLOCK_COND_GOVERNOR, and UNLOCK_COND_STORAGE
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, gov_block) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, dust_block) == 0);
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, storage_block) == 0);
   TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
                                     unlock_conds, feat_blocks, immut_feat_blocks));
 
@@ -1184,7 +1184,7 @@ void test_output_alias_condition_blocks() {
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
   cond_blk_free(addr_block);
-  cond_blk_free(dust_block);
+  cond_blk_free(storage_block);
   cond_blk_list_free(unlock_conds);
 }
 

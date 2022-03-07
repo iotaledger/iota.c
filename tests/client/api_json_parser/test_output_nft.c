@@ -95,7 +95,7 @@ void test_parse_nft_output_full() {
   TEST_ASSERT_NOT_NULL(nft_output->unlock_conditions);
   TEST_ASSERT_EQUAL_UINT8(4, cond_blk_list_len(nft_output->unlock_conditions));
   TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_ADDRESS));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_DUST));
+  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_STORAGE));
   TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_TIMELOCK));
   TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_EXPIRATION));
 
@@ -123,8 +123,7 @@ void test_parse_nft_output_wrong_unlock_condition() {
   char const *const json_res =
       "{\"type\":6,\"amount\":1000000,\"nativeTokens\":[],\"nftId\":\"bebc45994f6bd9394f552b62c6e370ce1ab52d2e\","
       "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"nftId\":"
-      "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[],\"immutableData\":\"metadataTest_"
-      "metadataTest_metadataTest_metadataTest\"}";
+      "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[],\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
