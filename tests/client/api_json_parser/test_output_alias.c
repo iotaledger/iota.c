@@ -19,7 +19,7 @@ void test_parse_alias_output_basic() {
       "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"nftId\":"
       "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
       "{\"type\":5,\"address\":{\"type\":16,\"nftId\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
-      "\"featureBlocks\":[]}";
+      "\"featureBlocks\":[],\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -61,9 +61,11 @@ void test_parse_alias_output_full() {
       "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
       "{\"type\":5,\"address\":{\"type\":16,\"nftId\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
       "\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":1,\"address\":{\"type\":0,"
-      "\"pubKeyHash\":\"2258255e7cf927a4833f457433f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,"
-      "\"data\":\"89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b\"}]}";
+      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,"
+      "\"data\":\"89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b\"}],\"immutableFeatureBlocks\":[{"
+      "\"type\":1,\"address\":{\"type\":0,"
+      "\"pubKeyHash\":\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
+      "\"immutableMetadataTest_immutableMetadataTest_immutableMetadataTest_ImmutableMetadataTest\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -100,10 +102,15 @@ void test_parse_alias_output_full() {
 
   // check feature blocks
   TEST_ASSERT_NOT_NULL(alias_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(3, feat_blk_list_len(alias_output->feature_blocks));
+  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(alias_output->feature_blocks));
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->feature_blocks, FEAT_SENDER_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->feature_blocks, FEAT_ISSUER_BLOCK));
   TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->feature_blocks, FEAT_METADATA_BLOCK));
+
+  // check immutable feature blocks
+  TEST_ASSERT_NOT_NULL(alias_output->immutable_blocks);
+  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(alias_output->immutable_blocks));
+  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->immutable_blocks, FEAT_ISSUER_BLOCK));
+  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->immutable_blocks, FEAT_METADATA_BLOCK));
 
   // print alias output
   output_alias_print(alias_output, 0);
