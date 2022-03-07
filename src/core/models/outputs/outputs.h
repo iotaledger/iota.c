@@ -8,7 +8,7 @@
 
 #include "core/byte_cost_config.h"
 #include "core/models/outputs/output_alias.h"
-#include "core/models/outputs/output_extended.h"
+#include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/output_nft.h"
 #include "core/types.h"
@@ -23,7 +23,7 @@
  * SigLockedDustAllowanceOutput: Works in the same way as a SigLockedSingleOutput but additionally controls the dust
  *                               allowance on the target address.
  * Treasury output: Describes an output which holds the treasury of a network.
- * Extended output: Describes a deposit to a single address. The output might contain optional feature blocks and
+ * Basic output: Describes a deposit to a single address. The output might contain optional feature blocks and
  *                  native tokens.
  * Alias output: Describes an alias account in the ledger.
  * Foundry output: Describes a foundry that controls supply of native tokens.
@@ -34,7 +34,7 @@ typedef enum {
   OUTPUT_SINGLE_OUTPUT = 0,   ///< SigLockedSingleOutput, deprecated
   OUTPUT_DUST_ALLOWANCE = 1,  ///< SigLockedDustAllowanceOutput, deprecated
   OUTPUT_TREASURY = 2,        ///< Treasury output, not supported in this library
-  OUTPUT_EXTENDED = 3,        ///< Extended output
+  OUTPUT_BASIC = 3,           ///< Basic output
   OUTPUT_ALIAS = 4,           ///< Alias output
   OUTPUT_FOUNDRY = 5,         ///< Foundry output
   OUTPUT_NFT = 6              ///< NFT output
@@ -45,7 +45,7 @@ typedef enum {
  *
  */
 typedef struct {
-  utxo_output_type_t output_type;  ///< 3: Extended output, 4: Alias output, 5: Foundry output, 6: NFT output
+  utxo_output_type_t output_type;  ///< 3: Basic output, 4: Alias output, 5: Foundry output, 6: NFT output
   void *output;                    //< Pointer to an output
 } utxo_output_t;
 

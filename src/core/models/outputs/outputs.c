@@ -21,8 +21,8 @@ void utxo_outputs_free(utxo_outputs_list_t *outputs) {
         case OUTPUT_TREASURY:
           printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
           break;
-        case OUTPUT_EXTENDED:
-          output_extended_free(elm->output->output);
+        case OUTPUT_BASIC:
+          output_basic_free(elm->output->output);
           break;
         case OUTPUT_ALIAS:
           output_alias_free(elm->output->output);
@@ -82,10 +82,10 @@ int utxo_outputs_add(utxo_outputs_list_t **outputs, byte_cost_config_t *storage_
         case OUTPUT_TREASURY:
           printf("[%s:%d] deprecated or unsupported output type can not be added\n", __func__, __LINE__);
           break;
-        case OUTPUT_EXTENDED:
-          next->output->output = output_extended_clone((output_extended_t const *const)output);
+        case OUTPUT_BASIC:
+          next->output->output = output_basic_clone((output_basic_t const *const)output);
           if (!next->output->output) {
-            printf("[%s:%d] can not add Extended Output type\n", __func__, __LINE__);
+            printf("[%s:%d] can not add Basic Output type\n", __func__, __LINE__);
           }
           break;
         case OUTPUT_ALIAS:
@@ -169,8 +169,8 @@ size_t utxo_outputs_serialize_len(utxo_outputs_list_t *outputs) {
       case OUTPUT_TREASURY:
         printf("[%s:%d] deprecated or unsupported output type will not be serialized\n", __func__, __LINE__);
         break;
-      case OUTPUT_EXTENDED:
-        output_len = output_extended_serialize_len(elm->output->output);
+      case OUTPUT_BASIC:
+        output_len = output_basic_serialize_len(elm->output->output);
         break;
       case OUTPUT_ALIAS:
         output_len = output_alias_serialize_len(elm->output->output);
@@ -224,9 +224,8 @@ size_t utxo_outputs_serialize(utxo_outputs_list_t *outputs, byte_t buf[], size_t
       case OUTPUT_TREASURY:
         printf("[%s:%d] deprecated or unsupported output type will not be serialized\n", __func__, __LINE__);
         break;
-      case OUTPUT_EXTENDED:
-        offset +=
-            output_extended_serialize(elm->output->output, offset, output_extended_serialize_len(elm->output->output));
+      case OUTPUT_BASIC:
+        offset += output_basic_serialize(elm->output->output, offset, output_basic_serialize_len(elm->output->output));
         break;
       case OUTPUT_ALIAS:
         offset += output_alias_serialize(elm->output->output, offset, output_alias_serialize_len(elm->output->output));
@@ -292,14 +291,14 @@ utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len) {
         printf("[%s:%d] can not deserialize deprecated or unsupported output type\n", __func__, __LINE__);
         utxo_outputs_free(outputs);
         return NULL;
-      case OUTPUT_EXTENDED:
-        new_output->output->output = output_extended_deserialize(&buf[offset], buf_len - offset);
+      case OUTPUT_BASIC:
+        new_output->output->output = output_basic_deserialize(&buf[offset], buf_len - offset);
         if (!new_output->output->output) {
-          printf("[%s:%d] can not deserialize extended output\n", __func__, __LINE__);
+          printf("[%s:%d] can not deserialize basic output\n", __func__, __LINE__);
           utxo_outputs_free(outputs);
           return NULL;
         }
-        offset += output_extended_serialize_len(new_output->output->output);
+        offset += output_basic_serialize_len(new_output->output->output);
         break;
       case OUTPUT_ALIAS:
         new_output->output->output = output_alias_deserialize(&buf[offset], buf_len - offset);
@@ -350,8 +349,8 @@ void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation) {
         case OUTPUT_TREASURY:
           printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
           break;
-        case OUTPUT_EXTENDED:
-          output_extended_print(elm->output->output, indentation + 1);
+        case OUTPUT_BASIC:
+          output_basic_print(elm->output->output, indentation + 1);
           break;
         case OUTPUT_ALIAS:
           output_alias_print(elm->output->output, indentation + 1);

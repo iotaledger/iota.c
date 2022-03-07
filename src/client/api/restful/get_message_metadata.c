@@ -8,6 +8,7 @@
 #include "client/api/restful/get_message_metadata.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
+#include "core/utils/macros.h"
 
 static msg_meta_t *metadata_new() {
   msg_meta_t *meta = malloc(sizeof(msg_meta_t));
@@ -160,7 +161,7 @@ int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res
   int ret = -1;
 
   size_t msg_str_len = strlen(msg_id);
-  if (msg_str_len != IOTA_MESSAGE_ID_HEX_BYTES) {
+  if (msg_str_len != BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES)) {
     printf("[%s:%d] incorrect length of the message ID\n", __func__, __LINE__);
     return -1;
   }

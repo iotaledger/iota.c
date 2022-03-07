@@ -4,15 +4,15 @@
 ]]
 
 if(IOTA_WALLET_ENABLE)
-	add_subdirectory(wallet)
+  add_subdirectory(wallet)
 endif(IOTA_WALLET_ENABLE)
 
 if(WITH_IOTA_CLIENT)
-	add_subdirectory(client)
+  add_subdirectory(client)
 endif()
 
 if(WITH_IOTA_CORE)
-	add_subdirectory(core)
+  add_subdirectory(core)
 endif()
 
 add_subdirectory(crypto)

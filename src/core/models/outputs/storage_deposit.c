@@ -28,8 +28,8 @@ static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_out
     case OUTPUT_TREASURY:
       printf("[%s:%d] deprecated or unsupported output type\n", __func__, __LINE__);
       return UINT64_MAX;
-    case OUTPUT_EXTENDED:
-      weighted_bytes = output_extended_serialize_len(output) * config->v_byte_factor_data;
+    case OUTPUT_BASIC:
+      weighted_bytes = output_basic_serialize_len(output) * config->v_byte_factor_data;
       break;
     case OUTPUT_ALIAS:
       weighted_bytes = output_alias_serialize_len(output) * config->v_byte_factor_data;
@@ -64,18 +64,18 @@ static uint64_t minimum_storage_deposit(byte_cost_config_t *config, address_t *a
     return UINT64_MAX;
   }
 
-  output_extended_t *output = output_extended_new(0, NULL, unlock_conds, NULL);
+  output_basic_t *output = output_basic_new(0, NULL, unlock_conds, NULL);
   if (!output) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     cond_blk_list_free(unlock_conds);
     return UINT64_MAX;
   }
 
-  uint64_t output_deposit = calc_minimum_output_deposit(config, OUTPUT_EXTENDED, output);
+  uint64_t output_deposit = calc_minimum_output_deposit(config, OUTPUT_BASIC, output);
 
   cond_blk_free(unlock_addr);
   cond_blk_list_free(unlock_conds);
-  output_extended_free(output);
+  output_basic_free(output);
 
   return output_deposit;
 }
@@ -121,9 +121,9 @@ bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config,
     case OUTPUT_TREASURY:
       printf("[%s:%d] deprecated or unsupported output type\n", __func__, __LINE__);
       return false;
-    case OUTPUT_EXTENDED:
-      amount = ((output_extended_t *)output)->amount;
-      dust_return_cond = cond_blk_list_get_type(((output_extended_t *)output)->unlock_conditions, UNLOCK_COND_DUST);
+    case OUTPUT_BASIC:
+      amount = ((output_basic_t *)output)->amount;
+      dust_return_cond = cond_blk_list_get_type(((output_basic_t *)output)->unlock_conditions, UNLOCK_COND_DUST);
       break;
     case OUTPUT_ALIAS:
       amount = ((output_alias_t *)output)->amount;

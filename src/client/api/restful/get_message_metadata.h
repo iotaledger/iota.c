@@ -10,14 +10,15 @@
 #include "client/client_service.h"
 #include "core/models/message.h"
 #include "core/types.h"
+#include "core/utils/macros.h"
 
 /**
  * @brief Stores the message metadata object
  *
  */
 typedef struct {
-  char msg_id[IOTA_MESSAGE_ID_HEX_BYTES + 1];  ///< the hex encoded message ID string
-  UT_array *parents;                           ///< the parent message IDs
+  char msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< the hex encoded message ID string
+  UT_array *parents;                                         ///< the parent message IDs
   char inclusion_state[32];       ///< the ledger inclusion state of the transaction payload, one of `noTransaction`,
                                   ///< `conflicting`, `included`
   bool is_solid;                  ///< whether the message is solid

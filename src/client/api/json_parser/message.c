@@ -54,10 +54,10 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
         break;
       case CORE_MESSAGE_PAYLOAD_MILESTONE:
         msg->payload = milestone_payload_new();
-        ret = milestone_deserialize(payload, (milestone_t*)msg->payload);
+        ret = milestone_deserialize(payload, (milestone_payload_t*)msg->payload);
         break;
       case CORE_MESSAGE_PAYLOAD_TAGGED:
-        ret = json_tagged_deserialize(payload, (tagged_data_t**)(&msg->payload));
+        ret = json_tagged_deserialize(payload, (tagged_data_payload_t**)(&msg->payload));
         break;
       case CORE_MESSAGE_PAYLOAD_INDEXATION:
       case CORE_MESSAGE_PAYLOAD_RECEIPT:

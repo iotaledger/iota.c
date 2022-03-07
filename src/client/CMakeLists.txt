@@ -17,7 +17,7 @@ target_sources(
           "api/json_parser/feat_blocks.c"
           "api/json_parser/native_tokens.c"
           "api/json_parser/output_alias.c"
-          "api/json_parser/output_extended.c"
+          "api/json_parser/output_basic.c"
           "api/json_parser/output_foundry.c"
           "api/json_parser/output_nft.c"
           "api/json_parser/outputs.c"
@@ -48,7 +48,7 @@ target_sources(
          "api/json_parser/feat_blocks.h"
          "api/json_parser/native_tokens.h"
          "api/json_parser/output_alias.h"
-         "api/json_parser/output_extended.h"
+         "api/json_parser/output_basic.h"
          "api/json_parser/output_foundry.h"
          "api/json_parser/output_nft.h"
          "api/json_parser/outputs.h"
@@ -68,8 +68,7 @@ target_sources(
          "api/restful/find_message.h"
          "api/restful/faucet_enqueue.h"
          "api/restful/get_outputs_id.h"
-         "api/restful/get_transaction_included_message.h"
-         )
+         "api/restful/get_transaction_included_message.h")
 
 if(MQTT_CLIENT_ENABLE)
   target_sources(
@@ -80,13 +79,12 @@ if(MQTT_CLIENT_ENABLE)
             "api/events/sub_milestones_confirmed.c"
             "api/events/sub_messages_metadata.c"
             "api/events/sub_address_outputs.c"
-    PUBLIC  "network/mqtt/mqtt.h"
-            "api/events/node_event.h"
-            "api/events/sub_milestone_latest.h"
-            "api/events/sub_milestones_confirmed.h"
-            "api/events/sub_messages_metadata.h"
-            "api/events/sub_address_outputs.h"
-  )
+    PUBLIC "network/mqtt/mqtt.h"
+           "api/events/node_event.h"
+           "api/events/sub_milestone_latest.h"
+           "api/events/sub_milestones_confirmed.h"
+           "api/events/sub_messages_metadata.h"
+           "api/events/sub_address_outputs.h")
 endif()
 
 target_include_directories(
@@ -106,7 +104,7 @@ target_link_libraries(
 if(MQTT_CLIENT_ENABLE)
   target_link_libraries(iota_client PRIVATE Threads::Threads)
   add_dependencies(iota_client ext_mosquitto)
-  target_link_libraries( iota_client PUBLIC mosquitto_static)
+  target_link_libraries(iota_client PUBLIC mosquitto_static)
 endif()
 
 # install client lib and headers

@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "client/api/json_parser/feat_blocks.h"
+#include "core/utils/macros.h"
 #include "unity/unity.h"
 
 void setUp(void) {}
@@ -27,7 +28,7 @@ void test_feat_block_sender() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_SENDER_BLOCK, feat_block->type);
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)feat_block->block)));
 
@@ -52,7 +53,7 @@ void test_feat_block_issuer() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, feat_block->type);
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)feat_block->block)));
 

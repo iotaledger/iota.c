@@ -1,7 +1,7 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/json_parser/output_extended.h"
+#include "client/api/json_parser/output_basic.h"
 #include "client/api/json_parser/feat_blocks.h"
 #include "client/api/json_parser/native_tokens.h"
 #include "client/api/json_parser/unlock_conditions.h"
@@ -17,8 +17,8 @@
     }
   ]
 */
-int json_output_extended_deserialize(cJSON *output_obj, output_extended_t **extended) {
-  if (output_obj == NULL || *extended != NULL) {
+int json_output_basic_deserialize(cJSON *output_obj, output_basic_t **basic) {
+  if (output_obj == NULL || *basic != NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -54,14 +54,14 @@ int json_output_extended_deserialize(cJSON *output_obj, output_extended_t **exte
     goto end;
   }
 
-  // create extended output
-  *extended = output_extended_new(amount, tokens, cond_blocks, feat_blocks);
-  if (!*extended) {
-    printf("[%s:%d]: creating extended output object failed \n", __func__, __LINE__);
+  // create basic output
+  *basic = output_basic_new(amount, tokens, cond_blocks, feat_blocks);
+  if (!*basic) {
+    printf("[%s:%d]: creating basic output object failed \n", __func__, __LINE__);
     goto end;
   }
 
-  // Successfully created new extended output
+  // Successfully created new basic output
   result = 0;
 
 end:
@@ -72,42 +72,42 @@ end:
   return result;
 }
 
-cJSON *json_output_extended_serialize(output_extended_t *extended) {
+cJSON *json_output_basic_serialize(output_basic_t *basic) {
   cJSON *output_obj = cJSON_CreateObject();
   if (output_obj) {
     cJSON *tmp = NULL;
     // type
-    if (!cJSON_AddNumberToObject(output_obj, JSON_KEY_TYPE, OUTPUT_EXTENDED)) {
-      printf("[%s:%d] add type to extended error\n", __func__, __LINE__);
+    if (!cJSON_AddNumberToObject(output_obj, JSON_KEY_TYPE, OUTPUT_BASIC)) {
+      printf("[%s:%d] add type to basic error\n", __func__, __LINE__);
       goto err;
     }
 
     // amount
-    if (!cJSON_AddNumberToObject(output_obj, JSON_KEY_AMOUNT, extended->amount)) {
-      printf("[%s:%d] add amount to extended error\n", __func__, __LINE__);
+    if (!cJSON_AddNumberToObject(output_obj, JSON_KEY_AMOUNT, basic->amount)) {
+      printf("[%s:%d] add amount to basic error\n", __func__, __LINE__);
       goto err;
     }
 
     // native tokens
-    tmp = json_native_tokens_serialize(extended->native_tokens);
+    tmp = json_native_tokens_serialize(basic->native_tokens);
     if (!cJSON_AddItemToObject(output_obj, JSON_KEY_NATIVE_TOKENS, tmp)) {
-      printf("[%s:%d] add native tokens to extended error\n", __func__, __LINE__);
+      printf("[%s:%d] add native tokens to basic error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
     }
 
     // unlock conditions
-    tmp = json_cond_blk_list_serialize(extended->unlock_conditions);
+    tmp = json_cond_blk_list_serialize(basic->unlock_conditions);
     if (!cJSON_AddItemToObject(output_obj, JSON_KEY_UNLOCK_CONDITIONS, tmp)) {
-      printf("[%s:%d] add unlock conditions to extended error\n", __func__, __LINE__);
+      printf("[%s:%d] add unlock conditions to basic error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
     }
 
     // feature blocks
-    tmp = json_feat_blocks_serialize(extended->feature_blocks);
+    tmp = json_feat_blocks_serialize(basic->feature_blocks);
     if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEAT_BLOCKS, tmp)) {
-      printf("[%s:%d] add feature blocks to extended error\n", __func__, __LINE__);
+      printf("[%s:%d] add feature blocks to basic error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
     }

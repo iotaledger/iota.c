@@ -24,7 +24,7 @@ static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
       goto end;
     }
     switch (tmp_output->output_type) {
-      case OUTPUT_EXTENDED:
+      case OUTPUT_BASIC:
       case OUTPUT_ALIAS:
       case OUTPUT_FOUNDRY:
       case OUTPUT_NFT:
@@ -44,7 +44,7 @@ static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
       goto end;
     }
 
-    if (tmp_output->output_type != OUTPUT_EXTENDED) {
+    if (tmp_output->output_type != OUTPUT_BASIC) {
       printf("[%s:%d]: FIXME, support other output types\n", __func__, __LINE__);
       goto end;
     }
@@ -76,8 +76,8 @@ static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
       goto end;
     }
 
-    // create extended output
-    tmp_output->output = output_extended_new(amount, tokens, cond_blocks, feat_blocks);
+    // create basic output
+    tmp_output->output = output_basic_new(amount, tokens, cond_blocks, feat_blocks);
     if (tokens) {
       native_tokens_free(&tokens);
     }
@@ -94,8 +94,8 @@ static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
   end:
     if (tmp_output) {
       switch (tmp_output->output_type) {
-        case OUTPUT_EXTENDED:
-          output_extended_free((output_extended_t *)tmp_output->output);
+        case OUTPUT_BASIC:
+          output_basic_free((output_basic_t *)tmp_output->output);
           break;
         case OUTPUT_ALIAS:
           output_alias_free((output_alias_t *)tmp_output->output);
@@ -127,8 +127,8 @@ void get_output_response_free(res_output_t *res) {
         case OUTPUT_TREASURY:
           printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
           break;
-        case OUTPUT_EXTENDED:
-          output_extended_free((output_extended_t *)res->u.data->output->output);
+        case OUTPUT_BASIC:
+          output_basic_free((output_basic_t *)res->u.data->output->output);
           break;
         case OUTPUT_ALIAS:
           output_alias_free((output_alias_t *)res->u.data->output->output);
@@ -290,8 +290,8 @@ void dump_output_response(res_output_t *res) {
     printf("milestoneTimestampBooked: %" PRIu64 "\n", res->u.data->ml_time_booked);
     printf("ledgerIndex: %" PRIu64 "\n", res->u.data->ledger_index);
     switch (res->u.data->output->output_type) {
-      case OUTPUT_EXTENDED:
-        output_extended_print((output_extended_t *)res->u.data->output->output, 0);
+      case OUTPUT_BASIC:
+        output_basic_print((output_basic_t *)res->u.data->output->output, 0);
         break;
       case OUTPUT_ALIAS:
         output_alias_print((output_alias_t *)res->u.data->output->output, 0);

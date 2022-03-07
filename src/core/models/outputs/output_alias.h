@@ -28,6 +28,8 @@ typedef struct {
   uint32_t foundry_counter;         ///< The counter that denotes the number of foundries created by this alias account
   cond_blk_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
   feat_blk_list_t* feature_blocks;     ///< Define functionality of this output
+  feat_blk_list_t* immutable_blocks;   ///< Immutable blocks are defined upon deployment of the UTXO state machine and
+                                       ///< are not allowed to change in any future state transition
 } output_alias_t;
 
 #ifdef __cplusplus
@@ -46,12 +48,14 @@ extern "C" {
  * @param[in] foundry_counter The counter that denotes the number of foundries created by this alias account
  * @param[in] cond_blocks Set of unlock condition blocks
  * @param[in] feat_blocks Set of feature blocks
+ * @param[in] immut_feat_blocks List of immutable feature blocks
  *
  * @return output_alias_t* or NULL on failure
  */
 output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_t alias_id[], uint32_t state_index,
                                  byte_t* metadata, uint32_t metadata_len, uint32_t foundry_counter,
-                                 cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks);
+                                 cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks,
+                                 feat_blk_list_t* immut_feat_blocks);
 
 /**
  * @brief Free Alias Output object.

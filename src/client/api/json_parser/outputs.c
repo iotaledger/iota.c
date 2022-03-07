@@ -3,13 +3,13 @@
 
 #include "client/api/json_parser/outputs.h"
 #include "client/api/json_parser/output_alias.h"
-#include "client/api/json_parser/output_extended.h"
+#include "client/api/json_parser/output_basic.h"
 #include "client/api/json_parser/output_foundry.h"
 #include "client/api/json_parser/output_nft.h"
 #include "utlist.h"
 
 /*
-  Example for extended output:
+  Example for basic output:
   "outputs": [
     { "type": 3,
       "amount": 10000000,
@@ -37,13 +37,13 @@ int json_outputs_deserialize(cJSON *outputs_obj, utxo_outputs_list_t **outputs) 
     // output
     int res = -1;
     switch (output_type) {
-      case OUTPUT_EXTENDED: {
-        output_extended_t *extended = NULL;
-        res = json_output_extended_deserialize(elm, &extended);
+      case OUTPUT_BASIC: {
+        output_basic_t *basic = NULL;
+        res = json_output_basic_deserialize(elm, &basic);
         if (res == 0) {
-          res = utxo_outputs_add(outputs, NULL, OUTPUT_EXTENDED, extended);
+          res = utxo_outputs_add(outputs, NULL, OUTPUT_BASIC, basic);
         }
-        output_extended_free(extended);
+        output_basic_free(basic);
         break;
       }
       case OUTPUT_ALIAS: {
@@ -100,8 +100,8 @@ cJSON *json_outputs_serialize(utxo_outputs_list_t *outputs) {
     utxo_outputs_list_t *elm;
     LL_FOREACH(outputs, elm) {
       switch (elm->output->output_type) {
-        case OUTPUT_EXTENDED:
-          item = json_output_extended_serialize((output_extended_t *)elm->output->output);
+        case OUTPUT_BASIC:
+          item = json_output_basic_serialize((output_basic_t *)elm->output->output);
           break;
         case OUTPUT_ALIAS:
           item = json_output_alias_serialize((output_alias_t *)elm->output->output);

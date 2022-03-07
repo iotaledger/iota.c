@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "core/address.h"
-#include "core/models/outputs/output_extended.h"
+#include "core/models/outputs/output_basic.h"
 #include "crypto/iota_crypto.h"
 #include "unity/unity.h"
 
@@ -72,7 +72,7 @@ void tearDown(void) {
   cond_blk_free(unlock_gov);
 }
 
-void test_output_extended() {
+void test_output_basic() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
@@ -90,8 +90,8 @@ void test_output_extended() {
   TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &addr) == 0);
   TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
 
-  // create Extended Output
-  output_extended_t* output = output_extended_new(123456789, native_tokens, unlock_conds, feat_blocks);
+  // create Basic Output
+  output_basic_t* output = output_basic_new(123456789, native_tokens, unlock_conds, feat_blocks);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
@@ -151,19 +151,19 @@ void test_output_extended() {
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
                            ((feat_metadata_blk_t*)feat_block->block)->data_len);
 
-  // serialize Extended Output and validate it
-  size_t expected_serial_len = output_extended_serialize_len(output);
+  // serialize Basic Output and validate it
+  size_t expected_serial_len = output_basic_serialize_len(output);
   TEST_ASSERT(expected_serial_len != 0);
   byte_t* serialized_buf = malloc(expected_serial_len);
   TEST_ASSERT_NOT_NULL(serialized_buf);
   // expect serialization fails
-  TEST_ASSERT(output_extended_serialize(output, serialized_buf, expected_serial_len - 1) == 0);
-  TEST_ASSERT(output_extended_serialize(output, serialized_buf, expected_serial_len) == expected_serial_len);
+  TEST_ASSERT(output_basic_serialize(output, serialized_buf, expected_serial_len - 1) == 0);
+  TEST_ASSERT(output_basic_serialize(output, serialized_buf, expected_serial_len) == expected_serial_len);
 
-  // deserialize Extended Output and validate it
-  output_extended_t* deser_output = output_extended_deserialize(serialized_buf, expected_serial_len - 1);
+  // deserialize Basic Output and validate it
+  output_basic_t* deser_output = output_basic_deserialize(serialized_buf, expected_serial_len - 1);
   TEST_ASSERT_NULL(deser_output);  // expect deserialization fails
-  deser_output = output_extended_deserialize(serialized_buf, expected_serial_len);
+  deser_output = output_basic_deserialize(serialized_buf, expected_serial_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   // deserialized amount
   TEST_ASSERT_EQUAL_UINT64(output->amount, deser_output->amount);
@@ -226,16 +226,16 @@ void test_output_extended() {
   TEST_ASSERT_EQUAL_MEMORY(test_tag, ((feat_tag_blk_t*)feat_block->block)->tag,
                            ((feat_tag_blk_t*)feat_block->block)->tag_len);
 
-  output_extended_print(output, 0);
+  output_basic_print(output, 0);
   // clean up
   free(serialized_buf);
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);
-  output_extended_free(output);
-  output_extended_free(deser_output);
+  output_basic_free(output);
+  output_basic_free(deser_output);
 }
 
-void test_output_extended_without_native_tokens() {
+void test_output_basic_without_native_tokens() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
@@ -245,8 +245,8 @@ void test_output_extended_without_native_tokens() {
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta));
 
-  // create Extended Output
-  output_extended_t* output = output_extended_new(123456789, NULL, unlock_conds, feat_blocks);
+  // create Basic Output
+  output_basic_t* output = output_basic_new(123456789, NULL, unlock_conds, feat_blocks);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
@@ -281,20 +281,20 @@ void test_output_extended_without_native_tokens() {
   // index out of list
   TEST_ASSERT_NULL(feat_blk_list_get(output->feature_blocks, 1));
 
-  // serialize Extended Output and validate it
-  size_t expected_serial_len = output_extended_serialize_len(output);
+  // serialize Basic Output and validate it
+  size_t expected_serial_len = output_basic_serialize_len(output);
   TEST_ASSERT(expected_serial_len != 0);
   byte_t* serialized_buf = malloc(expected_serial_len);
   TEST_ASSERT_NOT_NULL(serialized_buf);
   // expect serialization fails
-  TEST_ASSERT(output_extended_serialize(output, serialized_buf, expected_serial_len - 1) == 0);
-  TEST_ASSERT(output_extended_serialize(output, serialized_buf, expected_serial_len) == expected_serial_len);
+  TEST_ASSERT(output_basic_serialize(output, serialized_buf, expected_serial_len - 1) == 0);
+  TEST_ASSERT(output_basic_serialize(output, serialized_buf, expected_serial_len) == expected_serial_len);
 
-  // deserialize Extended Output and validate it
-  output_extended_t* deser_output = output_extended_deserialize(serialized_buf, expected_serial_len - 1);
+  // deserialize Basic Output and validate it
+  output_basic_t* deser_output = output_basic_deserialize(serialized_buf, expected_serial_len - 1);
   // expect deserialization fails
   TEST_ASSERT_NULL(deser_output);
-  deser_output = output_extended_deserialize(serialized_buf, expected_serial_len);
+  deser_output = output_basic_deserialize(serialized_buf, expected_serial_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   // deserialized amount
   TEST_ASSERT_EQUAL_UINT64(output->amount, deser_output->amount);
@@ -330,23 +330,23 @@ void test_output_extended_without_native_tokens() {
   // 1: NULL
   TEST_ASSERT_NULL(feat_blk_list_get(deser_output->feature_blocks, 1));
 
-  output_extended_print(output, 0);
+  output_basic_print(output, 0);
   // clean up
   free(serialized_buf);
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);
-  output_extended_free(output);
-  output_extended_free(deser_output);
+  output_basic_free(output);
+  output_basic_free(deser_output);
 }
 
-void test_output_extended_without_feature_blocks() {
+void test_output_basic_without_feature_blocks() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
 
-  // create Extended Output
-  output_extended_t* output = output_extended_new(123456789, native_tokens, unlock_conds, NULL);
+  // create Basic Output
+  output_basic_t* output = output_basic_new(123456789, native_tokens, unlock_conds, NULL);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
@@ -386,20 +386,20 @@ void test_output_extended_without_feature_blocks() {
   // index out of list
   TEST_ASSERT_NULL(feat_blk_list_get(output->feature_blocks, 0));
 
-  // serialize Extended Output and validate it
-  size_t expected_serial_len = output_extended_serialize_len(output);
+  // serialize Basic Output and validate it
+  size_t expected_serial_len = output_basic_serialize_len(output);
   TEST_ASSERT(expected_serial_len != 0);
   byte_t* serialized_buf = malloc(expected_serial_len);
   TEST_ASSERT_NOT_NULL(serialized_buf);
   // expect serialization fails
-  TEST_ASSERT(output_extended_serialize(output, serialized_buf, expected_serial_len - 1) == 0);
-  TEST_ASSERT(output_extended_serialize(output, serialized_buf, expected_serial_len) == expected_serial_len);
+  TEST_ASSERT(output_basic_serialize(output, serialized_buf, expected_serial_len - 1) == 0);
+  TEST_ASSERT(output_basic_serialize(output, serialized_buf, expected_serial_len) == expected_serial_len);
 
-  // deserialize Extended Output and validate it
-  output_extended_t* deser_output = output_extended_deserialize(serialized_buf, expected_serial_len - 1);
+  // deserialize Basic Output and validate it
+  output_basic_t* deser_output = output_basic_deserialize(serialized_buf, expected_serial_len - 1);
   // expect deserialization fails
   TEST_ASSERT_NULL(deser_output);
-  deser_output = output_extended_deserialize(serialized_buf, expected_serial_len);
+  deser_output = output_basic_deserialize(serialized_buf, expected_serial_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   // deserialized amount
   TEST_ASSERT_EQUAL_UINT64(output->amount, deser_output->amount);
@@ -439,22 +439,22 @@ void test_output_extended_without_feature_blocks() {
   TEST_ASSERT_EQUAL_UINT8(0, feat_blk_list_len(deser_output->feature_blocks));
   TEST_ASSERT_NULL(feat_blk_list_get(deser_output->feature_blocks, 1));
 
-  output_extended_print(output, 0);
+  output_basic_print(output, 0);
   // clean up
   free(serialized_buf);
   cond_blk_list_free(unlock_conds);
-  output_extended_free(output);
-  output_extended_free(deser_output);
+  output_basic_free(output);
+  output_basic_free(deser_output);
 }
 
-void test_output_extended_without_native_tokens_and_feature_blocks() {
+void test_output_basic_without_native_tokens_and_feature_blocks() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
 
-  // create Extended Output
-  output_extended_t* output = output_extended_new(123456789, NULL, unlock_conds, NULL);
+  // create Basic Output
+  output_basic_t* output = output_basic_new(123456789, NULL, unlock_conds, NULL);
 
   // validation
   TEST_ASSERT_NOT_NULL(output);
@@ -484,20 +484,20 @@ void test_output_extended_without_native_tokens_and_feature_blocks() {
   // index out of list
   TEST_ASSERT_NULL(feat_blk_list_get(output->feature_blocks, 0));
 
-  // serialize Extended Output and validate it
-  size_t expected_serial_len = output_extended_serialize_len(output);
+  // serialize Basic Output and validate it
+  size_t expected_serial_len = output_basic_serialize_len(output);
   TEST_ASSERT(expected_serial_len != 0);
   byte_t* serialized_buf = malloc(expected_serial_len);
   TEST_ASSERT_NOT_NULL(serialized_buf);
   // expect serialization fails
-  TEST_ASSERT(output_extended_serialize(output, serialized_buf, expected_serial_len - 1) == 0);
-  TEST_ASSERT(output_extended_serialize(output, serialized_buf, expected_serial_len) == expected_serial_len);
+  TEST_ASSERT(output_basic_serialize(output, serialized_buf, expected_serial_len - 1) == 0);
+  TEST_ASSERT(output_basic_serialize(output, serialized_buf, expected_serial_len) == expected_serial_len);
 
-  // deserialize Extended Output and validate it
-  output_extended_t* deser_output = output_extended_deserialize(serialized_buf, expected_serial_len - 1);
+  // deserialize Basic Output and validate it
+  output_basic_t* deser_output = output_basic_deserialize(serialized_buf, expected_serial_len - 1);
   // expect deserialization fails
   TEST_ASSERT_NULL(deser_output);
-  deser_output = output_extended_deserialize(serialized_buf, expected_serial_len);
+  deser_output = output_basic_deserialize(serialized_buf, expected_serial_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   // deserialized amount
   TEST_ASSERT_EQUAL_UINT64(output->amount, deser_output->amount);
@@ -527,47 +527,47 @@ void test_output_extended_without_native_tokens_and_feature_blocks() {
   TEST_ASSERT_EQUAL_UINT8(0, feat_blk_list_len(deser_output->feature_blocks));
   TEST_ASSERT_NULL(feat_blk_list_get(deser_output->feature_blocks, 1));
 
-  output_extended_print(output, 0);
+  output_basic_print(output, 0);
   // clean up
   free(serialized_buf);
   cond_blk_list_free(unlock_conds);
-  output_extended_free(output);
-  output_extended_free(deser_output);
+  output_basic_free(output);
+  output_basic_free(deser_output);
 }
 
-void test_output_extended_unlock_conditions() {
+void test_output_basic_unlock_conditions() {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
 
   // invalid: empty unlock conditions
-  TEST_ASSERT_NULL(output_extended_new(123456789, NULL, NULL, NULL));
-  TEST_ASSERT_NULL(output_extended_new(123456789, NULL, unlock_conds, NULL));
+  TEST_ASSERT_NULL(output_basic_new(123456789, NULL, NULL, NULL));
+  TEST_ASSERT_NULL(output_basic_new(123456789, NULL, unlock_conds, NULL));
 
   // invalid unlock conditions: State Controller/Governanor
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_state) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_gov) == 0);
-  TEST_ASSERT_NULL(output_extended_new(123456789, NULL, unlock_conds, NULL));
+  TEST_ASSERT_NULL(output_basic_new(123456789, NULL, unlock_conds, NULL));
   cond_blk_list_free(unlock_conds);
 
   // invalid unlock condition: State Controller
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_state) == 0);
-  TEST_ASSERT_NULL(output_extended_new(123456789, NULL, unlock_conds, NULL));
+  TEST_ASSERT_NULL(output_basic_new(123456789, NULL, unlock_conds, NULL));
   cond_blk_list_free(unlock_conds);
 
   // invalid unlock condition: Governor
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_gov) == 0);
-  TEST_ASSERT_NULL(output_extended_new(123456789, NULL, unlock_conds, NULL));
+  TEST_ASSERT_NULL(output_basic_new(123456789, NULL, unlock_conds, NULL));
   cond_blk_list_free(unlock_conds);
 }
 
-void test_output_extended_clone() {
-  //=====NULL Extended Output object=====
-  output_extended_t* new_output = output_extended_clone(NULL);
+void test_output_basic_clone() {
+  //=====NULL Basic Output object=====
+  output_basic_t* new_output = output_basic_clone(NULL);
   TEST_ASSERT_NULL(new_output);
 
-  //=====Test Extended Output object=====
+  //=====Test Basic Output object=====
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_dust) == 0);
@@ -581,12 +581,12 @@ void test_output_extended_clone() {
   TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &test_addr) == 0);
   TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
 
-  // create Extended Output
-  output_extended_t* output = output_extended_new(123456789, native_tokens, unlock_conds, feat_blocks);
+  // create Basic Output
+  output_basic_t* output = output_basic_new(123456789, native_tokens, unlock_conds, feat_blocks);
   TEST_ASSERT_NOT_NULL(output);
 
-  // clone Extended Output object
-  new_output = output_extended_clone(output);
+  // clone Basic Output object
+  new_output = output_basic_clone(output);
   TEST_ASSERT_NOT_NULL(new_output);
 
   // validate Amount
@@ -606,25 +606,25 @@ void test_output_extended_clone() {
   TEST_ASSERT_NOT_NULL(new_output->feature_blocks);
   TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(output->feature_blocks), feat_blk_list_len(new_output->feature_blocks));
 
-  // print new Extended Output
-  output_extended_print(new_output, 0);
+  // print new Basic Output
+  output_basic_print(new_output, 0);
 
   // clean up
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);
-  output_extended_free(new_output);
-  output_extended_free(output);
+  output_basic_free(new_output);
+  output_basic_free(output);
 }
 
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_output_extended);
-  RUN_TEST(test_output_extended_without_native_tokens);
-  RUN_TEST(test_output_extended_without_feature_blocks);
-  RUN_TEST(test_output_extended_without_native_tokens_and_feature_blocks);
-  RUN_TEST(test_output_extended_unlock_conditions);
-  RUN_TEST(test_output_extended_clone);
+  RUN_TEST(test_output_basic);
+  RUN_TEST(test_output_basic_without_native_tokens);
+  RUN_TEST(test_output_basic_without_feature_blocks);
+  RUN_TEST(test_output_basic_without_native_tokens_and_feature_blocks);
+  RUN_TEST(test_output_basic_unlock_conditions);
+  RUN_TEST(test_output_basic_clone);
 
   return UNITY_END();
 }

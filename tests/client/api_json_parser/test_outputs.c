@@ -33,7 +33,7 @@ void test_parse_outputs_empty() {
 void test_parse_outputs() {
   char const *const json_res =
       "{\"outputs\":["
-      // extended output
+      // basic output
       "{\"type\":3,\"amount\":1000000,\"nativeTokens\":[{\"id\":"
       "\"08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\","
       "\"amount\":\"93847598347598347598347598\"},{\"id\":"
@@ -58,9 +58,11 @@ void test_parse_outputs() {
       "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
       "{\"type\":5,\"address\":{\"type\":16,\"nftId\":\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
       "\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":1,\"address\":{\"type\":0,"
-      "\"pubKeyHash\":\"2258255e7cf927a4833f457433f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,"
-      "\"data\":\"89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b\"}]},"
+      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,"
+      "\"data\":\"89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b\"}],\"immutableFeatureBlocks\":[{"
+      "\"type\":1,\"address\":{\"type\":0,"
+      "\"pubKeyHash\":\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
+      "\"immutableMetadataTest_immutableMetadataTest_immutableMetadataTest_ImmutableMetadataTest\"}]},"
       // foundry output
       "{\"type\":5,\"amount\":1000000,\"nativeTokens\":[{\"id\":"
       "\"08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\",\"amount\":"
@@ -105,9 +107,9 @@ void test_parse_outputs() {
 
   TEST_ASSERT_EQUAL_UINT16(4, utxo_outputs_count(output_list));
 
-  // check extended output
+  // check basic output
   utxo_output_t *output = utxo_outputs_get(output_list, 0);
-  TEST_ASSERT_EQUAL_UINT8(OUTPUT_EXTENDED, output->output_type);
+  TEST_ASSERT_EQUAL_UINT8(OUTPUT_BASIC, output->output_type);
 
   // check alias output
   output = utxo_outputs_get(output_list, 1);
