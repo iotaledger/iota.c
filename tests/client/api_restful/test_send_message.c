@@ -14,6 +14,7 @@
 #include "core/address.h"
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/outputs/outputs.h"
+#include "core/models/outputs/storage_deposit.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/unlock_block.h"
@@ -220,8 +221,13 @@ void test_send_msg_tx_basic() {
   uint64_t network_id;
   iota_blake2b_sum((const uint8_t*)info->u.output_node_info->network_name,
                    strlen(info->u.output_node_info->network_name), network_id_hash, sizeof(network_id_hash));
-  res_node_info_free(info);
   memcpy(&network_id, network_id_hash, sizeof(network_id));
+
+  // create storage deposit configuration
+  byte_cost_config_t* storage_config =
+      storage_deposit_new_config(info->u.output_node_info->v_byte_cost, info->u.output_node_info->v_byte_factor_data,
+                                 info->u.output_node_info->v_byte_factor_key);
+  res_node_info_free(info);
 
   transaction_payload_t* tx = tx_payload_new(network_id);
   TEST_ASSERT_NOT_NULL(tx);
@@ -280,7 +286,7 @@ void test_send_msg_tx_basic() {
   cond_blk_list_add(&recv_cond, b);
   output_basic_t* recv_output = output_basic_new(send_amount, NULL, recv_cond, NULL);
   // add receiver output to tx payload
-  TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_BASIC, recv_output) == 0);
+  tx_essence_add_output(tx->essence, storage_config, OUTPUT_BASIC, recv_output);
   cond_blk_free(b);
   cond_blk_list_free(recv_cond);
   output_basic_free(recv_output);
@@ -294,7 +300,7 @@ void test_send_msg_tx_basic() {
     output_basic_t* remainder_output = output_basic_new(total_balance - send_amount, NULL, remainder_cond, NULL);
     TEST_ASSERT_NOT_NULL(remainder_output);
     // add receiver output to output list
-    TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_BASIC, remainder_output) == 0);
+    tx_essence_add_output(tx->essence, storage_config, OUTPUT_BASIC, remainder_output);
     cond_blk_free(b);
     cond_blk_list_free(remainder_cond);
     output_basic_free(remainder_output);
@@ -318,6 +324,7 @@ void test_send_msg_tx_basic() {
     printf("message ID: %s\n", send_msg_res.u.msg_id);
   }
 
+  free(storage_config);
   core_message_free(msg);
 }
 

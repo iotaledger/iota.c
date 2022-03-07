@@ -91,11 +91,13 @@ int tx_essence_add_input(transaction_essence_t* es, uint8_t type, byte_t tx_id[]
  * @brief Add an output element to the essence
  *
  * @param[in] es An essence object
+ * @param[in] storage_config Specifies the current parameters for the byte cost computation
  * @param[in] type An output type
  * @param[in] output Pointer to an output
  * @return int 0 on success
  */
-int tx_essence_add_output(transaction_essence_t* es, utxo_output_type_t type, void* output);
+int tx_essence_add_output(transaction_essence_t* es, byte_cost_config_t* storage_config, utxo_output_type_t type,
+                          void* output);
 
 /**
  * @brief Add a payload to essence

@@ -22,12 +22,6 @@ output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_t
     return NULL;
   }
 
-  // FIXME: amount must fulfill the Byte Cost Dust Protection
-  // if (amount < MIN_DUST_ALLOWANCE) {
-  //   printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
-  //   return NULL;
-  // }
-
   // max supply must be larger than zero
   uint256_t* max_supply_check = uint256_from_str("0");
   if (!max_supply_check) {

@@ -183,11 +183,11 @@ void test_message_with_tx_serialize() {
 
   // add basic output one
   output_basic_t* basic_output_one = create_output_basic_one();
-  TEST_ASSERT(tx_essence_add_output(essence, OUTPUT_BASIC, basic_output_one) == 0);
+  TEST_ASSERT(tx_essence_add_output(essence, NULL, OUTPUT_BASIC, basic_output_one) == 0);
 
   // add basic output two
   output_basic_t* basic_output_two = create_output_basic_two();
-  TEST_ASSERT(tx_essence_add_output(essence, OUTPUT_BASIC, basic_output_two) == 0);
+  TEST_ASSERT(tx_essence_add_output(essence, NULL, OUTPUT_BASIC, basic_output_two) == 0);
 
   // add tagged data payload
   char const* const hornet_faucet = "HORNET FAUCET";
