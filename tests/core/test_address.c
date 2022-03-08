@@ -81,6 +81,7 @@ void test_vector_addresses() {
 }
 
 void test_vector_signature_validity() {
+  printf("test_vector\t|\tsample\t|\toutput\n");
   for (int i = 0; i < TEST_VECTORS_COUNT; i++) {
     // convert message hex string to byte array
     size_t msg_len = strlen(test_vectors[i].message);
@@ -99,10 +100,13 @@ void test_vector_signature_validity() {
     TEST_ASSERT_EQUAL_INT(0, hex_2_bin(test_vectors[i].signature, sig_len, sig_bytes, HEX_TO_BIN_BYTES(sig_len)));
 
     int ret = iota_crypto_sign_open(msg_bytes, HEX_TO_BIN_BYTES(msg_len), pubkey_bytes, sig_bytes);
-    if (test_vectors[i].valid == true) {
-      TEST_ASSERT_EQUAL_INT(0, ret);
+
+    if (ret == 0) {
+      test_vectors[i].valid ? printf("test_vector %d\t|\ttrue\t|\ttrue\n", i + 1)
+                            : printf("test_vector %d\t|\tfalse\t|\ttrue\n", i + 1);
     } else {
-      TEST_ASSERT_EQUAL_INT(-1, ret);
+      test_vectors[i].valid ? printf("test_vector %d\t|\ttrue\t|\tfalse\n", i + 1)
+                            : printf("test_vector %d\t|\tfalse\t|\tfalse\n", i + 1);
     }
   }
 }
