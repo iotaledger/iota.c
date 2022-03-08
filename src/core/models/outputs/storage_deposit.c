@@ -1,18 +1,7 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include <inttypes.h>
-
-#include "core/models/inputs/utxo_input.h"
-#include "core/models/message.h"
 #include "core/models/outputs/storage_deposit.h"
-
-// Defines the rent of a single virtual byte denoted in IOTA tokens
-#define DEFAULT_BYTE_COST 500
-// Defines the multiplier for data fields
-#define DEFAULT_BYTE_COST_FACTOR_DATA 1
-// Defines the multiplier for fields which can act as keys for lookups
-#define DEFAULT_BYTE_COST_FACTOR_KEY 10
 
 static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_output_type_t output_type, void *output) {
   if (config == NULL || output == NULL) {
@@ -42,69 +31,26 @@ static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_out
       break;
   }
 
-  return config->v_byte_cost * weighted_bytes + config->v_byte_offset;
+  return config->v_byte_cost * (weighted_bytes + config->v_byte_offset);
 }
 
-static uint64_t minimum_storage_deposit(byte_cost_config_t *config, address_t *addr) {
+// Notice, this solution is a trade-off for memory optimization that we don't create the basic output and calculate byte
+// cost from it.
+static uint64_t basic_address_storage_deposit(byte_cost_config_t *config, address_t *addr) {
   if (config == NULL || addr == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return UINT64_MAX;
   }
 
-  // create unlock condition for address
-  cond_blk_list_t *unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t *unlock_addr = cond_blk_addr_new(addr);
-  if (!unlock_addr) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return UINT64_MAX;
-  }
-  if (cond_blk_list_add(&unlock_conds, unlock_addr) != 0) {
-    printf("[%s:%d] failed to add address unlock condition to a list\n", __func__, __LINE__);
-    cond_blk_free(unlock_addr);
-    return UINT64_MAX;
-  }
+  // output serialized length = output type + amount + native tokens + unlock count + block count
+  uint64_t output_serialized_len = 12;  // 1 + 8 + 1 + 1
+  // address unlock condition = unlock type + address serialized length
+  output_serialized_len += 1 + address_serialized_len(addr);
 
-  output_basic_t *output = output_basic_new(0, NULL, unlock_conds, NULL);
-  if (!output) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    cond_blk_list_free(unlock_conds);
-    return UINT64_MAX;
-  }
-
-  uint64_t output_deposit = calc_minimum_output_deposit(config, OUTPUT_BASIC, output);
-
-  cond_blk_free(unlock_addr);
-  cond_blk_list_free(unlock_conds);
-  output_basic_free(output);
-
-  return output_deposit;
+  return config->v_byte_cost * ((output_serialized_len * config->v_byte_factor_data) + config->v_byte_offset);
 }
 
-byte_cost_config_t *storage_deposit_new_config(uint16_t byte_cost, uint8_t byte_factor_data, uint8_t byte_factor_key) {
-  byte_cost_config_t *config = malloc(sizeof(byte_cost_config_t));
-  if (!config) {
-    printf("[%s:%d] can not create storage config\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  config->v_byte_cost = byte_cost;
-  config->v_byte_factor_data = byte_factor_data;
-  config->v_byte_factor_key = byte_factor_key;
-
-  // size of: output ID + message ID + confirmation milestone index + confirmation unix timestamp
-  config->v_byte_offset = (IOTA_OUTPUT_ID_BYTES * byte_factor_key) +    // output ID
-                          (IOTA_MESSAGE_ID_BYTES * byte_factor_data) +  // message ID
-                          (sizeof(uint32_t) * byte_factor_data) +       // confirmation milestone index
-                          (sizeof(uint32_t) * byte_factor_data);        // confirmation unix timestamp
-
-  return config;
-}
-
-byte_cost_config_t *storage_deposit_new_default_config() {
-  return storage_deposit_new_config(DEFAULT_BYTE_COST, DEFAULT_BYTE_COST_FACTOR_DATA, DEFAULT_BYTE_COST_FACTOR_KEY);
-}
-
-bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config, utxo_output_type_t output_type,
+bool storage_deposit_sufficient_output_deposit_check(byte_cost_config_t *config, utxo_output_type_t output_type,
                                                      void *output) {
   if (config == NULL || output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -153,8 +99,8 @@ bool storage_deposit_check_sufficient_output_deposit(byte_cost_config_t *config,
     }
 
     uint64_t min_storage_deposit_return =
-        minimum_storage_deposit(config, ((unlock_cond_storage_t *)(storage_return_cond->block))->addr);
-    if (((unlock_cond_storage_t *)(storage_return_cond->block))->amount < min_storage_deposit_return) {
+        basic_address_storage_deposit(config, ((unlock_cond_dust_t *)(dust_return_cond->block))->addr);
+    if (((unlock_cond_dust_t *)(dust_return_cond->block))->amount < min_storage_deposit_return) {
       printf("[%s:%d] minimum storage deposit return amount must be at least %fMi\n", __func__, __LINE__,
              min_storage_deposit_return / 1000000.0);
       return false;

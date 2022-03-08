@@ -6,7 +6,6 @@
 
 #include <stdint.h>
 
-#include "core/byte_cost_config.h"
 #include "core/models/outputs/output_alias.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/output_foundry.h"
@@ -80,13 +79,11 @@ void utxo_outputs_free(utxo_outputs_list_t *outputs);
  * @brief Add an output to an utxo output table
  *
  * @param[in] outputs A list of utxo outputs
- * @param[in] storage_config Specifies the current parameters for the byte cost computation
  * @param[in] type UTXO output type
  * @param[in] output Pointer to an output
  * @return int 0 on success, -1 on failure
  */
-int utxo_outputs_add(utxo_outputs_list_t **outputs, byte_cost_config_t *storage_config, utxo_output_type_t type,
-                     void *output);
+int utxo_outputs_add(utxo_outputs_list_t **outputs, utxo_output_type_t type, void *output);
 
 /**
  * @brief Get number of elements in an utxo output list
