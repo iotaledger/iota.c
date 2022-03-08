@@ -1,8 +1,8 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CORE_BYTE_COST_CONFIG_H__
-#define __CORE_BYTE_COST_CONFIG_H__
+#ifndef __CORE_MODELS_OUTPUTS_BYTE_COST_CONFIG_H__
+#define __CORE_MODELS_OUTPUTS_BYTE_COST_CONFIG_H__
 
 #include <stdint.h>
 
@@ -50,4 +50,4 @@ void byte_cost_config_free(byte_cost_config_t *config);
 }
 #endif
 
-#endif  // __CORE_BYTE_COST_CONFIG_H__
+#endif  // __CORE_MODELS_OUTPUTS_BYTE_COST_CONFIG_H__

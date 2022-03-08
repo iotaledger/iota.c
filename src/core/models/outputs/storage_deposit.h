@@ -19,8 +19,7 @@ extern "C" {
  * @param[in] output Pointer to an output
  * @return true if output has enough storage deposit amount
  */
-bool storage_deposit_sufficient_output_deposit_check(byte_cost_config_t *config, utxo_output_type_t output_type,
-                                                     void *output);
+bool storage_deposit_check(byte_cost_config_t *config, utxo_output_type_t output_type, void *output);
 
 #ifdef __cplusplus
 }

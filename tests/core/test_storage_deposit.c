@@ -13,11 +13,11 @@ void tearDown(void) {}
 
 void test_storage_deposit_check_sufficient_output_deposit_null_parameters() {
   byte_cost_config_t config;
-  bool result = storage_deposit_sufficient_output_deposit_check(&config, OUTPUT_BASIC, NULL);
+  bool result = storage_deposit_check(&config, OUTPUT_BASIC, NULL);
   TEST_ASSERT_FALSE(result);
 
   output_basic_t output;
-  result = storage_deposit_sufficient_output_deposit_check(NULL, OUTPUT_BASIC, &output);
+  result = storage_deposit_check(NULL, OUTPUT_BASIC, &output);
   TEST_ASSERT_FALSE(result);
 }
 
@@ -25,13 +25,13 @@ void test_storage_deposit_check_sufficient_output_deposit_unsupported_type() {
   byte_cost_config_t config;
   output_basic_t output;
 
-  bool result = storage_deposit_sufficient_output_deposit_check(&config, OUTPUT_SINGLE_OUTPUT, &output);
+  bool result = storage_deposit_check(&config, OUTPUT_SINGLE_OUTPUT, &output);
   TEST_ASSERT_FALSE(result);
 
-  result = storage_deposit_sufficient_output_deposit_check(&config, OUTPUT_DUST_ALLOWANCE, &output);
+  result = storage_deposit_check(&config, OUTPUT_DUST_ALLOWANCE, &output);
   TEST_ASSERT_FALSE(result);
 
-  result = storage_deposit_sufficient_output_deposit_check(&config, OUTPUT_TREASURY, &output);
+  result = storage_deposit_check(&config, OUTPUT_TREASURY, &output);
   TEST_ASSERT_FALSE(result);
 }
 
@@ -56,7 +56,7 @@ void test_storage_deposit_check_sufficient_output_deposit() {
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
-  bool result = storage_deposit_sufficient_output_deposit_check(config, OUTPUT_BASIC, output);
+  bool result = storage_deposit_check(config, OUTPUT_BASIC, output);
   TEST_ASSERT_TRUE(result);
 
   byte_cost_config_free(config);
@@ -87,7 +87,7 @@ void test_storage_deposit_check_sufficient_output_deposit_native_tokens_sent() {
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
-  bool result = storage_deposit_sufficient_output_deposit_check(config, OUTPUT_BASIC, output);
+  bool result = storage_deposit_check(config, OUTPUT_BASIC, output);
   TEST_ASSERT_TRUE(result);
 
   byte_cost_config_free(config);
@@ -112,7 +112,7 @@ void test_storage_deposit_check_sufficient_output_amount_too_low() {
 
   output_basic_t* output = output_basic_new(212999, NULL, unlock_conds, NULL);
 
-  bool result = storage_deposit_sufficient_output_deposit_check(config, OUTPUT_BASIC, output);
+  bool result = storage_deposit_check(config, OUTPUT_BASIC, output);
   TEST_ASSERT_FALSE(result);
 
   byte_cost_config_free(config);
@@ -141,7 +141,7 @@ void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_low
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
-  bool result = storage_deposit_sufficient_output_deposit_check(config, OUTPUT_BASIC, output);
+  bool result = storage_deposit_check(config, OUTPUT_BASIC, output);
   TEST_ASSERT_FALSE(result);
 
   byte_cost_config_free(config);
@@ -172,7 +172,7 @@ void test_storage_deposit_check_sufficient_output_not_microtransaction() {
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
-  bool result = storage_deposit_sufficient_output_deposit_check(config, OUTPUT_BASIC, output);
+  bool result = storage_deposit_check(config, OUTPUT_BASIC, output);
   TEST_ASSERT_FALSE(result);
 
   byte_cost_config_free(config);
