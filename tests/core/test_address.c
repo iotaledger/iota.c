@@ -8,9 +8,7 @@
 
 #include "core/address.h"
 #include "core/utils/byte_buffer.h"
-#include "core/utils/macros.h"
 #include "crypto/iota_crypto.h"
-#include "test_vectors.h"
 #include "unity/unity.h"
 
 void setUp(void) {}
@@ -51,64 +49,6 @@ void test_ed25519_gen() {
   address_t from_bech32 = {};
   TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
   TEST_ASSERT(address_equal(&ed25519_addr, &from_bech32) == true);
-}
-
-void test_vector_addresses() {
-  for (int i = 0; i < TEST_VECTORS_COUNT; i++) {
-    byte_t vector_addr_byte[33] = {0};
-    TEST_ASSERT(hex_2_bin(test_vectors[i].address, 66, vector_addr_byte, 33) == 0);
-
-    // check if address type is ed25519
-    TEST_ASSERT(vector_addr_byte[0] == ADDRESS_TYPE_ED25519);
-
-    // deserialize address
-    address_t* ed25519_addr;
-    ed25519_addr = address_deserialize(vector_addr_byte, 33);
-
-    // convert to bech32
-    char bech32_str[65] = {};
-    TEST_ASSERT(address_to_bech32(ed25519_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
-
-    TEST_ASSERT(str_start_with("iota1q", bech32_str) == true);
-
-    // bech32 to address object
-    address_t from_bech32 = {};
-    TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
-    TEST_ASSERT(address_equal(ed25519_addr, &from_bech32) == true);
-
-    free(ed25519_addr);
-  }
-}
-
-void test_vector_signature_validity() {
-  printf("test_vector\t|\tsample\t|\toutput\n");
-  for (int i = 0; i < TEST_VECTORS_COUNT; i++) {
-    // convert message hex string to byte array
-    size_t msg_len = strlen(test_vectors[i].message);
-    byte_t msg_bytes[HEX_TO_BIN_BYTES(msg_len)];
-    TEST_ASSERT_EQUAL_INT(0, hex_2_bin(test_vectors[i].message, msg_len, msg_bytes, HEX_TO_BIN_BYTES(msg_len)));
-
-    // convert pubkey hex string to byte array
-    size_t pubkey_len = strlen(test_vectors[i].pub_key);
-    byte_t pubkey_bytes[HEX_TO_BIN_BYTES(pubkey_len)];
-    TEST_ASSERT_EQUAL_INT(0,
-                          hex_2_bin(test_vectors[i].pub_key, pubkey_len, pubkey_bytes, HEX_TO_BIN_BYTES(pubkey_len)));
-
-    // convert pubkey hex string to byte array
-    size_t sig_len = strlen(test_vectors[i].signature);
-    byte_t sig_bytes[HEX_TO_BIN_BYTES(sig_len)];
-    TEST_ASSERT_EQUAL_INT(0, hex_2_bin(test_vectors[i].signature, sig_len, sig_bytes, HEX_TO_BIN_BYTES(sig_len)));
-
-    int ret = iota_crypto_sign_open(msg_bytes, HEX_TO_BIN_BYTES(msg_len), pubkey_bytes, sig_bytes);
-
-    if (ret == 0) {
-      test_vectors[i].valid ? printf("test_vector %d\t|\ttrue\t|\ttrue\n", i + 1)
-                            : printf("test_vector %d\t|\tfalse\t|\ttrue\n", i + 1);
-    } else {
-      test_vectors[i].valid ? printf("test_vector %d\t|\ttrue\t|\tfalse\n", i + 1)
-                            : printf("test_vector %d\t|\tfalse\t|\tfalse\n", i + 1);
-    }
-  }
 }
 
 void test_alias_gen() {
@@ -215,8 +155,6 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_ed25519_gen);
-  RUN_TEST(test_vector_addresses);
-  RUN_TEST(test_vector_signature_validity);
   RUN_TEST(test_alias_gen);
   RUN_TEST(test_nft_gen);
   RUN_TEST(test_serializer);

@@ -91,4 +91,12 @@ static test_vectors_t test_vectors[] = {{"008f5a6fdcfef8989fb88312cbc956ccc54dce
                                          "9fc476f91d3f3f89b03984d8068dcf1bb7dfc6637b45450ac04",
                                          true}};
 
+// Excpected signature validity for the above test vectors when tested with ed25519_donna library
+static bool test_vectors_ed25519_donna_validity[TEST_VECTORS_COUNT] = {true, true,  true,  true,  false, false,
+                                                                       true, false, false, false, false, true};
+
+// Excpected signature validity for the above test vectors when tested with libsodium library
+static bool test_vectors_libsodium_validity[TEST_VECTORS_COUNT] = {false, false, false, false, false, false,
+                                                                   false, false, false, false, false, false};
+
 #endif

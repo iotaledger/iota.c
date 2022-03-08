@@ -7,7 +7,10 @@
 #include <unistd.h>
 
 #include "blake2b_data.h"
+#include "core/utils/byte_buffer.h"
+#include "core/utils/macros.h"
 #include "crypto/iota_crypto.h"
+#include "test_vectors.h"
 #include "unity/unity.h"
 
 #include "pbkdf2_vectors.h"
@@ -246,6 +249,37 @@ void test_pbkdf2_hmac_sha512() {
   }
 }
 
+void test_vector_signature_validity() {
+  printf("test_vector\t|\tsample\t|\toutput\n");
+  for (int i = 0; i < TEST_VECTORS_COUNT; i++) {
+    // convert message hex string to byte array
+    size_t msg_len = strlen(test_vectors[i].message);
+    byte_t msg_bytes[HEX_TO_BIN_BYTES(msg_len)];
+    TEST_ASSERT_EQUAL_INT(0, hex_2_bin(test_vectors[i].message, msg_len, msg_bytes, HEX_TO_BIN_BYTES(msg_len)));
+
+    // convert pubkey hex string to byte array
+    size_t pubkey_len = strlen(test_vectors[i].pub_key);
+    byte_t pubkey_bytes[HEX_TO_BIN_BYTES(pubkey_len)];
+    TEST_ASSERT_EQUAL_INT(0,
+                          hex_2_bin(test_vectors[i].pub_key, pubkey_len, pubkey_bytes, HEX_TO_BIN_BYTES(pubkey_len)));
+
+    // convert pubkey hex string to byte array
+    size_t sig_len = strlen(test_vectors[i].signature);
+    byte_t sig_bytes[HEX_TO_BIN_BYTES(sig_len)];
+    TEST_ASSERT_EQUAL_INT(0, hex_2_bin(test_vectors[i].signature, sig_len, sig_bytes, HEX_TO_BIN_BYTES(sig_len)));
+
+    bool is_valid =
+        iota_crypto_sign_open(msg_bytes, HEX_TO_BIN_BYTES(msg_len), pubkey_bytes, sig_bytes) == 0 ? true : false;
+
+// Check if the signature validity is matching with the expected results
+#if defined(CRYPTO_USE_SODIUM)
+    TEST_ASSERT(is_valid == test_vectors_libsodium_validity[i]);
+#elif defined(CRYPTO_USE_OPENSSL)
+    TEST_ASSERT(is_valid == test_vectors_ed25519_donna_validity[i]);
+#endif
+  }
+}
+
 int main() {
   UNITY_BEGIN();
 
@@ -254,6 +288,7 @@ int main() {
   RUN_TEST(test_ed25519_signature);
   RUN_TEST(test_sha);
   RUN_TEST(test_pbkdf2_hmac_sha512);
+  RUN_TEST(test_vector_signature_validity);
 
   return UNITY_END();
 }
