@@ -29,6 +29,9 @@ static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_out
     case OUTPUT_NFT:
       weighted_bytes = output_nft_serialize_len(output) * config->v_byte_factor_data;
       break;
+    default:
+      printf("[%s:%d] unknown output type\n", __func__, __LINE__);
+      return UINT64_MAX;
   }
 
   return config->v_byte_cost * (weighted_bytes + config->v_byte_offset);
@@ -83,6 +86,9 @@ bool storage_deposit_sufficient_output_deposit_check(byte_cost_config_t *config,
       amount = ((output_nft_t *)output)->amount;
       dust_return_cond = cond_blk_list_get_type(((output_nft_t *)output)->unlock_conditions, UNLOCK_COND_DUST);
       break;
+    default:
+      printf("[%s:%d] unknown output type\n", __func__, __LINE__);
+      return false;
   }
 
   if (amount < min_storage_deposit) {
