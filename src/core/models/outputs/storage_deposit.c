@@ -99,8 +99,8 @@ bool storage_deposit_sufficient_output_deposit_check(byte_cost_config_t *config,
     }
 
     uint64_t min_storage_deposit_return =
-        basic_address_storage_deposit(config, ((unlock_cond_dust_t *)(dust_return_cond->block))->addr);
-    if (((unlock_cond_dust_t *)(dust_return_cond->block))->amount < min_storage_deposit_return) {
+        basic_address_storage_deposit(config, ((unlock_cond_storage_t *)(storage_return_cond->block))->addr);
+    if (((unlock_cond_storage_t *)(storage_return_cond->block))->amount < min_storage_deposit_return) {
       printf("[%s:%d] minimum storage deposit return amount must be at least %fMi\n", __func__, __LINE__,
              min_storage_deposit_return / 1000000.0);
       return false;
