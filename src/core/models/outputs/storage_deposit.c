@@ -46,15 +46,14 @@ static uint64_t basic_address_storage_deposit(byte_cost_config_t *config, addres
   }
 
   // output serialized length = output type + amount + native tokens + unlock count + block count
-  uint64_t output_serialized_len = 12;  // 1 + 8 + 1 + 1
+  uint64_t output_serialized_len = 12;  // 1 + 8 + 1 + 1 + 1
   // address unlock condition = unlock type + address serialized length
   output_serialized_len += 1 + address_serialized_len(addr);
 
   return config->v_byte_cost * ((output_serialized_len * config->v_byte_factor_data) + config->v_byte_offset);
 }
 
-bool storage_deposit_sufficient_output_deposit_check(byte_cost_config_t *config, utxo_output_type_t output_type,
-                                                     void *output) {
+bool storage_deposit_check(byte_cost_config_t *config, utxo_output_type_t output_type, void *output) {
   if (config == NULL || output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return false;
