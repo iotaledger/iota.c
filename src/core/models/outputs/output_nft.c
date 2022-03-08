@@ -23,12 +23,6 @@ output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nf
     return NULL;
   }
 
-  // FIXME: Amount field must fulfill the dust protection requirements and must not be 0
-  // if (amount < MIN_DUST_ALLOWANCE) {
-  //   printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
-  //   return NULL;
-  // }
-
   // validate unlock condition parameter
   if (cond_blk_list_len(cond_blocks) > MAX_NFT_CONDITION_BLOCKS_COUNT) {
     printf("[%s:%d] there should be at most %d condition blocks\n", __func__, __LINE__, MAX_NFT_CONDITION_BLOCKS_COUNT);
