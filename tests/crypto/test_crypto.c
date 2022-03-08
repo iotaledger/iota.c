@@ -250,7 +250,6 @@ void test_pbkdf2_hmac_sha512() {
 }
 
 void test_vector_signature_validity() {
-  printf("test_vector\t|\tsample\t|\toutput\n");
   for (int i = 0; i < TEST_VECTORS_COUNT; i++) {
     // convert message hex string to byte array
     size_t msg_len = strlen(test_vectors[i].message);
