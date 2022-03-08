@@ -107,7 +107,9 @@ void test_parse_basic_output_wrong_unlock_condition() {
 
   output_basic_t *basic_output = NULL;
   int result = json_output_basic_deserialize(json_obj, &basic_output);
-  TEST_ASSERT_EQUAL_INT(-1, result);
+  TEST_ASSERT_EQUAL_INT(0, result);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_basic_syntactic(basic_output));
 
   cJSON_Delete(json_obj);
   output_basic_free(basic_output);

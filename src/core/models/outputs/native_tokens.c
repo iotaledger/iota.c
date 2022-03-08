@@ -57,16 +57,19 @@ int native_tokens_add(native_tokens_list_t **nt, byte_t token_id[], uint256_t co
     return -1;
   }
 
+  // Amount of native token must not be zero
   if (amount->bits[0] == 0 && amount->bits[1] == 0 && amount->bits[2] == 0 && amount->bits[3] == 0) {
     printf("[%s:%d] Amount of Native Token must not be 0\n", __func__, __LINE__);
     return -1;
   }
 
+  // Native token count must not greater than Max Native Tokens Count
   if (native_tokens_count(*nt) >= NATIVE_TOKENS_MAX_COUNT) {
     printf("[%s:%d] Native Tokens count must be <= %d\n", __func__, __LINE__, NATIVE_TOKENS_MAX_COUNT);
     return -1;
   }
 
+  // Each Native Token must be unique in the set of Native Tokens based on its Token ID, no duplicates are allowed
   native_token_t *token = native_tokens_find_by_id(*nt, token_id);
   if (token) {
     printf("[%s:%d] Native Token already exists\n", __func__, __LINE__);
@@ -213,6 +216,12 @@ native_tokens_list_t *native_tokens_clone(native_tokens_list_t *const nt) {
   }
 
   return new_native_tokens;
+}
+
+bool native_tokens_syntactic(native_tokens_list_t **nt) {
+  // Native token must be lexicographically sorted based on Token ID
+  LL_SORT(*nt, token_id_sort);
+  return true;
 }
 
 void native_tokens_print(native_tokens_list_t *nt, uint8_t indentation) {

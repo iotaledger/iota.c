@@ -6,7 +6,7 @@
 
 #include "core/address.h"
 #include "core/models/outputs/output_basic.h"
-#include "core/models/outputs/outputs.h"
+#include "core/models/payloads/transaction.h"
 #include "core/types.h"
 
 // maximum number of unlock condition blocks
@@ -19,38 +19,6 @@ output_basic_t* output_basic_new(uint64_t amount, native_tokens_list_t* tokens, 
   if (cond_blocks == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
-  }
-
-  // validate unlock condition parameter
-  // It must hold true that 1 ≤ Unlock Conditions Count ≤ 4
-  if (cond_blk_list_len(cond_blocks) == 0 || cond_blk_list_len(cond_blocks) > MAX_BASIC_CONDITION_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d condition blocks amd atleast 1\n", __func__, __LINE__,
-           MAX_BASIC_CONDITION_BLOCKS_COUNT);
-    return NULL;
-  } else {
-    // must no contain UNLOCK_COND_STATE or UNLOCK_COND_GOVERNOR
-    if (cond_blk_list_get_type(cond_blocks, UNLOCK_COND_STATE) ||
-        cond_blk_list_get_type(cond_blocks, UNLOCK_COND_GOVERNOR)) {
-      printf("[%s:%d] State Controller/Governor conditions are not allowed\n", __func__, __LINE__);
-      return NULL;
-    }
-    // Address Unlock Condition must be present.
-    if (!cond_blk_list_get_type(cond_blocks, UNLOCK_COND_ADDRESS)) {
-      printf("[%s:%d] Address Unlock Condition must be present\n", __func__, __LINE__);
-      return NULL;
-    }
-  }
-
-  // validate feature block parameter
-  if (feat_blk_list_len(feat_blocks) > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_BASIC_FEATURE_BLOCKS_COUNT);
-    return NULL;
-  } else {
-    // must no contain FEAT_ISSUER_BLOCK
-    if (feat_blk_list_get_type(feat_blocks, FEAT_ISSUER_BLOCK)) {
-      printf("[%s:%d] Issuer feature block is not allowed\n", __func__, __LINE__);
-      return NULL;
-    }
   }
 
   // create a basic output object
@@ -285,4 +253,68 @@ void output_basic_print(output_basic_t* output, uint8_t indentation) {
   feat_blk_list_print(output->feature_blocks, false, indentation + 1);
 
   printf("%s]\n", PRINT_INDENTATION(indentation));
+}
+
+bool output_basic_syntactic(output_basic_t* o) {
+  // amount must <= Max IOTA Supply
+  if (o->amount > MAX_IOTA_SUPPLY) {
+    printf("[%s:%d] amount bigger than MAX_IOTA_SUPPLY\n", __func__, __LINE__);
+    return false;
+  }
+
+  // amount must fulfill the storage protection and must not be zero
+  // TODO
+
+  // Native token count must not greater than Max Native Tokens Count
+  // Native token must be lexicographically sorted based on Token ID
+  // Each Native Token must be unique in the set of Native Tokens based on its Token ID, no duplicates are allowed
+  // Amount of native token must not be zero
+  if (!native_tokens_syntactic(&o->native_tokens)) {
+    return false;
+  }
+
+  // 1<= unlock conditions count <=4
+  if (cond_blk_list_len(o->unlock_conditions) == 0 ||
+      cond_blk_list_len(o->unlock_conditions) > MAX_BASIC_CONDITION_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid unlock condition count\n", __func__, __LINE__);
+    return false;
+  }
+
+  // Unlock Condition types:
+  // - Address Unlock (mandatory)
+  // - Storage Deposit Return Unlock
+  // - Timelock Unlock
+  // - Expiration Unlock
+  if (cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_ADDRESS) == NULL) {
+    printf("[%s:%d] Address unlock condition must be present\n", __func__, __LINE__);
+    return false;
+  }
+  if (cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_STATE) ||
+      cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_GOVERNOR)) {
+    printf("[%s:%d] invalid unlock condition type\n", __func__, __LINE__);
+    return false;
+  }
+
+  // Unlock Condition must be sorted in ascending order based on their type
+  cond_blk_list_sort(&o->unlock_conditions);
+
+  // 0<= feature block count <= 3
+  if (feat_blk_list_len(o->feature_blocks) > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
+    return false;
+  }
+
+  // feature block types
+  // - Sender
+  // - Metadata
+  // - Tag
+  if (feat_blk_list_get_type(o->feature_blocks, FEAT_ISSUER_BLOCK)) {
+    printf("[%s:%d] invalid feature block type\n", __func__, __LINE__);
+    return false;
+  }
+
+  // Blocks must stored in ascending order based on their Block Type
+  feat_blk_list_sort(&o->feature_blocks);
+
+  return true;
 }

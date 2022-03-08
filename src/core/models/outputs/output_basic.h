@@ -89,6 +89,15 @@ output_basic_t* output_basic_clone(output_basic_t const* const output);
  */
 void output_basic_print(output_basic_t* output, uint8_t indentation);
 
+/**
+ * @brief Basic Output syntactic validation
+ *
+ * @param[in] o A Basic output
+ * @return true Valid
+ * @return false Invalid
+ */
+bool output_basic_syntactic(output_basic_t* o);
+
 #ifdef __cplusplus
 }
 #endif
