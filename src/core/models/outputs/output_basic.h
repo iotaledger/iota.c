@@ -92,11 +92,11 @@ void output_basic_print(output_basic_t* output, uint8_t indentation);
 /**
  * @brief Basic Output syntactic validation
  *
- * @param[in] o A Basic output
+ * @param[in] output A Basic output
  * @return true Valid
  * @return false Invalid
  */
-bool output_basic_syntactic(output_basic_t* o);
+bool output_basic_syntactic(output_basic_t* output);
 
 #ifdef __cplusplus
 }

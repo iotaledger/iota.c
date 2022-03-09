@@ -14,6 +14,8 @@
 
 #define UTXO_OUTPUT_MAX_COUNT 127
 
+static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
+
 /**
  * @brief UTXO output types
  *

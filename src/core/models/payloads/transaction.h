@@ -13,8 +13,6 @@
 #include "core/models/unlock_block.h"
 #include "core/types.h"
 
-static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
-
 // have one transaction essence only which is 0
 #define TRANSACTION_ESSENCE_TYPE 0
 

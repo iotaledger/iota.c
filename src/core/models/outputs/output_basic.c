@@ -4,10 +4,7 @@
 #include <inttypes.h>
 #include <string.h>
 
-#include "core/address.h"
-#include "core/models/outputs/output_basic.h"
-#include "core/models/payloads/transaction.h"
-#include "core/types.h"
+#include "core/models/outputs/outputs.h"
 
 // maximum number of unlock condition blocks
 #define MAX_BASIC_CONDITION_BLOCKS_COUNT 4
@@ -255,9 +252,9 @@ void output_basic_print(output_basic_t* output, uint8_t indentation) {
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }
 
-bool output_basic_syntactic(output_basic_t* o) {
+bool output_basic_syntactic(output_basic_t* output) {
   // amount must <= Max IOTA Supply
-  if (o->amount > MAX_IOTA_SUPPLY) {
+  if (output->amount > MAX_IOTA_SUPPLY) {
     printf("[%s:%d] amount bigger than MAX_IOTA_SUPPLY\n", __func__, __LINE__);
     return false;
   }
@@ -269,13 +266,13 @@ bool output_basic_syntactic(output_basic_t* o) {
   // Native token must be lexicographically sorted based on Token ID
   // Each Native Token must be unique in the set of Native Tokens based on its Token ID, no duplicates are allowed
   // Amount of native token must not be zero
-  if (!native_tokens_syntactic(&o->native_tokens)) {
+  if (!native_tokens_syntactic(&output->native_tokens)) {
     return false;
   }
 
   // 1<= unlock conditions count <=4
-  if (cond_blk_list_len(o->unlock_conditions) == 0 ||
-      cond_blk_list_len(o->unlock_conditions) > MAX_BASIC_CONDITION_BLOCKS_COUNT) {
+  if (cond_blk_list_len(output->unlock_conditions) == 0 ||
+      cond_blk_list_len(output->unlock_conditions) > MAX_BASIC_CONDITION_BLOCKS_COUNT) {
     printf("[%s:%d] invalid unlock condition count\n", __func__, __LINE__);
     return false;
   }
@@ -285,21 +282,21 @@ bool output_basic_syntactic(output_basic_t* o) {
   // - Storage Deposit Return Unlock
   // - Timelock Unlock
   // - Expiration Unlock
-  if (cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_ADDRESS) == NULL) {
+  if (cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS) == NULL) {
     printf("[%s:%d] Address unlock condition must be present\n", __func__, __LINE__);
     return false;
   }
-  if (cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_STATE) ||
-      cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_GOVERNOR)) {
+  if (cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE) ||
+      cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_GOVERNOR)) {
     printf("[%s:%d] invalid unlock condition type\n", __func__, __LINE__);
     return false;
   }
 
   // Unlock Condition must be sorted in ascending order based on their type
-  cond_blk_list_sort(&o->unlock_conditions);
+  cond_blk_list_sort(&output->unlock_conditions);
 
   // 0<= feature block count <= 3
-  if (feat_blk_list_len(o->feature_blocks) > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
+  if (feat_blk_list_len(output->feature_blocks) > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
     printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
     return false;
   }
@@ -308,13 +305,13 @@ bool output_basic_syntactic(output_basic_t* o) {
   // - Sender
   // - Metadata
   // - Tag
-  if (feat_blk_list_get_type(o->feature_blocks, FEAT_ISSUER_BLOCK)) {
+  if (feat_blk_list_get_type(output->feature_blocks, FEAT_ISSUER_BLOCK)) {
     printf("[%s:%d] invalid feature block type\n", __func__, __LINE__);
     return false;
   }
 
   // Blocks must stored in ascending order based on their Block Type
-  feat_blk_list_sort(&o->feature_blocks);
+  feat_blk_list_sort(&output->feature_blocks);
 
   return true;
 }

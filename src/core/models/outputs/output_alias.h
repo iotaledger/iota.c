@@ -107,4 +107,13 @@ output_alias_t* output_alias_clone(output_alias_t const* const output);
  */
 void output_alias_print(output_alias_t* output, uint8_t indentation);
 
+/**
+ * @brief Alias Output syntactic validation
+ *
+ * @param[in] output An Alias output object
+ * @return true Valid
+ * @return false Invalid
+ */
+bool output_alias_syntactic(output_alias_t* output);
+
 #endif
