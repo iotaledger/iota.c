@@ -80,7 +80,7 @@ err:
   },
   "amount": 123456
 */
-int json_cond_blk_dust_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
+int json_cond_blk_storage_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
   if (unlock_cond_obj == NULL || blk_list == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -101,7 +101,7 @@ int json_cond_blk_dust_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk
   }
 
   // add new unlock condition into a list
-  unlock_cond_blk_t *unlock_blk = cond_blk_dust_new(&address, amount);
+  unlock_cond_blk_t *unlock_blk = cond_blk_storage_new(&address, amount);
   if (cond_blk_list_add(blk_list, unlock_blk) != 0) {
     printf("[%s:%d] can not add new unlock condition into a list\n", __func__, __LINE__);
     cond_blk_free(unlock_blk);
@@ -112,24 +112,24 @@ int json_cond_blk_dust_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk
   return 0;
 }
 
-static cJSON *json_cond_blk_dust_serialize(unlock_cond_dust_t *dust) {
-  if (!dust) {
+static cJSON *json_cond_blk_storage_serialize(unlock_cond_storage_t *storage) {
+  if (!storage) {
     printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
     return NULL;
   }
 
-  cJSON *dust_obj = cJSON_CreateObject();
-  if (dust_obj) {
+  cJSON *storage_obj = cJSON_CreateObject();
+  if (storage_obj) {
     // add type
-    if (!cJSON_AddNumberToObject(dust_obj, JSON_KEY_TYPE, UNLOCK_COND_DUST)) {
+    if (!cJSON_AddNumberToObject(storage_obj, JSON_KEY_TYPE, UNLOCK_COND_STORAGE)) {
       printf("[%s:%d] add type into block error\n", __func__, __LINE__);
       goto err;
     }
 
     // add return address
-    cJSON *addr = json_parser_common_address_serialize(dust->addr);
+    cJSON *addr = json_parser_common_address_serialize(storage->addr);
     if (addr) {
-      if (!cJSON_AddItemToObject(dust_obj, JSON_KEY_ADDR, addr)) {
+      if (!cJSON_AddItemToObject(storage_obj, JSON_KEY_ADDR, addr)) {
         printf("[%s:%d] add return address into block error\n", __func__, __LINE__);
         cJSON_Delete(addr);
         goto err;
@@ -140,15 +140,15 @@ static cJSON *json_cond_blk_dust_serialize(unlock_cond_dust_t *dust) {
     }
 
     // add return amount
-    if (!cJSON_AddNumberToObject(dust_obj, JSON_KEY_AMOUNT, dust->amount)) {
+    if (!cJSON_AddNumberToObject(storage_obj, JSON_KEY_AMOUNT, storage->amount)) {
       printf("[%s:%d] add return amount into block error\n", __func__, __LINE__);
       goto err;
     }
   }
-  return dust_obj;
+  return storage_obj;
 
 err:
-  cJSON_Delete(dust_obj);
+  cJSON_Delete(storage_obj);
   return NULL;
 }
 
@@ -467,9 +467,9 @@ int json_cond_blk_list_deserialize(cJSON *output_obj, cond_blk_list_t **blk_list
           return -1;
         }
         break;
-      case UNLOCK_COND_DUST:
-        if (json_cond_blk_dust_deserialize(elm, blk_list) != 0) {
-          printf("[%s:%d] parsing dust deposit return unlock condition failed\n", __func__, __LINE__);
+      case UNLOCK_COND_STORAGE:
+        if (json_cond_blk_storage_deserialize(elm, blk_list) != 0) {
+          printf("[%s:%d] parsing storage deposit return unlock condition failed\n", __func__, __LINE__);
           return -1;
         }
         break;
@@ -522,8 +522,8 @@ cJSON *json_cond_blk_list_serialize(cond_blk_list_t *blk_list) {
         case UNLOCK_COND_ADDRESS:
           item = json_cond_blk_addr_serialize(elm->blk);
           break;
-        case UNLOCK_COND_DUST:
-          item = json_cond_blk_dust_serialize((unlock_cond_dust_t *)elm->blk);
+        case UNLOCK_COND_STORAGE:
+          item = json_cond_blk_storage_serialize((unlock_cond_storage_t *)elm->blk);
           break;
         case UNLOCK_COND_TIMELOCK:
           item = json_cond_blk_timelock_serialize((unlock_cond_timelock_t *)elm->blk);
