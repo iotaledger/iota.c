@@ -10,7 +10,5 @@
 #define BIN_TO_HEX_STR_BYTES(x) (BIN_TO_HEX_BYTES(x) + 1)
 // Get the string bytes of the given binary
 #define BIN_TO_STR_BYTES(x) (x + 1)
-// Get the binary bytes of the given hex string
-#define HEX_TO_BIN_BYTES(x) (x / 2)
 
 #endif
