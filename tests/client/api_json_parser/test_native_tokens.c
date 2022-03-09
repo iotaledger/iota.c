@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "client/api/json_parser/native_tokens.h"
+#include "client/api/json_parser/outputs/native_tokens.h"
 #include "core/utils/macros.h"
 #include "unity/unity.h"
 

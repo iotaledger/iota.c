@@ -3,9 +3,8 @@
 
 #include <stdio.h>
 
-#include "client/api/json_parser/output_nft.h"
+#include "client/api/json_parser/outputs/output_nft.h"
 #include "core/models/outputs/output_nft.h"
-#include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
 #include "unity/unity.h"
 

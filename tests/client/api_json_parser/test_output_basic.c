@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "client/api/json_parser/output_basic.h"
+#include "client/api/json_parser/outputs/output_basic.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"

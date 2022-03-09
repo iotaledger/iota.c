@@ -1,10 +1,10 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/json_parser/output_basic.h"
-#include "client/api/json_parser/feat_blocks.h"
-#include "client/api/json_parser/native_tokens.h"
-#include "client/api/json_parser/unlock_conditions.h"
+#include "client/api/json_parser/outputs/output_basic.h"
+#include "client/api/json_parser/outputs/feat_blocks.h"
+#include "client/api/json_parser/outputs/native_tokens.h"
+#include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "core/models/outputs/outputs.h"
 
 /*

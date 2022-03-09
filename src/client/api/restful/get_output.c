@@ -3,11 +3,10 @@
 
 #include <inttypes.h>
 
-#include "client/api/json_parser/feat_blocks.h"
 #include "client/api/json_parser/json_utils.h"
-#include "client/api/json_parser/native_tokens.h"
-#include "client/api/json_parser/unlock_conditions.h"
-
+#include "client/api/json_parser/outputs/feat_blocks.h"
+#include "client/api/json_parser/outputs/native_tokens.h"
+#include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "client/api/restful/get_output.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
