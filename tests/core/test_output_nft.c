@@ -47,9 +47,9 @@ void setUp(void) {
   amount3 = uint256_from_str("333333333");
   native_tokens_add(&native_tokens, token_id3, amount3);
 
-  // create random ED25519 address
-  test_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
+  // create random NFT address
+  test_addr.type = ADDRESS_TYPE_NFT;
+  iota_crypto_randombytes(test_addr.address, NFT_ID_BYTES);
   // create test unlock conditions
   unlock_addr = cond_blk_addr_new(&test_addr);
   unlock_storage = cond_blk_storage_new(&test_addr, unlock_storage_amount);
@@ -183,6 +183,9 @@ void test_output_nft() {
   immut_feat_block = feat_blk_list_get(output->immutable_blocks, 1);
   TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
   TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_nft_syntactic(output));
 
   // serialize NFT Output and validate it
   size_t output_nft_expected_len = output_nft_serialize_len(output);
@@ -358,6 +361,9 @@ void test_output_nft_without_native_tokens() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
   TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_nft_syntactic(output));
+
   // serialize NFT Output and validate it
   size_t output_nft_expected_len = output_nft_serialize_len(output);
   TEST_ASSERT(output_nft_expected_len != 0);
@@ -494,6 +500,9 @@ void test_output_nft_without_feature_blocks() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
   TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_nft_syntactic(output));
+
   // serialize NFT Output and validate it
   size_t output_nft_expected_len = output_nft_serialize_len(output);
   TEST_ASSERT(output_nft_expected_len != 0);
@@ -629,6 +638,9 @@ void test_output_nft_without_immutable_feature_blocks() {
   // no immutable feature blocks
   TEST_ASSERT_NULL(output->immutable_blocks);
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_nft_syntactic(output));
+
   // serialize NFT Output and validate it
   size_t output_nft_expected_len = output_nft_serialize_len(output);
   TEST_ASSERT(output_nft_expected_len != 0);
@@ -729,9 +741,14 @@ void test_output_nft_validation() {
   TEST_ASSERT_NULL(output);
 
   //=====Test address matches NFT ID=====
-  printf(
-      "FIXME : Test case for Address field of the Address Unlock Condition must not be the same as the NFT address "
-      "derived from NFT ID\n");
+  unlock_cond_blk_t* addr_unlock = cond_blk_list_get_type(unlock_conds, UNLOCK_COND_ADDRESS);
+  TEST_ASSERT_NOT_NULL(addr_unlock);
+  output = output_nft_new(123456789, native_tokens, ((address_t*)addr_unlock->block)->address, unlock_conds,
+                          feat_blocks, immut_feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_nft_syntactic(output));
+  output_nft_free(output);
 
   //=====Test NULL Unlock Block=====
   output = output_nft_new(123456789, native_tokens, nft_id, NULL, feat_blocks, immut_feat_blocks);
@@ -742,21 +759,30 @@ void test_output_nft_validation() {
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_state) == 0);
   output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
-  TEST_ASSERT_NULL(output);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_nft_syntactic(output));
+  output_nft_free(output);
 
   //=====Test unlock condition with governor unlock =====
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_gov) == 0);
   output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
-  TEST_ASSERT_NULL(output);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_nft_syntactic(output));
+  output_nft_free(output);
 
   //=====Test without address unlock condition=====
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
   output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
-  TEST_ASSERT_NULL(output);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_nft_syntactic(output));
+  output_nft_free(output);
 
   //=====Test maximum unlock blocks=====
   cond_blk_list_free(unlock_conds);
@@ -791,7 +817,6 @@ void test_output_nft_validation() {
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);
   feat_blk_list_free(immut_feat_blocks);
-  output_nft_free(output);
 }
 
 void test_output_nft_clone() {

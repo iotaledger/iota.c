@@ -473,13 +473,15 @@ bool output_alias_syntactic(output_alias_t* output) {
            MAX_ALIAS_FEATURE_BLOCKS_COUNT);
     return false;
   }
-  // feature block types
-  // - Sender
-  // - Metadata
-  if (feat_blk_list_get_type(output->feature_blocks, FEAT_ISSUER_BLOCK) ||
-      feat_blk_list_get_type(output->feature_blocks, FEAT_TAG_BLOCK)) {
-    printf("[%s:%d] Issuer and Tag blocks are not allowed\n", __func__, __LINE__);
-    return false;
+  if (feat_blk_list_len(output->feature_blocks) > 0) {
+    // feature block types
+    // - Sender
+    // - Metadata
+    if (feat_blk_list_get_type(output->feature_blocks, FEAT_ISSUER_BLOCK) ||
+        feat_blk_list_get_type(output->feature_blocks, FEAT_TAG_BLOCK)) {
+      printf("[%s:%d] Issuer and Tag blocks are not allowed\n", __func__, __LINE__);
+      return false;
+    }
   }
   // Blocks must stored in ascending order based on their Block Type
   feat_blk_list_sort(&output->feature_blocks);

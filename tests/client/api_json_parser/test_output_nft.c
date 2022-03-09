@@ -129,7 +129,10 @@ void test_parse_nft_output_wrong_unlock_condition() {
 
   output_nft_t *nft_output = NULL;
   int result = json_output_nft_deserialize(json_obj, &nft_output);
-  TEST_ASSERT_EQUAL_INT(-1, result);
+  TEST_ASSERT_EQUAL_INT(0, result);
+
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_nft_syntactic(nft_output));
 
   cJSON_Delete(json_obj);
   output_nft_free(nft_output);

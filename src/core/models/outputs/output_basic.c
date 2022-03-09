@@ -298,7 +298,7 @@ bool output_basic_syntactic(output_basic_t* output) {
 
   // 0<= feature block count <= 3
   if (feat_blk_list_len(output->feature_blocks) > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] feature block count must smaller than %s\n", __func__, __LINE__, MAX_BASIC_CONDITION_BLOCKS_COUNT);
+    printf("[%s:%d] feature block count must smaller than %d\n", __func__, __LINE__, MAX_BASIC_CONDITION_BLOCKS_COUNT);
     return false;
   }
 
