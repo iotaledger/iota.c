@@ -3,7 +3,6 @@
 
 #include "client/api/json_parser/outputs/native_tokens.h"
 #include "core/utils/macros.h"
-#include "uthash.h"
 
 /*
   "nativeTokens": [

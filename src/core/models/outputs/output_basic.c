@@ -7,7 +7,6 @@
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/outputs.h"
 #include "core/types.h"
-#include "utlist.h"
 
 // maximum number of unlock condition blocks
 #define MAX_BASIC_CONDITION_BLOCKS_COUNT 4

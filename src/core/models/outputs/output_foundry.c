@@ -5,7 +5,6 @@
 
 #include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/outputs.h"
-#include "utlist.h"
 
 output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_tokens_t* tokens, uint32_t serial_num,
                                      byte_t token_tag[], uint256_t* circ_supply, uint256_t* max_supply,
