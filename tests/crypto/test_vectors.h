@@ -96,7 +96,7 @@ static bool test_vectors_ed25519_donna_validity[TEST_VECTORS_COUNT] = {true, tru
                                                                        true, false, false, false, false, true};
 
 // Excpected signature validity for the above test vectors when tested with libsodium library
-static bool test_vectors_libsodium_validity[TEST_VECTORS_COUNT] = {false, false, false, false, false, false,
+static bool test_vectors_libsodium_validity[TEST_VECTORS_COUNT] = {false, false, false, true,  false, false,
                                                                    false, false, false, false, false, false};
 
 #endif

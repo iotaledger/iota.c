@@ -122,8 +122,11 @@ int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, ui
 
 int iota_crypto_sign_open(uint8_t msg[], size_t msg_len, uint8_t const pub_key[], uint8_t signature[]) {
 #if defined(CRYPTO_USE_SODIUM)
-  return crypto_sign_ed25519_open(msg, (unsigned long long *)&msg_len, signature,
-                                  (unsigned long long)ED_SIGNATURE_BYTES, pub_key);
+  uint8_t sm_buff[ED_SIGNATURE_BYTES + msg_len];
+  memcpy(sm_buff, signature, ED_SIGNATURE_BYTES);
+  memcpy(sm_buff + ED_SIGNATURE_BYTES, msg, msg_len);
+  return crypto_sign_ed25519_open(msg, (unsigned long long *)&msg_len, sm_buff,
+                                  (unsigned long long)ED_SIGNATURE_BYTES + msg_len, pub_key);
 #elif defined(CRYPTO_USE_ED25519_DONNA)
   return ed25519_sign_open(msg, msg_len, pub_key, signature);
 #else
