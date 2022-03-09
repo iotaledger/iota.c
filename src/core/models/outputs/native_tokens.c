@@ -6,7 +6,6 @@
 
 #include "core/models/outputs/native_tokens.h"
 
-#define NATIVE_TOKENS_MIN_COUNT 0
 #define NATIVE_TOKENS_MAX_COUNT 64
 
 // Native Tokens must be lexicographically sorted based on Token ID
@@ -18,7 +17,7 @@ native_tokens_list_t *native_tokens_new() { return NULL; }
 
 native_token_t *native_tokens_find_by_id(native_tokens_list_t *nt, byte_t id[]) {
   if (nt == NULL || id == NULL) {
-    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -145,10 +144,10 @@ size_t native_tokens_serialize(native_tokens_list_t **nt, byte_t buf[], size_t b
   memcpy(buf + offset, &count, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
-  native_tokens_list_t *elm;
   // sort Native Tokens in lexicographical order based on token ID
   LL_SORT(*nt, token_id_sort);
 
+  native_tokens_list_t *elm;
   LL_FOREACH(*nt, elm) {
     // ID
     memcpy(buf + offset, elm->token->token_id, NATIVE_TOKEN_ID_BYTES);
@@ -186,10 +185,12 @@ native_tokens_list_t *native_tokens_deserialize(byte_t buf[], size_t buf_len) {
   }
 
   for (uint8_t i = 0; i < tokens_count; i++) {
+    // ID
     byte_t token_id[NATIVE_TOKEN_ID_BYTES];
     memcpy(token_id, &buf[offset], NATIVE_TOKEN_ID_BYTES);
     offset += NATIVE_TOKEN_ID_BYTES;
 
+    // amount
     uint256_t amount;
     memcpy(&amount, &buf[offset], sizeof(uint256_t));
     offset += sizeof(uint256_t);
