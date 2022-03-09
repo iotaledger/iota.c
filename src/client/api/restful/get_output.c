@@ -48,7 +48,7 @@ static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
       goto end;
     }
 
-    native_tokens_t *tokens = native_tokens_new();
+    native_tokens_list_t *tokens = native_tokens_new();
     cond_blk_list_t *cond_blocks = cond_blk_list_new();
     feat_blk_list_t *feat_blocks = feat_blk_list_new();
     uint64_t amount = 0;
@@ -78,7 +78,7 @@ static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
     // create basic output
     tmp_output->output = output_basic_new(amount, tokens, cond_blocks, feat_blocks);
     if (tokens) {
-      native_tokens_free(&tokens);
+      native_tokens_free(tokens);
     }
     cond_blk_list_free(cond_blocks);
     feat_blk_list_free(feat_blocks);

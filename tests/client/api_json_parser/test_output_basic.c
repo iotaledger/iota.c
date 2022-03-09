@@ -66,14 +66,14 @@ void test_parse_basic_output_full() {
 
   // check native tokens
   TEST_ASSERT_NOT_NULL(basic_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT16(2, native_tokens_count(&basic_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT16(2, native_tokens_count(basic_output->native_tokens));
   byte_t token_id[NATIVE_TOKEN_ID_BYTES];
   hex_2_bin("08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000",
             BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(&basic_output->native_tokens, token_id));
+  TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(basic_output->native_tokens, token_id));
   hex_2_bin("09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000",
             BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(&basic_output->native_tokens, token_id));
+  TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(basic_output->native_tokens, token_id));
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(basic_output->unlock_conditions);

@@ -31,7 +31,7 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
 
   int result = -1;
 
-  native_tokens_t *tokens = native_tokens_new();
+  native_tokens_list_t *tokens = native_tokens_new();
   byte_buf_t *state_metadata = byte_buf_new();
   cond_blk_list_t *cond_blocks = cond_blk_list_new();
   feat_blk_list_t *feat_blocks = feat_blk_list_new();
@@ -107,7 +107,7 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
   result = 0;
 
 end:
-  native_tokens_free(&tokens);
+  native_tokens_free(tokens);
   byte_buf_free(state_metadata);
   cond_blk_list_free(cond_blocks);
   feat_blk_list_free(feat_blocks);

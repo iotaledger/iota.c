@@ -25,7 +25,7 @@ int json_output_basic_deserialize(cJSON *output_obj, output_basic_t **basic) {
 
   int result = -1;
 
-  native_tokens_t *tokens = native_tokens_new();
+  native_tokens_list_t *tokens = native_tokens_new();
   cond_blk_list_t *cond_blocks = cond_blk_list_new();
   feat_blk_list_t *feat_blocks = feat_blk_list_new();
 
@@ -65,7 +65,7 @@ int json_output_basic_deserialize(cJSON *output_obj, output_basic_t **basic) {
   result = 0;
 
 end:
-  native_tokens_free(&tokens);
+  native_tokens_free(tokens);
   cond_blk_list_free(cond_blocks);
   feat_blk_list_free(feat_blocks);
 
