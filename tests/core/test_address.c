@@ -6,11 +6,10 @@
 #include <string.h>
 #include <sys/time.h>
 
-#include <unity/unity.h>
-
 #include "core/address.h"
 #include "core/utils/byte_buffer.h"
 #include "crypto/iota_crypto.h"
+#include "unity/unity.h"
 
 void setUp(void) {}
 
