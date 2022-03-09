@@ -4,8 +4,14 @@
 #include <inttypes.h>
 #include <string.h>
 
-#include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/outputs.h"
+
+// maximum number of unlock condition blocks
+#define MAX_FOUNDRY_CONDITION_BLOCKS_COUNT 1
+// maximum number of feature blocks
+#define MAX_FOUNDRY_FEATURE_BLOCKS_COUNT 1
+// maximum number of immutable feature blocks
+#define MAX_FOUNDRY_IMMUTABLE_BLOCKS_COUNT 1
 
 output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_tokens_list_t* tokens,
                                      uint32_t serial_num, byte_t token_tag[], uint256_t* circ_supply,
@@ -80,21 +86,21 @@ output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_t
   // Store token scheme
   output->token_scheme = token_scheme;
 
-  // create address unlock
-  unlock_cond_blk_t* addr_unlock = cond_blk_addr_new(alias);
-  if (!addr_unlock) {
+  // create immutable alias address unlock
+  unlock_cond_blk_t* immut_unlock = cond_blk_immut_alias_new(alias);
+  if (!immut_unlock) {
     printf("[%s:%d] create an address unlock condition error\n", __func__, __LINE__);
     output_foundry_free(output);
     return NULL;
   }
-  // add address unlock to condition list
-  if (cond_blk_list_add(&output->unlock_conditions, addr_unlock) != 0) {
+  // add unlock condition to list
+  if (cond_blk_list_add(&output->unlock_conditions, immut_unlock) != 0) {
     printf("[%s:%d] can not add unlock conditions to foundry output\n", __func__, __LINE__);
-    cond_blk_free(addr_unlock);
+    cond_blk_free(immut_unlock);
     output_foundry_free(output);
     return NULL;
   }
-  cond_blk_free(addr_unlock);
+  cond_blk_free(immut_unlock);
 
   if (meta && meta_len > 0) {
     // create metadata block
@@ -448,4 +454,80 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
   feat_blk_list_print(output->immutable_blocks, true, indentation + 1);
 
   printf("%s]\n", PRINT_INDENTATION(indentation));
+}
+
+bool output_foundry_syntactic(output_foundry_t* output) {
+  // amount must <= Max IOTA Supply
+  if (output->amount > MAX_IOTA_SUPPLY) {
+    printf("[%s:%d] amount bigger than MAX_IOTA_SUPPLY\n", __func__, __LINE__);
+    return false;
+  }
+
+  // amount must fulfill the storage protection and must not be zero
+  // TODO
+
+  // Native token count must not greater than Max Native Tokens Count
+  // Native token must be lexicographically sorted based on Token ID
+  // Each Native Token must be unique in the set of Native Tokens based on its Token ID, no duplicates are allowed
+  // Amount of native token must not be zero
+  if (!native_tokens_syntactic(&output->native_tokens)) {
+    return false;
+  }
+
+  // == Unlock condition validation ===
+  // unlock conditions count == 1
+  if (cond_blk_list_len(output->unlock_conditions) != MAX_FOUNDRY_CONDITION_BLOCKS_COUNT) {
+    printf("[%s:%d] Unlock condition count must be %d\n", __func__, __LINE__, MAX_FOUNDRY_CONDITION_BLOCKS_COUNT);
+    return false;
+  }
+  // Unlock Condition types:
+  // - Immutable Alias Address (mandatory)
+  if (cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS) == NULL) {
+    printf("[%s:%d] Immutable Alias Address must be present\n", __func__, __LINE__);
+    return false;
+  }
+  // Unlock Condition must be sorted in ascending order based on their type
+  // must be only 1 condition, therefore we don't do sorting
+  // cond_blk_list_sort(&output->unlock_conditions);
+
+  // == Feature Blocks validation ===
+  // 0<= feature block count <= 1
+  if (feat_blk_list_len(output->feature_blocks) > MAX_FOUNDRY_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid feature block count must smaller than %d\n", __func__, __LINE__,
+           MAX_FOUNDRY_CONDITION_BLOCKS_COUNT);
+    return false;
+  }
+  if (feat_blk_list_len(output->feature_blocks) > 0) {
+    // feature block types
+    // - Metadata
+    if (feat_blk_list_get_type(output->feature_blocks, FEAT_METADATA_BLOCK) == NULL) {
+      printf("[%s:%d] must be Metadata block\n", __func__, __LINE__);
+      return false;
+    }
+  }
+  // Blocks must stored in ascending order based on their Block Type
+  // must be only 1 block, therefore we don't do sorting
+  // feat_blk_list_sort(&output->feature_blocks);
+
+  // == Immutable Feature Blocks validation ===
+  // 0<= immutable block count <= 1
+  if (feat_blk_list_len(output->immutable_blocks) > MAX_FOUNDRY_IMMUTABLE_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid feature block count must smaller than %d\n", __func__, __LINE__,
+           MAX_FOUNDRY_CONDITION_BLOCKS_COUNT);
+    return false;
+  }
+  if (feat_blk_list_len(output->immutable_blocks) > 0) {
+    // immutable block types
+    // - Metadata
+    if (feat_blk_list_get_type(output->immutable_blocks, FEAT_METADATA_BLOCK) == NULL) {
+      printf("[%s:%d] must be Metadata Immutable block\n", __func__, __LINE__);
+      return false;
+    }
+  }
+
+  // Blocks must stored in ascending order based on their Block Type
+  // must be only 1 block, therefore we don't do sorting
+  // feat_blk_list_sort(&output->immutable_blocks);
+
+  return true;
 }

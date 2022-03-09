@@ -478,7 +478,7 @@ bool output_alias_syntactic(output_alias_t* output) {
   // - Metadata
   if (feat_blk_list_get_type(output->feature_blocks, FEAT_ISSUER_BLOCK) ||
       feat_blk_list_get_type(output->feature_blocks, FEAT_TAG_BLOCK)) {
-    printf("[%s:%d] Issuer and Tag Feature nlocks are not allowed\n", __func__, __LINE__);
+    printf("[%s:%d] Issuer and Tag blocks are not allowed\n", __func__, __LINE__);
     return false;
   }
   // Blocks must stored in ascending order based on their Block Type
@@ -492,13 +492,15 @@ bool output_alias_syntactic(output_alias_t* output) {
     return false;
   }
 
-  // immutable block types
-  // - Issuer
-  // - Metadata
-  if (feat_blk_list_get_type(output->immutable_blocks, FEAT_SENDER_BLOCK) ||
-      feat_blk_list_get_type(output->immutable_blocks, FEAT_TAG_BLOCK)) {
-    printf("[%s:%d] Sender and Tag Feature blocks are not allowed\n", __func__, __LINE__);
-    return false;
+  if (feat_blk_list_len(output->immutable_blocks) > 0) {
+    // immutable block types
+    // - Issuer
+    // - Metadata
+    if (feat_blk_list_get_type(output->immutable_blocks, FEAT_SENDER_BLOCK) ||
+        feat_blk_list_get_type(output->immutable_blocks, FEAT_TAG_BLOCK)) {
+      printf("[%s:%d] Sender and Tag Feature blocks are not allowed\n", __func__, __LINE__);
+      return false;
+    }
   }
 
   // Blocks must stored in ascending order based on their Block Type

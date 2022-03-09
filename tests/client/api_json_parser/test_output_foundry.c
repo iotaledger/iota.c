@@ -44,7 +44,7 @@ void test_parse_foundry_output_basic() {
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(foundry_output->unlock_conditions);
   TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(foundry_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(foundry_output->unlock_conditions, UNLOCK_COND_ADDRESS));
+  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(foundry_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS));
 
   TEST_ASSERT_NULL(foundry_output->feature_blocks);
   TEST_ASSERT_NULL(foundry_output->immutable_blocks);
@@ -101,7 +101,7 @@ void test_parse_foundry_output_full() {
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(foundry_output->unlock_conditions);
   TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(foundry_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(foundry_output->unlock_conditions, UNLOCK_COND_ADDRESS));
+  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(foundry_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS));
 
   // check feature blocks
   TEST_ASSERT_NOT_NULL(foundry_output->feature_blocks);

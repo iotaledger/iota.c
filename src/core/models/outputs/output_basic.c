@@ -287,7 +287,8 @@ bool output_basic_syntactic(output_basic_t* output) {
     return false;
   }
   if (cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE) ||
-      cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_GOVERNOR)) {
+      cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_GOVERNOR) ||
+      cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS)) {
     printf("[%s:%d] invalid unlock condition type\n", __func__, __LINE__);
     return false;
   }
@@ -297,17 +298,19 @@ bool output_basic_syntactic(output_basic_t* output) {
 
   // 0<= feature block count <= 3
   if (feat_blk_list_len(output->feature_blocks) > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
+    printf("[%s:%d] feature block count must smaller than %s\n", __func__, __LINE__, MAX_BASIC_CONDITION_BLOCKS_COUNT);
     return false;
   }
 
-  // feature block types
-  // - Sender
-  // - Metadata
-  // - Tag
-  if (feat_blk_list_get_type(output->feature_blocks, FEAT_ISSUER_BLOCK)) {
-    printf("[%s:%d] invalid feature block type\n", __func__, __LINE__);
-    return false;
+  if (feat_blk_list_len(output->feature_blocks) > 0) {
+    // feature block types
+    // - Sender
+    // - Metadata
+    // - Tag
+    if (feat_blk_list_get_type(output->feature_blocks, FEAT_ISSUER_BLOCK)) {
+      printf("[%s:%d] Issuer Feature Block is not allowed\n", __func__, __LINE__);
+      return false;
+    }
   }
 
   // Blocks must stored in ascending order based on their Block Type

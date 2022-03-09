@@ -98,7 +98,7 @@ void test_output_foundry() {
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(output->unlock_conditions) == 1);
-  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -119,6 +119,9 @@ void test_output_foundry() {
   TEST_ASSERT_EQUAL_UINT32(sizeof(test_immut_meta), ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
   TEST_ASSERT_EQUAL_MEMORY(test_immut_meta, ((feat_metadata_blk_t*)immut_feat_block->block)->data,
                            ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_foundry_syntactic(output));
 
   // serialize foundry Output and validate it
   size_t output_foundry_expected_len = output_foundry_serialize_len(output);
@@ -165,7 +168,7 @@ void test_output_foundry() {
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(deser_output->unlock_conditions) == 1);
-  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -221,7 +224,7 @@ void test_output_foundry_without_native_tokens() {
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(output->unlock_conditions) == 1);
-  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -237,6 +240,9 @@ void test_output_foundry_without_native_tokens() {
   // validate immutable feature blocks
   TEST_ASSERT_NULL(output->immutable_blocks);
   TEST_ASSERT_EQUAL_UINT8(0, feat_blk_list_len(output->immutable_blocks));
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_foundry_syntactic(output));
 
   // serialize foundry Output and validate it
   size_t output_foundry_expected_len = output_foundry_serialize_len(output);
@@ -273,7 +279,7 @@ void test_output_foundry_without_native_tokens() {
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(deser_output->unlock_conditions) == 1);
-  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -341,7 +347,7 @@ void test_output_foundry_without_metadata() {
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(output->unlock_conditions) == 1);
-  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -352,6 +358,9 @@ void test_output_foundry_without_metadata() {
   // validate immutable feature blocks
   TEST_ASSERT_NULL(output->immutable_blocks);
   TEST_ASSERT_EQUAL_UINT8(0, feat_blk_list_len(output->immutable_blocks));
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_foundry_syntactic(output));
 
   // serialize foundry Output and validate it
   size_t output_foundry_expected_len = output_foundry_serialize_len(output);
@@ -398,7 +407,7 @@ void test_output_foundry_without_metadata() {
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(deser_output->unlock_conditions) == 1);
-  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -456,10 +465,15 @@ void test_output_foundry_syntactic() {
   output_foundry_t* output = output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, circ_supply,
                                                 max_supply, SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0);
   TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_foundry_syntactic(output));
   output_foundry_free(output);
+
   output = output_foundry_new(&alias_addr, 123456789, NULL, 22, token_tag, circ_supply, max_supply, SIMPLE_TOKEN_SCHEME,
                               test_meta, sizeof(test_meta), NULL, 0);
   TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_foundry_syntactic(output));
   output_foundry_free(output);
 }
 
