@@ -4,7 +4,7 @@
 #ifndef __TEST_VECTORS_H__
 #define __TEST_VECTORS_H__
 
-#define TEST_VECTORS_COUNT 12
+#define TEST_VECTORS_COUNT (sizeof(test_vectors) / sizeof(test_vectors_t))
 
 /**
  * @brief test vector struct

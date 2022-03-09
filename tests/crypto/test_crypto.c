@@ -13,7 +13,7 @@
 
 #include "pbkdf2_vectors.h"
 
-// Get the binary bytes of the given hex string
+// Get the binary bytes of the given hex bytes
 #define HEX_TO_BIN_BYTES(x) (x / 2)
 
 void setUp(void) {}
@@ -283,7 +283,7 @@ void test_pbkdf2_hmac_sha512() {
 }
 
 void test_vector_signature_validity() {
-  for (int i = 0; i < TEST_VECTORS_COUNT; i++) {
+  for (int i = 0; i < (int)TEST_VECTORS_COUNT; i++) {
     // convert message hex string to byte array
     size_t msg_len = strlen(test_vectors[i].message);
     uint8_t msg_bytes[HEX_TO_BIN_BYTES(msg_len)];
