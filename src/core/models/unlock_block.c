@@ -273,42 +273,8 @@ unlock_list_t* unlock_blocks_deserialize(byte_t buf[], size_t buf_len) {
         }
         break;
       }
-      case UNLOCK_BLOCK_TYPE_REFERENCE: {
-        // index
-        if (buf_len < offset + sizeof(uint16_t)) {
-          printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-          unlock_blocks_free(blocks);
-          return NULL;
-        }
-        uint16_t index;
-        memcpy(&index, &buf[offset], sizeof(uint16_t));
-        offset += sizeof(uint16_t);
-
-        if (unlock_blocks_add_reference(&blocks, index) != 0) {
-          printf("[%s:%d] can not add unlock block to the list\n", __func__, __LINE__);
-          unlock_blocks_free(blocks);
-          return NULL;
-        }
-        break;
-      }
-      case UNLOCK_BLOCK_TYPE_ALIAS: {
-        // index
-        if (buf_len < offset + sizeof(uint16_t)) {
-          printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-          unlock_blocks_free(blocks);
-          return NULL;
-        }
-        uint16_t index;
-        memcpy(&index, &buf[offset], sizeof(uint16_t));
-        offset += sizeof(uint16_t);
-
-        if (unlock_blocks_add_alias(&blocks, index) != 0) {
-          printf("[%s:%d] can not add unlock block to the list\n", __func__, __LINE__);
-          unlock_blocks_free(blocks);
-          return NULL;
-        }
-        break;
-      }
+      case UNLOCK_BLOCK_TYPE_REFERENCE:
+      case UNLOCK_BLOCK_TYPE_ALIAS:
       case UNLOCK_BLOCK_TYPE_NFT: {
         // index
         if (buf_len < offset + sizeof(uint16_t)) {
@@ -320,7 +286,15 @@ unlock_list_t* unlock_blocks_deserialize(byte_t buf[], size_t buf_len) {
         memcpy(&index, &buf[offset], sizeof(uint16_t));
         offset += sizeof(uint16_t);
 
-        if (unlock_blocks_add_nft(&blocks, index) != 0) {
+        int result = -1;
+        if (block_type == UNLOCK_BLOCK_TYPE_REFERENCE) {
+          result = unlock_blocks_add_reference(&blocks, index);
+        } else if (block_type == UNLOCK_BLOCK_TYPE_ALIAS) {
+          result = unlock_blocks_add_alias(&blocks, index);
+        } else if (block_type == UNLOCK_BLOCK_TYPE_NFT) {
+          result = unlock_blocks_add_nft(&blocks, index);
+        }
+        if (result != 0) {
           printf("[%s:%d] can not add unlock block to the list\n", __func__, __LINE__);
           unlock_blocks_free(blocks);
           return NULL;
