@@ -349,3 +349,40 @@ void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation) {
 
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }
+
+bool utxo_outputs_syntactic(utxo_outputs_list_t *outputs) {
+  if (!outputs) {
+    return false;
+  }
+
+  utxo_outputs_list_t *elm;
+  LL_FOREACH(outputs, elm) {
+    bool is_valid = false;
+    switch (elm->output->output_type) {
+      case OUTPUT_BASIC:
+        is_valid = output_basic_syntactic(elm->output->output);
+        break;
+      case OUTPUT_ALIAS:
+        is_valid = output_alias_syntactic(elm->output->output);
+        break;
+      case OUTPUT_FOUNDRY:
+        is_valid = output_foundry_syntactic(elm->output->output);
+        break;
+      case OUTPUT_NFT:
+        is_valid = output_nft_syntactic(elm->output->output);
+        break;
+      case OUTPUT_SINGLE_OUTPUT:
+      case OUTPUT_DUST_ALLOWANCE:
+      case OUTPUT_TREASURY:
+      default:
+        printf("[%s:%d] deprecated or unsupported output type\n", __func__, __LINE__);
+        is_valid = false;
+        break;
+    }
+
+    if (is_valid == false) {
+      return is_valid;
+    }
+  }
+  return true;
+}

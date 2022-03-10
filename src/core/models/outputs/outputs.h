@@ -140,6 +140,15 @@ utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len);
  */
 void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation);
 
+/**
+ * @brief UTXO Output syntactic validation
+ *
+ * @param[in] outputs A list of utxo outputs
+ * @return true Valid
+ * @return false Invalid
+ */
+bool utxo_outputs_syntactic(utxo_outputs_list_t *outputs);
+
 #ifdef __cplusplus
 }
 #endif
