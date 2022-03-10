@@ -50,7 +50,8 @@ int bech32_convert_bits(uint8_t *out, size_t *outlen, int outbits, const uint8_t
   uint32_t val = 0;
   int bits = 0;
   uint32_t maxv = (((uint32_t)1) << outbits) - 1;
-  while (inlen--) {
+  while (inlen > 0) {
+    inlen--;
     val = (val << inbits) | *(in++);
     bits += inbits;
     while (bits >= outbits) {
