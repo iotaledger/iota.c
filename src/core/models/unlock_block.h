@@ -150,6 +150,15 @@ size_t unlock_blocks_serialize_length(unlock_list_t* blocks);
 size_t unlock_blocks_serialize(unlock_list_t* blocks, byte_t buf[]);
 
 /**
+ * @brief Deserialize a binary data to an unlock blocks object
+ *
+ * @param[in] buf The block data in binary
+ * @param[in] buf_len The length of the data
+ * @return unlock_list_t* or NULL on failure
+ */
+unlock_list_t* unlock_blocks_deserialize(byte_t buf[], size_t buf_len);
+
+/**
  * @brief Free an unlock block list
  *
  * @param[in] blocks An unlock block object

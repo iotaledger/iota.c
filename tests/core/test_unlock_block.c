@@ -443,12 +443,58 @@ void test_unlock_block_serialize() {
   blocks = NULL;
 }
 
+void test_unlock_block_deserialize() {
+  byte_t sig[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+  unlock_list_t* blocks = unlock_blocks_new();
+
+  //=====2 signature with 2 reference, 2 alias and 2 NFT=====
+  blocks = unlock_blocks_new();
+  TEST_ASSERT_NULL(blocks);
+  TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(blocks));
+  // added 2 signature
+  iota_crypto_randombytes(sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  sig[0] = 0;
+  unlock_blocks_add_signature(&blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  iota_crypto_randombytes(sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  sig[0] = 0;
+  unlock_blocks_add_signature(&blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  unlock_blocks_add_reference(&blocks, 1);
+  unlock_blocks_add_reference(&blocks, 0);
+  unlock_blocks_add_alias(&blocks, 1);
+  unlock_blocks_add_alias(&blocks, 0);
+  unlock_blocks_add_nft(&blocks, 1);
+  unlock_blocks_add_nft(&blocks, 0);
+  TEST_ASSERT_EQUAL_UINT16(8, unlock_blocks_count(blocks));
+
+  // serialization
+  size_t len = unlock_blocks_serialize_length(blocks);
+  TEST_ASSERT(len ==
+              (sizeof(uint16_t) + (UNLOCK_SIGNATURE_SERIALIZE_BYTES * 2) + (UNLOCK_REFERENCE_SERIALIZE_BYTES * 2) +
+               (UNLOCK_ALIAS_SERIALIZE_BYTES * 2) + (UNLOCK_NFT_SERIALIZE_BYTES * 2)));
+  byte_t* block_buf = malloc(len);
+  TEST_ASSERT_NOT_NULL(block_buf);
+  TEST_ASSERT(unlock_blocks_serialize(blocks, block_buf) == len);
+
+  // deserialization
+  unlock_block_t* deser_blocks = unlock_blocks_deserialize(block_buf, len);
+  TEST_ASSERT_NOT_NULL(deser_blocks);
+  TEST_ASSERT_EQUAL_UINT8(8, unlock_blocks_count(deser_blocks));
+
+  // clean up
+  free(block_buf);
+  unlock_blocks_free(blocks);
+  unlock_blocks_free(deser_blocks);
+  block_buf = NULL;
+  blocks = NULL;
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_unlock_block);
   RUN_TEST(test_unlock_block_validation);
   RUN_TEST(test_unlock_block_serialize);
+  RUN_TEST(test_unlock_block_deserialize);
 
   return UNITY_END();
 }

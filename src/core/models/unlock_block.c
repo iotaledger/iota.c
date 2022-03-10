@@ -227,6 +227,116 @@ size_t unlock_blocks_serialize(unlock_list_t* blocks, byte_t buf[]) {
   return (offset - buf) / sizeof(byte_t);
 }
 
+unlock_list_t* unlock_blocks_deserialize(byte_t buf[], size_t buf_len) {
+  if (!buf || buf_len < 2) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  unlock_list_t* blocks = unlock_blocks_new();
+
+  uint16_t blocks_count;
+  memcpy(&blocks_count, &buf[0], sizeof(blocks_count));
+  size_t offset = sizeof(uint16_t);
+
+  if (blocks_count == 0) {
+    return blocks;
+  }
+
+  for (uint16_t i = 0; i < blocks_count; i++) {
+    // unlock block type
+    if (buf_len < offset + sizeof(uint8_t)) {
+      printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+      unlock_blocks_free(blocks);
+      return NULL;
+    }
+    uint8_t block_type;
+    memcpy(&block_type, &buf[offset], sizeof(uint8_t));
+    offset += sizeof(uint8_t);
+
+    switch (block_type) {
+      case UNLOCK_BLOCK_TYPE_SIGNATURE: {
+        // ed25519 signature
+        if (buf_len < offset + ED25519_SIGNATURE_BLOCK_BYTES) {
+          printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+          unlock_blocks_free(blocks);
+          return NULL;
+        }
+        byte_t signature_block[ED25519_SIGNATURE_BLOCK_BYTES];
+        memcpy(signature_block, &buf[offset], sizeof(signature_block));
+        offset += sizeof(signature_block);
+
+        if (unlock_blocks_add_signature(&blocks, signature_block, sizeof(signature_block)) != 0) {
+          printf("[%s:%d] can not add unlock block to the list\n", __func__, __LINE__);
+          unlock_blocks_free(blocks);
+          return NULL;
+        }
+        break;
+      }
+      case UNLOCK_BLOCK_TYPE_REFERENCE: {
+        // index
+        if (buf_len < offset + sizeof(uint16_t)) {
+          printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+          unlock_blocks_free(blocks);
+          return NULL;
+        }
+        uint16_t index;
+        memcpy(&index, &buf[offset], sizeof(uint16_t));
+        offset += sizeof(uint16_t);
+
+        if (unlock_blocks_add_reference(&blocks, index) != 0) {
+          printf("[%s:%d] can not add unlock block to the list\n", __func__, __LINE__);
+          unlock_blocks_free(blocks);
+          return NULL;
+        }
+        break;
+      }
+      case UNLOCK_BLOCK_TYPE_ALIAS: {
+        // index
+        if (buf_len < offset + sizeof(uint16_t)) {
+          printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+          unlock_blocks_free(blocks);
+          return NULL;
+        }
+        uint16_t index;
+        memcpy(&index, &buf[offset], sizeof(uint16_t));
+        offset += sizeof(uint16_t);
+
+        if (unlock_blocks_add_alias(&blocks, index) != 0) {
+          printf("[%s:%d] can not add unlock block to the list\n", __func__, __LINE__);
+          unlock_blocks_free(blocks);
+          return NULL;
+        }
+        break;
+      }
+      case UNLOCK_BLOCK_TYPE_NFT: {
+        // index
+        if (buf_len < offset + sizeof(uint16_t)) {
+          printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+          unlock_blocks_free(blocks);
+          return NULL;
+        }
+        uint16_t index;
+        memcpy(&index, &buf[offset], sizeof(uint16_t));
+        offset += sizeof(uint16_t);
+
+        if (unlock_blocks_add_nft(&blocks, index) != 0) {
+          printf("[%s:%d] can not add unlock block to the list\n", __func__, __LINE__);
+          unlock_blocks_free(blocks);
+          return NULL;
+        }
+        break;
+      }
+      default:
+        printf("[%s:%d] unknown unlocked block type\n", __func__, __LINE__);
+        unlock_blocks_free(blocks);
+        return NULL;
+    }
+  }
+
+  return blocks;
+}
+
 unlock_block_t* unlock_blocks_get(unlock_list_t* blocks, uint16_t index) {
   if (!blocks) {
     return NULL;
