@@ -411,9 +411,11 @@ bool output_nft_syntactic(output_nft_t* output) {
   feat_blk_list_sort(&output->immutable_blocks);
 
   // Address field of the Address Unlock Condition must not be the same as the NFT address derived from NFT ID
-  if (memcmp(((address_t*)addr_unlock->block)->address, output->nft_id, NFT_ID_BYTES) == 0) {
-    printf("[%s:%d] Address field must not be the same as the NFT address derived from NFT ID\n", __func__, __LINE__);
-    return false;
+  if (((address_t*)addr_unlock->block)->type != ADDRESS_TYPE_ED25519) {
+    if (memcmp(((address_t*)addr_unlock->block)->address, output->nft_id, NFT_ID_BYTES) == 0) {
+      printf("[%s:%d] Address field must not be the same as the NFT address derived from NFT ID\n", __func__, __LINE__);
+      return false;
+    }
   }
 
   return true;

@@ -27,6 +27,8 @@ void tearDown(void) {}
 void test_utxo_input() {
   utxo_inputs_list_t* inputs = utxo_inputs_new();
   TEST_ASSERT_NULL(inputs);
+  // invalid syntactic
+  TEST_ASSERT_FALSE(utxo_inputs_syntactic(inputs));
 
   // print out an empty list
   utxo_inputs_print(inputs, 0);
@@ -80,6 +82,9 @@ void test_utxo_input() {
   TEST_ASSERT(3 == elm->output_index);
   TEST_ASSERT_EQUAL_MEMORY(tx_id2, elm->tx_id, IOTA_TRANSACTION_ID_BYTES);
 
+  // syntactic check
+  TEST_ASSERT_TRUE(utxo_inputs_syntactic(inputs));
+
   // serialize input list and validate it
   size_t expected_serialized_len = utxo_inputs_serialize_len(inputs);
   TEST_ASSERT(expected_serialized_len != 0);
@@ -115,10 +120,32 @@ void test_utxo_input() {
   utxo_inputs_free(inputs);
 }
 
+void test_utxo_input_syntactic() {
+  utxo_inputs_list_t* inputs = utxo_inputs_new();
+
+  // Input Type must denote a UTXO Input
+  TEST_ASSERT(utxo_inputs_add(&inputs, 1, tx_id0, 2, NULL) == -1);
+
+  // Transaction Output Index must be 0 ≤ x < Max Outputs Count
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, UINT8_MAX, NULL) == -1);
+
+  // Each pair of Transaction ID and Transaction Output Index must be unique in the list of inputs
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, 0, NULL) == 0);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, 0, NULL) == -1);
+
+  // Inputs Count must be 0 < x ≤ Max Inputs Count
+  TEST_ASSERT_TRUE(utxo_inputs_syntactic(inputs));
+  utxo_inputs_free(inputs);
+  inputs = utxo_inputs_new();
+  TEST_ASSERT_FALSE(utxo_inputs_syntactic(inputs));
+  utxo_inputs_free(inputs);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_utxo_input);
+  RUN_TEST(test_utxo_input_syntactic);
 
   return UNITY_END();
 }
