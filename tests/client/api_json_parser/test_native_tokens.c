@@ -36,7 +36,7 @@ void test_parse_native_tokens() {
   native_token_t *token = native_tokens_find_by_id(tokens, token_id);
   TEST_ASSERT_NOT_NULL(token);
   uint256_t *amount = uint256_from_str("93847598347598347598347598");
-  TEST_ASSERT_EQUAL_INT(0, uint256_equal(amount, token->amount));
+  TEST_ASSERT_EQUAL_INT(0, uint256_equal(amount, &token->amount));
   free(amount);
 
   // check 2nd native token
@@ -45,7 +45,7 @@ void test_parse_native_tokens() {
   token = native_tokens_find_by_id(tokens, token_id);
   TEST_ASSERT_NOT_NULL(token);
   amount = uint256_from_str("123456789");
-  TEST_ASSERT_EQUAL_INT(0, uint256_equal(amount, token->amount));
+  TEST_ASSERT_EQUAL_INT(0, uint256_equal(amount, &token->amount));
   free(amount);
 
   // check 3rd native token
@@ -54,7 +54,7 @@ void test_parse_native_tokens() {
   token = native_tokens_find_by_id(tokens, token_id);
   TEST_ASSERT_NOT_NULL(token);
   amount = uint256_from_str("786345384765384756384584736584938475938475983475982375498374598374985756");
-  TEST_ASSERT_EQUAL_INT(0, uint256_equal(amount, token->amount));
+  TEST_ASSERT_EQUAL_INT(0, uint256_equal(amount, &token->amount));
   free(amount);
 
   // print native tokens

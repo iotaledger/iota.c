@@ -116,13 +116,13 @@ void test_output_nft() {
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
   native_tokens_list_t* tokens = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate NFT ID
   TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, ADDRESS_NFT_BYTES);
@@ -205,13 +205,13 @@ void test_output_nft() {
   // native tokens are sorted in lexicographical order based on token ID
   tokens = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized feature blocks
   TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);
@@ -572,13 +572,13 @@ void test_output_nft_without_immutable_feature_blocks() {
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
   native_tokens_list_t* tokens = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate NFT ID
   TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, ADDRESS_NFT_BYTES);
@@ -650,13 +650,13 @@ void test_output_nft_without_immutable_feature_blocks() {
   // native tokens are sorted in lexicographical order based on token ID
   tokens = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized feature blocks
   TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);

@@ -73,7 +73,7 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
         cJSON_AddStringToObject(item, JSON_KEY_ID, token_id);
 
         // add amount
-        char *amount = uint256_to_str(elm->token->amount);
+        char *amount = uint256_to_str(&elm->token->amount);
         if (!amount) {
           goto item_err;
         }

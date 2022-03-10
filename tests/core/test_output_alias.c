@@ -79,13 +79,13 @@ void test_output_alias() {
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
   native_tokens_list_t* tokens = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -156,13 +156,13 @@ void test_output_alias() {
   // native tokens are sorted in lexicographical order based on token ID
   tokens = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -453,13 +453,13 @@ void test_output_alias_without_metadata() {
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
   native_tokens_list_t* tokens = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -533,13 +533,13 @@ void test_output_alias_without_metadata() {
   // native tokens are sorted in lexicographical order based on token ID
   tokens = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -657,13 +657,13 @@ void test_output_alias_without_feature_blocks() {
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
   native_tokens_list_t* tokens = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -728,13 +728,13 @@ void test_output_alias_without_feature_blocks() {
   // native tokens are sorted in lexicographical order based on token ID
   tokens = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -836,13 +836,13 @@ void test_output_alias_without_immutable_feature_blocks() {
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
   native_tokens_list_t* tokens = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -902,13 +902,13 @@ void test_output_alias_without_immutable_feature_blocks() {
   // native tokens are sorted in lexicographical order based on token ID
   tokens = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -1023,13 +1023,13 @@ void test_output_alias_clone() {
   // native tokens are sorted in lexicographical order based on token ID
   native_tokens_list_t* tokens = new_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // compare alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, new_output->alias_id, ADDRESS_ALIAS_BYTES);

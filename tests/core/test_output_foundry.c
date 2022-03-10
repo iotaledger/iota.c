@@ -76,13 +76,13 @@ void test_output_foundry() {
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
   native_tokens_list_t* tokens = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate serial number
   TEST_ASSERT(output->serial == 22);
@@ -145,13 +145,13 @@ void test_output_foundry() {
   // native tokens are sorted in lexicographical order based on token ID
   tokens = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized serial number
   TEST_ASSERT_EQUAL_UINT32(22, deser_output->serial);
@@ -319,13 +319,13 @@ void test_output_foundry_without_metadata() {
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
   native_tokens_list_t* tokens = output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate serial number
   TEST_ASSERT(output->serial == 22);
@@ -378,13 +378,13 @@ void test_output_foundry_without_metadata() {
   // native tokens are sorted in lexicographical order based on token ID
   tokens = deser_output->native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized serial number
   TEST_ASSERT_EQUAL_UINT32(22, deser_output->serial);

@@ -22,7 +22,7 @@
  */
 typedef struct {
   byte_t token_id[NATIVE_TOKEN_ID_BYTES];  ///< Identifier of the Native Token
-  uint256_t *amount;                       ///< Amount of Tokens. Pointer to uint256_t object
+  uint256_t amount;                        ///< Amount of the Native Token
 } native_token_t;
 
 /**

@@ -44,9 +44,6 @@ void native_tokens_free(native_tokens_list_t *nt) {
   if (nt) {
     native_tokens_list_t *elm, *tmp;
     LL_FOREACH_SAFE(nt, elm, tmp) {
-      if (elm->token->amount) {
-        free(elm->token->amount);
-      }
       free(elm->token);
       LL_DELETE(nt, elm);
       free(elm);
@@ -81,13 +78,7 @@ int native_tokens_add(native_tokens_list_t **nt, byte_t token_id[], uint256_t co
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return -1;
   }
-  token->amount = malloc(sizeof(uint256_t));
-  if (!token->amount) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    free(token);
-    return -1;
-  }
-  memcpy(token->amount, amount, sizeof(uint256_t));
+  memcpy(&token->amount, amount, sizeof(uint256_t));
   memcpy(token->token_id, token_id, NATIVE_TOKEN_ID_BYTES);
 
   native_tokens_list_t *tokens_list = malloc(sizeof(native_tokens_list_t));
@@ -154,7 +145,7 @@ size_t native_tokens_serialize(native_tokens_list_t **nt, byte_t buf[], size_t b
     offset += NATIVE_TOKEN_ID_BYTES;
 
     // amount
-    memcpy(buf + offset, elm->token->amount, sizeof(uint256_t));
+    memcpy(buf + offset, &elm->token->amount, sizeof(uint256_t));
     offset += sizeof(uint256_t);
   }
 
@@ -214,7 +205,7 @@ native_tokens_list_t *native_tokens_clone(native_tokens_list_t *const nt) {
 
   native_tokens_list_t *elm;
   LL_FOREACH(nt, elm) {
-    if (native_tokens_add(&new_native_tokens, elm->token->token_id, elm->token->amount) == -1) {
+    if (native_tokens_add(&new_native_tokens, elm->token->token_id, &elm->token->amount) == -1) {
       printf("[%s:%d] can not clone native tokens\n", __func__, __LINE__);
       native_tokens_free(new_native_tokens);
       return NULL;
@@ -237,7 +228,7 @@ void native_tokens_print(native_tokens_list_t *nt, uint8_t indentation) {
   printf("%sNative Tokens: [\n", PRINT_INDENTATION(indentation));
   printf("%s\tToken Count: %d\n", PRINT_INDENTATION(indentation), native_tokens_count(nt));
   LL_FOREACH(nt, elm) {
-    amount_str = uint256_to_str(elm->token->amount);
+    amount_str = uint256_to_str(&elm->token->amount);
     if (amount_str != NULL) {
       printf("%s\t#%d [%s] ", PRINT_INDENTATION(indentation), index, amount_str);
       dump_hex_str(elm->token->token_id, NATIVE_TOKEN_ID_BYTES);

@@ -70,7 +70,7 @@ void test_native_tokens() {
   native_token_t* elm = native_tokens_find_by_id(tokens, token_id2);
   TEST_ASSERT_NOT_NULL(elm);
   TEST_ASSERT_EQUAL_MEMORY(token_id2, elm->token_id, NATIVE_TOKEN_ID_BYTES);
-  char* str = uint256_to_str(elm->amount);
+  char* str = uint256_to_str(&elm->amount);
   TEST_ASSERT_EQUAL_STRING("100000000000000000000000000000000", str);
   free(str);
 
@@ -128,13 +128,13 @@ void test_native_tokens_sort() {
   // native tokens are NOT sorted in lexicographical order based on token ID
   native_tokens_list_t* tokens = native_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // serialize Native Tokens set
   size_t native_tokens_expected_len = native_tokens_serialize_len(native_tokens);
@@ -148,13 +148,13 @@ void test_native_tokens_sort() {
   // native tokens are sorted in lexicographical order based on token ID
   tokens = deser_tokens;
   TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
   tokens = tokens->next;
   TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, tokens->token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   native_tokens_print(native_tokens, 0);
 
@@ -211,7 +211,7 @@ void test_native_tokens_clone() {
   TEST_ASSERT_NOT_NULL(elm);
   TEST_ASSERT_NOT_NULL(new_elm);
   TEST_ASSERT_EQUAL_MEMORY(elm->token_id, new_elm->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(elm->amount, new_elm->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(&elm->amount, &new_elm->amount, sizeof(uint256_t));
 
   // find and validate Native Token 2
   elm = native_tokens_find_by_id(tokens, token_id2);
@@ -219,7 +219,7 @@ void test_native_tokens_clone() {
   TEST_ASSERT_NOT_NULL(elm);
   TEST_ASSERT_NOT_NULL(new_elm);
   TEST_ASSERT_EQUAL_MEMORY(elm->token_id, new_elm->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(elm->amount, new_elm->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(&elm->amount, &new_elm->amount, sizeof(uint256_t));
 
   // find and validate Native Token 3
   elm = native_tokens_find_by_id(tokens, token_id3);
@@ -227,7 +227,7 @@ void test_native_tokens_clone() {
   TEST_ASSERT_NOT_NULL(elm);
   TEST_ASSERT_NOT_NULL(new_elm);
   TEST_ASSERT_EQUAL_MEMORY(elm->token_id, new_elm->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(elm->amount, new_elm->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(&elm->amount, &new_elm->amount, sizeof(uint256_t));
 
   native_tokens_print(new_tokens, 0);
 

@@ -70,7 +70,7 @@ output_basic_t* output_basic_new(uint64_t amount, native_tokens_list_t* tokens, 
     output->native_tokens = native_tokens_new();
     native_tokens_list_t* elm;
     LL_FOREACH(tokens, elm) {
-      int res = native_tokens_add(&output->native_tokens, elm->token->token_id, elm->token->amount);
+      int res = native_tokens_add(&output->native_tokens, elm->token->token_id, &elm->token->amount);
       if (res == -1) {
         printf("[%s:%d] can not add native token to basic output\n", __func__, __LINE__);
         output_basic_free(output);

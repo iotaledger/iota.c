@@ -73,7 +73,7 @@ output_nft_t* output_nft_new(uint64_t amount, native_tokens_list_t* tokens, byte
     output->native_tokens = native_tokens_new();
     native_tokens_list_t* elm;
     LL_FOREACH(tokens, elm) {
-      int res = native_tokens_add(&output->native_tokens, elm->token->token_id, elm->token->amount);
+      int res = native_tokens_add(&output->native_tokens, elm->token->token_id, &elm->token->amount);
       if (res == -1) {
         printf("[%s:%d] can not add native token to NFT output\n", __func__, __LINE__);
         output_nft_free(output);
