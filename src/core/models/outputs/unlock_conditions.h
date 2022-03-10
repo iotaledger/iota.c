@@ -24,7 +24,7 @@
  */
 typedef enum {
   UNLOCK_COND_ADDRESS = 0,  // Address Unlock, it unlocks Ed25519 address
-  UNLOCK_COND_DUST,         // Dust Deposit Return Unlock, to achieve conditional sending
+  UNLOCK_COND_STORAGE,      // Storage Deposit Return Unlock, to achieve conditional sending
   UNLOCK_COND_TIMELOCK,    // Timelock Unlock, an output contains a Timelock Unlock Condition can not be unlocked before
                            // the specified timelock has expired.
   UNLOCK_COND_EXPIRATION,  // Expiration Unlock, for the sender to reclaim an output after a given expiration time has
@@ -43,15 +43,15 @@ typedef struct {
 } unlock_cond_blk_t;
 
 /**
- * @brief Dust Deposit Return Unlock Condition
+ * @brief Storage Deposit Return Unlock Condition
  *
- * Defines the amount of IOTAs used as dust deposit that have to be returned to Sender.
+ * Defines the amount of IOTAs used as storage deposit that have to be returned to Sender.
  *
  */
 typedef struct {
   address_t* addr;  // Return Address
   uint64_t amount;  // Return Amount
-} unlock_cond_dust_t;
+} unlock_cond_storage_t;
 
 /**
  * @brief Timelock Unlock Condition
@@ -103,15 +103,15 @@ extern "C" {
 unlock_cond_blk_t* cond_blk_addr_new(address_t const* const addr);
 
 /**
- * @brief Create a Dust Deposit Return Unlock Condition block
+ * @brief Create a Storage Deposit Return Unlock Condition block
  *
- * The amount of IOTAs used as dust deposit that have to be returned to Sender.
+ * The amount of IOTAs used as storage deposit that have to be returned to Sender.
  *
  * @param[in] addr A return address
  * @param[in] amount The return amount
  * @return unlock_cond_blk_t*
  */
-unlock_cond_blk_t* cond_blk_dust_new(address_t const* const addr, uint64_t amount);
+unlock_cond_blk_t* cond_blk_storage_new(address_t const* const addr, uint64_t amount);
 
 /**
  * @brief Create a Timelock Unlock Condition block

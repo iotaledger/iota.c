@@ -9,53 +9,53 @@
 #include "core/models/outputs/unlock_conditions.h"
 #include "utlist.h"
 
-static unlock_cond_dust_t* cond_dust_new(address_t const* const addr, uint64_t amount) {
+static unlock_cond_storage_t* cond_storage_new(address_t const* const addr, uint64_t amount) {
   if (!addr || amount == 0) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
-  unlock_cond_dust_t* dust = malloc(sizeof(unlock_cond_dust_t));
-  if (dust) {
-    dust->addr = address_clone(addr);
-    if (!dust->addr) {
-      free(dust);
+  unlock_cond_storage_t* storage = malloc(sizeof(unlock_cond_storage_t));
+  if (storage) {
+    storage->addr = address_clone(addr);
+    if (!storage->addr) {
+      free(storage);
       return NULL;
     }
-    dust->amount = amount;
-    return dust;
+    storage->amount = amount;
+    return storage;
   }
-  return dust;
+  return storage;
 }
 
-static size_t cond_dust_serialize_len(unlock_cond_dust_t* dust) {
+static size_t cond_storage_serialize_len(unlock_cond_storage_t* storage) {
   // return address + return amount
-  return address_serialized_len(dust->addr) + sizeof(dust->amount);
+  return address_serialized_len(storage->addr) + sizeof(storage->amount);
 }
 
-static size_t cond_dust_serialize(unlock_cond_dust_t* dust, byte_t buf[], size_t buf_len) {
+static size_t cond_storage_serialize(unlock_cond_storage_t* storage, byte_t buf[], size_t buf_len) {
   // serialize address and amount
-  size_t offset = address_serialize(dust->addr, buf, buf_len);
+  size_t offset = address_serialize(storage->addr, buf, buf_len);
   if (offset) {
-    memcpy(buf + offset, &dust->amount, sizeof(dust->amount));
-    offset += sizeof(dust->amount);
+    memcpy(buf + offset, &storage->amount, sizeof(storage->amount));
+    offset += sizeof(storage->amount);
   } else {
     printf("[%s:%d] address serialization failed\n", __func__, __LINE__);
   }
   return offset;
 }
 
-static void cond_dust_free(unlock_cond_dust_t* dust) {
-  if (dust) {
-    if (dust->addr) {
-      free_address(dust->addr);
+static void cond_storage_free(unlock_cond_storage_t* storage) {
+  if (storage) {
+    if (storage->addr) {
+      free_address(storage->addr);
     }
-    free(dust);
+    free(storage);
   }
 }
 
-static unlock_cond_dust_t* cond_dust_deserialize(byte_t buf[], size_t buf_len) {
-  unlock_cond_dust_t* d = malloc(sizeof(unlock_cond_dust_t));
+static unlock_cond_storage_t* cond_storage_deserialize(byte_t buf[], size_t buf_len) {
+  unlock_cond_storage_t* d = malloc(sizeof(unlock_cond_storage_t));
   if (d) {
     // address
     d->addr = address_deserialize(buf, buf_len);
@@ -63,14 +63,14 @@ static unlock_cond_dust_t* cond_dust_deserialize(byte_t buf[], size_t buf_len) {
       size_t offset = address_serialized_len(d->addr);
       if (buf_len < (offset + sizeof(d->amount))) {
         printf("[%s:%d] insufficient buffer size\n", __func__, __LINE__);
-        cond_dust_free(d);
+        cond_storage_free(d);
         return NULL;
       }
       // amount
       memcpy(&d->amount, buf + address_serialized_len(d->addr), sizeof(d->amount));
     } else {
       printf("[%s:%d] address serialization failed\n", __func__, __LINE__);
-      cond_dust_free(d);
+      cond_storage_free(d);
       return NULL;
     }
   }
@@ -227,7 +227,7 @@ unlock_cond_blk_t* cond_blk_addr_new(address_t const* const addr) {
   return blk;
 }
 
-unlock_cond_blk_t* cond_blk_dust_new(address_t const* const addr, uint64_t amount) {
+unlock_cond_blk_t* cond_blk_storage_new(address_t const* const addr, uint64_t amount) {
   if (!addr) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
@@ -235,12 +235,12 @@ unlock_cond_blk_t* cond_blk_dust_new(address_t const* const addr, uint64_t amoun
 
   unlock_cond_blk_t* blk = malloc(sizeof(unlock_cond_blk_t));
   if (blk) {
-    blk->block = cond_dust_new(addr, amount);
+    blk->block = cond_storage_new(addr, amount);
     if (!blk->block) {
       free(blk);
       return NULL;
     }
-    blk->type = UNLOCK_COND_DUST;
+    blk->type = UNLOCK_COND_STORAGE;
     return blk;
   }
   return blk;
@@ -324,9 +324,9 @@ size_t cond_blk_serialize_len(unlock_cond_blk_t const* const blk) {
     case UNLOCK_COND_GOVERNOR:
       // block type + address
       return sizeof(uint8_t) + address_serialized_len((address_t*)blk->block);
-    case UNLOCK_COND_DUST:
-      // block type + dust block
-      return sizeof(uint8_t) + cond_dust_serialize_len((unlock_cond_dust_t*)blk->block);
+    case UNLOCK_COND_STORAGE:
+      // block type + storage block
+      return sizeof(uint8_t) + cond_storage_serialize_len((unlock_cond_storage_t*)blk->block);
     case UNLOCK_COND_TIMELOCK:
       // block type + timelock block
       return sizeof(uint8_t) + cond_timelock_serialize_len((unlock_cond_timelock_t*)blk->block);
@@ -363,8 +363,8 @@ size_t cond_blk_serialize(unlock_cond_blk_t* blk, byte_t buf[], size_t buf_len) 
     case UNLOCK_COND_GOVERNOR:
       offset += address_serialize((address_t*)blk->block, buf + offset, buf_len - offset);
       break;
-    case UNLOCK_COND_DUST:
-      offset += cond_dust_serialize((unlock_cond_dust_t*)blk->block, buf + offset, buf_len - offset);
+    case UNLOCK_COND_STORAGE:
+      offset += cond_storage_serialize((unlock_cond_storage_t*)blk->block, buf + offset, buf_len - offset);
       break;
     case UNLOCK_COND_TIMELOCK:
       offset += cond_timelock_serialize((unlock_cond_timelock_t*)blk->block, buf + offset, buf_len - offset);
@@ -402,9 +402,9 @@ unlock_cond_blk_t* cond_blk_deserialize(byte_t buf[], size_t buf_len) {
       // deserialize address
       blk->block = address_deserialize(buf + sizeof(uint8_t), buf_len - sizeof(uint8_t));
       break;
-    case UNLOCK_COND_DUST:
-      // deserialize dust block
-      blk->block = cond_dust_deserialize(buf + sizeof(uint8_t), buf_len - sizeof(uint8_t));
+    case UNLOCK_COND_STORAGE:
+      // deserialize storage block
+      blk->block = cond_storage_deserialize(buf + sizeof(uint8_t), buf_len - sizeof(uint8_t));
       break;
     case UNLOCK_COND_TIMELOCK:
       // deserialize timelock block
@@ -433,9 +433,9 @@ unlock_cond_blk_t* cond_blk_clone(unlock_cond_blk_t* blk) {
   switch (blk->type) {
     case UNLOCK_COND_ADDRESS:
       return cond_blk_addr_new((address_t*)blk->block);
-    case UNLOCK_COND_DUST: {
-      unlock_cond_dust_t* dust = (unlock_cond_dust_t*)blk->block;
-      return cond_blk_dust_new(dust->addr, dust->amount);
+    case UNLOCK_COND_STORAGE: {
+      unlock_cond_storage_t* storage = (unlock_cond_storage_t*)blk->block;
+      return cond_blk_storage_new(storage->addr, storage->amount);
     }
     case UNLOCK_COND_TIMELOCK: {
       unlock_cond_timelock_t* t = (unlock_cond_timelock_t*)blk->block;
@@ -463,8 +463,8 @@ void cond_blk_free(unlock_cond_blk_t* blk) {
       case UNLOCK_COND_GOVERNOR:
         free_address((address_t*)blk->block);
         break;
-      case UNLOCK_COND_DUST:
-        cond_dust_free((unlock_cond_dust_t*)blk->block);
+      case UNLOCK_COND_STORAGE:
+        cond_storage_free((unlock_cond_storage_t*)blk->block);
         break;
       case UNLOCK_COND_TIMELOCK:
         cond_timelock_free((unlock_cond_timelock_t*)blk->block);
@@ -487,9 +487,9 @@ void cond_blk_print(unlock_cond_blk_t* blk) {
       printf("Address:");
       address_print((address_t*)blk->block);
       break;
-    case UNLOCK_COND_DUST:
-      printf("Dust Return Amount: %" PRIu64 ", Return Address: ", ((unlock_cond_dust_t*)blk->block)->amount);
-      address_print(((unlock_cond_dust_t*)blk->block)->addr);
+    case UNLOCK_COND_STORAGE:
+      printf("Storage Return Amount: %" PRIu64 ", Return Address: ", ((unlock_cond_storage_t*)blk->block)->amount);
+      address_print(((unlock_cond_storage_t*)blk->block)->addr);
       break;
     case UNLOCK_COND_TIMELOCK:
       printf("Timelock: Milestone %" PRIu32 ", Unix %" PRIu32 "\n", ((unlock_cond_timelock_t*)blk->block)->milestone,

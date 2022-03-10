@@ -8,12 +8,6 @@
 #include <stdio.h>
 
 typedef uint8_t byte_t;
-typedef uint32_t payload_t;
-typedef uint8_t output_t;
-typedef uint8_t input_t;
-typedef uint8_t transaction_t;
-typedef uint8_t signature_t;
-typedef uint16_t unlock_index_t;
 
 /* clang-format off */
 /**

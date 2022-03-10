@@ -16,7 +16,6 @@
 
 // output id = transaction id(64 bytes) + output index(4 bytes)
 #define IOTA_OUTPUT_ID_HEX_BYTES 68
-#define IOTA_OUTPUT_ID_HEX_STR (IOTA_OUTPUT_ID_HEX_BYTES + 1)
 
 /**
  * @brief An output response object

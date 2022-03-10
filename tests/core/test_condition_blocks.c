@@ -48,21 +48,21 @@ void test_condition_addr() {
   cond_blk_free(b);
 }
 
-void test_condition_dust() {
+void test_condition_storage() {
   // should be NULL
-  TEST_ASSERT_NULL(cond_blk_dust_new(NULL, 1000000));
+  TEST_ASSERT_NULL(cond_blk_storage_new(NULL, 1000000));
 
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
 
-  unlock_cond_blk_t* b = cond_blk_dust_new(&addr, 100000000);
+  unlock_cond_blk_t* b = cond_blk_storage_new(&addr, 100000000);
   TEST_ASSERT_NOT_NULL(b);
   // should be dist deposit unlock condition
-  TEST_ASSERT(b->type == UNLOCK_COND_DUST);
-  TEST_ASSERT_TRUE(address_equal(&addr, ((unlock_cond_dust_t*)b->block)->addr));
-  TEST_ASSERT(((unlock_cond_dust_t*)b->block)->amount == 100000000);
+  TEST_ASSERT(b->type == UNLOCK_COND_STORAGE);
+  TEST_ASSERT_TRUE(address_equal(&addr, ((unlock_cond_storage_t*)b->block)->addr));
+  TEST_ASSERT(((unlock_cond_storage_t*)b->block)->amount == 100000000);
 
   // serialization tests
   byte_t buf[64] = {};
@@ -77,8 +77,9 @@ void test_condition_dust() {
   TEST_ASSERT_NOT_NULL(deser_blk);
   // validate block data
   TEST_ASSERT(b->type == deser_blk->type);
-  TEST_ASSERT_TRUE(address_equal(((unlock_cond_dust_t*)b->block)->addr, ((unlock_cond_dust_t*)deser_blk->block)->addr));
-  TEST_ASSERT(((unlock_cond_dust_t*)b->block)->amount == ((unlock_cond_dust_t*)deser_blk->block)->amount);
+  TEST_ASSERT_TRUE(
+      address_equal(((unlock_cond_storage_t*)b->block)->addr, ((unlock_cond_storage_t*)deser_blk->block)->addr));
+  TEST_ASSERT(((unlock_cond_storage_t*)b->block)->amount == ((unlock_cond_storage_t*)deser_blk->block)->amount);
 
   // clean up
   cond_blk_free(deser_blk);
@@ -296,9 +297,9 @@ void test_condition_list() {
   TEST_ASSERT(cond_blk_list_add(&list, blk) != 0);
   TEST_ASSERT(cond_blk_list_len(list) == 4);
 
-  // 4: add Dust Deposit
+  // 4: add Storage Deposit
   cond_blk_free(blk);
-  blk = cond_blk_dust_new(&addr, 1000000);
+  blk = cond_blk_storage_new(&addr, 1000000);
   TEST_ASSERT(cond_blk_list_add(&list, blk) == 0);
   TEST_ASSERT(cond_blk_list_len(list) == 5);
   // add one more address, should be failed
@@ -322,7 +323,7 @@ void test_condition_list() {
   TEST_ASSERT(cond_blk_list_get(list, 1)->type == UNLOCK_COND_STATE);
   TEST_ASSERT(cond_blk_list_get(list, 2)->type == UNLOCK_COND_ADDRESS);
   TEST_ASSERT(cond_blk_list_get(list, 3)->type == UNLOCK_COND_GOVERNOR);
-  TEST_ASSERT(cond_blk_list_get(list, 4)->type == UNLOCK_COND_DUST);
+  TEST_ASSERT(cond_blk_list_get(list, 4)->type == UNLOCK_COND_STORAGE);
   TEST_ASSERT(cond_blk_list_get(list, 5)->type == UNLOCK_COND_EXPIRATION);
 
   cond_blk_list_t* list2 = cond_blk_list_clone(list);
@@ -335,7 +336,7 @@ void test_condition_list() {
   cond_blk_list_sort(&list);
   // should be in order
   TEST_ASSERT(cond_blk_list_get(list, 0)->type == UNLOCK_COND_ADDRESS);
-  TEST_ASSERT(cond_blk_list_get(list, 1)->type == UNLOCK_COND_DUST);
+  TEST_ASSERT(cond_blk_list_get(list, 1)->type == UNLOCK_COND_STORAGE);
   TEST_ASSERT(cond_blk_list_get(list, 2)->type == UNLOCK_COND_TIMELOCK);
   TEST_ASSERT(cond_blk_list_get(list, 3)->type == UNLOCK_COND_EXPIRATION);
   TEST_ASSERT(cond_blk_list_get(list, 4)->type == UNLOCK_COND_STATE);
@@ -407,7 +408,7 @@ int main() {
 
   // Condition blocks
   RUN_TEST(test_condition_addr);
-  RUN_TEST(test_condition_dust);
+  RUN_TEST(test_condition_storage);
   RUN_TEST(test_condition_timelock);
   RUN_TEST(test_condition_expiration);
   RUN_TEST(test_condition_state);

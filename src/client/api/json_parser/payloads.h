@@ -36,7 +36,7 @@ cJSON* json_transaction_serialize(transaction_payload_t* tx);
  * @param[out] ms A milestone payload object
  * @return int 0 on success
  */
-int milestone_deserialize(cJSON* payload, milestone_t* ms);
+int milestone_deserialize(cJSON* payload, milestone_payload_t* ms);
 
 /**
  * @brief Deserialize JSON data to tagged data object
@@ -45,7 +45,7 @@ int milestone_deserialize(cJSON* payload, milestone_t* ms);
  * @param[out] tagged_data A tagged data object
  * @return int 0 on success
  */
-int json_tagged_deserialize(cJSON* payload, tagged_data_t** tagged_data);
+int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data);
 
 /**
  * @brief Serialize a tagged data payload object to JSON object
@@ -53,7 +53,7 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_t** tagged_data);
  * @param[in] tagged_data A tagged data object
  * @return cJSON* NULL on errors
  */
-cJSON* json_tagged_serialize(tagged_data_t* tagged_data);
+cJSON* json_tagged_serialize(tagged_data_payload_t* tagged_data);
 
 #ifdef __cplusplus
 }

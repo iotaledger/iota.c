@@ -9,6 +9,7 @@
 #include "client/network/http.h"
 #include "core/address.h"
 #include "core/utils/iota_str.h"
+#include "core/utils/macros.h"
 
 res_message_t *res_message_new() {
   res_message_t *msg = malloc(sizeof(res_message_t));
@@ -79,7 +80,7 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
     return -1;
   }
 
-  if (strlen(msg_id) != IOTA_MESSAGE_ID_HEX_BYTES) {
+  if (strlen(msg_id) != BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES)) {
     // invalid message id length
     printf("[%s:%d]: invalid message id length: %zu\n", __func__, __LINE__, strlen(msg_id));
     return -1;
@@ -88,7 +89,7 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
   iota_str_t *cmd = NULL;
   char const *const cmd_str = "/api/v2/messages/";
 
-  cmd = iota_str_reserve(strlen(cmd_str) + IOTA_MESSAGE_ID_HEX_BYTES + 1);
+  cmd = iota_str_reserve(strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;

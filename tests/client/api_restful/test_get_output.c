@@ -83,8 +83,8 @@ void test_output_response_deserialization() {
   TEST_ASSERT(out->u.data->ledger_index == 13);
 
   // validate output object
-  TEST_ASSERT(out->u.data->output->output_type == OUTPUT_EXTENDED);
-  output_extended_t* o = (output_extended_t*)out->u.data->output->output;
+  TEST_ASSERT(out->u.data->output->output_type == OUTPUT_BASIC);
+  output_basic_t* o = (output_basic_t*)out->u.data->output->output;
   TEST_ASSERT(o->amount == 10000000);
   TEST_ASSERT_NULL(o->native_tokens);
   TEST_ASSERT_NOT_NULL(o->unlock_conditions);

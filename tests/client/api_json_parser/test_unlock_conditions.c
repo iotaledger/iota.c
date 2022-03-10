@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "client/api/json_parser/unlock_conditions.h"
+#include "core/utils/macros.h"
 #include "unity/unity.h"
 
 void setUp(void) {}
@@ -28,7 +29,7 @@ void test_unlock_condition_address() {
 
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 
@@ -36,7 +37,7 @@ void test_unlock_condition_address() {
   cond_blk_list_free(blk_list);
 }
 
-void test_unlock_condition_dust_deposit_return() {
+void test_unlock_condition_storage_deposit_return() {
   char const* const json_res =
       "{\"type\":1,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
       "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}, \"amount\":1337}";
@@ -44,21 +45,21 @@ void test_unlock_condition_dust_deposit_return() {
   TEST_ASSERT_NOT_NULL(json_obj);
 
   cond_blk_list_t* blk_list = cond_blk_list_new();
-  int result = json_cond_blk_dust_deserialize(json_obj, &blk_list);
+  int result = json_cond_blk_storage_deserialize(json_obj, &blk_list);
   TEST_ASSERT_EQUAL_INT(0, result);
   TEST_ASSERT_EQUAL_INT(1, cond_blk_list_len(blk_list));
 
-  unlock_cond_blk_t* cond_unlock = cond_blk_list_get_type(blk_list, UNLOCK_COND_DUST);
+  unlock_cond_blk_t* cond_unlock = cond_blk_list_get_type(blk_list, UNLOCK_COND_STORAGE);
   TEST_ASSERT_NOT_NULL(cond_unlock);
-  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_DUST, cond_unlock->type);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_STORAGE, cond_unlock->type);
 
-  unlock_cond_dust_t* cond_dust = (unlock_cond_dust_t*)cond_unlock->block;
+  unlock_cond_storage_t* cond_storage = (unlock_cond_storage_t*)cond_unlock->block;
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, cond_dust->addr));
-  TEST_ASSERT_EQUAL_UINT64(1337, cond_dust->amount);
+  TEST_ASSERT_TRUE(address_equal(&test_addr, cond_storage->addr));
+  TEST_ASSERT_EQUAL_UINT64(1337, cond_storage->amount);
 
   cJSON_Delete(json_obj);
   cond_blk_list_free(blk_list);
@@ -107,7 +108,7 @@ void test_unlock_condition_expiration() {
   unlock_cond_expir_t* cond_expiration = (unlock_cond_expir_t*)cond_unlock->block;
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, cond_expiration->addr));
   TEST_ASSERT_EQUAL_UINT32(123456789, cond_expiration->milestone);
@@ -135,7 +136,7 @@ void test_unlock_condition_state() {
 
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 
@@ -161,7 +162,7 @@ void test_unlock_condition_governor() {
 
   address_t test_addr;
   test_addr.type = 0;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", ADDRESS_ED25519_HEX_BYTES,
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES),
             test_addr.address, ADDRESS_ED25519_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 
@@ -192,7 +193,7 @@ void test_unlock_conditions() {
   TEST_ASSERT_EQUAL_INT(6, cond_blk_list_len(blk_list));
   unlock_cond_blk_t* cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_ADDRESS);
   TEST_ASSERT_NOT_NULL(cond_block);
-  cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_DUST);
+  cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_STORAGE);
   TEST_ASSERT_NOT_NULL(cond_block);
   cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_TIMELOCK);
   TEST_ASSERT_NOT_NULL(cond_block);
@@ -230,7 +231,7 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_unlock_condition_address);
-  RUN_TEST(test_unlock_condition_dust_deposit_return);
+  RUN_TEST(test_unlock_condition_storage_deposit_return);
   RUN_TEST(test_unlock_condition_timelock);
   RUN_TEST(test_unlock_condition_expiration);
   RUN_TEST(test_unlock_condition_state);

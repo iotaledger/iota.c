@@ -21,13 +21,13 @@ extern "C" {
 int json_cond_blk_addr_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list);
 
 /**
- * @brief Deserialize JSON dust deposit return unlock condition to unlock condition object
+ * @brief Deserialize JSON storage deposit return unlock condition to unlock condition object
  *
  * @param[in] unlock_cond_obj Unlock conditions JSON object
  * @param[out] blk_list Unlock conditions list object
  * @return int 0 on success
  */
-int json_cond_blk_dust_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list);
+int json_cond_blk_storage_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list);
 
 /**
  * @brief Deserialize JSON timelock unlock condition to unlock condition object

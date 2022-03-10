@@ -33,14 +33,14 @@ void test_parse_outputs_empty() {
 void test_parse_outputs() {
   char const *const json_res =
       "{\"outputs\":["
-      // extended output
+      // basic output
       "{\"type\":3,\"amount\":1000000,\"nativeTokens\":[{\"id\":"
       "\"08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\","
       "\"amount\":\"93847598347598347598347598\"},{\"id\":"
       "\"09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
       "\"7598347598347598\"}],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":16,\"nftId\":"
       "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}},{\"type\":1,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"amount\":123456},{\"type\":2,"
+      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"amount\":800000},{\"type\":2,"
       "\"milestoneIndex\":45598,\"unixTime\":123123},{\"type\":3,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
       "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"milestoneIndex\":45598,\"unixTime\":"
       "123123}],\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
@@ -84,7 +84,7 @@ void test_parse_outputs() {
       "\"7598347598347598\"}],\"nftId\":\"bebc45994f6bd9394f552b62c6e370ce1ab52d2e\",\"unlockConditions\":[{\"type\":0,"
       "\"address\":{\"type\":16,\"nftId\":"
       "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}},{\"type\":1,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"amount\":123456},{\"type\":2,"
+      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"amount\":800000},{\"type\":2,"
       "\"milestoneIndex\":45598,\"unixTime\":123123},{\"type\":3,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
       "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"milestoneIndex\":45598,\"unixTime\":"
       "123123}],\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
@@ -107,9 +107,9 @@ void test_parse_outputs() {
 
   TEST_ASSERT_EQUAL_UINT16(4, utxo_outputs_count(output_list));
 
-  // check extended output
+  // check basic output
   utxo_output_t *output = utxo_outputs_get(output_list, 0);
-  TEST_ASSERT_EQUAL_UINT8(OUTPUT_EXTENDED, output->output_type);
+  TEST_ASSERT_EQUAL_UINT8(OUTPUT_BASIC, output->output_type);
 
   // check alias output
   output = utxo_outputs_get(output_list, 1);

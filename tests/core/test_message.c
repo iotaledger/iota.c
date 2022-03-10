@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "core/models/message.h"
-#include "core/models/outputs/output_extended.h"
+#include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/outputs.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
@@ -15,12 +15,12 @@ void setUp(void) {}
 
 void tearDown(void) {}
 
-static output_extended_t* create_output_extended_one() {
+static output_basic_t* create_output_basic_one() {
   // create ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  TEST_ASSERT(hex_2_bin("21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942", ADDRESS_ED25519_HEX_BYTES,
-                        addr.address, ADDRESS_ED25519_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942",
+                        BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES), addr.address, ADDRESS_ED25519_BYTES) == 0);
 
   // create address unlock condition
   unlock_cond_blk_t* addr_unlock_cond = cond_blk_addr_new(&addr);
@@ -30,8 +30,8 @@ static output_extended_t* create_output_extended_one() {
   cond_blk_list_t* unlock_conditions = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conditions, addr_unlock_cond) == 0);
 
-  // create Extended Output
-  output_extended_t* output = output_extended_new(10000000, NULL, unlock_conditions, NULL);
+  // create Basic Output
+  output_basic_t* output = output_basic_new(10000000, NULL, unlock_conditions, NULL);
   TEST_ASSERT_NOT_NULL(output);
 
   // clean up
@@ -41,12 +41,12 @@ static output_extended_t* create_output_extended_one() {
   return output;
 }
 
-static output_extended_t* create_output_extended_two() {
+static output_basic_t* create_output_basic_two() {
   // create ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  TEST_ASSERT(hex_2_bin("60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe", ADDRESS_ED25519_HEX_BYTES,
-                        addr.address, ADDRESS_ED25519_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe",
+                        BIN_TO_HEX_BYTES(ADDRESS_ED25519_BYTES), addr.address, ADDRESS_ED25519_BYTES) == 0);
 
   // create address unlock condition
   unlock_cond_blk_t* addr_unlock_cond = cond_blk_addr_new(&addr);
@@ -56,8 +56,8 @@ static output_extended_t* create_output_extended_two() {
   cond_blk_list_t* unlock_conditions = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conditions, addr_unlock_cond) == 0);
 
-  // create Extended Output
-  output_extended_t* output = output_extended_new(2779530273277761, NULL, unlock_conditions, NULL);
+  // create Basic Output
+  output_basic_t* output = output_basic_new(2779530273277761, NULL, unlock_conditions, NULL);
   TEST_ASSERT_NOT_NULL(output);
 
   // clean up
@@ -173,7 +173,7 @@ void test_message_with_tx_serialize() {
   TEST_ASSERT_NOT_NULL(essence);
 
   // add type
-  essence->tx_type = TRANSACTION_PAYLOAD_ESSENCE;
+  essence->tx_type = TRANSACTION_ESSENCE_TYPE;
 
   // add input with id0
   byte_t input_id0[IOTA_TRANSACTION_ID_BYTES];
@@ -181,17 +181,17 @@ void test_message_with_tx_serialize() {
             BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES), input_id0, sizeof(input_id0));
   TEST_ASSERT(tx_essence_add_input(essence, 0, input_id0, 0, NULL) == 0);
 
-  // add extended output one
-  output_extended_t* extended_output_one = create_output_extended_one();
-  TEST_ASSERT(tx_essence_add_output(essence, OUTPUT_EXTENDED, extended_output_one) == 0);
+  // add basic output one
+  output_basic_t* basic_output_one = create_output_basic_one();
+  TEST_ASSERT(tx_essence_add_output(essence, OUTPUT_BASIC, basic_output_one) == 0);
 
-  // add extended output two
-  output_extended_t* extended_output_two = create_output_extended_two();
-  TEST_ASSERT(tx_essence_add_output(essence, OUTPUT_EXTENDED, extended_output_two) == 0);
+  // add basic output two
+  output_basic_t* basic_output_two = create_output_basic_two();
+  TEST_ASSERT(tx_essence_add_output(essence, OUTPUT_BASIC, basic_output_two) == 0);
 
   // add tagged data payload
   char const* const hornet_faucet = "HORNET FAUCET";
-  tagged_data_t* tagged_data = tagged_data_create((byte_t*)hornet_faucet, strlen(hornet_faucet) + 1, NULL, 0);
+  tagged_data_payload_t* tagged_data = tagged_data_create((byte_t*)hornet_faucet, strlen(hornet_faucet) + 1, NULL, 0);
   TEST_ASSERT_NOT_NULL(tagged_data);
   TEST_ASSERT(tx_essence_add_payload(essence, CORE_MESSAGE_PAYLOAD_TAGGED, tagged_data) == 0);
 
@@ -227,8 +227,8 @@ void test_message_with_tx_serialize() {
   free(serialized_data_hex_str);
   free(signature);
   free(core_message_buf);
-  output_extended_free(extended_output_one);
-  output_extended_free(extended_output_two);
+  output_basic_free(basic_output_one);
+  output_basic_free(basic_output_two);
   core_message_free(msg);
 }
 

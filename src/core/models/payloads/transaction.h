@@ -15,10 +15,8 @@
 
 static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
 
-typedef enum {
-  TRANSACTION_PAYLOAD_ESSENCE = 0,
-  TRANSACTION_PAYLOAD_UNKNOWN = UINT32_MAX - 1,
-} transaction_payload_type_t;
+// have one transaction essence only which is 0
+#define TRANSACTION_ESSENCE_TYPE 0
 
 /**
  * @brief Transaction Essence, the essence data making up a transaction by defining its inputs and outputs and an
@@ -26,7 +24,7 @@ typedef enum {
  *
  * Based on protocol design, we can have different types of input and output in a transaction.
  * At this moment, we have only utxo_input_list for input.
- * For output we have extended, alias, foundry and nft output.
+ * For output we have basic, alias, foundry and nft output.
  *
  */
 typedef struct {
@@ -50,7 +48,7 @@ typedef struct {
  *
  */
 typedef struct {
-  payload_t type;                  ///< Set to value 0 to denote a Transaction payload.
+  uint32_t type;                   ///< Set to value 0 to denote a Transaction payload.
   transaction_essence_t* essence;  ///< Describes the essence data making up a transaction by defining its inputs and
                                    ///< outputs and an optional payload.
   unlock_list_t* unlock_blocks;    ///< Defines a list of unlock blocks (signature, reference, alias, NFT) which unlock
@@ -160,47 +158,6 @@ transaction_payload_t* tx_payload_new(uint64_t network_id);
  * @param[in] tx A transaction payload
  */
 void tx_payload_free(transaction_payload_t* tx);
-
-/**
- * @brief Add an input to the transaction payload
- *
- * @param[in] tx A transaction payload object
- * @param[in] tx_id A transaction ID
- * @param[in] index The index of the output of the referenced transaction
- * @param[in] key An ed25519 keypair
- * @return int 0 on success
- */
-int tx_payload_add_input(transaction_payload_t* tx, uint8_t type, byte_t tx_id[], uint8_t index,
-                         ed25519_keypair_t* key);
-
-/**
- * @brief Add an output to the transaction payload
- *
- * @param[in] tx A transaction payload
- * @param[in] type The output type
- * @param[in] output Pointer to an output
- * @return int 0 on success
- */
-int tx_payload_add_output(transaction_payload_t* tx, utxo_output_type_t type, void* output);
-
-/**
- * @brief Add a signature unlocked block to the transaction
- *
- * @param[in] tx A transaction payload
- * @param[in] sig_block An ed25519 signature block
- * @param[in] sig_len the length of ed25519 signature block
- * @return int 0 on success
- */
-int tx_payload_add_sig_block(transaction_payload_t* tx, byte_t* sig_block, size_t sig_len);
-
-/**
- * @brief Add a reference unlocked block to the transaction
- *
- * @param[in] tx A transaction payload
- * @param[in] ref The index of reference
- * @return int 0 on success
- */
-int tx_payload_add_ref_block(transaction_payload_t* tx, uint16_t ref);
 
 /**
  * @brief Get the serialized length of a transaction payload

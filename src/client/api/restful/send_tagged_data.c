@@ -13,7 +13,7 @@
 int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t tag[], uint8_t tag_len, byte_t data[],
                              uint32_t data_len, res_send_message_t* res) {
   int ret = -1;
-  if (conf == NULL || tag == NULL || res == NULL) {
+  if (conf == NULL || res == NULL) {
     // invalid parameters
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -21,6 +21,11 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
 
   if (data_len > 0 && data == NULL) {
     printf("[%s:%d] data cannot be null if data_len is greater than 0\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (tag_len > 0 && tag == NULL) {
+    printf("[%s:%d] tag cannot be null if tag_len is greater than 0\n", __func__, __LINE__);
     return -1;
   }
 

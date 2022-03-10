@@ -8,13 +8,49 @@
 
 #include "blake2b_data.h"
 #include "crypto/iota_crypto.h"
+#include "ed25519_signature_edges.h"
 #include "unity/unity.h"
 
 #include "pbkdf2_vectors.h"
 
+// Get the binary bytes of the given hex bytes
+#define HEX_TO_BIN_BYTES(x) (x / 2)
+
 void setUp(void) {}
 
 void tearDown(void) {}
+
+static int char2int(char input) {
+  if (input >= '0' && input <= '9') return input - '0';
+  if (input >= 'A' && input <= 'F') return input - 'A' + 10;
+  if (input >= 'a' && input <= 'f') return input - 'a' + 10;
+  return -1;  // invalid char
+}
+
+static int hex_2_bin(char const str[], size_t str_len, uint8_t bin[], size_t bin_len) {
+  if (!str || !bin) {
+    return -1;
+  }
+
+  size_t expected_bin_len = str_len / 2;
+  if (bin_len < expected_bin_len) {
+    // buffer size is not sufficient
+    return -2;
+  }
+
+  char* pos = (char*)str;
+  for (size_t i = 0; i < expected_bin_len; i++) {
+    int v_h = char2int(pos[0]);
+    int v_l = char2int(pos[1]);
+    if (v_h < 0 || v_l < 0) {
+      // invalid char
+      return -3;
+    }
+    bin[i] = v_h * 16 + v_l;
+    pos += 2;
+  }
+  return 0;
+}
 
 // BLAKE2 hash function
 // test vectors: https://github.com/BLAKE2/BLAKE2/tree/master/testvectors
@@ -246,6 +282,37 @@ void test_pbkdf2_hmac_sha512() {
   }
 }
 
+// test vectors: https://github.com/novifinancial/ed25519-speccheck
+void test_ed25519_signature_edge_case() {
+  for (int i = 0; i < (int)ED25519_EDGE_SIG_COUNT; i++) {
+    // convert message hex string to byte array
+    size_t msg_len = strlen(ed25519_edge_sig[i].message);
+    uint8_t msg_bytes[HEX_TO_BIN_BYTES(msg_len)];
+    TEST_ASSERT_EQUAL_INT(0, hex_2_bin(ed25519_edge_sig[i].message, msg_len, msg_bytes, HEX_TO_BIN_BYTES(msg_len)));
+
+    // convert pubkey hex string to byte array
+    size_t pubkey_len = strlen(ed25519_edge_sig[i].pub_key);
+    uint8_t pubkey_bytes[HEX_TO_BIN_BYTES(pubkey_len)];
+    TEST_ASSERT_EQUAL_INT(
+        0, hex_2_bin(ed25519_edge_sig[i].pub_key, pubkey_len, pubkey_bytes, HEX_TO_BIN_BYTES(pubkey_len)));
+
+    // convert pubkey hex string to byte array
+    size_t sig_len = strlen(ed25519_edge_sig[i].signature);
+    uint8_t sig_bytes[HEX_TO_BIN_BYTES(sig_len)];
+    TEST_ASSERT_EQUAL_INT(0, hex_2_bin(ed25519_edge_sig[i].signature, sig_len, sig_bytes, HEX_TO_BIN_BYTES(sig_len)));
+
+    bool is_valid =
+        iota_crypto_sign_open(msg_bytes, HEX_TO_BIN_BYTES(msg_len), pubkey_bytes, sig_bytes) == 0 ? true : false;
+
+// Check if the signature validity is matching with the expected results
+#if defined(CRYPTO_USE_SODIUM)
+    TEST_ASSERT(is_valid == edge_sig_libsodium_res[i]);
+#elif defined(CRYPTO_USE_OPENSSL)
+    TEST_ASSERT(is_valid == edge_sig_ed25519_donna_res[i]);
+#endif
+  }
+}
+
 int main() {
   UNITY_BEGIN();
 
@@ -254,6 +321,7 @@ int main() {
   RUN_TEST(test_ed25519_signature);
   RUN_TEST(test_sha);
   RUN_TEST(test_pbkdf2_hmac_sha512);
+  RUN_TEST(test_ed25519_signature_edge_case);
 
   return UNITY_END();
 }

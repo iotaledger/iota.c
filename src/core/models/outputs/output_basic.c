@@ -4,34 +4,28 @@
 #include <inttypes.h>
 
 #include "core/address.h"
-#include "core/models/outputs/output_extended.h"
+#include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/outputs.h"
 #include "core/types.h"
 #include "utlist.h"
 
 // maximum number of unlock condition blocks
-#define MAX_EXTENDED_CONDITION_BLOCKS_COUNT 4
+#define MAX_BASIC_CONDITION_BLOCKS_COUNT 4
 // maximum number of feature blocks
-#define MAX_EXTENDED_FEATURE_BLOCKS_COUNT 3
+#define MAX_BASIC_FEATURE_BLOCKS_COUNT 3
 
-output_extended_t* output_extended_new(uint64_t amount, native_tokens_t* tokens, cond_blk_list_t* cond_blocks,
-                                       feat_blk_list_t* feat_blocks) {
+output_basic_t* output_basic_new(uint64_t amount, native_tokens_t* tokens, cond_blk_list_t* cond_blocks,
+                                 feat_blk_list_t* feat_blocks) {
   if (cond_blocks == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
-  // FIXME: amount must fulfill the Byte Cost Dust Protection
-  // if (amount < MIN_DUST_ALLOWANCE) {
-  //   printf("[%s:%d] dust allowance amount must be at least 1Mi\n", __func__, __LINE__);
-  //   return NULL;
-  // }
-
   // validate unlock condition parameter
   // It must hold true that 1 ≤ Unlock Conditions Count ≤ 4
-  if (cond_blk_list_len(cond_blocks) == 0 || cond_blk_list_len(cond_blocks) > MAX_EXTENDED_CONDITION_BLOCKS_COUNT) {
+  if (cond_blk_list_len(cond_blocks) == 0 || cond_blk_list_len(cond_blocks) > MAX_BASIC_CONDITION_BLOCKS_COUNT) {
     printf("[%s:%d] there should be at most %d condition blocks amd atleast 1\n", __func__, __LINE__,
-           MAX_EXTENDED_CONDITION_BLOCKS_COUNT);
+           MAX_BASIC_CONDITION_BLOCKS_COUNT);
     return NULL;
   } else {
     // must no contain UNLOCK_COND_STATE or UNLOCK_COND_GOVERNOR
@@ -48,9 +42,8 @@ output_extended_t* output_extended_new(uint64_t amount, native_tokens_t* tokens,
   }
 
   // validate feature block parameter
-  if (feat_blk_list_len(feat_blocks) > MAX_EXTENDED_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__,
-           MAX_EXTENDED_FEATURE_BLOCKS_COUNT);
+  if (feat_blk_list_len(feat_blocks) > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_BASIC_FEATURE_BLOCKS_COUNT);
     return NULL;
   } else {
     // must no contain FEAT_ISSUER_BLOCK
@@ -60,14 +53,14 @@ output_extended_t* output_extended_new(uint64_t amount, native_tokens_t* tokens,
     }
   }
 
-  // create an extened output object
-  output_extended_t* output = malloc(sizeof(output_extended_t));
+  // create a basic output object
+  output_basic_t* output = malloc(sizeof(output_basic_t));
   if (!output) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
   }
-  // init the extended object
-  memset(output, 0, sizeof(output_extended_t));
+  // init the basic object
+  memset(output, 0, sizeof(output_basic_t));
 
   // add amount
   output->amount = amount;
@@ -79,8 +72,8 @@ output_extended_t* output_extended_new(uint64_t amount, native_tokens_t* tokens,
     HASH_ITER(hh, tokens, token, token_tmp) {
       int res = native_tokens_add(&output->native_tokens, token->token_id, token->amount);
       if (res == -1) {
-        printf("[%s:%d] can not add native token to extended output\n", __func__, __LINE__);
-        output_extended_free(output);
+        printf("[%s:%d] can not add native token to basic output\n", __func__, __LINE__);
+        output_basic_free(output);
         return NULL;
       }
     }
@@ -89,8 +82,8 @@ output_extended_t* output_extended_new(uint64_t amount, native_tokens_t* tokens,
   // add condition blocks
   output->unlock_conditions = cond_blk_list_clone(cond_blocks);
   if (!output->unlock_conditions) {
-    printf("[%s:%d] can not add unlock conditions to Extended output\n", __func__, __LINE__);
-    output_extended_free(output);
+    printf("[%s:%d] can not add unlock conditions to Basic output\n", __func__, __LINE__);
+    output_basic_free(output);
     return NULL;
   }
 
@@ -100,7 +93,7 @@ output_extended_t* output_extended_new(uint64_t amount, native_tokens_t* tokens,
   return output;
 }
 
-void output_extended_free(output_extended_t* output) {
+void output_basic_free(output_basic_t* output) {
   if (output) {
     if (output->native_tokens) {
       native_tokens_free(&output->native_tokens);
@@ -111,7 +104,7 @@ void output_extended_free(output_extended_t* output) {
   }
 }
 
-size_t output_extended_serialize_len(output_extended_t* output) {
+size_t output_basic_serialize_len(output_basic_t* output) {
   if (output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return 0;
@@ -132,13 +125,13 @@ size_t output_extended_serialize_len(output_extended_t* output) {
   return length;
 }
 
-size_t output_extended_serialize(output_extended_t* output, byte_t buf[], size_t buf_len) {
+size_t output_basic_serialize(output_basic_t* output, byte_t buf[], size_t buf_len) {
   if (output == NULL || buf == NULL || buf_len == 0) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return 0;
   }
 
-  size_t expected_bytes = output_extended_serialize_len(output);
+  size_t expected_bytes = output_basic_serialize_len(output);
   if (buf_len < expected_bytes) {
     printf("[%s:%d] buffer size is insufficient\n", __func__, __LINE__);
     return 0;
@@ -146,8 +139,8 @@ size_t output_extended_serialize(output_extended_t* output, byte_t buf[], size_t
 
   size_t offset = 0;
 
-  // fill-in Extended Output type
-  memset(buf, OUTPUT_EXTENDED, sizeof(uint8_t));
+  // fill-in Basic Output type
+  memset(buf, OUTPUT_BASIC, sizeof(uint8_t));
   offset += sizeof(uint8_t);
 
   // amount
@@ -171,24 +164,24 @@ size_t output_extended_serialize(output_extended_t* output, byte_t buf[], size_t
   return offset;
 }
 
-output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
+output_basic_t* output_basic_deserialize(byte_t buf[], size_t buf_len) {
   if (buf == NULL || buf_len == 0) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
-  output_extended_t* output = malloc(sizeof(output_extended_t));
+  output_basic_t* output = malloc(sizeof(output_basic_t));
   if (!output) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
   }
-  memset(output, 0, sizeof(output_extended_t));
+  memset(output, 0, sizeof(output_basic_t));
 
   size_t offset = 0;
   // output type
-  if (buf[offset] != OUTPUT_EXTENDED) {
-    printf("[%s:%d] buffer does not contain Extended Output object\n", __func__, __LINE__);
-    output_extended_free(output);
+  if (buf[offset] != OUTPUT_BASIC) {
+    printf("[%s:%d] buffer does not contain Basic Output object\n", __func__, __LINE__);
+    output_basic_free(output);
     return NULL;
   }
   offset += sizeof(uint8_t);
@@ -196,7 +189,7 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   // amount
   if (buf_len < offset + sizeof(uint64_t)) {
     printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-    output_extended_free(output);
+    output_basic_free(output);
     return NULL;
   }
   memcpy(&output->amount, &buf[offset], sizeof(uint64_t));
@@ -209,7 +202,7 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
     output->native_tokens = native_tokens_deserialize(&buf[offset], buf_len - offset);
     if (!output->native_tokens) {
       printf("[%s:%d] can not deserialize native tokens\n", __func__, __LINE__);
-      output_extended_free(output);
+      output_basic_free(output);
       return NULL;
     }
   }
@@ -218,15 +211,15 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   // unlock condition blocks
   uint8_t unlock_count = 0;
   memcpy(&unlock_count, &buf[offset], sizeof(uint8_t));
-  if (unlock_count == 0 || unlock_count > MAX_EXTENDED_CONDITION_BLOCKS_COUNT) {
+  if (unlock_count == 0 || unlock_count > MAX_BASIC_CONDITION_BLOCKS_COUNT) {
     printf("[%s:%d] invalid unlock block count\n", __func__, __LINE__);
-    output_extended_free(output);
+    output_basic_free(output);
     return NULL;
   } else {
     output->unlock_conditions = cond_blk_list_deserialize(buf + offset, buf_len - offset);
     if (!output->unlock_conditions) {
       printf("[%s:%d] can not deserialize unlock conditions\n", __func__, __LINE__);
-      output_extended_free(output);
+      output_basic_free(output);
       return NULL;
     }
     offset += cond_blk_list_serialize_len(output->unlock_conditions);
@@ -235,22 +228,22 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   // feature blocks
   uint8_t feat_block_count = 0;
   memcpy(&feat_block_count, &buf[offset], sizeof(uint8_t));
-  if (feat_block_count > MAX_EXTENDED_FEATURE_BLOCKS_COUNT) {
+  if (feat_block_count > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
     printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
-    output_extended_free(output);
+    output_basic_free(output);
     return NULL;
   } else if (feat_block_count > 0) {
     output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
     if (!output->feature_blocks) {
       printf("[%s:%d] can not deserialize feature blocks\n", __func__, __LINE__);
-      output_extended_free(output);
+      output_basic_free(output);
       return NULL;
     }
     offset += feat_blk_list_serialize_len(output->feature_blocks);
   } else {
     if (buf_len < offset + sizeof(uint8_t)) {
       printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-      output_extended_free(output);
+      output_basic_free(output);
       return NULL;
     }
     offset += sizeof(uint8_t);
@@ -259,12 +252,12 @@ output_extended_t* output_extended_deserialize(byte_t buf[], size_t buf_len) {
   return output;
 }
 
-output_extended_t* output_extended_clone(output_extended_t const* const output) {
+output_basic_t* output_basic_clone(output_basic_t const* const output) {
   if (output == NULL) {
     return NULL;
   }
 
-  output_extended_t* new_output = malloc(sizeof(output_extended_t));
+  output_basic_t* new_output = malloc(sizeof(output_basic_t));
   if (new_output) {
     new_output->amount = output->amount;
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
@@ -275,13 +268,13 @@ output_extended_t* output_extended_clone(output_extended_t const* const output) 
   return new_output;
 }
 
-void output_extended_print(output_extended_t* output, uint8_t indentation) {
+void output_basic_print(output_basic_t* output, uint8_t indentation) {
   if (output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return;
   }
 
-  printf("%sExtended Output: [\n", PRINT_INDENTATION(indentation));
+  printf("%sBasic Output: [\n", PRINT_INDENTATION(indentation));
   printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
