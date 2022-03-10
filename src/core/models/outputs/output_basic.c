@@ -259,9 +259,6 @@ bool output_basic_syntactic(output_basic_t* output) {
     return false;
   }
 
-  // amount must fulfill the storage protection and must not be zero
-  // TODO
-
   // Native token count must not greater than Max Native Tokens Count
   // Native token must be lexicographically sorted based on Token ID
   // Each Native Token must be unique in the set of Native Tokens based on its Token ID, no duplicates are allowed
