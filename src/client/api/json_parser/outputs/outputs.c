@@ -6,7 +6,6 @@
 #include "client/api/json_parser/outputs/output_basic.h"
 #include "client/api/json_parser/outputs/output_foundry.h"
 #include "client/api/json_parser/outputs/output_nft.h"
-#include "utlist.h"
 
 /*
   Example for basic output:
