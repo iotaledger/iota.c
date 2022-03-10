@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include "core/models/outputs/byte_cost_config.h"
 #include "core/models/outputs/output_alias.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/output_foundry.h"
@@ -144,10 +145,11 @@ void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation);
  * @brief UTXO Output syntactic validation
  *
  * @param[in] outputs A list of utxo outputs
+ * @param[in] byte_cost The Byte Cost configure
  * @return true Valid
  * @return false Invalid
  */
-bool utxo_outputs_syntactic(utxo_outputs_list_t *outputs);
+bool utxo_outputs_syntactic(utxo_outputs_list_t *outputs, byte_cost_config_t *byte_cost);
 
 #ifdef __cplusplus
 }

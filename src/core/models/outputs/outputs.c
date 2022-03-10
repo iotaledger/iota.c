@@ -7,6 +7,8 @@
 #include <string.h>
 
 #include "core/models/outputs/outputs.h"
+#include "core/models/outputs/storage_deposit.h"
+#include "utlist.h"
 
 utxo_outputs_list_t *utxo_outputs_new() { return NULL; }
 
@@ -350,7 +352,7 @@ void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation) {
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }
 
-bool utxo_outputs_syntactic(utxo_outputs_list_t *outputs) {
+bool utxo_outputs_syntactic(utxo_outputs_list_t *outputs, byte_cost_config_t *byte_cost) {
   if (!outputs) {
     return false;
   }
@@ -382,7 +384,9 @@ bool utxo_outputs_syntactic(utxo_outputs_list_t *outputs) {
 
     if (is_valid == false) {
       return is_valid;
+    } else {
+      return storage_deposit_check(byte_cost, elm->output->output_type, elm->output->output);
     }
   }
-  return true;
+  return false;
 }

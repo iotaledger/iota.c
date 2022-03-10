@@ -138,10 +138,11 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len);
  * @brief Transaction Essence syntactic validation
  *
  * @param[in] es An essence object
+ * @param[in] byte_cost The Byte Cost configure
  * @return true Valid
  * @return false Invalid
  */
-bool tx_essence_syntactic(transaction_essence_t* es);
+bool tx_essence_syntactic(transaction_essence_t* es, byte_cost_config_t* byte_cost);
 
 /**
  * @brief Print out a transaction essence
@@ -205,10 +206,11 @@ void tx_payload_print(transaction_payload_t* tx, uint8_t indentation);
  * @brief Transaction pyaload syntactic validation
  *
  * @param[in] tx A transaction payload
+ * @param[in] byte_cost The Byte Cost configure
  * @return true Valid
  * @return false Invalid
  */
-bool tx_payload_syntactic(transaction_payload_t* tx);
+bool tx_payload_syntactic(transaction_payload_t* tx, byte_cost_config_t* byte_cost);
 
 #ifdef __cplusplus
 }

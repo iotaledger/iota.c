@@ -209,14 +209,14 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   return es;
 }
 
-bool tx_essence_syntactic(transaction_essence_t* es) {
+bool tx_essence_syntactic(transaction_essence_t* es, byte_cost_config_t* byte_cost) {
   // inputs
   if (!utxo_inputs_syntactic(es->inputs)) {
     return false;
   }
 
   // outputs
-  if (!utxo_outputs_syntactic(es->outputs)) {
+  if (!utxo_outputs_syntactic(es->outputs, byte_cost)) {
     return false;
   }
 
@@ -336,13 +336,13 @@ void tx_payload_print(transaction_payload_t* tx, uint8_t indentation) {
   }
 }
 
-bool tx_payload_syntactic(transaction_payload_t* tx) {
+bool tx_payload_syntactic(transaction_payload_t* tx, byte_cost_config_t* byte_cost) {
   if (!tx) {
     return false;
   }
 
   // essence
-  if (!tx_essence_syntactic(tx->essence)) {
+  if (!tx_essence_syntactic(tx->essence, byte_cost)) {
     return false;
   }
 
