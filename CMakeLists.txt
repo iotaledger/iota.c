@@ -99,7 +99,7 @@ if(IOTA_ASAN_ENABLED)
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
       add_compile_options("-fsanitize=address,undefined,unsigned-integer-overflow" "-fsanitize-address-use-after-scope"
                           "-fno-omit-frame-pointer" "-fno-sanitize-recover=undefined,unsigned-integer-overflow")
-      add_link_options("-fsanitize=address,undefined")
+      add_link_options("-fsanitize=address,undefined,unsigned-integer-overflow")
     elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
       add_compile_options("-fsanitize=address,undefined" "-fno-omit-frame-pointer" "-fsanitize-address-use-after-scope"
                           "-fno-sanitize-recover=undefined")
