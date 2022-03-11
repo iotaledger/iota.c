@@ -23,7 +23,7 @@ typedef struct {
   uint64_t amount;                      ///< The amount of IOTA tokens held by the output
   native_tokens_list_t* native_tokens;  ///< The native tokens held by the output
   byte_t alias_id[ALIAS_ID_BYTES];      ///< The identifier of this alias account
-  uint32_t state_index;        ///< A counter that must increase by 1 every time the alisa is state transitioned
+  uint32_t state_index;        ///< A counter that must increase by 1 every time the alias is state transitioned
   byte_buf_t* state_metadata;  ///< Metadata that can only be changed by the state controller
   uint32_t foundry_counter;    ///< The counter that denotes the number of foundries created by this alias account
   cond_blk_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
