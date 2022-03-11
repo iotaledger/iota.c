@@ -6,13 +6,17 @@
 
 #include <stdint.h>
 
+#include "core/models/outputs/byte_cost_config.h"
 #include "core/models/outputs/output_alias.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/output_nft.h"
 #include "core/types.h"
 
-#define UTXO_OUTPUT_MAX_COUNT 127
+// Maximum number of outputs in a transaction payload.
+#define UTXO_OUTPUT_MAX_COUNT 128
+
+static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
 
 /**
  * @brief UTXO output types
@@ -136,6 +140,16 @@ utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len);
  * @param[in] indentation Tab indentation when printing utxo output list
  */
 void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation);
+
+/**
+ * @brief UTXO Output syntactic validation
+ *
+ * @param[in] outputs A list of utxo outputs
+ * @param[in] byte_cost The Byte Cost configure
+ * @return true Valid
+ * @return false Invalid
+ */
+bool utxo_outputs_syntactic(utxo_outputs_list_t *outputs, byte_cost_config_t *byte_cost);
 
 #ifdef __cplusplus
 }

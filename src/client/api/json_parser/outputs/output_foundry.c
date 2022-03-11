@@ -1,10 +1,10 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/json_parser/output_foundry.h"
-#include "client/api/json_parser/feat_blocks.h"
-#include "client/api/json_parser/native_tokens.h"
-#include "client/api/json_parser/unlock_conditions.h"
+#include "client/api/json_parser/outputs/output_foundry.h"
+#include "client/api/json_parser/outputs/feat_blocks.h"
+#include "client/api/json_parser/outputs/native_tokens.h"
+#include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
 
@@ -51,7 +51,7 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
 
   uint256_t *circ_supply = NULL;
   uint256_t *max_supply = NULL;
-  native_tokens_t *tokens = native_tokens_new();
+  native_tokens_list_t *tokens = native_tokens_new();
   cond_blk_list_t *cond_blocks = cond_blk_list_new();
   feat_blk_list_t *feat_blocks = feat_blk_list_new();
   feat_blk_list_t *immut_feat_blocks = feat_blk_list_new();
@@ -189,7 +189,7 @@ end:
   if (max_supply) {
     free(max_supply);
   }
-  native_tokens_free(&tokens);
+  native_tokens_free(tokens);
   cond_blk_list_free(cond_blocks);
   feat_blk_list_free(feat_blocks);
   feat_blk_list_free(immut_feat_blocks);

@@ -6,11 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "core/models/unlock_block.h"
 #include "utlist.h"
 
-#include "core/models/unlock_block.h"
-
-#define UNLOCKED_BLOCKS_MAX_COUNT 126
+// Maximum Unlock Block Count == Maximum Input Count
+#define UNLOCKED_BLOCKS_MAX_COUNT 128
 
 unlock_list_t* unlock_blocks_new() { return NULL; }
 
@@ -98,9 +98,9 @@ int unlock_blocks_add_signature(unlock_list_t** blocks, byte_t* sig, size_t sig_
 }
 
 int unlock_blocks_add_reference(unlock_list_t** blocks, uint16_t index) {
-  // Unlock Blocks Count must match the amount of inputs. Must be 0 < x < 127.
-  if (index > UNLOCKED_BLOCKS_MAX_COUNT) {
-    printf("[%s:%d] index out of range \n", __func__, __LINE__);
+  // Reference Index must be 0 <= x < 128.
+  if (index >= UNLOCKED_BLOCKS_MAX_COUNT) {
+    printf("[%s:%d] invalid Reference Index\n", __func__, __LINE__);
     return -1;
   }
 
@@ -122,8 +122,8 @@ int unlock_blocks_add_reference(unlock_list_t** blocks, uint16_t index) {
 }
 
 int unlock_blocks_add_alias(unlock_list_t** blocks, uint16_t index) {
-  // Unlock Blocks Count must match the amount of inputs. Must be 0 < x < 127.
-  if (index > UNLOCKED_BLOCKS_MAX_COUNT) {
+  // Alias Reference Index must be 0 <= x < 128.
+  if (index >= UNLOCKED_BLOCKS_MAX_COUNT) {
     printf("[%s:%d] index out of range \n", __func__, __LINE__);
     return -1;
   }
@@ -146,8 +146,8 @@ int unlock_blocks_add_alias(unlock_list_t** blocks, uint16_t index) {
 }
 
 int unlock_blocks_add_nft(unlock_list_t** blocks, uint16_t index) {
-  // Unlock Blocks Count must match the amount of inputs. Must be 0 < x < 127.
-  if (index > UNLOCKED_BLOCKS_MAX_COUNT) {
+  // NFT Reference Index must be 0 <= x < 128.
+  if (index >= UNLOCKED_BLOCKS_MAX_COUNT) {
     printf("[%s:%d] index out of range \n", __func__, __LINE__);
     return -1;
   }

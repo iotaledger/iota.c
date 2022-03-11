@@ -16,10 +16,10 @@
  *
  */
 typedef struct {
-  uint64_t amount;                     ///< The amount of IOTA tokens to held by the output
-  native_tokens_t* native_tokens;      ///< The native tokens held by the output
-  cond_blk_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
-  feat_blk_list_t* feature_blocks;     ///< The feature blocks which modulate the constraints on the output
+  uint64_t amount;                      ///< The amount of IOTA tokens to held by the output
+  native_tokens_list_t* native_tokens;  ///< The native tokens held by the output
+  cond_blk_list_t* unlock_conditions;   ///< Define how the output can be unlocked and spent
+  feat_blk_list_t* feature_blocks;      ///< The feature blocks which modulate the constraints on the output
 } output_basic_t;
 
 #ifdef __cplusplus
@@ -36,7 +36,7 @@ extern "C" {
  *
  * @return output_basic_t* or NULL on failure
  */
-output_basic_t* output_basic_new(uint64_t amount, native_tokens_t* tokens, cond_blk_list_t* cond_blocks,
+output_basic_t* output_basic_new(uint64_t amount, native_tokens_list_t* tokens, cond_blk_list_t* cond_blocks,
                                  feat_blk_list_t* feat_blocks);
 
 /**
@@ -88,6 +88,15 @@ output_basic_t* output_basic_clone(output_basic_t const* const output);
  * @param[in] indentation Tab indentation when printing Basic Output
  */
 void output_basic_print(output_basic_t* output, uint8_t indentation);
+
+/**
+ * @brief Basic Output syntactic validation
+ *
+ * @param[in] output A Basic output
+ * @return true Valid
+ * @return false Invalid
+ */
+bool output_basic_syntactic(output_basic_t* output);
 
 #ifdef __cplusplus
 }

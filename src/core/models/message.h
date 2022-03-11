@@ -7,8 +7,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "utarray.h"
-
 #include "core/models/payloads/milestone.h"
 #include "core/types.h"
 

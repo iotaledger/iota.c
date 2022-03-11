@@ -7,7 +7,6 @@
 
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/outputs/outputs.h"
-#include "utlist.h"
 
 utxo_inputs_list_t *utxo_inputs_new() { return NULL; }
 
@@ -31,14 +30,9 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
     return -1;
   }
 
+  // 0<= Transaction Output Index <= max output count
   if (index >= UTXO_OUTPUT_MAX_COUNT) {
     printf("[%s:%d] invalid index\n", __func__, __LINE__);
-    return -1;
-  }
-
-  // Check if list can accommodate new input
-  if (utxo_inputs_count(*inputs) >= UTXO_INPUT_MAX_COUNT) {
-    printf("[%s:%d] inputs count exceeded max count %d\n", __func__, __LINE__, UTXO_OUTPUT_MAX_COUNT);
     return -1;
   }
 
@@ -48,12 +42,12 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
     return -1;
   }
 
-  // Check if transaction id already exist in list
+  // Transaction ID and Transaction Output Index must be unique
   utxo_input_t *input = utxo_inputs_find_by_id(*inputs, id);
   if (input != NULL) {
     // Check if the duplicate transaction id has the same index,if not we can ignore
     if (input->output_index == index) {
-      printf("[%s:%d] duplicate transaction id and output index combination present in the list\n", __func__, __LINE__);
+      printf("[%s:%d] Transaction ID and Transaction Output Index must be unique\n", __func__, __LINE__);
       return -1;
     }
   }
@@ -297,4 +291,13 @@ void utxo_inputs_print(utxo_inputs_list_t *inputs, uint8_t indentation) {
     }
   }
   printf("%s]\n", PRINT_INDENTATION(indentation));
+}
+
+bool utxo_inputs_syntactic(utxo_inputs_list_t *inputs) {
+  // 0 < input count <= max input count
+  if (utxo_inputs_count(inputs) < 1 || utxo_inputs_count(inputs) > UTXO_INPUT_MAX_COUNT) {
+    printf("[%s:%d] inputs count must > 0 and <= %d\n", __func__, __LINE__, UTXO_INPUT_MAX_COUNT);
+    return false;
+  }
+  return true;
 }

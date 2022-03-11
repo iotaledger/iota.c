@@ -7,11 +7,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "utarray.h"
-
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
 #include "client/network/http.h"
+#include "utarray.h"
 
 typedef UT_array get_tips_t;
 

@@ -10,9 +10,8 @@
 #include "core/types.h"
 #include "crypto/iota_crypto.h"
 
-#define UTXO_INPUT_MIN_INDEX 0
-#define UTXO_INPUT_MAX_COUNT 127
-
+// Maximum number of inputs in a transaction payload.
+#define UTXO_INPUT_MAX_COUNT 128
 // Transaction ID bytes
 #define IOTA_TRANSACTION_ID_BYTES 32
 // OUTPUT ID bytes = 34 (IOTA_TRANSACTION_ID + OUTPUT INDEX)
@@ -129,6 +128,15 @@ utxo_inputs_list_t *utxo_inputs_deserialize(byte_t buf[], size_t buf_len);
  * @param[in] indentation Tab indentation when printing utxo output list
  */
 void utxo_inputs_print(utxo_inputs_list_t *inputs, uint8_t indentation);
+
+/**
+ * @brief UTXO Inputs syntactic validation
+ *
+ * @param[in] inputs A list of UTXO input
+ * @return true Valid
+ * @return false Invalid
+ */
+bool utxo_inputs_syntactic(utxo_inputs_list_t *inputs);
 
 #ifdef __cplusplus
 }

@@ -3,10 +3,10 @@
 
 #include <inttypes.h>
 
-#include "client/api/json_parser/inputs.h"
+#include "client/api/json_parser/inputs/inputs.h"
 #include "client/api/json_parser/json_keys.h"
-#include "client/api/json_parser/outputs.h"
-#include "client/api/json_parser/payloads.h"
+#include "client/api/json_parser/outputs/outputs.h"
+#include "client/api/json_parser/payloads/payloads.h"
 #include "client/api/json_parser/unlock_blocks.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/utils/macros.h"

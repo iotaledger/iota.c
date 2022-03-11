@@ -5,7 +5,7 @@
 
 #include "client/api/json_parser/common.h"
 #include "client/api/json_parser/message.h"
-#include "client/api/json_parser/payloads.h"
+#include "client/api/json_parser/payloads/payloads.h"
 #include "core/utils/macros.h"
 
 // json object to message object

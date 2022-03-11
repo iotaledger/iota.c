@@ -2,55 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <inttypes.h>
+#include <string.h>
 
-#include "core/address.h"
-#include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/outputs.h"
-#include "core/types.h"
-#include "utlist.h"
 
 // maximum number of unlock condition blocks
 #define MAX_BASIC_CONDITION_BLOCKS_COUNT 4
 // maximum number of feature blocks
 #define MAX_BASIC_FEATURE_BLOCKS_COUNT 3
 
-output_basic_t* output_basic_new(uint64_t amount, native_tokens_t* tokens, cond_blk_list_t* cond_blocks,
+output_basic_t* output_basic_new(uint64_t amount, native_tokens_list_t* tokens, cond_blk_list_t* cond_blocks,
                                  feat_blk_list_t* feat_blocks) {
   if (cond_blocks == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
-  }
-
-  // validate unlock condition parameter
-  // It must hold true that 1 ≤ Unlock Conditions Count ≤ 4
-  if (cond_blk_list_len(cond_blocks) == 0 || cond_blk_list_len(cond_blocks) > MAX_BASIC_CONDITION_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d condition blocks amd atleast 1\n", __func__, __LINE__,
-           MAX_BASIC_CONDITION_BLOCKS_COUNT);
-    return NULL;
-  } else {
-    // must no contain UNLOCK_COND_STATE or UNLOCK_COND_GOVERNOR
-    if (cond_blk_list_get_type(cond_blocks, UNLOCK_COND_STATE) ||
-        cond_blk_list_get_type(cond_blocks, UNLOCK_COND_GOVERNOR)) {
-      printf("[%s:%d] State Controller/Governor conditions are not allowed\n", __func__, __LINE__);
-      return NULL;
-    }
-    // Address Unlock Condition must be present.
-    if (!cond_blk_list_get_type(cond_blocks, UNLOCK_COND_ADDRESS)) {
-      printf("[%s:%d] Address Unlock Condition must be present\n", __func__, __LINE__);
-      return NULL;
-    }
-  }
-
-  // validate feature block parameter
-  if (feat_blk_list_len(feat_blocks) > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_BASIC_FEATURE_BLOCKS_COUNT);
-    return NULL;
-  } else {
-    // must no contain FEAT_ISSUER_BLOCK
-    if (feat_blk_list_get_type(feat_blocks, FEAT_ISSUER_BLOCK)) {
-      printf("[%s:%d] Issuer feature block is not allowed\n", __func__, __LINE__);
-      return NULL;
-    }
   }
 
   // create a basic output object
@@ -68,9 +33,9 @@ output_basic_t* output_basic_new(uint64_t amount, native_tokens_t* tokens, cond_
   // add native token
   if (tokens != NULL) {
     output->native_tokens = native_tokens_new();
-    native_tokens_t *token, *token_tmp;
-    HASH_ITER(hh, tokens, token, token_tmp) {
-      int res = native_tokens_add(&output->native_tokens, token->token_id, token->amount);
+    native_tokens_list_t* elm;
+    LL_FOREACH(tokens, elm) {
+      int res = native_tokens_add(&output->native_tokens, elm->token->token_id, &elm->token->amount);
       if (res == -1) {
         printf("[%s:%d] can not add native token to basic output\n", __func__, __LINE__);
         output_basic_free(output);
@@ -96,7 +61,7 @@ output_basic_t* output_basic_new(uint64_t amount, native_tokens_t* tokens, cond_
 void output_basic_free(output_basic_t* output) {
   if (output) {
     if (output->native_tokens) {
-      native_tokens_free(&output->native_tokens);
+      native_tokens_free(output->native_tokens);
     }
     cond_blk_list_free(output->unlock_conditions);
     feat_blk_list_free(output->feature_blocks);
@@ -116,7 +81,7 @@ size_t output_basic_serialize_len(output_basic_t* output) {
   // amount
   length += sizeof(uint64_t);
   // native tokens
-  length += native_tokens_serialize_len(&output->native_tokens);
+  length += native_tokens_serialize_len(output->native_tokens);
   // unlock conditions
   length += cond_blk_list_serialize_len(output->unlock_conditions);
   // feature blocks
@@ -206,7 +171,7 @@ output_basic_t* output_basic_deserialize(byte_t buf[], size_t buf_len) {
       return NULL;
     }
   }
-  offset += native_tokens_serialize_len(&output->native_tokens);
+  offset += native_tokens_serialize_len(output->native_tokens);
 
   // unlock condition blocks
   uint8_t unlock_count = 0;
@@ -278,11 +243,75 @@ void output_basic_print(output_basic_t* output, uint8_t indentation) {
   printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
-  native_tokens_print(&output->native_tokens, indentation + 1);
+  native_tokens_print(output->native_tokens, indentation + 1);
   // print unlock condition blocks
   cond_blk_list_print(output->unlock_conditions, indentation + 1);
   // print feature blocks
   feat_blk_list_print(output->feature_blocks, false, indentation + 1);
 
   printf("%s]\n", PRINT_INDENTATION(indentation));
+}
+
+bool output_basic_syntactic(output_basic_t* output) {
+  // amount must <= Max IOTA Supply
+  if (output->amount > MAX_IOTA_SUPPLY) {
+    printf("[%s:%d] amount bigger than MAX_IOTA_SUPPLY\n", __func__, __LINE__);
+    return false;
+  }
+
+  // Native token count must not greater than Max Native Tokens Count
+  // Native token must be lexicographically sorted based on Token ID
+  // Each Native Token must be unique in the set of Native Tokens based on its Token ID, no duplicates are allowed
+  // Amount of native token must not be zero
+  if (!native_tokens_syntactic(&output->native_tokens)) {
+    return false;
+  }
+
+  // 1<= unlock conditions count <=4
+  if (cond_blk_list_len(output->unlock_conditions) == 0 ||
+      cond_blk_list_len(output->unlock_conditions) > MAX_BASIC_CONDITION_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid unlock condition count\n", __func__, __LINE__);
+    return false;
+  }
+
+  // Unlock Condition types:
+  // - Address Unlock (mandatory)
+  // - Storage Deposit Return Unlock
+  // - Timelock Unlock
+  // - Expiration Unlock
+  if (cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS) == NULL) {
+    printf("[%s:%d] Address unlock condition must be present\n", __func__, __LINE__);
+    return false;
+  }
+  if (cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE) ||
+      cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_GOVERNOR) ||
+      cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS)) {
+    printf("[%s:%d] invalid unlock condition type\n", __func__, __LINE__);
+    return false;
+  }
+
+  // Unlock Condition must be sorted in ascending order based on their type
+  cond_blk_list_sort(&output->unlock_conditions);
+
+  // 0<= feature block count <= 3
+  if (feat_blk_list_len(output->feature_blocks) > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] feature block count must smaller than %d\n", __func__, __LINE__, MAX_BASIC_CONDITION_BLOCKS_COUNT);
+    return false;
+  }
+
+  if (feat_blk_list_len(output->feature_blocks) > 0) {
+    // feature block types
+    // - Sender
+    // - Metadata
+    // - Tag
+    if (feat_blk_list_get_type(output->feature_blocks, FEAT_ISSUER_BLOCK)) {
+      printf("[%s:%d] Issuer Feature Block is not allowed\n", __func__, __LINE__);
+      return false;
+    }
+  }
+
+  // Blocks must stored in ascending order based on their Block Type
+  feat_blk_list_sort(&output->feature_blocks);
+
+  return true;
 }
