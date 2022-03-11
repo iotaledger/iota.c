@@ -476,8 +476,12 @@ void test_unlock_block_deserialize() {
   TEST_ASSERT_NOT_NULL(block_buf);
   TEST_ASSERT(unlock_blocks_serialize(blocks, block_buf) == len);
 
+  // deserialization failed
+  unlock_list_t* deser_blocks = unlock_blocks_deserialize(block_buf, len - 1);  // too small buffer length
+  TEST_ASSERT_NULL(deser_blocks);
+
   // deserialization
-  unlock_list_t* deser_blocks = unlock_blocks_deserialize(block_buf, len);
+  deser_blocks = unlock_blocks_deserialize(block_buf, len);
   TEST_ASSERT_NOT_NULL(deser_blocks);
   TEST_ASSERT_EQUAL_UINT8(8, unlock_blocks_count(deser_blocks));
 
