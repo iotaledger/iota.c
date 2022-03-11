@@ -21,7 +21,7 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_list_t* tokens, 
   }
 
   // When Alias ID is zeroed out, State Index and Foundry Counter must be 0.
-  if (buf_all_zeros(alias_id, ADDRESS_ALIAS_BYTES)) {
+  if (buf_all_zeros(alias_id, ADDRESS_ALIAS_ID_BYTES)) {
     if (state_index != 0 || foundry_counter != 0) {
       printf("[%s:%d] when alias ID is zero then state index and foundry counter must be zero\n", __func__, __LINE__);
       return NULL;
@@ -50,7 +50,7 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_list_t* tokens, 
   output->native_tokens = native_tokens_clone(tokens);
 
   // alias ID
-  memcpy(output->alias_id, alias_id, ADDRESS_ALIAS_BYTES);
+  memcpy(output->alias_id, alias_id, ADDRESS_ALIAS_ID_BYTES);
 
   // state index
   output->state_index = state_index;
@@ -113,7 +113,7 @@ size_t output_alias_serialize_len(output_alias_t* output) {
   // native tokens
   length += native_tokens_serialize_len(output->native_tokens);
   // alias ID
-  length += ADDRESS_ALIAS_BYTES;
+  length += ADDRESS_ALIAS_ID_BYTES;
   // state index
   length += sizeof(uint32_t);
   // metadata length
@@ -160,8 +160,8 @@ size_t output_alias_serialize(output_alias_t* output, byte_t buf[], size_t buf_l
   offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
 
   // alias ID
-  memcpy(buf + offset, output->alias_id, ADDRESS_ALIAS_BYTES);
-  offset += ADDRESS_ALIAS_BYTES;
+  memcpy(buf + offset, output->alias_id, ADDRESS_ALIAS_ID_BYTES);
+  offset += ADDRESS_ALIAS_ID_BYTES;
 
   // state index
   memcpy(buf + offset, &output->state_index, sizeof(uint32_t));
@@ -252,13 +252,13 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
   offset += native_tokens_serialize_len(output->native_tokens);
 
   // alias ID
-  if (buf_len < offset + ADDRESS_ALIAS_BYTES) {
+  if (buf_len < offset + ADDRESS_ALIAS_ID_BYTES) {
     printf("[%s:%d] invalid data length\n", __func__, __LINE__);
     output_alias_free(output);
     return NULL;
   }
-  memcpy(&output->alias_id, &buf[offset], ADDRESS_ALIAS_BYTES);
-  offset += ADDRESS_ALIAS_BYTES;
+  memcpy(&output->alias_id, &buf[offset], ADDRESS_ALIAS_ID_BYTES);
+  offset += ADDRESS_ALIAS_ID_BYTES;
 
   // state index
   if (buf_len < offset + sizeof(uint32_t)) {
@@ -381,7 +381,7 @@ output_alias_t* output_alias_clone(output_alias_t const* const output) {
   if (new_output) {
     new_output->amount = output->amount;
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
-    memcpy(new_output->alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
+    memcpy(new_output->alias_id, output->alias_id, ADDRESS_ALIAS_ID_BYTES);
     new_output->state_index = output->state_index;
     new_output->state_metadata = byte_buf_clone(output->state_metadata);
     new_output->foundry_counter = output->foundry_counter;
@@ -407,7 +407,7 @@ void output_alias_print(output_alias_t* output, uint8_t indentation) {
 
   // print alias ID
   printf("%s\tAlias ID: ", PRINT_INDENTATION(indentation));
-  dump_hex_str(output->alias_id, ADDRESS_ALIAS_BYTES);
+  dump_hex_str(output->alias_id, ADDRESS_ALIAS_ID_BYTES);
 
   printf("%s\tState Index: %" PRIu32 "\n", PRINT_INDENTATION(indentation), output->state_index);
 

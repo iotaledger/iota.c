@@ -27,8 +27,8 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
   // address
   switch (address_type) {
     case ADDRESS_TYPE_ED25519: {
-      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_PUB_KEY_HASH, address->address, ADDRESS_ED25519_BYTES) !=
-          JSON_OK) {
+      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_PUB_KEY_HASH, address->address,
+                                  ADDRESS_PUBKEY_HASH_BYTES) != JSON_OK) {
         printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_PUB_KEY_HASH);
         return -1;
       }
@@ -36,7 +36,7 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
       break;
     }
     case ADDRESS_TYPE_ALIAS: {
-      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_ALIAS_ID, address->address, ADDRESS_ALIAS_BYTES) !=
+      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_ALIAS_ID, address->address, ADDRESS_ALIAS_ID_BYTES) !=
           JSON_OK) {
         printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ALIAS_ID);
         return -1;
@@ -45,7 +45,8 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
       break;
     }
     case ADDRESS_TYPE_NFT: {
-      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_NFT_ID, address->address, ADDRESS_NFT_BYTES) != JSON_OK) {
+      if (json_get_hex_str_to_bin(json_address_obj, JSON_KEY_NFT_ID, address->address, ADDRESS_NFT_ID_BYTES) !=
+          JSON_OK) {
         printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_NFT_ID);
         return -1;
       }
@@ -90,17 +91,17 @@ cJSON *json_parser_common_address_serialize(address_t *address) {
     int ret = -1;
     switch (address->type) {
       case ADDRESS_TYPE_ED25519:
-        if ((ret = bin_2_hex(address->address, ADDRESS_ED25519_BYTES, addr_str, sizeof(addr_str))) == 0) {
+        if ((ret = bin_2_hex(address->address, ADDRESS_PUBKEY_HASH_BYTES, addr_str, sizeof(addr_str))) == 0) {
           cJSON_AddStringToObject(addr_data, JSON_KEY_PUB_KEY_HASH, addr_str);
         }
         break;
       case ADDRESS_TYPE_ALIAS:
-        if ((ret = bin_2_hex(address->address, ADDRESS_ALIAS_BYTES, addr_str, sizeof(addr_str))) == 0) {
+        if ((ret = bin_2_hex(address->address, ADDRESS_ALIAS_ID_BYTES, addr_str, sizeof(addr_str))) == 0) {
           cJSON_AddStringToObject(addr_data, JSON_KEY_ALIAS_ID, addr_str);
         }
         break;
       case ADDRESS_TYPE_NFT:
-        if ((ret = bin_2_hex(address->address, ADDRESS_NFT_BYTES, addr_str, sizeof(addr_str))) == 0) {
+        if ((ret = bin_2_hex(address->address, ADDRESS_NFT_ID_BYTES, addr_str, sizeof(addr_str))) == 0) {
           cJSON_AddStringToObject(addr_data, JSON_KEY_NFT_ID, addr_str);
         }
         break;

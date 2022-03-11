@@ -58,7 +58,7 @@ int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const ad
   }
 
   // Check if addr_bech32 has minimum requred length
-  if (strlen(addr_bech32) < BECH32_ED25519_ADDRESS_STR_LEN) {
+  if (strlen(addr_bech32) < BIN_TO_HEX_STR_BYTES(ADDRESS_PUBKEY_HASH_BYTES)) {
     printf("[%s:%d] invalid bech32 address\n", __func__, __LINE__);
     return -1;
   }

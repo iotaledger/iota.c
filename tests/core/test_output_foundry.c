@@ -55,7 +55,7 @@ void test_output_foundry() {
   // create random Alias address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(addr.address, ADDRESS_ALIAS_ID_BYTES);
 
   // create random token tag
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
@@ -194,7 +194,7 @@ void test_output_foundry_without_native_tokens() {
   // create random Alias address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(addr.address, ADDRESS_ALIAS_ID_BYTES);
 
   // create random token tag
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
@@ -305,7 +305,7 @@ void test_output_foundry_without_metadata() {
   // create random Alias address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(addr.address, ADDRESS_ALIAS_ID_BYTES);
 
   // create random token tag
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
@@ -428,17 +428,17 @@ void test_output_foundry_syntactic() {
   // create random ED25519 address
   address_t ed_addr = {};
   ed_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(ed_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(ed_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
 
   // create random Alias address
   address_t alias_addr = {};
   alias_addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(alias_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(alias_addr.address, ADDRESS_ALIAS_ID_BYTES);
 
   // create random NFT address
   address_t nft_addr = {};
   nft_addr.type = ADDRESS_TYPE_NFT;
-  iota_crypto_randombytes(nft_addr.address, ADDRESS_NFT_BYTES);
+  iota_crypto_randombytes(nft_addr.address, ADDRESS_NFT_ID_BYTES);
 
   // create random token tag
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
@@ -486,7 +486,7 @@ void test_output_foundry_clone() {
   // create random Alias address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(addr.address, ADDRESS_ALIAS_ID_BYTES);
 
   // create random token tag
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];

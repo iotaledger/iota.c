@@ -9,20 +9,19 @@
 #include "core/types.h"
 #include "crypto/iota_crypto.h"
 
-// An Ed25519 address is the Blake2b-256 hash of an Ed25519 public key.
-#define ADDRESS_ED25519_BYTES 32
+// An PubKeyHash address is the Blake2b-256 hash of an Ed25519 public key.
+#define ADDRESS_PUBKEY_HASH_BYTES ED_PUBLIC_KEY_BYTES
 // An Alias address is the Blake2b-160 hash of the OutputID which created it.
-#define ADDRESS_ALIAS_BYTES 20
+#define ADDRESS_ALIAS_ID_BYTES 20
 // A NFT address is the Blake2b-160 hash of the OutputID which created it.
-#define ADDRESS_NFT_BYTES 20
-#define ADDRESS_FOUNDRY_BYTES 20
-#define ADDRESS_MAX_BYTES ADDRESS_ED25519_BYTES
-#define ADDRESS_MAX_HEX_BYTES ADDRESS_ED25519_HEX_BYTES
-#define ADDRESS_MIN_BYTES ADDRESS_ALIAS_BYTES
-#define ADDRESS_SERIALIZED_MAX_BYTES (1 + ADDRESS_ED25519_BYTES)
-#define ADDRESS_SERIALIZED_MIN_BYTES (1 + ADDRESS_ALIAS_BYTES)
+#define ADDRESS_NFT_ID_BYTES 20
+// Maximum number of bytes an address can hold
+#define ADDRESS_MAX_BYTES ADDRESS_PUBKEY_HASH_BYTES
+// Minimum number of bytes an address can hold
+#define ADDRESS_MIN_BYTES ADDRESS_ALIAS_ID_BYTES
+// Maximum number of bytes a serialized address can hold
+#define ADDRESS_SERIALIZED_MAX_BYTES (1 + ADDRESS_PUBKEY_HASH_BYTES)
 
-#define BECH32_ED25519_ADDRESS_STR_LEN 64
 #define NFT_ID_BYTES 20
 #define ALIAS_ID_BYTES 20
 #define FOUNDRY_ID_BYTES 26
@@ -122,7 +121,7 @@ uint8_t address_serialized_len(address_t *addr);
 size_t address_serialize(address_t *addr, byte_t bytes[], size_t len);
 
 /**
- * @brief Deserialize a bniary data to an address object
+ * @brief Deserialize a binary data to an address object
  *
  * @param[in] bytes A buffer holds binary data
  * @param[in] len the length of the buffer

@@ -47,8 +47,8 @@ int json_output_nft_deserialize(cJSON *output_obj, output_nft_t **nft) {
   }
 
   // nftId
-  byte_t nft_id[ADDRESS_NFT_BYTES];
-  if (json_get_hex_str_to_bin(output_obj, JSON_KEY_NFT_ID, nft_id, ADDRESS_NFT_BYTES) != JSON_OK) {
+  byte_t nft_id[ADDRESS_NFT_ID_BYTES];
+  if (json_get_hex_str_to_bin(output_obj, JSON_KEY_NFT_ID, nft_id, ADDRESS_NFT_ID_BYTES) != JSON_OK) {
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_NFT_ID);
     goto end;
   }

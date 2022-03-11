@@ -43,7 +43,7 @@ int bech32_decode(char *hrp, uint8_t *data, size_t *data_len, const char *input)
  * @param[in] inlen The length of input buffer
  * @param[in] inbits The input bits per byte
  * @param[in] pad set 1 to add padding
- * @return int 0 on success
+ * @return int 1 on success
  */
 int bech32_convert_bits(uint8_t *out, size_t *outlen, int outbits, const uint8_t *in, size_t inlen, int inbits,
                         int pad);
