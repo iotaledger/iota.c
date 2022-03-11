@@ -386,8 +386,11 @@ bool utxo_outputs_syntactic(utxo_outputs_list_t *outputs, byte_cost_config_t *by
       return is_valid;
     } else {
       // amount must fulfill the storage protection and must not be zero
-      return storage_deposit_check(byte_cost, elm->output->output_type, elm->output->output);
+      is_valid = storage_deposit_check(byte_cost, elm->output->output_type, elm->output->output);
+      if (is_valid == false) {
+        return is_valid;
+      }
     }
   }
-  return false;
+  return true;
 }
