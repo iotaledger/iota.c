@@ -4,6 +4,7 @@
 #include "client/api/restful/get_outputs_id.h"
 #include "client/api/json_parser/json_utils.h"
 #include "client/network/http.h"
+#include "core/models/outputs/output_foundry.h"
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 #include "utlist.h"

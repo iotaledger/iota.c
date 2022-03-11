@@ -44,8 +44,8 @@ void test_parse_alias_address() {
 
   address_t test_addr;
   test_addr.type = ADDRESS_TYPE_ALIAS;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975", BIN_TO_HEX_BYTES(ADDRESS_ALIAS_ID_BYTES), test_addr.address,
-            ADDRESS_ALIAS_ID_BYTES);
+  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975", BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), test_addr.address,
+            ALIAS_ID_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, &address));
 
   cJSON_Delete(json_obj);
@@ -64,8 +64,8 @@ void test_parse_nft_address() {
 
   address_t test_addr;
   test_addr.type = ADDRESS_TYPE_NFT;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975", BIN_TO_HEX_BYTES(ADDRESS_NFT_ID_BYTES), test_addr.address,
-            ADDRESS_NFT_ID_BYTES);
+  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975", BIN_TO_HEX_BYTES(NFT_ID_BYTES), test_addr.address,
+            NFT_ID_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, &address));
 
   cJSON_Delete(json_obj);

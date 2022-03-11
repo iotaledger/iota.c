@@ -99,8 +99,8 @@ void test_output_nft() {
   TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
 
   // create NFT ID
-  byte_t nft_id[ADDRESS_NFT_ID_BYTES];
-  iota_crypto_randombytes(nft_id, ADDRESS_NFT_ID_BYTES);
+  byte_t nft_id[NFT_ID_BYTES];
+  iota_crypto_randombytes(nft_id, NFT_ID_BYTES);
 
   // create NFT Output
   output_nft_t* output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
@@ -125,7 +125,7 @@ void test_output_nft() {
   TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate NFT ID
-  TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, NFT_ID_BYTES);
 
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -201,7 +201,7 @@ void test_output_nft() {
   deser_output = output_nft_deserialize(output_nft_buf, output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
-  TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, NFT_ID_BYTES);
 
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(deser_output->native_tokens));
@@ -286,8 +286,8 @@ void test_output_nft_without_native_tokens() {
   TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
 
   // create NFT ID
-  byte_t nft_id[ADDRESS_NFT_ID_BYTES];
-  iota_crypto_randombytes(nft_id, ADDRESS_NFT_ID_BYTES);
+  byte_t nft_id[NFT_ID_BYTES];
+  iota_crypto_randombytes(nft_id, NFT_ID_BYTES);
 
   // create NFT Output
   output_nft_t* output = output_nft_new(123456789, NULL, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
@@ -302,7 +302,7 @@ void test_output_nft_without_native_tokens() {
   TEST_ASSERT_NULL(output->native_tokens);
 
   // validate NFT ID
-  TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, NFT_ID_BYTES);
 
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -378,7 +378,7 @@ void test_output_nft_without_native_tokens() {
   deser_output = output_nft_deserialize(output_nft_buf, output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
-  TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, NFT_ID_BYTES);
 
   TEST_ASSERT_NULL(deser_output->native_tokens);
 
@@ -432,8 +432,8 @@ void test_output_nft_without_feature_blocks() {
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_timelock) == 0);
 
   // create NFT ID
-  byte_t nft_id[ADDRESS_NFT_ID_BYTES];
-  iota_crypto_randombytes(nft_id, ADDRESS_NFT_ID_BYTES);
+  byte_t nft_id[NFT_ID_BYTES];
+  iota_crypto_randombytes(nft_id, NFT_ID_BYTES);
 
   // create random issuer address
   address_t issuer_addr = {};
@@ -457,7 +457,7 @@ void test_output_nft_without_feature_blocks() {
   TEST_ASSERT_NULL(output->native_tokens);
 
   // validate NFT ID
-  TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, NFT_ID_BYTES);
 
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -517,7 +517,7 @@ void test_output_nft_without_feature_blocks() {
   deser_output = output_nft_deserialize(output_nft_buf, output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
-  TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, NFT_ID_BYTES);
 
   TEST_ASSERT_NULL(deser_output->native_tokens);
 
@@ -564,8 +564,8 @@ void test_output_nft_without_immutable_feature_blocks() {
   TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
 
   // create NFT ID
-  byte_t nft_id[ADDRESS_NFT_ID_BYTES];
-  iota_crypto_randombytes(nft_id, ADDRESS_NFT_ID_BYTES);
+  byte_t nft_id[NFT_ID_BYTES];
+  iota_crypto_randombytes(nft_id, NFT_ID_BYTES);
 
   // create NFT Output
   output_nft_t* output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, NULL);
@@ -590,7 +590,7 @@ void test_output_nft_without_immutable_feature_blocks() {
   TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate NFT ID
-  TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(nft_id, output->nft_id, NFT_ID_BYTES);
 
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -655,7 +655,7 @@ void test_output_nft_without_immutable_feature_blocks() {
   deser_output = output_nft_deserialize(output_nft_buf, output_nft_expected_len);
   TEST_ASSERT_NOT_NULL(deser_output);
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
-  TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(nft_id, deser_output->nft_id, NFT_ID_BYTES);
 
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(deser_output->native_tokens));
@@ -705,15 +705,15 @@ void test_output_nft_validation() {
   // create random NFT address
   address_t sender_addr = {};
   sender_addr.type = ADDRESS_TYPE_NFT;
-  iota_crypto_randombytes(sender_addr.address, ADDRESS_NFT_ID_BYTES);
+  iota_crypto_randombytes(sender_addr.address, NFT_ID_BYTES);
 
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_NFT;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_NFT_ID_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, NFT_ID_BYTES);
 
   // create NFT ID
-  byte_t nft_id[ADDRESS_NFT_ID_BYTES];
-  iota_crypto_randombytes(nft_id, ADDRESS_NFT_ID_BYTES);
+  byte_t nft_id[NFT_ID_BYTES];
+  iota_crypto_randombytes(nft_id, NFT_ID_BYTES);
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
@@ -798,7 +798,7 @@ void test_output_nft_validation() {
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_timelock) != 0);
 
   //=====Test maximum feature blocks count=====
-  iota_crypto_randombytes(sender_addr.address, ADDRESS_NFT_ID_BYTES);
+  iota_crypto_randombytes(sender_addr.address, NFT_ID_BYTES);
   // Adding one more block should fail.
   TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) != 0);
   byte_t test_meta_new[] = "Test metadata new";
@@ -807,7 +807,7 @@ void test_output_nft_validation() {
   TEST_ASSERT(feat_blk_list_add_tag(&feat_blocks, test_tag_new, sizeof(test_tag_new)) != 0);
 
   //=====Test maximum immutable feature blocks count=====
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_NFT_ID_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, NFT_ID_BYTES);
   // Adding one more block should fail.
   TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) != 0);
   byte_t test_immut_meta_new[] = "Test metadata new";
@@ -826,8 +826,8 @@ void test_output_nft_clone() {
 
   //=====Test NFT Output object=====
   // create NFT ID
-  byte_t nft_id[ADDRESS_NFT_ID_BYTES];
-  iota_crypto_randombytes(nft_id, ADDRESS_NFT_ID_BYTES);
+  byte_t nft_id[NFT_ID_BYTES];
+  iota_crypto_randombytes(nft_id, NFT_ID_BYTES);
 
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
@@ -863,7 +863,7 @@ void test_output_nft_clone() {
   TEST_ASSERT_NOT_NULL(new_output->native_tokens);
   TEST_ASSERT_EQUAL_UINT8(native_tokens_count(output->native_tokens), native_tokens_count(new_output->native_tokens));
 
-  TEST_ASSERT_EQUAL_MEMORY(output->nft_id, new_output->nft_id, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(output->nft_id, new_output->nft_id, NFT_ID_BYTES);
 
   // validate feature blocks
   TEST_ASSERT_NOT_NULL(output->feature_blocks);

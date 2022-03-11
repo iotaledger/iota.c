@@ -35,9 +35,9 @@ uint8_t address_len(address_t const *const addr) {
     case ADDRESS_TYPE_ED25519:
       return ADDRESS_PUBKEY_HASH_BYTES;
     case ADDRESS_TYPE_ALIAS:
-      return ADDRESS_ALIAS_ID_BYTES;
+      return ALIAS_ID_BYTES;
     case ADDRESS_TYPE_NFT:
-      return ADDRESS_NFT_ID_BYTES;
+      return NFT_ID_BYTES;
     default:
       // unknown address type
       return 0;
@@ -56,12 +56,12 @@ int ed25519_address_from_path(byte_t seed[], size_t seed_len, char path[], addre
 
 int alias_address_from_output(char const output_id[], address_t *addr) {
   addr->type = ADDRESS_TYPE_ALIAS;
-  return iota_blake2b_sum((uint8_t const *const)output_id, strlen(output_id), addr->address, ADDRESS_NFT_ID_BYTES);
+  return iota_blake2b_sum((uint8_t const *const)output_id, strlen(output_id), addr->address, NFT_ID_BYTES);
 }
 
 int nft_address_from_output(char const output_id[], address_t *addr) {
   addr->type = ADDRESS_TYPE_NFT;
-  return iota_blake2b_sum((uint8_t const *const)output_id, strlen(output_id), addr->address, ADDRESS_NFT_ID_BYTES);
+  return iota_blake2b_sum((uint8_t const *const)output_id, strlen(output_id), addr->address, NFT_ID_BYTES);
 }
 
 // get the length of
@@ -108,10 +108,10 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
         memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_PUBKEY_HASH_BYTES);
         break;
       case ADDRESS_TYPE_ALIAS:
-        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_ALIAS_ID_BYTES);
+        memcpy(addr->address, bytes + sizeof(uint8_t), ALIAS_ID_BYTES);
         break;
       case ADDRESS_TYPE_NFT:
-        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_NFT_ID_BYTES);
+        memcpy(addr->address, bytes + sizeof(uint8_t), NFT_ID_BYTES);
         break;
       default:
         // unknown address type
@@ -239,11 +239,11 @@ void address_print(address_t const *const addr) {
       break;
     case ADDRESS_TYPE_ALIAS:
       printf("[Alias] ");
-      dump_hex_str(addr->address, ADDRESS_ALIAS_ID_BYTES);
+      dump_hex_str(addr->address, ALIAS_ID_BYTES);
       break;
     case ADDRESS_TYPE_NFT:
       printf("[NFT] ");
-      dump_hex_str(addr->address, ADDRESS_NFT_ID_BYTES);
+      dump_hex_str(addr->address, NFT_ID_BYTES);
       break;
     default:
       // unknown address type

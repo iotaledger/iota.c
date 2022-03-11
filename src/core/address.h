@@ -12,19 +12,15 @@
 // An PubKeyHash address is the Blake2b-256 hash of an Ed25519 public key.
 #define ADDRESS_PUBKEY_HASH_BYTES ED_PUBLIC_KEY_BYTES
 // An Alias address is the Blake2b-160 hash of the OutputID which created it.
-#define ADDRESS_ALIAS_ID_BYTES 20
-// A NFT address is the Blake2b-160 hash of the OutputID which created it.
-#define ADDRESS_NFT_ID_BYTES 20
-// Maximum number of bytes an address can hold
-#define ADDRESS_MAX_BYTES ADDRESS_PUBKEY_HASH_BYTES
-// Minimum number of bytes an address can hold
-#define ADDRESS_MIN_BYTES ADDRESS_ALIAS_ID_BYTES
-// Maximum number of bytes a serialized address can hold
-#define ADDRESS_SERIALIZED_MAX_BYTES (1 + ADDRESS_PUBKEY_HASH_BYTES)
-
-#define NFT_ID_BYTES 20
 #define ALIAS_ID_BYTES 20
-#define FOUNDRY_ID_BYTES 26
+// A NFT address is the Blake2b-160 hash of the OutputID which created it.
+#define NFT_ID_BYTES 20
+// Maximum number of bytes an address can hold.
+#define ADDRESS_MAX_BYTES ADDRESS_PUBKEY_HASH_BYTES
+// Minimum number of bytes an address can hold.
+#define ADDRESS_MIN_BYTES ALIAS_ID_BYTES
+// Maximum number of bytes a serialized address can hold.
+#define ADDRESS_SERIALIZED_MAX_BYTES (1 + ADDRESS_PUBKEY_HASH_BYTES)
 
 /**
  * @brief Address types that supported by the protocol

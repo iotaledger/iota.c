@@ -114,7 +114,7 @@ void test_serializer() {
   addr_obj = address_deserialize(addr_bin, sizeof(addr_bin));
   TEST_ASSERT_NOT_NULL(addr_obj);
   TEST_ASSERT(addr_obj->type == ADDRESS_TYPE_ALIAS);
-  TEST_ASSERT_EQUAL_MEMORY(addr_bin + 1, addr_obj->address, ADDRESS_ALIAS_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(addr_bin + 1, addr_obj->address, ALIAS_ID_BYTES);
   // convert an address object to a binary data
   ser_len = address_serialize(addr_obj, addr_ser, sizeof(addr_ser));
   TEST_ASSERT_EQUAL_MEMORY(addr_ser, addr_bin, ser_len);
@@ -126,7 +126,7 @@ void test_serializer() {
   addr_obj = address_deserialize(addr_bin, sizeof(addr_bin));
   TEST_ASSERT_NOT_NULL(addr_obj);
   TEST_ASSERT(addr_obj->type == ADDRESS_TYPE_NFT);
-  TEST_ASSERT_EQUAL_MEMORY(addr_bin + 1, addr_obj->address, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(addr_bin + 1, addr_obj->address, NFT_ID_BYTES);
   // convert an address object to a binary data
   ser_len = address_serialize(addr_obj, addr_ser, sizeof(addr_ser));
   TEST_ASSERT_EQUAL_MEMORY(addr_ser, addr_bin, ser_len);

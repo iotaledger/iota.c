@@ -51,7 +51,7 @@ void test_issuer() {
   // create an Issuer feature block
   address_t addr = {};
   addr.type = ADDRESS_TYPE_NFT;
-  iota_crypto_randombytes(addr.address, ADDRESS_NFT_ID_BYTES);
+  iota_crypto_randombytes(addr.address, NFT_ID_BYTES);
   feat_block_t* issuer_blk = feat_blk_issuer_new(&addr);
   TEST_ASSERT_NOT_NULL(issuer_blk);
   feat_blk_print(issuer_blk);
@@ -302,7 +302,7 @@ void test_feat_block_list_append_all() {
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_ISSUER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_NFT);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, NFT_ID_BYTES);
 
   // 2: should be Metadata
   tmp_blk = feat_blk_list_get(deser_list, 2);
@@ -379,7 +379,7 @@ void test_feat_block_list_sort() {
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_ISSUER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_NFT);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, NFT_ID_BYTES);
 
   // 4: should be NULL
   tmp_blk = feat_blk_list_get(blk_list, 4);
@@ -415,7 +415,7 @@ void test_feat_block_list_sort() {
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_ISSUER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_NFT);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, NFT_ID_BYTES);
 
   // 2: should be Metadata
   tmp_blk = feat_blk_list_get(deser_list, 2);
@@ -492,7 +492,7 @@ void test_feat_block_list_clone() {
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_ISSUER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_NFT);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, NFT_ID_BYTES);
 
   // 2: should be Metadata
   tmp_blk = feat_blk_list_get(new_blk_list, 2);

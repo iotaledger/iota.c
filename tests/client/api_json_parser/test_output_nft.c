@@ -29,10 +29,9 @@ void test_parse_nft_output_basic() {
   TEST_ASSERT_NULL(nft_output->native_tokens);
 
   // check NFT ID
-  byte_t nft_id_test[ADDRESS_NFT_ID_BYTES];
-  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", BIN_TO_HEX_BYTES(ADDRESS_NFT_ID_BYTES), nft_id_test,
-            ADDRESS_NFT_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(nft_id_test, nft_output->nft_id, ADDRESS_NFT_ID_BYTES);
+  byte_t nft_id_test[NFT_ID_BYTES];
+  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", BIN_TO_HEX_BYTES(NFT_ID_BYTES), nft_id_test, NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(nft_id_test, nft_output->nft_id, NFT_ID_BYTES);
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(nft_output->unlock_conditions);
@@ -85,10 +84,9 @@ void test_parse_nft_output_full() {
   TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(nft_output->native_tokens, token_id));
 
   // check NFT ID
-  byte_t nft_id_test[ADDRESS_NFT_ID_BYTES];
-  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", BIN_TO_HEX_BYTES(ADDRESS_NFT_ID_BYTES), nft_id_test,
-            ADDRESS_NFT_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(nft_id_test, nft_output->nft_id, ADDRESS_NFT_ID_BYTES);
+  byte_t nft_id_test[NFT_ID_BYTES];
+  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", BIN_TO_HEX_BYTES(NFT_ID_BYTES), nft_id_test, NFT_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(nft_id_test, nft_output->nft_id, NFT_ID_BYTES);
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(nft_output->unlock_conditions);
