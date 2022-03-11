@@ -530,8 +530,6 @@ void test_unlock_block_deserialize() {
   free(block_buf);
   unlock_blocks_free(blocks);
   unlock_blocks_free(deser_blocks);
-  block_buf = NULL;
-  blocks = NULL;
 }
 
 int main() {
