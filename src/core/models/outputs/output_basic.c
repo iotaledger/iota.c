@@ -2,19 +2,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <inttypes.h>
+#include <string.h>
 
 #include "core/address.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/outputs.h"
 #include "core/types.h"
-#include "utlist.h"
 
 // maximum number of unlock condition blocks
 #define MAX_BASIC_CONDITION_BLOCKS_COUNT 4
 // maximum number of feature blocks
 #define MAX_BASIC_FEATURE_BLOCKS_COUNT 3
 
-output_basic_t* output_basic_new(uint64_t amount, native_tokens_t* tokens, cond_blk_list_t* cond_blocks,
+output_basic_t* output_basic_new(uint64_t amount, native_tokens_list_t* tokens, cond_blk_list_t* cond_blocks,
                                  feat_blk_list_t* feat_blocks) {
   if (cond_blocks == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -68,9 +68,9 @@ output_basic_t* output_basic_new(uint64_t amount, native_tokens_t* tokens, cond_
   // add native token
   if (tokens != NULL) {
     output->native_tokens = native_tokens_new();
-    native_tokens_t *token, *token_tmp;
-    HASH_ITER(hh, tokens, token, token_tmp) {
-      int res = native_tokens_add(&output->native_tokens, token->token_id, token->amount);
+    native_tokens_list_t* elm;
+    LL_FOREACH(tokens, elm) {
+      int res = native_tokens_add(&output->native_tokens, elm->token->token_id, &elm->token->amount);
       if (res == -1) {
         printf("[%s:%d] can not add native token to basic output\n", __func__, __LINE__);
         output_basic_free(output);
@@ -96,7 +96,7 @@ output_basic_t* output_basic_new(uint64_t amount, native_tokens_t* tokens, cond_
 void output_basic_free(output_basic_t* output) {
   if (output) {
     if (output->native_tokens) {
-      native_tokens_free(&output->native_tokens);
+      native_tokens_free(output->native_tokens);
     }
     cond_blk_list_free(output->unlock_conditions);
     feat_blk_list_free(output->feature_blocks);
@@ -116,7 +116,7 @@ size_t output_basic_serialize_len(output_basic_t* output) {
   // amount
   length += sizeof(uint64_t);
   // native tokens
-  length += native_tokens_serialize_len(&output->native_tokens);
+  length += native_tokens_serialize_len(output->native_tokens);
   // unlock conditions
   length += cond_blk_list_serialize_len(output->unlock_conditions);
   // feature blocks
@@ -206,7 +206,7 @@ output_basic_t* output_basic_deserialize(byte_t buf[], size_t buf_len) {
       return NULL;
     }
   }
-  offset += native_tokens_serialize_len(&output->native_tokens);
+  offset += native_tokens_serialize_len(output->native_tokens);
 
   // unlock condition blocks
   uint8_t unlock_count = 0;
@@ -278,7 +278,7 @@ void output_basic_print(output_basic_t* output, uint8_t indentation) {
   printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
-  native_tokens_print(&output->native_tokens, indentation + 1);
+  native_tokens_print(output->native_tokens, indentation + 1);
   // print unlock condition blocks
   cond_blk_list_print(output->unlock_conditions, indentation + 1);
   // print feature blocks

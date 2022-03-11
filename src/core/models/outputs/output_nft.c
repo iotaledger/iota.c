@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <inttypes.h>
+#include <string.h>
 
 #include "core/address.h"
 #include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/outputs.h"
-#include "uthash.h"
-#include "utlist.h"
 
 // maximum number of unlock condition blocks
 #define MAX_NFT_CONDITION_BLOCKS_COUNT 4
@@ -16,8 +15,9 @@
 // maximum number of immutable feature blocks
 #define MAX_NFT_IMMUTABLE_FEATURE_BLOCKS_COUNT 2
 
-output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nft_id[], cond_blk_list_t* cond_blocks,
-                             feat_blk_list_t* feat_blocks, feat_blk_list_t* immut_feat_blocks) {
+output_nft_t* output_nft_new(uint64_t amount, native_tokens_list_t* tokens, byte_t nft_id[],
+                             cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks,
+                             feat_blk_list_t* immut_feat_blocks) {
   if (nft_id == NULL || cond_blocks == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
@@ -71,9 +71,9 @@ output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nf
   // add native tokens
   if (tokens != NULL) {
     output->native_tokens = native_tokens_new();
-    native_tokens_t *token, *token_tmp;
-    HASH_ITER(hh, tokens, token, token_tmp) {
-      int res = native_tokens_add(&output->native_tokens, token->token_id, token->amount);
+    native_tokens_list_t* elm;
+    LL_FOREACH(tokens, elm) {
+      int res = native_tokens_add(&output->native_tokens, elm->token->token_id, &elm->token->amount);
       if (res == -1) {
         printf("[%s:%d] can not add native token to NFT output\n", __func__, __LINE__);
         output_nft_free(output);
@@ -105,7 +105,7 @@ output_nft_t* output_nft_new(uint64_t amount, native_tokens_t* tokens, byte_t nf
 void output_nft_free(output_nft_t* output) {
   if (output) {
     if (output->native_tokens) {
-      native_tokens_free(&output->native_tokens);
+      native_tokens_free(output->native_tokens);
     }
     cond_blk_list_free(output->unlock_conditions);
     feat_blk_list_free(output->feature_blocks);
@@ -127,7 +127,7 @@ size_t output_nft_serialize_len(output_nft_t* output) {
   // amount
   length += sizeof(uint64_t);
   // native tokens
-  length += native_tokens_serialize_len(&output->native_tokens);
+  length += native_tokens_serialize_len(output->native_tokens);
   // NFT ID
   length += ADDRESS_NFT_BYTES;
   // unlock conditions
@@ -234,7 +234,7 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
       return NULL;
     }
   }
-  offset += native_tokens_serialize_len(&output->native_tokens);
+  offset += native_tokens_serialize_len(output->native_tokens);
 
   // NFT ID
   if (buf_len < offset + ADDRESS_NFT_BYTES) {
@@ -341,7 +341,7 @@ void output_nft_print(output_nft_t* output, uint8_t indentation) {
   printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
-  native_tokens_print(&output->native_tokens, indentation + 1);
+  native_tokens_print(output->native_tokens, indentation + 1);
 
   // print NFT ID
   printf("%s\tNFT ID: ", PRINT_INDENTATION(indentation));

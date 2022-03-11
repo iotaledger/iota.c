@@ -4,12 +4,11 @@
 #ifndef __CLIENT_API_RESTFUL_OUTPUTS_ID_H__
 #define __CLIENT_API_RESTFUL_OUTPUTS_ID_H__
 
-#include "utarray.h"
-
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
 #include "core/address.h"
 #include "core/types.h"
+#include "utarray.h"
 
 /**
  * @brief All Query Params Type

@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "client/api/json_parser/inputs.h"
+#include "client/api/json_parser/inputs/inputs.h"
 #include "core/utils/macros.h"
 #include "unity/unity.h"
 

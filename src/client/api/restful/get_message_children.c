@@ -8,7 +8,6 @@
 #include "client/api/restful/get_message_children.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
-#include "utarray.h"
 
 static msg_children_t *msg_children_new() {
   msg_children_t *ch = malloc(sizeof(msg_children_t));

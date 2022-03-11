@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <inttypes.h>
+#include <string.h>
 
 #include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/outputs.h"
-#include "utlist.h"
 
-output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_tokens_t* tokens, uint32_t serial_num,
-                                     byte_t token_tag[], uint256_t* circ_supply, uint256_t* max_supply,
-                                     token_scheme_e token_scheme, byte_t meta[], size_t meta_len, byte_t immut_meta[],
-                                     size_t immut_meta_len) {
+output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_tokens_list_t* tokens,
+                                     uint32_t serial_num, byte_t token_tag[], uint256_t* circ_supply,
+                                     uint256_t* max_supply, token_scheme_e token_scheme, byte_t meta[], size_t meta_len,
+                                     byte_t immut_meta[], size_t immut_meta_len) {
   if (!alias || !circ_supply || !max_supply) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
@@ -119,7 +119,7 @@ output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_t
 void output_foundry_free(output_foundry_t* output) {
   if (output) {
     if (output->native_tokens) {
-      native_tokens_free(&output->native_tokens);
+      native_tokens_free(output->native_tokens);
     }
     cond_blk_list_free(output->unlock_conditions);
     feat_blk_list_free(output->feature_blocks);
@@ -141,7 +141,7 @@ size_t output_foundry_serialize_len(output_foundry_t* output) {
   // amount
   length += sizeof(output->amount);
   // native tokens
-  length += native_tokens_serialize_len(&output->native_tokens);
+  length += native_tokens_serialize_len(output->native_tokens);
   // serial number
   length += sizeof(output->serial);
   // token tag
@@ -261,7 +261,7 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
       return NULL;
     }
   }
-  offset += native_tokens_serialize_len(&output->native_tokens);
+  offset += native_tokens_serialize_len(output->native_tokens);
 
   // serial number
   if (buf_len < offset + sizeof(output->serial)) {
@@ -409,7 +409,7 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
   printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
-  native_tokens_print(&output->native_tokens, indentation + 1);
+  native_tokens_print(output->native_tokens, indentation + 1);
 
   printf("%s\tSerial Number: %" PRIu32 "\n", PRINT_INDENTATION(indentation), output->serial);
 

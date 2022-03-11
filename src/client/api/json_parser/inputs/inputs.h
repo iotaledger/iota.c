@@ -1,8 +1,8 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_API_JSON_PARSER_INPUTS_H__
-#define __CLIENT_API_JSON_PARSER_INPUTS_H__
+#ifndef __CLIENT_API_JSON_PARSER_INPUTS_INPUTS_H__
+#define __CLIENT_API_JSON_PARSER_INPUTS_INPUTS_H__
 
 #include "client/api/json_parser/json_utils.h"
 #include "core/models/payloads/transaction.h"
@@ -32,4 +32,4 @@ cJSON* json_inputs_serialize(utxo_inputs_list_t* inputs);
 }
 #endif
 
-#endif  // __CLIENT_API_JSON_PARSER_INPUTS_H__
+#endif  // __CLIENT_API_JSON_PARSER_INPUTS_INPUTS_H__

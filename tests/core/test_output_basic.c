@@ -21,7 +21,7 @@ byte_t token_id3[NATIVE_TOKEN_ID_BYTES] = {0xBA, 0x26, 0x7E, 0x59, 0xE5, 0x31, 0
 
 byte_t test_meta[] = "Test metadata...";
 byte_t test_tag[] = "Test TAG";
-native_tokens_t* native_tokens = NULL;
+native_tokens_list_t* native_tokens = NULL;
 uint256_t* amount1 = NULL;
 uint256_t* amount2 = NULL;
 uint256_t* amount3 = NULL;
@@ -63,7 +63,7 @@ void tearDown(void) {
   free(amount1);
   free(amount2);
   free(amount3);
-  native_tokens_free(&native_tokens);
+  native_tokens_free(native_tokens);
   cond_blk_free(unlock_addr);
   cond_blk_free(unlock_storage);
   cond_blk_free(unlock_timelock);
@@ -98,16 +98,16 @@ void test_output_basic() {
   TEST_ASSERT(output->amount == 123456789);
 
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
-  native_tokens_t* token = output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
+  native_tokens_list_t* tokens = output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -170,17 +170,17 @@ void test_output_basic() {
 
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
-  token = deser_output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
+  tokens = deser_output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized unlock conditions
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
@@ -354,16 +354,16 @@ void test_output_basic_without_feature_blocks() {
 
   // native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
-  native_tokens_t* token = output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
+  native_tokens_list_t* tokens = output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // unlock conditions should be in adding order
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -406,17 +406,17 @@ void test_output_basic_without_feature_blocks() {
 
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
-  token = deser_output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
+  tokens = deser_output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized unlock conditions
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
@@ -504,7 +504,7 @@ void test_output_basic_without_native_tokens_and_feature_blocks() {
 
   // deserialized native tokens
   TEST_ASSERT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(0, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(0, native_tokens_count(deser_output->native_tokens));
 
   // deserialized unlock conditions
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
@@ -594,7 +594,7 @@ void test_output_basic_clone() {
   // validate Native Tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
   TEST_ASSERT_NOT_NULL(new_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&output->native_tokens), native_tokens_count(&new_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(output->native_tokens), native_tokens_count(new_output->native_tokens));
   // validate Unlock Conditions
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
   TEST_ASSERT_NOT_NULL(new_output->unlock_conditions);

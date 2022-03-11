@@ -6,7 +6,6 @@
 
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
-#include "utlist.h"
 
 transaction_essence_t* tx_essence_new(uint64_t network_id) {
   transaction_essence_t* es = malloc(sizeof(transaction_essence_t));

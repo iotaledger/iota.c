@@ -1,9 +1,8 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/json_parser/native_tokens.h"
+#include "client/api/json_parser/outputs/native_tokens.h"
 #include "core/utils/macros.h"
-#include "uthash.h"
 
 /*
   "nativeTokens": [
@@ -12,8 +11,8 @@
     },
   ]
 */
-int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_t **native_tokens) {
-  if (output_obj == NULL || native_tokens == NULL) {
+int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_list_t **native_tokens) {
+  if (output_obj == NULL || *native_tokens != NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -54,7 +53,7 @@ int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_t **native_t
   return 0;
 }
 
-cJSON *json_native_tokens_serialize(native_tokens_t *native_tokens) {
+cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
   cJSON *tokens = cJSON_CreateArray();
   if (tokens) {
     if (!native_tokens) {
@@ -63,18 +62,18 @@ cJSON *json_native_tokens_serialize(native_tokens_t *native_tokens) {
     }
 
     char token_id[BIN_TO_HEX_STR_BYTES(NATIVE_TOKEN_ID_BYTES)] = {};
-    native_tokens_t *elm, *tmp;
-    HASH_ITER(hh, native_tokens, elm, tmp) {
+    native_tokens_list_t *elm;
+    LL_FOREACH(native_tokens, elm) {
       cJSON *item = cJSON_CreateObject();
       if (item) {
         // add token id
-        if (bin_2_hex(elm->token_id, NATIVE_TOKEN_ID_BYTES, token_id, sizeof(token_id)) != 0) {
+        if (bin_2_hex(elm->token->token_id, NATIVE_TOKEN_ID_BYTES, token_id, sizeof(token_id)) != 0) {
           goto item_err;
         }
         cJSON_AddStringToObject(item, JSON_KEY_ID, token_id);
 
         // add amount
-        char *amount = uint256_to_str(elm->amount);
+        char *amount = uint256_to_str(&elm->token->amount);
         if (!amount) {
           goto item_err;
         }

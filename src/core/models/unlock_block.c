@@ -6,9 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "utlist.h"
-
 #include "core/models/unlock_block.h"
+#include "utlist.h"
 
 #define UNLOCKED_BLOCKS_MAX_COUNT 126
 

@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "client/api/json_parser/feat_blocks.h"
+#include "client/api/json_parser/outputs/feat_blocks.h"
 #include "core/utils/macros.h"
 #include "unity/unity.h"
 

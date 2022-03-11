@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include "client/api/restful/get_tips.h"
-#include "core/models/message.h"
 #include "test_config.h"
 #include "unity/unity.h"
 

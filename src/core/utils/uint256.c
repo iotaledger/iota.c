@@ -34,7 +34,11 @@ static void multiply_by_10(uint64_t *b, uint64_t *result, uint64_t *carry) {
   *carry = s3 << 32 | s2;
 }
 
-uint256_t *uint256_from_str(char const *str) {
+#ifdef __clang__
+__attribute__((no_sanitize("unsigned-integer-overflow")))
+#endif
+uint256_t *
+uint256_from_str(char const *str) {
   if (str == NULL) {
     // invalid parameters
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -107,6 +111,9 @@ uint256_t *uint256_from_str(char const *str) {
   return num;
 }
 
+#ifdef __clang__
+__attribute__((no_sanitize("unsigned-integer-overflow")))
+#endif
 bool uint256_add(uint256_t *res, uint256_t *a, uint256_t *b) {
   if (res == NULL || a == NULL || b == NULL) {
     // invalid parameters
@@ -139,6 +146,9 @@ bool uint256_add(uint256_t *res, uint256_t *a, uint256_t *b) {
   return true;
 }
 
+#ifdef __clang__
+__attribute__((no_sanitize("unsigned-integer-overflow")))
+#endif
 bool uint256_sub(uint256_t *res, uint256_t *a, uint256_t *b) {
   if (res == NULL || a == NULL || b == NULL) {
     // invalid parameters

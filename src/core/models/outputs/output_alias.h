@@ -20,12 +20,12 @@
  *
  */
 typedef struct {
-  uint64_t amount;                  ///< The amount of IOTA tokens held by the output
-  native_tokens_t* native_tokens;   ///< The native tokens held by the output
-  byte_t alias_id[ALIAS_ID_BYTES];  ///< The identifier of this alias account
-  uint32_t state_index;             ///< A counter that must increase by 1 every time the alisa is state transitioned
-  byte_buf_t* state_metadata;       ///< Metadata that can only be changed by the state controller
-  uint32_t foundry_counter;         ///< The counter that denotes the number of foundries created by this alias account
+  uint64_t amount;                      ///< The amount of IOTA tokens held by the output
+  native_tokens_list_t* native_tokens;  ///< The native tokens held by the output
+  byte_t alias_id[ALIAS_ID_BYTES];      ///< The identifier of this alias account
+  uint32_t state_index;        ///< A counter that must increase by 1 every time the alias is state transitioned
+  byte_buf_t* state_metadata;  ///< Metadata that can only be changed by the state controller
+  uint32_t foundry_counter;    ///< The counter that denotes the number of foundries created by this alias account
   cond_blk_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
   feat_blk_list_t* feature_blocks;     ///< Define functionality of this output
   feat_blk_list_t* immutable_blocks;   ///< Immutable blocks are defined upon deployment of the UTXO state machine and
@@ -52,7 +52,7 @@ extern "C" {
  *
  * @return output_alias_t* or NULL on failure
  */
-output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_t alias_id[], uint32_t state_index,
+output_alias_t* output_alias_new(uint64_t amount, native_tokens_list_t* tokens, byte_t alias_id[], uint32_t state_index,
                                  byte_t* metadata, uint32_t metadata_len, uint32_t foundry_counter,
                                  cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks,
                                  feat_blk_list_t* immut_feat_blocks);

@@ -2,19 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <inttypes.h>
+#include <string.h>
 
 #include "core/address.h"
 #include "core/models/outputs/output_alias.h"
 #include "core/models/outputs/outputs.h"
-#include "uthash.h"
-#include "utlist.h"
 
 // maximum number of feature blocks
 #define MAX_ALIAS_FEATURE_BLOCKS_COUNT 2
 // maximum number of immutable feature blocks
 #define MAX_ALIAS_IMMUTABLE_FEATURE_BLOCKS_COUNT 2
 
-output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_t alias_id[], uint32_t state_index,
+output_alias_t* output_alias_new(uint64_t amount, native_tokens_list_t* tokens, byte_t alias_id[], uint32_t state_index,
                                  byte_t* metadata, uint32_t metadata_len, uint32_t foundry_counter,
                                  cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks,
                                  feat_blk_list_t* immut_feat_blocks) {
@@ -129,7 +128,7 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
 void output_alias_free(output_alias_t* output) {
   if (output) {
     if (output->native_tokens) {
-      native_tokens_free(&output->native_tokens);
+      native_tokens_free(output->native_tokens);
     }
     byte_buf_free(output->state_metadata);
     cond_blk_list_free(output->unlock_conditions);
@@ -152,7 +151,7 @@ size_t output_alias_serialize_len(output_alias_t* output) {
   // amount
   length += sizeof(uint64_t);
   // native tokens
-  length += native_tokens_serialize_len(&output->native_tokens);
+  length += native_tokens_serialize_len(output->native_tokens);
   // alias ID
   length += ADDRESS_ALIAS_BYTES;
   // state index
@@ -290,7 +289,7 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
       return NULL;
     }
   }
-  offset += native_tokens_serialize_len(&output->native_tokens);
+  offset += native_tokens_serialize_len(output->native_tokens);
 
   // alias ID
   if (buf_len < offset + ADDRESS_ALIAS_BYTES) {
@@ -444,7 +443,7 @@ void output_alias_print(output_alias_t* output, uint8_t indentation) {
   printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
-  native_tokens_print(&output->native_tokens, indentation + 1);
+  native_tokens_print(output->native_tokens, indentation + 1);
 
   // print alias ID
   printf("%s\tAlias ID: ", PRINT_INDENTATION(indentation));

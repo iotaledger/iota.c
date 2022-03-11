@@ -8,10 +8,9 @@
 #include <stdint.h>
 
 #include "cJSON.h"
-#include "utarray.h"
-
 #include "client/api/json_parser/json_keys.h"
 #include "core/utils/byte_buffer.h"
+#include "utarray.h"
 
 typedef enum {
   JSON_OK = 0,
