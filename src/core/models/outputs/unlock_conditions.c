@@ -312,6 +312,30 @@ unlock_cond_blk_t* cond_blk_governor_new(address_t const* const addr) {
   return blk;
 }
 
+unlock_cond_blk_t* cond_blk_immut_alias_new(address_t const* const addr) {
+  if (!addr) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (addr->type != ADDRESS_TYPE_ALIAS) {
+    printf("[%s:%d] must be Alias address\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  unlock_cond_blk_t* blk = malloc(sizeof(unlock_cond_blk_t));
+  if (blk) {
+    blk->block = address_clone(addr);
+    if (!blk->block) {
+      free(blk);
+      return NULL;
+    }
+    blk->type = UNLOCK_COND_IMMUT_ALIAS;
+    return blk;
+  }
+  return blk;
+}
+
 size_t cond_blk_serialize_len(unlock_cond_blk_t const* const blk) {
   if (!blk) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -322,6 +346,7 @@ size_t cond_blk_serialize_len(unlock_cond_blk_t const* const blk) {
     case UNLOCK_COND_ADDRESS:
     case UNLOCK_COND_STATE:
     case UNLOCK_COND_GOVERNOR:
+    case UNLOCK_COND_IMMUT_ALIAS:
       // block type + address
       return sizeof(uint8_t) + address_serialized_len((address_t*)blk->block);
     case UNLOCK_COND_STORAGE:
@@ -361,6 +386,7 @@ size_t cond_blk_serialize(unlock_cond_blk_t* blk, byte_t buf[], size_t buf_len) 
     case UNLOCK_COND_ADDRESS:
     case UNLOCK_COND_STATE:
     case UNLOCK_COND_GOVERNOR:
+    case UNLOCK_COND_IMMUT_ALIAS:
       offset += address_serialize((address_t*)blk->block, buf + offset, buf_len - offset);
       break;
     case UNLOCK_COND_STORAGE:
@@ -399,6 +425,7 @@ unlock_cond_blk_t* cond_blk_deserialize(byte_t buf[], size_t buf_len) {
     case UNLOCK_COND_ADDRESS:
     case UNLOCK_COND_STATE:
     case UNLOCK_COND_GOVERNOR:
+    case UNLOCK_COND_IMMUT_ALIAS:
       // deserialize address
       blk->block = address_deserialize(buf + sizeof(uint8_t), buf_len - sizeof(uint8_t));
       break;
@@ -449,6 +476,8 @@ unlock_cond_blk_t* cond_blk_clone(unlock_cond_blk_t* blk) {
       return cond_blk_state_new((address_t*)blk->block);
     case UNLOCK_COND_GOVERNOR:
       return cond_blk_governor_new((address_t*)blk->block);
+    case UNLOCK_COND_IMMUT_ALIAS:
+      return cond_blk_immut_alias_new((address_t*)blk->block);
     default:
       break;
   }
@@ -461,6 +490,7 @@ void cond_blk_free(unlock_cond_blk_t* blk) {
       case UNLOCK_COND_ADDRESS:
       case UNLOCK_COND_STATE:
       case UNLOCK_COND_GOVERNOR:
+      case UNLOCK_COND_IMMUT_ALIAS:
         free_address((address_t*)blk->block);
         break;
       case UNLOCK_COND_STORAGE:
@@ -506,6 +536,10 @@ void cond_blk_print(unlock_cond_blk_t* blk) {
       break;
     case UNLOCK_COND_GOVERNOR:
       printf("Governor Address:");
+      address_print((address_t*)blk->block);
+      break;
+    case UNLOCK_COND_IMMUT_ALIAS:
+      printf("Immutable Alias Address:");
       address_print((address_t*)blk->block);
       break;
     default:

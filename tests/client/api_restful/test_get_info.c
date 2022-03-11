@@ -2,12 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
-#include <unity/unity.h>
-
-#include "test_config.h"
-#include "utarray.h"
 
 #include "client/api/restful/get_node_info.h"
+#include "test_config.h"
+#include "unity/unity.h"
 
 void setUp(void) {}
 

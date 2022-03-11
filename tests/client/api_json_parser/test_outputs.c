@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "client/api/json_parser/outputs.h"
+#include "client/api/json_parser/outputs/outputs.h"
 #include "unity/unity.h"
 
 void setUp(void) {}

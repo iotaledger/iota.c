@@ -157,9 +157,9 @@ size_t unlock_blocks_serialize(unlock_list_t* blocks, byte_t buf[]);
 void unlock_blocks_free(unlock_list_t* blocks);
 
 /**
- * @brief Print out unlocked blocks object
+ * @brief Print out an unlock blocks list
  *
- * @param[in] blocks An unlock block object
+ * @param[in] blocks An unlock block list
  * @param[in] indentation Tab indentation when printing unlock blocks
  */
 void unlock_blocks_print(unlock_list_t* blocks, uint8_t indentation);

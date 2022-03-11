@@ -26,7 +26,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_output_alias() {
-  native_tokens_t* native_tokens = native_tokens_new();
+  native_tokens_list_t* native_tokens = native_tokens_new();
   uint256_t* amount1 = uint256_from_str("111111111");
   native_tokens_add(&native_tokens, token_id1, amount1);
   uint256_t* amount2 = uint256_from_str("222222222");
@@ -76,16 +76,16 @@ void test_output_alias() {
 
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
-  native_tokens_t* token = output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
+  native_tokens_list_t* tokens = output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -133,6 +133,9 @@ void test_output_alias() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
   TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
+
   // serialize alias Output and validate it
   size_t output_serialzed_len = output_alias_serialize_len(output);
   TEST_ASSERT(output_serialzed_len != 0);
@@ -152,18 +155,17 @@ void test_output_alias() {
   TEST_ASSERT_EQUAL_UINT64(output->amount, deser_output->amount);
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&output->native_tokens),
-                          native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(output->native_tokens), native_tokens_count(deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
-  token = deser_output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
+  tokens = deser_output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -223,7 +225,7 @@ void test_output_alias() {
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
   free(output_serialized_buf);
-  native_tokens_free(&native_tokens);
+  native_tokens_free(native_tokens);
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);
   feat_blk_list_free(immut_feat_blocks);
@@ -319,6 +321,9 @@ void test_output_alias_without_native_tokens() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
   TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
+
   // serialize alias Output and validate it
   size_t output_serialzed_len = output_alias_serialize_len(output);
   TEST_ASSERT(output_serialzed_len != 0);
@@ -402,7 +407,7 @@ void test_output_alias_without_native_tokens() {
 
 void test_output_alias_without_metadata() {
   // create Native Tokens
-  native_tokens_t* native_tokens = native_tokens_new();
+  native_tokens_list_t* native_tokens = native_tokens_new();
   uint256_t* amount1 = uint256_from_str("111111111");
   native_tokens_add(&native_tokens, token_id1, amount1);
   uint256_t* amount2 = uint256_from_str("222222222");
@@ -451,16 +456,16 @@ void test_output_alias_without_metadata() {
   TEST_ASSERT_EQUAL_UINT64(123456789, output->amount);
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
-  native_tokens_t* token = output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
+  native_tokens_list_t* tokens = output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -510,6 +515,9 @@ void test_output_alias_without_metadata() {
   // validate alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
+
   // serialize alias Output and validate it
   size_t output_alias_expected_len = output_alias_serialize_len(output);
   TEST_ASSERT(output_alias_expected_len != 0);
@@ -530,17 +538,17 @@ void test_output_alias_without_metadata() {
 
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
-  token = deser_output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
+  tokens = deser_output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -595,7 +603,7 @@ void test_output_alias_without_metadata() {
   free(amount1);
   free(amount2);
   free(amount3);
-  native_tokens_free(&native_tokens);
+  native_tokens_free(native_tokens);
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
   cond_blk_list_free(unlock_conds);
@@ -608,7 +616,7 @@ void test_output_alias_without_metadata() {
 
 void test_output_alias_without_feature_blocks() {
   // create Native Tokens
-  native_tokens_t* native_tokens = native_tokens_new();
+  native_tokens_list_t* native_tokens = native_tokens_new();
   uint256_t* amount1 = uint256_from_str("111111111");
   native_tokens_add(&native_tokens, token_id1, amount1);
   uint256_t* amount2 = uint256_from_str("222222222");
@@ -655,16 +663,16 @@ void test_output_alias_without_feature_blocks() {
 
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
-  native_tokens_t* token = output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
+  native_tokens_list_t* tokens = output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -705,6 +713,9 @@ void test_output_alias_without_feature_blocks() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
   TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
+
   // serialize alias Output and validate it
   size_t output_alias_expected_len = output_alias_serialize_len(output);
   TEST_ASSERT(output_alias_expected_len != 0);
@@ -725,17 +736,17 @@ void test_output_alias_without_feature_blocks() {
 
   // deserialized tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
-  token = deser_output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
+  tokens = deser_output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -784,7 +795,7 @@ void test_output_alias_without_feature_blocks() {
   free(amount2);
   free(amount3);
   free(output_alias_buf);
-  native_tokens_free(&native_tokens);
+  native_tokens_free(native_tokens);
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
   cond_blk_list_free(unlock_conds);
@@ -794,7 +805,7 @@ void test_output_alias_without_feature_blocks() {
 }
 
 void test_output_alias_without_immutable_feature_blocks() {
-  native_tokens_t* native_tokens = native_tokens_new();
+  native_tokens_list_t* native_tokens = native_tokens_new();
   uint256_t* amount1 = uint256_from_str("111111111");
   native_tokens_add(&native_tokens, token_id1, amount1);
   uint256_t* amount2 = uint256_from_str("222222222");
@@ -834,16 +845,16 @@ void test_output_alias_without_immutable_feature_blocks() {
 
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
-  native_tokens_t* token = output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
+  native_tokens_list_t* tokens = output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -880,6 +891,9 @@ void test_output_alias_without_immutable_feature_blocks() {
   // immutable feature blocks should be in adding order
   TEST_ASSERT_NULL(output->immutable_blocks);
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
+
   // serialize alias Output and validate it
   size_t output_serialzed_len = output_alias_serialize_len(output);
   TEST_ASSERT(output_serialzed_len != 0);
@@ -899,18 +913,17 @@ void test_output_alias_without_immutable_feature_blocks() {
   TEST_ASSERT_EQUAL_UINT64(output->amount, deser_output->amount);
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&output->native_tokens),
-                          native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(output->native_tokens), native_tokens_count(deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
-  token = deser_output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
+  tokens = deser_output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -956,7 +969,7 @@ void test_output_alias_without_immutable_feature_blocks() {
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
   free(output_serialized_buf);
-  native_tokens_free(&native_tokens);
+  native_tokens_free(native_tokens);
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);
   output_alias_free(output);
@@ -970,7 +983,7 @@ void test_output_alias_clone() {
 
   //=====Test Alias Output object=====
   // create Native Tokens
-  native_tokens_t* native_tokens = native_tokens_new();
+  native_tokens_list_t* native_tokens = native_tokens_new();
   uint256_t* amount1 = uint256_from_str("111111111");
   native_tokens_add(&native_tokens, token_id1, amount1);
   uint256_t* amount2 = uint256_from_str("222222222");
@@ -1021,17 +1034,17 @@ void test_output_alias_clone() {
   TEST_ASSERT_EQUAL_UINT64(output->amount, new_output->amount);
   // compare native tokens
   TEST_ASSERT_NOT_NULL(new_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&output->native_tokens), native_tokens_count(&new_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(output->native_tokens), native_tokens_count(new_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
-  native_tokens_t* token = new_output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
+  native_tokens_list_t* tokens = new_output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // compare alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, new_output->alias_id, ADDRESS_ALIAS_BYTES);
@@ -1079,7 +1092,7 @@ void test_output_alias_clone() {
   free(amount1);
   free(amount2);
   free(amount3);
-  native_tokens_free(&native_tokens);
+  native_tokens_free(native_tokens);
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
   cond_blk_list_free(unlock_conds);
@@ -1090,7 +1103,7 @@ void test_output_alias_clone() {
 }
 
 void test_output_alias_condition_blocks() {
-  native_tokens_t* native_tokens = native_tokens_new();
+  native_tokens_list_t* native_tokens = native_tokens_new();
   uint256_t* amount1 = uint256_from_str("111111111");
   native_tokens_add(&native_tokens, token_id1, amount1);
   uint256_t* amount2 = uint256_from_str("222222222");
@@ -1141,29 +1154,45 @@ void test_output_alias_condition_blocks() {
   // invalid - unlock condition count must be 2
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
-  TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
-                                    unlock_conds, feat_blocks, immut_feat_blocks));
+  output_alias_t* output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta),
+                                            654321, unlock_conds, feat_blocks, immut_feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_alias_syntactic(output));
+  output_alias_free(output);
 
   // invalid - unlock condition count must be UNLOCK_COND_STATE and UNLOCK_COND_GOVERNOR
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, addr_block) == 0);
-  TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
-                                    unlock_conds, feat_blocks, immut_feat_blocks));
+  output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
+                            unlock_conds, feat_blocks, immut_feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_alias_syntactic(output));
+  output_alias_free(output);
 
   // unlock condition with UNLOCK_COND_ADDRESS and UNLOCK_COND_STORAGE
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, addr_block) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, storage_block) == 0);
-  TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
-                                    unlock_conds, feat_blocks, immut_feat_blocks));
+  output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
+                            unlock_conds, feat_blocks, immut_feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_alias_syntactic(output));
+  output_alias_free(output);
 
   // unlock condition with UNLOCK_COND_STATE and UNLOCK_COND_STORAGE
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, storage_block) == 0);
-  TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
-                                    unlock_conds, feat_blocks, immut_feat_blocks));
+  output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
+                            unlock_conds, feat_blocks, immut_feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_alias_syntactic(output));
+  output_alias_free(output);
 
   // unlock condition with UNLOCK_COND_STATE, UNLOCK_COND_GOVERNOR, and UNLOCK_COND_STORAGE
   cond_blk_list_free(unlock_conds);
@@ -1171,14 +1200,18 @@ void test_output_alias_condition_blocks() {
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, gov_block) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, storage_block) == 0);
-  TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
-                                    unlock_conds, feat_blocks, immut_feat_blocks));
+  output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
+                            unlock_conds, feat_blocks, immut_feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_alias_syntactic(output));
+  output_alias_free(output);
 
   // clean up
   free(amount1);
   free(amount2);
   free(amount3);
-  native_tokens_free(&native_tokens);
+  native_tokens_free(native_tokens);
   feat_blk_list_free(feat_blocks);
   feat_blk_list_free(immut_feat_blocks);
   cond_blk_free(state_block);
@@ -1189,7 +1222,7 @@ void test_output_alias_condition_blocks() {
 }
 
 void test_output_alias_state_metadata_length() {
-  native_tokens_t* native_tokens = native_tokens_new();
+  native_tokens_list_t* native_tokens = native_tokens_new();
   uint256_t* amount1 = uint256_from_str("111111111");
   native_tokens_add(&native_tokens, token_id1, amount1);
 
@@ -1233,6 +1266,8 @@ void test_output_alias_state_metadata_length() {
   output_alias_t* output = output_alias_new(123456789, native_tokens, alias_id, 123456, meta_data, sizeof(meta_data),
                                             654321, unlock_conds, feat_blocks, immut_feat_blocks);
   TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
   output_alias_free(output);
 
   // create alias output with too big state metadata
@@ -1244,7 +1279,7 @@ void test_output_alias_state_metadata_length() {
   free(amount1);
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
-  native_tokens_free(&native_tokens);
+  native_tokens_free(native_tokens);
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);
   feat_blk_list_free(immut_feat_blocks);

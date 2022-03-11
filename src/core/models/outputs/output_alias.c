@@ -2,50 +2,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <inttypes.h>
+#include <string.h>
 
-#include "core/address.h"
-#include "core/models/outputs/output_alias.h"
 #include "core/models/outputs/outputs.h"
-#include "uthash.h"
-#include "utlist.h"
 
 // maximum number of feature blocks
 #define MAX_ALIAS_FEATURE_BLOCKS_COUNT 2
 // maximum number of immutable feature blocks
 #define MAX_ALIAS_IMMUTABLE_FEATURE_BLOCKS_COUNT 2
 
-output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_t alias_id[], uint32_t state_index,
+output_alias_t* output_alias_new(uint64_t amount, native_tokens_list_t* tokens, byte_t alias_id[], uint32_t state_index,
                                  byte_t* metadata, uint32_t metadata_len, uint32_t foundry_counter,
                                  cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks,
                                  feat_blk_list_t* immut_feat_blocks) {
   if (alias_id == NULL || cond_blocks == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
-  }
-
-  // Unlock condition count must be 2
-  if (cond_blk_list_len(cond_blocks) != 2) {
-    printf("[%s:%d] Unlock condition count must be 2\n", __func__, __LINE__);
-    return NULL;
-  } else {
-    // unlock condition must be UNLOCK_COND_STATE and UNLOCK_COND_GOVERNOR
-    if (!cond_blk_list_get_type(cond_blocks, UNLOCK_COND_STATE) ||
-        !cond_blk_list_get_type(cond_blocks, UNLOCK_COND_GOVERNOR)) {
-      printf("[%s:%d] Unlock condition must be State Controller and Governor\n", __func__, __LINE__);
-      return NULL;
-    }
-  }
-
-  // 0<= Feature block count <= 3
-  if (feat_blk_list_len(feat_blocks) > MAX_ALIAS_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_ALIAS_FEATURE_BLOCKS_COUNT);
-    return NULL;
-  } else {
-    // must not contain FEAT_TAG_BLOCK
-    if (feat_blk_list_get_type(feat_blocks, FEAT_TAG_BLOCK)) {
-      printf("[%s:%d] Tag feature block is not allowed\n", __func__, __LINE__);
-      return NULL;
-    }
   }
 
   // When Alias ID is zeroed out, State Index and Foundry Counter must be 0.
@@ -59,19 +31,6 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
   // State Metadata Length must not be greater than Max Metadata Length
   if (metadata_len > MAX_METADATA_LENGTH_BYTES) {
     printf("[%s:%d] Metadata length must not be greater than %d\n", __func__, __LINE__, MAX_METADATA_LENGTH_BYTES);
-    return NULL;
-  }
-
-  // validate feature block parameter
-  if (feat_blk_list_len(feat_blocks) > MAX_ALIAS_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d feature blocks\n", __func__, __LINE__, MAX_ALIAS_FEATURE_BLOCKS_COUNT);
-    return NULL;
-  }
-
-  // validate immutable feature block parameter
-  if (feat_blk_list_len(immut_feat_blocks) > MAX_ALIAS_IMMUTABLE_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] there should be at most %d immutable feature blocks\n", __func__, __LINE__,
-           MAX_ALIAS_IMMUTABLE_FEATURE_BLOCKS_COUNT);
     return NULL;
   }
 
@@ -129,7 +88,7 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_t* tokens, byte_
 void output_alias_free(output_alias_t* output) {
   if (output) {
     if (output->native_tokens) {
-      native_tokens_free(&output->native_tokens);
+      native_tokens_free(output->native_tokens);
     }
     byte_buf_free(output->state_metadata);
     cond_blk_list_free(output->unlock_conditions);
@@ -152,7 +111,7 @@ size_t output_alias_serialize_len(output_alias_t* output) {
   // amount
   length += sizeof(uint64_t);
   // native tokens
-  length += native_tokens_serialize_len(&output->native_tokens);
+  length += native_tokens_serialize_len(output->native_tokens);
   // alias ID
   length += ADDRESS_ALIAS_BYTES;
   // state index
@@ -290,7 +249,7 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
       return NULL;
     }
   }
-  offset += native_tokens_serialize_len(&output->native_tokens);
+  offset += native_tokens_serialize_len(output->native_tokens);
 
   // alias ID
   if (buf_len < offset + ADDRESS_ALIAS_BYTES) {
@@ -444,7 +403,7 @@ void output_alias_print(output_alias_t* output, uint8_t indentation) {
   printf("%s\tAmount: %" PRIu64 "\n", PRINT_INDENTATION(indentation), output->amount);
 
   // print native tokens
-  native_tokens_print(&output->native_tokens, indentation + 1);
+  native_tokens_print(output->native_tokens, indentation + 1);
 
   // print alias ID
   printf("%s\tAlias ID: ", PRINT_INDENTATION(indentation));
@@ -470,4 +429,81 @@ void output_alias_print(output_alias_t* output, uint8_t indentation) {
   feat_blk_list_print(output->immutable_blocks, true, indentation + 1);
 
   printf("%s]\n", PRINT_INDENTATION(indentation));
+}
+
+bool output_alias_syntactic(output_alias_t* output) {
+  // amount must <= Max IOTA Supply
+  if (output->amount > MAX_IOTA_SUPPLY) {
+    printf("[%s:%d] amount bigger than MAX_IOTA_SUPPLY\n", __func__, __LINE__);
+    return false;
+  }
+
+  // Native token count must not greater than Max Native Tokens Count
+  // Native token must be lexicographically sorted based on Token ID
+  // Each Native Token must be unique in the set of Native Tokens based on its Token ID, no duplicates are allowed
+  // Amount of native token must not be zero
+  if (!native_tokens_syntactic(&output->native_tokens)) {
+    return false;
+  }
+
+  // == Unlock condition validation ===
+  // unlock conditions count == 2
+  if (cond_blk_list_len(output->unlock_conditions) != 2) {
+    printf("[%s:%d] Unlock condition count must be 2\n", __func__, __LINE__);
+    return false;
+  }
+  // Unlock Condition types:
+  // - State Controller Address (mandatory)
+  // - Governor Address (mandatory)
+  if (cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE) == NULL ||
+      cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_GOVERNOR) == NULL) {
+    printf("[%s:%d] State Controller Address and Governor Address must be present\n", __func__, __LINE__);
+    return false;
+  }
+  // Unlock Condition must be sorted in ascending order based on their type
+  cond_blk_list_sort(&output->unlock_conditions);
+
+  // == Feature Blocks validation ===
+  // 0<= feature block count <= 2
+  if (feat_blk_list_len(output->feature_blocks) > MAX_ALIAS_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid feature block count must smaller than %d\n", __func__, __LINE__,
+           MAX_ALIAS_FEATURE_BLOCKS_COUNT);
+    return false;
+  }
+  if (feat_blk_list_len(output->feature_blocks) > 0) {
+    // feature block types
+    // - Sender
+    // - Metadata
+    if (feat_blk_list_get_type(output->feature_blocks, FEAT_ISSUER_BLOCK) ||
+        feat_blk_list_get_type(output->feature_blocks, FEAT_TAG_BLOCK)) {
+      printf("[%s:%d] Issuer and Tag blocks are not allowed\n", __func__, __LINE__);
+      return false;
+    }
+  }
+  // Blocks must stored in ascending order based on their Block Type
+  feat_blk_list_sort(&output->feature_blocks);
+
+  // == Immutable Feature Blocks validation ===
+  // 0<= immutable block count <= 2
+  if (feat_blk_list_len(output->immutable_blocks) > MAX_ALIAS_IMMUTABLE_FEATURE_BLOCKS_COUNT) {
+    printf("[%s:%d] invalid feature block count must smaller than %d\n", __func__, __LINE__,
+           MAX_ALIAS_IMMUTABLE_FEATURE_BLOCKS_COUNT);
+    return false;
+  }
+
+  if (feat_blk_list_len(output->immutable_blocks) > 0) {
+    // immutable block types
+    // - Issuer
+    // - Metadata
+    if (feat_blk_list_get_type(output->immutable_blocks, FEAT_SENDER_BLOCK) ||
+        feat_blk_list_get_type(output->immutable_blocks, FEAT_TAG_BLOCK)) {
+      printf("[%s:%d] Sender and Tag Feature blocks are not allowed\n", __func__, __LINE__);
+      return false;
+    }
+  }
+
+  // Blocks must stored in ascending order based on their Block Type
+  feat_blk_list_sort(&output->immutable_blocks);
+
+  return true;
 }

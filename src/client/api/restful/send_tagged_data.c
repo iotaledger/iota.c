@@ -8,7 +8,6 @@
 #include "client/api/restful/send_tagged_data.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/utils/macros.h"
-#include "utarray.h"
 
 int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t tag[], uint8_t tag_len, byte_t data[],
                              uint32_t data_len, res_send_message_t* res) {

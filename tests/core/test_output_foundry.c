@@ -21,7 +21,7 @@ byte_t token_id3[NATIVE_TOKEN_ID_BYTES] = {0x74, 0x6B, 0xA0, 0xD9, 0x51, 0x41, 0
 byte_t test_meta[] = "Test metadata...";
 byte_t test_immut_meta[] = "Test immutable metadata...";
 
-native_tokens_t* native_tokens = NULL;
+native_tokens_list_t* native_tokens = NULL;
 uint256_t* amount1 = NULL;
 uint256_t* amount2 = NULL;
 uint256_t* amount3 = NULL;
@@ -46,7 +46,7 @@ void tearDown(void) {
   free(amount1);
   free(amount2);
   free(amount3);
-  native_tokens_free(&native_tokens);
+  native_tokens_free(native_tokens);
   free(circ_supply);
   free(max_supply);
 }
@@ -73,16 +73,16 @@ void test_output_foundry() {
 
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
-  native_tokens_t* token = output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
+  native_tokens_list_t* tokens = output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate serial number
   TEST_ASSERT(output->serial == 22);
@@ -98,7 +98,7 @@ void test_output_foundry() {
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(output->unlock_conditions) == 1);
-  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -119,6 +119,9 @@ void test_output_foundry() {
   TEST_ASSERT_EQUAL_UINT32(sizeof(test_immut_meta), ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
   TEST_ASSERT_EQUAL_MEMORY(test_immut_meta, ((feat_metadata_blk_t*)immut_feat_block->block)->data,
                            ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_foundry_syntactic(output));
 
   // serialize foundry Output and validate it
   size_t output_foundry_expected_len = output_foundry_serialize_len(output);
@@ -141,17 +144,17 @@ void test_output_foundry() {
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
-  token = deser_output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
+  tokens = deser_output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized serial number
   TEST_ASSERT_EQUAL_UINT32(22, deser_output->serial);
@@ -165,7 +168,7 @@ void test_output_foundry() {
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(deser_output->unlock_conditions) == 1);
-  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -221,7 +224,7 @@ void test_output_foundry_without_native_tokens() {
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(output->unlock_conditions) == 1);
-  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -237,6 +240,9 @@ void test_output_foundry_without_native_tokens() {
   // validate immutable feature blocks
   TEST_ASSERT_NULL(output->immutable_blocks);
   TEST_ASSERT_EQUAL_UINT8(0, feat_blk_list_len(output->immutable_blocks));
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_foundry_syntactic(output));
 
   // serialize foundry Output and validate it
   size_t output_foundry_expected_len = output_foundry_serialize_len(output);
@@ -259,7 +265,7 @@ void test_output_foundry_without_native_tokens() {
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   // deserialized native tokens
   TEST_ASSERT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(0, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(0, native_tokens_count(deser_output->native_tokens));
 
   // deserialized serial number
   TEST_ASSERT_EQUAL_UINT32(22, deser_output->serial);
@@ -273,7 +279,7 @@ void test_output_foundry_without_native_tokens() {
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(deser_output->unlock_conditions) == 1);
-  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -316,16 +322,16 @@ void test_output_foundry_without_metadata() {
 
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&output->native_tokens));
-  native_tokens_t* token = output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(output->native_tokens));
+  native_tokens_list_t* tokens = output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate serial number
   TEST_ASSERT(output->serial == 22);
@@ -341,7 +347,7 @@ void test_output_foundry_without_metadata() {
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(output->unlock_conditions) == 1);
-  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -352,6 +358,9 @@ void test_output_foundry_without_metadata() {
   // validate immutable feature blocks
   TEST_ASSERT_NULL(output->immutable_blocks);
   TEST_ASSERT_EQUAL_UINT8(0, feat_blk_list_len(output->immutable_blocks));
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_foundry_syntactic(output));
 
   // serialize foundry Output and validate it
   size_t output_foundry_expected_len = output_foundry_serialize_len(output);
@@ -374,17 +383,17 @@ void test_output_foundry_without_metadata() {
   TEST_ASSERT_EQUAL_UINT64(123456789, deser_output->amount);
   // deserialized native tokens
   TEST_ASSERT_NOT_NULL(deser_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(&deser_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(deser_output->native_tokens));
   // native tokens are sorted in lexicographical order based on token ID
-  token = deser_output->native_tokens;
-  TEST_ASSERT_EQUAL_MEMORY(token_id3, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount3, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id1, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount1, token->amount, sizeof(uint256_t));
-  token = token->hh.next;
-  TEST_ASSERT_EQUAL_MEMORY(token_id2, token->token_id, NATIVE_TOKEN_ID_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(amount2, token->amount, sizeof(uint256_t));
+  tokens = deser_output->native_tokens;
+  TEST_ASSERT_EQUAL_MEMORY(token_id3, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id1, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount1, &tokens->token->amount, sizeof(uint256_t));
+  tokens = tokens->next;
+  TEST_ASSERT_EQUAL_MEMORY(token_id2, tokens->token->token_id, NATIVE_TOKEN_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized serial number
   TEST_ASSERT_EQUAL_UINT32(22, deser_output->serial);
@@ -398,7 +407,7 @@ void test_output_foundry_without_metadata() {
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
   TEST_ASSERT(cond_blk_list_len(deser_output->unlock_conditions) == 1);
-  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
   TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
 
@@ -456,10 +465,15 @@ void test_output_foundry_syntactic() {
   output_foundry_t* output = output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, circ_supply,
                                                 max_supply, SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0);
   TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_foundry_syntactic(output));
   output_foundry_free(output);
+
   output = output_foundry_new(&alias_addr, 123456789, NULL, 22, token_tag, circ_supply, max_supply, SIMPLE_TOKEN_SCHEME,
                               test_meta, sizeof(test_meta), NULL, 0);
   TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_foundry_syntactic(output));
   output_foundry_free(output);
 }
 
@@ -494,7 +508,7 @@ void test_output_foundry_clone() {
   // validate native tokens
   TEST_ASSERT_NOT_NULL(output->native_tokens);
   TEST_ASSERT_NOT_NULL(new_output->native_tokens);
-  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(&output->native_tokens), native_tokens_count(&new_output->native_tokens));
+  TEST_ASSERT_EQUAL_UINT8(native_tokens_count(output->native_tokens), native_tokens_count(new_output->native_tokens));
 
   // validate serial number
   TEST_ASSERT_EQUAL_UINT32(output->serial, new_output->serial);
