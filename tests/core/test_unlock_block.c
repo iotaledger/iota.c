@@ -454,10 +454,10 @@ void test_unlock_block_deserialize() {
   TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(blocks));
 
   iota_crypto_randombytes(sig1, ED25519_SIGNATURE_BLOCK_BYTES);
-  sig1[0] = 0;
+  sig1[0] = UNLOCK_BLOCK_TYPE_SIGNATURE;
   unlock_blocks_add_signature(&blocks, sig1, ED25519_SIGNATURE_BLOCK_BYTES);
   iota_crypto_randombytes(sig2, ED25519_SIGNATURE_BLOCK_BYTES);
-  sig2[0] = 0;
+  sig2[0] = UNLOCK_BLOCK_TYPE_SIGNATURE;
   unlock_blocks_add_signature(&blocks, sig2, ED25519_SIGNATURE_BLOCK_BYTES);
   unlock_blocks_add_reference(&blocks, 1);
   unlock_blocks_add_reference(&blocks, 0);
