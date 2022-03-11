@@ -60,7 +60,7 @@ void test_output_alias() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
@@ -259,7 +259,7 @@ void test_output_alias_without_native_tokens() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
@@ -440,7 +440,7 @@ void test_output_alias_without_metadata() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
@@ -645,7 +645,7 @@ void test_output_alias_without_feature_blocks() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
@@ -1016,7 +1016,7 @@ void test_output_alias_clone() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
@@ -1122,7 +1122,7 @@ void test_output_alias_condition_blocks() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
@@ -1252,7 +1252,7 @@ void test_output_alias_state_metadata_length() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();

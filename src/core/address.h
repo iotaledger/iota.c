@@ -9,18 +9,18 @@
 #include "core/types.h"
 #include "crypto/iota_crypto.h"
 
-// An PubKeyHash address is the Blake2b-256 hash of an Ed25519 public key.
-#define ADDRESS_PUBKEY_HASH_BYTES ED_PUBLIC_KEY_BYTES
+// An Ed25519 address is the Blake2b-256 hash of an Ed25519 public key.
+#define ED25519_PUBKEY_BYTES ED_PUBLIC_KEY_BYTES
 // An Alias address is the Blake2b-160 hash of the OutputID which created it.
 #define ALIAS_ID_BYTES 20
 // A NFT address is the Blake2b-160 hash of the OutputID which created it.
 #define NFT_ID_BYTES 20
 // Maximum number of bytes an address can hold.
-#define ADDRESS_MAX_BYTES ADDRESS_PUBKEY_HASH_BYTES
+#define ADDRESS_MAX_BYTES ED25519_PUBKEY_BYTES
 // Minimum number of bytes an address can hold.
 #define ADDRESS_MIN_BYTES ALIAS_ID_BYTES
 // Maximum number of bytes a serialized address can hold.
-#define ADDRESS_SERIALIZED_MAX_BYTES (1 + ADDRESS_PUBKEY_HASH_BYTES)
+#define ADDRESS_SERIALIZED_MAX_BYTES (1 + ED25519_PUBKEY_BYTES)
 
 /**
  * @brief Address types that supported by the protocol

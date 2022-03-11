@@ -24,8 +24,8 @@ void test_parse_ed25519_address() {
 
   address_t test_addr;
   test_addr.type = ADDRESS_TYPE_ED25519;
-  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb",
-            BIN_TO_HEX_BYTES(ADDRESS_PUBKEY_HASH_BYTES), test_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
+            test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, &address));
 
   cJSON_Delete(json_obj);

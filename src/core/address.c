@@ -12,7 +12,7 @@
 
 static int address_from_ed25519_pub(byte_t const pub_key[], address_t *addr) {
   addr->type = ADDRESS_TYPE_ED25519;
-  return iota_blake2b_sum(pub_key, ED_PUBLIC_KEY_BYTES, addr->address, ADDRESS_PUBKEY_HASH_BYTES);
+  return iota_blake2b_sum(pub_key, ED_PUBLIC_KEY_BYTES, addr->address, ED25519_PUBKEY_BYTES);
 }
 
 int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], ed25519_keypair_t *keypair) {
@@ -33,7 +33,7 @@ int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], ed255
 uint8_t address_len(address_t const *const addr) {
   switch (addr->type) {
     case ADDRESS_TYPE_ED25519:
-      return ADDRESS_PUBKEY_HASH_BYTES;
+      return ED25519_PUBKEY_BYTES;
     case ADDRESS_TYPE_ALIAS:
       return ALIAS_ID_BYTES;
     case ADDRESS_TYPE_NFT:
@@ -105,7 +105,7 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
     // copy address
     switch (addr->type) {
       case ADDRESS_TYPE_ED25519:
-        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_PUBKEY_HASH_BYTES);
+        memcpy(addr->address, bytes + sizeof(uint8_t), ED25519_PUBKEY_BYTES);
         break;
       case ADDRESS_TYPE_ALIAS:
         memcpy(addr->address, bytes + sizeof(uint8_t), ALIAS_ID_BYTES);
@@ -235,7 +235,7 @@ void address_print(address_t const *const addr) {
   switch (addr->type) {
     case ADDRESS_TYPE_ED25519:
       printf("[ED25519] ");
-      dump_hex_str(addr->address, ADDRESS_PUBKEY_HASH_BYTES);
+      dump_hex_str(addr->address, ED25519_PUBKEY_BYTES);
       break;
     case ADDRESS_TYPE_ALIAS:
       printf("[Alias] ");

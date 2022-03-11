@@ -100,7 +100,7 @@ void test_serializer() {
   addr_obj = address_deserialize(addr_bin, sizeof(addr_bin));
   TEST_ASSERT_NOT_NULL(addr_obj);
   TEST_ASSERT(addr_obj->type == ADDRESS_TYPE_ED25519);
-  TEST_ASSERT_EQUAL_MEMORY(addr_bin + 1, addr_obj->address, ADDRESS_PUBKEY_HASH_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(addr_bin + 1, addr_obj->address, ED25519_PUBKEY_BYTES);
   // serialize with insufficient buffer size
   TEST_ASSERT(address_serialize(addr_obj, addr_ser, 1) == 0);
   // convert an address object to a binary data
@@ -144,7 +144,7 @@ void test_clone_equal() {
   TEST_ASSERT_NOT_NULL(addr2);
   TEST_ASSERT(address_equal(addr1, addr2) == true);
 
-  iota_crypto_randombytes(addr2->address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(addr2->address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT(address_equal(addr1, addr2) == false);
 
   free_address(addr1);

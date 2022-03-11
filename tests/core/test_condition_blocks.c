@@ -20,7 +20,7 @@ void test_condition_addr() {
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
 
   unlock_cond_blk_t* b = cond_blk_addr_new(&addr);
   TEST_ASSERT_NOT_NULL(b);
@@ -55,7 +55,7 @@ void test_condition_storage() {
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
 
   unlock_cond_blk_t* b = cond_blk_storage_new(&addr, 100000000);
   TEST_ASSERT_NOT_NULL(b);
@@ -138,7 +138,7 @@ void test_condition_expiration() {
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
   // should be NULL
   TEST_ASSERT_NULL(cond_blk_expir_new(&addr, 0, 0));
 
@@ -187,7 +187,7 @@ void test_condition_state() {
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
 
   unlock_cond_blk_t* b = cond_blk_state_new(&addr);
   TEST_ASSERT_NOT_NULL(b);
@@ -222,7 +222,7 @@ void test_condition_governor() {
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
 
   unlock_cond_blk_t* b = cond_blk_governor_new(&addr);
   TEST_ASSERT_NOT_NULL(b);
@@ -254,7 +254,7 @@ void test_condition_list() {
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
 
   // empty list
   cond_blk_list_t* list = cond_blk_list_new();
@@ -351,7 +351,7 @@ void test_condition_list_syntactic() {
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
 
   // empty list
   cond_blk_list_t* list = cond_blk_list_new();

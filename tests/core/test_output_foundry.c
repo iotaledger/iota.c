@@ -428,7 +428,7 @@ void test_output_foundry_syntactic() {
   // create random ED25519 address
   address_t ed_addr = {};
   ed_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(ed_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(ed_addr.address, ED25519_PUBKEY_BYTES);
 
   // create random Alias address
   address_t alias_addr = {};

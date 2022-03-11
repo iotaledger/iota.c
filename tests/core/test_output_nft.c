@@ -83,11 +83,11 @@ void test_output_nft() {
   // create random sender address
   address_t sender_addr = {};
   sender_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(sender_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(sender_addr.address, ED25519_PUBKEY_BYTES);
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag)) == 0);
@@ -270,11 +270,11 @@ void test_output_nft_without_native_tokens() {
   // create random sender address
   address_t sender_addr = {};
   sender_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(sender_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(sender_addr.address, ED25519_PUBKEY_BYTES);
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag)) == 0);
@@ -438,7 +438,7 @@ void test_output_nft_without_feature_blocks() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
@@ -556,7 +556,7 @@ void test_output_nft_without_immutable_feature_blocks() {
   // create random sender address
   address_t sender_addr = {};
   sender_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(sender_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(sender_addr.address, ED25519_PUBKEY_BYTES);
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag)) == 0);
@@ -836,7 +836,7 @@ void test_output_nft_clone() {
   // create random sender address
   address_t sender_addr = {};
   sender_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(sender_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(sender_addr.address, ED25519_PUBKEY_BYTES);
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) == 0);
 
@@ -844,7 +844,7 @@ void test_output_nft_clone() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_PUBKEY_HASH_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
 
