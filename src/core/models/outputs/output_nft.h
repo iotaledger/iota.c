@@ -18,13 +18,13 @@
  *
  */
 typedef struct {
-  uint64_t amount;                     ///< The amount of IOTA tokens held by this output
-  native_tokens_list_t* native_tokens;      ///< The native tokens held by the output
-  byte_t nft_id[NFT_ID_BYTES];         ///< The identifier of this NFT
-  cond_blk_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
-  feat_blk_list_t* feature_blocks;     ///< The feature blocks which modulate the constraints on the output
-  feat_blk_list_t* immutable_blocks;   ///< Immutable blocks are defined upon deployment of the UTXO state machine and
-                                       ///< are not allowed to change in any future state transition
+  uint64_t amount;                      ///< The amount of IOTA tokens held by this output
+  native_tokens_list_t* native_tokens;  ///< The native tokens held by the output
+  byte_t nft_id[NFT_ID_BYTES];          ///< The identifier of this NFT
+  cond_blk_list_t* unlock_conditions;   ///< Define how the output can be unlocked and spent
+  feat_blk_list_t* feature_blocks;      ///< The feature blocks which modulate the constraints on the output
+  feat_blk_list_t* immutable_blocks;    ///< Immutable blocks are defined upon deployment of the UTXO state machine and
+                                        ///< are not allowed to change in any future state transition
 } output_nft_t;
 
 #ifdef __cplusplus
