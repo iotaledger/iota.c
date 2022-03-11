@@ -30,7 +30,9 @@ typedef enum {
   UNLOCK_COND_EXPIRATION,  // Expiration Unlock, for the sender to reclaim an output after a given expiration time has
                            // been passed.
   UNLOCK_COND_STATE,       // State Controller Address Unlock, it unlocks State Controller Address of an Alias output.
-  UNLOCK_COND_GOVERNOR     // Governor Address Unlock, it unlocks Governor address of an Alias output.
+  UNLOCK_COND_GOVERNOR,    // Governor Address Unlock, it unlocks Governor address of an Alias output.
+  UNLOCK_COND_IMMUT_ALIAS  // Immutable Alias Address Unlock, defined for chain constrained UTXOs that can only be
+                           // unlocked by a permanent Alias Address.
 } unlock_cond_e;
 
 /**
@@ -93,7 +95,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Create a Address Unlock Condition block
+ * @brief Create an Address Unlock Condition block
  *
  * The Address that owns this output, that is, it can unlock it with the proper Unlock Block in a transaction.
  *
@@ -152,6 +154,16 @@ unlock_cond_blk_t* cond_blk_state_new(address_t const* const addr);
  * @return unlock_cond_blk_t*
  */
 unlock_cond_blk_t* cond_blk_governor_new(address_t const* const addr);
+
+/**
+ * @brief Create an Immutable Aliass Address Unlock Condition
+ *
+ * The Address that owns this output, that is, it can unlock it with the proper Unlock Block in a transaction.
+ *
+ * @param[in] addr An alias address object
+ * @return unlock_cond_blk_t*
+ */
+unlock_cond_blk_t* cond_blk_immut_alias_new(address_t const* const addr);
 
 /**
  * @brief Get the serialize bytes of the block

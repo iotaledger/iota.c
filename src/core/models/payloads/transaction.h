@@ -13,8 +13,6 @@
 #include "core/models/unlock_block.h"
 #include "core/types.h"
 
-static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
-
 // have one transaction essence only which is 0
 #define TRANSACTION_ESSENCE_TYPE 0
 
@@ -137,6 +135,16 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
 transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len);
 
 /**
+ * @brief Transaction Essence syntactic validation
+ *
+ * @param[in] es An essence object
+ * @param[in] byte_cost The Byte Cost configure
+ * @return true Valid
+ * @return false Invalid
+ */
+bool tx_essence_syntactic(transaction_essence_t* es, byte_cost_config_t* byte_cost);
+
+/**
  * @brief Print out a transaction essence
  *
  * @param[in] es An essence object
@@ -193,6 +201,16 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len);
  * @param[in] indentation Tab indentation when printing transaction payload
  */
 void tx_payload_print(transaction_payload_t* tx, uint8_t indentation);
+
+/**
+ * @brief Transaction pyaload syntactic validation
+ *
+ * @param[in] tx A transaction payload
+ * @param[in] byte_cost The Byte Cost configure
+ * @return true Valid
+ * @return false Invalid
+ */
+bool tx_payload_syntactic(transaction_payload_t* tx, byte_cost_config_t* byte_cost);
 
 #ifdef __cplusplus
 }

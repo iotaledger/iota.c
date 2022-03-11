@@ -117,6 +117,15 @@ output_foundry_t* output_foundry_clone(output_foundry_t const* const output);
  */
 void output_foundry_print(output_foundry_t* output, uint8_t indentation);
 
+/**
+ * @brief Foundry Output syntactic validation
+ *
+ * @param[in] output A Foundry Outout object
+ * @return true Valid
+ * @return false Invalid
+ */
+bool output_foundry_syntactic(output_foundry_t* output);
+
 #ifdef __cplusplus
 }
 #endif

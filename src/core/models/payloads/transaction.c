@@ -209,6 +209,20 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   return es;
 }
 
+bool tx_essence_syntactic(transaction_essence_t* es, byte_cost_config_t* byte_cost) {
+  // inputs
+  if (!utxo_inputs_syntactic(es->inputs)) {
+    return false;
+  }
+
+  // outputs
+  if (!utxo_outputs_syntactic(es->outputs, byte_cost)) {
+    return false;
+  }
+
+  return true;
+}
+
 void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
   printf("%sTransaction Essence: [\n", PRINT_INDENTATION(indentation));
   printf("%s\tType: %d\n", PRINT_INDENTATION(indentation), es->tx_type);
@@ -320,4 +334,22 @@ void tx_payload_print(transaction_payload_t* tx, uint8_t indentation) {
     tx_essence_print(tx->essence, indentation);
     unlock_blocks_print(tx->unlock_blocks, indentation);
   }
+}
+
+bool tx_payload_syntactic(transaction_payload_t* tx, byte_cost_config_t* byte_cost) {
+  if (!tx) {
+    return false;
+  }
+
+  // essence
+  if (!tx_essence_syntactic(tx->essence, byte_cost)) {
+    return false;
+  }
+
+  // Unlock Block Count must match Input Count
+  if (utxo_inputs_count(tx->essence->inputs) != unlock_blocks_count(tx->unlock_blocks)) {
+    return false;
+  }
+
+  return true;
 }

@@ -124,7 +124,16 @@ native_tokens_list_t *native_tokens_deserialize(byte_t buf[], size_t buf_len);
 native_tokens_list_t *native_tokens_clone(native_tokens_list_t *const nt);
 
 /**
- * @brief Print Native Tokens list.
+ * @brief Native tokens syntactic validation
+ *
+ * @param[in] nt A Native token set
+ * @return true Valid
+ * @return false Invalid
+ */
+bool native_tokens_syntactic(native_tokens_list_t **nt);
+
+/**
+ * @brief Print Native Tokens set.
  *
  * @param[in] nt Native Tokens list
  * @param[in] indentation Tab indentation when printing Native Tokens list

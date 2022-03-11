@@ -151,6 +151,9 @@ void test_output_basic() {
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
                            ((feat_metadata_blk_t*)feat_block->block)->data_len);
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_basic_syntactic(output));
+
   // serialize Basic Output and validate it
   size_t expected_serial_len = output_basic_serialize_len(output);
   TEST_ASSERT(expected_serial_len != 0);
@@ -281,6 +284,9 @@ void test_output_basic_without_native_tokens() {
   // index out of list
   TEST_ASSERT_NULL(feat_blk_list_get(output->feature_blocks, 1));
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_basic_syntactic(output));
+
   // serialize Basic Output and validate it
   size_t expected_serial_len = output_basic_serialize_len(output);
   TEST_ASSERT(expected_serial_len != 0);
@@ -386,6 +392,9 @@ void test_output_basic_without_feature_blocks() {
   // index out of list
   TEST_ASSERT_NULL(feat_blk_list_get(output->feature_blocks, 0));
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_basic_syntactic(output));
+
   // serialize Basic Output and validate it
   size_t expected_serial_len = output_basic_serialize_len(output);
   TEST_ASSERT(expected_serial_len != 0);
@@ -484,6 +493,9 @@ void test_output_basic_without_native_tokens_and_feature_blocks() {
   // index out of list
   TEST_ASSERT_NULL(feat_blk_list_get(output->feature_blocks, 0));
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_basic_syntactic(output));
+
   // serialize Basic Output and validate it
   size_t expected_serial_len = output_basic_serialize_len(output);
   TEST_ASSERT(expected_serial_len != 0);
@@ -546,20 +558,32 @@ void test_output_basic_unlock_conditions() {
   // invalid unlock conditions: State Controller/Governanor
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_state) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_gov) == 0);
-  TEST_ASSERT_NULL(output_basic_new(123456789, NULL, unlock_conds, NULL));
+  output_basic_t* output = output_basic_new(123456789, NULL, unlock_conds, NULL);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_basic_syntactic(output));
   cond_blk_list_free(unlock_conds);
+  output_basic_free(output);
 
   // invalid unlock condition: State Controller
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_state) == 0);
-  TEST_ASSERT_NULL(output_basic_new(123456789, NULL, unlock_conds, NULL));
+  output = output_basic_new(123456789, NULL, unlock_conds, NULL);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_basic_syntactic(output));
   cond_blk_list_free(unlock_conds);
+  output_basic_free(output);
 
   // invalid unlock condition: Governor
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_gov) == 0);
-  TEST_ASSERT_NULL(output_basic_new(123456789, NULL, unlock_conds, NULL));
+  output = output_basic_new(123456789, NULL, unlock_conds, NULL);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_basic_syntactic(output));
   cond_blk_list_free(unlock_conds);
+  output_basic_free(output);
 }
 
 void test_output_basic_clone() {

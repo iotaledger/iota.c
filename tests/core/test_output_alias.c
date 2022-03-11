@@ -133,6 +133,9 @@ void test_output_alias() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
   TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
+
   // serialize alias Output and validate it
   size_t output_serialzed_len = output_alias_serialize_len(output);
   TEST_ASSERT(output_serialzed_len != 0);
@@ -317,6 +320,9 @@ void test_output_alias_without_native_tokens() {
   immut_feat_block = feat_blk_list_get(output->immutable_blocks, 1);
   TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
   TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
 
   // serialize alias Output and validate it
   size_t output_serialzed_len = output_alias_serialize_len(output);
@@ -508,6 +514,9 @@ void test_output_alias_without_metadata() {
 
   // validate alias ID
   TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
 
   // serialize alias Output and validate it
   size_t output_alias_expected_len = output_alias_serialize_len(output);
@@ -704,6 +713,9 @@ void test_output_alias_without_feature_blocks() {
   TEST_ASSERT_EQUAL_UINT8(FEAT_ISSUER_BLOCK, immut_feat_block->type);
   TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
 
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
+
   // serialize alias Output and validate it
   size_t output_alias_expected_len = output_alias_serialize_len(output);
   TEST_ASSERT(output_alias_expected_len != 0);
@@ -878,6 +890,9 @@ void test_output_alias_without_immutable_feature_blocks() {
 
   // immutable feature blocks should be in adding order
   TEST_ASSERT_NULL(output->immutable_blocks);
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
 
   // serialize alias Output and validate it
   size_t output_serialzed_len = output_alias_serialize_len(output);
@@ -1139,29 +1154,45 @@ void test_output_alias_condition_blocks() {
   // invalid - unlock condition count must be 2
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
-  TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
-                                    unlock_conds, feat_blocks, immut_feat_blocks));
+  output_alias_t* output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta),
+                                            654321, unlock_conds, feat_blocks, immut_feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_alias_syntactic(output));
+  output_alias_free(output);
 
   // invalid - unlock condition count must be UNLOCK_COND_STATE and UNLOCK_COND_GOVERNOR
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, addr_block) == 0);
-  TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
-                                    unlock_conds, feat_blocks, immut_feat_blocks));
+  output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
+                            unlock_conds, feat_blocks, immut_feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_alias_syntactic(output));
+  output_alias_free(output);
 
   // unlock condition with UNLOCK_COND_ADDRESS and UNLOCK_COND_STORAGE
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, addr_block) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, storage_block) == 0);
-  TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
-                                    unlock_conds, feat_blocks, immut_feat_blocks));
+  output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
+                            unlock_conds, feat_blocks, immut_feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_alias_syntactic(output));
+  output_alias_free(output);
 
   // unlock condition with UNLOCK_COND_STATE and UNLOCK_COND_STORAGE
   cond_blk_list_free(unlock_conds);
   unlock_conds = cond_blk_list_new();
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, storage_block) == 0);
-  TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
-                                    unlock_conds, feat_blocks, immut_feat_blocks));
+  output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
+                            unlock_conds, feat_blocks, immut_feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_alias_syntactic(output));
+  output_alias_free(output);
 
   // unlock condition with UNLOCK_COND_STATE, UNLOCK_COND_GOVERNOR, and UNLOCK_COND_STORAGE
   cond_blk_list_free(unlock_conds);
@@ -1169,8 +1200,12 @@ void test_output_alias_condition_blocks() {
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, gov_block) == 0);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, storage_block) == 0);
-  TEST_ASSERT_NULL(output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
-                                    unlock_conds, feat_blocks, immut_feat_blocks));
+  output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta), 654321,
+                            unlock_conds, feat_blocks, immut_feat_blocks);
+  TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_FALSE(output_alias_syntactic(output));
+  output_alias_free(output);
 
   // clean up
   free(amount1);
@@ -1231,6 +1266,8 @@ void test_output_alias_state_metadata_length() {
   output_alias_t* output = output_alias_new(123456789, native_tokens, alias_id, 123456, meta_data, sizeof(meta_data),
                                             654321, unlock_conds, feat_blocks, immut_feat_blocks);
   TEST_ASSERT_NOT_NULL(output);
+  // syntactic validation
+  TEST_ASSERT_TRUE(output_alias_syntactic(output));
   output_alias_free(output);
 
   // create alias output with too big state metadata
