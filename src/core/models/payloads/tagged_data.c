@@ -8,24 +8,7 @@
 #include "core/models/payloads/tagged_data.h"
 #include "core/utils/macros.h"
 
-tagged_data_payload_t *tagged_data_new() {
-  tagged_data_payload_t *tagged_data = malloc(sizeof(tagged_data_payload_t));
-  if (tagged_data) {
-    tagged_data->tag = NULL;
-    tagged_data->data = NULL;
-  }
-  return tagged_data;
-}
-
-void tagged_data_free(tagged_data_payload_t *tagged_data) {
-  if (tagged_data) {
-    byte_buf_free(tagged_data->tag);
-    byte_buf_free(tagged_data->data);
-    free(tagged_data);
-  }
-}
-
-tagged_data_payload_t *tagged_data_create(byte_t tag[], uint8_t tag_len, byte_t data[], uint32_t data_len) {
+tagged_data_payload_t *tagged_data_new(byte_t tag[], uint8_t tag_len, byte_t data[], uint32_t data_len) {
   if ((tag_len > 0 && tag == NULL) || (data_len > 0 && data == NULL)) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
@@ -36,10 +19,13 @@ tagged_data_payload_t *tagged_data_create(byte_t tag[], uint8_t tag_len, byte_t 
     return NULL;
   }
 
-  tagged_data_payload_t *tagged_data = tagged_data_new();
+  tagged_data_payload_t *tagged_data = malloc(sizeof(tagged_data_payload_t));
   if (!tagged_data) {
-    printf("[%s:%d] can not create tagged data object\n", __func__, __LINE__);
+    printf("[%s:%d] cannot create tagged data object\n", __func__, __LINE__);
     return NULL;
+  } else {
+    tagged_data->tag = NULL;
+    tagged_data->data = NULL;
   }
 
   // add binary tag
@@ -63,6 +49,14 @@ tagged_data_payload_t *tagged_data_create(byte_t tag[], uint8_t tag_len, byte_t 
   }
 
   return tagged_data;
+}
+
+void tagged_data_free(tagged_data_payload_t *tagged_data) {
+  if (tagged_data) {
+    byte_buf_free(tagged_data->tag);
+    byte_buf_free(tagged_data->data);
+    free(tagged_data);
+  }
 }
 
 size_t tagged_data_serialize_len(tagged_data_payload_t *tagged_data) {
@@ -151,10 +145,13 @@ tagged_data_payload_t *tagged_data_deserialize(byte_t buf[], size_t buf_len) {
     return NULL;
   }
 
-  tagged_data_payload_t *tagged_data = tagged_data_new();
+  tagged_data_payload_t *tagged_data = malloc(sizeof(tagged_data_payload_t));
   if (!tagged_data) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
+  } else {
+    tagged_data->tag = NULL;
+    tagged_data->data = NULL;
   }
 
   size_t offset = 0;
@@ -224,6 +221,27 @@ tagged_data_payload_t *tagged_data_deserialize(byte_t buf[], size_t buf_len) {
   }
 
   return tagged_data;
+}
+
+tagged_data_payload_t *tagged_data_clone(tagged_data_payload_t const *const tagged_data) {
+  tagged_data_payload_t *new_tagged_data = malloc(sizeof(tagged_data_payload_t));
+  if (!new_tagged_data) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  new_tagged_data->tag = byte_buf_new_with_data(tagged_data->tag->data, tagged_data->tag->len);
+  if (!new_tagged_data->tag) {
+    printf("[%s:%d] cannot create copy of tag from tagged data\n", __func__, __LINE__);
+    return NULL;
+  }
+  new_tagged_data->data = byte_buf_new_with_data(tagged_data->data->data, tagged_data->data->len);
+  if (!new_tagged_data->data) {
+    printf("[%s:%d] cannot create copy of data from tagged data\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  return new_tagged_data;
 }
 
 void tagged_data_print(tagged_data_payload_t *tagged_data, uint8_t indentation) {

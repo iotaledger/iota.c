@@ -191,7 +191,7 @@ void test_message_with_tx_serialize() {
 
   // add tagged data payload
   char const* const hornet_faucet = "HORNET FAUCET";
-  tagged_data_payload_t* tagged_data = tagged_data_create((byte_t*)hornet_faucet, strlen(hornet_faucet) + 1, NULL, 0);
+  tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)hornet_faucet, strlen(hornet_faucet) + 1, NULL, 0);
   TEST_ASSERT_NOT_NULL(tagged_data);
   TEST_ASSERT(tx_essence_add_payload(essence, CORE_MESSAGE_PAYLOAD_TAGGED, tagged_data) == 0);
 
@@ -267,7 +267,7 @@ void test_message_with_tagged_data_serialize() {
   // create tagged data
   byte_t data[] = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64};
   char const* const iotac_lib = "iota.c lib";
-  msg->payload = tagged_data_create((byte_t*)iotac_lib, strlen(iotac_lib) + 1, data, sizeof(data));
+  msg->payload = tagged_data_new((byte_t*)iotac_lib, strlen(iotac_lib) + 1, data, sizeof(data));
 
   // add message nonce
   msg->nonce = 58976;

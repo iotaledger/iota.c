@@ -56,7 +56,7 @@ int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* paylo
     return -1;
   }
   if (type == CORE_MESSAGE_PAYLOAD_TAGGED) {
-    es->payload = payload;
+    es->payload = tagged_data_clone((tagged_data_payload_t const* const)payload);
     es->payload_len = tagged_data_serialize_len(payload);
   } else {
     return -1;
