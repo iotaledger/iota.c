@@ -443,12 +443,102 @@ void test_unlock_block_serialize() {
   blocks = NULL;
 }
 
+void test_unlock_block_deserialize() {
+  byte_t sig1[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+  byte_t sig2[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+  unlock_list_t* blocks = unlock_blocks_new();
+
+  //=====2 signature with 2 reference, 2 alias and 2 NFT=====
+  blocks = unlock_blocks_new();
+  TEST_ASSERT_NULL(blocks);
+  TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(blocks));
+
+  iota_crypto_randombytes(sig1, ED25519_SIGNATURE_BLOCK_BYTES);
+  sig1[0] = UNLOCK_BLOCK_TYPE_SIGNATURE;
+  unlock_blocks_add_signature(&blocks, sig1, ED25519_SIGNATURE_BLOCK_BYTES);
+  iota_crypto_randombytes(sig2, ED25519_SIGNATURE_BLOCK_BYTES);
+  sig2[0] = UNLOCK_BLOCK_TYPE_SIGNATURE;
+  unlock_blocks_add_signature(&blocks, sig2, ED25519_SIGNATURE_BLOCK_BYTES);
+  unlock_blocks_add_reference(&blocks, 1);
+  unlock_blocks_add_reference(&blocks, 0);
+  unlock_blocks_add_alias(&blocks, 1);
+  unlock_blocks_add_alias(&blocks, 0);
+  unlock_blocks_add_nft(&blocks, 1);
+  unlock_blocks_add_nft(&blocks, 0);
+  TEST_ASSERT_EQUAL_UINT16(8, unlock_blocks_count(blocks));
+
+  // serialization
+  size_t len = unlock_blocks_serialize_length(blocks);
+  TEST_ASSERT(len ==
+              (sizeof(uint16_t) + (UNLOCK_SIGNATURE_SERIALIZE_BYTES * 2) + (UNLOCK_REFERENCE_SERIALIZE_BYTES * 2) +
+               (UNLOCK_ALIAS_SERIALIZE_BYTES * 2) + (UNLOCK_NFT_SERIALIZE_BYTES * 2)));
+  byte_t* block_buf = malloc(len);
+  TEST_ASSERT_NOT_NULL(block_buf);
+  TEST_ASSERT(unlock_blocks_serialize(blocks, block_buf) == len);
+
+  // deserialization failed
+  unlock_list_t* deser_blocks = unlock_blocks_deserialize(block_buf, len - 1);  // too small buffer length
+  TEST_ASSERT_NULL(deser_blocks);
+
+  // deserialization
+  deser_blocks = unlock_blocks_deserialize(block_buf, len);
+  TEST_ASSERT_NOT_NULL(deser_blocks);
+  TEST_ASSERT_EQUAL_UINT8(8, unlock_blocks_count(deser_blocks));
+
+  // validation for deserialization
+  // Unlock block #0
+  unlock_block_t* block = unlock_blocks_get(deser_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_BLOCK_TYPE_SIGNATURE, block->type);
+  TEST_ASSERT_EQUAL_MEMORY(sig1, block->block_data, sizeof(sig1));
+
+  // Unlock block #1
+  block = unlock_blocks_get(deser_blocks, 1);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_BLOCK_TYPE_SIGNATURE, block->type);
+  TEST_ASSERT_EQUAL_MEMORY(sig2, block->block_data, sizeof(sig2));
+
+  // Unlock block #2
+  block = unlock_blocks_get(deser_blocks, 2);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_BLOCK_TYPE_REFERENCE, block->type);
+  TEST_ASSERT_EQUAL_UINT16(1, *(uint16_t*)block->block_data);
+
+  // Unlock block #3
+  block = unlock_blocks_get(deser_blocks, 3);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_BLOCK_TYPE_REFERENCE, block->type);
+  TEST_ASSERT_EQUAL_UINT16(0, *(uint16_t*)block->block_data);
+
+  // Unlock block #4
+  block = unlock_blocks_get(deser_blocks, 4);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_BLOCK_TYPE_ALIAS, block->type);
+  TEST_ASSERT_EQUAL_UINT16(1, *(uint16_t*)block->block_data);
+
+  // Unlock block #5
+  block = unlock_blocks_get(deser_blocks, 5);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_BLOCK_TYPE_ALIAS, block->type);
+  TEST_ASSERT_EQUAL_UINT16(0, *(uint16_t*)block->block_data);
+
+  // Unlock block #6
+  block = unlock_blocks_get(deser_blocks, 6);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_BLOCK_TYPE_NFT, block->type);
+  TEST_ASSERT_EQUAL_UINT16(1, *(uint16_t*)block->block_data);
+
+  // Unlock block #7
+  block = unlock_blocks_get(deser_blocks, 7);
+  TEST_ASSERT_EQUAL_UINT8(UNLOCK_BLOCK_TYPE_NFT, block->type);
+  TEST_ASSERT_EQUAL_UINT16(0, *(uint16_t*)block->block_data);
+
+  // clean up
+  free(block_buf);
+  unlock_blocks_free(blocks);
+  unlock_blocks_free(deser_blocks);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_unlock_block);
   RUN_TEST(test_unlock_block_validation);
   RUN_TEST(test_unlock_block_serialize);
+  RUN_TEST(test_unlock_block_deserialize);
 
   return UNITY_END();
 }
