@@ -8,7 +8,7 @@
 #include "client/api/restful/faucet_enqueue.h"
 #include "client/network/http.h"
 
-const char *const fauce_enqueue_api_path = "/api/plugins/faucet/v1/enqueue";
+const char *const faucet_enqueue_api_path = "/api/plugins/faucet/v1/enqueue";
 
 int deser_faucet_enqueue_response(char const *const j_str, res_faucet_enqueue_t *res) {
   if (j_str == NULL || res == NULL) {
@@ -57,8 +57,8 @@ int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const ad
     return -1;
   }
 
-  // Check if addr_bech32 has minimum requred length
-  if (strlen(addr_bech32) < BECH32_ED25519_ADDRESS_STR_LEN) {
+  // Check if addr_bech32 has minimum required length
+  if (strlen(addr_bech32) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
     printf("[%s:%d] invalid bech32 address\n", __func__, __LINE__);
     return -1;
   }
@@ -99,7 +99,7 @@ int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const ad
 
   // config http client
   http_client_config_t http_conf = {
-      .host = conf->host, .path = fauce_enqueue_api_path, .use_tls = conf->use_tls, .port = conf->port};
+      .host = conf->host, .path = faucet_enqueue_api_path, .use_tls = conf->use_tls, .port = conf->port};
 
   byte_buf_t *http_res = byte_buf_new();
   if (!http_res) {

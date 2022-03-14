@@ -39,7 +39,7 @@ void test_storage_deposit_check_sufficient_output_deposit() {
   // create random ED25519 address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(test_addr.address, ED25519_PUBKEY_BYTES);
 
   byte_cost_config_t* config = byte_cost_config_default_new();
 
@@ -70,7 +70,7 @@ void test_storage_deposit_check_sufficient_output_deposit_native_tokens_sent() {
   // create random ED25519 address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(test_addr.address, ED25519_PUBKEY_BYTES);
 
   byte_cost_config_t* config = byte_cost_config_default_new();
 
@@ -101,7 +101,7 @@ void test_storage_deposit_check_sufficient_output_amount_too_low() {
   // create random ED25519 address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(test_addr.address, ED25519_PUBKEY_BYTES);
 
   byte_cost_config_t* config = byte_cost_config_default_new();
 
@@ -125,7 +125,7 @@ void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_low
   // create random ED25519 address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(test_addr.address, ED25519_PUBKEY_BYTES);
 
   byte_cost_config_t* config = byte_cost_config_default_new();
 
@@ -155,7 +155,7 @@ void test_storage_deposit_check_sufficient_output_not_microtransaction() {
   // create random ED25519 address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(test_addr.address, ED25519_PUBKEY_BYTES);
 
   byte_cost_config_t* config = byte_cost_config_default_new();
 

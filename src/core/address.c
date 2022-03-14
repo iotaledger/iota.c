@@ -7,18 +7,19 @@
 #include "core/address.h"
 #include "core/utils/bech32.h"
 #include "core/utils/byte_buffer.h"
+#include "core/utils/macros.h"
 #include "core/utils/slip10.h"
 
 static int address_from_ed25519_pub(byte_t const pub_key[], address_t *addr) {
   addr->type = ADDRESS_TYPE_ED25519;
-  return iota_blake2b_sum(pub_key, ED_PUBLIC_KEY_BYTES, addr->address, ADDRESS_ED25519_BYTES);
+  return iota_blake2b_sum(pub_key, ED_PUBLIC_KEY_BYTES, addr->address, ED25519_PUBKEY_BYTES);
 }
 
 int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], ed25519_keypair_t *keypair) {
   // derive key from seed
   slip10_key_t key = {};
-  int ret = 0;
-  if ((ret = slip10_key_from_path(seed, seed_len, path, ED25519_CURVE, &key)) != 0) {
+  int ret = slip10_key_from_path(seed, seed_len, path, ED25519_CURVE, &key);
+  if (ret != 0) {
     printf("[%s:%d] derive key from path failed, err: %d\n", __func__, __LINE__, ret);
     return ret;
   }
@@ -32,11 +33,11 @@ int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], ed255
 uint8_t address_len(address_t const *const addr) {
   switch (addr->type) {
     case ADDRESS_TYPE_ED25519:
-      return ADDRESS_ED25519_BYTES;
+      return ED25519_PUBKEY_BYTES;
     case ADDRESS_TYPE_ALIAS:
-      return ADDRESS_ALIAS_BYTES;
+      return ALIAS_ID_BYTES;
     case ADDRESS_TYPE_NFT:
-      return ADDRESS_NFT_BYTES;
+      return NFT_ID_BYTES;
     default:
       // unknown address type
       return 0;
@@ -46,21 +47,21 @@ uint8_t address_len(address_t const *const addr) {
 int ed25519_address_from_path(byte_t seed[], size_t seed_len, char path[], address_t *addr) {
   // ed25519 keypair from slip10 private key
   ed25519_keypair_t addr_keypair = {};
-  int ret = 0;
-  if ((ret = address_keypair_from_path(seed, seed_len, path, &addr_keypair)) == 0) {
-    return address_from_ed25519_pub(addr_keypair.pub, addr);
+
+  if (address_keypair_from_path(seed, seed_len, path, &addr_keypair) != 0) {
+    return -1;
   }
-  return ret;
+  return address_from_ed25519_pub(addr_keypair.pub, addr);
 }
 
 int alias_address_from_output(char const output_id[], address_t *addr) {
   addr->type = ADDRESS_TYPE_ALIAS;
-  return iota_blake2b_sum((uint8_t const *const)output_id, strlen(output_id), addr->address, ADDRESS_NFT_BYTES);
+  return iota_blake2b_sum((uint8_t const *const)output_id, strlen(output_id), addr->address, NFT_ID_BYTES);
 }
 
 int nft_address_from_output(char const output_id[], address_t *addr) {
   addr->type = ADDRESS_TYPE_NFT;
-  return iota_blake2b_sum((uint8_t const *const)output_id, strlen(output_id), addr->address, ADDRESS_NFT_BYTES);
+  return iota_blake2b_sum((uint8_t const *const)output_id, strlen(output_id), addr->address, NFT_ID_BYTES);
 }
 
 // get the length of
@@ -95,7 +96,6 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
   if (addr) {
     // address type
     addr->type = bytes[0];
-    // memcpy(&addr->type, bytes, sizeof(uint8_t));
     // check if binary length is satisfied
     if (len < address_serialized_len(addr)) {
       free_address(addr);
@@ -105,13 +105,13 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
     // copy address
     switch (addr->type) {
       case ADDRESS_TYPE_ED25519:
-        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_ED25519_BYTES);
+        memcpy(addr->address, bytes + sizeof(uint8_t), ED25519_PUBKEY_BYTES);
         break;
       case ADDRESS_TYPE_ALIAS:
-        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_ALIAS_BYTES);
+        memcpy(addr->address, bytes + sizeof(uint8_t), ALIAS_ID_BYTES);
         break;
       case ADDRESS_TYPE_NFT:
-        memcpy(addr->address, bytes + sizeof(uint8_t), ADDRESS_NFT_BYTES);
+        memcpy(addr->address, bytes + sizeof(uint8_t), NFT_ID_BYTES);
         break;
       default:
         // unknown address type
@@ -126,29 +126,29 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
 // get the address object from the given hex string
 int address_from_hex(char const hex[], address_t *addr) {
   // validate hex length
-  if (hex == NULL || strlen(hex) < (ADDRESS_MIN_BYTES + 1) * 2) {
+  if (hex == NULL || strlen(hex) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
     return -1;
   }
-  int ret = 0;
+
   byte_t type = 0;
-  if ((ret = hex_2_bin(hex, 2, &type, 1)) == 0) {
-    addr->type = type;
-    return hex_2_bin(hex + 2, address_len(addr) * 2, addr->address, address_len(addr));
+  if (hex_2_bin(hex, 2, &type, 1) != 0) {
+    return -1;
   }
-  return ret;
+  addr->type = type;
+  return hex_2_bin(hex + 2, BIN_TO_HEX_BYTES(address_len(addr)), addr->address, address_len(addr));
 }
 
 // get hex string from the given address object
 int address_to_hex(address_t *addr, char hex_buf[], size_t buf_len) {
   // validate buffer
-  if (hex_buf == NULL || buf_len <= address_serialized_len(addr) * 2) {
+  if (hex_buf == NULL || buf_len <= BIN_TO_HEX_BYTES(address_serialized_len(addr))) {
     return -1;
   }
-  int ret = 0;
-  if ((ret = bin_2_hex(addr->address, 1, hex_buf, 2))) {
-    return bin_2_hex(addr->address + 1, address_len(addr), hex_buf + 2, buf_len - 2);
+  if (bin_2_hex(addr->address, 1, hex_buf, 2) != 0) {
+    return -1;
   }
-  return 0;
+
+  return bin_2_hex(addr->address + 1, address_len(addr), hex_buf + 2, buf_len - 2);
 }
 
 // get the address object from the given bech32 string
@@ -191,13 +191,15 @@ int address_to_bech32(address_t *addr, char const hrp[], char bech32_buf[], size
 
   byte_t serialized_addr[33] = {};
   uint8_t data[64] = {};
-  size_t datalen = 0;
+  size_t data_len = 0;
   size_t ser_len = address_serialize(addr, serialized_addr, sizeof(serialized_addr));
-  if (ser_len != 0) {
-    bech32_convert_bits(data, &datalen, 5, serialized_addr, ser_len, 8, 1);
-    return !bech32_encode(bech32_buf, hrp, data, datalen);
+  if (ser_len == 0) {
+    return -1;
   }
-  return -1;
+  if (bech32_convert_bits(data, &data_len, 5, serialized_addr, ser_len, 8, 1) != 1) {
+    return -1;
+  }
+  return !bech32_encode(bech32_buf, hrp, data, data_len);
 }
 
 bool address_equal(address_t *addr1, address_t *addr2) {
@@ -221,7 +223,6 @@ address_t *address_clone(address_t const *const addr) {
     new_addr->type = addr->type;
     memset(new_addr->address, 0, ADDRESS_MAX_BYTES);
     memcpy(new_addr->address, addr->address, address_len(addr));
-    return new_addr;
   }
   return new_addr;
 }
@@ -234,15 +235,15 @@ void address_print(address_t const *const addr) {
   switch (addr->type) {
     case ADDRESS_TYPE_ED25519:
       printf("[ED25519] ");
-      dump_hex_str(addr->address, ADDRESS_ED25519_BYTES);
+      dump_hex_str(addr->address, ED25519_PUBKEY_BYTES);
       break;
     case ADDRESS_TYPE_ALIAS:
       printf("[Alias] ");
-      dump_hex_str(addr->address, ADDRESS_ALIAS_BYTES);
+      dump_hex_str(addr->address, ALIAS_ID_BYTES);
       break;
     case ADDRESS_TYPE_NFT:
       printf("[NFT] ");
-      dump_hex_str(addr->address, ADDRESS_NFT_BYTES);
+      dump_hex_str(addr->address, NFT_ID_BYTES);
       break;
     default:
       // unknown address type
