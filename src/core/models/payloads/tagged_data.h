@@ -74,7 +74,7 @@ tagged_data_payload_t *tagged_data_deserialize(byte_t buf[], size_t buf_len);
 /**
  * @brief Clone tagged data object, it should be freed after use.
  *
- * @param[in] output NFT Output object for clone
+ * @param[in] tagged_data tagged data object for clone
  * @return tagged_data_payload_t* New tagged data object
  */
 tagged_data_payload_t *tagged_data_clone(tagged_data_payload_t const *const tagged_data);
