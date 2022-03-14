@@ -471,7 +471,7 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data)
     hex_2_bin(json_data->valuestring, strlen(json_data->valuestring), tmp_data, strlen(json_data->valuestring) / 2);
 
     *tagged_data =
-        tagged_data_create(tmp_tag, strlen(json_tag->valuestring) / 2, tmp_data, strlen(json_data->valuestring) / 2);
+        tagged_data_new(tmp_tag, strlen(json_tag->valuestring) / 2, tmp_data, strlen(json_data->valuestring) / 2);
     if (!*tagged_data) {
       printf("[%s:%d]: can not create a new tagged data payload\n", __func__, __LINE__);
       free(tmp_data);

@@ -27,20 +27,6 @@ extern "C" {
 #endif
 
 /**
- * @brief Allocate tagged data object
- *
- * @return tagged_data_payload_t*
- */
-tagged_data_payload_t *tagged_data_new();
-
-/**
- * @brief Free a tagged data object
- *
- * @param[in] tagged_data A tagged data object
- */
-void tagged_data_free(tagged_data_payload_t *tagged_data);
-
-/**
  * @brief Create a tagged data object with tag and binary data
  *
  * @param[in] tag The binary tag in tagged data payload
@@ -49,7 +35,14 @@ void tagged_data_free(tagged_data_payload_t *tagged_data);
  * @param[in] data_len The length of the binary data
  * @return tagged_data_payload_t* A pointer to tagged data object
  */
-tagged_data_payload_t *tagged_data_create(byte_t tag[], uint8_t tag_len, byte_t data[], uint32_t data_len);
+tagged_data_payload_t *tagged_data_new(byte_t tag[], uint8_t tag_len, byte_t data[], uint32_t data_len);
+
+/**
+ * @brief Free a tagged data object
+ *
+ * @param[in] tagged_data A tagged data object
+ */
+void tagged_data_free(tagged_data_payload_t *tagged_data);
 
 /**
  * @brief Get a serialized length of a tagged data
@@ -77,6 +70,14 @@ size_t tagged_data_serialize(tagged_data_payload_t *tagged_data, byte_t buf[], s
  * @return tagged_data_payload_t* or NULL on failure
  */
 tagged_data_payload_t *tagged_data_deserialize(byte_t buf[], size_t buf_len);
+
+/**
+ * @brief Clone tagged data object, it should be freed after use.
+ *
+ * @param[in] tagged_data tagged data object for clone
+ * @return tagged_data_payload_t* New tagged data object
+ */
+tagged_data_payload_t *tagged_data_clone(tagged_data_payload_t const *const tagged_data);
 
 /**
  * @brief Print a tagged data object

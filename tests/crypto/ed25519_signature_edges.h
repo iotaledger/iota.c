@@ -79,12 +79,15 @@ static ed25519_edge_signature_t ed25519_edge_sig[] = {
      "a9d55260f765261eb9b84e106f665e00b867287a761990d7135963ee0a7d59dca5bb704786be7"
      "9fc476f91d3f3f89b03984d8068dcf1bb7dfc6637b45450ac04"}};
 
-// Excpected signature validity for the above test vectors when tested with ed25519_donna library
-static bool edge_sig_ed25519_donna_res[ED25519_EDGE_SIG_COUNT] = {true, true,  true,  true,  false, false,
-                                                                  true, false, false, false, false, true};
-
+#if defined(CRYPTO_USE_SODIUM)
 // Excpected signature validity for the above test vectors when tested with libsodium library
 static bool edge_sig_libsodium_res[ED25519_EDGE_SIG_COUNT] = {false, false, false, true,  false, false,
                                                               false, false, false, false, false, false};
+
+#elif defined(CRYPTO_USE_ED25519_DONNA)
+// Excpected signature validity for the above test vectors when tested with ed25519_donna library
+static bool edge_sig_ed25519_donna_res[ED25519_EDGE_SIG_COUNT] = {true, true,  true,  true,  false, false,
+                                                                  true, false, false, false, false, true};
+#endif
 
 #endif
