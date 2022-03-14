@@ -229,6 +229,7 @@ void test_message_with_tx_serialize() {
   free(core_message_buf);
   output_basic_free(basic_output_one);
   output_basic_free(basic_output_two);
+  tagged_data_free(tagged_data);
   core_message_free(msg);
 }
 

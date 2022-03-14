@@ -228,17 +228,25 @@ tagged_data_payload_t *tagged_data_clone(tagged_data_payload_t const *const tagg
   if (!new_tagged_data) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;
+  } else {
+    new_tagged_data->tag = NULL;
+    new_tagged_data->data = NULL;
   }
 
-  new_tagged_data->tag = byte_buf_new_with_data(tagged_data->tag->data, tagged_data->tag->len);
-  if (!new_tagged_data->tag) {
-    printf("[%s:%d] cannot create copy of tag from tagged data\n", __func__, __LINE__);
-    return NULL;
+  if (tagged_data->tag) {
+    new_tagged_data->tag = byte_buf_new_with_data(tagged_data->tag->data, tagged_data->tag->len);
+    if (!new_tagged_data->tag) {
+      printf("[%s:%d] cannot create copy of tag from tagged data\n", __func__, __LINE__);
+      return NULL;
+    }
   }
-  new_tagged_data->data = byte_buf_new_with_data(tagged_data->data->data, tagged_data->data->len);
-  if (!new_tagged_data->data) {
-    printf("[%s:%d] cannot create copy of data from tagged data\n", __func__, __LINE__);
-    return NULL;
+
+  if (tagged_data->data) {
+    new_tagged_data->data = byte_buf_new_with_data(tagged_data->data->data, tagged_data->data->len);
+    if (!new_tagged_data->data) {
+      printf("[%s:%d] cannot create copy of data from tagged data\n", __func__, __LINE__);
+      return NULL;
+    }
   }
 
   return new_tagged_data;

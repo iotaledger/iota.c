@@ -313,7 +313,11 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
     return NULL;
   }
 
-  transaction_payload_t* tx_payload = tx_payload_new(0);
+  transaction_payload_t* tx_payload = malloc(sizeof(transaction_payload_t));
+  if (!tx_payload) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return NULL;
+  }
 
   size_t offset = 0;
 
@@ -324,7 +328,8 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
   tx_payload->essence = tx_essence_deserialize(&buf[offset], buf_len - offset);
   offset += tx_essence_serialize_length(tx_payload->essence);
 
-  // TODO: Unlock Block Deserialize
+  tx_payload->unlock_blocks = unlock_blocks_deserialize(&buf[offset], buf_len - offset);
+  offset += unlock_blocks_serialize_length(tx_payload->unlock_blocks);
 
   return tx_payload;
 }
