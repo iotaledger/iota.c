@@ -28,7 +28,7 @@ static output_basic_t* create_output_basic() {
   // create random ED25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
 
   // create Native Tokens
   native_tokens_list_t* native_tokens = native_tokens_new();
@@ -99,7 +99,7 @@ static output_alias_t* create_output_alias() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
@@ -142,7 +142,7 @@ static output_foundry_t* create_output_foundry() {
   // create random Alias address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(addr.address, ALIAS_ID_BYTES);
 
   // create random token tag
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
@@ -190,11 +190,11 @@ static output_nft_t* create_output_nft() {
   // create random sender address
   address_t sender_addr = {};
   sender_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(sender_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(sender_addr.address, ED25519_PUBKEY_BYTES);
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) == 0);
