@@ -14,7 +14,6 @@
 #include "core/models/payloads/transaction.h"
 #include "core/models/unlock_block.h"
 
-#define TAG_LEN 64
 #define DATA_LEN 128
 char const* const tag_str = "HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD";
 
@@ -309,7 +308,7 @@ void test_tx_essence() {
   byte_t tag_data[DATA_LEN];
   iota_crypto_randombytes(tag_data, DATA_LEN);
 
-  tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)tag_str, TAG_LEN, tag_data, DATA_LEN);
+  tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)tag_str, strlen(tag_str), tag_data, DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   TEST_ASSERT_EQUAL_INT(0, tx_essence_add_payload(es, CORE_MESSAGE_PAYLOAD_TAGGED, tagged_data));
@@ -511,7 +510,7 @@ void test_tx_payload() {
   byte_t tag_data[DATA_LEN];
   iota_crypto_randombytes(tag_data, DATA_LEN);
 
-  tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)tag_str, TAG_LEN, tag_data, DATA_LEN);
+  tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)tag_str, strlen(tag_str), tag_data, DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   TEST_ASSERT_EQUAL_INT(0, tx_essence_add_payload(tx_payload->essence, CORE_MESSAGE_PAYLOAD_TAGGED, tagged_data));
