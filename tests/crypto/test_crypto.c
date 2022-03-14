@@ -307,7 +307,7 @@ void test_ed25519_signature_edge_case() {
 // Check if the signature validity is matching with the expected results
 #if defined(CRYPTO_USE_SODIUM)
     TEST_ASSERT(is_valid == edge_sig_libsodium_res[i]);
-#elif defined(CRYPTO_USE_OPENSSL)
+#elif defined(CRYPTO_USE_ED25519_DONNA)
     TEST_ASSERT(is_valid == edge_sig_ed25519_donna_res[i]);
 #endif
   }
