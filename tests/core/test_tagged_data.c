@@ -21,11 +21,7 @@ void test_tagged_data() {
   byte_t data[DATA_LEN];
   iota_crypto_randombytes(data, DATA_LEN);
 
-  tagged_data_payload_t* tagged_data = tagged_data_new();
-  TEST_ASSERT_NOT_NULL(tagged_data);
-  tagged_data_free(tagged_data);
-
-  tagged_data = tagged_data_create((byte_t*)tag_str, TAG_LEN, data, DATA_LEN);
+  tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)tag_str, TAG_LEN, data, DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
@@ -71,11 +67,7 @@ void test_tagged_data_without_tag() {
   byte_t data[DATA_LEN];
   iota_crypto_randombytes(data, DATA_LEN);
 
-  tagged_data_payload_t* tagged_data = tagged_data_new();
-  TEST_ASSERT_NOT_NULL(tagged_data);
-  tagged_data_free(tagged_data);
-
-  tagged_data = tagged_data_create(NULL, 0, data, DATA_LEN);
+  tagged_data_payload_t* tagged_data = tagged_data_new(NULL, 0, data, DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
@@ -116,11 +108,7 @@ void test_tagged_data_without_tag() {
 }
 
 void test_tagged_data_without_data() {
-  tagged_data_payload_t* tagged_data = tagged_data_new();
-  TEST_ASSERT_NOT_NULL(tagged_data);
-  tagged_data_free(tagged_data);
-
-  tagged_data = tagged_data_create((byte_t*)tag_str, TAG_LEN, NULL, 0);
+  tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)tag_str, TAG_LEN, NULL, 0);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
@@ -161,11 +149,7 @@ void test_tagged_data_without_data() {
 }
 
 void test_tagged_data_empty() {
-  tagged_data_payload_t* tagged_data = tagged_data_new();
-  TEST_ASSERT_NOT_NULL(tagged_data);
-  tagged_data_free(tagged_data);
-
-  tagged_data = tagged_data_create((byte_t*)tag_str, TAG_LEN, NULL, 0);
+  tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)tag_str, TAG_LEN, NULL, 0);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
   // validate tag
