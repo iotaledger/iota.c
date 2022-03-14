@@ -54,7 +54,7 @@ void test_send_core_message_tagged_data() {
   iota_crypto_randombytes(tag_data, TAG_DATA_LEN);
 
   // Create tagged data payload
-  tagged_data_payload_t* tagged_data = tagged_data_create((byte_t*)tag, TAG_TAG_LEN, tag_data, TAG_DATA_LEN);
+  tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)tag, TAG_TAG_LEN, tag_data, TAG_DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_print(tagged_data, 0);
 
@@ -102,7 +102,7 @@ void test_send_core_message_tagged_data_binary_tag() {
   iota_crypto_randombytes(tag_data, TAG_DATA_LEN);
 
   // Create tagged data payload
-  tagged_data_payload_t* tagged_data = tagged_data_create(binary_tag, TAG_TAG_LEN, tag_data, TAG_DATA_LEN);
+  tagged_data_payload_t* tagged_data = tagged_data_new(binary_tag, TAG_TAG_LEN, tag_data, TAG_DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_print(tagged_data, 0);
 
@@ -146,7 +146,7 @@ void test_send_core_message_tagged_data_tag_max_len() {
 
   // Create tagged data payload
   tagged_data_payload_t* tagged_data =
-      tagged_data_create(binary_tag_max_len, TAGGED_DATA_TAG_MAX_LENGTH_BYTES, tag_data, TAG_DATA_LEN);
+      tagged_data_new(binary_tag_max_len, TAGGED_DATA_TAG_MAX_LENGTH_BYTES, tag_data, TAG_DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
   tagged_data_print(tagged_data, 0);
 
