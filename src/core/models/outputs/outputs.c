@@ -430,6 +430,6 @@ void utxo_outputs_output_free(utxo_output_t *output) {
         output_nft_free(output->output);
         break;
     }
+    free(output);
   }
-  free(output);
 }
