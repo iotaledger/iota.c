@@ -225,11 +225,6 @@ bool native_tokens_syntactic(native_tokens_list_t **nt) {
 }
 
 void native_tokens_print(native_tokens_list_t *nt, uint8_t indentation) {
-  if (nt == NULL) {
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return;
-  }
-
   native_tokens_list_t *elm;
   char *amount_str;
   uint16_t index = 0;

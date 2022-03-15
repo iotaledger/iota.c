@@ -43,8 +43,8 @@ static byte_t tx_id3[IOTA_TRANSACTION_ID_BYTES] = {30,  49,  142, 249, 151, 44, 
                                                    90,  172, 252, 142, 91,  179, 113, 120, 110, 70};
 
 static byte_t inputs_commitment[CRYPTO_BLAKE2B_HASH_BYTES] = {
-    0x9F, 0x0A, 0x15, 0x33, 0xB9, 0x1A, 0xD7, 0x55, 0x16, 0x45, 0xDD, 0x07, 0xD1, 0xC2, 0x18, 0x33,
-    0xFF, 0xF8, 0x1E, 0x74, 0xAF, 0x49, 0x2A, 0xF0, 0xCA, 0x6D, 0x99, 0xAB, 0x7F, 0x63, 0xB5, 0xC9};
+    0xe,  0x57, 0x51, 0xc0, 0x26, 0xe5, 0x43, 0xb2, 0xe8, 0xab, 0x2e, 0xb0, 0x60, 0x99, 0xda, 0xa1,
+    0xd1, 0xe5, 0xdf, 0x47, 0x77, 0x8f, 0x77, 0x87, 0xfa, 0xab, 0x45, 0xcd, 0xf1, 0x2f, 0xe3, 0xa8};
 
 static byte_t test_pub_key[ED_PUBLIC_KEY_BYTES] = {0xe7, 0x45, 0x3d, 0x64, 0x4d, 0x7b, 0xe6, 0x70, 0x64, 0x80, 0x15,
                                                    0x74, 0x28, 0xd9, 0x68, 0x87, 0x2e, 0x38, 0x9c, 0x7b, 0x27, 0x62,
@@ -272,19 +272,16 @@ void test_tx_essence() {
   tx_essence_print(es, 0);
 
   // test for -1 if transaction id is null
-  TEST_ASSERT(tx_essence_add_input(es, 0, NULL, 1, NULL) == -1);
+  TEST_ASSERT(tx_essence_add_input(es, 0, NULL, 1, NULL, NULL) == -1);
 
   // add input with tx_id0
-  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id0, 1, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id0, 1, NULL, NULL) == 0);
 
   // add input with tx_id1
-  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id1, 2, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id1, 2, NULL, NULL) == 0);
 
   // add input with tx_id2
-  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id2, 3, NULL) == 0);
-
-  // add inputs commitment
-  TEST_ASSERT_NOT_NULL(memcpy(&es->inputs_commitment, &inputs_commitment, CRYPTO_BLAKE2B_HASH_BYTES));
+  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id2, 3, NULL, NULL) == 0);
 
   // test for -1 if output null
   TEST_ASSERT(tx_essence_add_output(es, OUTPUT_BASIC, NULL) == -1);
@@ -471,22 +468,19 @@ void test_tx_payload() {
   tx_payload_print(tx_payload, 0);
 
   // test for -1 if transaction id is null
-  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, NULL, 1, NULL) == -1);
+  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, NULL, 1, NULL, NULL) == -1);
 
   // add input with tx_id0
-  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id0, 1, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id0, 1, NULL, NULL) == 0);
 
   // add input with tx_id1
-  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id1, 2, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id1, 2, NULL, NULL) == 0);
 
   // add input with tx_id2
-  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id2, 3, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id2, 3, NULL, NULL) == 0);
 
   // add input with tx_id3
-  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id3, 4, NULL) == 0);
-
-  // add inputs commitment
-  TEST_ASSERT_NOT_NULL(memcpy(&tx_payload->essence->inputs_commitment, &inputs_commitment, CRYPTO_BLAKE2B_HASH_BYTES));
+  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id3, 4, NULL, NULL) == 0);
 
   // test for -1 if output null
   TEST_ASSERT(tx_essence_add_output(tx_payload->essence, OUTPUT_BASIC, NULL) == -1);

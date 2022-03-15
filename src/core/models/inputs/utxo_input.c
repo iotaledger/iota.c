@@ -14,6 +14,9 @@ void utxo_inputs_free(utxo_inputs_list_t *inputs) {
   if (inputs) {
     utxo_inputs_list_t *elm, *tmp;
     LL_FOREACH_SAFE(inputs, elm, tmp) {
+      if (elm->input->output) {
+        utxo_outputs_output_free(elm->input->output);
+      }
       if (elm->input->keypair) {
         free(elm->input->keypair);
       }
@@ -24,7 +27,8 @@ void utxo_inputs_free(utxo_inputs_list_t *inputs) {
   }
 }
 
-int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index, ed25519_keypair_t *key) {
+int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index, utxo_output_t *output,
+                    ed25519_keypair_t *key) {
   if (id == NULL) {
     printf("[%s:%d] invalid transaction id\n", __func__, __LINE__);
     return -1;
@@ -60,6 +64,15 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
       next->input->input_type = type;
       memcpy(next->input->tx_id, id, IOTA_TRANSACTION_ID_BYTES);
       next->input->output_index = index;
+      if (output) {
+        next->input->output = utxo_outputs_output_clone(output);
+        if (!next->input->output) {
+          printf("[%s:%d] can not add output to utxo input\n", __func__, __LINE__);
+          goto err;
+        }
+      } else {
+        next->input->output = NULL;
+      }
       if (key) {
         next->input->keypair = malloc(sizeof(ed25519_keypair_t));
         if (next->input->keypair) {
@@ -75,8 +88,12 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
     }
   }
 
+err:
   if (next) {
     if (next->input) {
+      if (next->input->output) {
+        utxo_outputs_output_free(next->input->output);
+      }
       if (next->input->keypair) {
         free(next->input->keypair);
       }
@@ -234,7 +251,9 @@ utxo_inputs_list_t *utxo_inputs_deserialize(byte_t buf[], size_t buf_len) {
       utxo_inputs_free(inputs);
       return NULL;
     }
-    // keypair is not part of serialization
+    // output is not part of deserialization
+    new_input->input->output = NULL;
+    // keypair is not part of deserialization
     new_input->input->keypair = NULL;
     LL_APPEND(inputs, new_input);
 

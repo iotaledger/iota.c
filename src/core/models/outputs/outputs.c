@@ -16,26 +16,7 @@ void utxo_outputs_free(utxo_outputs_list_t *outputs) {
   if (outputs) {
     utxo_outputs_list_t *elm, *tmp;
     LL_FOREACH_SAFE(outputs, elm, tmp) {
-      switch (elm->output->output_type) {
-        case OUTPUT_SINGLE_OUTPUT:
-        case OUTPUT_DUST_ALLOWANCE:
-        case OUTPUT_TREASURY:
-          printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
-          break;
-        case OUTPUT_BASIC:
-          output_basic_free(elm->output->output);
-          break;
-        case OUTPUT_ALIAS:
-          output_alias_free(elm->output->output);
-          break;
-        case OUTPUT_FOUNDRY:
-          output_foundry_free(elm->output->output);
-          break;
-        case OUTPUT_NFT:
-          output_nft_free(elm->output->output);
-          break;
-      }
-      free(elm->output);
+      utxo_outputs_output_free(elm->output);
       LL_DELETE(outputs, elm);
       free(elm);
     }
@@ -393,4 +374,62 @@ bool utxo_outputs_syntactic(utxo_outputs_list_t *outputs, byte_cost_config_t *by
     }
   }
   return true;
+}
+
+utxo_output_t *utxo_outputs_output_clone(utxo_output_t const *const output) {
+  if (output == NULL) {
+    return NULL;
+  }
+
+  utxo_output_t *new_output = malloc(sizeof(utxo_output_t));
+  if (new_output) {
+    new_output->output_type = output->output_type;
+    switch (new_output->output_type) {
+      case OUTPUT_SINGLE_OUTPUT:
+      case OUTPUT_DUST_ALLOWANCE:
+      case OUTPUT_TREASURY:
+        printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
+        free(new_output);
+        return NULL;
+      case OUTPUT_BASIC:
+        new_output->output = output_basic_clone((output_basic_t *)output->output);
+        break;
+      case OUTPUT_ALIAS:
+        new_output->output = output_alias_clone((output_alias_t *)output->output);
+        break;
+      case OUTPUT_FOUNDRY:
+        new_output->output = output_foundry_clone((output_foundry_t *)output->output);
+        break;
+      case OUTPUT_NFT:
+        new_output->output = output_nft_clone((output_nft_t *)output->output);
+        break;
+    }
+  }
+
+  return new_output;
+}
+
+void utxo_outputs_output_free(utxo_output_t *output) {
+  if (output) {
+    switch (output->output_type) {
+      case OUTPUT_SINGLE_OUTPUT:
+      case OUTPUT_DUST_ALLOWANCE:
+      case OUTPUT_TREASURY:
+        printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
+        break;
+      case OUTPUT_BASIC:
+        output_basic_free(output->output);
+        break;
+      case OUTPUT_ALIAS:
+        output_alias_free(output->output);
+        break;
+      case OUTPUT_FOUNDRY:
+        output_foundry_free(output->output);
+        break;
+      case OUTPUT_NFT:
+        output_nft_free(output->output);
+        break;
+    }
+  }
+  free(output);
 }

@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "core/models/message.h"
+#include "core/models/outputs/outputs.h"
 #include "core/types.h"
 #include "crypto/iota_crypto.h"
 
@@ -26,6 +27,7 @@ typedef struct {
   byte_t tx_id[IOTA_TRANSACTION_ID_BYTES];  ///< The BLAKE2b-256 hash of the transaction payload containing the
                                             ///< referenced output.
   uint16_t output_index;                    ///< The output index of the referenced output.
+  utxo_output_t *output;                    //< Unspent output object. It is needed for calculating inputs commitment.
   ed25519_keypair_t *keypair;               ///< optional, ed25519 keypair of this input
 } utxo_input_t;
 
@@ -63,10 +65,12 @@ void utxo_inputs_free(utxo_inputs_list_t *inputs);
  * @param[in] type An input type
  * @param[in] id A transaction ID
  * @param[in] index An output index of the referenced output
+ * @param[in] output Unspent output object
  * @param[in] key The ed25519 keypair of this input, optional
  * @return int 0 on success
  */
-int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index, ed25519_keypair_t *key);
+int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index, utxo_output_t *output,
+                    ed25519_keypair_t *key);
 
 /**
  * @brief Get number of elements in an utxo input list
