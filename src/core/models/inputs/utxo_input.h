@@ -7,7 +7,6 @@
 #include <stdint.h>
 
 #include "core/models/message.h"
-#include "core/models/outputs/outputs.h"
 #include "core/types.h"
 #include "crypto/iota_crypto.h"
 
