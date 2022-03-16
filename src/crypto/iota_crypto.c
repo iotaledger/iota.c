@@ -5,6 +5,38 @@
 
 #include "crypto/iota_crypto.h"
 
+#ifdef CRYPTO_USE_SODIUM
+#include <sodium.h>
+#include <sodium/crypto_auth_hmacsha512.h>
+#elif CRYPTO_USE_MBEDTLS
+#include <string.h>
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/entropy.h"
+#include "mbedtls/md.h"
+#include "mbedtls/pkcs5.h"
+#include "mbedtls/sha256.h"
+#include "mbedtls/sha512.h"
+#elif CRYPTO_USE_OPENSSL
+#include <openssl/hmac.h>
+#include <openssl/rand.h>
+#include <string.h>
+#include <sys/random.h>
+#else
+#error Crypto backend is not defined
+#endif
+
+#ifdef CRYPTO_USE_ED25519_DONNA
+#include "ed25519.h"
+#endif
+
+#ifdef CRYPTO_USE_BLAKE2B_REF
+#include "blake2.h"
+#endif
+
+#ifdef __ZEPHYR__
+#include <random/rand32.h>
+#endif
+
 #if defined(CRYPTO_USE_SODIUM)
 // store 32 bits in big-endian
 static inline void store32_be(uint8_t dst[4], uint32_t w) {
