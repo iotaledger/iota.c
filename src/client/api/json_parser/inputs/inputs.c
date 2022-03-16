@@ -44,7 +44,7 @@ int json_inputs_deserialize(cJSON *inputs_obj, utxo_inputs_list_t **inputs) {
     }
 
     // add new input to inputs list
-    if (utxo_inputs_add(inputs, input_type, tx_id, output_index, NULL, NULL) != 0) {
+    if (utxo_inputs_add(inputs, input_type, tx_id, output_index, NULL) != 0) {
       printf("[%s:%d] can not add new input into a list\n", __func__, __LINE__);
       return -1;
     }

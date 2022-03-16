@@ -65,12 +65,10 @@ void utxo_inputs_free(utxo_inputs_list_t *inputs);
  * @param[in] type An input type
  * @param[in] id A transaction ID
  * @param[in] index An output index of the referenced output
- * @param[in] output Unspent output object
  * @param[in] key The ed25519 keypair of this input, optional
  * @return int 0 on success
  */
-int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index, utxo_output_t *output,
-                    ed25519_keypair_t *key);
+int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index, ed25519_keypair_t *key);
 
 /**
  * @brief Get number of elements in an utxo input list

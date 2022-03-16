@@ -151,21 +151,6 @@ void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation);
  */
 bool utxo_outputs_syntactic(utxo_outputs_list_t *outputs, byte_cost_config_t *byte_cost);
 
-/**
- * @brief Clone utxo output object, it should be freed after use.
- *
- * @param[in] output An utxo output object for clone
- * @return utxo_output_t* New utxo output object
- */
-utxo_output_t *utxo_outputs_output_clone(utxo_output_t const *const output);
-
-/**
- * @brief Free an utxo output
- *
- * @param[in] output A utxo output
- */
-void utxo_outputs_output_free(utxo_output_t *output);
-
 #ifdef __cplusplus
 }
 #endif

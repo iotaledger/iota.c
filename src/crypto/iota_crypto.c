@@ -1,10 +1,6 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include <string.h>
-
-#include "crypto/iota_crypto.h"
-
 #ifdef CRYPTO_USE_SODIUM
 #include <sodium.h>
 #include <sodium/crypto_auth_hmacsha512.h>
@@ -36,6 +32,10 @@
 #ifdef __ZEPHYR__
 #include <random/rand32.h>
 #endif
+
+#include <string.h>
+
+#include "crypto/iota_crypto.h"
 
 #if defined(CRYPTO_USE_SODIUM)
 // store 32 bits in big-endian
