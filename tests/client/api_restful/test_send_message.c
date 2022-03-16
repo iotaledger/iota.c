@@ -243,6 +243,7 @@ void test_send_msg_tx_basic() {
 
   // fetch output data from output IDs
   uint64_t total_balance = 0;
+  utxo_outputs_list_t* unspent_outputs = utxo_outputs_new();
   for (size_t i = 0; i < res_outputs_output_id_count(res); i++) {
     res_output_t* output_res = get_output_response_new();
     printf("fetch output: %s\n", res_outputs_output_id(res, i));
@@ -254,6 +255,8 @@ void test_send_msg_tx_basic() {
         // add the output as a tx input into the tx payload
         TEST_ASSERT(tx_essence_add_input(tx->essence, 0, output_res->u.data->tx_id, output_res->u.data->output_index,
                                          &sender_key) == 0);
+        // add the output in unspent outputs list to be able to calculate inputs commitment hash
+        TEST_ASSERT(utxo_outputs_add(&unspent_outputs, output_res->u.data->output->output_type, o) == 0);
         // check balance
         if (total_balance >= send_amount) {
           // have got sufficient amount
@@ -299,6 +302,10 @@ void test_send_msg_tx_basic() {
     cond_blk_list_free(remainder_cond);
     output_basic_free(remainder_output);
   }
+
+  // calculate inputs commitment
+  TEST_ASSERT(tx_essence_inputs_commitment_calculate(tx->essence, unspent_outputs) == 0);
+  utxo_outputs_free(unspent_outputs);
 
   // add transaction payload to message
   core_message_t* msg = core_message_new(ver);
