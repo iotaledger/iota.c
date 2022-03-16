@@ -27,7 +27,6 @@ typedef struct {
   byte_t tx_id[IOTA_TRANSACTION_ID_BYTES];  ///< The BLAKE2b-256 hash of the transaction payload containing the
                                             ///< referenced output.
   uint16_t output_index;                    ///< The output index of the referenced output.
-  utxo_output_t *output;                    ///< Unspent output object. It is needed for calculating inputs commitment.
   ed25519_keypair_t *keypair;               ///< optional, ed25519 keypair of this input
 } utxo_input_t;
 

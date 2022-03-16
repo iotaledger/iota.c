@@ -234,9 +234,7 @@ utxo_inputs_list_t *utxo_inputs_deserialize(byte_t buf[], size_t buf_len) {
       utxo_inputs_free(inputs);
       return NULL;
     }
-    // output is not part of deserialization
-    new_input->input->output = NULL;
-    // keypair is not part of deserialization
+    // keypair is not part of serialization
     new_input->input->keypair = NULL;
     LL_APPEND(inputs, new_input);
 

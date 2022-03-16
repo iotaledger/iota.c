@@ -6,7 +6,6 @@
 
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
-#include "crypto/iota_crypto.h"
 
 transaction_essence_t* tx_essence_new(uint64_t network_id) {
   transaction_essence_t* es = malloc(sizeof(transaction_essence_t));
@@ -65,101 +64,6 @@ int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* paylo
   return 0;
 }
 
-int tx_essence_inputs_commitment_calculate(transaction_essence_t* es) {
-  if (es == NULL) {
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-  /*
-  #if defined(CRYPTO_USE_SODIUM)
-    crypto_generichash_blake2b_state blake_state;
-  #elif defined(CRYPTO_USE_BLAKE2B_REF)
-    blake2b_state blake_state;
-  #endif
-
-    if (iota_blake2b_init(&blake_state, sizeof(es->inputs_commitment)) != 0) {
-      return -1;
-    }
-
-    byte_t* buf;
-    size_t buf_len;
-    utxo_inputs_list_t* elm;
-    LL_FOREACH(es->inputs, elm) {
-      if (elm->input->output) {
-        switch (elm->input->output->output_type) {
-          case OUTPUT_SINGLE_OUTPUT:
-          case OUTPUT_DUST_ALLOWANCE:
-          case OUTPUT_TREASURY:
-            printf("[%s:%d] deprecated or unsupported output type will not be serialized\n", __func__, __LINE__);
-            return -1;
-          case OUTPUT_BASIC: {
-            buf_len = output_basic_serialize_len(elm->input->output->output);
-            buf = malloc(buf_len);
-            if (!buf) {
-              printf("[%s:%d] OOM\n", __func__, __LINE__);
-              return -1;
-            }
-            if (output_basic_serialize(elm->input->output->output, buf, buf_len) != buf_len) {
-              free(buf);
-              return -1;
-            }
-            break;
-          }
-          case OUTPUT_ALIAS: {
-            buf_len = output_alias_serialize_len(elm->input->output->output);
-            buf = malloc(buf_len);
-            if (!buf) {
-              printf("[%s:%d] OOM\n", __func__, __LINE__);
-              return -1;
-            }
-            if (output_alias_serialize(elm->input->output->output, buf, buf_len) != buf_len) {
-              free(buf);
-              return -1;
-            }
-            break;
-          }
-          case OUTPUT_FOUNDRY: {
-            buf_len = output_foundry_serialize_len(elm->input->output->output);
-            buf = malloc(buf_len);
-            if (!buf) {
-              printf("[%s:%d] OOM\n", __func__, __LINE__);
-              return -1;
-            }
-            if (output_foundry_serialize(elm->input->output->output, buf, buf_len) != buf_len) {
-              free(buf);
-              return -1;
-            }
-            break;
-          }
-          case OUTPUT_NFT: {
-            buf_len = output_nft_serialize_len(elm->input->output->output);
-            buf = malloc(buf_len);
-            if (!buf) {
-              printf("[%s:%d] OOM\n", __func__, __LINE__);
-              return -1;
-            }
-            if (output_nft_serialize(elm->input->output->output, buf, buf_len) != buf_len) {
-              free(buf);
-              return -1;
-            }
-            break;
-          }
-        }
-        if (iota_blake2b_update(&blake_state, buf, buf_len) != 0) {
-          free(buf);
-          return -1;
-        }
-        free(buf);
-      }
-    }
-
-    if (iota_blake2b_final(&blake_state, es->inputs_commitment, sizeof(es->inputs_commitment)) != 0) {
-      return -1;
-    }
-  */
-  return 0;
-}
-
 size_t tx_essence_serialize_length(transaction_essence_t* es) {
   size_t length = 0;
   uint16_t input_count = utxo_inputs_count(es->inputs);
@@ -209,11 +113,6 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
 
   if (buf_len < expected_bytes) {
     printf("[%s:%d] buffer size is insufficient\n", __func__, __LINE__);
-    return 0;
-  }
-
-  // calculate inputs commitment
-  if (tx_essence_inputs_commitment_calculate(es) != 0) {
     return 0;
   }
 

@@ -108,14 +108,6 @@ int tx_essence_add_output(transaction_essence_t* es, utxo_output_type_t type, vo
 int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* payload);
 
 /**
- * @brief Calculate inputs commitment for transaction essence
- *
- * @param[in] es An essence object
- * @return int 0 on success
- */
-int tx_essence_inputs_commitment_calculate(transaction_essence_t* es);
-
-/**
  * @brief Get the serialized length of the essence
  *
  * @param[in] es An essence object
