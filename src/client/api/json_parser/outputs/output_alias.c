@@ -51,8 +51,8 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
   }
 
   // aliasId
-  byte_t alias_id[ADDRESS_ALIAS_BYTES];
-  if (json_get_string(output_obj, JSON_KEY_ALIAS_ID, (char *)alias_id, ADDRESS_ALIAS_BYTES) != JSON_OK) {
+  byte_t alias_id[ALIAS_ID_BYTES];
+  if (json_get_string(output_obj, JSON_KEY_ALIAS_ID, (char *)alias_id, ALIAS_ID_BYTES) != JSON_OK) {
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ALIAS_ID);
     goto end;
   }

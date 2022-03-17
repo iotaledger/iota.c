@@ -49,7 +49,7 @@ void setUp(void) {
 
   // create random ED25519 address
   test_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(test_addr.address, ED25519_PUBKEY_BYTES);
   // create test unlock conditions
   unlock_addr = cond_blk_addr_new(&test_addr);
   unlock_storage = cond_blk_storage_new(&test_addr, unlock_storage_amount);
@@ -83,7 +83,7 @@ void test_output_basic() {
   // create random ED25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag)) == 0);

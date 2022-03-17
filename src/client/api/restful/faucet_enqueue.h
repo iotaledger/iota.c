@@ -9,15 +9,16 @@
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
 #include "core/address.h"
+#include "core/utils/macros.h"
 
 /**
  * @brief Store address and waiting requests count returned in response of faucet enqueue request
  *
  */
 typedef struct {
-  char bech32_address[BECH32_ED25519_ADDRESS_STR_LEN + 1];  ///< The bech32 encoded address that is returned
-                                                            ///< in response
-  uint64_t waiting_reqs_count;                              ///< The number of requests in faucet queue
+  char bech32_address[BIN_TO_HEX_STR_BYTES(ED25519_PUBKEY_BYTES)];  ///< The bech32 encoded address that is
+                                                                    ///< returned in response
+  uint64_t waiting_reqs_count;                                      ///< The number of requests in faucet queue
 } faucet_enqueue_t;
 
 /**

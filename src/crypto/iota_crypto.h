@@ -93,6 +93,19 @@ int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg
 int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]);
 
 /**
+ * @brief Create Blake2b state object which is needed for partially hash calculations
+ * @return void*
+ */
+void *iota_blake2b_new_state();
+
+/**
+ * @brief Free Blake2b state object
+ *
+ * @param[in] state The state of hash function
+ */
+void iota_blake2b_free_state(void *state);
+
+/**
  * @brief Initialize Blake2b hash function
  *
  * @param[in] state The state of hash function

@@ -17,7 +17,7 @@ void test_sender() {
   // create a Sender feature block
   address_t sender_addr = {};
   sender_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(sender_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(sender_addr.address, ED25519_PUBKEY_BYTES);
   feat_block_t* sender_blk = feat_blk_sender_new(&sender_addr);
   TEST_ASSERT_NOT_NULL(sender_blk);
   feat_blk_print(sender_blk);
@@ -51,7 +51,7 @@ void test_issuer() {
   // create an Issuer feature block
   address_t addr = {};
   addr.type = ADDRESS_TYPE_NFT;
-  iota_crypto_randombytes(addr.address, ADDRESS_NFT_BYTES);
+  iota_crypto_randombytes(addr.address, NFT_ID_BYTES);
   feat_block_t* issuer_blk = feat_blk_issuer_new(&addr);
   TEST_ASSERT_NOT_NULL(issuer_blk);
   feat_blk_print(issuer_blk);
@@ -238,7 +238,7 @@ void test_feat_block_list_append_all() {
   // add a sender
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT(feat_blk_list_add_sender(&blk_list, &test_addr) == 0);
   // adding 2nd sender should be failed
   TEST_ASSERT(feat_blk_list_add_sender(&blk_list, &test_addr) != 0);
@@ -295,14 +295,14 @@ void test_feat_block_list_append_all() {
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_SENDER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_ED25519);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_ED25519_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ED25519_PUBKEY_BYTES);
 
   // 1: should be Issuer
   tmp_blk = feat_blk_list_get(deser_list, 1);
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_ISSUER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_NFT);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_NFT_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, NFT_ID_BYTES);
 
   // 2: should be Metadata
   tmp_blk = feat_blk_list_get(deser_list, 2);
@@ -338,7 +338,7 @@ void test_feat_block_list_sort() {
   // add a Sender
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT(feat_blk_list_add_sender(&blk_list, &test_addr) == 0);
   // add a Metadata
   byte_t meta_data[256] = {};
@@ -365,7 +365,7 @@ void test_feat_block_list_sort() {
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_SENDER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_ED25519);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_ED25519_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ED25519_PUBKEY_BYTES);
 
   // 2: should be metadata
   tmp_blk = feat_blk_list_get(blk_list, 2);
@@ -379,7 +379,7 @@ void test_feat_block_list_sort() {
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_ISSUER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_NFT);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_NFT_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, NFT_ID_BYTES);
 
   // 4: should be NULL
   tmp_blk = feat_blk_list_get(blk_list, 4);
@@ -408,14 +408,14 @@ void test_feat_block_list_sort() {
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_SENDER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_ED25519);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_ED25519_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ED25519_PUBKEY_BYTES);
 
   // 1: should be Issuer
   tmp_blk = feat_blk_list_get(deser_list, 1);
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_ISSUER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_NFT);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_NFT_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, NFT_ID_BYTES);
 
   // 2: should be Metadata
   tmp_blk = feat_blk_list_get(deser_list, 2);
@@ -451,7 +451,7 @@ void test_feat_block_list_clone() {
   // add a Sender
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT(feat_blk_list_add_sender(&blk_list, &test_addr) == 0);
   // add an Issuer
   test_addr.type = ADDRESS_TYPE_NFT;  // changed the type, but use the same address data
@@ -485,14 +485,14 @@ void test_feat_block_list_clone() {
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_SENDER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_ED25519);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_ED25519_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ED25519_PUBKEY_BYTES);
 
   // 1: should be Issuer
   tmp_blk = feat_blk_list_get(new_blk_list, 1);
   TEST_ASSERT_NOT_NULL(tmp_blk);
   TEST_ASSERT(tmp_blk->type == FEAT_ISSUER_BLOCK);
   TEST_ASSERT(((address_t*)tmp_blk->block)->type == ADDRESS_TYPE_NFT);
-  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, ADDRESS_NFT_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(((address_t*)tmp_blk->block)->address, test_addr.address, NFT_ID_BYTES);
 
   // 2: should be Metadata
   tmp_blk = feat_blk_list_get(new_blk_list, 2);

@@ -35,18 +35,18 @@ void test_output_alias() {
   native_tokens_add(&native_tokens, token_id3, amount3);
 
   // create random alias ID
-  byte_t alias_id[ADDRESS_ALIAS_BYTES];
-  iota_crypto_randombytes(alias_id, ADDRESS_ALIAS_BYTES);
+  byte_t alias_id[ALIAS_ID_BYTES];
+  iota_crypto_randombytes(alias_id, ALIAS_ID_BYTES);
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   // random state controller address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
   TEST_ASSERT_NOT_NULL(state_block);
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
   TEST_ASSERT_NOT_NULL(gov_block);
 
@@ -60,7 +60,7 @@ void test_output_alias() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
@@ -88,7 +88,7 @@ void test_output_alias() {
   TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ALIAS_ID_BYTES);
   // validate state index
   TEST_ASSERT_EQUAL_UINT32(123456, output->state_index);
   // validate metadata
@@ -168,7 +168,7 @@ void test_output_alias() {
   TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ALIAS_ID_BYTES);
   // deserialized state index
   TEST_ASSERT_EQUAL_UINT32(output->state_index, deser_output->state_index);
   // deserialized metadata
@@ -235,18 +235,18 @@ void test_output_alias() {
 
 void test_output_alias_without_native_tokens() {
   // create random alias ID
-  byte_t alias_id[ADDRESS_ALIAS_BYTES];
-  iota_crypto_randombytes(alias_id, ADDRESS_ALIAS_BYTES);
+  byte_t alias_id[ALIAS_ID_BYTES];
+  iota_crypto_randombytes(alias_id, ALIAS_ID_BYTES);
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   // random state controller address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
   TEST_ASSERT_NOT_NULL(state_block);
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
   TEST_ASSERT_NOT_NULL(gov_block);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
@@ -259,7 +259,7 @@ void test_output_alias_without_native_tokens() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
@@ -276,7 +276,7 @@ void test_output_alias_without_native_tokens() {
   // validate native tokens
   TEST_ASSERT_NULL(output->native_tokens);
   // validate alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ALIAS_ID_BYTES);
   // validate state index
   TEST_ASSERT_EQUAL_UINT32(123456, output->state_index);
   // validate metadata
@@ -344,7 +344,7 @@ void test_output_alias_without_native_tokens() {
   // deserialized native tokens
   TEST_ASSERT_NULL(deser_output->native_tokens);
   // deserialized alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ALIAS_ID_BYTES);
   // deserialized state index
   TEST_ASSERT_EQUAL_UINT32(output->state_index, deser_output->state_index);
   // deserialized metadata
@@ -416,18 +416,18 @@ void test_output_alias_without_metadata() {
   native_tokens_add(&native_tokens, token_id3, amount3);
 
   // create random alias ID
-  byte_t alias_id[ADDRESS_ALIAS_BYTES];
-  iota_crypto_randombytes(alias_id, ADDRESS_ALIAS_BYTES);
+  byte_t alias_id[ALIAS_ID_BYTES];
+  iota_crypto_randombytes(alias_id, ALIAS_ID_BYTES);
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   // random state controller address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
   TEST_ASSERT_NOT_NULL(state_block);
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
   TEST_ASSERT_NOT_NULL(gov_block);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
@@ -440,7 +440,7 @@ void test_output_alias_without_metadata() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
@@ -468,7 +468,7 @@ void test_output_alias_without_metadata() {
   TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ALIAS_ID_BYTES);
   // validate state index
   TEST_ASSERT_EQUAL_UINT32(123456, output->state_index);
   // validate metadata
@@ -513,7 +513,7 @@ void test_output_alias_without_metadata() {
   TEST_ASSERT_TRUE(address_equal(&issuer_addr, (address_t*)immut_feat_block->block));
 
   // validate alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ALIAS_ID_BYTES);
 
   // syntactic validation
   TEST_ASSERT_TRUE(output_alias_syntactic(output));
@@ -551,7 +551,7 @@ void test_output_alias_without_metadata() {
   TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ALIAS_ID_BYTES);
   // deserialized state index
   TEST_ASSERT_EQUAL_UINT32(123456, deser_output->state_index);
   // deserialized metadata
@@ -625,18 +625,18 @@ void test_output_alias_without_feature_blocks() {
   native_tokens_add(&native_tokens, token_id3, amount3);
 
   // create random alias ID
-  byte_t alias_id[ADDRESS_ALIAS_BYTES];
-  iota_crypto_randombytes(alias_id, ADDRESS_ALIAS_BYTES);
+  byte_t alias_id[ALIAS_ID_BYTES];
+  iota_crypto_randombytes(alias_id, ALIAS_ID_BYTES);
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   // random state controller address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
   TEST_ASSERT_NOT_NULL(state_block);
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
   TEST_ASSERT_NOT_NULL(gov_block);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
@@ -645,7 +645,7 @@ void test_output_alias_without_feature_blocks() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
@@ -675,7 +675,7 @@ void test_output_alias_without_feature_blocks() {
   TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ALIAS_ID_BYTES);
   // validate state index
   TEST_ASSERT_EQUAL_UINT32(123456, output->state_index);
   // validate metadata
@@ -749,7 +749,7 @@ void test_output_alias_without_feature_blocks() {
   TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ALIAS_ID_BYTES);
   // deserialized state index
   TEST_ASSERT_EQUAL_UINT32(123456, deser_output->state_index);
   // deserialized metadata
@@ -814,18 +814,18 @@ void test_output_alias_without_immutable_feature_blocks() {
   native_tokens_add(&native_tokens, token_id3, amount3);
 
   // create random alias ID
-  byte_t alias_id[ADDRESS_ALIAS_BYTES];
-  iota_crypto_randombytes(alias_id, ADDRESS_ALIAS_BYTES);
+  byte_t alias_id[ALIAS_ID_BYTES];
+  iota_crypto_randombytes(alias_id, ALIAS_ID_BYTES);
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   // random state controller address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
   TEST_ASSERT_NOT_NULL(state_block);
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
   TEST_ASSERT_NOT_NULL(gov_block);
 
@@ -857,7 +857,7 @@ void test_output_alias_without_immutable_feature_blocks() {
   TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // validate alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, output->alias_id, ALIAS_ID_BYTES);
   // validate state index
   TEST_ASSERT_EQUAL_UINT32(123456, output->state_index);
   // validate metadata
@@ -926,7 +926,7 @@ void test_output_alias_without_immutable_feature_blocks() {
   TEST_ASSERT_EQUAL_MEMORY(amount2, &tokens->token->amount, sizeof(uint256_t));
 
   // deserialized alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, deser_output->alias_id, ALIAS_ID_BYTES);
   // deserialized state index
   TEST_ASSERT_EQUAL_UINT32(output->state_index, deser_output->state_index);
   // deserialized metadata
@@ -992,18 +992,18 @@ void test_output_alias_clone() {
   native_tokens_add(&native_tokens, token_id3, amount3);
 
   // create random alias ID
-  byte_t alias_id[ADDRESS_ALIAS_BYTES];
-  iota_crypto_randombytes(alias_id, ADDRESS_ALIAS_BYTES);
+  byte_t alias_id[ALIAS_ID_BYTES];
+  iota_crypto_randombytes(alias_id, ALIAS_ID_BYTES);
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   // random state controller address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
   TEST_ASSERT_NOT_NULL(state_block);
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
   TEST_ASSERT_NOT_NULL(gov_block);
   TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
@@ -1016,7 +1016,7 @@ void test_output_alias_clone() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
   TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
@@ -1047,7 +1047,7 @@ void test_output_alias_clone() {
   TEST_ASSERT_EQUAL_MEMORY(amount3, &tokens->token->amount, sizeof(uint256_t));
 
   // compare alias ID
-  TEST_ASSERT_EQUAL_MEMORY(alias_id, new_output->alias_id, ADDRESS_ALIAS_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(alias_id, new_output->alias_id, ALIAS_ID_BYTES);
   // compare state index
   TEST_ASSERT_EQUAL_UINT32(output->state_index, new_output->state_index);
   // compare metadata
@@ -1112,8 +1112,8 @@ void test_output_alias_condition_blocks() {
   native_tokens_add(&native_tokens, token_id3, amount3);
 
   // create random alias ID
-  byte_t alias_id[ADDRESS_ALIAS_BYTES];
-  iota_crypto_randombytes(alias_id, ADDRESS_ALIAS_BYTES);
+  byte_t alias_id[ALIAS_ID_BYTES];
+  iota_crypto_randombytes(alias_id, ALIAS_ID_BYTES);
 
   // create Feature Blocks
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
@@ -1122,7 +1122,7 @@ void test_output_alias_condition_blocks() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
@@ -1136,15 +1136,15 @@ void test_output_alias_condition_blocks() {
   // UNLOCK_COND_STATE
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
   TEST_ASSERT_NOT_NULL(state_block);
   // UNLOCK_COND_GOVERNOR
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
   TEST_ASSERT_NOT_NULL(gov_block);
   // UNLOCK_COND_ADDRESS
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* addr_block = cond_blk_addr_new(&test_addr);
   TEST_ASSERT_NOT_NULL(addr_block);
   // UNLOCK_COND_STORAGE
@@ -1227,18 +1227,18 @@ void test_output_alias_state_metadata_length() {
   native_tokens_add(&native_tokens, token_id1, amount1);
 
   // create random alias ID
-  byte_t alias_id[ADDRESS_ALIAS_BYTES];
-  iota_crypto_randombytes(alias_id, ADDRESS_ALIAS_BYTES);
+  byte_t alias_id[ALIAS_ID_BYTES];
+  iota_crypto_randombytes(alias_id, ALIAS_ID_BYTES);
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
   // random state controller address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
   TEST_ASSERT_NOT_NULL(state_block);
-  iota_crypto_randombytes(test_addr.address, ADDRESS_ALIAS_BYTES);
+  iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
   unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
   TEST_ASSERT_NOT_NULL(gov_block);
 
@@ -1252,7 +1252,7 @@ void test_output_alias_state_metadata_length() {
   // create random issuer address
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(issuer_addr.address, ADDRESS_ED25519_BYTES);
+  iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
   feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();

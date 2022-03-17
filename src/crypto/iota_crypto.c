@@ -172,6 +172,24 @@ int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg
 #endif
 }
 
+void *iota_blake2b_new_state() {
+#if defined(CRYPTO_USE_SODIUM)
+  crypto_generichash_blake2b_state *state = malloc(sizeof(crypto_generichash_blake2b_state));
+  return state;
+#elif defined(CRYPTO_USE_BLAKE2B_REF)
+  blake2b_state *state = malloc(sizeof(blake2b_state));
+  return state;
+#else
+#error blake2b is not defined
+#endif
+}
+
+void iota_blake2b_free_state(void *state) {
+  if (state) {
+    free(state);
+  }
+}
+
 int iota_blake2b_init(void *state, size_t out_len) {
 #if defined(CRYPTO_USE_SODIUM)
   return crypto_generichash_blake2b_init((crypto_generichash_blake2b_state *)state, NULL, 0, out_len);
