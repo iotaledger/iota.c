@@ -64,6 +64,113 @@ int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* paylo
   return 0;
 }
 
+int tx_essence_inputs_commitment_calculate(transaction_essence_t* es, utxo_outputs_list_t* unspent_outputs) {
+  if (es == NULL || unspent_outputs == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  void* blake_state = iota_blake2b_new_state();
+  if (!blake_state) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (iota_blake2b_init(blake_state, sizeof(es->inputs_commitment)) != 0) {
+    iota_blake2b_free_state(blake_state);
+    return -1;
+  }
+
+  byte_t* buf;
+  size_t buf_len;
+  utxo_outputs_list_t* elm;
+  LL_FOREACH(unspent_outputs, elm) {
+    switch (elm->output->output_type) {
+      case OUTPUT_SINGLE_OUTPUT:
+      case OUTPUT_DUST_ALLOWANCE:
+      case OUTPUT_TREASURY:
+        printf("[%s:%d] deprecated or unsupported output type will not be serialized\n", __func__, __LINE__);
+        iota_blake2b_free_state(blake_state);
+        return -1;
+      case OUTPUT_BASIC: {
+        buf_len = output_basic_serialize_len(elm->output->output);
+        buf = malloc(buf_len);
+        if (!buf) {
+          printf("[%s:%d] OOM\n", __func__, __LINE__);
+          iota_blake2b_free_state(blake_state);
+          return -1;
+        }
+        if (output_basic_serialize(elm->output->output, buf, buf_len) != buf_len) {
+          iota_blake2b_free_state(blake_state);
+          free(buf);
+          return -1;
+        }
+        break;
+      }
+      case OUTPUT_ALIAS: {
+        buf_len = output_alias_serialize_len(elm->output->output);
+        buf = malloc(buf_len);
+        if (!buf) {
+          printf("[%s:%d] OOM\n", __func__, __LINE__);
+          iota_blake2b_free_state(blake_state);
+          return -1;
+        }
+        if (output_alias_serialize(elm->output->output, buf, buf_len) != buf_len) {
+          iota_blake2b_free_state(blake_state);
+          free(buf);
+          return -1;
+        }
+        break;
+      }
+      case OUTPUT_FOUNDRY: {
+        buf_len = output_foundry_serialize_len(elm->output->output);
+        buf = malloc(buf_len);
+        if (!buf) {
+          printf("[%s:%d] OOM\n", __func__, __LINE__);
+          iota_blake2b_free_state(blake_state);
+          return -1;
+        }
+        if (output_foundry_serialize(elm->output->output, buf, buf_len) != buf_len) {
+          iota_blake2b_free_state(blake_state);
+          free(buf);
+          return -1;
+        }
+        break;
+      }
+      case OUTPUT_NFT: {
+        buf_len = output_nft_serialize_len(elm->output->output);
+        buf = malloc(buf_len);
+        if (!buf) {
+          printf("[%s:%d] OOM\n", __func__, __LINE__);
+          iota_blake2b_free_state(blake_state);
+          return -1;
+        }
+        if (output_nft_serialize(elm->output->output, buf, buf_len) != buf_len) {
+          iota_blake2b_free_state(blake_state);
+          free(buf);
+          return -1;
+        }
+        break;
+      }
+    }
+    if (iota_blake2b_update(blake_state, buf, buf_len) != 0) {
+      iota_blake2b_free_state(blake_state);
+      free(buf);
+      return -1;
+    }
+    free(buf);
+  }
+
+  if (iota_blake2b_final(blake_state, es->inputs_commitment, sizeof(es->inputs_commitment)) != 0) {
+    iota_blake2b_free_state(blake_state);
+    return -1;
+  }
+
+  iota_blake2b_free_state(blake_state);
+
+  return 0;
+}
+
 size_t tx_essence_serialize_length(transaction_essence_t* es) {
   size_t length = 0;
   uint16_t input_count = utxo_inputs_count(es->inputs);
