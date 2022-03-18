@@ -31,50 +31,7 @@ void setUp(void) {}
 
 void tearDown(void) {}
 
-/*static output_basic_t* create_output_basic() {
-  // create random ED25519 address
-  address_t addr = {};
-  addr.type = ADDRESS_TYPE_ED25519;
-  iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
-
-  // create Native Tokens
-  native_tokens_list_t* native_tokens = native_tokens_new();
-  uint256_t* amount1 = uint256_from_str("111111111");
-  native_tokens_add(&native_tokens, token_id1, amount1);
-  uint256_t* amount2 = uint256_from_str("222222222");
-  native_tokens_add(&native_tokens, token_id2, amount2);
-  uint256_t* amount3 = uint256_from_str("333333333");
-  native_tokens_add(&native_tokens, token_id3, amount3);
-
-  // create Feature Blocks
-  feat_blk_list_t* feat_blocks = feat_blk_list_new();
-  feat_blk_list_add_sender(&feat_blocks, &addr);
-
-  // create Unlock Conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&addr);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-
-  // create Basic Output
-  output_basic_t* output = output_basic_new(123456789, native_tokens, unlock_conds, feat_blocks);
-  TEST_ASSERT_NOT_NULL(output);
-
-  free(amount1);
-  free(amount2);
-  free(amount3);
-  native_tokens_free(native_tokens);
-  feat_blk_list_free(feat_blocks);
-  cond_blk_free(unlock_addr);
-  cond_blk_list_free(unlock_conds);
-
-  return output;
-}*/
-
-static output_alias_t* create_output_alias() {
-  // create random alias ID
-  byte_t alias_id[ALIAS_ID_BYTES];
-  iota_crypto_randombytes(alias_id, ALIAS_ID_BYTES);
-
+static output_alias_t* create_output_alias(address_t* address) {
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
 
@@ -95,7 +52,7 @@ static output_alias_t* create_output_alias() {
 
   // create alias Output
   output_alias_t* output =
-      output_alias_new(123456789, NULL, alias_id, 123456, NULL, 0, 654321, unlock_conds, NULL, NULL);
+      output_alias_new(123456789, NULL, address->address, 123456, NULL, 0, 654321, unlock_conds, NULL, NULL);
   TEST_ASSERT_NOT_NULL(output);
 
   // clean up
@@ -106,11 +63,13 @@ static output_alias_t* create_output_alias() {
   return output;
 }
 
-void test_tx_alias_create() {
-  ed25519_keypair_t sender_key = {};
+void test_tx_alias_unlock_funds() {
+  // This test case has two inputs (Alias input and Basic input) and creates a new Alias output
+
+  ed25519_keypair_t state_controller_key = {};
   // IOTA BIP44 Paths: m/44'/4128'/Account'/Change'/Index'
-  TEST_ASSERT(address_keypair_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/0'", &sender_key) ==
-              0);
+  TEST_ASSERT(address_keypair_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/0'",
+                                        &state_controller_key) == 0);
 
   uint16_t network_id = 2;
   transaction_payload_t* tx = tx_payload_new(network_id);
@@ -119,14 +78,14 @@ void test_tx_alias_create() {
   alias_addr.type = ADDRESS_TYPE_ALIAS;
   iota_crypto_randombytes(alias_addr.address, ALIAS_ID_BYTES);
 
-  // add input with tx_id0
-  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id0, 1, &sender_key, &alias_addr) == 0);
+  // add input with tx_id0 (this is an alias output)
+  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id0, 1, &state_controller_key, &alias_addr) == 0);
 
-  // add input with tx_id1
-  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id1, 1, NULL, &alias_addr) == 0);
+  // add input with tx_id1 (this is a basic output)
+  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id1, 3, NULL, &alias_addr) == 0);
 
   // add alias output to the output list
-  output_alias_t* alias_output = create_output_alias();
+  output_alias_t* alias_output = create_output_alias(&alias_addr);
   TEST_ASSERT_EQUAL_INT(0, tx_essence_add_output(tx->essence, OUTPUT_ALIAS, alias_output));
 
   // get count of input list
@@ -150,6 +109,15 @@ void test_tx_alias_create() {
   // sign transaction
   TEST_ASSERT(core_message_sign_transaction(msg) == 0);
 
+  // validate unlock blocks
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(tx->unlock_blocks));
+
+  unlock_block_t* unlock_block = unlock_blocks_get(tx->unlock_blocks, 0);
+  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_SIGNATURE);
+
+  unlock_block = unlock_blocks_get(tx->unlock_blocks, 1);
+  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_ALIAS);
+
   // print core message transaction
   core_message_print(msg, 0);
 
@@ -161,7 +129,7 @@ void test_tx_alias_create() {
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_tx_alias_create);
+  RUN_TEST(test_tx_alias_unlock_funds);
 
   return UNITY_END();
 }
