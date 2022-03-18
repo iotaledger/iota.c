@@ -81,21 +81,21 @@ static int create_unlock_block_ed25519(utxo_input_t* input, byte_t essence_hash[
 
     // create a signature unlock block
     if (unlock_blocks_add_signature(unlock_blocks, sig_block, ED25519_SIGNATURE_BLOCK_BYTES) != 0) {
-      printf("[%s:%d] Add signature block failed\n", __func__, __LINE__);
+      printf("[%s:%d] add signature block failed\n", __func__, __LINE__);
       return -1;
     }
 
-    // if input is NFT or Alias save its address in unlock block index list
+    // if input has NFT or Alias address save its address in unlock block index list
     if (input->address) {
       if (update_unlock_block_index(input, *unlock_blocks, unlock_block_index_list) != 0) {
-        printf("[%s:%d] Can not update unlock block index list\n", __func__, __LINE__);
+        printf("[%s:%d] can not update unlock block index list\n", __func__, __LINE__);
         return -1;
       }
     }
   } else {
     // public key is found in the unlocked block, just add a reference
     if (unlock_blocks_add_reference(unlock_blocks, (uint16_t)pub_index) != 0) {
-      printf("[%s:%d] Add reference block failed\n", __func__, __LINE__);
+      printf("[%s:%d] add reference block failed\n", __func__, __LINE__);
       return -1;
     }
   }
@@ -103,37 +103,39 @@ static int create_unlock_block_ed25519(utxo_input_t* input, byte_t essence_hash[
   return 0;
 }
 
-static int create_unlock_block_alias_or_nft(address_t* address, unlock_list_t** unlock_blocks,
-                                            unlock_block_index_list_t* unlock_block_index_list) {
-  if (address == NULL) {
+static int create_unlock_block_alias_or_nft(address_t* address, unlock_block_index_list_t* unlock_block_index_list,
+                                            unlock_list_t** unlock_blocks) {
+  if (address == NULL || unlock_block_index_list == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  unlock_block_index_list_t* index_elm;
-  LL_FOREACH(unlock_block_index_list, index_elm) {
-    if (memcmp(&index_elm->unlock_block_index->address, address, sizeof(index_elm->unlock_block_index->address)) == 0) {
-      switch (index_elm->unlock_block_index->address.type) {
+  unlock_block_index_list_t* elm;
+  LL_FOREACH(unlock_block_index_list, elm) {
+    unlock_block_index_t* unlock_block_index = elm->unlock_block_index;
+    if (memcmp(&unlock_block_index->address, address, sizeof(unlock_block_index->address)) == 0) {
+      switch (elm->unlock_block_index->address.type) {
         case ADDRESS_TYPE_ALIAS:
-          if (unlock_blocks_add_alias(unlock_blocks, index_elm->unlock_block_index->index) != 0) {
-            printf("[%s:%d] Adding alias unlock block failed\n", __func__, __LINE__);
+          if (unlock_blocks_add_alias(unlock_blocks, unlock_block_index->index) != 0) {
+            printf("[%s:%d] adding Alias unlock block failed\n", __func__, __LINE__);
             return -1;
           }
-          break;
+          return 0;
         case ADDRESS_TYPE_NFT:
-          if (unlock_blocks_add_nft(unlock_blocks, index_elm->unlock_block_index->index) != 0) {
-            printf("[%s:%d] Adding NFT unlock block failed\n", __func__, __LINE__);
+          if (unlock_blocks_add_nft(unlock_blocks, unlock_block_index->index) != 0) {
+            printf("[%s:%d] adding NFT unlock block failed\n", __func__, __LINE__);
             return -1;
           }
-          break;
+          return 0;
         default:
-          printf("[%s:%d] Address must be Alias or NFT.\n", __func__, __LINE__);
+          printf("[%s:%d] address must be Alias or NFT.\n", __func__, __LINE__);
           return -1;
       }
     }
   }
 
-  return 0;
+  printf("[%s:%d] Alias or NFT address was not found in unlock block index list.\n", __func__, __LINE__);
+  return -1;
 }
 
 int signing_transaction_sign(utxo_inputs_list_t* inputs, byte_t essence_hash[], unlock_list_t** unlock_blocks) {
@@ -148,16 +150,20 @@ int signing_transaction_sign(utxo_inputs_list_t* inputs, byte_t essence_hash[], 
   LL_FOREACH(inputs, elm) {
     if (elm->input->keypair) {
       if (create_unlock_block_ed25519(elm->input, essence_hash, &unlock_block_index_list, unlock_blocks) != 0) {
-        printf("[%s:%d] Creating unlock block for ed25519 address failed.\n", __func__, __LINE__);
+        printf("[%s:%d] creating unlock block for ed25519 address failed.\n", __func__, __LINE__);
         unlock_block_index_list_free(unlock_block_index_list);
         return -1;
       }
     } else if (elm->input->address) {
-      if (create_unlock_block_alias_or_nft(elm->input->address, unlock_blocks, unlock_block_index_list) != 0) {
-        printf("[%s:%d] Creating unlock block for Alias or NFT address failed.\n", __func__, __LINE__);
+      if (create_unlock_block_alias_or_nft(elm->input->address, unlock_block_index_list, unlock_blocks) != 0) {
+        printf("[%s:%d] creating unlock block for Alias or NFT address failed.\n", __func__, __LINE__);
         unlock_block_index_list_free(unlock_block_index_list);
         return -1;
       }
+    } else {
+      printf("[%s:%d] input must have ed25519 keypair, Alias address or NFT address.\n", __func__, __LINE__);
+      unlock_block_index_list_free(unlock_block_index_list);
+      return -1;
     }
   }
 

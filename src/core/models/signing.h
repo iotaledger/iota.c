@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Sign transaction
+ * @brief Sign transaction message
  *
  * @param[in] inputs An UTXO input list
  * @param[in] essence_hash An essence hash
