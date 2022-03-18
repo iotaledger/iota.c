@@ -17,6 +17,9 @@ void utxo_inputs_free(utxo_inputs_list_t *inputs) {
       if (elm->input->keypair) {
         free(elm->input->keypair);
       }
+      if (elm->input->address) {
+        free_address(elm->input->address);
+      }
       free(elm->input);
       LL_DELETE(inputs, elm);
       free(elm);
@@ -24,7 +27,8 @@ void utxo_inputs_free(utxo_inputs_list_t *inputs) {
   }
 }
 
-int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index, ed25519_keypair_t *key) {
+int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index, ed25519_keypair_t *key,
+                    address_t *address) {
   if (id == NULL) {
     printf("[%s:%d] invalid transaction id\n", __func__, __LINE__);
     return -1;
@@ -64,14 +68,17 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
         next->input->keypair = malloc(sizeof(ed25519_keypair_t));
         if (next->input->keypair) {
           memcpy(next->input->keypair, key, sizeof(ed25519_keypair_t));
-          LL_APPEND(*inputs, next);
-          return 0;
         }
       } else {
         next->input->keypair = NULL;
-        LL_APPEND(*inputs, next);
-        return 0;
       }
+      if (address) {
+        next->input->address = address_clone(address);
+      } else {
+        next->input->address = NULL;
+      }
+      LL_APPEND(*inputs, next);
+      return 0;
     }
   }
 
@@ -79,6 +86,9 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
     if (next->input) {
       if (next->input->keypair) {
         free(next->input->keypair);
+      }
+      if (next->input->address) {
+        free_address(next->input->address);
       }
       free(next->input);
     }
@@ -234,8 +244,10 @@ utxo_inputs_list_t *utxo_inputs_deserialize(byte_t buf[], size_t buf_len) {
       utxo_inputs_free(inputs);
       return NULL;
     }
-    // keypair is not part of serialization
+    // keypair is not part of deserialization
     new_input->input->keypair = NULL;
+    // address is not part of deserialization
+    new_input->input->address = NULL;
     LL_APPEND(inputs, new_input);
 
     // get input type

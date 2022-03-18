@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include "core/address.h"
 #include "core/models/message.h"
 #include "core/types.h"
 #include "crypto/iota_crypto.h"
@@ -27,6 +28,7 @@ typedef struct {
                                             ///< referenced output.
   uint16_t output_index;                    ///< The output index of the referenced output.
   ed25519_keypair_t *keypair;               ///< optional, ed25519 keypair of this input
+  address_t *address;                       ///< optional, nft_id or alias_id identifier
 } utxo_input_t;
 
 /**
@@ -64,9 +66,11 @@ void utxo_inputs_free(utxo_inputs_list_t *inputs);
  * @param[in] id A transaction ID
  * @param[in] index An output index of the referenced output
  * @param[in] key The ed25519 keypair of this input, optional
+ * @param[in] address A NFT ID or Alias ID identifier, optional
  * @return int 0 on success
  */
-int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index, ed25519_keypair_t *key);
+int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index, ed25519_keypair_t *key,
+                    address_t *address);
 
 /**
  * @brief Get number of elements in an utxo input list

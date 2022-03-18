@@ -12,6 +12,16 @@
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
 
+typedef struct {
+  uint8_t index;                             ///< Index in which position is pubKeyHash for NFT or Alias output
+  byte_t id[CRYPTO_BLAKE2B_160_HASH_BYTES];  ///< NFT or Alias identifier
+} unlock_block_index_t;
+
+typedef struct unlock_block_list {
+  unlock_block_index_t* unlock_block_index;  //< Points to a current unlock block index
+  struct unlock_block_list* next;            //< Points to a next unlock block index
+} unlock_block_index_list_t;
+
 core_message_t* core_message_new(uint8_t ver) {
   core_message_t* msg = malloc(sizeof(core_message_t));
   if (msg) {
@@ -60,12 +70,14 @@ int core_message_sign_transaction(core_message_t* msg) {
     return -1;
   }
 
+  unlock_block_index_list_t* unlock_block_index_list = NULL;
+
   utxo_inputs_list_t* elm;
   LL_FOREACH(tx->essence->inputs, elm) {
     if (elm->input->keypair) {
       int32_t pub_index = unlock_blocks_find_pub(tx->unlock_blocks, elm->input->keypair->pub);
       if (pub_index == -1) {
-        // publick key is not found in the unlocked block
+        // public key is not found in the unlocked block
         byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
         sig_block[0] = ADDRESS_TYPE_ED25519;
         memcpy(sig_block + 1, elm->input->keypair->pub, ED_PUBLIC_KEY_BYTES);
@@ -81,11 +93,41 @@ int core_message_sign_transaction(core_message_t* msg) {
           printf("[%s:%d] Add signature block failed\n", __func__, __LINE__);
           break;
         }
+
+        // if input is NFT or Alias save its Id in a list
+        if (elm->input->address) {
+          unlock_block_index_list_t* index_elm = malloc(sizeof(unlock_block_index_list_t));
+          index_elm->unlock_block_index = malloc(sizeof(unlock_block_index_t));
+
+          index_elm->unlock_block_index->index = unlock_blocks_find_pub(tx->unlock_blocks, elm->input->keypair->pub);
+          memcpy(index_elm->unlock_block_index->id, elm->input->address->address,
+                 sizeof(index_elm->unlock_block_index->id));
+          index_elm->next = NULL;
+          LL_APPEND(unlock_block_index_list, index_elm);
+        }
       } else {
         // public key is found in the unlocked block
         if ((ret = unlock_blocks_add_reference(&tx->unlock_blocks, (uint16_t)pub_index))) {
           printf("[%s:%d] Add reference block failed\n", __func__, __LINE__);
           break;
+        }
+      }
+    } else if (elm->input->address) {
+      unlock_block_index_list_t* index_elm;
+      LL_FOREACH(unlock_block_index_list, index_elm) {
+        if (memcmp(index_elm->unlock_block_index->id, elm->input->address->address,
+                   sizeof(index_elm->unlock_block_index->id)) == 0) {
+          if (elm->input->address->type == ADDRESS_TYPE_ALIAS) {
+            if ((ret = unlock_blocks_add_alias(&tx->unlock_blocks, index_elm->unlock_block_index->index))) {
+              printf("[%s:%d] Add alias block failed\n", __func__, __LINE__);
+              break;
+            }
+          } else if (elm->input->address->type == ADDRESS_TYPE_NFT) {
+            if ((ret = unlock_blocks_add_nft(&tx->unlock_blocks, index_elm->unlock_block_index->index))) {
+              printf("[%s:%d] Add NFT block failed\n", __func__, __LINE__);
+              break;
+            }
+          }
         }
       }
     }

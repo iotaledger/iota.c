@@ -254,7 +254,7 @@ void test_send_msg_tx_basic() {
         total_balance += o->amount;
         // add the output as a tx input into the tx payload
         TEST_ASSERT(tx_essence_add_input(tx->essence, 0, output_res->u.data->tx_id, output_res->u.data->output_index,
-                                         &sender_key) == 0);
+                                         &sender_key, NULL) == 0);
         // add the output in unspent outputs list to be able to calculate inputs commitment hash
         TEST_ASSERT(utxo_outputs_add(&unspent_outputs, output_res->u.data->output->output_type, o) == 0);
         // check balance

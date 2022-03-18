@@ -32,14 +32,14 @@ void tx_essence_free(transaction_essence_t* es) {
   }
 }
 
-int tx_essence_add_input(transaction_essence_t* es, uint8_t type, byte_t tx_id[], uint8_t index,
-                         ed25519_keypair_t* key) {
+int tx_essence_add_input(transaction_essence_t* es, uint8_t type, byte_t tx_id[], uint8_t index, ed25519_keypair_t* key,
+                         address_t* address) {
   if (es == NULL || tx_id == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  return utxo_inputs_add(&es->inputs, type, tx_id, index, key);
+  return utxo_inputs_add(&es->inputs, type, tx_id, index, key, address);
 }
 
 int tx_essence_add_output(transaction_essence_t* es, utxo_output_type_t type, void* output) {
