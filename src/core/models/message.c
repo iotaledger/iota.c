@@ -9,18 +9,9 @@
 #include "core/models/message.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
+#include "core/models/signing.h"
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
-
-typedef struct {
-  uint8_t index;                             ///< Index in which position is pubKeyHash for NFT or Alias output
-  byte_t id[CRYPTO_BLAKE2B_160_HASH_BYTES];  ///< NFT or Alias identifier
-} unlock_block_index_t;
-
-typedef struct unlock_block_list {
-  unlock_block_index_t* unlock_block_index;  //< Points to a current unlock block index
-  struct unlock_block_list* next;            //< Points to a next unlock block index
-} unlock_block_index_list_t;
 
 core_message_t* core_message_new(uint8_t ver) {
   core_message_t* msg = malloc(sizeof(core_message_t));
@@ -35,8 +26,6 @@ core_message_t* core_message_new(uint8_t ver) {
 }
 
 int core_message_sign_transaction(core_message_t* msg) {
-  int ret = -1;
-  byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
   if (!msg) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
@@ -64,78 +53,26 @@ int core_message_sign_transaction(core_message_t* msg) {
   }
 
   // essence hash
+  byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
   if (iota_blake2b_sum(b_essence, serialized_size, essence_hash, sizeof(essence_hash)) != 0) {
     printf("[%s:%d] get essence hash failed\n", __func__, __LINE__);
     free(b_essence);
     return -1;
   }
 
-  unlock_block_index_list_t* unlock_block_index_list = NULL;
-
-  utxo_inputs_list_t* elm;
-  LL_FOREACH(tx->essence->inputs, elm) {
-    if (elm->input->keypair) {
-      int32_t pub_index = unlock_blocks_find_pub(tx->unlock_blocks, elm->input->keypair->pub);
-      if (pub_index == -1) {
-        // public key is not found in the unlocked block
-        byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
-        sig_block[0] = ADDRESS_TYPE_ED25519;
-        memcpy(sig_block + 1, elm->input->keypair->pub, ED_PUBLIC_KEY_BYTES);
-        // sign transaction
-        if ((ret = iota_crypto_sign(elm->input->keypair->priv, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES,
-                                    sig_block + (1 + ED_PUBLIC_KEY_BYTES)))) {
-          printf("[%s:%d] signing signature failed\n", __func__, __LINE__);
-          break;
-        }
-
-        // create a signature block
-        if ((ret = unlock_blocks_add_signature(&tx->unlock_blocks, sig_block, ED25519_SIGNATURE_BLOCK_BYTES))) {
-          printf("[%s:%d] Add signature block failed\n", __func__, __LINE__);
-          break;
-        }
-
-        // if input is NFT or Alias save its Id in a list
-        if (elm->input->address) {
-          unlock_block_index_list_t* index_elm = malloc(sizeof(unlock_block_index_list_t));
-          index_elm->unlock_block_index = malloc(sizeof(unlock_block_index_t));
-
-          index_elm->unlock_block_index->index = unlock_blocks_find_pub(tx->unlock_blocks, elm->input->keypair->pub);
-          memcpy(index_elm->unlock_block_index->id, elm->input->address->address,
-                 sizeof(index_elm->unlock_block_index->id));
-          index_elm->next = NULL;
-          LL_APPEND(unlock_block_index_list, index_elm);
-        }
-      } else {
-        // public key is found in the unlocked block
-        if ((ret = unlock_blocks_add_reference(&tx->unlock_blocks, (uint16_t)pub_index))) {
-          printf("[%s:%d] Add reference block failed\n", __func__, __LINE__);
-          break;
-        }
-      }
-    } else if (elm->input->address) {
-      unlock_block_index_list_t* index_elm;
-      LL_FOREACH(unlock_block_index_list, index_elm) {
-        if (memcmp(index_elm->unlock_block_index->id, elm->input->address->address,
-                   sizeof(index_elm->unlock_block_index->id)) == 0) {
-          if (elm->input->address->type == ADDRESS_TYPE_ALIAS) {
-            if ((ret = unlock_blocks_add_alias(&tx->unlock_blocks, index_elm->unlock_block_index->index))) {
-              printf("[%s:%d] Add alias block failed\n", __func__, __LINE__);
-              break;
-            }
-          } else if (elm->input->address->type == ADDRESS_TYPE_NFT) {
-            if ((ret = unlock_blocks_add_nft(&tx->unlock_blocks, index_elm->unlock_block_index->index))) {
-              printf("[%s:%d] Add NFT block failed\n", __func__, __LINE__);
-              break;
-            }
-          }
-        }
-      }
-    }
+  // sign transaction
+  if (signing_transaction_sign(tx->essence->inputs, essence_hash, &tx->unlock_blocks) != 0) {
+    printf("[%s:%d] signing transaction failed\n", __func__, __LINE__);
+    free(b_essence);
+    return -1;
   }
+
+  // Clean up
   if (b_essence) {
     free(b_essence);
   }
-  return ret;
+
+  return 0;
 }
 
 void core_message_free(core_message_t* msg) {

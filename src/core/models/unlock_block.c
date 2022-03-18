@@ -10,7 +10,7 @@
 #include "utlist.h"
 
 // Maximum Unlock Block Count == Maximum Input Count
-#define UNLOCKED_BLOCKS_MAX_COUNT 128
+#define UNLOCK_BLOCKS_MAX_COUNT 128
 
 unlock_list_t* unlock_blocks_new() { return NULL; }
 
@@ -99,7 +99,7 @@ int unlock_blocks_add_signature(unlock_list_t** blocks, byte_t* sig, size_t sig_
 
 int unlock_blocks_add_reference(unlock_list_t** blocks, uint16_t index) {
   // Reference Index must be 0 <= x < 128.
-  if (index >= UNLOCKED_BLOCKS_MAX_COUNT) {
+  if (index >= UNLOCK_BLOCKS_MAX_COUNT) {
     printf("[%s:%d] invalid Reference Index\n", __func__, __LINE__);
     return -1;
   }
@@ -123,7 +123,7 @@ int unlock_blocks_add_reference(unlock_list_t** blocks, uint16_t index) {
 
 int unlock_blocks_add_alias(unlock_list_t** blocks, uint16_t index) {
   // Alias Reference Index must be 0 <= x < 128.
-  if (index >= UNLOCKED_BLOCKS_MAX_COUNT) {
+  if (index >= UNLOCK_BLOCKS_MAX_COUNT) {
     printf("[%s:%d] index out of range \n", __func__, __LINE__);
     return -1;
   }
@@ -147,7 +147,7 @@ int unlock_blocks_add_alias(unlock_list_t** blocks, uint16_t index) {
 
 int unlock_blocks_add_nft(unlock_list_t** blocks, uint16_t index) {
   // NFT Reference Index must be 0 <= x < 128.
-  if (index >= UNLOCKED_BLOCKS_MAX_COUNT) {
+  if (index >= UNLOCK_BLOCKS_MAX_COUNT) {
     printf("[%s:%d] index out of range \n", __func__, __LINE__);
     return -1;
   }
@@ -173,14 +173,14 @@ size_t unlock_blocks_serialize_length(unlock_list_t* blocks) {
   unlock_list_t* elm = NULL;
   size_t serialized_size = 0;
 
-  // empty unlocked blocks
+  // empty unlock blocks
   if (blocks == NULL) {
     return 0;
   }
 
   // bytes of Unlock Blocks Count
   serialized_size += sizeof(uint16_t);
-  // calculate serialized bytes of unlocked blocks
+  // calculate serialized bytes of unlock blocks
   LL_FOREACH(blocks, elm) {
     if (elm->block.type == UNLOCK_BLOCK_TYPE_SIGNATURE) {
       serialized_size += UNLOCK_SIGNATURE_SERIALIZE_BYTES;
@@ -191,7 +191,7 @@ size_t unlock_blocks_serialize_length(unlock_list_t* blocks) {
     } else if (elm->block.type == UNLOCK_BLOCK_TYPE_NFT) {
       serialized_size += UNLOCK_NFT_SERIALIZE_BYTES;
     } else {
-      printf("[%s:%d] Unknown unlocked block type\n", __func__, __LINE__);
+      printf("[%s:%d] Unknown unlock block type\n", __func__, __LINE__);
       return 0;
     }
   }
@@ -204,11 +204,11 @@ size_t unlock_blocks_serialize(unlock_list_t* blocks, byte_t buf[]) {
 
   uint16_t block_count = unlock_blocks_count(blocks);
 
-  // unlocked block count
+  // unlock block count
   memcpy(offset, &block_count, sizeof(block_count));
   offset += sizeof(block_count);
 
-  // serializing unlocked blocks
+  // serializing unlock blocks
   LL_FOREACH(blocks, elm) {
     if (elm->block.type == UNLOCK_BLOCK_TYPE_SIGNATURE) {  // signature block
       memcpy(offset, &elm->block.type, sizeof(byte_t));
@@ -302,7 +302,7 @@ unlock_list_t* unlock_blocks_deserialize(byte_t buf[], size_t buf_len) {
         break;
       }
       default:
-        printf("[%s:%d] unknown unlocked block type\n", __func__, __LINE__);
+        printf("[%s:%d] unknown unlock block type\n", __func__, __LINE__);
         unlock_blocks_free(blocks);
         return NULL;
     }
@@ -367,7 +367,7 @@ void unlock_blocks_free(unlock_list_t* blocks) {
 void unlock_blocks_print(unlock_list_t* blocks, uint8_t indentation) {
   unlock_list_t* elm;
   if (blocks) {
-    printf("%sUnlocked Blocks: [\n", PRINT_INDENTATION(indentation));
+    printf("%sUnlock Blocks: [\n", PRINT_INDENTATION(indentation));
     LL_FOREACH(blocks, elm) {
       if (elm->block.type == UNLOCK_BLOCK_TYPE_SIGNATURE) {  // signature block
         printf("%s\tSignature Block: [\n", PRINT_INDENTATION(indentation));
@@ -388,7 +388,7 @@ void unlock_blocks_print(unlock_list_t* blocks, uint8_t indentation) {
         printf("%s\tNFT block[ ", PRINT_INDENTATION(indentation));
         printf("Ref: %" PRIu16 " ]\n", *(uint16_t*)elm->block.block_data);
       } else {
-        printf("[%s:%d] Unknown unlocked block type\n", __func__, __LINE__);
+        printf("[%s:%d] Unknown unlock block type\n", __func__, __LINE__);
       }
     }
     printf("%s]\n", PRINT_INDENTATION(indentation));
