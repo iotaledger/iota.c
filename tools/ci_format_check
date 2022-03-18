@@ -13,4 +13,16 @@ do
     status=1
   fi
 done
+
+for file in $(find ${root} ! -path "*/build/*"| grep -E "CMakeLists.txt")
+do
+  cmake-format -c ${root}/.cmake_format.yaml --check ${file} 2> /dev/null
+  if [ $? -ne 0 ]
+  then
+    echo -e "\nFile \e[31m\""$file"\"\e[39m is not compliant with cmake-format"
+    echo "$output"
+    status=2
+  fi
+done
+
 exit $status
