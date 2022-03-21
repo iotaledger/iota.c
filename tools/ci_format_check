@@ -2,10 +2,18 @@
 
 root=$(git rev-parse --show-toplevel)
 status=0
+
+# dump tool versions
+clang_fmt_version=$(clang-format-12 --version)
+echo -e "\e[32m${clang_fmt_version} \e[39m"
+cmake_fmt_version=$(cmake-format --version)
+echo -e "\e[32mcmake-format version ${cmake_fmt_version} \e[39m"
+
+# check source files
 for file in $(find "${@}" -type f | grep -E "\.(c|cc|cpp|h|hh|hpp)\$")
 do
   filepath="$root/$file"
-  output=$(diff <(cat $filepath) <(clang-format -style=file -fallback-style=none $filepath))
+  output=$(diff <(cat $filepath) <(clang-format-12 -style=file -fallback-style=none $filepath))
   if [ $? -ne 0 ]
   then
     echo -e "\nFile \e[31m\""$file"\"\e[39m is not compliant with the coding style"
@@ -14,6 +22,7 @@ do
   fi
 done
 
+# checking CMake scripts
 for file in $(find ${root} ! -path "*/build/*"| grep -E "CMakeLists.txt")
 do
   cmake-format -c ${root}/.cmake_format.yaml --check ${file} 2> /dev/null

@@ -2,15 +2,7 @@
 
 name: coding-style
 
-on:
-  push:
-    branches:
-      - dev
-      - tokenization-sc
-  pull_request:
-    branches:
-      - dev
-      - tokenization-sc
+on: [push, pull_request]
 
 jobs:
   coding_style:
@@ -22,7 +14,8 @@ jobs:
       - name: install requirements
         run: |
           sudo apt update
-          sudo apt install -y cppcheck clang-format
+          sudo apt install -y cppcheck clang-format-12
+          sudo pip3 install cmakelang
 
       - name: Coding style check
         run: ./tools/ci_format_check src tests examples
