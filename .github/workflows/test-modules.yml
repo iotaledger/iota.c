@@ -1,0 +1,54 @@
+# Build and test by modules
+
+name: test-modules
+on:
+  push:
+    branches:
+      - production
+      - staging
+      - dev*
+  pull_request:
+    branches:
+      - production
+      - staging
+      - dev*
+
+jobs:
+  ninja_clang_check_modules:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: install requirements
+        run: |
+          sudo apt update
+          sudo apt install -y cppcheck ninja-build libcurl4-openssl-dev clang-format build-essential
+
+      - name: Build Crypto
+        run: |
+          cmake --version
+          clang --version
+          mkdir build && cd build
+          cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DCryptoUse=openssl -DIOTA_ASAN_ENABLED=ON -DIOTA_WALLET_ENABLE=OFF -DWITH_IOTA_CLIENT=OFF -DWITH_IOTA_CORE=OFF ..
+          ninja -v && CTEST_OUTPUT_ON_FAILURE=1 ninja test
+
+      - name: Build Core
+        run: |
+          rm -rf build && sync
+          mkdir build && cd build
+          cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DCryptoUse=openssl -DIOTA_ASAN_ENABLED=ON -DIOTA_WALLET_ENABLE=OFF -DWITH_IOTA_CLIENT=OFF -DWITH_IOTA_CORE=ON ..
+          ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
+
+      - name: Build Client
+        run: |
+          rm -rf build && sync
+          mkdir build && cd build
+          cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DCryptoUse=openssl -DIOTA_ASAN_ENABLED=ON -DIOTA_WALLET_ENABLE=OFF -DWITH_IOTA_CLIENT=ON -DWITH_IOTA_CORE=OFF ..
+          ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
+
+      - name: Build Wallet
+        run: |
+          rm -rf build && sync
+          mkdir build && cd build
+          cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DCryptoUse=openssl -DIOTA_ASAN_ENABLED=ON -DIOTA_WALLET_ENABLE=ON -DWITH_IOTA_CLIENT=OFF -DWITH_IOTA_CORE=OFF ..
+          ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
