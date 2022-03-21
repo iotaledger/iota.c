@@ -87,14 +87,14 @@ void test_tx_alias_unlock_funds() {
   // add input with tx_id1 (this is a basic output)
   TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id1, 3) == 0);
 
-  // Create transaction signature data (for both inputs). This data is in real scenario fetched from a node.
-  signing_data_list_t* sign_data_list = signing_transaction_new();
+  // Create signature data (for both inputs). This data is in real scenario fetched from a node.
+  signing_data_list_t* sign_data_list = signing_new();
 
-  // transaction signature data for 1st input
-  signing_transaction_data_add(&state_controller_addr, &alias_addr, &state_controller_key, &sign_data_list);
+  // signature data for 1st input
+  signing_data_add(&state_controller_addr, &alias_addr, &state_controller_key, &sign_data_list);
 
-  // transaction signature data for 2nd input
-  signing_transaction_data_add(&alias_addr, NULL, NULL, &sign_data_list);
+  // signature data for 2nd input
+  signing_data_add(&alias_addr, NULL, NULL, &sign_data_list);
 
   // add alias output to the output list
   output_alias_t* alias_output = create_output_alias(&alias_addr);
@@ -120,7 +120,7 @@ void test_tx_alias_unlock_funds() {
 
   // calculate transaction essence hash
   byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
-  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash) == 0);
+  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
 
   // sign transaction (generate unlock blocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, tx->essence->inputs, sign_data_list, &tx->unlock_blocks) == 0);
@@ -138,7 +138,7 @@ void test_tx_alias_unlock_funds() {
   core_message_print(msg, 0);
 
   // clean up
-  signing_transaction_free(sign_data_list);
+  signing_free(sign_data_list);
   output_alias_free(alias_output);
   core_message_free(msg);
 }

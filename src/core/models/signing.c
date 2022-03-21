@@ -78,13 +78,13 @@ static int create_unlock_block_alias_or_nft(signing_data_t* sign_data, signing_d
     }
   }
 
-  printf("[%s:%d] Alias or NFT address was not found in transaction signing data list.\n", __func__, __LINE__);
+  printf("[%s:%d] Alias or NFT address was not found in signing data list.\n", __func__, __LINE__);
   return -1;
 }
 
-signing_data_list_t* signing_transaction_new() { return NULL; }
+signing_data_list_t* signing_new() { return NULL; }
 
-void signing_transaction_free(signing_data_list_t* signing_data_list) {
+void signing_free(signing_data_list_t* signing_data_list) {
   if (signing_data_list) {
     signing_data_list_t *elm, *tmp;
     LL_FOREACH_SAFE(signing_data_list, elm, tmp) {
@@ -101,8 +101,8 @@ void signing_transaction_free(signing_data_list_t* signing_data_list) {
   }
 }
 
-int signing_transaction_data_add(address_t* unlock_address, address_t* utxo_output_address, ed25519_keypair_t* keypair,
-                                 signing_data_list_t** sign_data_list) {
+int signing_data_add(address_t* unlock_address, address_t* utxo_output_address, ed25519_keypair_t* keypair,
+                     signing_data_list_t** sign_data_list) {
   if (unlock_address == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -140,7 +140,7 @@ int signing_transaction_data_add(address_t* unlock_address, address_t* utxo_outp
   return 0;
 }
 
-uint8_t signing_transaction_data_count(signing_data_list_t* signing_data_list) {
+uint8_t signing_data_count(signing_data_list_t* signing_data_list) {
   signing_data_list_t* elm = NULL;
   uint16_t len = 0;
   if (signing_data_list) {
@@ -149,9 +149,9 @@ uint8_t signing_transaction_data_count(signing_data_list_t* signing_data_list) {
   return len;
 }
 
-signing_data_t* signing_transaction_data_get_by_index(signing_data_list_t* signing_data_list, uint8_t index) {
+signing_data_t* signing_get_data_by_index(signing_data_list_t* signing_data_list, uint8_t index) {
   if (signing_data_list == NULL) {
-    printf("[%s:%d] empty signing transaction data list\n", __func__, __LINE__);
+    printf("[%s:%d] empty signing data list\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -180,7 +180,7 @@ int signing_transaction_sign(byte_t essence_hash[], utxo_inputs_list_t* inputs, 
     return -1;
   }
 
-  if (utxo_inputs_count(inputs) != signing_transaction_data_count(sign_data_list)) {
+  if (utxo_inputs_count(inputs) != signing_data_count(sign_data_list)) {
     printf("[%s:%d] number of inputs and signing data in a lists are not the same\n", __func__, __LINE__);
     return -1;
   }
@@ -188,7 +188,7 @@ int signing_transaction_sign(byte_t essence_hash[], utxo_inputs_list_t* inputs, 
   uint8_t index = 0;
   utxo_inputs_list_t* elm;
   LL_FOREACH(inputs, elm) {
-    signing_data_t* sign_data = signing_transaction_data_get_by_index(sign_data_list, index);
+    signing_data_t* sign_data = signing_get_data_by_index(sign_data_list, index);
 
     if (sign_data->keypair) {
       if (create_unlock_block_ed25519(essence_hash, sign_data, unlock_blocks) != 0) {

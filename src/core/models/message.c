@@ -24,7 +24,7 @@ core_message_t* core_message_new(uint8_t ver) {
   return msg;
 }
 
-int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[]) {
+int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[], uint8_t essence_hash_len) {
   if (msg == NULL || essence_hash == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -32,6 +32,11 @@ int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[]) {
 
   if (msg->payload_type != CORE_MESSAGE_PAYLOAD_TRANSACTION || msg->payload == NULL) {
     printf("[%s:%d] invalid payload\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (essence_hash_len < CRYPTO_BLAKE2B_HASH_BYTES) {
+    printf("[%s:%d] essence hash array length is too small\n", __func__, __LINE__);
     return -1;
   }
 

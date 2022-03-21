@@ -52,9 +52,10 @@ core_message_t* core_message_new(uint8_t ver);
  *
  * @param[in] msg A message with transaction payload
  * @param[out] essence_hash Calculated essence hash
+ * @param[in] essence_hash_len Length of an essence hash array
  * @return int 0 on success
  */
-int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[]);
+int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[], uint8_t essence_hash_len);
 
 /**
  * @brief Free a core message object

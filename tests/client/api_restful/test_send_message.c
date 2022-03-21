@@ -245,7 +245,7 @@ void test_send_msg_tx_basic() {
   // fetch output data from output IDs
   uint64_t total_balance = 0;
   utxo_outputs_list_t* unspent_outputs = utxo_outputs_new();
-  signing_data_list_t* sign_data_list = signing_transaction_new();
+  signing_data_list_t* sign_data_list = signing_new();
   for (size_t i = 0; i < res_outputs_output_id_count(res); i++) {
     res_output_t* output_res = get_output_response_new();
     printf("fetch output: %s\n", res_outputs_output_id(res, i));
@@ -260,10 +260,10 @@ void test_send_msg_tx_basic() {
         // add the output in unspent outputs list to be able to calculate inputs commitment hash
         TEST_ASSERT(utxo_outputs_add(&unspent_outputs, output_res->u.data->output->output_type, o) == 0);
 
-        // add transaction signing data (Basic output has address unlock condition)
+        // add signing data (Basic output has address unlock condition)
         unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_ADDRESS);
         TEST_ASSERT_NOT_NULL(unlock_cond);
-        TEST_ASSERT(signing_transaction_data_add(unlock_cond->block, NULL, &sender_key, &sign_data_list) == 0);
+        TEST_ASSERT(signing_data_add(unlock_cond->block, NULL, &sender_key, &sign_data_list) == 0);
 
         // check balance
         if (total_balance >= send_amount) {
@@ -340,7 +340,7 @@ void test_send_msg_tx_basic() {
     printf("message ID: %s\n", send_msg_res.u.msg_id);
   }
 
-  signing_transaction_free(sign_data_list);
+  signing_free(sign_data_list);
   core_message_free(msg);
 }
 
