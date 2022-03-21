@@ -5,6 +5,8 @@
 #define __CORE_MODELS_UNLOCK_BLOCK_H__
 
 #include <stdint.h>
+#include "core/models/inputs/utxo_input.h"
+#include "core/models/outputs/outputs.h"
 #include "core/types.h"
 #include "crypto/iota_crypto.h"
 
@@ -59,6 +61,9 @@ extern "C" {
  * @return unlock_list_t* a NULL pointer
  */
 unlock_list_t* unlock_blocks_new();
+
+unlock_list_t* unlock_blocks_create(byte_t essence_hash[], utxo_inputs_list_t* inputs,
+                                    utxo_outputs_list_t* unspent_outputs);
 
 /**
  * @brief Add unlock block to the list

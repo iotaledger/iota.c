@@ -272,16 +272,16 @@ void test_tx_essence() {
   tx_essence_print(es, 0);
 
   // test for -1 if transaction id is null
-  TEST_ASSERT(tx_essence_add_input(es, 0, NULL, 1, NULL, NULL) == -1);
+  TEST_ASSERT(tx_essence_add_input(es, 0, NULL, 1, NULL) == -1);
 
   // add input with tx_id0
-  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id0, 1, NULL, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id0, 1, NULL) == 0);
 
   // add input with tx_id1
-  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id1, 2, NULL, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id1, 2, NULL) == 0);
 
   // add input with tx_id2
-  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id2, 3, NULL, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(es, 0, tx_id2, 3, NULL) == 0);
 
   // add inputs commitment
   TEST_ASSERT_NOT_NULL(memcpy(&es->inputs_commitment, &inputs_commitment, CRYPTO_BLAKE2B_HASH_BYTES));
@@ -471,19 +471,19 @@ void test_tx_payload() {
   tx_payload_print(tx_payload, 0);
 
   // test for -1 if transaction id is null
-  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, NULL, 1, NULL, NULL) == -1);
+  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, NULL, 1, NULL) == -1);
 
   // add input with tx_id0
-  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id0, 1, NULL, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id0, 1, NULL) == 0);
 
   // add input with tx_id1
-  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id1, 2, NULL, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id1, 2, NULL) == 0);
 
   // add input with tx_id2
-  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id2, 3, NULL, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id2, 3, NULL) == 0);
 
   // add input with tx_id3
-  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id3, 4, NULL, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(tx_payload->essence, 0, tx_id3, 4, NULL) == 0);
 
   // add inputs commitment
   TEST_ASSERT_NOT_NULL(memcpy(&tx_payload->essence->inputs_commitment, &inputs_commitment, CRYPTO_BLAKE2B_HASH_BYTES));

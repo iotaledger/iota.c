@@ -254,7 +254,7 @@ void test_send_msg_tx_basic() {
         total_balance += o->amount;
         // add the output as a tx input into the tx payload
         TEST_ASSERT(tx_essence_add_input(tx->essence, 0, output_res->u.data->tx_id, output_res->u.data->output_index,
-                                         &sender_key, NULL) == 0);
+                                         &sender_key) == 0);
         // add the output in unspent outputs list to be able to calculate inputs commitment hash
         TEST_ASSERT(utxo_outputs_add(&unspent_outputs, output_res->u.data->output->output_type, o) == 0);
         // check balance
@@ -305,14 +305,20 @@ void test_send_msg_tx_basic() {
 
   // calculate inputs commitment
   TEST_ASSERT(tx_essence_inputs_commitment_calculate(tx->essence, unspent_outputs) == 0);
-  utxo_outputs_free(unspent_outputs);
 
-  // add transaction payload to message
   core_message_t* msg = core_message_new(ver);
   TEST_ASSERT_NOT_NULL(msg);
+
+  // add transaction payload to message
   msg->payload = tx;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
-  TEST_ASSERT(core_message_sign_transaction(msg) == 0);
+
+  // calculate transaction essence hash
+  byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
+  TEST_ASSERT(core_message_signature_calc(msg, essence_hash) == 0);
+
+  tx->unlock_blocks = unlock_blocks_create(essence_hash, tx->essence->inputs, unspent_outputs);
+  utxo_outputs_free(unspent_outputs);
 
   // send out message
   res_send_message_t send_msg_res = {};

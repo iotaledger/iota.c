@@ -1,18 +1,16 @@
-// Copyright 2020 IOTA Stiftung
+// Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
-#include <unity/unity.h>
 
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/outputs/output_alias.h"
 #include "core/models/outputs/output_basic.h"
-#include "core/models/outputs/output_foundry.h"
-#include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/outputs.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/unlock_block.h"
+#include "unity/unity.h"
 
 static byte_t mnemonic_seed[64] = {0x83, 0x7D, 0x69, 0x91, 0x14, 0x64, 0x8E, 0xB,  0x36, 0x78, 0x58, 0xF0, 0xE9,
                                    0xA8, 0x4E, 0xF8, 0xBD, 0xFF, 0xD,  0xB7, 0x71, 0x4A, 0xD6, 0x3A, 0xA9, 0x52,
@@ -79,10 +77,24 @@ void test_tx_alias_unlock_funds() {
   iota_crypto_randombytes(alias_addr.address, ALIAS_ID_BYTES);
 
   // add input with tx_id0 (this is an alias output)
-  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id0, 1, &state_controller_key, &alias_addr) == 0);
+  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id0, 1, &state_controller_key) == 0);
 
   // add input with tx_id1 (this is a basic output)
-  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id1, 3, NULL, &alias_addr) == 0);
+  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id1, 3, NULL) == 0);
+
+  utxo_outputs_list_t* unspent_outputs = utxo_outputs_new();
+
+  output_alias_t* alias = create_output_alias(&alias_addr);
+  utxo_outputs_add(&unspent_outputs, OUTPUT_ALIAS, alias);
+
+  // create unlock conditions
+  cond_blk_list_t* unlock_conds = cond_blk_list_new();
+  unlock_cond_blk_t* addr_block = cond_blk_addr_new(&alias_addr);
+  TEST_ASSERT_NOT_NULL(addr_block);
+
+  TEST_ASSERT(cond_blk_list_add(&unlock_conds, addr_block) == 0);
+  output_basic_t* basic = output_basic_new(1000, NULL, unlock_conds, NULL);
+  utxo_outputs_add(&unspent_outputs, OUTPUT_BASIC, basic);
 
   // add alias output to the output list
   output_alias_t* alias_output = create_output_alias(&alias_addr);
@@ -107,7 +119,11 @@ void test_tx_alias_unlock_funds() {
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
 
   // sign transaction
-  TEST_ASSERT(core_message_sign_transaction(msg) == 0);
+  // TEST_ASSERT(core_message_sign_transaction(msg) == 0);
+  byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
+  TEST_ASSERT(core_message_signature_calc(msg, essence_hash) == 0);
+
+  tx->unlock_blocks = unlock_blocks_create(essence_hash, tx->essence->inputs, unspent_outputs);
 
   // validate unlock blocks
   TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(tx->unlock_blocks));

@@ -49,10 +49,10 @@ static int update_unlock_block_index(utxo_input_t* input, unlock_list_t* unlock_
   }
 
   // add new unlock block index into a list
-  new_index->unlock_block_index->index = unlock_blocks_find_pub(unlock_blocks, input->keypair->pub);
+  /*new_index->unlock_block_index->index = unlock_blocks_find_pub(unlock_blocks, input->keypair->pub);
   memcpy(&new_index->unlock_block_index->address, input->address, sizeof(new_index->unlock_block_index->address));
   new_index->next = NULL;
-  LL_APPEND(*unlock_block_index_list, new_index);
+  LL_APPEND(*unlock_block_index_list, new_index);*/
 
   return 0;
 }
@@ -86,12 +86,12 @@ static int create_unlock_block_ed25519(utxo_input_t* input, byte_t essence_hash[
     }
 
     // if input has NFT or Alias address save its address in unlock block index list
-    if (input->address) {
+    /*if (input->address) {
       if (update_unlock_block_index(input, *unlock_blocks, unlock_block_index_list) != 0) {
         printf("[%s:%d] can not update unlock block index list\n", __func__, __LINE__);
         return -1;
       }
-    }
+    }*/
   } else {
     // public key is found in the unlocked block, just add a reference
     if (unlock_blocks_add_reference(unlock_blocks, (uint16_t)pub_index) != 0) {
@@ -154,13 +154,14 @@ int signing_transaction_sign(utxo_inputs_list_t* inputs, byte_t essence_hash[], 
         unlock_block_index_list_free(unlock_block_index_list);
         return -1;
       }
-    } else if (elm->input->address) {
+    } /*else if (elm->input->address) {
       if (create_unlock_block_alias_or_nft(elm->input->address, unlock_block_index_list, unlock_blocks) != 0) {
         printf("[%s:%d] creating unlock block for Alias or NFT address failed.\n", __func__, __LINE__);
         unlock_block_index_list_free(unlock_block_index_list);
         return -1;
       }
-    } else {
+    }*/
+    else {
       printf("[%s:%d] input must have ed25519 keypair, Alias address or NFT address.\n", __func__, __LINE__);
       unlock_block_index_list_free(unlock_block_index_list);
       return -1;

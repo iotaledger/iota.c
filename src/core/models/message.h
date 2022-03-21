@@ -48,12 +48,13 @@ extern "C" {
 core_message_t* core_message_new(uint8_t ver);
 
 /**
- * @brief Sign a transaction message
+ * @brief Calculate a transaction essence hash
  *
  * @param[in] msg A message with transaction payload
+ * @param[out] essence_hash Calculated essence hash
  * @return int 0 on success
  */
-int core_message_sign_transaction(core_message_t* msg);
+int core_message_signature_calc(core_message_t* msg, byte_t essence_hash[]);
 
 /**
  * @brief Free a core message object

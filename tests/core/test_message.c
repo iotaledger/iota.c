@@ -179,7 +179,7 @@ void test_message_with_tx_serialize() {
   byte_t input_id0[IOTA_TRANSACTION_ID_BYTES];
   hex_2_bin("0000000000000000000000000000000000000000000000000000000000000000",
             BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES), input_id0, sizeof(input_id0));
-  TEST_ASSERT(tx_essence_add_input(essence, 0, input_id0, 0, NULL, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(essence, 0, input_id0, 0, NULL) == 0);
 
   // add basic output one
   output_basic_t* basic_output_one = create_output_basic_one();

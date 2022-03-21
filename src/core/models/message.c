@@ -25,9 +25,9 @@ core_message_t* core_message_new(uint8_t ver) {
   return msg;
 }
 
-int core_message_sign_transaction(core_message_t* msg) {
-  if (!msg) {
-    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+int core_message_signature_calc(core_message_t* msg, byte_t essence_hash[]) {
+  if (msg == NULL || essence_hash == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
@@ -52,25 +52,15 @@ int core_message_sign_transaction(core_message_t* msg) {
     return -1;
   }
 
-  // essence hash
-  byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
-  if (iota_blake2b_sum(b_essence, serialized_size, essence_hash, sizeof(essence_hash)) != 0) {
+  // calculate essence hash
+  if (iota_blake2b_sum(b_essence, serialized_size, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES) != 0) {
     printf("[%s:%d] get essence hash failed\n", __func__, __LINE__);
     free(b_essence);
     return -1;
   }
 
-  // sign transaction
-  if (signing_transaction_sign(tx->essence->inputs, essence_hash, &tx->unlock_blocks) != 0) {
-    printf("[%s:%d] signing transaction failed\n", __func__, __LINE__);
-    free(b_essence);
-    return -1;
-  }
-
   // Clean up
-  if (b_essence) {
-    free(b_essence);
-  }
+  free(b_essence);
 
   return 0;
 }
