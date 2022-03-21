@@ -323,7 +323,7 @@ void test_send_msg_tx_basic() {
 
   // calculate transaction essence hash
   byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
-  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash) == 0);
+  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
 
   // sign transaction (generate unlock blocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, tx->essence->inputs, sign_data_list, &tx->unlock_blocks) == 0);
