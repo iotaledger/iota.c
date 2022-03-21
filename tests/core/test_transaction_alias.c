@@ -136,6 +136,7 @@ void test_tx_alias_unlock_funds() {
   core_message_print(msg, 0);
 
   // clean up
+  signing_transaction_free(sign_data_list);
   output_alias_free(alias_output);
   core_message_free(msg);
 }

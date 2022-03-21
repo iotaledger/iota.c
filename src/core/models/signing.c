@@ -84,6 +84,12 @@ void signing_transaction_free(signing_data_list_t* signing_data_list) {
   if (signing_data_list) {
     signing_data_list_t *elm, *tmp;
     LL_FOREACH_SAFE(signing_data_list, elm, tmp) {
+      if (elm->sign_data->utxo_output_address) {
+        free_address(elm->sign_data->utxo_output_address);
+      }
+      if (elm->sign_data->keypair) {
+        free(elm->sign_data->keypair);
+      }
       free(elm->sign_data);
       LL_DELETE(signing_data_list, elm);
       free(elm);

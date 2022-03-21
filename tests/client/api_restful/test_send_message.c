@@ -260,8 +260,9 @@ void test_send_msg_tx_basic() {
         // add the output in unspent outputs list to be able to calculate inputs commitment hash
         TEST_ASSERT(utxo_outputs_add(&unspent_outputs, output_res->u.data->output->output_type, o) == 0);
 
-        // add signing data
+        // add transaction signing data (Basic output has address unlock condition)
         unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_ADDRESS);
+        TEST_ASSERT_NOT_NULL(unlock_cond);
         TEST_ASSERT(signing_transaction_data_add(unlock_cond->block, NULL, &sender_key, &sign_data_list) == 0);
 
         // check balance
@@ -324,6 +325,7 @@ void test_send_msg_tx_basic() {
   byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
   TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash) == 0);
 
+  // sign transaction (generate unlock blocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, tx->essence->inputs, sign_data_list, &tx->unlock_blocks) == 0);
   utxo_outputs_free(unspent_outputs);
 
@@ -338,6 +340,7 @@ void test_send_msg_tx_basic() {
     printf("message ID: %s\n", send_msg_res.u.msg_id);
   }
 
+  signing_transaction_free(sign_data_list);
   core_message_free(msg);
 }
 

@@ -5,8 +5,6 @@
 #define __CORE_MODELS_UNLOCK_BLOCK_H__
 
 #include <stdint.h>
-#include "core/models/inputs/utxo_input.h"
-#include "core/models/outputs/outputs.h"
 #include "core/types.h"
 #include "crypto/iota_crypto.h"
 
