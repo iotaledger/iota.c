@@ -9,11 +9,6 @@
 
 static int create_unlock_block_ed25519(byte_t essence_hash[], signing_data_t* sign_data,
                                        unlock_list_t** unlock_blocks) {
-  if (essence_hash == NULL || sign_data == NULL) {
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
   int32_t pub_index = unlock_blocks_find_pub(*unlock_blocks, sign_data->keypair->pub);
   if (pub_index == -1) {
     // public key is not found in the unlocked block
@@ -46,17 +41,11 @@ static int create_unlock_block_ed25519(byte_t essence_hash[], signing_data_t* si
 
 static int create_unlock_block_alias_or_nft(signing_data_t* sign_data, signing_data_list_t* signing_data_list,
                                             unlock_list_t** unlock_blocks) {
-  if (sign_data == NULL || signing_data_list == NULL) {
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
   signing_data_list_t* elm;
   uint8_t index = 0;
   if (signing_data_list) {
     LL_FOREACH(signing_data_list, elm) {
-      if (elm->sign_data->utxo_output_address != NULL &&
-          memcmp(elm->sign_data->utxo_output_address, &sign_data->unlock_address, sizeof(address_t)) == 0) {
+      if (memcmp(elm->sign_data->hash, sign_data->unlock_address.address, CRYPTO_BLAKE2B_160_HASH_BYTES) == 0) {
         if (sign_data->unlock_address.type == ADDRESS_TYPE_ALIAS) {
           if (unlock_blocks_add_alias(unlock_blocks, index) != 0) {
             printf("[%s:%d] adding Alias unlock block failed\n", __func__, __LINE__);
@@ -88,9 +77,6 @@ void signing_free(signing_data_list_t* signing_data_list) {
   if (signing_data_list) {
     signing_data_list_t *elm, *tmp;
     LL_FOREACH_SAFE(signing_data_list, elm, tmp) {
-      if (elm->sign_data->utxo_output_address) {
-        free_address(elm->sign_data->utxo_output_address);
-      }
       if (elm->sign_data->keypair) {
         free(elm->sign_data->keypair);
       }
@@ -101,10 +87,15 @@ void signing_free(signing_data_list_t* signing_data_list) {
   }
 }
 
-int signing_data_add(address_t* unlock_address, address_t* utxo_output_address, ed25519_keypair_t* keypair,
+int signing_data_add(address_t* unlock_address, byte_t hash[], uint8_t hash_len, ed25519_keypair_t* keypair,
                      signing_data_list_t** sign_data_list) {
   if (unlock_address == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (hash != NULL && hash_len < CRYPTO_BLAKE2B_160_HASH_BYTES) {
+    printf("[%s:%d] hash array length is too small\n", __func__, __LINE__);
     return -1;
   }
 
@@ -123,9 +114,8 @@ int signing_data_add(address_t* unlock_address, address_t* utxo_output_address, 
   memset(sign_data, 0, sizeof(signing_data_t));
 
   memcpy(&sign_data->unlock_address, unlock_address, sizeof(address_t));
-  if (utxo_output_address) {
-    sign_data->utxo_output_address = malloc(sizeof(address_t));
-    memcpy(sign_data->utxo_output_address, utxo_output_address, sizeof(address_t));
+  if (hash) {
+    memcpy(sign_data->hash, hash, CRYPTO_BLAKE2B_160_HASH_BYTES);
   }
   if (keypair) {
     sign_data->keypair = malloc(sizeof(ed25519_keypair_t));
@@ -173,8 +163,8 @@ signing_data_t* signing_get_data_by_index(signing_data_list_t* signing_data_list
   return NULL;
 }
 
-int signing_transaction_sign(byte_t essence_hash[], utxo_inputs_list_t* inputs, signing_data_list_t* sign_data_list,
-                             unlock_list_t** unlock_blocks) {
+int signing_transaction_sign(byte_t essence_hash[], uint8_t essence_hash_len, utxo_inputs_list_t* inputs,
+                             signing_data_list_t* sign_data_list, unlock_list_t** unlock_blocks) {
   if (essence_hash == NULL || inputs == NULL || sign_data_list == NULL || *unlock_blocks != NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -182,6 +172,11 @@ int signing_transaction_sign(byte_t essence_hash[], utxo_inputs_list_t* inputs, 
 
   if (utxo_inputs_count(inputs) != signing_data_count(sign_data_list)) {
     printf("[%s:%d] number of inputs and signing data in a lists are not the same\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (essence_hash_len < CRYPTO_BLAKE2B_HASH_BYTES) {
+    printf("[%s:%d] essence hash array length is too small\n", __func__, __LINE__);
     return -1;
   }
 

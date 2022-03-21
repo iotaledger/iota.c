@@ -91,10 +91,11 @@ void test_tx_alias_unlock_funds() {
   signing_data_list_t* sign_data_list = signing_new();
 
   // signature data for 1st input
-  signing_data_add(&state_controller_addr, &alias_addr, &state_controller_key, &sign_data_list);
+  TEST_ASSERT(signing_data_add(&state_controller_addr, alias_addr.address, ALIAS_ID_BYTES, &state_controller_key,
+                               &sign_data_list) == 0);
 
   // signature data for 2nd input
-  signing_data_add(&alias_addr, NULL, NULL, &sign_data_list);
+  TEST_ASSERT(signing_data_add(&alias_addr, NULL, 0, NULL, &sign_data_list) == 0);
 
   // add alias output to the output list
   output_alias_t* alias_output = create_output_alias(&alias_addr);
@@ -123,7 +124,8 @@ void test_tx_alias_unlock_funds() {
   TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
 
   // sign transaction (generate unlock blocks)
-  TEST_ASSERT(signing_transaction_sign(essence_hash, tx->essence->inputs, sign_data_list, &tx->unlock_blocks) == 0);
+  TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data_list,
+                                       &tx->unlock_blocks) == 0);
 
   // validate unlock blocks
   TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(tx->unlock_blocks));

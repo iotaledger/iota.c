@@ -263,7 +263,7 @@ void test_send_msg_tx_basic() {
         // add signing data (Basic output has address unlock condition)
         unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_ADDRESS);
         TEST_ASSERT_NOT_NULL(unlock_cond);
-        TEST_ASSERT(signing_data_add(unlock_cond->block, NULL, &sender_key, &sign_data_list) == 0);
+        TEST_ASSERT(signing_data_add(unlock_cond->block, NULL, 0, &sender_key, &sign_data_list) == 0);
 
         // check balance
         if (total_balance >= send_amount) {
@@ -326,7 +326,8 @@ void test_send_msg_tx_basic() {
   TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
 
   // sign transaction (generate unlock blocks)
-  TEST_ASSERT(signing_transaction_sign(essence_hash, tx->essence->inputs, sign_data_list, &tx->unlock_blocks) == 0);
+  TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data_list,
+                                       &tx->unlock_blocks) == 0);
   utxo_outputs_free(unspent_outputs);
 
   // send out message

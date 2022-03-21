@@ -9,12 +9,20 @@
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/unlock_block.h"
 
+/**
+ * @brief A signing data structure. This data is needed when unlock blocks are creating and transaction gets signed.
+ *
+ */
 typedef struct {
   address_t unlock_address;  ///< Address in Unlock Condition (Address, Governor, State Controller) - ED25519/NFT/Alias
-  address_t* utxo_output_address;  ///< Optional, Address that will be created from the NFT/Alias ID in the utxo_output
-  ed25519_keypair_t* keypair;      ///< Optional, ed25519 keypair (this is for ed25519 address)
+  byte_t hash[CRYPTO_BLAKE2B_160_HASH_BYTES];  ///< Optional, a NFT/Alias ID in the utxo_output
+  ed25519_keypair_t* keypair;                  ///< Optional, ed25519 keypair (this is for ed25519 address)
 } signing_data_t;
 
+/**
+ * @brief A list of signing data
+ *
+ */
 typedef struct signing_data_list {
   signing_data_t* sign_data;       //< Points to a current signing data
   struct signing_data_list* next;  //< Points to a next signing data list
@@ -42,12 +50,13 @@ void signing_free(signing_data_list_t* signing_data_list);
  * @brief Find a signing data by a given index
  *
  * @param[in] unlock_address Address Unlock Condition Address - ED25519/NFT/Alias
- * @param[in] utxo_output_address Optional, Address that will be created from the NFT/Alias ID in the utxo_output
+ * @param[in] hash Optional, a NFT/Alias ID in the utxo_output
+ * @param[in] hash_len A length of hash array, 0 if hash is NULL
  * @param[in] keypair TOptional, ed25519 keypair of this input (this is for ed25519 address)
  * @param[out] sign_data_list Signing data list which will be populated by a new element
  * @return int 0 on success
  */
-int signing_data_add(address_t* unlock_address, address_t* utxo_output_address, ed25519_keypair_t* keypair,
+int signing_data_add(address_t* unlock_address, byte_t hash[], uint8_t hash_len, ed25519_keypair_t* keypair,
                      signing_data_list_t** sign_data_list);
 
 /**
@@ -68,16 +77,17 @@ uint8_t signing_data_count(signing_data_list_t* signing_data_list);
 signing_data_t* signing_get_data_by_index(signing_data_list_t* signing_data_list, uint8_t index);
 
 /**
- * @brief Sign transaction message
+ * @brief Create unlock blocks and sign transaction
  *
  * @param[in] essence_hash An essence hash
+ * @param[in] essence_hash_len Length of an essence hash array
  * @param[in] inputs An UTXO input list
  * @param[in] sign_data_list Signing data list
  * @param[out] unlock_blocks A list of unlock blocks which will be created
  * @return int 0 on success
  */
-int signing_transaction_sign(byte_t essence_hash[], utxo_inputs_list_t* inputs, signing_data_list_t* sign_data_list,
-                             unlock_list_t** unlock_blocks);
+int signing_transaction_sign(byte_t essence_hash[], uint8_t essence_hash_len, utxo_inputs_list_t* inputs,
+                             signing_data_list_t* sign_data_list, unlock_list_t** unlock_blocks);
 
 #ifdef __cplusplus
 }
