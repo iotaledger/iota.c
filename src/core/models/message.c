@@ -9,7 +9,6 @@
 #include "core/models/message.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
-#include "core/models/signing.h"
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
 
@@ -25,7 +24,7 @@ core_message_t* core_message_new(uint8_t ver) {
   return msg;
 }
 
-int core_message_signature_calc(core_message_t* msg, byte_t essence_hash[]) {
+int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[]) {
   if (msg == NULL || essence_hash == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -37,6 +36,7 @@ int core_message_signature_calc(core_message_t* msg, byte_t essence_hash[]) {
   }
 
   transaction_payload_t* tx = (transaction_payload_t*)msg->payload;
+
   // serialize transaction essence
   size_t essence_len = tx_essence_serialize_length(tx->essence);
   byte_t* b_essence = malloc(essence_len);

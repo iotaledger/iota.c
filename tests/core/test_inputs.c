@@ -37,35 +37,35 @@ void test_utxo_input() {
   TEST_ASSERT_EQUAL_UINT16(0, utxo_inputs_count(inputs));
 
   // test for -1 if transaction id is null
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, NULL, 2, NULL) == -1);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, NULL, 2) == -1);
 
   // test for -1 if index more than max_output_count
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, UINT8_MAX, NULL) == -1);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, UINT8_MAX) == -1);
 
   // test for unknown input type
-  TEST_ASSERT(utxo_inputs_add(&inputs, 1, tx_id0, 2, NULL) == -1);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 1, tx_id0, 2) == -1);
 
   // add tx_id0 and index 1
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, 1, NULL) == 0);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, 1) == 0);
 
   // Check if count of inputs is 1
   TEST_ASSERT_EQUAL_UINT16(1, utxo_inputs_count(inputs));
 
   // add two more tx IDs
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id1, 2, NULL) == 0);
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id2, 3, NULL) == 0);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id1, 2) == 0);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id2, 3) == 0);
 
   // Check if count of inputs is 3
   TEST_ASSERT_EQUAL_UINT16(3, utxo_inputs_count(inputs));
 
   // trying to add txn id that is already present in list but with non existing index
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id1, 4, NULL) == 0);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id1, 4) == 0);
 
   // trying to add a new txn_id with output index that is present in list
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id3, 2, NULL) == 0);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id3, 2) == 0);
 
   // trying to add txn_id and output index that is present in the list in the same input
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id2, 3, NULL) == -1);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id2, 3) == -1);
 
   // print utxo inputs list with 5 inputs
   utxo_inputs_print(inputs, 0);
@@ -124,14 +124,14 @@ void test_utxo_input_syntactic() {
   utxo_inputs_list_t* inputs = utxo_inputs_new();
 
   // Input Type must denote a UTXO Input
-  TEST_ASSERT(utxo_inputs_add(&inputs, 1, tx_id0, 2, NULL) == -1);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 1, tx_id0, 2) == -1);
 
   // Transaction Output Index must be 0 ≤ x < Max Outputs Count
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, UINT8_MAX, NULL) == -1);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, UINT8_MAX) == -1);
 
   // Each pair of Transaction ID and Transaction Output Index must be unique in the list of inputs
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, 0, NULL) == 0);
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, 0, NULL) == -1);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, 0) == 0);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tx_id0, 0) == -1);
 
   // Inputs Count must be 0 < x ≤ Max Inputs Count
   TEST_ASSERT_TRUE(utxo_inputs_syntactic(inputs));

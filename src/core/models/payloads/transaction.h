@@ -79,11 +79,9 @@ void tx_essence_free(transaction_essence_t* es);
  * @param[in] type An input type
  * @param[in] tx_id A transaction ID
  * @param[in] index The index of the output of the referenced transaction
- * @param[in] key An ed25519 keypair
  * @return int 0 on success
  */
-int tx_essence_add_input(transaction_essence_t* es, uint8_t type, byte_t tx_id[], uint8_t index,
-                         ed25519_keypair_t* key);
+int tx_essence_add_input(transaction_essence_t* es, uint8_t type, byte_t tx_id[], uint8_t index);
 
 /**
  * @brief Add an output element to the essence

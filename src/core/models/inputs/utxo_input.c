@@ -14,9 +14,6 @@ void utxo_inputs_free(utxo_inputs_list_t *inputs) {
   if (inputs) {
     utxo_inputs_list_t *elm, *tmp;
     LL_FOREACH_SAFE(inputs, elm, tmp) {
-      if (elm->input->keypair) {
-        free(elm->input->keypair);
-      }
       free(elm->input);
       LL_DELETE(inputs, elm);
       free(elm);
@@ -24,7 +21,7 @@ void utxo_inputs_free(utxo_inputs_list_t *inputs) {
   }
 }
 
-int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index, ed25519_keypair_t *key) {
+int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint16_t index) {
   if (id == NULL) {
     printf("[%s:%d] invalid transaction id\n", __func__, __LINE__);
     return -1;
@@ -60,14 +57,6 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
       next->input->input_type = type;
       memcpy(next->input->tx_id, id, IOTA_TRANSACTION_ID_BYTES);
       next->input->output_index = index;
-      if (key) {
-        next->input->keypair = malloc(sizeof(ed25519_keypair_t));
-        if (next->input->keypair) {
-          memcpy(next->input->keypair, key, sizeof(ed25519_keypair_t));
-        }
-      } else {
-        next->input->keypair = NULL;
-      }
       LL_APPEND(*inputs, next);
       return 0;
     }
@@ -75,9 +64,6 @@ int utxo_inputs_add(utxo_inputs_list_t **inputs, uint8_t type, byte_t id[], uint
 
   if (next) {
     if (next->input) {
-      if (next->input->keypair) {
-        free(next->input->keypair);
-      }
       free(next->input);
     }
     free(next);
@@ -232,8 +218,6 @@ utxo_inputs_list_t *utxo_inputs_deserialize(byte_t buf[], size_t buf_len) {
       utxo_inputs_free(inputs);
       return NULL;
     }
-    // keypair is not part of serialization
-    new_input->input->keypair = NULL;
     LL_APPEND(inputs, new_input);
 
     // get input type

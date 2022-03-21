@@ -9,6 +9,7 @@
 #include "core/models/outputs/outputs.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
+#include "core/models/signing.h"
 #include "core/models/unlock_block.h"
 #include "unity/unity.h"
 
@@ -69,6 +70,10 @@ void test_tx_alias_unlock_funds() {
   TEST_ASSERT(address_keypair_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/0'",
                                         &state_controller_key) == 0);
 
+  address_t state_controller_addr = {};
+  TEST_ASSERT(ed25519_address_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/0'",
+                                        &state_controller_addr) == 0);
+
   uint16_t network_id = 2;
   transaction_payload_t* tx = tx_payload_new(network_id);
 
@@ -77,24 +82,15 @@ void test_tx_alias_unlock_funds() {
   iota_crypto_randombytes(alias_addr.address, ALIAS_ID_BYTES);
 
   // add input with tx_id0 (this is an alias output)
-  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id0, 1, &state_controller_key) == 0);
+  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id0, 1) == 0);
 
   // add input with tx_id1 (this is a basic output)
-  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id1, 3, NULL) == 0);
+  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id1, 3) == 0);
 
-  utxo_outputs_list_t* unspent_outputs = utxo_outputs_new();
-
-  output_alias_t* alias = create_output_alias(&alias_addr);
-  utxo_outputs_add(&unspent_outputs, OUTPUT_ALIAS, alias);
-
-  // create unlock conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* addr_block = cond_blk_addr_new(&alias_addr);
-  TEST_ASSERT_NOT_NULL(addr_block);
-
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, addr_block) == 0);
-  output_basic_t* basic = output_basic_new(1000, NULL, unlock_conds, NULL);
-  utxo_outputs_add(&unspent_outputs, OUTPUT_BASIC, basic);
+  // create transaction signature data
+  signing_data_list_t* sign_data_list = signing_transaction_new();
+  signing_transaction_data_add(&state_controller_addr, &alias_addr, &state_controller_key, &sign_data_list);
+  signing_transaction_data_add(&alias_addr, NULL, NULL, &sign_data_list);
 
   // add alias output to the output list
   output_alias_t* alias_output = create_output_alias(&alias_addr);
@@ -121,9 +117,11 @@ void test_tx_alias_unlock_funds() {
   // sign transaction
   // TEST_ASSERT(core_message_sign_transaction(msg) == 0);
   byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
-  TEST_ASSERT(core_message_signature_calc(msg, essence_hash) == 0);
+  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash) == 0);
 
-  tx->unlock_blocks = unlock_blocks_create(essence_hash, tx->essence->inputs, unspent_outputs);
+  TEST_ASSERT(signing_transaction_sign(essence_hash, tx->essence->inputs, sign_data_list, &tx->unlock_blocks) == 0);
+  // TEST_ASSERT(signing_transaction_sign(essence_hash, tx->essence->inputs, sign_data, &tx->unlock_blocks) == 0);
+  //  tx->unlock_blocks = unlock_blocks_create(essence_hash, tx->essence->inputs, unspent_outputs);
 
   // validate unlock blocks
   TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(tx->unlock_blocks));

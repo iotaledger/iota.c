@@ -62,9 +62,6 @@ extern "C" {
  */
 unlock_list_t* unlock_blocks_new();
 
-unlock_list_t* unlock_blocks_create(byte_t essence_hash[], utxo_inputs_list_t* inputs,
-                                    utxo_outputs_list_t* unspent_outputs);
-
 /**
  * @brief Add unlock block to the list
  *

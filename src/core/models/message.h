@@ -54,7 +54,7 @@ core_message_t* core_message_new(uint8_t ver);
  * @param[out] essence_hash Calculated essence hash
  * @return int 0 on success
  */
-int core_message_signature_calc(core_message_t* msg, byte_t essence_hash[]);
+int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[]);
 
 /**
  * @brief Free a core message object

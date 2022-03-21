@@ -7,73 +7,22 @@
 #include "core/models/signing.h"
 #include "utlist.h"
 
-typedef struct {
-  uint8_t index;      ///< Index in which position is pubKeyHash for NFT or Alias input in unlock block
-  address_t address;  ///< NFT or Alias address
-} unlock_block_index_t;
-
-typedef struct unlock_block_list {
-  unlock_block_index_t* unlock_block_index;  //< Points to a current unlock block index
-  struct unlock_block_list* next;            //< Points to a next unlock block index
-} unlock_block_index_list_t;
-
-static void unlock_block_index_list_free(unlock_block_index_list_t* index_list) {
-  if (index_list) {
-    unlock_block_index_list_t *elm, *tmp;
-    LL_FOREACH_SAFE(index_list, elm, tmp) {
-      free(elm->unlock_block_index);
-      LL_DELETE(index_list, elm);
-      free(elm);
-    }
-  }
-}
-
-static int update_unlock_block_index(utxo_input_t* input, unlock_list_t* unlock_blocks,
-                                     unlock_block_index_list_t** unlock_block_index_list) {
-  if (input == NULL || unlock_blocks == NULL) {
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
-  unlock_block_index_list_t* new_index = malloc(sizeof(unlock_block_index_list_t));
-  if (!new_index) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return -1;
-  }
-
-  new_index->unlock_block_index = malloc(sizeof(unlock_block_index_t));
-  if (!new_index->unlock_block_index) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    free(new_index);
-    return -1;
-  }
-
-  // add new unlock block index into a list
-  /*new_index->unlock_block_index->index = unlock_blocks_find_pub(unlock_blocks, input->keypair->pub);
-  memcpy(&new_index->unlock_block_index->address, input->address, sizeof(new_index->unlock_block_index->address));
-  new_index->next = NULL;
-  LL_APPEND(*unlock_block_index_list, new_index);*/
-
-  return 0;
-}
-
-static int create_unlock_block_ed25519(utxo_input_t* input, byte_t essence_hash[],
-                                       unlock_block_index_list_t** unlock_block_index_list,
+static int create_unlock_block_ed25519(byte_t essence_hash[], signing_data_t* sign_data,
                                        unlock_list_t** unlock_blocks) {
-  if (input == NULL || essence_hash == NULL) {
+  if (essence_hash == NULL || sign_data == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  int32_t pub_index = unlock_blocks_find_pub(*unlock_blocks, input->keypair->pub);
+  int32_t pub_index = unlock_blocks_find_pub(*unlock_blocks, sign_data->keypair->pub);
   if (pub_index == -1) {
     // public key is not found in the unlocked block
     byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
     sig_block[0] = ADDRESS_TYPE_ED25519;
-    memcpy(sig_block + 1, input->keypair->pub, ED_PUBLIC_KEY_BYTES);
+    memcpy(sig_block + 1, sign_data->keypair->pub, ED_PUBLIC_KEY_BYTES);
 
     // sign transaction
-    if (iota_crypto_sign(input->keypair->priv, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES,
+    if (iota_crypto_sign(sign_data->keypair->priv, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES,
                          sig_block + (1 + ED_PUBLIC_KEY_BYTES)) != 0) {
       printf("[%s:%d] signing signature failed\n", __func__, __LINE__);
       return -1;
@@ -84,14 +33,6 @@ static int create_unlock_block_ed25519(utxo_input_t* input, byte_t essence_hash[
       printf("[%s:%d] add signature block failed\n", __func__, __LINE__);
       return -1;
     }
-
-    // if input has NFT or Alias address save its address in unlock block index list
-    /*if (input->address) {
-      if (update_unlock_block_index(input, *unlock_blocks, unlock_block_index_list) != 0) {
-        printf("[%s:%d] can not update unlock block index list\n", __func__, __LINE__);
-        return -1;
-      }
-    }*/
   } else {
     // public key is found in the unlocked block, just add a reference
     if (unlock_blocks_add_reference(unlock_blocks, (uint16_t)pub_index) != 0) {
@@ -103,73 +44,156 @@ static int create_unlock_block_ed25519(utxo_input_t* input, byte_t essence_hash[
   return 0;
 }
 
-static int create_unlock_block_alias_or_nft(address_t* address, unlock_block_index_list_t* unlock_block_index_list,
+static int create_unlock_block_alias_or_nft(signing_data_t* sign_data, signing_data_list_t* signing_data_list,
                                             unlock_list_t** unlock_blocks) {
-  if (address == NULL || unlock_block_index_list == NULL) {
+  if (sign_data == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  unlock_block_index_list_t* elm;
-  LL_FOREACH(unlock_block_index_list, elm) {
-    unlock_block_index_t* unlock_block_index = elm->unlock_block_index;
-    if (memcmp(&unlock_block_index->address, address, sizeof(unlock_block_index->address)) == 0) {
-      switch (elm->unlock_block_index->address.type) {
-        case ADDRESS_TYPE_ALIAS:
-          if (unlock_blocks_add_alias(unlock_blocks, unlock_block_index->index) != 0) {
+  signing_data_list_t* elm;
+  uint8_t index = 0;
+  if (signing_data_list) {
+    LL_FOREACH(signing_data_list, elm) {
+      if (memcmp(elm->sign_data->utxo_output_address, &sign_data->unlock_address, sizeof(address_t)) == 0) {
+        if (sign_data->unlock_address.type == ADDRESS_TYPE_ALIAS) {
+          if (unlock_blocks_add_alias(unlock_blocks, index) != 0) {
             printf("[%s:%d] adding Alias unlock block failed\n", __func__, __LINE__);
             return -1;
           }
           return 0;
-        case ADDRESS_TYPE_NFT:
-          if (unlock_blocks_add_nft(unlock_blocks, unlock_block_index->index) != 0) {
+        } else if (sign_data->unlock_address.type == ADDRESS_TYPE_NFT) {
+          if (unlock_blocks_add_nft(unlock_blocks, index) != 0) {
             printf("[%s:%d] adding NFT unlock block failed\n", __func__, __LINE__);
             return -1;
           }
           return 0;
-        default:
-          printf("[%s:%d] address must be Alias or NFT.\n", __func__, __LINE__);
-          return -1;
+        }
       }
+      index += 1;
     }
   }
 
-  printf("[%s:%d] Alias or NFT address was not found in unlock block index list.\n", __func__, __LINE__);
+  printf("[%s:%d] Alias or NFT address was not found in transaction signing data list.\n", __func__, __LINE__);
   return -1;
 }
 
-int signing_transaction_sign(utxo_inputs_list_t* inputs, byte_t essence_hash[], unlock_list_t** unlock_blocks) {
-  if (inputs == NULL || essence_hash == NULL || *unlock_blocks != NULL) {
+signing_data_list_t* signing_transaction_new() { return NULL; }
+
+void signing_transaction_free(signing_data_list_t* signing_data_list) {
+  if (signing_data_list) {
+    signing_data_list_t *elm, *tmp;
+    LL_FOREACH_SAFE(signing_data_list, elm, tmp) {
+      free(elm->sign_data);
+      LL_DELETE(signing_data_list, elm);
+      free(elm);
+    }
+  }
+}
+
+int signing_transaction_data_add(address_t* unlock_address, address_t* utxo_output_address, ed25519_keypair_t* keypair,
+                                 signing_data_list_t** sign_data_list) {
+  if (unlock_address == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  unlock_block_index_list_t* unlock_block_index_list = NULL;
-
-  utxo_inputs_list_t* elm;
-  LL_FOREACH(inputs, elm) {
-    if (elm->input->keypair) {
-      if (create_unlock_block_ed25519(elm->input, essence_hash, &unlock_block_index_list, unlock_blocks) != 0) {
-        printf("[%s:%d] creating unlock block for ed25519 address failed.\n", __func__, __LINE__);
-        unlock_block_index_list_free(unlock_block_index_list);
-        return -1;
-      }
-    } /*else if (elm->input->address) {
-      if (create_unlock_block_alias_or_nft(elm->input->address, unlock_block_index_list, unlock_blocks) != 0) {
-        printf("[%s:%d] creating unlock block for Alias or NFT address failed.\n", __func__, __LINE__);
-        unlock_block_index_list_free(unlock_block_index_list);
-        return -1;
-      }
-    }*/
-    else {
-      printf("[%s:%d] input must have ed25519 keypair, Alias address or NFT address.\n", __func__, __LINE__);
-      unlock_block_index_list_free(unlock_block_index_list);
-      return -1;
-    }
+  signing_data_list_t* sign_data_next = malloc(sizeof(signing_data_t));
+  if (!sign_data_next) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
   }
 
-  // Clean up
-  unlock_block_index_list_free(unlock_block_index_list);
+  signing_data_t* sign_data = malloc(sizeof(signing_data_t));
+  if (!sign_data) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    free(sign_data_next);
+    return -1;
+  }
+  memset(sign_data, 0, sizeof(signing_data_t));
+
+  memcpy(&sign_data->unlock_address, unlock_address, sizeof(address_t));
+  if (utxo_output_address) {
+    sign_data->utxo_output_address = malloc(sizeof(address_t));
+    memcpy(sign_data->utxo_output_address, utxo_output_address, sizeof(address_t));
+  }
+  if (keypair) {
+    sign_data->keypair = malloc(sizeof(ed25519_keypair_t));
+    memcpy(sign_data->keypair, keypair, sizeof(ed25519_keypair_t));
+  }
+
+  sign_data_next->sign_data = sign_data;
+  sign_data_next->next = NULL;
+
+  LL_APPEND(*sign_data_list, sign_data_next);
+
+  return 0;
+}
+
+uint8_t signing_transaction_data_count(signing_data_list_t* signing_data_list) {
+  signing_data_list_t* elm = NULL;
+  uint16_t len = 0;
+  if (signing_data_list) {
+    LL_COUNT(signing_data_list, elm, len);
+  }
+  return len;
+}
+
+signing_data_t* signing_transaction_data_get_by_index(signing_data_list_t* signing_data_list, uint8_t index) {
+  if (signing_data_list == NULL) {
+    printf("[%s:%d] empty signing transaction data list\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (index >= UTXO_INPUT_MAX_COUNT) {
+    printf("[%s:%d] invalid index\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  signing_data_list_t* elm;
+  uint8_t curr_index = 0;
+  if (signing_data_list) {
+    LL_FOREACH(signing_data_list, elm) {
+      if (curr_index == index) {
+        return elm->sign_data;
+      }
+      curr_index++;
+    }
+  }
+  return NULL;
+}
+
+int signing_transaction_sign(byte_t essence_hash[], utxo_inputs_list_t* inputs, signing_data_list_t* sign_data_list,
+                             unlock_list_t** unlock_blocks) {
+  if (essence_hash == NULL || inputs == NULL || sign_data_list == NULL || *unlock_blocks != NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (utxo_inputs_count(inputs) != signing_transaction_data_count(sign_data_list)) {
+    printf("[%s:%d] number of inputs and signing data in a lists are not the same\n", __func__, __LINE__);
+    return -1;
+  }
+
+  uint8_t index = 0;
+  utxo_inputs_list_t* elm;
+  LL_FOREACH(inputs, elm) {
+    signing_data_t* sign_data = signing_transaction_data_get_by_index(sign_data_list, index);
+
+    if (sign_data->keypair) {
+      if (create_unlock_block_ed25519(essence_hash, sign_data, unlock_blocks) != 0) {
+        printf("[%s:%d] creating unlock block for ed25519 address failed.\n", __func__, __LINE__);
+        return -1;
+      }
+    } else {
+      if (create_unlock_block_alias_or_nft(sign_data, sign_data_list, unlock_blocks) != 0) {
+        printf("[%s:%d] creating unlock block for Alias or NFT address failed.\n", __func__, __LINE__);
+        return -1;
+      }
+    }
+
+    index += 1;
+  }
 
   return 0;
 }
