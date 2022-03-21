@@ -46,7 +46,7 @@ static int create_unlock_block_ed25519(byte_t essence_hash[], signing_data_t* si
 
 static int create_unlock_block_alias_or_nft(signing_data_t* sign_data, signing_data_list_t* signing_data_list,
                                             unlock_list_t** unlock_blocks) {
-  if (sign_data == NULL) {
+  if (sign_data == NULL || signing_data_list == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -55,7 +55,8 @@ static int create_unlock_block_alias_or_nft(signing_data_t* sign_data, signing_d
   uint8_t index = 0;
   if (signing_data_list) {
     LL_FOREACH(signing_data_list, elm) {
-      if (memcmp(elm->sign_data->utxo_output_address, &sign_data->unlock_address, sizeof(address_t)) == 0) {
+      if (elm->sign_data->utxo_output_address != NULL &&
+          memcmp(elm->sign_data->utxo_output_address, &sign_data->unlock_address, sizeof(address_t)) == 0) {
         if (sign_data->unlock_address.type == ADDRESS_TYPE_ALIAS) {
           if (unlock_blocks_add_alias(unlock_blocks, index) != 0) {
             printf("[%s:%d] adding Alias unlock block failed\n", __func__, __LINE__);
@@ -68,6 +69,9 @@ static int create_unlock_block_alias_or_nft(signing_data_t* sign_data, signing_d
             return -1;
           }
           return 0;
+        } else {
+          printf("[%s:%d] address in unlock condition block must be Alias or NFT\n", __func__, __LINE__);
+          return -1;
         }
       }
       index += 1;
