@@ -88,7 +88,7 @@ static byte_t* create_signature_unlock_block() {
 }
 
 void test_message_with_tx() {
-  byte_t expected_essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {
+  byte_t expected_essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {
       0x2,  0x27, 0x34, 0x34, 0x93, 0xb3, 0x9f, 0xdb, 0x33, 0xbb, 0xf9, 0x2c, 0x5a, 0x4a, 0xcd, 0x3c,
       0xbc, 0x44, 0xae, 0xe2, 0xa2, 0xcd, 0x7e, 0x81, 0xfc, 0x62, 0x3b, 0x2b, 0x4b, 0x7d, 0x13, 0x33};
   byte_t tx_id0[IOTA_TRANSACTION_ID_BYTES] = {126, 127, 95,  249, 151, 44,  243, 150, 40,  39, 46,
@@ -120,11 +120,11 @@ void test_message_with_tx() {
   core_message_print(msg, 0);
 
   // calculate transaction essence hash
-  byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
+  byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
 
   // check if essence is matching
-  TEST_ASSERT_EQUAL_MEMORY(expected_essence_hash, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(expected_essence_hash, essence_hash, CRYPTO_BLAKE2B_256_HASH_BYTES);
 
   // free message and sub entities
   output_basic_free(basic_output_one);
