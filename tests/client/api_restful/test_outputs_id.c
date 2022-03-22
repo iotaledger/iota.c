@@ -65,8 +65,8 @@ void test_deser_outputs() {
 
   // with output ids and without cursor
   char const* const data_1 =
-      "{\"pageSize\":2,\"items\":[\"1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
-      "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}";
+      "{\"pageSize\":2,\"items\":[\"0x1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
+      "\"0xed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}";
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(deser_outputs(data_1, res) == 0);
@@ -84,9 +84,9 @@ void test_deser_outputs() {
 
   // with output ids and without cursor
   char const* const data_2 =
-      "{\"pageSize\":2,\"cursor\":\"62020d37c936725634911feb5a7685e715dcef50cb2b997812567021e09181ab7e67d9020100.2\","
-      "\"items\":[\"1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
-      "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}";
+      "{\"pageSize\":2,\"cursor\":\"0x62020d37c936725634911feb5a7685e715dcef50cb2b997812567021e09181ab7e67d9020100.2\","
+      "\"items\":[\"0x1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
+      "\"0xed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}";
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(deser_outputs(data_2, res) == 0);

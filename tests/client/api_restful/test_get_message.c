@@ -16,7 +16,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_msg_by_id() {
-  char const* const msg_id = "9fcb00f23d9f794ceb82930ffe6657e16032c72818ccaadb991e4b9b0190660c";
+  char const* const msg_id = "475f50ae286b5ec2d8b6e76a4653fc5df3280de1b861a55c375d5a7ca7410ae4";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();
@@ -59,23 +59,23 @@ void test_get_msg_by_id() {
 void test_deser_milestone() {
   char const* const ms_res =
       "{\"protocolVersion\":2,\"parentMessageIds\":["
-      "\"596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
-      "\"8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
-      "\"a3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
-      "\"dbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"payload\":{\"type\":1,\"index\":3,"
+      "\"0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
+      "\"0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
+      "\"0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
+      "\"0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"payload\":{\"type\":1,\"index\":3,"
       "\"timestamp\":1644478549,\"parentMessageIds\":["
-      "\"596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
-      "\"8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
-      "\"a3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
-      "\"dbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"inclusionMerkleProof\":"
-      "\"58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c\",\"nextPoWScore\":100,"
+      "\"0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
+      "\"0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
+      "\"0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
+      "\"0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"inclusionMerkleProof\":"
+      "\"0x58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c\",\"nextPoWScore\":100,"
       "\"nextPoWScoreMilestoneIndex\":200,\"publicKeys\":["
-      "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c\","
-      "\"f6752f5f46a53364e2ee9c4d662d762a81efd51010282a75cd6bd03f28ef349c\"],\"receipt\":null,\"signatures\":["
-      "\"a6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b4c33cfd64dadf7bc"
-      "c085a062e486c7a105\","
-      "\"005af6a44ded27650c23457f540576515a1e1549ff50d1279bde77d2dd8802c8676053ec5c0939671db1c2d920b3c557389b19a7f1ad31"
-      "0dc5ed23f840ddfa05\"]},\"nonce\":\"14757395258967713456\"}";
+      "\"0xed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c\","
+      "\"0xf6752f5f46a53364e2ee9c4d662d762a81efd51010282a75cd6bd03f28ef349c\"],\"receipt\":null,\"signatures\":["
+      "\"0xa6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b4c33cfd64dadf7"
+      "bcc085a062e486c7a105\","
+      "\"0x005af6a44ded27650c23457f540576515a1e1549ff50d1279bde77d2dd8802c8676053ec5c0939671db1c2d920b3c557389b19a7f1ad"
+      "310dc5ed23f840ddfa05\"]},\"nonce\":\"14757395258967713456\"}";
 
   res_message_t* res = res_message_new();
   TEST_ASSERT_NOT_NULL(res);
@@ -163,22 +163,23 @@ void test_deser_milestone() {
 void test_deser_simple_tx() {
   char const* const simple_tx =
       "{\"protocolVersion\":2,\"parentMessageIds\":["
-      "\"0875901a61c4b9f2adb37121fc7946d286dae581d1a5f9cd720cb4c1f8d8f552\","
-      "\"410653be41fde06bdf25aaeb764cd880f872e33e7ce1759801d75964e9dc75c7\","
-      "\"b9130e8d2b928921c220bef325eb9bcad114bdbce80945565e54e8cf9664173a\","
-      "\"cf94502e06fab8dcc4ef9fc94721de2e2fcaf727e0998b6489a0a5b5eead6625\"],\"payload\":{\"type\":0,\"essence\":{"
+      "\"0x0875901a61c4b9f2adb37121fc7946d286dae581d1a5f9cd720cb4c1f8d8f552\","
+      "\"0x410653be41fde06bdf25aaeb764cd880f872e33e7ce1759801d75964e9dc75c7\","
+      "\"0xb9130e8d2b928921c220bef325eb9bcad114bdbce80945565e54e8cf9664173a\","
+      "\"0xcf94502e06fab8dcc4ef9fc94721de2e2fcaf727e0998b6489a0a5b5eead6625\"],\"payload\":{\"type\":0,\"essence\":{"
       "\"type\":0,\"networkId\":\"8453507715857476362\",\"inputs\":[{\"type\":0,\"transactionId\":"
-      "\"0000000000000000000000000000000000000000000000000000000000000000\",\"transactionOutputIndex\":0}],"
-      "\"inputsCommitment\":\"9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9\",\"outputs\":"
-      "[{\"type\":3,\"amount\":10000000,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":0,"
-      "\"pubKeyHash\":\"21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"}}],\"featureBlocks\":[]},{"
-      "\"type\":3,\"amount\":2779530273277761,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{"
-      "\"type\":0,\"pubKeyHash\":\"60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe\"}}],"
-      "\"featureBlocks\":[]}],\"payload\":{\"type\":5,\"tag\":\"484f524e455420464155434554\",\"data\":\"\"}},"
+      "\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"transactionOutputIndex\":0}],"
+      "\"inputsCommitment\":\"0x9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9\",\"outputs\":"
+      "[{\"type\":3,\"amount\":\"10000000\",\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{"
+      "\"type\":0,"
+      "\"pubKeyHash\":\"0x21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"}}],\"featureBlocks\":[]},{"
+      "\"type\":3,\"amount\":\"2779530273277761\",\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{"
+      "\"type\":0,\"pubKeyHash\":\"0x60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe\"}}],"
+      "\"featureBlocks\":[]}],\"payload\":{\"type\":5,\"tag\":\"0x484f524e455420464155434554\",\"data\":\"\"}},"
       "\"unlockBlocks\":[{\"type\":0,\"signature\":{\"type\":0,\"publicKey\":"
-      "\"31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\",\"signature\":"
-      "\"1b51aab768dd145de99fc3710c7b05963803f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f810a"
-      "d0cc4b0210adaafd0a\"}}]},\"nonce\":\"62900\"}";
+      "\"0x31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\",\"signature\":"
+      "\"0x1b51aab768dd145de99fc3710c7b05963803f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f81"
+      "0ad0cc4b0210adaafd0a\"}}]},\"nonce\":\"62900\"}";
 
   res_message_t* res = res_message_new();
   TEST_ASSERT_NOT_NULL(res);

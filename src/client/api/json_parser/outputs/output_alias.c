@@ -1,9 +1,11 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/json_parser/outputs/output_alias.h"
+#include <inttypes.h>
+
 #include "client/api/json_parser/outputs/feat_blocks.h"
 #include "client/api/json_parser/outputs/native_tokens.h"
+#include "client/api/json_parser/outputs/output_alias.h"
 #include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
@@ -11,11 +13,11 @@
 /*
   "outputs": [
     { "type": 4,
-      "amount": 10000000,
+      "amount": "10000000",
       "nativeTokens": [],
-      "aliasId": "a360c46a570510f7c7d915bf0eef932e5678b386",
+      "aliasId": "0xa360c46a570510f7c7d915bf0eef932e5678b386",
       "stateIndex": 12345,
-      "stateMetadata": "010203040506070809",
+      "stateMetadata": "0x010203040506070809",
       "foundryCounter": 54321,
       "unlockConditions": [],
       "featureBlocks": [],
@@ -39,10 +41,12 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
 
   // amount
   uint64_t amount;
-  if (json_get_uint64(output_obj, JSON_KEY_AMOUNT, &amount) != JSON_OK) {
-    printf("[%s:%d]: getting %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
+  char str_buff[32];
+  if (json_get_string(output_obj, JSON_KEY_AMOUNT, str_buff, sizeof(str_buff)) != JSON_OK) {
+    printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
     goto end;
   }
+  sscanf(str_buff, "%" SCNu64, &amount);
 
   // native tokens array
   if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
@@ -52,7 +56,7 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
 
   // aliasId
   byte_t alias_id[ALIAS_ID_BYTES];
-  if (json_get_string(output_obj, JSON_KEY_ALIAS_ID, (char *)alias_id, ALIAS_ID_BYTES) != JSON_OK) {
+  if (json_get_string_with_prefix(output_obj, JSON_KEY_ALIAS_ID, (char *)alias_id, ALIAS_ID_BYTES) != JSON_OK) {
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ALIAS_ID);
     goto end;
   }

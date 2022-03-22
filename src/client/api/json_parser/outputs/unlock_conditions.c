@@ -1,8 +1,10 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/json_parser/outputs/unlock_conditions.h"
+#include <inttypes.h>
+
 #include "client/api/json_parser/common.h"
+#include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "core/models/outputs/unlock_conditions.h"
 #include "utlist.h"
 
@@ -10,7 +12,7 @@
   "type": 0,
   "address": {
     "type": 0,
-    "pubKeyHash": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
+    "pubKeyHash": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_cond_blk_addr_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
@@ -95,10 +97,12 @@ int json_cond_blk_storage_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **
 
   // amount
   uint64_t amount;
-  if (json_get_uint64(unlock_cond_obj, JSON_KEY_AMOUNT, &amount) != JSON_OK) {
-    printf("[%s:%d]: getting %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
+  char str_buff[32];
+  if (json_get_string(unlock_cond_obj, JSON_KEY_AMOUNT, str_buff, sizeof(str_buff)) != JSON_OK) {
+    printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
     return -1;
   }
+  sscanf(str_buff, "%" SCNu64, &amount);
 
   // add new unlock condition into a list
   unlock_cond_blk_t *unlock_blk = cond_blk_storage_new(&address, amount);

@@ -50,7 +50,7 @@ typedef struct outputs_query_list {
  *
  */
 typedef struct {
-  uint64_t ledger_idx;  ///< The ledger index at which the output was queried at.
+  uint32_t ledger_idx;  ///< The ledger index at which the output was queried at.
   uint32_t page_size;   ///< The number of output id's returned in a single response.
   char *cursor;         ///< The cursor to pass as api parameter to get the next set of results.
   UT_array *outputs;    ///< output IDs

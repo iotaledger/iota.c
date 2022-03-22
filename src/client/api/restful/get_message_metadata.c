@@ -108,13 +108,14 @@ int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res) {
   }
 
   // message ID
-  if ((ret = json_get_string(json_obj, JSON_KEY_MSG_ID, res->u.meta->msg_id, sizeof(res->u.meta->msg_id))) != 0) {
+  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->u.meta->msg_id,
+                                         sizeof(res->u.meta->msg_id))) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
     goto end;
   }
 
   // parents
-  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_PARENT_IDS, res->u.meta->parents)) != 0) {
+  if ((ret = json_string_with_prefix_array_to_utarray(json_obj, JSON_KEY_PARENT_IDS, res->u.meta->parents)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
     goto end;
   }
@@ -142,10 +143,10 @@ int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res) {
   json_get_string(json_obj, JSON_KEY_LEDGER_ST, res->u.meta->inclusion_state, sizeof(res->u.meta->inclusion_state));
 
   // gets referenced milestone index
-  json_get_uint64(json_obj, JSON_KEY_REF_MILESTONE_IDX, &res->u.meta->referenced_milestone);
+  json_get_uint32(json_obj, JSON_KEY_REF_MILESTONE_IDX, &res->u.meta->referenced_milestone);
 
   // gets milestone index
-  json_get_uint64(json_obj, JSON_KEY_MILESTONE_IDX, &res->u.meta->milestone_idx);
+  json_get_uint32(json_obj, JSON_KEY_MILESTONE_IDX, &res->u.meta->milestone_idx);
 
 end:
   cJSON_Delete(json_obj);

@@ -62,17 +62,17 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
 /*
 {
   "type": 0,
-  "pubKeyHash": "21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942"
+  "pubKeyHash": "0x21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942"
 }
 or
 {
   "type": 8,
-  "aliasId": "a3308d6262ae9921f46aa3308d6262ae9921f46a"
+  "aliasId": "0xa3308d6262ae9921f46aa3308d6262ae9921f46a"
 }
 or
 {
   "type": 16,
-  "nftId": "a3308d6262ae9921f46aa3308d6262ae9921f46a"
+  "nftId": "0xa3308d6262ae9921f46aa3308d6262ae9921f46a"
 }
 */
 cJSON *json_parser_common_address_serialize(address_t *address) {

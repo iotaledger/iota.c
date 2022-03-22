@@ -14,7 +14,7 @@ void tearDown(void) {}
 void test_parse_ed25519_address() {
   char const* const json_res =
       "{\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -34,7 +34,7 @@ void test_parse_ed25519_address() {
 void test_parse_alias_address() {
   char const* const json_res =
       "{\"address\":{\"type\":8,\"aliasId\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975\"}}";
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -54,7 +54,7 @@ void test_parse_alias_address() {
 void test_parse_nft_address() {
   char const* const json_res =
       "{\"address\":{\"type\":16,\"nftId\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975\"}}";
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -74,7 +74,7 @@ void test_parse_nft_address() {
 void test_parse_unsupported_address_type() {
   char const* const json_res =
       "{\"address\":{\"type\":10,\"address\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975\"}}";
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 

@@ -13,9 +13,9 @@ void tearDown(void) {}
 
 char const *const json_empty = "{\"inputs\":[]}";
 char const *const json_example1 =
-    "{\"inputs\":[{\"type\":0,\"transactionId\":\"b3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e\","
+    "{\"inputs\":[{\"type\":0,\"transactionId\":\"0xb3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e\","
     "\"transactionOutputIndex\":1},{\"type\":0,\"transactionId\":"
-    "\"c6e89ba60e64a79d174ce04a87003cf681d06f8f016909b410479bef92bf6143\",\"transactionOutputIndex\":4}]}";
+    "\"0xc6e89ba60e64a79d174ce04a87003cf681d06f8f016909b410479bef92bf6143\",\"transactionOutputIndex\":4}]}";
 byte_t tmp_tx_id[IOTA_TRANSACTION_ID_BYTES];
 
 void test_deserialize_inputs_empty() {

@@ -20,10 +20,10 @@ typedef struct {
   char name[32];                        ///< The name of this node
   char version[32];                     ///< The version of this node
   bool is_healthy;                      ///< Whether the node is healthy.
-  uint64_t latest_milestone_timestamp;  ///< The timestamp of the latest known milestone
-  uint64_t latest_milestone_index;      ///< The latest known milestone index
-  uint64_t confirmed_milestone_index;   ///< The current confirmed milestone's index
-  uint64_t pruning_milestone_index;     ///< The milestone index at which the last pruning commenced
+  uint32_t latest_milestone_timestamp;  ///< The timestamp of the latest known milestone
+  uint32_t latest_milestone_index;      ///< The latest known milestone index
+  uint32_t confirmed_milestone_index;   ///< The current confirmed milestone's index
+  uint32_t pruning_milestone_index;     ///< The milestone index at which the last pruning commenced
   float msg_per_sec;                    ///< The current rate of new messages per second
   float referenced_msg_per_sec;         ///< The current rate of referenced messages per second
   float referenced_rate;       ///< The ratio of referenced messages in relation to new messages of the last confirmed
@@ -31,7 +31,7 @@ typedef struct {
   char network_name[32];       ///< The network name of this node
   uint8_t protocol_version;    ///< The protocol version currently used by the network
   char bech32hrp[16];          ///< The bech32 HRP, `atoi` for testnet and `iota` for mainnet
-  uint64_t min_pow_score;      ///< The minimum pow score of the network
+  uint32_t min_pow_score;      ///< The minimum pow score of the network
   uint16_t v_byte_cost;        ///< The Byte Cost
   uint8_t v_byte_factor_data;  ///< The Byte Factor Data
   uint8_t v_byte_factor_key;   ///< The Byte Factor Key

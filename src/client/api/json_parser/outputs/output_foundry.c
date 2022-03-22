@@ -1,9 +1,11 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/json_parser/outputs/output_foundry.h"
+#include <inttypes.h>
+
 #include "client/api/json_parser/outputs/feat_blocks.h"
 #include "client/api/json_parser/outputs/native_tokens.h"
+#include "client/api/json_parser/outputs/output_foundry.h"
 #include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
@@ -11,31 +13,31 @@
 /*
   "outputs": [
     { "type": 5,
-      "amount": 10000000,
+      "amount": "10000000",
       "nativeTokens": [],
       "serialNumber": 123456,
-      "tokenTag": "TokenTAGDemo",
-      "circulatingSupply": "20000000000000000000000000000000000000000",
-      "maximumSupply": "30000000000000000000000000000000000000000",
+      "tokenTag": "0xTokenTAGDemo",
+      "circulatingSupply": "0x20000000000000000000000000000000000000000",
+      "maximumSupply": "0x30000000000000000000000000000000000000000",
       "tokenScheme": 0,
       "unlockConditions": [
         {  "type": 0,
            "address": {
             "type": 8,
-            "aliasId": "194eb32b9b6c61207192c7073562a0b3adf50a7c"
+            "aliasId": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c"
             }
         }
       ],
       "featureBlocks": [
         {
           "type": 2,
-          "data": "010203040506070809"
+          "data": "0x010203040506070809"
         }
       ],
       "immutableFeatureBlocks": [
         {
           "type": 2,
-          "data": "090807060504030201"
+          "data": "0x090807060504030201"
         }
       ]
     }
@@ -58,10 +60,12 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
 
   // amount
   uint64_t amount;
-  if (json_get_uint64(output_obj, JSON_KEY_AMOUNT, &amount) != JSON_OK) {
-    printf("[%s:%d]: getting %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
+  char str_buff[32];
+  if (json_get_string(output_obj, JSON_KEY_AMOUNT, str_buff, sizeof(str_buff)) != JSON_OK) {
+    printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
     goto end;
   }
+  sscanf(str_buff, "%" SCNu64, &amount);
 
   // native tokens array
   if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
@@ -78,21 +82,23 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
 
   // token tag
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
-  if (json_get_string(output_obj, JSON_KEY_TOKEN_TAG, (char *)token_tag, TOKEN_TAG_BYTES_LEN) != JSON_OK) {
+  if (json_get_string_with_prefix(output_obj, JSON_KEY_TOKEN_TAG, (char *)token_tag, TOKEN_TAG_BYTES_LEN) != JSON_OK) {
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_TOKEN_TAG);
     goto end;
   }
 
   // circulation supply
   char supply_str[STRING_NUMBER_MAX_CHARACTERS];
-  if (json_get_string(output_obj, JSON_KEY_CIRC_SUPPLY, supply_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+  if (json_get_string_with_prefix(output_obj, JSON_KEY_CIRC_SUPPLY, supply_str, STRING_NUMBER_MAX_CHARACTERS) !=
+      JSON_OK) {
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_CIRC_SUPPLY);
     goto end;
   }
   circ_supply = uint256_from_str(supply_str);
 
   // maximum supply
-  if (json_get_string(output_obj, JSON_KEY_MAX_SUPPLY, supply_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+  if (json_get_string_with_prefix(output_obj, JSON_KEY_MAX_SUPPLY, supply_str, STRING_NUMBER_MAX_CHARACTERS) !=
+      JSON_OK) {
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MAX_SUPPLY);
     goto end;
   }

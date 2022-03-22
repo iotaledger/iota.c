@@ -14,7 +14,7 @@ void tearDown(void) {}
 void test_unlock_condition_address() {
   char const* const json_res =
       "{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -40,7 +40,7 @@ void test_unlock_condition_address() {
 void test_unlock_condition_storage_deposit_return() {
   char const* const json_res =
       "{\"type\":1,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}, \"amount\":1337}";
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}, \"amount\":\"1337\"}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -90,7 +90,7 @@ void test_unlock_condition_timelock() {
 void test_unlock_condition_expiration() {
   char const* const json_res =
       "{\"type\":3,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}, \"milestoneIndex\": 123456789, "
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}, \"milestoneIndex\": 123456789, "
       "\"unixTime\":987654321}";
 
   cJSON* json_obj = cJSON_Parse(json_res);
@@ -121,7 +121,7 @@ void test_unlock_condition_expiration() {
 void test_unlock_condition_state() {
   char const* const json_res =
       "{\"type\":4,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -147,7 +147,7 @@ void test_unlock_condition_state() {
 void test_unlock_condition_governor() {
   char const* const json_res =
       "{\"type\":5,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -173,17 +173,17 @@ void test_unlock_condition_governor() {
 void test_unlock_conditions() {
   char const* const json_res =
       "{\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
       "{\"type\":1,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}, \"amount\":1337},"
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}, \"amount\":\"1337\"},"
       "{\"type\":2,\"milestoneIndex\": 123456789, \"unixTime\":987654321},"
       "{\"type\":3,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}, \"milestoneIndex\": 123456789, "
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}, \"milestoneIndex\": 123456789, "
       "\"unixTime\":987654321},"
       "{\"type\":4,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
       "{\"type\":5,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}}]}";
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}}]}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -214,7 +214,7 @@ void test_unlock_conditions() {
 void test_unlock_conditions_unsupported_type() {
   char const* const json_res =
       "{\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}]}";
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}]}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 

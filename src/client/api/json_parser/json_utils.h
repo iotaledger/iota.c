@@ -12,6 +12,10 @@
 #include "core/utils/byte_buffer.h"
 #include "utarray.h"
 
+// Hex encoded strings in JSON are formatted with 0x prefix
+// Example: "0x9cd745ef6800c8e8c80b09174ee4b250b3c43dfa62d7c6a4e61f848febf731a0"
+#define JSON_HEX_ENCODED_STRING_PREFIX_LEN 2
+
 typedef enum {
   JSON_OK = 0,
   JSON_INVALID_PARAMS,
@@ -40,6 +44,17 @@ extern "C" {
  * @return json_error_t
  */
 json_error_t json_get_string(cJSON const* const obj, char const key[], char str[], size_t str_len);
+
+/**
+ * @brief Gets the string with 0x prefix from a JSON object by key.
+ *
+ * @param[in] obj A JSON object
+ * @param[in] key The key of elememt
+ * @param[out] str The string of element
+ * @param[in] str_len The max length of string buffer
+ * @return json_error_t
+ */
+json_error_t json_get_string_with_prefix(cJSON const* const obj, char const key[], char str[], size_t str_len);
 
 /**
  * @brief Get hex string to binary from a JSON object
@@ -81,6 +96,16 @@ json_error_t json_get_boolean(cJSON const* const obj, char const key[], bool* co
  * @return json_error_t
  */
 json_error_t json_string_array_to_utarray(cJSON const* const obj, char const key[], UT_array* ut);
+
+/**
+ * @brief Converts a JSON string with 0x prefix array to an utarray.
+ *
+ * @param[in] obj A JSON object
+ * @param[in] key A key of a JSON element
+ * @param[out] ut An utarray holds strings
+ * @return json_error_t
+ */
+json_error_t json_string_with_prefix_array_to_utarray(cJSON const* const obj, char const key[], UT_array* ut);
 
 /**
  * @brief Converts utarray object to an array of JSON string
@@ -142,16 +167,6 @@ json_error_t json_get_uint16(cJSON const* const obj, char const key[], uint16_t*
  * @return json_error_t
  */
 json_error_t json_get_uint32(cJSON const* const obj, char const key[], uint32_t* const num);
-
-/**
- * @brief Gets an uint64_t from a JSON object.
- *
- * @param[in] obj A JSON object
- * @param[in] key A key of a JSON element
- * @param[out] num An output uint64_t
- * @return json_error_t
- */
-json_error_t json_get_uint64(cJSON const* const obj, char const key[], uint64_t* const num);
 
 /**
  * @brief Gets a float from a JSON object

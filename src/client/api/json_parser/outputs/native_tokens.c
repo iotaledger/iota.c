@@ -35,7 +35,7 @@ int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_list_t **nat
 
     // amount
     char token_amount[STRING_NUMBER_MAX_CHARACTERS];
-    if (json_get_string(elm, JSON_KEY_AMOUNT, token_amount, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+    if (json_get_string_with_prefix(elm, JSON_KEY_AMOUNT, token_amount, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
       return -1;
     }

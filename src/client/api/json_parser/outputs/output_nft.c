@@ -1,9 +1,11 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/json_parser/outputs/output_nft.h"
+#include <inttypes.h>
+
 #include "client/api/json_parser/outputs/feat_blocks.h"
 #include "client/api/json_parser/outputs/native_tokens.h"
+#include "client/api/json_parser/outputs/output_nft.h"
 #include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
@@ -11,9 +13,9 @@
 /*
   "outputs": [
     { "type": 6,
-      "amount": 10000000,
+      "amount": "10000000",
       "nativeTokens": [],
-      "nftId": "bebc45994f6bd9394f552b62c6e370ce1ab52d2e",
+      "nftId": "0xbebc45994f6bd9394f552b62c6e370ce1ab52d2e",
       "unlockConditions": [],
       "featureBlocks": [],
       "immutableFeatureBlocks": []
@@ -35,10 +37,12 @@ int json_output_nft_deserialize(cJSON *output_obj, output_nft_t **nft) {
 
   // amount
   uint64_t amount;
-  if (json_get_uint64(output_obj, JSON_KEY_AMOUNT, &amount) != JSON_OK) {
-    printf("[%s:%d]: getting %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
+  char str_buff[32];
+  if (json_get_string(output_obj, JSON_KEY_AMOUNT, str_buff, sizeof(str_buff)) != JSON_OK) {
+    printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
     goto end;
   }
+  sscanf(str_buff, "%" SCNu64, &amount);
 
   // native tokens array
   if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
