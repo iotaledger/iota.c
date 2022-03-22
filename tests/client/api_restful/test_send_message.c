@@ -16,6 +16,7 @@
 #include "core/models/outputs/outputs.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
+#include "core/models/signing.h"
 #include "core/models/unlock_block.h"
 #include "core/utils/byte_buffer.h"
 #include "core/utils/macros.h"
@@ -216,7 +217,7 @@ void test_send_msg_tx_basic() {
 
   // Set correct protocol version and network ID
   uint8_t ver = info->u.output_node_info->protocol_version;
-  uint8_t network_id_hash[CRYPTO_BLAKE2B_HASH_BYTES];
+  uint8_t network_id_hash[CRYPTO_BLAKE2B_256_HASH_BYTES];
   uint64_t network_id;
   iota_blake2b_sum((const uint8_t*)info->u.output_node_info->network_name,
                    strlen(info->u.output_node_info->network_name), network_id_hash, sizeof(network_id_hash));
@@ -244,6 +245,7 @@ void test_send_msg_tx_basic() {
   // fetch output data from output IDs
   uint64_t total_balance = 0;
   utxo_outputs_list_t* unspent_outputs = utxo_outputs_new();
+  signing_data_list_t* sign_data_list = signing_new();
   for (size_t i = 0; i < res_outputs_output_id_count(res); i++) {
     res_output_t* output_res = get_output_response_new();
     printf("fetch output: %s\n", res_outputs_output_id(res, i));
@@ -253,10 +255,16 @@ void test_send_msg_tx_basic() {
         output_basic_t* o = (output_basic_t*)output_res->u.data->output->output;
         total_balance += o->amount;
         // add the output as a tx input into the tx payload
-        TEST_ASSERT(tx_essence_add_input(tx->essence, 0, output_res->u.data->tx_id, output_res->u.data->output_index,
-                                         &sender_key) == 0);
+        TEST_ASSERT(tx_essence_add_input(tx->essence, 0, output_res->u.data->tx_id, output_res->u.data->output_index) ==
+                    0);
         // add the output in unspent outputs list to be able to calculate inputs commitment hash
         TEST_ASSERT(utxo_outputs_add(&unspent_outputs, output_res->u.data->output->output_type, o) == 0);
+
+        // add signing data (Basic output has address unlock condition)
+        unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_ADDRESS);
+        TEST_ASSERT_NOT_NULL(unlock_cond);
+        TEST_ASSERT(signing_data_add(unlock_cond->block, NULL, 0, &sender_key, &sign_data_list) == 0);
+
         // check balance
         if (total_balance >= send_amount) {
           // have got sufficient amount
@@ -305,14 +313,22 @@ void test_send_msg_tx_basic() {
 
   // calculate inputs commitment
   TEST_ASSERT(tx_essence_inputs_commitment_calculate(tx->essence, unspent_outputs) == 0);
-  utxo_outputs_free(unspent_outputs);
 
-  // add transaction payload to message
   core_message_t* msg = core_message_new(ver);
   TEST_ASSERT_NOT_NULL(msg);
+
+  // add transaction payload to message
   msg->payload = tx;
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
-  TEST_ASSERT(core_message_sign_transaction(msg) == 0);
+
+  // calculate transaction essence hash
+  byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
+  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
+
+  // sign transaction (generate unlock blocks)
+  TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data_list,
+                                       &tx->unlock_blocks) == 0);
+  utxo_outputs_free(unspent_outputs);
 
   // send out message
   res_send_message_t send_msg_res = {};
@@ -325,6 +341,7 @@ void test_send_msg_tx_basic() {
     printf("message ID: %s\n", send_msg_res.u.msg_id);
   }
 
+  signing_free(sign_data_list);
   core_message_free(msg);
 }
 

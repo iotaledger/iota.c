@@ -101,11 +101,11 @@ void test_serialize_inputs() {
   // add 1st tx
   hex_2_bin("b3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e",
             BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES), tmp_tx_id, IOTA_TRANSACTION_ID_BYTES);
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tmp_tx_id, 1, NULL) == 0);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tmp_tx_id, 1) == 0);
   // add 2nd tx
   hex_2_bin("c6e89ba60e64a79d174ce04a87003cf681d06f8f016909b410479bef92bf6143",
             BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES), tmp_tx_id, IOTA_TRANSACTION_ID_BYTES);
-  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tmp_tx_id, 4, NULL) == 0);
+  TEST_ASSERT(utxo_inputs_add(&inputs, 0, tmp_tx_id, 4) == 0);
 
   // serialize input data
   cJSON *input_data = json_inputs_serialize(inputs);

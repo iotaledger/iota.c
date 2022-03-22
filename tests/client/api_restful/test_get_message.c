@@ -123,7 +123,7 @@ void test_deser_milestone() {
       hex_2_bin("dbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff", 65, tmp_id, sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, milestone_payload_get_parent(ms, 3), sizeof(tmp_id));
 
-  byte_t tmp_proof[CRYPTO_BLAKE2B_HASH_BYTES] = {};
+  byte_t tmp_proof[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(hex_2_bin("58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c", 65, tmp_proof,
                         sizeof(tmp_proof)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_proof, ms->inclusion_merkle_proof, sizeof(ms->inclusion_merkle_proof));
