@@ -20,7 +20,9 @@ typedef struct {
 } signing_data_t;
 
 /**
- * @brief A list of signing data
+ * @brief A list of signing data.
+ *
+ * This list needs to have the same order of signing data for unspent outputs as in utxo_inputs_list_t.
  *
  */
 typedef struct signing_data_list {
