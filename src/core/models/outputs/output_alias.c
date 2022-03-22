@@ -383,7 +383,11 @@ output_alias_t* output_alias_clone(output_alias_t const* const output) {
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
     memcpy(new_output->alias_id, output->alias_id, ALIAS_ID_BYTES);
     new_output->state_index = output->state_index;
-    new_output->state_metadata = byte_buf_clone(output->state_metadata);
+    if (output->state_metadata) {
+      new_output->state_metadata = byte_buf_clone(output->state_metadata);
+    } else {
+      new_output->state_metadata = NULL;
+    }
     new_output->foundry_counter = output->foundry_counter;
     new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
     new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);

@@ -24,11 +24,9 @@ core_message_t* core_message_new(uint8_t ver) {
   return msg;
 }
 
-int core_message_sign_transaction(core_message_t* msg) {
-  int ret = -1;
-  byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
-  if (!msg) {
-    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[], uint8_t essence_hash_len) {
+  if (msg == NULL || essence_hash == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
@@ -37,7 +35,13 @@ int core_message_sign_transaction(core_message_t* msg) {
     return -1;
   }
 
+  if (essence_hash_len < CRYPTO_BLAKE2B_256_HASH_BYTES) {
+    printf("[%s:%d] essence hash array length is too small\n", __func__, __LINE__);
+    return -1;
+  }
+
   transaction_payload_t* tx = (transaction_payload_t*)msg->payload;
+
   // serialize transaction essence
   size_t essence_len = tx_essence_serialize_length(tx->essence);
   byte_t* b_essence = malloc(essence_len);
@@ -53,47 +57,17 @@ int core_message_sign_transaction(core_message_t* msg) {
     return -1;
   }
 
-  // essence hash
-  if (iota_blake2b_sum(b_essence, serialized_size, essence_hash, sizeof(essence_hash)) != 0) {
+  // calculate essence hash
+  if (iota_blake2b_sum(b_essence, serialized_size, essence_hash, CRYPTO_BLAKE2B_256_HASH_BYTES) != 0) {
     printf("[%s:%d] get essence hash failed\n", __func__, __LINE__);
     free(b_essence);
     return -1;
   }
 
-  utxo_inputs_list_t* elm;
-  LL_FOREACH(tx->essence->inputs, elm) {
-    if (elm->input->keypair) {
-      int32_t pub_index = unlock_blocks_find_pub(tx->unlock_blocks, elm->input->keypair->pub);
-      if (pub_index == -1) {
-        // publick key is not found in the unlocked block
-        byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
-        sig_block[0] = ADDRESS_TYPE_ED25519;
-        memcpy(sig_block + 1, elm->input->keypair->pub, ED_PUBLIC_KEY_BYTES);
-        // sign transaction
-        if ((ret = iota_crypto_sign(elm->input->keypair->priv, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES,
-                                    sig_block + (1 + ED_PUBLIC_KEY_BYTES)))) {
-          printf("[%s:%d] signing signature failed\n", __func__, __LINE__);
-          break;
-        }
+  // Clean up
+  free(b_essence);
 
-        // create a signature block
-        if ((ret = unlock_blocks_add_signature(&tx->unlock_blocks, sig_block, ED25519_SIGNATURE_BLOCK_BYTES))) {
-          printf("[%s:%d] Add signature block failed\n", __func__, __LINE__);
-          break;
-        }
-      } else {
-        // public key is found in the unlocked block
-        if ((ret = unlock_blocks_add_reference(&tx->unlock_blocks, (uint16_t)pub_index))) {
-          printf("[%s:%d] Add reference block failed\n", __func__, __LINE__);
-          break;
-        }
-      }
-    }
-  }
-  if (b_essence) {
-    free(b_essence);
-  }
-  return ret;
+  return 0;
 }
 
 void core_message_free(core_message_t* msg) {

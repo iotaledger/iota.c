@@ -31,6 +31,7 @@ target_sources(
           "models/payloads/tagged_data.c"
           "models/payloads/milestone.c"
           "models/message.c"
+          "models/signing.c"
           "models/unlock_block.c"
   PUBLIC "address.h"
          "utils/iota_str.h"
@@ -54,6 +55,7 @@ target_sources(
          "models/payloads/tagged_data.h"
          "models/payloads/milestone.h"
          "models/message.h"
+         "models/signing.h"
          "models/unlock_block.h")
 
 target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")

@@ -32,14 +32,13 @@ void tx_essence_free(transaction_essence_t* es) {
   }
 }
 
-int tx_essence_add_input(transaction_essence_t* es, uint8_t type, byte_t tx_id[], uint8_t index,
-                         ed25519_keypair_t* key) {
+int tx_essence_add_input(transaction_essence_t* es, uint8_t type, byte_t tx_id[], uint8_t index) {
   if (es == NULL || tx_id == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  return utxo_inputs_add(&es->inputs, type, tx_id, index, key);
+  return utxo_inputs_add(&es->inputs, type, tx_id, index);
 }
 
 int tx_essence_add_output(transaction_essence_t* es, utxo_output_type_t type, void* output) {
@@ -237,8 +236,8 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
   offset += utxo_inputs_serialize(es->inputs, offset, input_ser_len);
 
   // serialize inputs commitment
-  memcpy(offset, &es->inputs_commitment, CRYPTO_BLAKE2B_HASH_BYTES);
-  offset += CRYPTO_BLAKE2B_HASH_BYTES;
+  memcpy(offset, &es->inputs_commitment, CRYPTO_BLAKE2B_256_HASH_BYTES);
+  offset += CRYPTO_BLAKE2B_256_HASH_BYTES;
 
   // serialize outputs
   size_t output_ser_len = utxo_outputs_serialize_len(es->outputs);
@@ -285,8 +284,8 @@ transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   offset += utxo_inputs_serialize_len(es->inputs);
 
   // inputs commitment
-  memcpy(&es->inputs_commitment, &buf[offset], CRYPTO_BLAKE2B_HASH_BYTES);
-  offset += CRYPTO_BLAKE2B_HASH_BYTES;
+  memcpy(&es->inputs_commitment, &buf[offset], CRYPTO_BLAKE2B_256_HASH_BYTES);
+  offset += CRYPTO_BLAKE2B_256_HASH_BYTES;
 
   // outputs
   es->outputs = utxo_outputs_deserialize(&buf[offset], buf_len - offset);
