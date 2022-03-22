@@ -21,4 +21,6 @@ jobs:
         run: ./tools/ci_format_check src tests examples
 
       - name: Static analysis check
-        run: cppcheck --force --error-exitcode=1 -q src tests examples
+        run: |
+          cppcheck --version
+          cppcheck --force --error-exitcode=1 -q src tests examples

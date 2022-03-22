@@ -22,7 +22,7 @@ jobs:
       - name: install requirements
         run: |
           sudo apt update
-          sudo apt install -y cppcheck ninja-build libcurl4-openssl-dev clang-format build-essential
+          sudo apt install -y ninja-build libcurl4-openssl-dev build-essential
 
       - name: Build Crypto
         run: |
