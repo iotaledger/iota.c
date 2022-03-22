@@ -54,7 +54,7 @@ void signing_free(signing_data_list_t* signing_data_list);
  * @param[in] unlock_address Address Unlock Condition Address - ED25519/NFT/Alias
  * @param[in] hash Optional, a NFT/Alias ID in the utxo_output
  * @param[in] hash_len A length of hash array, 0 if hash is NULL
- * @param[in] keypair TOptional, ed25519 keypair of this input (this is for ed25519 address)
+ * @param[in] keypair Optional, ed25519 keypair of this input (this is for ed25519 address)
  * @param[out] sign_data_list Signing data list which will be populated by a new element
  * @return int 0 on success
  */

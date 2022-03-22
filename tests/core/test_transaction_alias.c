@@ -107,7 +107,7 @@ void test_tx_alias_unlock_funds() {
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
 
   // calculate transaction essence hash
-  byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
+  byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
 
   // sign transaction (generate unlock blocks)

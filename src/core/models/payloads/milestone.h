@@ -21,9 +21,9 @@ typedef struct {
   uint32_t index;      // The index number of the milestone.
   uint64_t timestamp;  // The Unix time (seconds since Unix epoch) at which the milestone was issued.
   UT_array *parents;   // Parents of milestone message.
-  byte_t inclusion_merkle_proof[CRYPTO_BLAKE2B_HASH_BYTES];  // The Merkle tree hash (BLAKE2b-256) of the message IDs of
-                                                             // all the not-ignored state-mutating transaction payloads
-                                                             // referenced by the milestone.
+  byte_t inclusion_merkle_proof[CRYPTO_BLAKE2B_256_HASH_BYTES];  // The Merkle tree hash (BLAKE2b-256) of the message
+                                                                 // IDs of all the not-ignored state-mutating
+                                                                 // transaction payloads referenced by the milestone.
   uint32_t
       next_pow_score;  // The new PoW score all messages should adhere to. If 0 then the PoW score should not change.
   uint32_t next_pow_score_milestone_index;  // The index of the first milestone that will require a new minimal pow

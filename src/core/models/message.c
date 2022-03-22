@@ -35,7 +35,7 @@ int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[], u
     return -1;
   }
 
-  if (essence_hash_len < CRYPTO_BLAKE2B_HASH_BYTES) {
+  if (essence_hash_len < CRYPTO_BLAKE2B_256_HASH_BYTES) {
     printf("[%s:%d] essence hash array length is too small\n", __func__, __LINE__);
     return -1;
   }
@@ -58,7 +58,7 @@ int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[], u
   }
 
   // calculate essence hash
-  if (iota_blake2b_sum(b_essence, serialized_size, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES) != 0) {
+  if (iota_blake2b_sum(b_essence, serialized_size, essence_hash, CRYPTO_BLAKE2B_256_HASH_BYTES) != 0) {
     printf("[%s:%d] get essence hash failed\n", __func__, __LINE__);
     free(b_essence);
     return -1;

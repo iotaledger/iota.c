@@ -217,7 +217,7 @@ void test_send_msg_tx_basic() {
 
   // Set correct protocol version and network ID
   uint8_t ver = info->u.output_node_info->protocol_version;
-  uint8_t network_id_hash[CRYPTO_BLAKE2B_HASH_BYTES];
+  uint8_t network_id_hash[CRYPTO_BLAKE2B_256_HASH_BYTES];
   uint64_t network_id;
   iota_blake2b_sum((const uint8_t*)info->u.output_node_info->network_name,
                    strlen(info->u.output_node_info->network_name), network_id_hash, sizeof(network_id_hash));
@@ -322,7 +322,7 @@ void test_send_msg_tx_basic() {
   msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
 
   // calculate transaction essence hash
-  byte_t essence_hash[CRYPTO_BLAKE2B_HASH_BYTES] = {};
+  byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
 
   // sign transaction (generate unlock blocks)

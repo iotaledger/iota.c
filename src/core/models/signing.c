@@ -17,7 +17,7 @@ static int create_unlock_block_ed25519(byte_t essence_hash[], signing_data_t* si
     memcpy(sig_block + 1, sign_data->keypair->pub, ED_PUBLIC_KEY_BYTES);
 
     // sign transaction
-    if (iota_crypto_sign(sign_data->keypair->priv, essence_hash, CRYPTO_BLAKE2B_HASH_BYTES,
+    if (iota_crypto_sign(sign_data->keypair->priv, essence_hash, CRYPTO_BLAKE2B_256_HASH_BYTES,
                          sig_block + (1 + ED_PUBLIC_KEY_BYTES)) != 0) {
       printf("[%s:%d] signing signature failed\n", __func__, __LINE__);
       return -1;
@@ -175,7 +175,7 @@ int signing_transaction_sign(byte_t essence_hash[], uint8_t essence_hash_len, ut
     return -1;
   }
 
-  if (essence_hash_len < CRYPTO_BLAKE2B_HASH_BYTES) {
+  if (essence_hash_len < CRYPTO_BLAKE2B_256_HASH_BYTES) {
     printf("[%s:%d] essence hash array length is too small\n", __func__, __LINE__);
     return -1;
   }
