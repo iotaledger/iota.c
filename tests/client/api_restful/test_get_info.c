@@ -29,7 +29,7 @@ void test_get_info() {
     TEST_ASSERT(info->u.output_node_info->referenced_rate >= 0.0);
     TEST_ASSERT(info->u.output_node_info->latest_milestone_timestamp > 390326400);
     TEST_ASSERT(info->u.output_node_info->confirmed_milestone_index > 0);
-    TEST_ASSERT(info->u.output_node_info->pruning_milestone_index > 0);
+    TEST_ASSERT(info->u.output_node_info->pruning_milestone_index >= 0);  // Pruning milestone index can be 0
   } else {
     TEST_ASSERT(strlen(info->u.error->msg) > 0);
     printf("Err: %s\n", info->u.error->msg);
