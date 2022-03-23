@@ -14,7 +14,7 @@
 static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   /*
   {
-    "type": 0,
+    "type": 1,
     "networkId": "8453507715857476362",
     "inputs": input_array,
     "inputsCommitment": "0x9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9",
@@ -44,8 +44,8 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
     return NULL;
   }
 
-  // "type": 0 to denote a Transaction Essence.
-  if (!cJSON_AddNumberToObject(es_obj, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TRANSACTION)) {
+  // "type": 1 to denote a Transaction Essence.
+  if (!cJSON_AddNumberToObject(es_obj, JSON_KEY_TYPE, es->tx_type)) {
     printf("[%s:%d] add tx type failed\n", __func__, __LINE__);
     cJSON_Delete(es_obj);
     return NULL;
@@ -321,7 +321,7 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
 cJSON* json_transaction_serialize(transaction_payload_t* tx) {
   /*
   {
-    "type": 0,
+    "type": 6,
     "essence": essence object
     "unlockBlocks": unlock blocks object
   }
@@ -341,7 +341,7 @@ cJSON* json_transaction_serialize(transaction_payload_t* tx) {
     return NULL;
   }
 
-  // "type": 0,
+  // "type": 6,
   if (!cJSON_AddNumberToObject(tx_payload, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TRANSACTION)) {
     printf("[%s:%d] add payload type failed\n", __func__, __LINE__);
     cJSON_Delete(tx_payload);
