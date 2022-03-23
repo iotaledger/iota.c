@@ -62,11 +62,10 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
       case CORE_MESSAGE_PAYLOAD_INDEXATION:
       case CORE_MESSAGE_PAYLOAD_RECEIPT:
       case CORE_MESSAGE_PAYLOAD_TREASURY:
+      case CORE_MESSAGE_PAYLOAD_DEPRECATED:
+      default:
         printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
         ret = -1;
-        break;
-      default:
-        // do nothing
         break;
     }
 
@@ -140,19 +139,18 @@ cJSON* json_message_serialize(core_message_t* msg) {
     case CORE_MESSAGE_PAYLOAD_TRANSACTION:
       payload = json_transaction_serialize((transaction_payload_t*)msg->payload);
       break;
+    case CORE_MESSAGE_PAYLOAD_TAGGED:
+      payload = json_tagged_serialize((void*)msg->payload);
+      break;
     case CORE_MESSAGE_PAYLOAD_MILESTONE:
     case CORE_MESSAGE_PAYLOAD_INDEXATION:
     case CORE_MESSAGE_PAYLOAD_RECEIPT:
     case CORE_MESSAGE_PAYLOAD_TREASURY:
+    case CORE_MESSAGE_PAYLOAD_DEPRECATED:
+    default:
       printf("[%s:%d] unsupported payload type\n", __func__, __LINE__);
       cJSON_Delete(msg_obj);
       return NULL;
-    case CORE_MESSAGE_PAYLOAD_TAGGED:
-      payload = json_tagged_serialize((void*)msg->payload);
-      break;
-    default:
-      printf("[%s:%d] Unknown payload type\n", __func__, __LINE__);
-      break;
   }
 
   if (payload == NULL) {
