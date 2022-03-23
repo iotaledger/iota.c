@@ -76,7 +76,9 @@ or
 }
 */
 cJSON *json_parser_common_address_serialize(address_t *address) {
-  char addr_str[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char addr_str[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
+  addr_str[0] = '0';
+  addr_str[1] = 'x';
 
   // address data object
   cJSON *addr_data = cJSON_CreateObject();
@@ -89,17 +91,20 @@ cJSON *json_parser_common_address_serialize(address_t *address) {
     int ret = -1;
     switch (address->type) {
       case ADDRESS_TYPE_ED25519:
-        if ((ret = bin_2_hex(address->address, ED25519_PUBKEY_BYTES, addr_str, sizeof(addr_str))) == 0) {
+        if ((ret = bin_2_hex(address->address, ED25519_PUBKEY_BYTES, addr_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                             sizeof(addr_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN)) == 0) {
           cJSON_AddStringToObject(addr_data, JSON_KEY_PUB_KEY_HASH, addr_str);
         }
         break;
       case ADDRESS_TYPE_ALIAS:
-        if ((ret = bin_2_hex(address->address, ALIAS_ID_BYTES, addr_str, sizeof(addr_str))) == 0) {
+        if ((ret = bin_2_hex(address->address, ALIAS_ID_BYTES, addr_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                             sizeof(addr_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN)) == 0) {
           cJSON_AddStringToObject(addr_data, JSON_KEY_ALIAS_ID, addr_str);
         }
         break;
       case ADDRESS_TYPE_NFT:
-        if ((ret = bin_2_hex(address->address, NFT_ID_BYTES, addr_str, sizeof(addr_str))) == 0) {
+        if ((ret = bin_2_hex(address->address, NFT_ID_BYTES, addr_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                             sizeof(addr_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN)) == 0) {
           cJSON_AddStringToObject(addr_data, JSON_KEY_NFT_ID, addr_str);
         }
         break;

@@ -33,7 +33,7 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
     return NULL;
   }
 
-  if (es->tx_type != 0) {
+  if (es->tx_type != TRANSACTION_ESSENCE_TYPE) {
     printf("[%s:%d] invalid transaction essence\n", __func__, __LINE__);
     return NULL;
   }
