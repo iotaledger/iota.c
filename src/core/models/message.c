@@ -146,6 +146,7 @@ size_t core_message_serialize_len(core_message_t* msg) {
     case CORE_MESSAGE_PAYLOAD_INDEXATION:
     case CORE_MESSAGE_PAYLOAD_RECEIPT:
     case CORE_MESSAGE_PAYLOAD_TREASURY:
+    case CORE_MESSAGE_PAYLOAD_DEPRECATED:
     default:
       printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
       return 0;
@@ -200,6 +201,7 @@ size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len)
     case CORE_MESSAGE_PAYLOAD_INDEXATION:
     case CORE_MESSAGE_PAYLOAD_RECEIPT:
     case CORE_MESSAGE_PAYLOAD_TREASURY:
+    case CORE_MESSAGE_PAYLOAD_DEPRECATED:
     default:
       printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
       return 0;
@@ -219,6 +221,7 @@ size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len)
     case CORE_MESSAGE_PAYLOAD_INDEXATION:
     case CORE_MESSAGE_PAYLOAD_RECEIPT:
     case CORE_MESSAGE_PAYLOAD_TREASURY:
+    case CORE_MESSAGE_PAYLOAD_DEPRECATED:
     default:
       printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
       return 0;
@@ -252,14 +255,13 @@ void core_message_print(core_message_t* msg, uint8_t indentation) {
       case CORE_MESSAGE_PAYLOAD_MILESTONE:
         milestone_payload_print((milestone_payload_t*)msg->payload, indentation + 1);
         break;
-      case CORE_MESSAGE_PAYLOAD_INDEXATION:
-      case CORE_MESSAGE_PAYLOAD_RECEIPT:
-      case CORE_MESSAGE_PAYLOAD_TREASURY:
-        printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
-        break;
       case CORE_MESSAGE_PAYLOAD_TAGGED:
         tagged_data_print((tagged_data_payload_t*)msg->payload, indentation + 1);
         break;
+      case CORE_MESSAGE_PAYLOAD_INDEXATION:
+      case CORE_MESSAGE_PAYLOAD_RECEIPT:
+      case CORE_MESSAGE_PAYLOAD_TREASURY:
+      case CORE_MESSAGE_PAYLOAD_DEPRECATED:
       default:
         printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
         break;
