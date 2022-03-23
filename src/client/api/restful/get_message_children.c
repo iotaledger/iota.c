@@ -148,14 +148,15 @@ int get_message_children(iota_client_conf_t const *ctx, char const msg_id[], res
     return -1;
   }
 
-  cmd = iota_str_reserve(strlen(cmd_prefix) + msg_str_len + strlen(cmd_suffix) + 1);
+  cmd =
+      iota_str_reserve(strlen(cmd_prefix) + JSON_HEX_ENCODED_STRING_PREFIX_LEN + msg_str_len + strlen(cmd_suffix) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", cmd_prefix, msg_id, cmd_suffix);
+  snprintf(cmd->buf, cmd->cap, "%s0x%s%s", cmd_prefix, msg_id, cmd_suffix);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration

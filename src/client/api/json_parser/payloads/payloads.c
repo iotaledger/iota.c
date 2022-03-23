@@ -473,16 +473,21 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data)
   // create a new tagged data
   if (cJSON_IsString(json_tag) && cJSON_IsString(json_data)) {
     byte_t tmp_tag[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
-    hex_2_bin(json_tag->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
-              strlen(json_tag->valuestring) - JSON_HEX_ENCODED_STRING_PREFIX_LEN, tmp_tag, sizeof(tmp_tag));
+    uint8_t tag_len = strlen(json_tag->valuestring);
+    if (tag_len > 0) {
+      hex_2_bin(json_tag->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                tag_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN, tmp_tag, sizeof(tmp_tag));
+    }
 
-    byte_t* tmp_data = malloc((strlen(json_data->valuestring) / 2));
-    hex_2_bin(json_data->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
-              strlen(json_data->valuestring) - JSON_HEX_ENCODED_STRING_PREFIX_LEN, tmp_data,
-              strlen(json_data->valuestring) / 2);
+    byte_t* tmp_data = NULL;
+    uint32_t data_len = strlen(json_data->valuestring);
+    if (data_len > 0) {
+      tmp_data = malloc(data_len / 2);
+      hex_2_bin(json_data->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                data_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN, tmp_data, data_len / 2);
+    }
 
-    *tagged_data = tagged_data_new(tmp_tag, (strlen(json_tag->valuestring) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) / 2,
-                                   tmp_data, (strlen(json_data->valuestring) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) / 2);
+    *tagged_data = tagged_data_new(tmp_tag, tag_len / 2, tmp_data, data_len / 2);
     if (!*tagged_data) {
       printf("[%s:%d]: can not create a new tagged data payload\n", __func__, __LINE__);
       free(tmp_data);

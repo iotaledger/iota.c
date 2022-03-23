@@ -114,7 +114,7 @@ int deser_find_message(char const *const j_str, res_find_msg_t *res) {
     }
 
     // message IDs
-    if ((ret = json_string_array_to_utarray(data_obj, JSON_KEY_MSG_IDS, res->u.msg_ids->msg_ids)) != 0) {
+    if ((ret = json_string_with_prefix_array_to_utarray(data_obj, JSON_KEY_MSG_IDS, res->u.msg_ids->msg_ids)) != 0) {
       printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_IDS);
     }
 
@@ -152,7 +152,7 @@ int find_message_by_index(iota_client_conf_t const *conf, char const index[], re
   }
 
   // compose restful api command
-  if ((cmd = iota_str_new("/api/v1/messages?index=")) == NULL) {
+  if ((cmd = iota_str_new("/api/v2/messages?index=")) == NULL) {
     printf("[%s:%d]: cmd append failed\n", __func__, __LINE__);
     return -1;
   }

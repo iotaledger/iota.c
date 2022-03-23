@@ -41,12 +41,10 @@ int deser_faucet_enqueue_response(char const *const j_str, res_faucet_enqueue_t 
   }
 
   // get waiting requests count
-  char str_buff[32];
-  if (json_get_string(json_obj, JSON_KEY_WAITING_REQUESTS, str_buff, sizeof(str_buff)) != JSON_OK) {
-    printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_WAITING_REQUESTS);
+  if (json_get_uint32(json_obj, JSON_KEY_WAITING_REQUESTS, &res->u.req_res.waiting_reqs_count) != JSON_OK) {
+    printf("[%s:%d]: getting %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_WAITING_REQUESTS);
     return -1;
   }
-  sscanf(str_buff, "%" SCNu64, &res->u.req_res.waiting_reqs_count);
 
   cJSON_Delete(json_obj);
   return 0;
