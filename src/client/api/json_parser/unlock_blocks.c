@@ -81,8 +81,6 @@ static cJSON *unlock_block_signature_serialize(unlock_block_t const *block) {
         goto err;
       }
 
-      // buffer to hold public and signautre string
-      char str_tmp[BIN_TO_HEX_STR_BYTES(ED_PRIVATE_KEY_BYTES)] = {};
       // block data: sig type + public key + signature
       uint8_t sig_type = ((uint8_t *)block->block_data)[0];
       if (sig_type != 0) {
@@ -96,8 +94,15 @@ static cJSON *unlock_block_signature_serialize(unlock_block_t const *block) {
         goto err;
       }
 
+      // buffer to hold public and signature string
+      char str_tmp[BIN_TO_HEX_STR_BYTES(ED_PRIVATE_KEY_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
+      // add 0x prefix at beginning
+      str_tmp[0] = '0';
+      str_tmp[1] = 'x';
+
       // add public key
-      if (bin_2_hex(block->block_data + 1, ED_PUBLIC_KEY_BYTES, str_tmp, sizeof(str_tmp)) == 0) {
+      if (bin_2_hex(block->block_data + 1, ED_PUBLIC_KEY_BYTES, str_tmp + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                    sizeof(str_tmp) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) == 0) {
         if (cJSON_AddStringToObject(sig, JSON_KEY_PUB_KEY, str_tmp) == NULL) {
           printf("[%s:%d]: add public key to json failed\n", __func__, __LINE__);
           goto err;
@@ -108,7 +113,9 @@ static cJSON *unlock_block_signature_serialize(unlock_block_t const *block) {
       }
 
       // add signature
-      if (bin_2_hex(block->block_data + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES, str_tmp, sizeof(str_tmp)) == 0) {
+      if (bin_2_hex(block->block_data + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES,
+                    str_tmp + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                    sizeof(str_tmp) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) == 0) {
         if (cJSON_AddStringToObject(sig, JSON_KEY_SIG, str_tmp) == NULL) {
           printf("[%s:%d]: add signature to json failed\n", __func__, __LINE__);
           goto err;

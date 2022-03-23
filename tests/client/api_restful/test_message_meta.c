@@ -1,7 +1,6 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include <inttypes.h>
 #include <stdio.h>
 #include <unity/unity.h>
 
@@ -147,12 +146,12 @@ void test_get_msg_meta() {
 
     // check milestone index
     if (meta->u.meta->milestone_idx != 0) {
-      printf("milestoneIndex: %" PRIu64 "\n", meta->u.meta->milestone_idx);
+      printf("milestoneIndex: %d\n", meta->u.meta->milestone_idx);
     }
 
     // check referenced milestone index
     if (meta->u.meta->referenced_milestone != 0) {
-      printf("referencedByMilestoneIndex: %" PRIu64 "\n", meta->u.meta->referenced_milestone);
+      printf("referencedByMilestoneIndex: %d\n", meta->u.meta->referenced_milestone);
     }
 
     // check should promote

@@ -1,10 +1,8 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include <inttypes.h>
-
-#include "core/models/message.h"
 #include "core/models/payloads/milestone.h"
+#include "core/models/message.h"
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
 static const UT_icd ut_pub_key_icd = {sizeof(uint8_t) * MILESTONE_PUBLIC_KEY_BYTES, NULL, NULL, NULL};
@@ -95,7 +93,7 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
     printf("%sMilestone: [\n", PRINT_INDENTATION(indentation));
 
     printf("%s\tIndex: %d\n", PRINT_INDENTATION(indentation), ms->index);
-    printf("%s\tTimestamp: %" PRIu64 "\n", PRINT_INDENTATION(indentation), ms->timestamp);
+    printf("%s\tTimestamp: %d\n", PRINT_INDENTATION(indentation), ms->timestamp);
 
     printf("%s\tParent Message Ids:\n", PRINT_INDENTATION(indentation));
     size_t parent_message_len = milestone_payload_get_parents_count(ms);
