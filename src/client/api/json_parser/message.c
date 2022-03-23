@@ -86,10 +86,10 @@ cJSON* json_message_serialize(core_message_t* msg) {
   {
   "protocolVersion": 2,
   "parentMessageIds": [
-      "7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
-      "9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c",
-      "ccf9bf6b76a2659f332e17bfdc20f278ce25bc45e807e89cc2ab526cd2101c52",
-      "fe63a9194eadb45e456a3c618d970119dbcac25221dbf5f53e5a838ef6ef518a"
+      "0x7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
+      "0x9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c",
+      "0xccf9bf6b76a2659f332e17bfdc20f278ce25bc45e807e89cc2ab526cd2101c52",
+      "0xfe63a9194eadb45e456a3c618d970119dbcac25221dbf5f53e5a838ef6ef518a"
   ],
   "payload": payload object
   "nonce": "2695978"
@@ -98,7 +98,7 @@ cJSON* json_message_serialize(core_message_t* msg) {
   cJSON* msg_obj = NULL;
   cJSON* payload = NULL;
   cJSON* parents = NULL;
-  char tmp_id_str[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)] = {};
+  char tmp_id_str[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
 
   if (!msg) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
@@ -128,7 +128,10 @@ cJSON* json_message_serialize(core_message_t* msg) {
   cJSON_AddItemToObject(msg_obj, JSON_KEY_PARENT_IDS, parents);
   byte_t* p = NULL;
   while ((p = (byte_t*)utarray_next(msg->parents, p))) {
-    bin_2_hex(p, IOTA_MESSAGE_ID_BYTES, tmp_id_str, sizeof(tmp_id_str));
+    tmp_id_str[0] = '0';
+    tmp_id_str[1] = 'x';
+    bin_2_hex(p, IOTA_MESSAGE_ID_BYTES, tmp_id_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+              sizeof(tmp_id_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN);
     cJSON_AddItemToArray(parents, cJSON_CreateString(tmp_id_str));
   }
 
@@ -161,13 +164,15 @@ cJSON* json_message_serialize(core_message_t* msg) {
 
   // add nonce
   if (msg->nonce > 0) {
-    if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_NONCE, msg->nonce)) {
+    char nonce_buff[65] = {};
+    sprintf(nonce_buff, "%" PRIu64 "", msg->nonce);
+    if (!cJSON_AddStringToObject(msg_obj, JSON_KEY_NONCE, nonce_buff)) {
       printf("[%s:%d] creating nonce failed\n", __func__, __LINE__);
       cJSON_Delete(msg_obj);
       return NULL;
     }
   } else {
-    if (!cJSON_AddNullToObject(msg_obj, JSON_KEY_NONCE)) {
+    if (!cJSON_AddStringToObject(msg_obj, JSON_KEY_NONCE, "")) {
       printf("[%s:%d] creating nonce failed\n", __func__, __LINE__);
       cJSON_Delete(msg_obj);
       return NULL;

@@ -61,13 +61,16 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
       return tokens;
     }
 
-    char token_id[BIN_TO_HEX_STR_BYTES(NATIVE_TOKEN_ID_BYTES)] = {};
+    char token_id[BIN_TO_HEX_STR_BYTES(NATIVE_TOKEN_ID_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
     native_tokens_list_t *elm;
     LL_FOREACH(native_tokens, elm) {
       cJSON *item = cJSON_CreateObject();
       if (item) {
         // add token id
-        if (bin_2_hex(elm->token->token_id, NATIVE_TOKEN_ID_BYTES, token_id, sizeof(token_id)) != 0) {
+        token_id[0] = '0';
+        token_id[1] = 'x';
+        if (bin_2_hex(elm->token->token_id, NATIVE_TOKEN_ID_BYTES, token_id + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                      sizeof(token_id) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
           goto item_err;
         }
         cJSON_AddStringToObject(item, JSON_KEY_ID, token_id);

@@ -5,6 +5,7 @@
 
 #include "test_config.h"
 
+#include "client/api/json_parser/json_utils.h"
 #include "client/api/restful/get_message.h"
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_output.h"
@@ -39,7 +40,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_deser_send_msg_response() {
-  char const* const str_res = "{\"messageId\":\"322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5\"}";
+  char const* const str_res = "{\"messageId\":\"0x322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5\"}";
   char const* const msg_id = "322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5";
   res_send_message_t res = {};
 

@@ -87,7 +87,9 @@ cJSON *json_output_basic_serialize(output_basic_t *basic) {
     }
 
     // amount
-    if (!cJSON_AddNumberToObject(output_obj, JSON_KEY_AMOUNT, basic->amount)) {
+    char amount_str[65] = {};
+    sprintf(amount_str, "%" PRIu64 "", basic->amount);
+    if (!cJSON_AddStringToObject(output_obj, JSON_KEY_AMOUNT, amount_str)) {
       printf("[%s:%d] add amount to basic error\n", __func__, __LINE__);
       goto err;
     }

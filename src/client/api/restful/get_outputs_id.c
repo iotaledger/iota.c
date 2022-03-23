@@ -34,9 +34,19 @@ int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e t
     next->query_item = malloc(sizeof(outputs_query_params_t));
     if (next->query_item) {
       next->query_item->type = type;
-      next->query_item->param = malloc(strlen(param) + 1);
+      if (type == QUERY_PARAM_TAG) {
+        next->query_item->param = malloc(strlen(param) + JSON_HEX_ENCODED_STRING_PREFIX_LEN + 1);
+      } else {
+        next->query_item->param = malloc(strlen(param) + 1);
+      }
       if (next->query_item->param) {
-        memcpy(next->query_item->param, param, strlen(param) + 1);
+        if (type == QUERY_PARAM_TAG) {
+          next->query_item->param[0] = '0';
+          next->query_item->param[1] = 'x';
+          memcpy(next->query_item->param + JSON_HEX_ENCODED_STRING_PREFIX_LEN, param, strlen(param) + 1);
+        } else {
+          memcpy(next->query_item->param, param, strlen(param) + 1);
+        }
         LL_APPEND(*list, next);
         return 0;
       } else {

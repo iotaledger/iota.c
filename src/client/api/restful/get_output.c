@@ -152,8 +152,8 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
   int ret = -1;
   long st = 0;
   byte_buf_t *http_res = NULL;
-  // cmd length = "/api/v2/outputs/" + IOTA_OUTPUT_ID_HEX_STR
-  char cmd_buffer[85] = {};
+  // cmd length = "/api/v2/outputs/0x" + IOTA_OUTPUT_ID_HEX_STR
+  char cmd_buffer[87] = {};
 
   if (conf == NULL || output_id == NULL || res == NULL) {
     // invalid parameters
@@ -167,7 +167,7 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
   }
 
   // composing API command
-  snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v2/outputs/%s", output_id);
+  snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v2/outputs/0x%s", output_id);
 
   // http client configuration
   http_client_config_t http_conf = {
