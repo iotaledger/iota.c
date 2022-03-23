@@ -10,6 +10,6 @@
     ],
     "cmakeFormat.args": [
         "--config-file",
-        ".cmake_format.yaml"
+        "${workspaceFolder}/.cmake_format.yaml"
     ]
 }
