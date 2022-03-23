@@ -40,7 +40,7 @@ void test_faucet_enqueue(void) {
   TEST_ASSERT_EQUAL_INT(0, req_tokens_to_addr_from_faucet(&ctx, address_bech32, &res));
   TEST_ASSERT(res.is_error == false);
   printf("Address : %s\n", res.u.req_res.bech32_address);
-  printf("Waiting Requests : %" PRIu64 "\n", res.u.req_res.waiting_reqs_count);
+  printf("Waiting Requests : %d\n", res.u.req_res.waiting_reqs_count);
 }
 
 int main() {

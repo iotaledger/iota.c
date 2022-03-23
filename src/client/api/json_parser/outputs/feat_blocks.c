@@ -10,7 +10,7 @@
   "type": 0,
   "address": {
     "type": 0,
-    "pubKeyHash": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
+    "pubKeyHash": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_feat_blk_sender_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
@@ -62,7 +62,7 @@ static cJSON *json_feat_blk_sender_serialize(feat_block_t *block) {
   "type": 1,
   "address": {
     "type": 0,
-    "pubKeyHash": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
+    "pubKeyHash": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_feat_blk_issuer_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {

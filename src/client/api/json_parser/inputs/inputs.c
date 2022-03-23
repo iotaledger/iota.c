@@ -9,7 +9,7 @@
   [
     {
       "type": 0,
-      "transactionId": "b3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e",
+      "transactionId": "0xb3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e",
       "transactionOutputIndex": 1
     },
   ]

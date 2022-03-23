@@ -78,9 +78,9 @@ err:
   "type": 1,
   "returnAddress": {
     "type": 0,
-    "pubKeyHash": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
+    "pubKeyHash": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   },
-  "amount": 123456
+  "amount": "123456"
 */
 int json_cond_blk_storage_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
   if (unlock_cond_obj == NULL || blk_list == NULL) {
@@ -223,7 +223,7 @@ err:
   "type": 3,
   "returnAddress": {
     "type": 0,
-    "pubKeyHash": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
+    "pubKeyHash": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   },
   "milestoneIndex": 45598,
   "unixTime": 123123
@@ -310,7 +310,7 @@ err:
   "type": 4,
   "address": {
     "type": 0,
-    "pubKeyHash": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
+    "pubKeyHash": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_cond_blk_state_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
@@ -376,7 +376,7 @@ err:
   "type": 5,
   "address": {
     "type": 0,
-    "pubKeyHash": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
+    "pubKeyHash": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_cond_blk_governor_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {

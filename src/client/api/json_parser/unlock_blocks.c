@@ -227,9 +227,9 @@ static int unlock_block_nft_deserialize(cJSON *elm, unlock_list_t **unlock_block
     { "type": 0,
       "signature": {
         "type": 1,
-        "publicKey": "dd2fb44b9809782af5f31fdbf767a39303365449308f78d6c2652ac9766dbf1a",
+        "publicKey": "0xdd2fb44b9809782af5f31fdbf767a39303365449308f78d6c2652ac9766dbf1a",
         "signature":
-  "e625a71351bbccf87eeaad7e98f6a545306423b2aaf444792a1be8ccfdfe50b358583483c3dbc536b5842eeec381750c6b4495c14932be47c439a1a8ad242606"
+  "0xe625a71351bbccf87eeaad7e98f6a545306423b2aaf444792a1be8ccfdfe50b358583483c3dbc536b5842eeec381750c6b4495c14932be47c439a1a8ad242606"
       }
     },
   ]
