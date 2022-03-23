@@ -12,6 +12,8 @@ on:
       - production
       - staging
       - dev*
+env:
+  CTEST_OUTPUT_ON_FAILURE: TRUE
 
 jobs:
   ninja_clang_sodium:
@@ -30,14 +32,14 @@ jobs:
           clang --version
           mkdir build && cd build
           cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DCryptoUse=libsodium -DIOTA_ASAN_ENABLED=ON -DIOTA_WALLET_ENABLE=ON ..
-          ninja -v && CTEST_OUTPUT_ON_FAILURE=1 ninja test
+          ninja -v && ninja test
 
       - name: Release build
         run: |
           rm -rf build && sync
           mkdir build && cd build
           cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DCryptoUse=libsodium -DIOTA_WALLET_ENABLE=ON ..
-          ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
+          ninja && ninja test
 
   make_gcc_openssl:
     runs-on: ubuntu-20.04

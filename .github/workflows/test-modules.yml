@@ -12,6 +12,8 @@ on:
       - production
       - staging
       - dev*
+env:
+  CTEST_OUTPUT_ON_FAILURE: TRUE
 
 jobs:
   ninja_clang_check_modules:
@@ -30,25 +32,25 @@ jobs:
           clang --version
           mkdir build && cd build
           cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DCryptoUse=openssl -DIOTA_ASAN_ENABLED=ON -DIOTA_WALLET_ENABLE=OFF -DWITH_IOTA_CLIENT=OFF -DWITH_IOTA_CORE=OFF ..
-          ninja -v && CTEST_OUTPUT_ON_FAILURE=1 ninja test
+          ninja -v && ninja test
 
       - name: Build Core
         run: |
           rm -rf build && sync
           mkdir build && cd build
           cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DCryptoUse=openssl -DIOTA_ASAN_ENABLED=ON -DIOTA_WALLET_ENABLE=OFF -DWITH_IOTA_CLIENT=OFF -DWITH_IOTA_CORE=ON ..
-          ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
+          ninja && ninja test
 
       - name: Build Client
         run: |
           rm -rf build && sync
           mkdir build && cd build
           cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DCryptoUse=openssl -DIOTA_ASAN_ENABLED=ON -DIOTA_WALLET_ENABLE=OFF -DWITH_IOTA_CLIENT=ON -DWITH_IOTA_CORE=OFF ..
-          ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
+          ninja && ninja test
 
       - name: Build Wallet
         run: |
           rm -rf build && sync
           mkdir build && cd build
           cmake -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=$PWD -DCryptoUse=openssl -DIOTA_ASAN_ENABLED=ON -DIOTA_WALLET_ENABLE=ON -DWITH_IOTA_CLIENT=OFF -DWITH_IOTA_CORE=OFF ..
-          ninja && CTEST_OUTPUT_ON_FAILURE=1 ninja test
+          ninja && ninja test
