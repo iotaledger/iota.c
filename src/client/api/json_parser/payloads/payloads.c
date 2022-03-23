@@ -475,16 +475,29 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data)
     byte_t tmp_tag[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
     uint8_t tag_len = strlen(json_tag->valuestring);
     if (tag_len > 0) {
-      hex_2_bin(json_tag->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
-                tag_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN, tmp_tag, sizeof(tmp_tag));
+      if (hex_2_bin(json_tag->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                    tag_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN, tmp_tag, sizeof(tmp_tag)) != 0) {
+        printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
+        return -1;
+      }
+      tag_len -= JSON_HEX_ENCODED_STRING_PREFIX_LEN;
     }
 
     byte_t* tmp_data = NULL;
     uint32_t data_len = strlen(json_data->valuestring);
     if (data_len > 0) {
       tmp_data = malloc(data_len / 2);
-      hex_2_bin(json_data->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
-                data_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN, tmp_data, data_len / 2);
+      if (!tmp_data) {
+        printf("[%s:%d] OOM\n", __func__, __LINE__);
+        return -1;
+      }
+      if (hex_2_bin(json_data->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                    data_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN, tmp_data, data_len / 2) != 0) {
+        printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
+        free(tmp_data);
+        return -1;
+      }
+      data_len -= JSON_HEX_ENCODED_STRING_PREFIX_LEN;
     }
 
     *tagged_data = tagged_data_new(tmp_tag, tag_len / 2, tmp_data, data_len / 2);
