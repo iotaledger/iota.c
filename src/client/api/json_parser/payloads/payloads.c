@@ -503,10 +503,14 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data)
     *tagged_data = tagged_data_new(tmp_tag, tag_len / 2, tmp_data, data_len / 2);
     if (!*tagged_data) {
       printf("[%s:%d]: can not create a new tagged data payload\n", __func__, __LINE__);
-      free(tmp_data);
+      if (tmp_data) {
+        free(tmp_data);
+      }
       return -1;
     }
-    free(tmp_data);
+    if (tmp_data) {
+      free(tmp_data);
+    }
   } else {
     printf("[%s:%d] tag or data is not a string\n", __func__, __LINE__);
     return -1;

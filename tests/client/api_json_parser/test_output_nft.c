@@ -58,10 +58,11 @@ void test_parse_nft_output_full() {
       "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"milestoneIndex\":45598,\"unixTime\":"
       "123123}],\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
-      "\"0xmetadataTest_metadataTest_metadataTest_metadataTest_metadataTest\"},{\"type\":3,\"tag\":\"0xtagTest_tagTest_"
-      "tagTest_tagTest_tagTest_tagTest\"}],\"immutableFeatureBlocks\":[{\"type\":1,\"address\":{\"type\":0,"
+      "\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"},{\"type\":3,\"tag\":"
+      "\"0x7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f\"}],"
+      "\"immutableFeatureBlocks\":[{\"type\":1,\"address\":{\"type\":0,"
       "\"pubKeyHash\":\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
-      "\"0ximmutableMetadataTest_immutableMetadataTest_immutableMetadataTest_ImmutableMetadataTest\"}]}";
+      "\"0x696d6d757461626c654d65746164617461546573745f696d6d757461626c654d65746164617461546573745f\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);

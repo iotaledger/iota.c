@@ -62,10 +62,10 @@ void test_parse_alias_output_full() {
       "{\"type\":5,\"address\":{\"type\":16,\"nftId\":\"0x6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
       "\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,"
-      "\"data\":\"0x89dfjg0s9djfgdsfgjsdfg98sjdf98g23id0gjf0sdffgj098sdgcvb0xcuubx9b\"}],\"immutableFeatureBlocks\":[{"
-      "\"type\":1,\"address\":{\"type\":0,"
+      "\"data\":\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}],"
+      "\"immutableFeatureBlocks\":[{\"type\":1,\"address\":{\"type\":0,"
       "\"pubKeyHash\":\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
-      "\"0ximmutableMetadataTest_immutableMetadataTest_immutableMetadataTest_ImmutableMetadataTest\"}]}";
+      "\"0x696d6d757461626c654d65746164617461546573745f696d6d757461626c654d65746164617461546573745f\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);

@@ -63,10 +63,9 @@ void test_parse_foundry_output_full() {
       "\"circulatingSupply\":\"0x20000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\",\"tokenScheme\":{\"type\":0},\"unlockConditions\":[{\"type\":0,"
       "\"address\":{\"type\":8,\"aliasId\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{"
-      "\"type\":2,\"data\":"
-      "\"0xmetadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}],"
-      "\"immutableFeatureBlocks\":[{\"type\":2,\"data\":\"0ximmutable_metadata_immutable_metadata_immutable_metadata_"
-      "immutable_metadata_immutable_metadata_immutable_metadata\"}]}";
+      "\"type\":2,\"data\":\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}],"
+      "\"immutableFeatureBlocks\":[{\"type\":2,\"data\":"
+      "\"0x696d6d757461626c654d65746164617461546573745f696d6d757461626c654d65746164617461546573745f\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
