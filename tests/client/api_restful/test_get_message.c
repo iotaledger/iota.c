@@ -177,10 +177,9 @@ void test_deser_simple_tx() {
       "\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0x60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe\"}}],\"featureBlocks\":[]}],\"payload\":{"
       "\"type\":5,\"tag\":\"0x484f524e455420464155434554\",\"data\":\"\"}},\"unlockBlocks\":[{\"type\":0,\"signature\":"
-      "{\"type\":0,\"publicKey\":\"0x31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\","
-      "\"signature\":"
-      "\"0x1b51aab768dd145de99fc3710c7b05963803f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f"
-      "810ad0cc4b0210adaafd0a\"}}]},\"nonce\":\"62900\"}";
+      "{\"type\":0,\"publicKey\":\"0x31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\",\"signature\":"
+      "\"0x1b51aab768dd145de99fc3710c7b05963803f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f81"
+      "0ad0cc4b0210adaafd0a\"}}]},\"nonce\":\"62900\"}";
 
   res_message_t* res = res_message_new();
   TEST_ASSERT_NOT_NULL(res);

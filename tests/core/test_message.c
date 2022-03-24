@@ -3,11 +3,13 @@
 
 #include <string.h>
 
+#include "core/address.h"
 #include "core/models/message.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/outputs.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
+#include "core/models/signing.h"
 #include "core/utils/macros.h"
 #include "unity/unity.h"
 
@@ -88,14 +90,12 @@ static byte_t* create_signature_unlock_block() {
 }
 
 void test_message_with_tx() {
-#if 0
-  byte_t tx_id0[TRANSACTION_ID_BYTES] = {};
-  byte_t addr0[ADDRESS_ED25519_BYTES] = {0x51, 0x55, 0x82, 0xfe, 0x64, 0x8b, 0x0f, 0x10, 0xa2, 0xb2, 0xa1,
-                                         0xb9, 0x1d, 0x75, 0x02, 0x19, 0x0c, 0x97, 0x9b, 0xaa, 0xbf, 0xee,
-                                         0x85, 0xb6, 0xbb, 0xb5, 0x02, 0x06, 0x92, 0xe5, 0x5d, 0x16};
-  byte_t addr1[ADDRESS_ED25519_BYTES] = {0x69, 0x20, 0xb1, 0x76, 0xf6, 0x13, 0xec, 0x7b, 0xe5, 0x9e, 0x68,
-                                         0xfc, 0x68, 0xf5, 0x97, 0xeb, 0x33, 0x93, 0xaf, 0x80, 0xf7, 0x4c,
-                                         0x7c, 0x3d, 0xb7, 0x81, 0x98, 0x14, 0x7d, 0x5f, 0x1f, 0x92};
+  byte_t expected_essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {
+      0x66, 0xbc, 0xeb, 0x49, 0x14, 0x49, 0x6f, 0xf1, 0xb2, 0x21, 0x9a, 0xb5, 0xb3, 0x31, 0x1e, 0xc7,
+      0x67, 0x57, 0x89, 0x93, 0x6c, 0x99, 0x84, 0x69, 0xe4, 0xad, 0x1c, 0x3a, 0x85, 0xb0, 0x40, 0xa8};
+  byte_t tx_id0[IOTA_TRANSACTION_ID_BYTES] = {126, 127, 95,  249, 151, 44,  243, 150, 40,  39, 46,
+                                              190, 54,  49,  73,  171, 165, 88,  139, 221, 25, 199,
+                                              90,  172, 252, 142, 91,  179, 113, 2,   177, 58};
 
   ed25519_keypair_t seed_keypair = {};
   TEST_ASSERT(hex_2_bin("f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44", 64, seed_keypair.pub,
@@ -105,27 +105,62 @@ void test_message_with_tx() {
                 "a9bf428ace579d541fda47661803ff44",
                 128, seed_keypair.priv, ED_PRIVATE_KEY_BYTES) == 0);
 
-  core_message_t* msg = core_message_new();
+  // create an address for basic output address unlock condition
+  address_t addr = {};
+  addr.type = ADDRESS_TYPE_ED25519;
+  iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
+
+  // create transaction payload
+  uint16_t network_id = 2;
+  transaction_payload_t* tx = tx_payload_new(network_id);
+
+  // add input with tx_id0
+  TEST_ASSERT(tx_essence_add_input(tx->essence, 0, tx_id0, 1) == 0);
+
+  // Create signature data. This data is in real scenario fetched from a node.
+  signing_data_list_t* sign_data_list = signing_new();
+
+  TEST_ASSERT(signing_data_add(&addr, NULL, 0, &seed_keypair, &sign_data_list) == 0);
+
+  // add basic output one
+  output_basic_t* basic_output_one = create_output_basic_one();
+  TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_BASIC, basic_output_one) == 0);
+
+  // add basic output two
+  output_basic_t* basic_output_two = create_output_basic_two();
+  TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_BASIC, basic_output_two) == 0);
+
+  // create message
+  uint8_t protocol_ver = 2;
+  core_message_t* msg = core_message_new(protocol_ver);
   TEST_ASSERT_NOT_NULL(msg);
-
-  transaction_payload_t* tx = tx_payload_new();
-  TEST_ASSERT_NOT_NULL(tx);
-
-  TEST_ASSERT(tx_payload_add_input_with_key(tx, tx_id0, 0, seed_keypair.pub, seed_keypair.priv) == 0);
-  TEST_ASSERT(tx_payload_add_output(tx, OUTPUT_SINGLE_OUTPUT, addr0, 1000) == 0);
-  TEST_ASSERT(tx_payload_add_output(tx, OUTPUT_SINGLE_OUTPUT, addr1, 2779530283276761) == 0);
-
-  // put tx payload into message
-  msg->payload_type = 0;
   msg->payload = tx;
+  msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
 
-  TEST_ASSERT(core_message_sign_transaction(msg) == 0);
+  // calculate transaction essence hash
+  byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
+  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
 
-  tx_payload_print(tx);
+  // check if essence hash is matching
+  TEST_ASSERT_EQUAL_MEMORY(expected_essence_hash, essence_hash, CRYPTO_BLAKE2B_256_HASH_BYTES);
+
+  // sign transaction (generate unlock blocks)
+  TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data_list,
+                                       &tx->unlock_blocks) == 0);
+
+  // validate unlock blocks
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_blocks_count(tx->unlock_blocks));
+
+  unlock_block_t* unlock_block = unlock_blocks_get(tx->unlock_blocks, 0);
+  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_SIGNATURE);
+
+  core_message_print(msg, 0);
 
   // free message and sub entities
+  signing_free(sign_data_list);
+  output_basic_free(basic_output_one);
+  output_basic_free(basic_output_two);
   core_message_free(msg);
-#endif
 }
 
 void test_message_with_tx_serialize() {
