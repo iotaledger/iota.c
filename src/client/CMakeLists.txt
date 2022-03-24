@@ -43,7 +43,7 @@ target_sources(
          "api/json_parser/json_utils.h"
          "api/json_parser/json_keys.h"
          "api/json_parser/common.h"
-          "api/json_parser/message.h"
+         "api/json_parser/message.h"
          "api/json_parser/unlock_blocks.h"
          "api/json_parser/inputs/inputs.h"
          "api/json_parser/outputs/feat_blocks.h"

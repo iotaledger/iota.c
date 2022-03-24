@@ -8,6 +8,8 @@ on:
   pull_request:
     branches:
       - tokenization-sc
+env:
+  CTEST_OUTPUT_ON_FAILURE: TRUE
 
 jobs:
   simple_make_gcc_openssl:
