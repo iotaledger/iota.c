@@ -16,6 +16,7 @@
  */
 typedef enum {
   QUERY_PARAM_ADDRESS = 0,       ///< The Bech32-encoded address that should be used to query outputs
+  QUERY_PARAM_ALIAS_ADDRESS,     ///< The alias address that should be used to query some outputs
   QUERY_PARAM_HAS_STORAGE_RET,   ///< The presence of storage return unlock condition
   QUERY_PARAM_STORAGE_RET_ADDR,  ///< The specific return address in the storage deposit return unlock condition
   QUERY_PARAM_SENDER,            ///< To query outputs based on bech32-encoded sender address.

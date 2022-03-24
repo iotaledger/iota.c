@@ -11,6 +11,7 @@
 #include "utlist.h"
 
 #define OUTPUTS_QUERY_ADDRESS_KEY "address"
+#define OUTPUTS_QUERY_ALIAS_ADDRESS_KEY "aliasAddress"
 #define OUTPUTS_QUERY_STORAGE_RET_KEY "hasStorageReturnCondition"
 #define OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY "storageReturnAddress"
 #define OUTPUTS_QUERY_SENDER_KEY "sender"
@@ -67,6 +68,11 @@ size_t get_outputs_query_str_len(outputs_query_list_t *list) {
     switch (elm->query_item->type) {
       case QUERY_PARAM_ADDRESS:
         query_str_len += strlen(OUTPUTS_QUERY_ADDRESS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
+      case QUERY_PARAM_ALIAS_ADDRESS:
+        query_str_len += strlen(OUTPUTS_QUERY_ALIAS_ADDRESS_KEY);
         query_str_len += strlen(elm->query_item->param);
         query_str_len += 2;  // For "&" params seperator and "=" params assignment
         break;
@@ -155,6 +161,9 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
     switch (elm->query_item->type) {
       case QUERY_PARAM_ADDRESS:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_ADDRESS_KEY, elm);
+        break;
+      case QUERY_PARAM_ALIAS_ADDRESS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_ALIAS_ADDRESS_KEY, elm);
         break;
       case QUERY_PARAM_HAS_STORAGE_RET:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_STORAGE_RET_KEY, elm);
