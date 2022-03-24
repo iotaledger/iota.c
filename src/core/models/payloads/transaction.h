@@ -14,7 +14,7 @@
 #include "core/types.h"
 
 // have one transaction essence only which is 0
-#define TRANSACTION_ESSENCE_TYPE 0
+#define TRANSACTION_ESSENCE_TYPE 1
 
 /**
  * @brief Transaction Essence, the essence data making up a transaction by defining its inputs and outputs and an

@@ -47,9 +47,10 @@ void test_get_msg_by_id() {
         printf("it's a tagged message\n");
         core_message_print(msg->u.msg, 0);
         break;
+      case CORE_MESSAGE_PAYLOAD_DEPRECATED:
       case CORE_MESSAGE_PAYLOAD_UNKNOWN:
       default:
-        printf("Unknow message\n");
+        printf("unsupported message\n");
         break;
     }
   }
@@ -166,8 +167,8 @@ void test_deser_simple_tx() {
       "\"0875901a61c4b9f2adb37121fc7946d286dae581d1a5f9cd720cb4c1f8d8f552\","
       "\"410653be41fde06bdf25aaeb764cd880f872e33e7ce1759801d75964e9dc75c7\","
       "\"b9130e8d2b928921c220bef325eb9bcad114bdbce80945565e54e8cf9664173a\","
-      "\"cf94502e06fab8dcc4ef9fc94721de2e2fcaf727e0998b6489a0a5b5eead6625\"],\"payload\":{\"type\":0,\"essence\":{"
-      "\"type\":0,\"networkId\":\"8453507715857476362\",\"inputs\":[{\"type\":0,\"transactionId\":"
+      "\"cf94502e06fab8dcc4ef9fc94721de2e2fcaf727e0998b6489a0a5b5eead6625\"],\"payload\":{\"type\":6,\"essence\":{"
+      "\"type\":1,\"networkId\":\"8453507715857476362\",\"inputs\":[{\"type\":0,\"transactionId\":"
       "\"0000000000000000000000000000000000000000000000000000000000000000\",\"transactionOutputIndex\":0}],"
       "\"inputsCommitment\":\"9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9\",\"outputs\":"
       "[{\"type\":3,\"amount\":10000000,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":0,"
@@ -209,7 +210,7 @@ void test_deser_simple_tx() {
   TEST_ASSERT(res->u.msg->payload_type == CORE_MESSAGE_PAYLOAD_TRANSACTION);
   transaction_payload_t* tx = (transaction_payload_t*)res->u.msg->payload;
   // validate essence
-  TEST_ASSERT(tx->essence->tx_type == 0);
+  TEST_ASSERT(tx->essence->tx_type == TRANSACTION_ESSENCE_TYPE);
   // validate network ID
   char str_buff[65] = {};
   sprintf(str_buff, "%" PRIu64 "", tx->essence->network_id);
