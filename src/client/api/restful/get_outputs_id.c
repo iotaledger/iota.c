@@ -42,8 +42,7 @@ int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e t
       }
       if (next->query_item->param) {
         if (type == QUERY_PARAM_TAG) {
-          next->query_item->param[0] = '0';
-          next->query_item->param[1] = 'x';
+          memcpy(next->query_item->param, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
           memcpy(next->query_item->param + JSON_HEX_ENCODED_STRING_PREFIX_LEN, param, strlen(param) + 1);
         } else {
           memcpy(next->query_item->param, param, strlen(param) + 1);

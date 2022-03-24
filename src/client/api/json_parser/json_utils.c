@@ -42,6 +42,10 @@ json_error_t json_get_string_with_prefix(cJSON const* const obj, char const key[
   }
 
   if (cJSON_IsString(json_value) && (json_value->valuestring != NULL)) {
+    if (memcmp(json_value->valuestring, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+      printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+      return JSON_NOT_HEX_STRING;
+    }
     strncpy(str, json_value->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN, str_len);
   } else {
     printf("[%s:%d] %s is not a string\n", __func__, __LINE__, key);
@@ -65,6 +69,10 @@ json_error_t json_get_hex_str_to_bin(cJSON const* const obj, char const key[], b
   }
 
   if (cJSON_IsString(json_value) && (json_value->valuestring != NULL)) {
+    if (memcmp(json_value->valuestring, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+      printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+      return JSON_NOT_HEX_STRING;
+    }
     if (hex_2_bin(json_value->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
                   strlen(json_value->valuestring) - JSON_HEX_ENCODED_STRING_PREFIX_LEN, bin, bin_len) != 0) {
       printf("[%s:%d] hex string to bin error\n", __func__, __LINE__);
@@ -92,6 +100,10 @@ json_error_t json_get_byte_buf_str(cJSON const* const obj, char const key[], byt
   }
 
   if (cJSON_IsString(json_value) && (json_value->valuestring != NULL)) {
+    if (memcmp(json_value->valuestring, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+      printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+      return JSON_NOT_HEX_STRING;
+    }
     // append the string with null terminator to byte_buf
     byte_buf_append(buf, (byte_t const*)(json_value->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN),
                     strlen((char const*)json_value->valuestring) - JSON_HEX_ENCODED_STRING_PREFIX_LEN + 1);
@@ -180,6 +192,10 @@ json_error_t json_string_with_prefix_array_to_utarray(cJSON const* const obj, ch
         printf("[%s:%d] encountered non-string array member", __func__, __LINE__);
         return JSON_ERR;
       }
+      if (memcmp(str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+        printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+        return JSON_NOT_HEX_STRING;
+      }
       char* str_without_prefix = str + JSON_HEX_ENCODED_STRING_PREFIX_LEN;
       utarray_push_back(ut, &str_without_prefix);
     }
@@ -237,6 +253,10 @@ json_error_t json_string_array_to_bin_array(cJSON const* const obj, char const k
       if (!elm_bin) {
         printf("[%s:%d] OOM\n", __func__, __LINE__);
         return JSON_MEMORY_ERROR;
+      }
+      if (memcmp(elm_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+        printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+        return JSON_NOT_HEX_STRING;
       }
       // convert hex string to binary
       if (hex_2_bin(elm_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN, strlen(elm_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN,

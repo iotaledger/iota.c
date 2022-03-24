@@ -85,8 +85,7 @@ cJSON *json_inputs_serialize(utxo_inputs_list_t *inputs) {
     }
 
     // add tx id
-    tx_id_str[0] = '0';
-    tx_id_str[1] = 'x';
+    memcpy(tx_id_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
     if (bin_2_hex(elm->input->tx_id, IOTA_TRANSACTION_ID_BYTES, tx_id_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
                   sizeof(tx_id_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
       printf("[%s:%d] tx id convertion failed\n", __func__, __LINE__);

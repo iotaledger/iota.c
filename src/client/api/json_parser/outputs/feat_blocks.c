@@ -136,6 +136,11 @@ int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t **
       printf("[%s:%d] OOM\n", __func__, __LINE__);
       return -1;
     }
+    if (memcmp(metadata_obj->valuestring, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+      printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+      free(metadata);
+      return -1;
+    }
     if (hex_2_bin(metadata_obj->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
                   metadata_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN, metadata, metadata_len / 2) != 0) {
       printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
@@ -174,16 +179,18 @@ static cJSON *json_feat_blk_metadata_serialize(feat_metadata_blk_t *block) {
     cJSON_AddNumberToObject(meta, JSON_KEY_TYPE, FEAT_METADATA_BLOCK);
 
     // add metadata
-    char *data_str = malloc(BIN_TO_HEX_STR_BYTES(block->data_len));
+    char *data_str = malloc(BIN_TO_HEX_STR_BYTES(block->data_len) + JSON_HEX_ENCODED_STRING_PREFIX_LEN);
     if (!data_str) {
       printf("[%s:%d] allocate data error\n", __func__, __LINE__);
       cJSON_Delete(meta);
       return NULL;
     }
+    memcpy(data_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
 
     // TODO, is data contain data length in JSON object?
     // convert data to hex string
-    if (bin_2_hex(block->data, block->data_len, data_str, BIN_TO_HEX_STR_BYTES(block->data_len)) != 0) {
+    if (bin_2_hex(block->data, block->data_len, data_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                  BIN_TO_HEX_STR_BYTES(block->data_len)) != 0) {
       printf("[%s:%d] convert data to hex string error\n", __func__, __LINE__);
       cJSON_Delete(meta);
       free(data_str);
@@ -221,6 +228,11 @@ int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_
     tag = malloc(tag_len / 2);
     if (!tag) {
       printf("[%s:%d] OOM\n", __func__, __LINE__);
+      return -1;
+    }
+    if (memcmp(tag_obj->valuestring, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+      printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+      free(tag);
       return -1;
     }
     if (hex_2_bin(tag_obj->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
@@ -261,10 +273,12 @@ static cJSON *json_feat_blk_tag_serialize(feat_tag_blk_t *block) {
     cJSON_AddNumberToObject(meta, JSON_KEY_TYPE, FEAT_TAG_BLOCK);
 
     // add tag
-    char tag_str[BIN_TO_HEX_STR_BYTES(MAX_INDEX_TAG_BYTES)] = {};
+    char tag_str[BIN_TO_HEX_STR_BYTES(MAX_INDEX_TAG_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
+    memcpy(tag_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
     // TODO, is tag contain tag length in JSON object?
     // convert tag to hex string
-    if (bin_2_hex(block->tag, block->tag_len, tag_str, sizeof(tag_str)) != 0) {
+    if (bin_2_hex(block->tag, block->tag_len, tag_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                  sizeof(tag_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
       printf("[%s:%d] convert tag to hex string error\n", __func__, __LINE__);
       cJSON_Delete(meta);
       return NULL;

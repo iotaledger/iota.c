@@ -122,8 +122,7 @@ cJSON *json_output_nft_serialize(output_nft_t *nft) {
 
     // NFT ID
     char id_str[BIN_TO_HEX_STR_BYTES(NFT_ID_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
-    id_str[0] = '0';
-    id_str[0] = 'x';
+    memcpy(id_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
     if (bin_2_hex(nft->nft_id, NFT_ID_BYTES, id_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
                   sizeof(id_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
       printf("[%s:%d] convert NFT ID to hex string error\n", __func__, __LINE__);

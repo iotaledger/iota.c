@@ -67,8 +67,7 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
       cJSON *item = cJSON_CreateObject();
       if (item) {
         // add token id
-        token_id[0] = '0';
-        token_id[1] = 'x';
+        memcpy(token_id, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
         if (bin_2_hex(elm->token->token_id, NATIVE_TOKEN_ID_BYTES, token_id + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
                       sizeof(token_id) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
           goto item_err;
@@ -85,8 +84,7 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
           free(amount);
           goto item_err;
         }
-        amount_with_prefix[0] = '0';
-        amount_with_prefix[1] = 'x';
+        memcpy(amount_with_prefix, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
         memcpy(amount_with_prefix + JSON_HEX_ENCODED_STRING_PREFIX_LEN, amount, strlen(amount));
         free(amount);
         cJSON_AddStringToObject(item, JSON_KEY_AMOUNT, amount_with_prefix);

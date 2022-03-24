@@ -96,9 +96,7 @@ static cJSON *unlock_block_signature_serialize(unlock_block_t const *block) {
 
       // buffer to hold public and signature string
       char str_tmp[BIN_TO_HEX_STR_BYTES(ED_PRIVATE_KEY_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
-      // add 0x prefix at beginning
-      str_tmp[0] = '0';
-      str_tmp[1] = 'x';
+      memcpy(str_tmp, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
 
       // add public key
       if (bin_2_hex(block->block_data + 1, ED_PUBLIC_KEY_BYTES, str_tmp + JSON_HEX_ENCODED_STRING_PREFIX_LEN,

@@ -71,8 +71,7 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   // inputs commitment
   char inputs_commitment_str[BIN_TO_HEX_STR_BYTES(sizeof(es->inputs_commitment)) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] =
       {};
-  inputs_commitment_str[0] = '0';
-  inputs_commitment_str[1] = 'x';
+  memcpy(inputs_commitment_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
   if (bin_2_hex(es->inputs_commitment, sizeof(es->inputs_commitment),
                 inputs_commitment_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
                 sizeof(inputs_commitment_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
@@ -398,8 +397,7 @@ cJSON* json_tagged_serialize(tagged_data_payload_t* tagged_data) {
   // tag
   if (tagged_data->tag) {
     char tag_str[BIN_TO_HEX_STR_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {0};
-    tag_str[0] = '0';
-    tag_str[1] = 'x';
+    memcpy(tag_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
     if (bin_2_hex(tagged_data->tag->data, tagged_data->tag->len, tag_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
                   BIN_TO_HEX_STR_BYTES(tagged_data->tag->len)) != 0) {
       printf("[%s:%d] bin to hex tag conversion failed\n", __func__, __LINE__);
@@ -422,8 +420,7 @@ cJSON* json_tagged_serialize(tagged_data_payload_t* tagged_data) {
       return NULL;
     }
 
-    data_str[0] = '0';
-    data_str[1] = 'x';
+    memcpy(data_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
     if (bin_2_hex(tagged_data->data->data, tagged_data->data->len, data_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
                   BIN_TO_HEX_STR_BYTES(tagged_data->data->len)) != 0) {
       printf("[%s:%d] bin to hex data conversion failed\n", __func__, __LINE__);
@@ -475,6 +472,10 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data)
     byte_t tmp_tag[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
     uint8_t tag_len = strlen(json_tag->valuestring);
     if (tag_len > 0) {
+      if (memcmp(json_tag->valuestring, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+        printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+        return -1;
+      }
       if (hex_2_bin(json_tag->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
                     tag_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN, tmp_tag, sizeof(tmp_tag)) != 0) {
         printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
@@ -489,6 +490,11 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data)
       tmp_data = malloc(data_len / 2);
       if (!tmp_data) {
         printf("[%s:%d] OOM\n", __func__, __LINE__);
+        return -1;
+      }
+      if (memcmp(json_data->valuestring, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+        printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+        free(tmp_data);
         return -1;
       }
       if (hex_2_bin(json_data->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,

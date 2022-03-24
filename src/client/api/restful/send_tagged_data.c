@@ -118,8 +118,7 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
 
   // add tag
   char tag_str[BIN_TO_HEX_STR_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {0};
-  tag_str[0] = '0';
-  tag_str[1] = 'x';
+  memcpy(tag_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
   if (bin_2_hex(tag, tag_len, tag_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
                 sizeof(tag_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
     printf("[%s:%d] bin to hex tag conversion failed\n", __func__, __LINE__);
@@ -138,8 +137,7 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
 
       goto end;
     }
-    data_str[0] = '0';
-    data_str[1] = 'x';
+    memcpy(data_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
     if (bin_2_hex(data, data_len, data_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN, BIN_TO_HEX_STR_BYTES(data_len)) != 0) {
       printf("[%s:%d] bin to hex data conversion failed\n", __func__, __LINE__);
       free(data_str);

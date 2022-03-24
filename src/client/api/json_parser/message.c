@@ -127,8 +127,7 @@ cJSON* json_message_serialize(core_message_t* msg) {
   cJSON_AddItemToObject(msg_obj, JSON_KEY_PARENT_IDS, parents);
   byte_t* p = NULL;
   while ((p = (byte_t*)utarray_next(msg->parents, p))) {
-    tmp_id_str[0] = '0';
-    tmp_id_str[1] = 'x';
+    memcpy(tmp_id_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
     bin_2_hex(p, IOTA_MESSAGE_ID_BYTES, tmp_id_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
               sizeof(tmp_id_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN);
     cJSON_AddItemToArray(parents, cJSON_CreateString(tmp_id_str));

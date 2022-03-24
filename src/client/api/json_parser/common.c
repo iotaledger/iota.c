@@ -77,8 +77,7 @@ or
 */
 cJSON *json_parser_common_address_serialize(address_t *address) {
   char addr_str[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
-  addr_str[0] = '0';
-  addr_str[1] = 'x';
+  memcpy(addr_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
 
   // address data object
   cJSON *addr_data = cJSON_CreateObject();
