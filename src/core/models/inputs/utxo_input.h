@@ -6,16 +6,13 @@
 
 #include <stdint.h>
 
+#include "core/address.h"
 #include "core/models/message.h"
 #include "core/types.h"
 #include "crypto/iota_crypto.h"
 
 // Maximum number of inputs in a transaction payload.
 #define UTXO_INPUT_MAX_COUNT 128
-// Transaction ID bytes
-#define IOTA_TRANSACTION_ID_BYTES 32
-// OUTPUT ID bytes = 34 (IOTA_TRANSACTION_ID + OUTPUT INDEX)
-#define IOTA_OUTPUT_ID_BYTES (IOTA_TRANSACTION_ID_BYTES + sizeof(uint16_t))
 
 /**
  * @brief UTXO input structure

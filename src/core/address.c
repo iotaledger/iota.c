@@ -54,14 +54,34 @@ int ed25519_address_from_path(byte_t seed[], size_t seed_len, char path[], addre
   return address_from_ed25519_pub(addr_keypair.pub, addr);
 }
 
-int alias_address_from_output(char const output_id[], address_t *addr) {
+int alias_address_from_output(byte_t const output_id[], uint8_t output_id_len, address_t *addr) {
+  if (output_id == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (output_id_len < IOTA_OUTPUT_ID_BYTES) {
+    printf("[%s:%d] output id array length too small\n", __func__, __LINE__);
+    return -1;
+  }
+
   addr->type = ADDRESS_TYPE_ALIAS;
-  return iota_blake2b_sum((uint8_t const *const)output_id, strlen(output_id), addr->address, NFT_ID_BYTES);
+  return iota_blake2b_sum((uint8_t const *const)output_id, output_id_len, addr->address, ALIAS_ID_BYTES);
 }
 
-int nft_address_from_output(char const output_id[], address_t *addr) {
+int nft_address_from_output(byte_t const output_id[], uint8_t output_id_len, address_t *addr) {
+  if (output_id == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (output_id_len < IOTA_OUTPUT_ID_BYTES) {
+    printf("[%s:%d] output id array length too small\n", __func__, __LINE__);
+    return -1;
+  }
+
   addr->type = ADDRESS_TYPE_NFT;
-  return iota_blake2b_sum((uint8_t const *const)output_id, strlen(output_id), addr->address, NFT_ID_BYTES);
+  return iota_blake2b_sum((uint8_t const *const)output_id, output_id_len, addr->address, NFT_ID_BYTES);
 }
 
 // get the length of
