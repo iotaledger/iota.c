@@ -214,7 +214,9 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
     }
 
     // amount
-    if (!cJSON_AddNumberToObject(output_obj, JSON_KEY_AMOUNT, foundry->amount)) {
+    char amount_str[65] = {};
+    sprintf(amount_str, "%" PRIu64 "", foundry->amount);
+    if (!cJSON_AddStringToObject(output_obj, JSON_KEY_AMOUNT, amount_str)) {
       printf("[%s:%d] add amount to foundry error\n", __func__, __LINE__);
       goto err;
     }
@@ -234,8 +236,11 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
     }
 
     // tokenTag
-    char tag_str[BIN_TO_HEX_STR_BYTES(TOKEN_TAG_BYTES_LEN)] = {};
-    if (bin_2_hex(foundry->token_tag, TOKEN_TAG_BYTES_LEN, tag_str, sizeof(tag_str)) != 0) {
+    char tag_str[BIN_TO_HEX_STR_BYTES(TOKEN_TAG_BYTES_LEN) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
+    tag_str[0] = '0';
+    tag_str[1] = 'x';
+    if (bin_2_hex(foundry->token_tag, TOKEN_TAG_BYTES_LEN, tag_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                  sizeof(tag_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
       printf("[%s:%d] convert token tag to hex string error\n", __func__, __LINE__);
       goto err;
     }
@@ -250,24 +255,42 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
     if (!tmp_supply) {
       goto err;
     }
-    if (!cJSON_AddStringToObject(output_obj, JSON_KEY_CIRC_SUPPLY, tmp_supply)) {
-      printf("[%s:%d] add circulating supply to foundry error\n", __func__, __LINE__);
+    char *tmp_supply_with_prefix = malloc(strlen(tmp_supply) + JSON_HEX_ENCODED_STRING_PREFIX_LEN);
+    if (!tmp_supply_with_prefix) {
       free(tmp_supply);
       goto err;
     }
+    tmp_supply_with_prefix[0] = '0';
+    tmp_supply_with_prefix[1] = 'x';
+    memcpy(tmp_supply_with_prefix + JSON_HEX_ENCODED_STRING_PREFIX_LEN, tmp_supply, strlen(tmp_supply));
     free(tmp_supply);
+    if (!cJSON_AddStringToObject(output_obj, JSON_KEY_CIRC_SUPPLY, tmp_supply)) {
+      printf("[%s:%d] add circulating supply to foundry error\n", __func__, __LINE__);
+      free(tmp_supply_with_prefix);
+      goto err;
+    }
+    free(tmp_supply_with_prefix);
 
     // maximumSupply
     tmp_supply = uint256_to_str(&foundry->max_supply);
     if (!tmp_supply) {
       goto err;
     }
-    if (!cJSON_AddStringToObject(output_obj, JSON_KEY_MAX_SUPPLY, tmp_supply)) {
-      printf("[%s:%d] add max supply to foundry error\n", __func__, __LINE__);
+    tmp_supply_with_prefix = malloc(strlen(tmp_supply) + JSON_HEX_ENCODED_STRING_PREFIX_LEN);
+    if (!tmp_supply_with_prefix) {
       free(tmp_supply);
       goto err;
     }
+    tmp_supply_with_prefix[0] = '0';
+    tmp_supply_with_prefix[1] = 'x';
+    memcpy(tmp_supply_with_prefix + JSON_HEX_ENCODED_STRING_PREFIX_LEN, tmp_supply, strlen(tmp_supply));
     free(tmp_supply);
+    if (!cJSON_AddStringToObject(output_obj, JSON_KEY_MAX_SUPPLY, tmp_supply)) {
+      printf("[%s:%d] add circulating supply to foundry error\n", __func__, __LINE__);
+      free(tmp_supply_with_prefix);
+      goto err;
+    }
+    free(tmp_supply_with_prefix);
 
     // token scheme
     if (!cJSON_AddNumberToObject(output_obj, JSON_KEY_TOKEN_SCHEME, foundry->token_scheme)) {

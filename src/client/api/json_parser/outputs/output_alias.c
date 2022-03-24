@@ -131,8 +131,10 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
     }
 
     // amount
-    if (!cJSON_AddNumberToObject(alias_obj, JSON_KEY_AMOUNT, alias->amount)) {
-      printf("[%s:%d] add amount into alias error\n", __func__, __LINE__);
+    char amount_str[65] = {};
+    sprintf(amount_str, "%" PRIu64 "", alias->amount);
+    if (!cJSON_AddStringToObject(alias_obj, JSON_KEY_AMOUNT, amount_str)) {
+      printf("[%s:%d] add amount to alias error\n", __func__, __LINE__);
       goto err;
     }
 
@@ -145,8 +147,11 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
     }
 
     // alias id
-    char alias_id_str[BIN_TO_HEX_STR_BYTES(ALIAS_ID_BYTES)] = {};
-    if (bin_2_hex(alias->alias_id, ALIAS_ID_BYTES, alias_id_str, sizeof(alias_id_str)) != 0) {
+    char alias_id_str[BIN_TO_HEX_STR_BYTES(ALIAS_ID_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
+    alias_id_str[0] = '0';
+    alias_id_str[1] = 'x';
+    if (bin_2_hex(alias->alias_id, ALIAS_ID_BYTES, alias_id_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                  sizeof(alias_id_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
       printf("[%s:%d] convert alias id to hex string error\n", __func__, __LINE__);
       goto err;
     }

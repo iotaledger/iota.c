@@ -80,8 +80,17 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
         if (!amount) {
           goto item_err;
         }
-        cJSON_AddStringToObject(item, JSON_KEY_AMOUNT, amount);
+        char *amount_with_prefix = malloc(strlen(amount) + JSON_HEX_ENCODED_STRING_PREFIX_LEN);
+        if (!amount_with_prefix) {
+          free(amount);
+          goto item_err;
+        }
+        amount_with_prefix[0] = '0';
+        amount_with_prefix[1] = 'x';
+        memcpy(amount_with_prefix + JSON_HEX_ENCODED_STRING_PREFIX_LEN, amount, strlen(amount));
         free(amount);
+        cJSON_AddStringToObject(item, JSON_KEY_AMOUNT, amount_with_prefix);
+        free(amount_with_prefix);
       } else {
         printf("[%s:%d] new json object error\n", __func__, __LINE__);
         cJSON_Delete(tokens);
