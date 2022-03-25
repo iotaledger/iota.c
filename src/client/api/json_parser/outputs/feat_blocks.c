@@ -129,25 +129,25 @@ int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t **
 
   // convert hex string into binary data
   byte_t *metadata = NULL;
-  uint32_t metadata_len = strlen(metadata_obj->valuestring);
-  if (metadata_len > 0) {
+  uint32_t metadata_len = 0;
+  uint32_t metadata_str_len = strlen(metadata_obj->valuestring);
+  if (metadata_str_len >= 2) {
+    if (memcmp(metadata_obj->valuestring, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+      printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+      return -1;
+    }
+    metadata_len = metadata_str_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN;
     metadata = malloc(metadata_len / 2);
     if (!metadata) {
       printf("[%s:%d] OOM\n", __func__, __LINE__);
       return -1;
     }
-    if (memcmp(metadata_obj->valuestring, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
-      printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
-      free(metadata);
-      return -1;
-    }
-    if (hex_2_bin(metadata_obj->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
-                  metadata_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN, metadata, metadata_len / 2) != 0) {
+    if (hex_2_bin(metadata_obj->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN, metadata_len, metadata,
+                  metadata_len / 2) != 0) {
       printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
       free(metadata);
       return -1;
     }
-    metadata_len -= JSON_HEX_ENCODED_STRING_PREFIX_LEN;
   }
 
   // add new metadata feature block into a list
@@ -223,25 +223,24 @@ int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_
 
   // convert hex string into binary data
   byte_t *tag = NULL;
-  uint32_t tag_len = strlen(tag_obj->valuestring);
-  if (tag_len > 0) {
+  uint32_t tag_len = 0;
+  uint32_t tag_str_len = strlen(tag_obj->valuestring);
+  if (tag_str_len >= 2) {
+    if (memcmp(tag_obj->valuestring, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+      printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+      return -1;
+    }
+    tag_len = tag_str_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN;
     tag = malloc(tag_len / 2);
     if (!tag) {
       printf("[%s:%d] OOM\n", __func__, __LINE__);
       return -1;
     }
-    if (memcmp(tag_obj->valuestring, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
-      printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
-      free(tag);
-      return -1;
-    }
-    if (hex_2_bin(tag_obj->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
-                  tag_len - JSON_HEX_ENCODED_STRING_PREFIX_LEN, tag, tag_len / 2) != 0) {
+    if (hex_2_bin(tag_obj->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN, tag_len, tag, tag_len / 2) != 0) {
       printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
       free(tag);
       return -1;
     }
-    tag_len -= JSON_HEX_ENCODED_STRING_PREFIX_LEN;
   }
 
   // add new tag feature block into a list
