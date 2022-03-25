@@ -73,7 +73,7 @@ void test_send_tagged_data() {
 
   char* tag_hex = malloc(BIN_TO_HEX_STR_BYTES(strlen(tag)));
   TEST_ASSERT_NOT_NULL(tag_hex);
-  TEST_ASSERT(bin_2_hex((byte_t*)tag, strlen(tag), tag_hex, sizeof(tag_hex)) == 0);
+  TEST_ASSERT(bin_2_hex((byte_t*)tag, strlen(tag), tag_hex, BIN_TO_HEX_STR_BYTES(strlen(tag))) == 0);
 
   // check if tag is matching
   TEST_ASSERT_EQUAL_MEMORY(tag_hex, json_tag->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN, TAG_LEN);
