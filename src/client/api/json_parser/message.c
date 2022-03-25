@@ -128,8 +128,12 @@ cJSON* json_message_serialize(core_message_t* msg) {
   byte_t* p = NULL;
   while ((p = (byte_t*)utarray_next(msg->parents, p))) {
     memcpy(tmp_id_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
-    bin_2_hex(p, IOTA_MESSAGE_ID_BYTES, tmp_id_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
-              sizeof(tmp_id_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN);
+    if (bin_2_hex(p, IOTA_MESSAGE_ID_BYTES, tmp_id_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
+                  sizeof(tmp_id_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+      printf("[%s:%d] converting binary to hex failed\n", __func__, __LINE__);
+      cJSON_Delete(msg_obj);
+      return NULL;
+    }
     cJSON_AddItemToArray(parents, cJSON_CreateString(tmp_id_str));
   }
 
