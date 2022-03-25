@@ -71,7 +71,8 @@ void test_send_tagged_data() {
   cJSON* json_data = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_DATA);
   TEST_ASSERT_NOT_NULL(json_data);
 
-  char tag_hex[BIN_TO_HEX_STR_BYTES(strlen(tag))] = {0};
+  char* tag_hex = malloc(BIN_TO_HEX_STR_BYTES(strlen(tag)));
+  TEST_ASSERT_NOT_NULL(tag_hex);
   TEST_ASSERT(bin_2_hex((byte_t*)tag, strlen(tag), tag_hex, sizeof(tag_hex)) == 0);
 
   // check if tag is matching
@@ -83,6 +84,7 @@ void test_send_tagged_data() {
   // check if data is matching
   TEST_ASSERT_EQUAL_MEMORY(data_hex, json_data->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN, TAG_DATA_LEN);
 
+  free(tag_hex);
   cJSON_Delete(json_obj);
   byte_buf_free(http_res);
 }
