@@ -5,22 +5,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "client/api/restful/get_balance.h"
 #include "client/api/restful/get_node_info.h"
-#include "client/api/restful/get_output.h"
-#include "client/api/restful/get_outputs_id.h"
-#include "client/api/restful/send_message.h"
-#include "core/models/message.h"
-#include "core/utils/byte_buffer.h"
-#include "wallet/wallet.h"
-
 #include "core/utils/slip10.h"
 #include "wallet/bip39.h"
+#include "wallet/wallet.h"
 
 // max length of m/44'/4218'/Account'/Change'
 #define IOTA_ACCOUNT_PATH_MAX 128
 
-// TODO: move to utils?
+// TODO: unused function at the moment
+#if 0
 // validate path: m/44',/4218',/Account',/Change'
 static int validate_pib44_path(char const path[]) {
   static char const* const iota_bip44_prefix = "m/44'/4218'";
@@ -56,7 +50,7 @@ static int validate_pib44_path(char const path[]) {
     }
 
     // get value
-    unsigned long value = strtoul(token, &ptr, 10);
+    // unsigned long value = strtoul(token, &ptr, 10);
 
     // hardened
     if (!(strncmp(ptr, "\'", 1) == 0 || strncmp(ptr, "H", 1) == 0)) {
@@ -76,6 +70,7 @@ static int validate_pib44_path(char const path[]) {
   }
   return ret;
 }
+#endif
 
 /**
  * @brief Get the address path
@@ -91,12 +86,13 @@ static void get_address_path(uint32_t account, bool change, uint32_t index, char
   // IOTA BIP44 Paths: m/44'/4128'/Account'/Change'/Index'
   // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
   ret_size = snprintf(buf, buf_len, "m/44'/4218'/%" PRIu32 "'/%d'/%" PRIu32 "'", account, change, index);
-  if (ret_size >= buf_len) {
+  if ((size_t)ret_size >= buf_len) {
     buf[buf_len - 1] = '\0';
     printf("[%s:%d] path is truncated\n", __func__, __LINE__);
   }
 }
 
+#if 0  // TODO, remove or refactor?
 static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, bool change, uint32_t sender_index,
                                                        byte_t receiver[], uint64_t balance, char const index[],
                                                        byte_t data[], size_t data_len) {
@@ -211,6 +207,7 @@ done:
   }
   return tx_payload;
 }
+#endif
 
 iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t account_index) {
   char mnemonic_tmp[512] = {};  // buffer for random mnemonic
@@ -278,27 +275,24 @@ int wallet_set_endpoint(iota_wallet_t* w, char const host[], uint16_t port, bool
   return 0;
 }
 
-int wallet_address_from_index(iota_wallet_t* w, bool change, uint32_t index, byte_t addr[]) {
-  char path_buf[IOTA_ACCOUNT_PATH_MAX] = {};
-  if (!w || !addr) {
-    printf("[%s:%d] Err: invalid parameters\n", __func__, __LINE__);
+int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* out) {
+  char bip_path_buf[IOTA_ACCOUNT_PATH_MAX] = {};
+
+  if (!w || !out) {
+    printf("[%s:%d] Err: invalid paramters\n", __func__, __LINE__);
     return -1;
   }
-  get_address_path(w->account_index, change, index, path_buf, sizeof(path_buf));
-  return address_from_path(w->seed, sizeof(w->seed), path_buf, addr);
+
+  // derive ed25519 address from seed and path
+  get_address_path(w->account_index, change, index, bip_path_buf, sizeof(bip_path_buf));
+  return ed25519_address_from_path(w->seed, sizeof(w->seed), bip_path_buf, out);
 }
 
-int wallet_bech32_from_index(iota_wallet_t* w, bool change, uint32_t index, char addr[]) {
-  byte_t tmp_addr[IOTA_ADDRESS_BYTES] = {};
-  if (wallet_address_from_index(w, change, index, tmp_addr + 1) == 0) {
-    return address_2_bech32(tmp_addr, w->bech32HRP, addr);
-  } else {
-    printf("[%s:%d] get address error\n", __func__, __LINE__);
-  }
-  return -1;
-}
-
-int wallet_balance_by_address(iota_wallet_t* w, byte_t const addr[], uint64_t* balance) {
+int wallet_balance_by_address(iota_wallet_t* w, address_t* addr, uint64_t* balance) {
+  (void)w;
+  (void)addr;
+  (void)balance;
+#if 0  // TODO, refactor
   char hex_addr[IOTA_ADDRESS_HEX_BYTES + 1] = {};
   res_balance_t* bal_res = NULL;
 
@@ -327,96 +321,23 @@ int wallet_balance_by_address(iota_wallet_t* w, byte_t const addr[], uint64_t* b
 
   res_balance_free(bal_res);
   return 0;
-}
-
-int wallet_balance_by_index(iota_wallet_t* w, bool change, uint32_t index, uint64_t* balance) {
-  byte_t ed_addr[ED25519_ADDRESS_BYTES] = {};
-  if (wallet_address_from_index(w, change, index, ed_addr) == 0) {
-    return wallet_balance_by_address(w, ed_addr, balance);
-  }
-  printf("[%s:%d] get address failed\n", __func__, __LINE__);
+#endif
   return -1;
 }
 
 int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* balance) {
   // TODO
+  (void)w;
+  (void)bech32;
+  (void)balance;
   return -1;
 }
 
-int wallet_send(iota_wallet_t* w, bool change, uint32_t addr_index, byte_t receiver[], uint64_t balance,
-                char const index[], byte_t data[], size_t data_len, char msg_id[], size_t msg_id_len) {
-  core_message_t* msg = NULL;
-  indexation_t* idx = NULL;
-  transaction_payload_t* tx = NULL;
-  res_send_message_t msg_res = {};
-
-  if (!w) {
-    printf("[%s:%d] Err: invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
-  if (msg_id_len < IOTA_MESSAGE_ID_HEX_BYTES + 1) {
-    printf("[%s:%d] Err: msg_id buffer is too small\n", __func__, __LINE__);
-    return -1;
-  }
-
-  // build payload
-  if (!receiver || balance == 0) {
-    if (!index || !data) {
-      printf("[%s:%d] Err: index and data parameters are needed\n", __func__, __LINE__);
-      return -1;
-    }
-    if ((idx = indexation_create(index, data, data_len)) == NULL) {
-      printf("[%s:%d] Err: create indexation payload failed\n", __func__, __LINE__);
-      return -1;
-    }
-  } else {
-    // transaction
-    if ((tx = wallet_build_transaction(w, change, addr_index, receiver, balance, index, data, data_len)) == NULL) {
-      printf("[%s:%d] Err: create transaction payload failed\n", __func__, __LINE__);
-      return -1;
-    }
-  }
-
-  // put payload into message
-  if ((msg = core_message_new()) == NULL) {
-    printf("[%s:%d] Err: create message failed\n", __func__, __LINE__);
-    if (tx) {
-      tx_payload_free(tx);
-    } else {
-      indexation_free(idx);
-    }
-    return -1;
-  }
-
-  if (!tx) {
-    // indexation payload only
-    msg->payload = idx;
-    msg->payload_type = MSG_PAYLOAD_INDEXATION;
-  } else {
-    // transaction payload
-    msg->payload = tx;
-    msg->payload_type = MSG_PAYLOAD_TRANSACTION;
-    if (core_message_sign_transaction(msg) != 0) {
-      printf("[%s:%d] Err: sign transaction failed\n", __func__, __LINE__);
-      core_message_free(msg);
-      return -1;
-    }
-  }
-
-  // send message
-  if (send_core_message(&w->endpoint, msg, &msg_res) == 0) {
-    strncpy(msg_id, msg_res.u.msg_id, msg_id_len);
-    core_message_free(msg);
-    return 0;
-  } else {
-    if (msg_res.is_error) {
-      printf("[%s:%d] Error response: %s\n", __func__, __LINE__, msg_res.u.error->msg);
-      res_err_free(msg_res.u.error);
-    }
-  }
-
-  core_message_free(msg);
+int wallet_unlock_outputs(iota_wallet_t* w, bool change, uint32_t index) {
+  // TODO
+  (void)w;
+  (void)change;
+  (void)index;
   return -1;
 }
 
