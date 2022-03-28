@@ -158,12 +158,12 @@ static output_foundry_t* create_output_foundry() {
   output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, token_scheme, test_meta,
                                                 sizeof(test_meta), test_immut_meta, sizeof(test_immut_meta));
 
-  free(amount1);
-  free(amount2);
-  free(amount3);
-  free(minted_tokens);
-  free(melted_tokens);
-  free(max_supply);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
+  uint256_free(minted_tokens);
+  uint256_free(melted_tokens);
+  uint256_free(max_supply);
   token_scheme_free(token_scheme);
   native_tokens_free(native_tokens);
 

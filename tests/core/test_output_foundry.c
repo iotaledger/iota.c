@@ -47,13 +47,13 @@ void setUp(void) {
 }
 
 void tearDown(void) {
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   native_tokens_free(native_tokens);
-  free(minted_tokens);
-  free(melted_tokens);
-  free(max_supply);
+  uint256_free(minted_tokens);
+  uint256_free(melted_tokens);
+  uint256_free(max_supply);
 }
 
 void test_token_scheme() {

@@ -45,6 +45,7 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
     memset(temp_str, 0, STRING_NUMBER_MAX_CHARACTERS);
     if (json_get_string(output_obj, JSON_KEY_MELTED_TOKENS, temp_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MELTED_TOKENS);
+      uint256_free(mintedt_tokens);
       return -1;
     }
     melted_tokens = uint256_from_str(temp_str);
@@ -53,6 +54,8 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
     memset(temp_str, 0, STRING_NUMBER_MAX_CHARACTERS);
     if (json_get_string(output_obj, JSON_KEY_MAX_SUPPLY, temp_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MAX_SUPPLY);
+      uint256_free(mintedt_tokens);
+      uint256_free(melted_tokens);
       return -1;
     }
     max_supply = uint256_from_str(temp_str);
@@ -60,11 +63,14 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
     *token_scheme = token_scheme_simple_new(mintedt_tokens, melted_tokens, max_supply);
     if (!token_scheme) {
       printf("[%s:%d]: creating token scheme object failed\n", __func__, __LINE__);
+      uint256_free(mintedt_tokens);
+      uint256_free(melted_tokens);
+      uint256_free(max_supply);
       return -1;
     }
-    free(mintedt_tokens);
-    free(melted_tokens);
-    free(max_supply);
+    uint256_free(mintedt_tokens);
+    uint256_free(melted_tokens);
+    uint256_free(max_supply);
   } else {
     printf("[%s:%d]: unsupported token scheme type \n", __func__, __LINE__);
     return -1;

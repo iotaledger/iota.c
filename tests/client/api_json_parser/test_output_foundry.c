@@ -40,13 +40,13 @@ void test_parse_foundry_output_basic() {
   TEST_ASSERT_NOT_NULL(simple_scheme);
   uint256_t *minted_tokens = uint256_from_str("20000000000000000000000000000000000000000");
   TEST_ASSERT_EQUAL_INT(0, uint256_equal(minted_tokens, &simple_scheme->minted_tokens));
-  free(minted_tokens);
+  uint256_free(minted_tokens);
   uint256_t *melted_tokens = uint256_from_str("10000000000000000000000000000000000000000");
   TEST_ASSERT_EQUAL_INT(0, uint256_equal(melted_tokens, &simple_scheme->melted_tokens));
-  free(melted_tokens);
+  uint256_free(melted_tokens);
   uint256_t *max_supply = uint256_from_str("30000000000000000000000000000000000000000");
   TEST_ASSERT_EQUAL_INT(0, uint256_equal(max_supply, &simple_scheme->max_supply));
-  free(max_supply);
+  uint256_free(max_supply);
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(foundry_output->unlock_conditions);
@@ -116,13 +116,13 @@ void test_parse_foundry_output_full() {
   TEST_ASSERT_NOT_NULL(simple_scheme);
   uint256_t *minted_tokens = uint256_from_str("20000000000000000000000000000000000000000");
   TEST_ASSERT_EQUAL_INT(0, uint256_equal(minted_tokens, &simple_scheme->minted_tokens));
-  free(minted_tokens);
+  uint256_free(minted_tokens);
   uint256_t *melted_tokens = uint256_from_str("10000000000000000000000000000000000000000");
   TEST_ASSERT_EQUAL_INT(0, uint256_equal(melted_tokens, &simple_scheme->melted_tokens));
-  free(melted_tokens);
+  uint256_free(melted_tokens);
   uint256_t *max_supply = uint256_from_str("30000000000000000000000000000000000000000");
   TEST_ASSERT_EQUAL_INT(0, uint256_equal(max_supply, &simple_scheme->max_supply));
-  free(max_supply);
+  uint256_free(max_supply);
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(foundry_output->unlock_conditions);

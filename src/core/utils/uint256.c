@@ -260,3 +260,9 @@ uint256_t *uint256_clone(uint256_t const *const num) {
 
   return new_num;
 }
+
+void uint256_free(uint256_t *num) {
+  if (num) {
+    free(num);
+  }
+}

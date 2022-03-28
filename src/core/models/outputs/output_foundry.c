@@ -186,10 +186,10 @@ bool token_scheme_syntactic(token_scheme_t* token_scheme) {
   }
   if (!uint256_equal(&simple_scheme->max_supply, max_supply_check)) {
     printf("[%s:%d] maximum supply cannot be 0\n", __func__, __LINE__);
-    free(max_supply_check);
+    uint256_free(max_supply_check);
     return false;
   }
-  free(max_supply_check);
+  uint256_free(max_supply_check);
 
   uint256_t diff;
   // minted mokens - melted tokens must not be greater than maximum supply.
