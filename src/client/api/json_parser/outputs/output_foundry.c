@@ -37,7 +37,8 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
     uint256_t *max_supply = NULL;
     // minted tokens
     char temp_str[STRING_NUMBER_MAX_CHARACTERS];
-    if (json_get_string(output_obj, JSON_KEY_MINTED_TOKENS, temp_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+    if (json_get_string_with_prefix(output_obj, JSON_KEY_MINTED_TOKENS, temp_str, STRING_NUMBER_MAX_CHARACTERS) !=
+        JSON_OK) {
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MINTED_TOKENS);
       return -1;
     }
@@ -45,7 +46,8 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
 
     // melted tokens
     memset(temp_str, 0, STRING_NUMBER_MAX_CHARACTERS);
-    if (json_get_string(output_obj, JSON_KEY_MELTED_TOKENS, temp_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+    if (json_get_string_with_prefix(output_obj, JSON_KEY_MELTED_TOKENS, temp_str, STRING_NUMBER_MAX_CHARACTERS) !=
+        JSON_OK) {
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MELTED_TOKENS);
       uint256_free(mintedt_tokens);
       return -1;
@@ -54,7 +56,8 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
 
     // maximum supply
     memset(temp_str, 0, STRING_NUMBER_MAX_CHARACTERS);
-    if (json_get_string(output_obj, JSON_KEY_MAX_SUPPLY, temp_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+    if (json_get_string_with_prefix(output_obj, JSON_KEY_MAX_SUPPLY, temp_str, STRING_NUMBER_MAX_CHARACTERS) !=
+        JSON_OK) {
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MAX_SUPPLY);
       uint256_free(mintedt_tokens);
       uint256_free(melted_tokens);
@@ -109,36 +112,63 @@ cJSON *json_token_scheme_serialize(token_scheme_t *scheme) {
       if (!tmp_supply) {
         goto err;
       }
-      if (!cJSON_AddStringToObject(scheme_obj, JSON_KEY_MINTED_TOKENS, tmp_supply)) {
-        printf("[%s:%d] add minted tokens to foundry failed\n", __func__, __LINE__);
+      char *tmp_supply_with_prefix =
+          calloc(1, strlen(tmp_supply) + JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);  // Zero terminated string
+      if (!tmp_supply_with_prefix) {
         free(tmp_supply);
         goto err;
       }
+      memcpy(tmp_supply_with_prefix, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
+      memcpy(tmp_supply_with_prefix + JSON_HEX_ENCODED_STR_PREFIX_LEN, tmp_supply, strlen(tmp_supply));
       free(tmp_supply);
+      if (!cJSON_AddStringToObject(scheme_obj, JSON_KEY_MINTED_TOKENS, tmp_supply_with_prefix)) {
+        printf("[%s:%d] add minted tokens to foundry failed\n", __func__, __LINE__);
+        free(tmp_supply_with_prefix);
+        goto err;
+      }
+      free(tmp_supply_with_prefix);
 
       // melted tokens
       tmp_supply = uint256_to_str(&simple_scheme->melted_tokens);
       if (!tmp_supply) {
         goto err;
       }
-      if (!cJSON_AddStringToObject(scheme_obj, JSON_KEY_MELTED_TOKENS, tmp_supply)) {
-        printf("[%s:%d] add melted tokens to foundry failed\n", __func__, __LINE__);
+      tmp_supply_with_prefix =
+          calloc(1, strlen(tmp_supply) + JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);  // Zero terminated string
+      if (!tmp_supply_with_prefix) {
         free(tmp_supply);
         goto err;
       }
+      memcpy(tmp_supply_with_prefix, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
+      memcpy(tmp_supply_with_prefix + JSON_HEX_ENCODED_STR_PREFIX_LEN, tmp_supply, strlen(tmp_supply));
       free(tmp_supply);
+      if (!cJSON_AddStringToObject(scheme_obj, JSON_KEY_MELTED_TOKENS, tmp_supply_with_prefix)) {
+        printf("[%s:%d] add melted tokens to foundry failed\n", __func__, __LINE__);
+        free(tmp_supply_with_prefix);
+        goto err;
+      }
+      free(tmp_supply_with_prefix);
 
       // maximum supply
       tmp_supply = uint256_to_str(&simple_scheme->max_supply);
       if (!tmp_supply) {
         goto err;
       }
-      if (!cJSON_AddStringToObject(scheme_obj, JSON_KEY_MAX_SUPPLY, tmp_supply)) {
-        printf("[%s:%d] add max supply to foundry failed\n", __func__, __LINE__);
+      tmp_supply_with_prefix =
+          calloc(1, strlen(tmp_supply) + JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);  // Zero terminated string
+      if (!tmp_supply_with_prefix) {
         free(tmp_supply);
         goto err;
       }
+      memcpy(tmp_supply_with_prefix, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
+      memcpy(tmp_supply_with_prefix + JSON_HEX_ENCODED_STR_PREFIX_LEN, tmp_supply, strlen(tmp_supply));
       free(tmp_supply);
+      if (!cJSON_AddStringToObject(scheme_obj, JSON_KEY_MAX_SUPPLY, tmp_supply_with_prefix)) {
+        printf("[%s:%d] add max supply to foundry failed\n", __func__, __LINE__);
+        free(tmp_supply_with_prefix);
+        goto err;
+      }
+      free(tmp_supply_with_prefix);
     }
     return scheme_obj;
   }
@@ -351,8 +381,9 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
     }
 
     // tokenTag
-    char tag_str[BIN_TO_HEX_STR_BYTES(TOKEN_TAG_BYTES_LEN)] = {};
-    memcpy(tag_str, foundry->token_tag, TOKEN_TAG_BYTES_LEN);
+    char tag_str[JSON_STR_WITH_PREFIX_BYTES(TOKEN_TAG_BYTES_LEN)] = {};
+    memcpy(tag_str, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
+    memcpy(tag_str + JSON_HEX_ENCODED_STR_PREFIX_LEN, foundry->token_tag, TOKEN_TAG_BYTES_LEN);
     if (!cJSON_AddStringToObject(output_obj, JSON_KEY_TOKEN_TAG, tag_str)) {
       printf("[%s:%d] add token tag to foundry error\n", __func__, __LINE__);
       goto err;

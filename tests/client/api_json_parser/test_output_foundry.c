@@ -15,7 +15,7 @@ void tearDown(void) {}
 
 void test_parse_foundry_output_basic() {
   char const *const json_res =
-      "{\"type\":5,\"amount\":\"1000000\",\"nativeTokens\":[],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\","
+      "{\"type\":5,\"amount\":\"1000000\",\"nativeTokens\":[],\"serialNumber\":123456,\"tokenTag\":\"0xTokenTAGDemo\","
       "\"tokenScheme\":{\"type\":0,\"mintedTokens\":\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":8,"
@@ -77,7 +77,7 @@ void test_parse_foundry_output_full() {
       "\"0x08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\",\"amount\":"
       "\"0x93847598347598347598347598\"},{\"id\":"
       "\"0x09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
-      "\"0x7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\",\"tokenScheme\":{\"type\":0, "
+      "\"0x7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"0xTokenTAGDemo\",\"tokenScheme\":{\"type\":0, "
       "\"mintedTokens\":\"0x20000000000000000000000000000000000000000\", \"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\", \"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,"

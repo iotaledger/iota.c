@@ -72,9 +72,9 @@ void test_parse_outputs() {
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,"
       "\"address\":{\"type\":8,\"aliasId\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{"
-      "\"type\":2,\"data\":\"0xmetadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}],"
+      "\"type\":2,\"data\":\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}],"
       "\"immutableFeatureBlocks\":[{\"type\":2,\"data\":"
-      "\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}]},"
+      "\"0x696d6d757461626c654d65746164617461546573745f696d6d757461626c654d65746164617461546573745f\"}]},"
       // NFT output
       "{\"type\":6,\"amount\":\"1000000\",\"nativeTokens\":[{\"id\":"
       "\"0x08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\","
