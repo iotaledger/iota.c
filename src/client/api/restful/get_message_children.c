@@ -103,7 +103,8 @@ int deser_msg_children(char const *const j_str, res_msg_children_t *res) {
   }
 
   // message ID
-  if ((ret = json_get_string(json_obj, JSON_KEY_MSG_ID, res->u.data->msg_id, sizeof(res->u.data->msg_id))) != 0) {
+  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->u.data->msg_id,
+                                         sizeof(res->u.data->msg_id))) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
     goto end;
   }
@@ -121,7 +122,8 @@ int deser_msg_children(char const *const j_str, res_msg_children_t *res) {
   }
 
   // children
-  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_CHILDREN_MSG_IDS, res->u.data->children)) != 0) {
+  if ((ret = json_string_with_prefix_array_to_utarray(json_obj, JSON_KEY_CHILDREN_MSG_IDS, res->u.data->children)) !=
+      0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_CHILDREN_MSG_IDS);
   }
 

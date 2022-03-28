@@ -14,11 +14,11 @@ void tearDown(void) {}
 
 void test_deser_message_children() {
   char const* const json_res =
-      "{\"messageId\":\"a30d95e791d9cefa52156051974d5396d48b517bd16644bf2d3d0f67e9f7d82f\",\"maxResults\":"
-      "1000,\"count\":4,\"childrenMessageIds\":[\"38c01ac57bef2407ba38900c0d78b1d7a0e51d78feb08fff14606024f5077048\","
-      "\"7822b722efb52af2e127aa79a1d16698ce00412ed1e38d4bcea6394e7f512828\","
-      "\"ad7ab203440f3183034e18545c6708ffe820ce519757d3a3ebcf89fcde03af4d\","
-      "\"f63d38f0e10b65234824bbeb0fd0917b890089a8cc9cc2ddef22879b1785309d\"]}";
+      "{\"messageId\":\"0xa30d95e791d9cefa52156051974d5396d48b517bd16644bf2d3d0f67e9f7d82f\",\"maxResults\":"
+      "1000,\"count\":4,\"childrenMessageIds\":[\"0x38c01ac57bef2407ba38900c0d78b1d7a0e51d78feb08fff14606024f5077048\","
+      "\"0x7822b722efb52af2e127aa79a1d16698ce00412ed1e38d4bcea6394e7f512828\","
+      "\"0xad7ab203440f3183034e18545c6708ffe820ce519757d3a3ebcf89fcde03af4d\","
+      "\"0xf63d38f0e10b65234824bbeb0fd0917b890089a8cc9cc2ddef22879b1785309d\"]}";
 
   res_msg_children_t* ch = res_msg_children_new();
   TEST_ASSERT_NOT_NULL(ch);
