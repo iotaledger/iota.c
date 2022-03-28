@@ -135,9 +135,12 @@ static output_foundry_t* create_output_foundry() {
   uint256_t* amount3 = uint256_from_str("333333333");
   native_tokens_add(&native_tokens, token_id3, amount3);
 
-  // create circulating and maximum supply
-  uint256_t* circ_supply = uint256_from_str("444444444");
-  uint256_t* max_supply = uint256_from_str("555555555");
+  // create minted tokens
+  uint256_t* minted_tokens = uint256_from_str("200000000");
+  // create melted tokens
+  uint256_t* melted_tokens = uint256_from_str("100000000");
+  // create maximum supply
+  uint256_t* max_supply = uint256_from_str("500000000");
 
   // create random Alias address
   address_t addr = {};
@@ -148,16 +151,20 @@ static output_foundry_t* create_output_foundry() {
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
   iota_crypto_randombytes(token_tag, TOKEN_TAG_BYTES_LEN);
 
+  // create token scheme
+  token_scheme_t* token_scheme = token_scheme_simple_new(minted_tokens, melted_tokens, max_supply);
+
   // create Foundry Output
-  output_foundry_t* output =
-      output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply, SIMPLE_TOKEN_SCHEME,
-                         test_meta, sizeof(test_meta), test_immut_meta, sizeof(test_immut_meta));
+  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, token_scheme, test_meta,
+                                                sizeof(test_meta), test_immut_meta, sizeof(test_immut_meta));
 
   free(amount1);
   free(amount2);
   free(amount3);
-  free(circ_supply);
+  free(minted_tokens);
+  free(melted_tokens);
   free(max_supply);
+  token_scheme_free(token_scheme);
   native_tokens_free(native_tokens);
 
   return output;
@@ -306,9 +313,14 @@ void test_utxo_outputs() {
                           native_tokens_count(foundry_from_deser->native_tokens));
   TEST_ASSERT_EQUAL_INT32(foundry_output->serial, foundry_from_deser->serial);
   TEST_ASSERT_EQUAL_MEMORY(foundry_output->token_tag, foundry_from_deser->token_tag, TOKEN_TAG_BYTES_LEN);
-  TEST_ASSERT_EQUAL_MEMORY(&foundry_output->circ_supply, &foundry_from_deser->circ_supply, sizeof(uint256_t));
-  TEST_ASSERT_EQUAL_MEMORY(&foundry_output->max_supply, &foundry_from_deser->max_supply, sizeof(uint256_t));
-  TEST_ASSERT_EQUAL_UINT8(foundry_output->token_scheme, foundry_from_deser->token_scheme);
+  TEST_ASSERT_EQUAL_UINT8(foundry_output->token_scheme->type, foundry_from_deser->token_scheme->type);
+  token_scheme_simple_t* simple_scheme = foundry_output->token_scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(simple_scheme);
+  token_scheme_simple_t* simple_scheme_deser = foundry_from_deser->token_scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(simple_scheme_deser);
+  TEST_ASSERT_EQUAL_MEMORY(&simple_scheme->minted_tokens, &simple_scheme_deser->minted_tokens, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(&simple_scheme->melted_tokens, &simple_scheme_deser->melted_tokens, sizeof(uint256_t));
+  TEST_ASSERT_EQUAL_MEMORY(&simple_scheme->max_supply, &simple_scheme_deser->max_supply, sizeof(uint256_t));
   TEST_ASSERT_EQUAL_UINT8(cond_blk_list_len(foundry_output->unlock_conditions),
                           cond_blk_list_len(foundry_from_deser->unlock_conditions));
   TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(foundry_output->feature_blocks),
