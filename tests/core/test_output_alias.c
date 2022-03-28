@@ -219,9 +219,9 @@ void test_output_alias() {
   output_alias_print(output, 0);
 
   // clean up
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
   free(output_serialized_buf);
@@ -600,9 +600,9 @@ void test_output_alias_without_metadata() {
   output_alias_print(output, 0);
 
   // clean up
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   native_tokens_free(native_tokens);
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
@@ -791,9 +791,9 @@ void test_output_alias_without_feature_blocks() {
   output_alias_print(output, 0);
 
   // clean up
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   free(output_alias_buf);
   native_tokens_free(native_tokens);
   cond_blk_free(state_block);
@@ -963,9 +963,9 @@ void test_output_alias_without_immutable_feature_blocks() {
   output_alias_print(output, 0);
 
   // clean up
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
   free(output_serialized_buf);
@@ -1089,9 +1089,9 @@ void test_output_alias_clone() {
   output_alias_print(new_output, 0);
 
   // clean up
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   native_tokens_free(native_tokens);
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
@@ -1208,9 +1208,9 @@ void test_output_alias_condition_blocks() {
   output_alias_free(output);
 
   // clean up
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   native_tokens_free(native_tokens);
   feat_blk_list_free(feat_blocks);
   feat_blk_list_free(immut_feat_blocks);
@@ -1276,7 +1276,7 @@ void test_output_alias_state_metadata_length() {
   TEST_ASSERT_NULL(output);
 
   // clean up
-  free(amount1);
+  uint256_free(amount1);
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
   native_tokens_free(native_tokens);

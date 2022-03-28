@@ -183,14 +183,16 @@ void test_unlock_conditions() {
       "{\"type\":4,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
       "{\"type\":5,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}}]}";
+      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
+      "{\"type\":6,\"address\":{\"type\":8,"
+      "\"aliasId\":\"194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}]}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
   cond_blk_list_t* blk_list = cond_blk_list_new();
   int result = json_cond_blk_list_deserialize(json_obj, &blk_list);
   TEST_ASSERT_EQUAL_INT(0, result);
-  TEST_ASSERT_EQUAL_INT(6, cond_blk_list_len(blk_list));
+  TEST_ASSERT_EQUAL_INT(7, cond_blk_list_len(blk_list));
   unlock_cond_blk_t* cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_ADDRESS);
   TEST_ASSERT_NOT_NULL(cond_block);
   cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_STORAGE);
@@ -203,6 +205,8 @@ void test_unlock_conditions() {
   TEST_ASSERT_NOT_NULL(cond_block);
   cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_GOVERNOR);
   TEST_ASSERT_NOT_NULL(cond_block);
+  cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_IMMUT_ALIAS);
+  TEST_ASSERT_NOT_NULL(cond_block);
 
   // print unlock conditions
   cond_blk_list_print(blk_list, 0);
@@ -213,7 +217,7 @@ void test_unlock_conditions() {
 
 void test_unlock_conditions_unsupported_type() {
   char const* const json_res =
-      "{\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":0,\"pubKeyHash\":"
+      "{\"unlockConditions\":[{\"type\":7,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}]}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
