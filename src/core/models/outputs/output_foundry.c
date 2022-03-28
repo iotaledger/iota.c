@@ -95,6 +95,7 @@ token_scheme_t* token_scheme_clone(token_scheme_t* scheme) {
     new_scheme->type = SIMPLE_TOKEN_SCHEME;
   } else {
     printf("[%s:%d] unknown token scheme type\n", __func__, __LINE__);
+    free(new_scheme);
     return NULL;
   }
   return new_scheme;
@@ -179,6 +180,7 @@ token_scheme_t* token_scheme_deserialize(byte_t buf[], size_t buf_len) {
     return scheme;
   } else {
     printf("[%s:%d] unknown token scheme type\n", __func__, __LINE__);
+    free(scheme);
   }
   return NULL;
 }
