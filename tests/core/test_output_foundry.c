@@ -25,7 +25,8 @@ native_tokens_list_t* native_tokens = NULL;
 uint256_t* amount1 = NULL;
 uint256_t* amount2 = NULL;
 uint256_t* amount3 = NULL;
-uint256_t* circ_supply = NULL;
+uint256_t* minted_tokens = NULL;
+uint256_t* melted_tokens = NULL;
 uint256_t* max_supply = NULL;
 
 void setUp(void) {
@@ -37,18 +38,67 @@ void setUp(void) {
   native_tokens_add(&native_tokens, token_id2, amount2);
   amount3 = uint256_from_str("333333333");
   native_tokens_add(&native_tokens, token_id3, amount3);
-  // create circulating and maximum supply
-  circ_supply = uint256_from_str("444444444");
-  max_supply = uint256_from_str("555555555");
+  // create maximum supply
+  minted_tokens = uint256_from_str("300000000");
+  // create maximum supply
+  melted_tokens = uint256_from_str("200000000");
+  // create maximum supply
+  max_supply = uint256_from_str("500000000");
 }
 
 void tearDown(void) {
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   native_tokens_free(native_tokens);
-  free(circ_supply);
-  free(max_supply);
+  uint256_free(minted_tokens);
+  uint256_free(melted_tokens);
+  uint256_free(max_supply);
+}
+
+void test_token_scheme() {
+  // create token scheme
+  token_scheme_t* scheme = token_scheme_simple_new(minted_tokens, melted_tokens, max_supply);
+  TEST_ASSERT_NOT_NULL(scheme);
+
+  // validate token scheme
+  TEST_ASSERT(scheme->type == SIMPLE_TOKEN_SCHEME);
+  token_scheme_simple_t* simple_scheme = scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(simple_scheme);
+  TEST_ASSERT(uint256_equal(minted_tokens, &simple_scheme->minted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(melted_tokens, &simple_scheme->melted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(max_supply, &simple_scheme->max_supply) == 0);
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(token_scheme_syntactic(scheme));
+
+  // serialize token scheme and validate it
+  size_t token_scheme_expected_len = token_scheme_serialize_len(scheme);
+  TEST_ASSERT(token_scheme_expected_len != 0);
+  byte_t* token_scheme_buf = malloc(token_scheme_expected_len);
+  TEST_ASSERT_NOT_NULL(token_scheme_buf);
+  // expect serialization fails
+  TEST_ASSERT(token_scheme_serialize(scheme, token_scheme_buf, token_scheme_expected_len - 1) == 0);
+  TEST_ASSERT(token_scheme_serialize(scheme, token_scheme_buf, token_scheme_expected_len) == token_scheme_expected_len);
+
+  // deserialize token scheme and validate it
+  token_scheme_t* deser_scheme = token_scheme_deserialize(token_scheme_buf, token_scheme_expected_len - 1);
+  // expect deserialization fails
+  TEST_ASSERT_NULL(deser_scheme);
+  deser_scheme = token_scheme_deserialize(token_scheme_buf, token_scheme_expected_len);
+  TEST_ASSERT_NOT_NULL(deser_scheme);
+
+  // validate deserialized token scheme
+  TEST_ASSERT(deser_scheme->type == SIMPLE_TOKEN_SCHEME);
+  token_scheme_simple_t* deser_simple_scheme = deser_scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(deser_simple_scheme);
+  TEST_ASSERT(uint256_equal(minted_tokens, &deser_simple_scheme->minted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(melted_tokens, &deser_simple_scheme->melted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(max_supply, &deser_simple_scheme->max_supply) == 0);
+
+  free(token_scheme_buf);
+  token_scheme_free(deser_scheme);
+  token_scheme_free(scheme);
 }
 
 void test_output_foundry() {
@@ -61,10 +111,12 @@ void test_output_foundry() {
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
   iota_crypto_randombytes(token_tag, TOKEN_TAG_BYTES_LEN);
 
+  // create token scheme
+  token_scheme_t* token_scheme = token_scheme_simple_new(minted_tokens, melted_tokens, max_supply);
+
   // create Foundry Output
-  output_foundry_t* output =
-      output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply, SIMPLE_TOKEN_SCHEME,
-                         test_meta, sizeof(test_meta), test_immut_meta, sizeof(test_immut_meta));
+  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, token_scheme, test_meta,
+                                                sizeof(test_meta), test_immut_meta, sizeof(test_immut_meta));
   // validation
   TEST_ASSERT_NOT_NULL(output);
 
@@ -88,12 +140,13 @@ void test_output_foundry() {
   TEST_ASSERT(output->serial == 22);
   // validate token tag
   TEST_ASSERT_EQUAL_MEMORY(token_tag, output->token_tag, TOKEN_TAG_BYTES_LEN);
-  // validate circulating supply
-  TEST_ASSERT(uint256_equal(circ_supply, &output->circ_supply) == 0);
-  // validate maximum supply
-  TEST_ASSERT(uint256_equal(max_supply, &output->max_supply) == 0);
   // validate token scheme
-  TEST_ASSERT(output->token_scheme == SIMPLE_TOKEN_SCHEME);
+  TEST_ASSERT(output->token_scheme->type == SIMPLE_TOKEN_SCHEME);
+  token_scheme_simple_t* simple_scheme = output->token_scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(simple_scheme);
+  TEST_ASSERT(uint256_equal(minted_tokens, &simple_scheme->minted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(melted_tokens, &simple_scheme->melted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(max_supply, &simple_scheme->max_supply) == 0);
 
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -160,10 +213,13 @@ void test_output_foundry() {
   TEST_ASSERT_EQUAL_UINT32(22, deser_output->serial);
   // deserialized token tag
   TEST_ASSERT_EQUAL_MEMORY(token_tag, deser_output->token_tag, TOKEN_TAG_BYTES_LEN);
-  // deserialized circulating supply
-  TEST_ASSERT(uint256_equal(circ_supply, &deser_output->circ_supply) == 0);
-  // deserialized maximum supply
-  TEST_ASSERT(uint256_equal(max_supply, &deser_output->max_supply) == 0);
+  // deserialize token scheme
+  TEST_ASSERT(output->token_scheme->type == SIMPLE_TOKEN_SCHEME);
+  token_scheme_simple_t* simple_scheme_deser = deser_output->token_scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(simple_scheme_deser);
+  TEST_ASSERT(uint256_equal(minted_tokens, &simple_scheme_deser->minted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(melted_tokens, &simple_scheme_deser->melted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(max_supply, &simple_scheme_deser->max_supply) == 0);
 
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
@@ -186,6 +242,7 @@ void test_output_foundry() {
 
   // clean up
   free(output_foundry_buf);
+  token_scheme_free(token_scheme);
   output_foundry_free(output);
   output_foundry_free(deser_output);
 }
@@ -200,9 +257,12 @@ void test_output_foundry_without_native_tokens() {
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
   iota_crypto_randombytes(token_tag, TOKEN_TAG_BYTES_LEN);
 
+  // create token scheme
+  token_scheme_t* token_scheme = token_scheme_simple_new(minted_tokens, melted_tokens, max_supply);
+
   // create Foundry Output
-  output_foundry_t* output = output_foundry_new(&addr, 123456789, NULL, 22, token_tag, circ_supply, max_supply,
-                                                SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0);
+  output_foundry_t* output =
+      output_foundry_new(&addr, 123456789, NULL, 22, token_tag, token_scheme, test_meta, sizeof(test_meta), NULL, 0);
   // validation
   TEST_ASSERT_NOT_NULL(output);
   // validate amount
@@ -214,12 +274,13 @@ void test_output_foundry_without_native_tokens() {
   TEST_ASSERT(output->serial == 22);
   // validate token tag
   TEST_ASSERT_EQUAL_MEMORY(token_tag, output->token_tag, TOKEN_TAG_BYTES_LEN);
-  // validate circulating supply
-  TEST_ASSERT(uint256_equal(circ_supply, &output->circ_supply) == 0);
-  // validate maximum supply
-  TEST_ASSERT(uint256_equal(max_supply, &output->max_supply) == 0);
   // validate token scheme
-  TEST_ASSERT(output->token_scheme == SIMPLE_TOKEN_SCHEME);
+  TEST_ASSERT(output->token_scheme->type == SIMPLE_TOKEN_SCHEME);
+  token_scheme_simple_t* simple_scheme = output->token_scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(simple_scheme);
+  TEST_ASSERT(uint256_equal(minted_tokens, &simple_scheme->minted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(melted_tokens, &simple_scheme->melted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(max_supply, &simple_scheme->max_supply) == 0);
 
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -271,10 +332,13 @@ void test_output_foundry_without_native_tokens() {
   TEST_ASSERT_EQUAL_UINT32(22, deser_output->serial);
   // deserialized token tag
   TEST_ASSERT_EQUAL_MEMORY(token_tag, deser_output->token_tag, TOKEN_TAG_BYTES_LEN);
-  // deserialized circulating supply
-  TEST_ASSERT(uint256_equal(circ_supply, &deser_output->circ_supply) == 0);
-  // deserialized maximum supply
-  TEST_ASSERT(uint256_equal(max_supply, &deser_output->max_supply) == 0);
+  // deserialize token scheme
+  TEST_ASSERT(output->token_scheme->type == SIMPLE_TOKEN_SCHEME);
+  token_scheme_simple_t* simple_scheme_deser = deser_output->token_scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(simple_scheme_deser);
+  TEST_ASSERT(uint256_equal(minted_tokens, &simple_scheme_deser->minted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(melted_tokens, &simple_scheme_deser->melted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(max_supply, &simple_scheme_deser->max_supply) == 0);
 
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
@@ -297,6 +361,7 @@ void test_output_foundry_without_native_tokens() {
 
   // clean up
   free(output_foundry_buf);
+  token_scheme_free(token_scheme);
   output_foundry_free(output);
   output_foundry_free(deser_output);
 }
@@ -311,9 +376,12 @@ void test_output_foundry_without_metadata() {
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
   iota_crypto_randombytes(token_tag, TOKEN_TAG_BYTES_LEN);
 
+  // create token scheme
+  token_scheme_t* token_scheme = token_scheme_simple_new(minted_tokens, melted_tokens, max_supply);
+
   // create Foundry Output
-  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
-                                                SIMPLE_TOKEN_SCHEME, NULL, 0, NULL, 0);
+  output_foundry_t* output =
+      output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, token_scheme, NULL, 0, NULL, 0);
   // validation
   TEST_ASSERT_NOT_NULL(output);
 
@@ -337,12 +405,13 @@ void test_output_foundry_without_metadata() {
   TEST_ASSERT(output->serial == 22);
   // validate token tag
   TEST_ASSERT_EQUAL_MEMORY(token_tag, output->token_tag, TOKEN_TAG_BYTES_LEN);
-  // validate circulating supply
-  TEST_ASSERT(uint256_equal(circ_supply, &output->circ_supply) == 0);
-  // validate maximum supply
-  TEST_ASSERT(uint256_equal(max_supply, &output->max_supply) == 0);
   // validate token scheme
-  TEST_ASSERT(output->token_scheme == SIMPLE_TOKEN_SCHEME);
+  TEST_ASSERT(output->token_scheme->type == SIMPLE_TOKEN_SCHEME);
+  token_scheme_simple_t* simple_scheme = output->token_scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(simple_scheme);
+  TEST_ASSERT(uint256_equal(minted_tokens, &simple_scheme->minted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(melted_tokens, &simple_scheme->melted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(max_supply, &simple_scheme->max_supply) == 0);
 
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -399,10 +468,13 @@ void test_output_foundry_without_metadata() {
   TEST_ASSERT_EQUAL_UINT32(22, deser_output->serial);
   // deserialized token tag
   TEST_ASSERT_EQUAL_MEMORY(token_tag, deser_output->token_tag, TOKEN_TAG_BYTES_LEN);
-  // deserialized circulating supply
-  TEST_ASSERT(uint256_equal(circ_supply, &deser_output->circ_supply) == 0);
-  // deserialized maximum supply
-  TEST_ASSERT(uint256_equal(max_supply, &deser_output->max_supply) == 0);
+  // deserialize token scheme
+  TEST_ASSERT(output->token_scheme->type == SIMPLE_TOKEN_SCHEME);
+  token_scheme_simple_t* simple_scheme_deser = deser_output->token_scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(simple_scheme_deser);
+  TEST_ASSERT(uint256_equal(minted_tokens, &simple_scheme_deser->minted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(melted_tokens, &simple_scheme_deser->melted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(max_supply, &simple_scheme_deser->max_supply) == 0);
 
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
@@ -420,6 +492,7 @@ void test_output_foundry_without_metadata() {
 
   // clean up
   free(output_foundry_buf);
+  token_scheme_free(token_scheme);
   output_foundry_free(output);
   output_foundry_free(deser_output);
 }
@@ -444,36 +517,33 @@ void test_output_foundry_syntactic() {
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
   iota_crypto_randombytes(token_tag, TOKEN_TAG_BYTES_LEN);
 
-  // invalid address type, must be alias address
-  TEST_ASSERT_NULL(output_foundry_new(&ed_addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0));
-  TEST_ASSERT_NULL(output_foundry_new(&nft_addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0));
-  // invalid meta data
-  TEST_ASSERT_NULL(output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, MAX_METADATA_LENGTH_BYTES + 1, NULL, 0));
+  // create token scheme
+  token_scheme_t* token_scheme = token_scheme_simple_new(minted_tokens, melted_tokens, max_supply);
 
-  // invalid circulating and maximun supply
-  TEST_ASSERT_NULL(output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, NULL, max_supply,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0));
-  TEST_ASSERT_NULL(output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, circ_supply, NULL,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0));
-  TEST_ASSERT_NULL(output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, NULL, NULL,
-                                      SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0));
+  // invalid address type, must be alias address
+  TEST_ASSERT_NULL(output_foundry_new(&ed_addr, 123456789, native_tokens, 22, token_tag, token_scheme, test_meta,
+                                      sizeof(test_meta), NULL, 0));
+  TEST_ASSERT_NULL(output_foundry_new(&nft_addr, 123456789, native_tokens, 22, token_tag, token_scheme, test_meta,
+                                      sizeof(test_meta), NULL, 0));
+  // invalid meta data
+  TEST_ASSERT_NULL(output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, token_scheme, test_meta,
+                                      MAX_METADATA_LENGTH_BYTES + 1, NULL, 0));
 
   // valid address and metadata
-  output_foundry_t* output = output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, circ_supply,
-                                                max_supply, SIMPLE_TOKEN_SCHEME, test_meta, sizeof(test_meta), NULL, 0);
+  output_foundry_t* output = output_foundry_new(&alias_addr, 123456789, native_tokens, 22, token_tag, token_scheme,
+                                                test_meta, sizeof(test_meta), NULL, 0);
   TEST_ASSERT_NOT_NULL(output);
   // syntactic validation
   TEST_ASSERT_TRUE(output_foundry_syntactic(output));
   output_foundry_free(output);
 
-  output = output_foundry_new(&alias_addr, 123456789, NULL, 22, token_tag, circ_supply, max_supply, SIMPLE_TOKEN_SCHEME,
-                              test_meta, sizeof(test_meta), NULL, 0);
+  output = output_foundry_new(&alias_addr, 123456789, NULL, 22, token_tag, token_scheme, test_meta, sizeof(test_meta),
+                              NULL, 0);
   TEST_ASSERT_NOT_NULL(output);
   // syntactic validation
   TEST_ASSERT_TRUE(output_foundry_syntactic(output));
+
+  token_scheme_free(token_scheme);
   output_foundry_free(output);
 }
 
@@ -492,10 +562,12 @@ void test_output_foundry_clone() {
   byte_t token_tag[TOKEN_TAG_BYTES_LEN];
   iota_crypto_randombytes(token_tag, TOKEN_TAG_BYTES_LEN);
 
+  // create token scheme
+  token_scheme_t* token_scheme = token_scheme_simple_new(minted_tokens, melted_tokens, max_supply);
+
   // create Foundry Output
-  output_foundry_t* output =
-      output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, circ_supply, max_supply, SIMPLE_TOKEN_SCHEME,
-                         test_meta, sizeof(test_meta), test_immut_meta, sizeof(test_immut_meta));
+  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, token_scheme, test_meta,
+                                                sizeof(test_meta), test_immut_meta, sizeof(test_immut_meta));
   TEST_ASSERT_NOT_NULL(output);
 
   // clone Foundry Output object
@@ -516,14 +588,13 @@ void test_output_foundry_clone() {
   // validate token tag
   TEST_ASSERT_EQUAL_MEMORY(output->token_tag, new_output->token_tag, TOKEN_TAG_BYTES_LEN);
 
-  // validate circulating supply
-  TEST_ASSERT_EQUAL_MEMORY(&output->circ_supply, &new_output->circ_supply, sizeof(uint256_t));
-
-  // validate maximum supply
-  TEST_ASSERT_EQUAL_MEMORY(&output->max_supply, &new_output->max_supply, sizeof(uint256_t));
-
   // validate token scheme
-  TEST_ASSERT(output->token_scheme == new_output->token_scheme);
+  TEST_ASSERT(output->token_scheme->type == SIMPLE_TOKEN_SCHEME);
+  token_scheme_simple_t* simple_scheme = new_output->token_scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(simple_scheme);
+  TEST_ASSERT(uint256_equal(minted_tokens, &simple_scheme->minted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(melted_tokens, &simple_scheme->melted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(max_supply, &simple_scheme->max_supply) == 0);
 
   // validate unlock condition blocks
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
@@ -545,6 +616,7 @@ void test_output_foundry_clone() {
   output_foundry_print(output, 0);
 
   // clean up
+  token_scheme_free(token_scheme);
   output_foundry_free(new_output);
   output_foundry_free(output);
 }
@@ -552,6 +624,7 @@ void test_output_foundry_clone() {
 int main() {
   UNITY_BEGIN();
 
+  RUN_TEST(test_token_scheme);
   RUN_TEST(test_output_foundry);
   RUN_TEST(test_output_foundry_without_native_tokens);
   RUN_TEST(test_output_foundry_without_metadata);

@@ -60,9 +60,9 @@ void setUp(void) {
 }
 
 void tearDown(void) {
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   native_tokens_free(native_tokens);
   cond_blk_free(unlock_addr);
   cond_blk_free(unlock_storage);

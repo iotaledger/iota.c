@@ -11,15 +11,155 @@
 #include "core/utils/macros.h"
 
 /*
+"tokenScheme": {
+  "type" : 0,
+  "mintedTokens" : "0x200000000000000000000000000000000000000000",
+  "meltedTokens" : "0x100000000000000000000000000000000000000000",
+  "maximumSupply": "0x30000000000000000000000000000000000000000",
+}
+*/
+int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_scheme) {
+  if (output_obj == NULL || *token_scheme != NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // token scheme type
+  uint8_t scheme_type;
+  if (json_get_uint8(output_obj, JSON_KEY_TYPE, &scheme_type) != JSON_OK) {
+    printf("[%s:%d]: getting %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_TYPE);
+    return -1;
+  }
+
+  if (scheme_type == SIMPLE_TOKEN_SCHEME) {
+    uint256_t *mintedt_tokens = NULL;
+    uint256_t *melted_tokens = NULL;
+    uint256_t *max_supply = NULL;
+    // minted tokens
+    char temp_str[STRING_NUMBER_MAX_CHARACTERS];
+    if (json_get_string(output_obj, JSON_KEY_MINTED_TOKENS, temp_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MINTED_TOKENS);
+      return -1;
+    }
+    mintedt_tokens = uint256_from_str(temp_str);
+
+    // melted tokens
+    memset(temp_str, 0, STRING_NUMBER_MAX_CHARACTERS);
+    if (json_get_string(output_obj, JSON_KEY_MELTED_TOKENS, temp_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MELTED_TOKENS);
+      uint256_free(mintedt_tokens);
+      return -1;
+    }
+    melted_tokens = uint256_from_str(temp_str);
+
+    // maximum supply
+    memset(temp_str, 0, STRING_NUMBER_MAX_CHARACTERS);
+    if (json_get_string(output_obj, JSON_KEY_MAX_SUPPLY, temp_str, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MAX_SUPPLY);
+      uint256_free(mintedt_tokens);
+      uint256_free(melted_tokens);
+      return -1;
+    }
+    max_supply = uint256_from_str(temp_str);
+
+    *token_scheme = token_scheme_simple_new(mintedt_tokens, melted_tokens, max_supply);
+    if (!*token_scheme) {
+      printf("[%s:%d]: creating token scheme object failed\n", __func__, __LINE__);
+      uint256_free(mintedt_tokens);
+      uint256_free(melted_tokens);
+      uint256_free(max_supply);
+      return -1;
+    }
+    uint256_free(mintedt_tokens);
+    uint256_free(melted_tokens);
+    uint256_free(max_supply);
+  } else {
+    printf("[%s:%d]: unsupported token scheme type \n", __func__, __LINE__);
+    return -1;
+  }
+  return 0;
+}
+
+cJSON *json_token_scheme_serialize(token_scheme_t *scheme) {
+  if (!scheme) {
+    printf("[%s:%d] invalid block\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  cJSON *scheme_obj = cJSON_CreateObject();
+  if (!scheme_obj) {
+    printf("[%s:%d] creating scheme object failed\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  // currently on simple token scheme is supported
+  if (scheme->type == SIMPLE_TOKEN_SCHEME) {
+    token_scheme_simple_t *simple_scheme = scheme->token_scheme;
+    if (simple_scheme) {
+      // add type to object
+      if (!cJSON_AddNumberToObject(scheme_obj, JSON_KEY_TYPE, SIMPLE_TOKEN_SCHEME)) {
+        printf("[%s:%d] add type into token scheme failed\n", __func__, __LINE__);
+        goto err;
+      }
+
+      char *tmp_supply = NULL;
+
+      // minted tokens
+      tmp_supply = uint256_to_str(&simple_scheme->minted_tokens);
+      if (!tmp_supply) {
+        goto err;
+      }
+      if (!cJSON_AddStringToObject(scheme_obj, JSON_KEY_MINTED_TOKENS, tmp_supply)) {
+        printf("[%s:%d] add minted tokens to foundry failed\n", __func__, __LINE__);
+        free(tmp_supply);
+        goto err;
+      }
+      free(tmp_supply);
+
+      // melted tokens
+      tmp_supply = uint256_to_str(&simple_scheme->melted_tokens);
+      if (!tmp_supply) {
+        goto err;
+      }
+      if (!cJSON_AddStringToObject(scheme_obj, JSON_KEY_MELTED_TOKENS, tmp_supply)) {
+        printf("[%s:%d] add melted tokens to foundry failed\n", __func__, __LINE__);
+        free(tmp_supply);
+        goto err;
+      }
+      free(tmp_supply);
+
+      // maximum supply
+      tmp_supply = uint256_to_str(&simple_scheme->max_supply);
+      if (!tmp_supply) {
+        goto err;
+      }
+      if (!cJSON_AddStringToObject(scheme_obj, JSON_KEY_MAX_SUPPLY, tmp_supply)) {
+        printf("[%s:%d] add max supply to foundry failed\n", __func__, __LINE__);
+        free(tmp_supply);
+        goto err;
+      }
+      free(tmp_supply);
+    }
+    return scheme_obj;
+  }
+err:
+  cJSON_Delete(scheme_obj);
+  return NULL;
+}
+
+/*
   "outputs": [
     { "type": 5,
       "amount": "10000000",
       "nativeTokens": [],
       "serialNumber": 123456,
-      "tokenTag": "0xTokenTAGDemo",
-      "circulatingSupply": "0x20000000000000000000000000000000000000000",
-      "maximumSupply": "0x30000000000000000000000000000000000000000",
-      "tokenScheme": 0,
+      "tokenTag": "TokenTAGDemo",
+      "tokenScheme": {
+        "type" : 0,
+        "mintedTokens" : "0x100000000000000000000000000000000000000000",
+        "meltedTokens" : "0x200000000000000000000000000000000000000000",
+        "maximumSupply": "0x30000000000000000000000000000000000000000",
+      },
       "unlockConditions": [
         {  "type": 0,
            "address": {
@@ -51,8 +191,7 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
 
   int result = -1;
 
-  uint256_t *circ_supply = NULL;
-  uint256_t *max_supply = NULL;
+  token_scheme_t *token_scheme = NULL;
   native_tokens_list_t *tokens = native_tokens_new();
   cond_blk_list_t *cond_blocks = cond_blk_list_new();
   feat_blk_list_t *feat_blocks = feat_blk_list_new();
@@ -87,32 +226,14 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
     goto end;
   }
 
-  // circulation supply
-  char supply_str[STRING_NUMBER_MAX_CHARACTERS];
-  if (json_get_string_with_prefix(output_obj, JSON_KEY_CIRC_SUPPLY, supply_str, STRING_NUMBER_MAX_CHARACTERS) !=
-      JSON_OK) {
-    printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_CIRC_SUPPLY);
-    goto end;
-  }
-  circ_supply = uint256_from_str(supply_str);
-
-  // maximum supply
-  if (json_get_string_with_prefix(output_obj, JSON_KEY_MAX_SUPPLY, supply_str, STRING_NUMBER_MAX_CHARACTERS) !=
-      JSON_OK) {
-    printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MAX_SUPPLY);
-    goto end;
-  }
-  max_supply = uint256_from_str(supply_str);
-
   // token scheme
   cJSON *json_token_scheme = cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_TOKEN_SCHEME);
   if (!json_token_scheme) {
     printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, JSON_KEY_TOKEN_SCHEME);
     goto end;
   }
-  uint8_t token_scheme;
-  if (json_get_uint8(json_token_scheme, JSON_KEY_TYPE, &token_scheme) != JSON_OK) {
-    printf("[%s:%d]: getting %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_TYPE);
+  if (json_token_scheme_deserialize(json_token_scheme, &token_scheme) != 0) {
+    printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_TOKEN_SCHEME);
     goto end;
   }
 
@@ -126,7 +247,7 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
     goto end;
   }
   // extract alias address from unlock condition
-  unlock_cond_blk_t *unlock_cond_address = cond_blk_list_get_type(cond_blocks, UNLOCK_COND_ADDRESS);
+  unlock_cond_blk_t *unlock_cond_address = cond_blk_list_get_type(cond_blocks, UNLOCK_COND_IMMUT_ALIAS);
   if (!unlock_cond_address) {
     printf("[%s:%d]: there is not a address unlock condition in a list\n", __func__, __LINE__);
     goto end;
@@ -177,9 +298,8 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
   }
 
   // create foundry output
-  *foundry =
-      output_foundry_new((address_t *)unlock_cond_address->block, amount, tokens, serial_number, token_tag, circ_supply,
-                         max_supply, token_scheme, metadata, metadata_len, immut_metadata, immut_metadata_len);
+  *foundry = output_foundry_new((address_t *)unlock_cond_address->block, amount, tokens, serial_number, token_tag,
+                                token_scheme, metadata, metadata_len, immut_metadata, immut_metadata_len);
   if (!*foundry) {
     printf("[%s:%d]: creating foundry output object failed\n", __func__, __LINE__);
     goto end;
@@ -189,13 +309,8 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
   result = 0;
 
 end:
-  if (circ_supply) {
-    free(circ_supply);
-  }
-  if (max_supply) {
-    free(max_supply);
-  }
   native_tokens_free(tokens);
+  token_scheme_free(token_scheme);
   cond_blk_list_free(cond_blocks);
   feat_blk_list_free(feat_blocks);
   feat_blk_list_free(immut_feat_blocks);
@@ -236,61 +351,18 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
     }
 
     // tokenTag
-    char tag_str[JSON_STR_WITH_PREFIX_BYTES(TOKEN_TAG_BYTES_LEN)] = {};
-    if (bin_2_hex(foundry->token_tag, TOKEN_TAG_BYTES_LEN, JSON_HEX_ENCODED_STRING_PREFIX, tag_str, sizeof(tag_str)) !=
-        0) {
-      printf("[%s:%d] convert token tag to hex string error\n", __func__, __LINE__);
-      goto err;
-    }
+    char tag_str[BIN_TO_HEX_STR_BYTES(TOKEN_TAG_BYTES_LEN)] = {};
+    memcpy(tag_str, foundry->token_tag, TOKEN_TAG_BYTES_LEN);
     if (!cJSON_AddStringToObject(output_obj, JSON_KEY_TOKEN_TAG, tag_str)) {
       printf("[%s:%d] add token tag to foundry error\n", __func__, __LINE__);
       goto err;
     }
 
-    char *tmp_supply = NULL;
-    // circulatingSupply
-    tmp_supply = uint256_to_str(&foundry->circ_supply);
-    if (!tmp_supply) {
-      goto err;
-    }
-    char *tmp_supply_with_prefix = malloc(strlen(tmp_supply) + JSON_HEX_ENCODED_STR_PREFIX_LEN);
-    if (!tmp_supply_with_prefix) {
-      free(tmp_supply);
-      goto err;
-    }
-    memcpy(tmp_supply_with_prefix, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
-    memcpy(tmp_supply_with_prefix + JSON_HEX_ENCODED_STR_PREFIX_LEN, tmp_supply, strlen(tmp_supply));
-    free(tmp_supply);
-    if (!cJSON_AddStringToObject(output_obj, JSON_KEY_CIRC_SUPPLY, tmp_supply)) {
-      printf("[%s:%d] add circulating supply to foundry error\n", __func__, __LINE__);
-      free(tmp_supply_with_prefix);
-      goto err;
-    }
-    free(tmp_supply_with_prefix);
-
-    // maximumSupply
-    tmp_supply = uint256_to_str(&foundry->max_supply);
-    if (!tmp_supply) {
-      goto err;
-    }
-    tmp_supply_with_prefix = malloc(strlen(tmp_supply) + JSON_HEX_ENCODED_STR_PREFIX_LEN);
-    if (!tmp_supply_with_prefix) {
-      free(tmp_supply);
-      goto err;
-    }
-    memcpy(tmp_supply_with_prefix, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
-    memcpy(tmp_supply_with_prefix + JSON_HEX_ENCODED_STR_PREFIX_LEN, tmp_supply, strlen(tmp_supply));
-    free(tmp_supply);
-    if (!cJSON_AddStringToObject(output_obj, JSON_KEY_MAX_SUPPLY, tmp_supply)) {
-      printf("[%s:%d] add circulating supply to foundry error\n", __func__, __LINE__);
-      free(tmp_supply_with_prefix);
-      goto err;
-    }
-    free(tmp_supply_with_prefix);
-
     // token scheme
-    if (!cJSON_AddNumberToObject(output_obj, JSON_KEY_TOKEN_SCHEME, foundry->token_scheme)) {
+    tmp = json_token_scheme_serialize(foundry->token_scheme);
+    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_TOKEN_SCHEME, tmp)) {
       printf("[%s:%d] add token scheme to foundry error\n", __func__, __LINE__);
+      cJSON_Delete(tmp);
       goto err;
     }
 

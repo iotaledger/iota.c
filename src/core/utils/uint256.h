@@ -84,6 +84,13 @@ char *uint256_to_str(uint256_t *num);
  */
 uint256_t *uint256_clone(uint256_t const *const num);
 
+/**
+ * @brief Free a unit256_t object
+ *
+ * @param[in] num A pointer to uint256 object
+ */
+void uint256_free(uint256_t *num);
+
 #ifdef __cplusplus
 }
 #endif

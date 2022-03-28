@@ -44,10 +44,10 @@ int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_list_t **nat
     // add new token into a list
     if (native_tokens_add(native_tokens, (byte_t *)token_id, amount) != 0) {
       printf("[%s:%d] can not add new native token into a list\n", __func__, __LINE__);
-      free(amount);
+      uint256_free(amount);
       return -1;
     }
-    free(amount);
+    uint256_free(amount);
   }
 
   return 0;
