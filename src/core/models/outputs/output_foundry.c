@@ -13,22 +13,15 @@
 // maximum number of immutable feature blocks
 #define MAX_FOUNDRY_IMMUTABLE_BLOCKS_COUNT 1
 
-output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_tokens_list_t* tokens,
-                                     uint32_t serial_num, byte_t token_tag[], uint256_t* circ_supply,
-                                     uint256_t* max_supply, token_scheme_e token_scheme, byte_t meta[], size_t meta_len,
-                                     byte_t immut_meta[], size_t immut_meta_len) {
-  if (!alias || !circ_supply || !max_supply) {
-    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+static token_scheme_simple_t* simple_token_scheme_new(uint256_t* minted_tokens, uint256_t* melted_tokens,
+                                                      uint256_t* max_supply) {
+  // melted tokens must not be greater than minted tokens
+  if (uint256_equal(melted_tokens, minted_tokens) > 0) {
+    printf("[%s:%d] melted tokens must not be greater than minted tokens\n", __func__, __LINE__);
     return NULL;
   }
 
-  // must be an alias address
-  if (alias->type != ADDRESS_TYPE_ALIAS) {
-    printf("[%s:%d] must be Alias address\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  // max supply must be larger than zero
+  // maximum supply must be larger than zero
   uint256_t* max_supply_check = uint256_from_str("0");
   if (!max_supply_check) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
@@ -43,13 +36,212 @@ output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_t
 
   free(max_supply_check);
 
-  if (uint256_equal(circ_supply, max_supply) > 0) {
-    printf("[%s:%d] circulating supply must not be greater than maximum supply\n", __func__, __LINE__);
+  uint256_t diff;
+  // minted mokens - melted tokens must not be greater than maximum supply.
+  bool res = uint256_sub(&diff, minted_tokens, melted_tokens);
+  if (res == false) {
+    printf("[%s:%d] uint256 sub failed\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (uint256_equal(&diff, max_supply) > 0) {
+    printf("[%s:%d] difference of minted and melted tokens must not be greater than maximum supply\n", __func__,
+           __LINE__);
+    return NULL;
+  }
+
+  token_scheme_simple_t* scheme = malloc(sizeof(token_scheme_simple_t));
+  if (scheme) {
+    memcpy(&scheme->minted_tokens, minted_tokens, sizeof(scheme->minted_tokens));
+    memcpy(&scheme->melted_tokens, melted_tokens, sizeof(scheme->melted_tokens));
+    memcpy(&scheme->max_supply, max_supply, sizeof(scheme->max_supply));
+  }
+
+  return scheme;
+}
+
+token_scheme_t* token_scheme_simple_new(uint256_t* minted_tokens, uint256_t* melted_tokens, uint256_t* max_supply) {
+  token_scheme_t* scheme = malloc(sizeof(token_scheme_t));
+  if (scheme) {
+    scheme->token_scheme = simple_token_scheme_new(minted_tokens, melted_tokens, max_supply);
+    if (!scheme->token_scheme) {
+      free(scheme);
+      return NULL;
+    }
+    scheme->type = SIMPLE_TOKEN_SCHEME;
+  }
+  return scheme;
+}
+
+token_scheme_t* token_scheme_clone(token_scheme_t* scheme) {
+  if (!scheme) {
+    return NULL;
+  }
+
+  token_scheme_t* new_scheme = malloc(sizeof(token_scheme_t));
+  if (!new_scheme) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return NULL;
+  }
+  // Currently on simple token scheme is supported
+  if (scheme->type == SIMPLE_TOKEN_SCHEME) {
+    token_scheme_simple_t* simple_scheme = scheme->token_scheme;
+    new_scheme->token_scheme = simple_token_scheme_new(&simple_scheme->minted_tokens, &simple_scheme->melted_tokens,
+                                                       &simple_scheme->max_supply);
+    if (!new_scheme->token_scheme) {
+      free(new_scheme);
+      return NULL;
+    }
+    new_scheme->type = SIMPLE_TOKEN_SCHEME;
+  } else {
+    printf("[%s:%d] unknown token scheme type\n", __func__, __LINE__);
+    return NULL;
+  }
+  return new_scheme;
+}
+
+size_t token_scheme_serialize_len(token_scheme_t* scheme) {
+  if (!scheme) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return 0;
+  }
+  size_t len = 0;
+  // Currently only simple token scheme is supported
+  if (scheme->type == SIMPLE_TOKEN_SCHEME) {
+    // token scheme type
+    len += sizeof(uint8_t);
+    // minted tokens
+    len += sizeof(uint256_t);
+    // melted tokens
+    len += sizeof(uint256_t);
+    // max supply
+    len += sizeof(uint256_t);
+  }
+  return len;
+}
+
+size_t token_scheme_serialize(token_scheme_t* scheme, byte_t buf[], size_t buf_len) {
+  if (!scheme || !buf || buf_len == 0) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return 0;
+  }
+
+  size_t offset = 0;
+  size_t expected_bytes = token_scheme_serialize_len(scheme);
+  if (buf_len < expected_bytes) {
+    printf("[%s:%d] buffer size is insufficient\n", __func__, __LINE__);
+    return 0;
+  }
+
+  // fillin token scheme type
+  memcpy(buf, &scheme->type, sizeof(uint8_t));
+  offset += sizeof(uint8_t);
+
+  if (scheme->type == SIMPLE_TOKEN_SCHEME) {
+    token_scheme_simple_t* simple_token_scheme = scheme->token_scheme;
+    memcpy(buf + offset, &simple_token_scheme->minted_tokens, sizeof(simple_token_scheme->minted_tokens));
+    offset += sizeof(simple_token_scheme->minted_tokens);
+    memcpy(buf + offset, &simple_token_scheme->melted_tokens, sizeof(simple_token_scheme->melted_tokens));
+    offset += sizeof(simple_token_scheme->melted_tokens);
+    memcpy(buf + offset, &simple_token_scheme->max_supply, sizeof(simple_token_scheme->max_supply));
+    offset += sizeof(simple_token_scheme->max_supply);
+    return offset;
+  } else {
+    printf("[%s:%d] unknown token scheme type\n", __func__, __LINE__);
+  }
+  return 0;
+}
+
+token_scheme_t* token_scheme_deserialize(byte_t buf[], size_t buf_len) {
+  if (buf_len < sizeof(token_scheme_t)) {
+    printf("[%s:%d] insufficient buffer size\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  token_scheme_t* scheme = malloc(sizeof(token_scheme_t));
+  if (!scheme) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return NULL;
+  }
+  size_t offset = 0;
+  scheme->type = buf[offset];
+  offset += sizeof(uint8_t);
+  if (scheme->type == SIMPLE_TOKEN_SCHEME) {
+    token_scheme_simple_t* simple_token_scheme = malloc(sizeof(token_scheme_simple_t));
+    memcpy(&simple_token_scheme->minted_tokens, buf + offset, sizeof(simple_token_scheme->minted_tokens));
+    offset += sizeof(simple_token_scheme->minted_tokens);
+    memcpy(&simple_token_scheme->melted_tokens, buf + offset, sizeof(simple_token_scheme->melted_tokens));
+    offset += sizeof(simple_token_scheme->melted_tokens);
+    memcpy(&simple_token_scheme->max_supply, buf + offset, sizeof(simple_token_scheme->max_supply));
+    offset += sizeof(simple_token_scheme->max_supply);
+
+    scheme->token_scheme = simple_token_scheme;
+    return scheme;
+  } else {
+    printf("[%s:%d] unknown token scheme type\n", __func__, __LINE__);
+  }
+  return NULL;
+}
+
+void token_scheme_free(token_scheme_t* scheme) {
+  if (scheme) {
+    if (scheme->type == SIMPLE_TOKEN_SCHEME) {
+      free(scheme->token_scheme);
+    }
+    free(scheme);
+  }
+}
+
+void token_scheme_print(token_scheme_t* scheme, uint8_t indentation) {
+  if (scheme == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return;
+  }
+
+  // Currently only simple token scheme is supported
+  if (scheme->type == SIMPLE_TOKEN_SCHEME) {
+    printf("%s\tType: [%d]\n", PRINT_INDENTATION(indentation), SIMPLE_TOKEN_SCHEME);
+    token_scheme_simple_t* simple_scheme = scheme->token_scheme;
+    // print minted tokens
+    char* minted_token_str;
+    minted_token_str = uint256_to_str(&simple_scheme->minted_tokens);
+    if (minted_token_str != NULL) {
+      printf("%s\tMinted Tokens: [%s]\n", PRINT_INDENTATION(indentation), minted_token_str);
+      free(minted_token_str);
+    }
+    // print melted tokens
+    char* melted_token_str;
+    melted_token_str = uint256_to_str(&simple_scheme->melted_tokens);
+    if (melted_token_str != NULL) {
+      printf("%s\tMelted Tokens: [%s]\n", PRINT_INDENTATION(indentation), melted_token_str);
+      free(melted_token_str);
+    }
+    // print maximum supply
+    char* max_supply_str;
+    max_supply_str = uint256_to_str(&simple_scheme->max_supply);
+    if (max_supply_str != NULL) {
+      printf("%s\tMaximum Supply: [%s]\n", PRINT_INDENTATION(indentation), max_supply_str);
+      free(max_supply_str);
+    }
+  }
+}
+
+output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_tokens_list_t* tokens,
+                                     uint32_t serial_num, byte_t token_tag[], token_scheme_t* token_scheme,
+                                     byte_t meta[], size_t meta_len, byte_t immut_meta[], size_t immut_meta_len) {
+  if (!alias || !token_scheme) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  // must be an alias address
+  if (alias->type != ADDRESS_TYPE_ALIAS) {
+    printf("[%s:%d] must be Alias address\n", __func__, __LINE__);
     return NULL;
   }
 
   // Currently, only SIMPLE_TOKEN_SCHEME is supported
-  if (token_scheme != SIMPLE_TOKEN_SCHEME) {
+  if (token_scheme->type != SIMPLE_TOKEN_SCHEME) {
     printf("[%s:%d] token scheme not supported\n", __func__, __LINE__);
     return NULL;
   }
@@ -79,12 +271,8 @@ output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_t
   output->serial = serial_num;
   // Copy token tag, 12 bytes
   memcpy(output->token_tag, token_tag, TOKEN_TAG_BYTES_LEN);
-  // Store circulating supply of tokens
-  memcpy(&output->circ_supply, circ_supply, sizeof(output->circ_supply));
-  // Store maximum supply of tokens
-  memcpy(&output->max_supply, max_supply, sizeof(output->max_supply));
-  // Store token scheme
-  output->token_scheme = token_scheme;
+  // Add token scheme
+  output->token_scheme = token_scheme_clone(token_scheme);
 
   // create immutable alias address unlock
   unlock_cond_blk_t* immut_unlock = cond_blk_immut_alias_new(alias);
@@ -127,6 +315,7 @@ void output_foundry_free(output_foundry_t* output) {
     if (output->native_tokens) {
       native_tokens_free(output->native_tokens);
     }
+    token_scheme_free(output->token_scheme);
     cond_blk_list_free(output->unlock_conditions);
     feat_blk_list_free(output->feature_blocks);
     feat_blk_list_free(output->immutable_blocks);
@@ -152,12 +341,8 @@ size_t output_foundry_serialize_len(output_foundry_t* output) {
   length += sizeof(output->serial);
   // token tag
   length += TOKEN_TAG_BYTES_LEN;
-  // circulating supply
-  length += sizeof(output->circ_supply);
-  // maximum supply
-  length += sizeof(output->max_supply);
   // token_scheme
-  length += sizeof(uint8_t);
+  length += token_scheme_serialize_len(output->token_scheme);
   // unlock conditions
   length += cond_blk_list_serialize_len(output->unlock_conditions);
   // feature blocks
@@ -197,15 +382,8 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
   // token tag
   memcpy(buf + offset, output->token_tag, TOKEN_TAG_BYTES_LEN);
   offset += TOKEN_TAG_BYTES_LEN;
-  // circulating supply
-  memcpy(buf + offset, &output->circ_supply, sizeof(output->circ_supply));
-  offset += sizeof(output->circ_supply);
-  // maximum supply
-  memcpy(buf + offset, &output->max_supply, sizeof(output->max_supply));
-  offset += sizeof(output->max_supply);
   // token scheme
-  memcpy(buf + offset, &output->token_scheme, sizeof(uint8_t));
-  offset += sizeof(uint8_t);
+  offset += token_scheme_serialize(output->token_scheme, buf + offset, buf_len - offset);
   // condition blocks
   offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
   // feature blocks
@@ -287,32 +465,14 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   memcpy(&output->token_tag, &buf[offset], TOKEN_TAG_BYTES_LEN);
   offset += TOKEN_TAG_BYTES_LEN;
 
-  // circulating supply
-  if (buf_len < offset + sizeof(output->circ_supply)) {
-    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-    output_foundry_free(output);
-    return NULL;
-  }
-  memcpy(&output->circ_supply, &buf[offset], sizeof(output->circ_supply));
-  offset += sizeof(output->circ_supply);
-
-  // maximum supply
-  if (buf_len < offset + sizeof(output->max_supply)) {
-    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-    output_foundry_free(output);
-    return NULL;
-  }
-  memcpy(&output->max_supply, &buf[offset], sizeof(output->max_supply));
-  offset += sizeof(output->max_supply);
-
   // token scheme
-  if (buf_len < offset + sizeof(uint8_t)) {
-    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
+  output->token_scheme = token_scheme_deserialize(&buf[offset], buf_len - offset);
+  if (!output->token_scheme) {
+    printf("[%s:%d] can not deserialize token scheme\n", __func__, __LINE__);
     output_foundry_free(output);
     return NULL;
   }
-  memcpy(&output->token_scheme, &buf[offset], sizeof(uint8_t));
-  offset += sizeof(uint8_t);
+  offset += token_scheme_serialize_len(output->token_scheme);
 
   // unlock condition blocks
   uint8_t unlock_count = 0;
@@ -393,9 +553,7 @@ output_foundry_t* output_foundry_clone(output_foundry_t const* const output) {
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
     new_output->serial = output->serial;
     memcpy(new_output->token_tag, output->token_tag, TOKEN_TAG_BYTES_LEN);
-    memcpy(&new_output->circ_supply, &output->circ_supply, sizeof(output->circ_supply));
-    memcpy(&new_output->max_supply, &output->max_supply, sizeof(output->max_supply));
-    new_output->token_scheme = output->token_scheme;
+    new_output->token_scheme = token_scheme_clone(output->token_scheme);
     new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
     new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
     new_output->immutable_blocks = feat_blk_list_clone(output->immutable_blocks);
@@ -423,28 +581,8 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
   printf("%s\tToken Tag: ", PRINT_INDENTATION(indentation));
   dump_hex_str(output->token_tag, TOKEN_TAG_BYTES_LEN);
 
-  // print circulating supply
-  char* circ_supply_str;
-  circ_supply_str = uint256_to_str(&output->circ_supply);
-  if (circ_supply_str != NULL) {
-    printf("%s\tCirculating Supply: [%s]\n", PRINT_INDENTATION(indentation), circ_supply_str);
-    free(circ_supply_str);
-  }
-
-  // print maximum supply
-  char* max_supply_str;
-  max_supply_str = uint256_to_str(&output->max_supply);
-  if (max_supply_str != NULL) {
-    printf("%s\tMaximum Supply: [%s]\n", PRINT_INDENTATION(indentation), max_supply_str);
-    free(max_supply_str);
-  }
-
-  token_scheme_e token_scheme = output->token_scheme;
-  if (token_scheme == SIMPLE_TOKEN_SCHEME) {
-    printf("%s\tToken Scheme: Simple Token Scheme\n", PRINT_INDENTATION(indentation));
-  } else {
-    printf("%s\tToken Scheme: Unknown Token Scheme\n", PRINT_INDENTATION(indentation));
-  }
+  // print token scheme
+  token_scheme_print(output->token_scheme, indentation + 1);
 
   // print unlock conditions
   cond_blk_list_print(output->unlock_conditions, indentation + 1);

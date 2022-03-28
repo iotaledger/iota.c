@@ -116,4 +116,8 @@ void output_alias_print(output_alias_t* output, uint8_t indentation);
  */
 bool output_alias_syntactic(output_alias_t* output);
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif

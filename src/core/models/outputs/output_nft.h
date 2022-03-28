@@ -106,4 +106,8 @@ void output_nft_print(output_nft_t* output, uint8_t indentation);
  */
 bool output_nft_syntactic(output_nft_t* output);
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif

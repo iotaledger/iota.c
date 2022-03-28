@@ -435,6 +435,72 @@ err:
 }
 
 /*
+  "type": 6,
+  "address": {
+    "type": 0,
+    "aliasId": "194eb32b9b6c61207192c7073562a0b3adf50a7c"
+  }
+*/
+int json_cond_blk_immut_alias_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list) {
+  if (unlock_cond_obj == NULL || blk_list == NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // address
+  address_t address;
+  if (json_parser_common_address_deserialize(unlock_cond_obj, JSON_KEY_ADDR, &address) != 0) {
+    printf("[%s:%d] can not parse address JSON object\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // add new unlock condition into a list
+  unlock_cond_blk_t *unlock_blk = cond_blk_immut_alias_new(&address);
+  if (cond_blk_list_add(blk_list, unlock_blk) != 0) {
+    printf("[%s:%d] can not add new unlock condition into a list\n", __func__, __LINE__);
+    cond_blk_free(unlock_blk);
+    return -1;
+  }
+  cond_blk_free(unlock_blk);
+
+  return 0;
+}
+
+static cJSON *json_cond_immut_alias_serialize(unlock_cond_blk_t *block) {
+  if (!block || block->type != UNLOCK_COND_IMMUT_ALIAS) {
+    printf("[%s:%d] invalid block\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  cJSON *addr_obj = cJSON_CreateObject();
+  if (addr_obj) {
+    // add type to sender
+    if (!cJSON_AddNumberToObject(addr_obj, JSON_KEY_TYPE, UNLOCK_COND_IMMUT_ALIAS)) {
+      printf("[%s:%d] add type into block error\n", __func__, __LINE__);
+      goto err;
+    }
+
+    // add address to sender
+    cJSON *addr = json_parser_common_address_serialize((address_t *)block->block);
+    if (addr) {
+      if (!cJSON_AddItemToObject(addr_obj, JSON_KEY_ADDR, addr)) {
+        printf("[%s:%d] add address into block error\n", __func__, __LINE__);
+        cJSON_Delete(addr);
+        goto err;
+      }
+    } else {
+      cJSON_Delete(addr_obj);
+      return NULL;
+    }
+  }
+  return addr_obj;
+
+err:
+  cJSON_Delete(addr_obj);
+  return NULL;
+}
+
+/*
   "unlockConditions": [],
 */
 int json_cond_blk_list_deserialize(cJSON *output_obj, cond_blk_list_t **blk_list) {
@@ -497,6 +563,12 @@ int json_cond_blk_list_deserialize(cJSON *output_obj, cond_blk_list_t **blk_list
           return -1;
         }
         break;
+      case UNLOCK_COND_IMMUT_ALIAS:
+        if (json_cond_blk_immut_alias_deserialize(elm, blk_list) != 0) {
+          printf("[%s:%d] parsing immutable alias address unlock condition failed\n", __func__, __LINE__);
+          return -1;
+        }
+        break;
       default:
         printf("[%s:%d] unsupported unlock condition\n", __func__, __LINE__);
         return -1;
@@ -536,6 +608,9 @@ cJSON *json_cond_blk_list_serialize(cond_blk_list_t *blk_list) {
           break;
         case UNLOCK_COND_GOVERNOR:
           item = json_cond_blk_governor_serialize(elm->blk);
+          break;
+        case UNLOCK_COND_IMMUT_ALIAS:
+          item = json_cond_immut_alias_serialize(elm->blk);
           break;
         default:
           printf("[%s:%d] unsupported unlock condition block\n", __func__, __LINE__);
