@@ -14,7 +14,7 @@
 #include "test_config.h"
 #include "unity/unity.h"
 
-#define TAG_LEN 15
+#define TAG_LEN 16
 #define TAG_INVALID_LEN 70
 #define TAG_DATA_LEN 64
 
@@ -71,18 +71,18 @@ void test_send_tagged_data() {
   cJSON* json_data = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_DATA);
   TEST_ASSERT_NOT_NULL(json_data);
 
-  char* tag_hex = malloc(BIN_TO_HEX_STR_BYTES(strlen(tag)));
+  char* tag_hex = malloc(JSON_STR_WITH_PREFIX_BYTES(strlen(tag)));
   TEST_ASSERT_NOT_NULL(tag_hex);
-  TEST_ASSERT(bin_2_hex((byte_t*)tag, strlen(tag), tag_hex, BIN_TO_HEX_STR_BYTES(strlen(tag))) == 0);
+  TEST_ASSERT(bin_2_hex((byte_t*)tag, strlen(tag), NULL, tag_hex, JSON_STR_WITH_PREFIX_BYTES(strlen(tag))) == 0);
 
   // check if tag is matching
-  TEST_ASSERT_EQUAL_MEMORY(tag_hex, json_tag->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN, TAG_LEN);
+  TEST_ASSERT_EQUAL_MEMORY(tag_hex, json_tag->valuestring + JSON_HEX_ENCODED_STR_PREFIX_LEN, TAG_LEN);
 
-  char data_hex[BIN_TO_HEX_STR_BYTES(TAG_DATA_LEN)] = {0};
-  TEST_ASSERT(bin_2_hex(tag_data, TAG_DATA_LEN, data_hex, sizeof(data_hex)) == 0);
+  char data_hex[JSON_STR_WITH_PREFIX_BYTES(TAG_DATA_LEN)] = {0};
+  TEST_ASSERT(bin_2_hex(tag_data, TAG_DATA_LEN, NULL, data_hex, sizeof(data_hex)) == 0);
 
   // check if data is matching
-  TEST_ASSERT_EQUAL_MEMORY(data_hex, json_data->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN, TAG_DATA_LEN);
+  TEST_ASSERT_EQUAL_MEMORY(data_hex, json_data->valuestring + JSON_HEX_ENCODED_STR_PREFIX_LEN, TAG_DATA_LEN);
 
   free(tag_hex);
   cJSON_Delete(json_obj);
@@ -126,17 +126,17 @@ void test_send_binary_tagged_data() {
   cJSON* json_data = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_DATA);
   TEST_ASSERT_NOT_NULL(json_data);
 
-  char tag_hex[BIN_TO_HEX_STR_BYTES(TAG_LEN)] = {0};
-  TEST_ASSERT(bin_2_hex(binary_tag, TAG_LEN, tag_hex, sizeof(tag_hex)) == 0);
+  char tag_hex[JSON_STR_WITH_PREFIX_BYTES(TAG_LEN)] = {0};
+  TEST_ASSERT(bin_2_hex(binary_tag, TAG_LEN, "0x", tag_hex, sizeof(tag_hex)) == 0);
 
   // check if tag is matching
-  TEST_ASSERT_EQUAL_MEMORY(tag_hex, json_tag->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN, TAG_LEN);
+  TEST_ASSERT_EQUAL_MEMORY(tag_hex, json_tag->valuestring, TAG_LEN);
 
-  char data_hex[BIN_TO_HEX_STR_BYTES(TAG_DATA_LEN)] = {0};
-  TEST_ASSERT(bin_2_hex(tag_data, TAG_DATA_LEN, data_hex, sizeof(data_hex)) == 0);
+  char data_hex[JSON_STR_WITH_PREFIX_BYTES(TAG_DATA_LEN)] = {0};
+  TEST_ASSERT(bin_2_hex(tag_data, TAG_DATA_LEN, "0x", data_hex, sizeof(data_hex)) == 0);
 
   // check if data is matching
-  TEST_ASSERT_EQUAL_MEMORY(data_hex, json_data->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN, TAG_DATA_LEN);
+  TEST_ASSERT_EQUAL_MEMORY(data_hex, json_data->valuestring, TAG_DATA_LEN);
 
   cJSON_Delete(json_obj);
   byte_buf_free(http_res);

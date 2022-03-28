@@ -152,22 +152,24 @@ int string2hex(char const str[], byte_t hex[], size_t hex_len);
  *
  * @param[in] str A hex string
  * @param[in] str_len The length of the hex string
+ * @param[in] prefix A prefix which will be skipped when converting hex string to a byte array
  * @param[out] bin A byte array buffer
  * @param[in] bin_len The length of byte array
  * @return int 0 on success
  */
-int hex_2_bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len);
+int hex_2_bin(char const str[], size_t str_len, char const* prefix, byte_t bin[], size_t bin_len);
 
 /**
  * @brief Converts a byte array to hex string
  *
  * @param[in] bin A byte array
  * @param[in] bin_len The length of byte array
+ * @param[in] prefix A prefix which will be inserted at the beginning of hex string
  * @param[out] str_buf A buffer holds hex string data
  * @param[in] buf_len The length of the buffer
  * @return int 0 on success
  */
-int bin_2_hex(byte_t const bin[], size_t bin_len, char str_buf[], size_t buf_len);
+int bin_2_hex(byte_t const bin[], size_t bin_len, char const* prefix, char str_buf[], size_t buf_len);
 
 /**
  * @brief Checks if buffer has only zeros

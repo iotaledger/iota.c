@@ -61,15 +61,13 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
       return tokens;
     }
 
-    char token_id[BIN_TO_HEX_STR_BYTES(NATIVE_TOKEN_ID_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
+    char token_id[JSON_STR_WITH_PREFIX_BYTES(NATIVE_TOKEN_ID_BYTES)] = {};
     native_tokens_list_t *elm;
     LL_FOREACH(native_tokens, elm) {
       cJSON *item = cJSON_CreateObject();
       if (item) {
         // add token id
-        memcpy(token_id, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
-        if (bin_2_hex(elm->token->token_id, NATIVE_TOKEN_ID_BYTES, token_id + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
-                      sizeof(token_id) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+        if (bin_2_hex(elm->token->token_id, NATIVE_TOKEN_ID_BYTES, "0x", token_id, sizeof(token_id)) != 0) {
           goto item_err;
         }
         cJSON_AddStringToObject(item, JSON_KEY_ID, token_id);
@@ -79,13 +77,13 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
         if (!amount) {
           goto item_err;
         }
-        char *amount_with_prefix = malloc(strlen(amount) + JSON_HEX_ENCODED_STRING_PREFIX_LEN);
+        char *amount_with_prefix = malloc(strlen(amount) + JSON_HEX_ENCODED_STR_PREFIX_LEN);
         if (!amount_with_prefix) {
           free(amount);
           goto item_err;
         }
-        memcpy(amount_with_prefix, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
-        memcpy(amount_with_prefix + JSON_HEX_ENCODED_STRING_PREFIX_LEN, amount, strlen(amount));
+        memcpy(amount_with_prefix, "0x", JSON_HEX_ENCODED_STR_PREFIX_LEN);
+        memcpy(amount_with_prefix + JSON_HEX_ENCODED_STR_PREFIX_LEN, amount, strlen(amount));
         free(amount);
         cJSON_AddStringToObject(item, JSON_KEY_AMOUNT, amount_with_prefix);
         free(amount_with_prefix);

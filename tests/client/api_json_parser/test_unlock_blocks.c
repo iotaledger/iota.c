@@ -75,7 +75,7 @@ void test_parse_block_simple() {
   TEST_ASSERT(b->type == UNLOCK_BLOCK_TYPE_SIGNATURE);
   // check signature block
   byte_t exp_sig_block[ED25519_SIGNATURE_BLOCK_BYTES];
-  TEST_ASSERT(hex_2_bin(sig_block_str, strlen(sig_block_str), exp_sig_block, sizeof(exp_sig_block)) == 0);
+  TEST_ASSERT(hex_2_bin(sig_block_str, strlen(sig_block_str), NULL, exp_sig_block, sizeof(exp_sig_block)) == 0);
   // dump_hex_str(b->block_data, ED25519_SIGNATURE_BLOCK_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(exp_sig_block, b->block_data, ED25519_SIGNATURE_BLOCK_BYTES);
 

@@ -30,7 +30,7 @@ void test_unlock_condition_address() {
   address_t test_addr;
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
-            test_addr.address, ED25519_PUBKEY_BYTES);
+            NULL, test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 
   cJSON_Delete(json_obj);
@@ -57,7 +57,7 @@ void test_unlock_condition_storage_deposit_return() {
   address_t test_addr;
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
-            test_addr.address, ED25519_PUBKEY_BYTES);
+            NULL, test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, cond_storage->addr));
   TEST_ASSERT_EQUAL_UINT64(1337, cond_storage->amount);
 
@@ -109,7 +109,7 @@ void test_unlock_condition_expiration() {
   address_t test_addr;
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
-            test_addr.address, ED25519_PUBKEY_BYTES);
+            NULL, test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, cond_expiration->addr));
   TEST_ASSERT_EQUAL_UINT32(123456789, cond_expiration->milestone);
   TEST_ASSERT_EQUAL_UINT32(987654321, cond_expiration->time);
@@ -137,7 +137,7 @@ void test_unlock_condition_state() {
   address_t test_addr;
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
-            test_addr.address, ED25519_PUBKEY_BYTES);
+            NULL, test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 
   cJSON_Delete(json_obj);
@@ -163,7 +163,7 @@ void test_unlock_condition_governor() {
   address_t test_addr;
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
-            test_addr.address, ED25519_PUBKEY_BYTES);
+            NULL, test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
 
   cJSON_Delete(json_obj);

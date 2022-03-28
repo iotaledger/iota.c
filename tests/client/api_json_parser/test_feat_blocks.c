@@ -29,7 +29,7 @@ void test_feat_block_sender() {
   address_t test_addr;
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
-            test_addr.address, ED25519_PUBKEY_BYTES);
+            NULL, test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)feat_block->block)));
 
   cJSON_Delete(json_obj);
@@ -54,7 +54,7 @@ void test_feat_block_issuer() {
   address_t test_addr;
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
-            test_addr.address, ED25519_PUBKEY_BYTES);
+            NULL, test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)feat_block->block)));
 
   cJSON_Delete(json_obj);

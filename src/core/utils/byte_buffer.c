@@ -64,18 +64,24 @@ int string2hex(char const str[], byte_t hex[], size_t hex_len) {
   return 0;
 }
 
-int hex_2_bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len) {
+int hex_2_bin(char const str[], size_t str_len, char const* prefix, byte_t bin[], size_t bin_len) {
   if (!str || !bin) {
     return -1;
   }
 
-  size_t expected_bin_len = str_len / 2;
+  size_t prefix_len = 0;
+  if (prefix) {
+    prefix_len = strlen(prefix);
+  }
+
+  size_t expected_bin_len = (str_len - prefix_len) / 2;
   if (bin_len < expected_bin_len) {
     // buffer size is not sufficient
     return -2;
   }
 
-  char* pos = (char*)str;
+  // add hex string to a byte array without a prefix
+  char* pos = (char*)(str + prefix_len);
   for (size_t i = 0; i < expected_bin_len; i++) {
     int v_h = char2int(pos[0]);
     int v_l = char2int(pos[1]);
@@ -89,19 +95,35 @@ int hex_2_bin(char const str[], size_t str_len, byte_t bin[], size_t bin_len) {
   return 0;
 }
 
-int bin_2_hex(byte_t const bin[], size_t bin_len, char str_buf[], size_t buf_len) {
-  size_t index = 0;
-  if (buf_len < ((bin_len * 2) + 1)) {
-    // buffer too small
+int bin_2_hex(byte_t const bin[], size_t bin_len, char const* prefix, char str_buf[], size_t buf_len) {
+  if (!bin || !str_buf) {
     return -1;
   }
+
+  size_t prefix_len = 0;
+  if (prefix) {
+    prefix_len = strlen(prefix);
+  }
+
+  size_t expected_str_buf_len = (bin_len * 2) + prefix_len + 1;
+  if (buf_len < expected_str_buf_len) {
+    // buffer size is not sufficient
+    return -2;
+  }
+
+  // add a prefix to hex string
+  for (size_t i = 0; i < prefix_len; i++) {
+    str_buf[i] = prefix[i];
+  }
+
+  size_t index = prefix_len;
 
   for (size_t i = 0; i < bin_len; i++) {
     int v_h = int2char((bin[i] >> 4) & 0x0F);
     int v_l = int2char(bin[i] & 0x0F);
     if (v_h < 0 || v_l < 0) {
       // invalid value
-      return -2;
+      return -3;
     }
     str_buf[index] = v_h;
     str_buf[index + 1] = v_l;

@@ -64,12 +64,12 @@ void test_output_response_deserialization() {
 
   byte_t tmp_id[IOTA_MESSAGE_ID_BYTES] = {};
   // validate message id
-  TEST_ASSERT(
-      hex_2_bin("1b8a036d9decfec2e053fe69bc456a22c7a039590ae5a3c9e51dddadf19f83a5", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT(hex_2_bin("1b8a036d9decfec2e053fe69bc456a22c7a039590ae5a3c9e51dddadf19f83a5", 65, NULL, tmp_id,
+                        sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, out->u.data->msg_id, IOTA_MESSAGE_ID_BYTES);
   // validate transaction id
-  TEST_ASSERT(
-      hex_2_bin("6c1249abb6fc07a3a8730db62564b10d8703a60d34debc6df545357cc11a9bfc", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT(hex_2_bin("6c1249abb6fc07a3a8730db62564b10d8703a60d34debc6df545357cc11a9bfc", 65, NULL, tmp_id,
+                        sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, out->u.data->tx_id, IOTA_TRANSACTION_ID_BYTES);
   // validate output index
   TEST_ASSERT(out->u.data->output_index == 0);

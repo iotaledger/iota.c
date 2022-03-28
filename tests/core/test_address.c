@@ -29,7 +29,7 @@ void test_ed25519_gen() {
   byte_t ed25519_serialized[33] = {};
   char bech32_str[65] = {};
   // convert seed from hex string to binary
-  TEST_ASSERT(hex_2_bin("e57fb750f3a3a67969ece5bd9ae7eef5b2256a818b2aac458941f7274985a410", 64, seed, 32) == 0);
+  TEST_ASSERT(hex_2_bin("e57fb750f3a3a67969ece5bd9ae7eef5b2256a818b2aac458941f7274985a410", 64, NULL, seed, 32) == 0);
   // dump_hex(seed, 32);
 
   TEST_ASSERT(ed25519_address_from_path(seed, sizeof(seed), "m/44'/4218'/0'/0'/0'", &ed25519_addr) == 0);

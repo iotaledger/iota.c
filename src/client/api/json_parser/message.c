@@ -97,7 +97,7 @@ cJSON* json_message_serialize(core_message_t* msg) {
   cJSON* msg_obj = NULL;
   cJSON* payload = NULL;
   cJSON* parents = NULL;
-  char tmp_id_str[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES) + JSON_HEX_ENCODED_STRING_PREFIX_LEN] = {};
+  char tmp_id_str[JSON_STR_WITH_PREFIX_BYTES(IOTA_MESSAGE_ID_BYTES)] = {};
 
   if (!msg) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
@@ -127,9 +127,7 @@ cJSON* json_message_serialize(core_message_t* msg) {
   cJSON_AddItemToObject(msg_obj, JSON_KEY_PARENT_IDS, parents);
   byte_t* p = NULL;
   while ((p = (byte_t*)utarray_next(msg->parents, p))) {
-    memcpy(tmp_id_str, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
-    if (bin_2_hex(p, IOTA_MESSAGE_ID_BYTES, tmp_id_str + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
-                  sizeof(tmp_id_str) - JSON_HEX_ENCODED_STRING_PREFIX_LEN) != 0) {
+    if (bin_2_hex(p, IOTA_MESSAGE_ID_BYTES, "0x", tmp_id_str, sizeof(tmp_id_str)) != 0) {
       printf("[%s:%d] converting binary to hex failed\n", __func__, __LINE__);
       cJSON_Delete(msg_obj);
       return NULL;

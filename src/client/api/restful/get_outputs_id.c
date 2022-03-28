@@ -36,14 +36,14 @@ int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e t
     if (next->query_item) {
       next->query_item->type = type;
       if (type == QUERY_PARAM_TAG) {
-        next->query_item->param = malloc(strlen(param) + JSON_HEX_ENCODED_STRING_PREFIX_LEN + 1);
+        next->query_item->param = malloc(strlen(param) + JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);
       } else {
         next->query_item->param = malloc(strlen(param) + 1);
       }
       if (next->query_item->param) {
         if (type == QUERY_PARAM_TAG) {
-          memcpy(next->query_item->param, "0x", JSON_HEX_ENCODED_STRING_PREFIX_LEN);
-          memcpy(next->query_item->param + JSON_HEX_ENCODED_STRING_PREFIX_LEN, param, strlen(param) + 1);
+          memcpy(next->query_item->param, "0x", JSON_HEX_ENCODED_STR_PREFIX_LEN);
+          memcpy(next->query_item->param + JSON_HEX_ENCODED_STR_PREFIX_LEN, param, strlen(param) + 1);
         } else {
           memcpy(next->query_item->param, param, strlen(param) + 1);
         }
@@ -321,9 +321,9 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
   cJSON *json_cursor = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_CURSOR);
   if (json_cursor != NULL) {
     if (cJSON_IsString(json_cursor) && (json_cursor->valuestring != NULL)) {
-      res->u.output_ids->cursor = malloc(strlen(json_cursor->valuestring) - JSON_HEX_ENCODED_STRING_PREFIX_LEN + 1);
-      strncpy(res->u.output_ids->cursor, json_cursor->valuestring + JSON_HEX_ENCODED_STRING_PREFIX_LEN,
-              strlen(json_cursor->valuestring) - JSON_HEX_ENCODED_STRING_PREFIX_LEN + 1);
+      res->u.output_ids->cursor = malloc(strlen(json_cursor->valuestring) - JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);
+      strncpy(res->u.output_ids->cursor, json_cursor->valuestring + JSON_HEX_ENCODED_STR_PREFIX_LEN,
+              strlen(json_cursor->valuestring) - JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);
     } else {
       printf("[%s:%d] %s is not a string\n", __func__, __LINE__, JSON_KEY_CURSOR);
       ret = JSON_NOT_STRING;

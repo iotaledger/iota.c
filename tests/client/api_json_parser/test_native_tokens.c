@@ -32,7 +32,7 @@ void test_parse_native_tokens() {
   // check 1st native token
   byte_t token_id[NATIVE_TOKEN_ID_BYTES];
   hex_2_bin("08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000",
-            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), token_id, NATIVE_TOKEN_ID_BYTES);
+            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), NULL, token_id, NATIVE_TOKEN_ID_BYTES);
   native_token_t *token = native_tokens_find_by_id(tokens, token_id);
   TEST_ASSERT_NOT_NULL(token);
   uint256_t *amount = uint256_from_str("93847598347598347598347598");
@@ -41,7 +41,7 @@ void test_parse_native_tokens() {
 
   // check 2nd native token
   hex_2_bin("09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000",
-            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), token_id, NATIVE_TOKEN_ID_BYTES);
+            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), NULL, token_id, NATIVE_TOKEN_ID_BYTES);
   token = native_tokens_find_by_id(tokens, token_id);
   TEST_ASSERT_NOT_NULL(token);
   amount = uint256_from_str("123456789");
@@ -50,7 +50,7 @@ void test_parse_native_tokens() {
 
   // check 3rd native token
   hex_2_bin("18e781c2e4503f9e25206e21b2bddfd39995bdd0c40000000000000000500000000000000000",
-            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), token_id, NATIVE_TOKEN_ID_BYTES);
+            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), NULL, token_id, NATIVE_TOKEN_ID_BYTES);
   token = native_tokens_find_by_id(tokens, token_id);
   TEST_ASSERT_NOT_NULL(token);
   amount = uint256_from_str("786345384765384756384584736584938475938475983475982375498374598374985756");
