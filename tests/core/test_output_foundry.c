@@ -56,6 +56,51 @@ void tearDown(void) {
   free(max_supply);
 }
 
+void test_token_scheme() {
+  // create token scheme
+  token_scheme_t* scheme = token_scheme_simple_new(minted_tokens, melted_tokens, max_supply);
+  TEST_ASSERT_NOT_NULL(scheme);
+
+  // validate token scheme
+  TEST_ASSERT(scheme->type == SIMPLE_TOKEN_SCHEME);
+  token_scheme_simple_t* simple_scheme = scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(simple_scheme);
+  TEST_ASSERT(uint256_equal(minted_tokens, &simple_scheme->minted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(melted_tokens, &simple_scheme->melted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(max_supply, &simple_scheme->max_supply) == 0);
+
+  // syntactic validation
+  TEST_ASSERT_TRUE(token_scheme_syntactic(scheme));
+
+  // serialize token scheme and validate it
+  size_t token_scheme_expected_len = token_scheme_serialize_len(scheme);
+  TEST_ASSERT(token_scheme_expected_len != 0);
+  byte_t* token_scheme_buf = malloc(token_scheme_expected_len);
+  TEST_ASSERT_NOT_NULL(token_scheme_buf);
+  // expect serialization fails
+  TEST_ASSERT(token_scheme_serialize(scheme, token_scheme_buf, token_scheme_expected_len - 1) == 0);
+  TEST_ASSERT(token_scheme_serialize(scheme, token_scheme_buf, token_scheme_expected_len) == token_scheme_expected_len);
+
+  // deserialize token scheme and validate it
+  token_scheme_t* deser_scheme = token_scheme_deserialize(token_scheme_buf, token_scheme_expected_len - 1);
+  // expect deserialization fails
+  TEST_ASSERT_NULL(deser_scheme);
+  deser_scheme = token_scheme_deserialize(token_scheme_buf, token_scheme_expected_len);
+  TEST_ASSERT_NOT_NULL(deser_scheme);
+
+  // validate deserialized token scheme
+  TEST_ASSERT(deser_scheme->type == SIMPLE_TOKEN_SCHEME);
+  token_scheme_simple_t* deser_simple_scheme = deser_scheme->token_scheme;
+  TEST_ASSERT_NOT_NULL(deser_simple_scheme);
+  TEST_ASSERT(uint256_equal(minted_tokens, &deser_simple_scheme->minted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(melted_tokens, &deser_simple_scheme->melted_tokens) == 0);
+  TEST_ASSERT(uint256_equal(max_supply, &deser_simple_scheme->max_supply) == 0);
+
+  free(token_scheme_buf);
+  token_scheme_free(deser_scheme);
+  token_scheme_free(scheme);
+}
+
 void test_output_foundry() {
   // create random Alias address
   address_t addr = {};
@@ -579,6 +624,7 @@ void test_output_foundry_clone() {
 int main() {
   UNITY_BEGIN();
 
+  RUN_TEST(test_token_scheme);
   RUN_TEST(test_output_foundry);
   RUN_TEST(test_output_foundry_without_native_tokens);
   RUN_TEST(test_output_foundry_without_metadata);

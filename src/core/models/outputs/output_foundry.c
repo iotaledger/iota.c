@@ -124,11 +124,6 @@ size_t token_scheme_serialize(token_scheme_t* scheme, byte_t buf[], size_t buf_l
 }
 
 token_scheme_t* token_scheme_deserialize(byte_t buf[], size_t buf_len) {
-  if (buf_len < sizeof(token_scheme_t)) {
-    printf("[%s:%d] insufficient buffer size\n", __func__, __LINE__);
-    return NULL;
-  }
-
   token_scheme_t* scheme = malloc(sizeof(token_scheme_t));
   if (!scheme) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
@@ -138,6 +133,11 @@ token_scheme_t* token_scheme_deserialize(byte_t buf[], size_t buf_len) {
   scheme->type = buf[offset];
   offset += sizeof(uint8_t);
   if (scheme->type == SIMPLE_TOKEN_SCHEME) {
+    if (buf_len < token_scheme_serialize_len(scheme)) {
+      printf("[%s:%d] insufficient buffer size\n", __func__, __LINE__);
+      free(scheme);
+      return NULL;
+    }
     token_scheme_simple_t* simple_token_scheme = malloc(sizeof(token_scheme_simple_t));
     memcpy(&simple_token_scheme->minted_tokens, buf + offset, sizeof(simple_token_scheme->minted_tokens));
     offset += sizeof(simple_token_scheme->minted_tokens);
