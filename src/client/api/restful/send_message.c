@@ -77,13 +77,13 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
 
   char** p = NULL;
   while ((p = (char**)utarray_next(tips->u.tips, p))) {
-    if (memcmp(*p, "0x", JSON_HEX_ENCODED_STR_PREFIX_LEN) != 0) {
-      printf("[%s:%d] hex string without 0x prefix \n", __func__, __LINE__);
+    if (memcmp(*p, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN) != 0) {
+      printf("[%s:%d] hex string without %s prefix \n", __func__, __LINE__, JSON_HEX_ENCODED_STRING_PREFIX);
       ret = -1;
       goto end;
     }
-    if (hex_2_bin(*p, BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + JSON_HEX_ENCODED_STR_PREFIX_LEN, "0x", tmp_msg_parent,
-                  sizeof(tmp_msg_parent)) != 0) {
+    if (hex_2_bin(*p, BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + JSON_HEX_ENCODED_STR_PREFIX_LEN,
+                  JSON_HEX_ENCODED_STRING_PREFIX, tmp_msg_parent, sizeof(tmp_msg_parent)) != 0) {
       printf("[%s:%d] converting hex to binary failed\n", __func__, __LINE__);
       ret = -1;
       goto end;

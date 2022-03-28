@@ -85,7 +85,8 @@ cJSON *json_inputs_serialize(utxo_inputs_list_t *inputs) {
     }
 
     // add tx id
-    if (bin_2_hex(elm->input->tx_id, IOTA_TRANSACTION_ID_BYTES, "0x", tx_id_str, sizeof(tx_id_str)) != 0) {
+    if (bin_2_hex(elm->input->tx_id, IOTA_TRANSACTION_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, tx_id_str,
+                  sizeof(tx_id_str)) != 0) {
       printf("[%s:%d] tx id convertion failed\n", __func__, __LINE__);
       cJSON_Delete(item);
       cJSON_Delete(input_arr);

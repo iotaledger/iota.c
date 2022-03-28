@@ -237,7 +237,8 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
 
     // tokenTag
     char tag_str[JSON_STR_WITH_PREFIX_BYTES(TOKEN_TAG_BYTES_LEN)] = {};
-    if (bin_2_hex(foundry->token_tag, TOKEN_TAG_BYTES_LEN, "0x", tag_str, sizeof(tag_str)) != 0) {
+    if (bin_2_hex(foundry->token_tag, TOKEN_TAG_BYTES_LEN, JSON_HEX_ENCODED_STRING_PREFIX, tag_str, sizeof(tag_str)) !=
+        0) {
       printf("[%s:%d] convert token tag to hex string error\n", __func__, __LINE__);
       goto err;
     }
@@ -257,7 +258,7 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
       free(tmp_supply);
       goto err;
     }
-    memcpy(tmp_supply_with_prefix, "0x", JSON_HEX_ENCODED_STR_PREFIX_LEN);
+    memcpy(tmp_supply_with_prefix, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
     memcpy(tmp_supply_with_prefix + JSON_HEX_ENCODED_STR_PREFIX_LEN, tmp_supply, strlen(tmp_supply));
     free(tmp_supply);
     if (!cJSON_AddStringToObject(output_obj, JSON_KEY_CIRC_SUPPLY, tmp_supply)) {
@@ -277,7 +278,7 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
       free(tmp_supply);
       goto err;
     }
-    memcpy(tmp_supply_with_prefix, "0x", JSON_HEX_ENCODED_STR_PREFIX_LEN);
+    memcpy(tmp_supply_with_prefix, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
     memcpy(tmp_supply_with_prefix + JSON_HEX_ENCODED_STR_PREFIX_LEN, tmp_supply, strlen(tmp_supply));
     free(tmp_supply);
     if (!cJSON_AddStringToObject(output_obj, JSON_KEY_MAX_SUPPLY, tmp_supply)) {

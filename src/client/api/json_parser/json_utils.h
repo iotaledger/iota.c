@@ -15,6 +15,8 @@
 
 // Hex encoded strings in JSON are formatted with 0x prefix
 // Example: "0x9cd745ef6800c8e8c80b09174ee4b250b3c43dfa62d7c6a4e61f848febf731a0"
+#define JSON_HEX_ENCODED_STRING_PREFIX "0x"
+// Length of prefix for encoded strings in JSON
 #define JSON_HEX_ENCODED_STR_PREFIX_LEN 2
 // Get the hex string with prefix bytes of the given binary
 #define JSON_STR_WITH_PREFIX_BYTES(x) (BIN_TO_HEX_STR_BYTES(x) + JSON_HEX_ENCODED_STR_PREFIX_LEN)

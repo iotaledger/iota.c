@@ -47,7 +47,7 @@ void test_send_tagged_data() {
 
   // Get message by message id and verify tag and data
   char cmd_str[84] = {0};  // "/api/v2/messages/{messageid}"
-  snprintf(cmd_str, 84, "/api/v2/messages/0x%s", res.u.msg_id);
+  snprintf(cmd_str, 84, "/api/v2/messages/%s%s", JSON_HEX_ENCODED_STRING_PREFIX, res.u.msg_id);
 
   // http client configuration
   http_client_config_t http_conf = {.host = ctx.host, .path = cmd_str, .use_tls = ctx.use_tls, .port = ctx.port};
@@ -102,7 +102,7 @@ void test_send_binary_tagged_data() {
 
   // Get message by message id and verify tag and data
   char cmd_str[84] = {0};  // "/api/v2/messages/{messageid}"
-  snprintf(cmd_str, 84, "/api/v2/messages/0x%s", res.u.msg_id);
+  snprintf(cmd_str, 84, "/api/v2/messages/%s%s", JSON_HEX_ENCODED_STRING_PREFIX, res.u.msg_id);
 
   // http client configuration
   http_client_config_t http_conf = {.host = ctx.host, .path = cmd_str, .use_tls = ctx.use_tls, .port = ctx.port};
@@ -127,13 +127,13 @@ void test_send_binary_tagged_data() {
   TEST_ASSERT_NOT_NULL(json_data);
 
   char tag_hex[JSON_STR_WITH_PREFIX_BYTES(TAG_LEN)] = {0};
-  TEST_ASSERT(bin_2_hex(binary_tag, TAG_LEN, "0x", tag_hex, sizeof(tag_hex)) == 0);
+  TEST_ASSERT(bin_2_hex(binary_tag, TAG_LEN, JSON_HEX_ENCODED_STRING_PREFIX, tag_hex, sizeof(tag_hex)) == 0);
 
   // check if tag is matching
   TEST_ASSERT_EQUAL_MEMORY(tag_hex, json_tag->valuestring, TAG_LEN);
 
   char data_hex[JSON_STR_WITH_PREFIX_BYTES(TAG_DATA_LEN)] = {0};
-  TEST_ASSERT(bin_2_hex(tag_data, TAG_DATA_LEN, "0x", data_hex, sizeof(data_hex)) == 0);
+  TEST_ASSERT(bin_2_hex(tag_data, TAG_DATA_LEN, JSON_HEX_ENCODED_STRING_PREFIX, data_hex, sizeof(data_hex)) == 0);
 
   // check if data is matching
   TEST_ASSERT_EQUAL_MEMORY(data_hex, json_data->valuestring, TAG_DATA_LEN);

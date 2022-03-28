@@ -148,7 +148,8 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
 
     // alias id
     char alias_id_str[JSON_STR_WITH_PREFIX_BYTES(ALIAS_ID_BYTES)] = {};
-    if (bin_2_hex(alias->alias_id, ALIAS_ID_BYTES, "0x", alias_id_str, sizeof(alias_id_str)) != 0) {
+    if (bin_2_hex(alias->alias_id, ALIAS_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, alias_id_str,
+                  sizeof(alias_id_str)) != 0) {
       printf("[%s:%d] convert alias id to hex string error\n", __func__, __LINE__);
       goto err;
     }
@@ -169,7 +170,7 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
       printf("[%s:%d] allocate metadata error\n", __func__, __LINE__);
       goto err;
     }
-    if (bin_2_hex(alias->state_metadata->data, alias->state_metadata->len, "0x", meta,
+    if (bin_2_hex(alias->state_metadata->data, alias->state_metadata->len, JSON_HEX_ENCODED_STRING_PREFIX, meta,
                   JSON_STR_WITH_PREFIX_BYTES(alias->state_metadata->len)) != 0) {
       printf("[%s:%d] convert metadata to hex string error\n", __func__, __LINE__);
       free(meta);
