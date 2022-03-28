@@ -111,6 +111,15 @@ size_t token_scheme_serialize(token_scheme_t* scheme, byte_t buf[], size_t buf_l
 token_scheme_t* token_scheme_deserialize(byte_t buf[], size_t buf_len);
 
 /**
+ * @brief Token scheme syntactic validation
+ *
+ * @param[in] output A token scheme object
+ * @return true Valid
+ * @return false Invalid
+ */
+bool token_scheme_syntactic(token_scheme_t* token_scheme);
+
+/**
  * @brief Print token scheme
  *
  * @param[in] scheme A token scheme object

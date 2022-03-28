@@ -15,38 +15,8 @@
 
 static token_scheme_simple_t* simple_token_scheme_new(uint256_t* minted_tokens, uint256_t* melted_tokens,
                                                       uint256_t* max_supply) {
-  // melted tokens must not be greater than minted tokens
-  if (uint256_equal(melted_tokens, minted_tokens) > 0) {
-    printf("[%s:%d] melted tokens must not be greater than minted tokens\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  // maximum supply must be larger than zero
-  uint256_t* max_supply_check = uint256_from_str("0");
-  if (!max_supply_check) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  if (!uint256_equal(max_supply, max_supply_check)) {
-    printf("[%s:%d] maximum supply cannot be 0\n", __func__, __LINE__);
-    free(max_supply_check);
-    return NULL;
-  }
-
-  free(max_supply_check);
-
-  uint256_t diff;
-  // minted mokens - melted tokens must not be greater than maximum supply.
-  bool res = uint256_sub(&diff, minted_tokens, melted_tokens);
-  if (res == false) {
-    printf("[%s:%d] uint256 sub failed\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  if (uint256_equal(&diff, max_supply) > 0) {
-    printf("[%s:%d] difference of minted and melted tokens must not be greater than maximum supply\n", __func__,
-           __LINE__);
+  if (!minted_tokens || !melted_tokens || !max_supply) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -183,6 +153,58 @@ token_scheme_t* token_scheme_deserialize(byte_t buf[], size_t buf_len) {
     free(scheme);
   }
   return NULL;
+}
+
+bool token_scheme_syntactic(token_scheme_t* token_scheme) {
+  if (!token_scheme) {
+    printf("[%s:%d] token scheme is null\n", __func__, __LINE__);
+    return false;
+  }
+
+  if (token_scheme->type != SIMPLE_TOKEN_SCHEME) {
+    printf("[%s:%d] unsupported token scheme type\n", __func__, __LINE__);
+    return false;
+  }
+
+  token_scheme_simple_t* simple_scheme = token_scheme->token_scheme;
+  if (!simple_scheme) {
+    printf("[%s:%d] simple token scheme is null\n", __func__, __LINE__);
+    return false;
+  }
+
+  // melted tokens must not be greater than minted tokens
+  if (uint256_equal(&simple_scheme->melted_tokens, &simple_scheme->minted_tokens) > 0) {
+    printf("[%s:%d] melted tokens must not be greater than minted tokens\n", __func__, __LINE__);
+    return false;
+  }
+
+  // maximum supply must be larger than zero
+  uint256_t* max_supply_check = uint256_from_str("0");
+  if (!max_supply_check) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return false;
+  }
+  if (!uint256_equal(&simple_scheme->max_supply, max_supply_check)) {
+    printf("[%s:%d] maximum supply cannot be 0\n", __func__, __LINE__);
+    free(max_supply_check);
+    return false;
+  }
+  free(max_supply_check);
+
+  uint256_t diff;
+  // minted mokens - melted tokens must not be greater than maximum supply.
+  bool res = uint256_sub(&diff, &simple_scheme->minted_tokens, &simple_scheme->melted_tokens);
+  if (res == false) {
+    printf("[%s:%d] uint256 sub failed\n", __func__, __LINE__);
+    return false;
+  }
+
+  if (uint256_equal(&diff, &simple_scheme->max_supply) > 0) {
+    printf("[%s:%d] difference of minted and melted tokens must not be greater than maximum supply\n", __func__,
+           __LINE__);
+    return false;
+  }
+  return true;
 }
 
 void token_scheme_free(token_scheme_t* scheme) {
@@ -608,6 +630,14 @@ bool output_foundry_syntactic(output_foundry_t* output) {
   // Each Native Token must be unique in the set of Native Tokens based on its Token ID, no duplicates are allowed
   // Amount of native token must not be zero
   if (!native_tokens_syntactic(&output->native_tokens)) {
+    return false;
+  }
+
+  // Token scheme type should be a Simple Token Scheme which has value 0
+  // Minted Tokens - Melted Tokens must not be greater than Maximum Supply
+  // Melted Tokens must not be greater than Minted Tokens
+  // Maximum Supply must be larger than zero
+  if (!token_scheme_syntactic(output->token_scheme)) {
     return false;
   }
 
