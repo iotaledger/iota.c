@@ -87,9 +87,9 @@ static output_basic_t* create_output_basic() {
   output_basic_t* output = output_basic_new(123456789, native_tokens, unlock_conds, feat_blocks);
   TEST_ASSERT_NOT_NULL(output);
 
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   native_tokens_free(native_tokens);
   feat_blk_list_free(feat_blocks);
   cond_blk_free(unlock_addr);
@@ -147,9 +147,9 @@ static output_alias_t* create_output_alias() {
   TEST_ASSERT_NOT_NULL(output);
 
   // clean up
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   cond_blk_free(state_block);
   cond_blk_free(gov_block);
   native_tokens_free(native_tokens);
@@ -250,9 +250,9 @@ static output_nft_t* create_output_nft() {
   output_nft_t* output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
 
   // clean up
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   native_tokens_free(native_tokens);
   cond_blk_list_free(unlock_conds);
   feat_blk_list_free(feat_blocks);

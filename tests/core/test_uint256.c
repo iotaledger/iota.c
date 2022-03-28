@@ -22,7 +22,7 @@ void test_uint256_from_str() {
   TEST_ASSERT_EQUAL_STRING("0", str);
   printf("Created number :%s\n", str);
   free(str);
-  free(num);
+  uint256_free(num);
 
   //=====Test maximum unsigned 256-bit number=====
   num = uint256_from_str("115792089237316195423570985008687907853269984665640564039457584007913129639935");
@@ -31,12 +31,12 @@ void test_uint256_from_str() {
   TEST_ASSERT_EQUAL_STRING("115792089237316195423570985008687907853269984665640564039457584007913129639935", str);
   printf("Created number :%s\n", str);
   free(str);
-  free(num);
+  uint256_free(num);
 
   //=====Test overflow of unsigned 256-bit number=====
   num = uint256_from_str("115792089237316195423570985008687907853269984665640564039457584007913129639936");
   TEST_ASSERT_NULL(num);
-  free(num);
+  uint256_free(num);
 
   //=====Test maximum - 1 unsigned 256-bit number=====
   num = uint256_from_str("115792089237316195423570985008687907853269984665640564039457584007913129639934");
@@ -45,7 +45,7 @@ void test_uint256_from_str() {
   TEST_ASSERT_EQUAL_STRING("115792089237316195423570985008687907853269984665640564039457584007913129639934", str);
   printf("Created number :%s\n", str);
   free(str);
-  free(num);
+  uint256_free(num);
 
   //=====Test maximum unsigned 64-bit number=====
   num = uint256_from_str("18446744073709551615");
@@ -54,7 +54,7 @@ void test_uint256_from_str() {
   TEST_ASSERT_EQUAL_STRING("18446744073709551615", str);
   printf("Created number :%s\n", str);
   free(str);
-  free(num);
+  uint256_free(num);
 
   //=====Test carry when multiplying unsigned 64-bit number=====
   num = uint256_from_str("36893488147419103232");
@@ -63,7 +63,7 @@ void test_uint256_from_str() {
   TEST_ASSERT_EQUAL_STRING("36893488147419103232", str);
   printf("Created number :%s\n", str);
   free(str);
-  free(num);
+  uint256_free(num);
 
   //=====Additional test carry when multiplying unsigned 64-bit number=====
   num = uint256_from_str("36893488147419103235");
@@ -72,7 +72,7 @@ void test_uint256_from_str() {
   TEST_ASSERT_EQUAL_STRING("36893488147419103235", str);
   printf("Created number :%s\n", str);
   free(str);
-  free(num);
+  uint256_free(num);
 
   //=====Test "random" unsigned 256-bit number=====
   num = uint256_from_str("5534023222112865484629837493874298");
@@ -81,7 +81,7 @@ void test_uint256_from_str() {
   TEST_ASSERT_EQUAL_STRING("5534023222112865484629837493874298", str);
   printf("Created number :%s\n", str);
   free(str);
-  free(num);
+  uint256_free(num);
 
   //=====Additional test "random" unsigned 256-bit number=====
   num = uint256_from_str("553402322345987345876897672398261387023640222112865484629837493874298");
@@ -90,7 +90,7 @@ void test_uint256_from_str() {
   TEST_ASSERT_EQUAL_STRING("553402322345987345876897672398261387023640222112865484629837493874298", str);
   printf("Created number :%s\n", str);
   free(str);
-  free(num);
+  uint256_free(num);
 }
 
 void test_uint256_add() {

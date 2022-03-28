@@ -43,7 +43,7 @@ void test_native_tokens() {
   uint256_t* amount1 = uint256_from_str("1000000000000000000000000000000000000000000000000000000000");
   TEST_ASSERT(native_tokens_add(&tokens, token_id1, amount1) == 0);
   TEST_ASSERT_EQUAL_UINT8(1, native_tokens_count(tokens));
-  free(amount1);
+  uint256_free(amount1);
 
   // Native Token 2 doesn't exist.
   TEST_ASSERT_NULL(native_tokens_find_by_id(tokens, token_id2));
@@ -52,19 +52,19 @@ void test_native_tokens() {
   amount1 = uint256_from_str("123456789");
   TEST_ASSERT(native_tokens_add(&tokens, token_id1, amount1) == -1);
   TEST_ASSERT_EQUAL_UINT8(1, native_tokens_count(tokens));
-  free(amount1);
+  uint256_free(amount1);
 
   // add Native Token 2
   uint256_t* amount2 = uint256_from_str("100000000000000000000000000000000");
   TEST_ASSERT(native_tokens_add(&tokens, token_id2, amount2) == 0);
   TEST_ASSERT_EQUAL_UINT8(2, native_tokens_count(tokens));
-  free(amount2);
+  uint256_free(amount2);
 
   // add Native Token 3
   uint256_t* amount3 = uint256_from_str("100000000000000000000000000000000000000000000000");
   TEST_ASSERT(native_tokens_add(&tokens, token_id3, amount3) == 0);
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(tokens));
-  free(amount3);
+  uint256_free(amount3);
 
   // find and validate Native Token 2
   native_token_t* elm = native_tokens_find_by_id(tokens, token_id2);
@@ -158,9 +158,9 @@ void test_native_tokens_sort() {
 
   native_tokens_print(native_tokens, 0);
 
-  free(amount1);
-  free(amount2);
-  free(amount3);
+  uint256_free(amount1);
+  uint256_free(amount2);
+  uint256_free(amount3);
   free(native_tokens_buf);
   native_tokens_free(native_tokens);
   native_tokens_free(deser_tokens);
@@ -187,17 +187,17 @@ void test_native_tokens_clone() {
   // add Native Token 1 to a set
   uint256_t* amount1 = uint256_from_str("1000000000000000000000000000000000000000000000000000000000");
   TEST_ASSERT(native_tokens_add(&tokens, token_id1, amount1) == 0);
-  free(amount1);
+  uint256_free(amount1);
 
   // add Native Token 2
   uint256_t* amount2 = uint256_from_str("100000000000000000000000000000000");
   TEST_ASSERT(native_tokens_add(&tokens, token_id2, amount2) == 0);
-  free(amount2);
+  uint256_free(amount2);
 
   // add Native Token 3
   uint256_t* amount3 = uint256_from_str("100000000000000000000000000000000000000000000000");
   TEST_ASSERT(native_tokens_add(&tokens, token_id3, amount3) == 0);
-  free(amount3);
+  uint256_free(amount3);
 
   // check length of Native Tokens list
   TEST_ASSERT_EQUAL_UINT8(3, native_tokens_count(tokens));
@@ -245,7 +245,7 @@ void test_native_tokens_amount() {
   uint256_t* amount = uint256_from_str("123456789");
   TEST_ASSERT_EQUAL_INT(0, native_tokens_add(&tokens, token_id, amount));
   TEST_ASSERT_EQUAL_UINT8(1, native_tokens_count(tokens));
-  free(amount);
+  uint256_free(amount);
   native_tokens_free(tokens);
 
   // create a Native Token with 0 amount
@@ -253,7 +253,7 @@ void test_native_tokens_amount() {
   amount = uint256_from_str("0");
   TEST_ASSERT_EQUAL_INT(-1, native_tokens_add(&tokens, token_id, amount));
   TEST_ASSERT_EQUAL_UINT8(0, native_tokens_count(tokens));
-  free(amount);
+  uint256_free(amount);
   native_tokens_free(tokens);
 }
 
@@ -276,7 +276,7 @@ void test_native_tokens_count() {
   TEST_ASSERT_EQUAL_INT(-1, native_tokens_add(&tokens, token_id, amount));
   TEST_ASSERT_EQUAL_UINT8(64, native_tokens_count(tokens));
 
-  free(amount);
+  uint256_free(amount);
   native_tokens_free(tokens);
 }
 
