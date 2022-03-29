@@ -7,29 +7,33 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "utarray.h"
-
-#include "core/models/payloads/indexation.h"
 #include "core/models/payloads/milestone.h"
-#include "core/models/payloads/transaction.h"
 #include "core/types.h"
 
-// Message ID in binary form
+// Message ID length in binary form
 #define IOTA_MESSAGE_ID_BYTES 32
-// Message ID in hex string form
-#define IOTA_MESSAGE_ID_HEX_BYTES (IOTA_MESSAGE_ID_BYTES * 2)
+
+typedef enum {
+  CORE_MESSAGE_PAYLOAD_DEPRECATED = 0,
+  CORE_MESSAGE_PAYLOAD_MILESTONE,
+  CORE_MESSAGE_PAYLOAD_INDEXATION,
+  CORE_MESSAGE_PAYLOAD_RECEIPT,
+  CORE_MESSAGE_PAYLOAD_TREASURY,
+  CORE_MESSAGE_PAYLOAD_TAGGED,
+  CORE_MESSAGE_PAYLOAD_TRANSACTION,
+  CORE_MESSAGE_PAYLOAD_UNKNOWN = UINT32_MAX - 1,
+} core_message_payload_type_t;
 
 /**
  * @brief A message object
  *
  */
 typedef struct {
-  uint64_t network_id;  ///< Network identifier. It is first 8 bytes of the `BLAKE2b-256` hash of the concatenation of
-                        ///< the network type and the protocol version string.
-  UT_array* parents;    ///< parents of this message
-  payload_t payload_type;  ///< payload type
-  void* payload;           ///< payload object, NULL is no payload
-  uint64_t nonce;          ///< The nonce which lets this message fulfill the Proof-of-Work requirement.
+  uint8_t protocol_version;  ///< Protocol version number of message.
+  UT_array* parents;         ///< Parents of this message.
+  uint32_t payload_type;     ///< Payload type, one of core_message_payload_type_t
+  void* payload;             ///< Payload object, NULL is no payload.
+  uint64_t nonce;            ///< The nonce which lets this message fulfill the Proof-of-Work requirement.
 } core_message_t;
 
 #ifdef __cplusplus
@@ -39,17 +43,20 @@ extern "C" {
 /**
  * @brief Allocate a core message object
  *
+ * @param[in] ver A protocol version
  * @return core_message_t*
  */
-core_message_t* core_message_new();
+core_message_t* core_message_new(uint8_t ver);
 
 /**
- * @brief Sign a transaction message
+ * @brief Calculate a transaction essence hash
  *
  * @param[in] msg A message with transaction payload
+ * @param[out] essence_hash Calculated essence hash
+ * @param[in] essence_hash_len Length of an essence hash array
  * @return int 0 on success
  */
-int core_message_sign_transaction(core_message_t* msg);
+int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[], uint8_t essence_hash_len);
 
 /**
  * @brief Free a core message object
@@ -73,6 +80,49 @@ void core_message_add_parent(core_message_t* msg, byte_t const msg_id[]);
  * @return size_t
  */
 size_t core_message_parent_len(core_message_t* msg);
+
+/**
+ * @brief Gets a parent ID by a given index
+ *
+ * @param[in] msg A message object
+ * @param[in] index A index of a message ID
+ * @return byte_t* a pointer to the binary ID
+ */
+byte_t* core_message_get_parent_id(core_message_t* msg, size_t index);
+
+/**
+ * @brief Get the message payload type
+ *
+ * @param[in] msg The message object
+ * @return core_message_payload_type_t
+ */
+core_message_payload_type_t core_message_get_payload_type(core_message_t* msg);
+
+/**
+ * @brief Get the length of a serialized core message
+ *
+ * @param[in] msg The message object
+ * @return size_t The number of bytes of serialized data
+ */
+size_t core_message_serialize_len(core_message_t* msg);
+
+/**
+ * @brief Serialize core message to a buffer
+ *
+ * @param[in] msg The message object
+ * @param[out] buf A buffer holds the serialized data
+ * @param[in] buf_len The length of buffer
+ * @return size_t The bytes written is returned, 0 on errors
+ */
+size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len);
+
+/**
+ * @brief Print out a core message
+ *
+ * @param[in] msg The message object
+ * @param[in] indentation Tab indentation when printing core message
+ */
+void core_message_print(core_message_t* msg, uint8_t indentation);
 
 #ifdef __cplusplus
 }

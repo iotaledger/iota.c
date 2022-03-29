@@ -45,12 +45,13 @@ static const int8_t charset_rev[128] = {
     19, -1, 1,  0,  3,  16, 11, 28, 12, 14, 6,  4,  2,  -1, -1, -1, -1, -1, -1, 29, -1, 24, 13, 25, 9,  8,
     23, -1, 18, 22, 31, 27, 19, -1, 1,  0,  3,  16, 11, 28, 12, 14, 6,  4,  2,  -1, -1, -1, -1, -1};
 
-static int convert_bits(uint8_t *out, size_t *outlen, int outbits, const uint8_t *in, size_t inlen, int inbits,
+int bech32_convert_bits(uint8_t *out, size_t *outlen, int outbits, const uint8_t *in, size_t inlen, int inbits,
                         int pad) {
   uint32_t val = 0;
   int bits = 0;
   uint32_t maxv = (((uint32_t)1) << outbits) - 1;
-  while (inlen--) {
+  while (inlen > 0) {
+    inlen--;
     val = (val << inbits) | *(in++);
     bits += inbits;
     while (bits >= outbits) {
@@ -159,40 +160,4 @@ int bech32_decode(char *hrp, uint8_t *data, size_t *data_len, const char *input)
     return 0;
   }
   return chk == 1;
-}
-
-int iota_addr_bech32_encode(char *output, const char *hrp, const uint8_t *addr, size_t addr_len) {
-  uint8_t data[64];
-  size_t datalen = 0;
-  convert_bits(data, &datalen, 5, addr, addr_len, 8, 1);
-  return bech32_encode(output, hrp, data, datalen);
-}
-
-int iota_addr_bech32_decode(uint8_t *addr_data, size_t *addr_len, const char *hrp, const char *addr_str) {
-  uint8_t data[64];
-  char hrp_actual[84];
-  size_t data_len = 0;
-
-  if (!bech32_decode(hrp_actual, data, &data_len, addr_str)) {
-    return 0;
-  }
-
-  if (data_len == 0 || data_len > 64) {
-    return 0;
-  }
-
-  if (strncmp(hrp, hrp_actual, 84) != 0) {
-    return 0;
-  }
-
-  // 0 is denoted as ED25519 address type
-  if (data[0] != 0) {
-    return 0;
-  }
-
-  *addr_len = 0;
-  if (!convert_bits(addr_data, addr_len, 8, data, data_len, 5, 0)) {
-    return 0;
-  }
-  return 1;
 }

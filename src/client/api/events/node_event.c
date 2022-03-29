@@ -20,7 +20,7 @@ struct event_client {
 };
 
 void mqtt_callback(mqtt_client_event_t *event, void *client) {
-  event_client_event_t *node_event = (event_client_event_t *)malloc(sizeof(event_client_event_t));
+  event_client_event_t *node_event = malloc(sizeof(event_client_event_t));
   switch (event->event_id) {
     case MQTT_ERROR:
       node_event->event_id = NODE_EVENT_ERROR;
@@ -72,7 +72,7 @@ void mqtt_callback(mqtt_client_event_t *event, void *client) {
 
 event_client_handle_t event_init(event_client_config_t *config) {
   // Allocate client handle
-  event_client_handle_t client = (struct event_client *)malloc(sizeof(struct event_client));
+  event_client_handle_t client = malloc(sizeof(struct event_client));
   if (client == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);
     return NULL;

@@ -15,8 +15,8 @@ enable_testing()
 option(IOTA_TESTS "Enable IOTA Client library test cases" ON)
 option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
-option(IOTA_EXAMPLES "Build example application" ON)
-option(IOTA_WALLET_ENABLE "Enable simple wallet API" OFF)
+option(IOTA_EXAMPLES "Build example application" OFF)
+option(IOTA_WALLET_ENABLE "Enable simple wallet API" ON)
 option(MQTT_CLIENT_ENABLE "Enable MQTT Event APIs" OFF)
 # Enable for reducing the application binary size
 option(BIP39_ENGLISH_ONLY "Support English mnemonic only" OFF)
@@ -49,15 +49,15 @@ endif()
 include(ExternalProject)
 
 if(IOTA_TESTS)
-include(cmake/unity.cmake)
+  include(cmake/unity.cmake)
 endif()
 
 if(WITH_IOTA_CLIENT)
-include(cmake/cjson.cmake)
+  include(cmake/cjson.cmake)
 endif()
 
 if(WITH_IOTA_CORE)
-include(cmake/uthash.cmake)
+  include(cmake/uthash.cmake)
 endif()
 
 # cryptography libs comparison https://en.wikipedia.org/wiki/Comparison_of_cryptography_libraries
@@ -97,21 +97,9 @@ endif()
 if(IOTA_ASAN_ENABLED)
   if(UNIX AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR NOT CMAKE_BUILD_TYPE))
     if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-      # ~~~
-      # uthash causes runtime error if enable the unsigned-integer-overflow sanitizer in clang.
-      # see: https://github.com/pmodels/mpich/issues/3322
-      # add_compile_options("-fsanitize=address,undefined,unsigned-integer-overflow"
-      #   "-fno-omit-frame-pointer"
-      #   "-fsanitize-address-use-after-scope"
-      #   "-fno-sanitize-recover=undefined,unsigned-integer-overflow")
-      # ~~~
-      add_compile_options(
-        "-fsanitize=address,undefined"
-        "-fno-omit-frame-pointer"
-        "-fno-sanitize=unsigned-integer-overflow"
-        "-fsanitize-address-use-after-scope"
-        "-fno-sanitize-recover=undefined")
-      add_link_options("-fsanitize=address,undefined")
+      add_compile_options("-fsanitize=address,undefined,unsigned-integer-overflow" "-fsanitize-address-use-after-scope"
+                          "-fno-omit-frame-pointer" "-fno-sanitize-recover=undefined,unsigned-integer-overflow")
+      add_link_options("-fsanitize=address,undefined,unsigned-integer-overflow")
     elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
       add_compile_options("-fsanitize=address,undefined" "-fno-omit-frame-pointer" "-fsanitize-address-use-after-scope"
                           "-fno-sanitize-recover=undefined")

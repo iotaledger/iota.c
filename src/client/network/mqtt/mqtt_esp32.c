@@ -139,7 +139,7 @@ int mqtt_subscribe(mqtt_client_handle_t client, int *mid, char *topic, int qos) 
   int msg_id;
   msg_id = esp_mqtt_client_subscribe(client->esp32_mqtt_client, topic, qos);
   if (msg_id != -1) {
-    if(mid != NULL) {
+    if (mid != NULL) {
       *mid = msg_id;
     }
     return 0;
@@ -153,7 +153,7 @@ int mqtt_unsubscribe(mqtt_client_handle_t client, int *mid, char *topic) {
   int msg_id;
   msg_id = esp_mqtt_client_unsubscribe(client->esp32_mqtt_client, topic);
   if (msg_id != -1) {
-    if(mid != NULL) {
+    if (mid != NULL) {
       *mid = msg_id;
     }
     return 0;

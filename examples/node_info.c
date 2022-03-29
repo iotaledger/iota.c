@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-#include "client/api/v1/get_node_info.h"
+#include "client/api/restful/get_node_info.h"
 
 int main(void) {
   iota_client_conf_t ctx = {.host = "chrysalis-nodes.iota.org", .port = 443, .use_tls = true};
@@ -23,8 +23,8 @@ int main(void) {
         printf("Latest Milestone Timestamp: %" PRIu64 "\n", info->u.output_node_info->latest_milestone_timestamp);
         printf("Confirmed Milestone Index: %" PRIu64 "\n", info->u.output_node_info->confirmed_milestone_index);
         printf("Pruning Index: %" PRIu64 "\n", info->u.output_node_info->pruning_milestone_index);
-        printf("MSP: %0.2f\n", info->u.output_node_info->msg_pre_sec);
-        printf("Referenced MPS: %0.2f\n", info->u.output_node_info->referenced_msg_pre_sec);
+        printf("MSP: %0.2f\n", info->u.output_node_info->msg_per_sec);
+        printf("Referenced MPS: %0.2f\n", info->u.output_node_info->referenced_msg_per_sec);
         printf("Reference Rate: %0.2f%%\n", info->u.output_node_info->referenced_rate);
       } else {
         printf("Node response: %s\n", info->u.error->msg);

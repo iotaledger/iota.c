@@ -22,7 +22,7 @@ void test_bip32path() {
     int ret = slip10_parse_path(bip32path_set[i].str, &path);
     TEST_ASSERT(ret == bip32path_set[i].err);
     if (ret == 0) {
-      TEST_ASSERT(bip32path_set[i].path_len == path.len);
+      TEST_ASSERT(bip32path_set[i].path_len == (size_t)path.len);
       TEST_ASSERT_EQUAL_MEMORY(bip32path_set[i].exp_path, path.path, path.len);
     }
   }
@@ -37,7 +37,7 @@ void test_derive_key_from_path() {
     printf("slip10: %s, %s\n", slip10_set[i].seed, slip10_set[i].path);
     size_t seed_len = strlen(slip10_set[i].seed) / 2;
     // hex seed to bin seed
-    TEST_ASSERT(hex_2_bin(slip10_set[i].seed, strlen(slip10_set[i].seed), tmp_seed, seed_len) == 0);
+    TEST_ASSERT(hex_2_bin(slip10_set[i].seed, strlen(slip10_set[i].seed), NULL, tmp_seed, seed_len) == 0);
 
     // key derivation
     int ret = slip10_key_from_path(tmp_seed, seed_len, slip10_set[i].path, ED25519_CURVE, &key);

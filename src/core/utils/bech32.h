@@ -34,26 +34,19 @@ int bech32_encode(char *output, const char *hrp, const uint8_t *data, size_t dat
 int bech32_decode(char *hrp, uint8_t *data, size_t *data_len, const char *input);
 
 /**
- * @brief Encode IOTA address to bech32 string
+ * @brief Convert raw binary to X bit per byte encoded byte string.
  *
- * @param[out] output An output buffer holds bech32 address string
- * @param[in] hrp A string of human-readable prefixe
- * @param[in] addr An address in bytes
- * @param[in] addr_len The length of IOTA address which is 33
+ * @param[out] out A outout buffer hold the encoded string
+ * @param[in] outlen The length of output buffer
+ * @param[in] outbits The output bits per byte
+ * @param[in] in The input data buffer
+ * @param[in] inlen The length of input buffer
+ * @param[in] inbits The input bits per byte
+ * @param[in] pad set 1 to add padding
  * @return int 1 on success
  */
-int iota_addr_bech32_encode(char *output, const char *hrp, const uint8_t *addr, size_t addr_len);
-
-/**
- * @brief Decode a bech32 string to address byte data
- *
- * @param[out] addr_data A buffer holds the address byte data
- * @param[out] addr_len the number bytes of address data
- * @param[in] hrp An expected string of human-readable prefixe
- * @param[in] addr_str A string of bech32 address
- * @return int 1 on success
- */
-int iota_addr_bech32_decode(uint8_t *addr_data, size_t *addr_len, const char *hrp, const char *addr_str);
+int bech32_convert_bits(uint8_t *out, size_t *outlen, int outbits, const uint8_t *in, size_t inlen, int inbits,
+                        int pad);
 
 #ifdef __cplusplus
 }

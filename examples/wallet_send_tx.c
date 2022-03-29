@@ -13,7 +13,7 @@
 #include <unistd.h>
 
 #include "client/api/message.h"
-#include "client/api/v1/get_balance.h"
+#include "client/api/restful/get_balance.h"
 #include "core/utils/byte_buffer.h"
 #include "wallet/wallet.h"
 

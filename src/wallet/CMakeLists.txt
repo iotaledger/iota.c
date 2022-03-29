@@ -10,8 +10,7 @@ set_target_properties(iota_wallet PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 9
 
 target_sources(
   iota_wallet
-  PRIVATE "wallet.c"
-          "bip39.c"
+  PRIVATE "wallet.c" "bip39.c"
   PUBLIC "wallet.h")
 
 target_include_directories(
@@ -20,6 +19,8 @@ target_include_directories(
 )
 
 add_dependencies(iota_wallet iota_client ext_utf8proc)
+
+target_compile_options(iota_wallet PRIVATE -Wall -Wextra)
 
 if(BIP39_ENGLISH_ONLY)
   target_compile_definitions(iota_wallet PUBLIC BIP39_ENGLISH_ONLY)

@@ -164,7 +164,7 @@ int slip10_public_key(slip10_curve_t curve, slip10_key_t* key, byte_t pub_key[])
     return -1;
   }
   // public key
-  iota_keypair_t keypair = {};
+  ed25519_keypair_t keypair = {};
   iota_crypto_keypair(key->key, &keypair);
   // match the required public key size, SLIP10_PUBLIC_KEY_BYTES
   pub_key[0] = 0x00;

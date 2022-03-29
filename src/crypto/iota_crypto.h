@@ -13,12 +13,12 @@
 #define ED_PRIVATE_KEY_BYTES 64  // ed25519 secret/private key bytes
 #define ED_SIGNATURE_BYTES 64    // ed25519 signature bytes
 
-#define CRYPTO_SHA512_KEY_BYTES 32    // crypto_auth_hmacsha512_KEYBYTES
-#define CRYPTO_SHA512_HASH_BYTES 64   // crypto_auth_hmacsha512_BYTES
-#define CRYPTO_SHA256_KEY_BYTES 32    // crypto_auth_hmacsha256_KEYBYTES
-#define CRYPTO_SHA256_HASH_BYTES 32   // crypto_auth_hmacsha256_BYTES
-#define CRYPTO_BLAKE2B_HASH_BYTES 32  // crypto_generichash_blake2b_BYTES
-
+#define CRYPTO_SHA512_KEY_BYTES 32        // crypto_auth_hmacsha512_KEYBYTES
+#define CRYPTO_SHA512_HASH_BYTES 64       // crypto_auth_hmacsha512_BYTES
+#define CRYPTO_SHA256_KEY_BYTES 32        // crypto_auth_hmacsha256_KEYBYTES
+#define CRYPTO_SHA256_HASH_BYTES 32       // crypto_auth_hmacsha256_BYTES
+#define CRYPTO_BLAKE2B_256_HASH_BYTES 32  // crypto_generichash_blake2b_BYTES
+#define CRYPTO_BLAKE2B_160_HASH_BYTES 20  // crypto_generichash_blake2b-160_BYTES
 /**
  * @brief Ed25519 Keypair
  *
@@ -26,7 +26,7 @@
 typedef struct {
   uint8_t pub[ED_PUBLIC_KEY_BYTES];    ///< 32 bytes public key
   uint8_t priv[ED_PRIVATE_KEY_BYTES];  ///< 64 bytes private key
-} iota_keypair_t;
+} ed25519_keypair_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +46,7 @@ void iota_crypto_randombytes(uint8_t *const buf, const size_t len);
  * @param[in] seed A given seed with length of IOTA_SEED_BYTES
  * @param[out] keypair A keypair derived from the seed
  */
-void iota_crypto_keypair(uint8_t const seed[], iota_keypair_t *keypair);
+void iota_crypto_keypair(uint8_t const seed[], ed25519_keypair_t *keypair);
 
 /**
  * @brief signs message by the given private key
@@ -58,6 +58,17 @@ void iota_crypto_keypair(uint8_t const seed[], iota_keypair_t *keypair);
  * @return int 0 on successful
  */
 int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, uint8_t signature[]);
+
+/**
+ * @brief verify if the signature is valid for the message and public key
+ *
+ * @param[in] msg A byte buffer holds the message data
+ * @param[in] msg_len The length of the message
+ * @param[in] pub_key The public key
+ * @param[out] signature The signature
+ * @return int 0 if valid and -1 if invalid
+ */
+int iota_crypto_sign_open(uint8_t msg[], size_t msg_len, uint8_t const pub_key[], uint8_t signature[]);
 
 /**
  * @brief HMAC-SHA-256 interface
@@ -80,6 +91,48 @@ int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg
  * @return int 0 on successful
  */
 int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]);
+
+/**
+ * @brief Create Blake2b state object which is needed for partially hash calculations
+ * @return void*
+ */
+void *iota_blake2b_new_state();
+
+/**
+ * @brief Free Blake2b state object
+ *
+ * @param[in] state The state of hash function
+ */
+void iota_blake2b_free_state(void *state);
+
+/**
+ * @brief Initialize Blake2b hash function
+ *
+ * @param[in] state The state of hash function
+ * @param[out] out_len  The length of output hash
+ * @return int 0 on success
+ */
+int iota_blake2b_init(void *state, size_t out_len);
+
+/**
+ * @brief Provide additional data to hash in Blake2b hash function
+ *
+ * @param[in] state The state of hash function
+ * @param[in] data The data to hash
+ * @param[in] data_len The length of data
+ * @return int 0 on success
+ */
+int iota_blake2b_update(void *state, uint8_t const data[], size_t data_len);
+
+/**
+ * @brief Finalize Blake2b hash function
+ *
+ * @param[in] state The state of hash function
+ * @param[out] out An output hash
+ * @param[out] out_len  The length of output hash
+ * @return int 0 on success
+ */
+int iota_blake2b_final(void *state, uint8_t out[], size_t out_len);
 
 /**
  * @brief Blake2b hash function

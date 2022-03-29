@@ -18,7 +18,6 @@
 #include "client/client_service.h"
 #include "core/address.h"
 #include "core/models/message.h"
-#include "core/seed.h"
 #include "core/types.h"
 
 #ifdef __cplusplus
@@ -72,18 +71,7 @@ int wallet_set_endpoint(iota_wallet_t* w, char const host[], uint16_t port, bool
  * @param[out] addr A buffer holds ed25519 address
  * @return int 0 on success
  */
-int wallet_address_from_index(iota_wallet_t* w, bool change, uint32_t index, byte_t addr[]);
-
-/**
- * @brief Get bech32 address from the given account, change, and index
- *
- * @param[in] w A wallet instance
- * @param[in] change The change index which is {0, 1}, also known as wallet chain.
- * @param[in] index Address index
- * @param[out] addr A buffer holds bech32 address
- * @return int 0 on success
- */
-int wallet_bech32_from_index(iota_wallet_t* w, bool change, uint32_t index, char addr[]);
+int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* out);
 
 /**
  * @brief Get balance by a given address
@@ -93,35 +81,38 @@ int wallet_bech32_from_index(iota_wallet_t* w, bool change, uint32_t index, char
  * @param[out] balance The balance of the address
  * @return int 0 on success
  */
-int wallet_balance_by_address(iota_wallet_t* w, byte_t const addr[], uint64_t* balance);
+int wallet_balance_by_address(iota_wallet_t* w, address_t* addr, uint64_t* balance);
 
 /**
- * @brief Get address balance by a given index
+ * @brief Get balance by a given bech32 address
  *
  * @param[in] w A wallet instance
- * @param[in] change Is change address
- * @param[in] index The index of address
- * @param[out] balance The balance of the address
+ * @param[in] bech32 A string of bech32 address
+ * @param[in] balance The balance of the address
  * @return int 0 on success
  */
-int wallet_balance_by_index(iota_wallet_t* w, bool change, uint32_t index, uint64_t* balance);
+int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* balance);
 
 /**
- * @brief Send message to the Tangle
+ * @brief Unlock outputs of the given address index
  *
- * @param[in] w A wallet instance
- * @param[in] change Is change/chain address?
- * @param[in] sender_index The address index of this wallet
- * @param[in] receiver The receiver address in ed25519 format
- * @param[in] balance The balance to send
- * @param[in] index An optional indexation
- * @param[in] data An optional indexation data, it's ignored if the index parameter is NULL
- * @param[out] msg_id A buffer holds the message ID string that returned from the node.
- * @param[in] msg_id_len The length of msg_id buffer.
- * @return int 0 on success
+ * it unlocks expired Timelock and Expiration outputs
+ *
+ * @param w A wallet instance
+ * @param change The change index which is {0, 1}, also known as wallet chain.
+ * @param index Address index
+ * @return int 0 on seccess
  */
-int wallet_send(iota_wallet_t* w, bool change, uint32_t addr_index, byte_t receiver[], uint64_t balance,
-                char const index[], byte_t data[], size_t data_len, char msg_id[], size_t msg_id_len);
+int wallet_unlock_outputs(iota_wallet_t* w, bool change, uint32_t index);
+
+// TODO, need to be defined
+int wallet_send_iota(iota_wallet_t* w, bool change, uint32_t index, char recv_bech32[], uint64_t amount);
+
+// TODO, need to be defined
+int wallet_create_native_token(iota_wallet_t* w, bool change, uint32_t index, byte_t token_id[], uint64_t amount);
+
+// TODO, need to be defined
+int wallet_send_native_token(iota_wallet_t* w, bool change, uint32_t index, char recv_bech32[], uint64_t amount);
 
 /**
  * @brief Destory the wallet account
@@ -137,16 +128,6 @@ void wallet_destroy(iota_wallet_t* w);
  * @return int 0 on success
  */
 int wallet_update_bech32HRP(iota_wallet_t* w);
-
-/**
- * @brief Get balance from a given bech32 address
- *
- * @param[in] w A wallet instance
- * @param[in] bech32 A string of bech32 address
- * @param[in] balance The balance of the address
- * @return int 0 on success
- */
-int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* balance);
 
 #ifdef __cplusplus
 }

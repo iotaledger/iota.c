@@ -10,26 +10,32 @@
 #include "core/address.h"
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/outputs/outputs.h"
-#include "core/models/payloads/indexation.h"
 #include "core/models/unlock_block.h"
 #include "core/types.h"
 
-static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
+// have one transaction essence only which is 0
+#define TRANSACTION_ESSENCE_TYPE 1
 
 /**
  * @brief Transaction Essence, the essence data making up a transaction by defining its inputs and outputs and an
  * optional payload.
  *
  * Based on protocol design, we can have different types of input and output in a transaction.
- * At this moment, we have only utxo_input_ht for intput and SigLockedSingleOutput for output.
+ * At this moment, we have only utxo_input_list for input.
+ * For output we have basic, alias, foundry and nft output.
  *
  */
 typedef struct {
-  uint8_t tx_type;        ///< Set to value 0 to denote a Transaction Essence.
-  uint32_t payload_len;   ///< The length in bytes of the optional payload.
-  utxo_input_ht* inputs;  ///< any of UTXO input
-  outputs_ht* outputs;    ///< any of UTXO output
-  void* payload;          ///< an indexation payload at this moment
+  uint8_t tx_type;      ///< Set to value 0 to denote a Transaction Essence.
+  uint64_t network_id;  ///< Network identifier. It is first 8 bytes of the `BLAKE2b-256` hash of the network name
+                        ///< (identifier string of the network).
+  utxo_inputs_list_t* inputs;                               ///< An UTXO input list.
+  byte_t inputs_commitment[CRYPTO_BLAKE2B_256_HASH_BYTES];  ///< BLAKE2b-256 hash of the serialized outputs referenced
+                                                            ///< in Inputs by their Output IDs (Transaction ID ||
+                                                            ///< Transaction Output Index).
+  utxo_outputs_list_t* outputs;                             ///< An UTXO output list.
+  uint32_t payload_len;                                     ///< The length in bytes of the optional payload.
+  void* payload;                                            ///< An tagged data payload at this moment.
 } transaction_essence_t;
 
 /**
@@ -40,10 +46,11 @@ typedef struct {
  *
  */
 typedef struct {
-  payload_t type;                  ///< Set to value 0 to denote a Transaction payload.
+  uint32_t type;                   ///< Set to value 0 to denote a Transaction payload.
   transaction_essence_t* essence;  ///< Describes the essence data making up a transaction by defining its inputs and
                                    ///< outputs and an optional payload.
-  unlock_blocks_t* unlock_blocks;  ///< Defines an unlock block containing signature(s) unlocking input(s).
+  unlock_list_t* unlock_blocks;    ///< Defines a list of unlock blocks (signature, reference, alias, NFT) which unlock
+                                   ///< the inputs of the transaction essence.
 } transaction_payload_t;
 
 #ifdef __cplusplus
@@ -53,72 +60,10 @@ extern "C" {
 /**
  * @brief Allocate a transaction essence object
  *
+ * @param[in] network_id A network ID
  * @return transaction_essence_t*
  */
-transaction_essence_t* tx_essence_new();
-
-/**
- * @brief Add an input element to the essence
- *
- * @param[in] es An essence object
- * @param[in] tx_id A transaction ID
- * @param[in] index The index of the output on the referenced transaction to consume
- * @return int 0 on success
- */
-int tx_essence_add_input(transaction_essence_t* es, byte_t tx_id[], uint8_t index);
-
-/**
- * @brief Add an input to the essence with ed25519 key pair
- *
- * @param[in] es An essence object
- * @param[in] tx_id A transaction ID
- * @param[in] index The index of the output
- * @param[in] pub A ed25519 public key
- * @param[in] priv A ed25519 private key
- * @return int 0 on success
- */
-int tx_essence_add_input_with_key(transaction_essence_t* es, byte_t const tx_id[], uint8_t index, byte_t const pub[],
-                                  byte_t const priv[]);
-
-/**
- * @brief Add an output element to the essence
- *
- * @param[in] es An essence object
- * @param[in] type The output type
- * @param[in] addr An ed25519 address
- * @param[in] amount The amount of tokens to deposit with this SigLockedSingleOutput output
- * @return int 0 on success
- */
-int tx_essence_add_output(transaction_essence_t* es, output_type_t type, byte_t addr[], uint64_t amount);
-
-/**
- * @brief Add a payload to essence
- *
- * support indexation payload at this moment, type = 2
- *
- * @param[in] es An essence object
- * @param[in] type A payload type
- * @param[in] payload A pointer to a payload object
- * @return int 0 on success
- */
-int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* payload);
-
-/**
- * @brief Get the serialized length of the essence
- *
- * @param[in] es An essence object
- * @return size_t 0 on failed
- */
-size_t tx_essence_serialize_length(transaction_essence_t* es);
-
-/**
- * @brief Serialize essence object
- *
- * @param[in] es An essence object
- * @param[out] buf A buffer holds serialized data
- * @return size_t number of bytes written to the buffer
- */
-size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[]);
+transaction_essence_t* tx_essence_new(uint64_t network_id);
 
 /**
  * @brief Free an essence object
@@ -128,81 +73,109 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[]);
 void tx_essence_free(transaction_essence_t* es);
 
 /**
+ * @brief Add an input element to the essence
+ *
+ * @param[in] es An essence object
+ * @param[in] type An input type
+ * @param[in] tx_id A transaction ID
+ * @param[in] index The index of the output of the referenced transaction
+ * @return int 0 on success
+ */
+int tx_essence_add_input(transaction_essence_t* es, uint8_t type, byte_t tx_id[], uint8_t index);
+
+/**
+ * @brief Add an output element to the essence
+ *
+ * @param[in] es An essence object
+ * @param[in] type An output type
+ * @param[in] output Pointer to an output
+ * @return int 0 on success
+ */
+int tx_essence_add_output(transaction_essence_t* es, utxo_output_type_t type, void* output);
+
+/**
+ * @brief Add a payload to essence
+ *
+ * support tagged data payload at this moment, type = 5
+ *
+ * @param[in] es An essence object
+ * @param[in] type A payload type
+ * @param[in] payload A pointer to a payload object
+ * @return int 0 on success
+ */
+int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* payload);
+
+/**
+ * @brief Calculate inputs commitment for transaction essence
+ *
+ * @param[in] es An essence object
+ * @param[in] unspent_outputs List of unspent outputs which will be used as transaction inputs
+ * @return int 0 on success
+ */
+int tx_essence_inputs_commitment_calculate(transaction_essence_t* es, utxo_outputs_list_t* unspent_outputs);
+
+/**
+ * @brief Get the serialized length of the essence
+ *
+ * @param[in] es An essence object
+ * @return size_t The number of bytes of a serialized data
+ */
+size_t tx_essence_serialize_length(transaction_essence_t* es);
+
+/**
+ * @brief Serialize an essence object
+ *
+ * @param[in] es An essence object
+ * @param[out] buf A buffer to hold the serialized data
+ * @param[in] buf_len The length of the buffer
+ * @return size_t number of bytes written to the buffer
+ */
+size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_len);
+
+/**
+ * @brief Deserialize binary data to a transaction essence object
+ *
+ * @param[in] buf The buffer holds a serialized data
+ * @param[in] buf_len The length of the buffer
+ * @return transaction_essence_t* The deserialized txn essence, NULL on errors
+ */
+transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len);
+
+/**
+ * @brief Transaction Essence syntactic validation
+ *
+ * @param[in] es An essence object
+ * @param[in] byte_cost The Byte Cost configure
+ * @return true Valid
+ * @return false Invalid
+ */
+bool tx_essence_syntactic(transaction_essence_t* es, byte_cost_config_t* byte_cost);
+
+/**
  * @brief Print out a transaction essence
  *
  * @param[in] es An essence object
+ * @param[in] indentation Tab indentation when printing transaction essence
  */
-void tx_essence_print(transaction_essence_t* es);
-
-/**
- * @brief Sort inputs and outputs in lexicographical order
- *
- * @param[in] es An essence object
- */
-void tx_essence_sort_input_output(transaction_essence_t* es);
+void tx_essence_print(transaction_essence_t* es, uint8_t indentation);
 
 /**
  * @brief Allocate a tansaction payload object
  *
+ * @param[in] network_id A network ID
  * @return transaction_payload_t*
  */
-transaction_payload_t* tx_payload_new();
+transaction_payload_t* tx_payload_new(uint64_t network_id);
 
 /**
- * @brief Add an input to the transaction payload
- *
- * @param[in] tx A transaction payload object
- * @param[in] tx_id A transaction ID
- * @param[in] index The index of the output on the referenced transaction to consume
- * @return int 0 on success
- */
-int tx_payload_add_input(transaction_payload_t* tx, byte_t tx_id[], uint8_t index);
-
-/**
- * @brief Add an input with ed25519 keypair to the transaction payload
- *
- * @param[in] tx A transaction payload object
- * @param[in] tx_id A transaction ID
- * @param[in] index The index of the output on the referenced transaction to consume
- * @param[in] pub The public key
- * @param[in] priv The private key
- * @return int 0 on success
- */
-int tx_payload_add_input_with_key(transaction_payload_t* tx, byte_t tx_id[], uint8_t index, byte_t const pub[],
-                                  byte_t const priv[]);
-
-/**
- * @brief Add an output to the transaction payload
+ * @brief Free a transaction payload object
  *
  * @param[in] tx A transaction payload
- * @param[in] type The output type
- * @param[in] addr An ed25519 address
- * @param[in] amount The amount of tokens to deposit with this SigLockedSingleOutput output
- * @return int 0 on success
  */
-int tx_payload_add_output(transaction_payload_t* tx, output_type_t type, byte_t addr[], uint64_t amount);
+void tx_payload_free(transaction_payload_t* tx);
 
 /**
- * @brief Add a signature unlocked block to the transaction
- *
- * @param[in] tx A transaction payload
- * @param[in] sig_block An ed25519 signature block
- * @param[in] sig_len the length of ed25519 signature block
- * @return int 0 on success
- */
-int tx_payload_add_sig_block(transaction_payload_t* tx, byte_t* sig_block, size_t sig_len);
-
-/**
- * @brief Add a reference unlocked block to the transaction
- *
- * @param[in] tx A transaction payload
- * @param[in] ref The index of reference
- * @return int 0 on success
- */
-int tx_payload_add_ref_block(transaction_payload_t* tx, uint16_t ref);
-
-/**
- * @brief Get the length of a transaction payload
+ * @brief Get the serialized length of a transaction payload
  *
  * @param[in] tx A transaction payload
  * @return size_t The number of bytes of serialized data
@@ -214,23 +187,37 @@ size_t tx_payload_serialize_length(transaction_payload_t* tx);
  *
  * @param[in] tx A transaction payload
  * @param[out] buf A buffer holds the serialized data
+ * @param[in] buf_len The length of buffer
  * @return size_t number of bytes written to the buffer
  */
-size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[]);
+size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_len);
 
 /**
- * @brief Free a transaction payload object
+ * @brief Deserialize binary data to a transaction payload object
  *
- * @param[in] tx A transaction payload
+ * @param[in] buf The buffer holds a serialized data
+ * @param[in] buf_len The length of the buffer
+ * @return transaction_payload_t* The deserialized txn payload, NULL on errors
  */
-void tx_payload_free(transaction_payload_t* tx);
+transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len);
 
 /**
  * @brief Print out a transaction payload
  *
  * @param[in] tx A transaction payload
+ * @param[in] indentation Tab indentation when printing transaction payload
  */
-void tx_payload_print(transaction_payload_t* tx);
+void tx_payload_print(transaction_payload_t* tx, uint8_t indentation);
+
+/**
+ * @brief Transaction pyaload syntactic validation
+ *
+ * @param[in] tx A transaction payload
+ * @param[in] byte_cost The Byte Cost configure
+ * @return true Valid
+ * @return false Invalid
+ */
+bool tx_payload_syntactic(transaction_payload_t* tx, byte_cost_config_t* byte_cost);
 
 #ifdef __cplusplus
 }

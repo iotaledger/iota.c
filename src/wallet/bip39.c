@@ -129,14 +129,11 @@ static int index_from_entropy(byte_t const entropy[], ms_entropy_t entropy_len, 
     return -1;
   }
 
-  uint8_t ent_cs_len = entropy_len + 1;
   checksum = checksum_buf[0] & checksum_mask;
   // final entropy with checksum
   memcpy(ENT_buf, entropy, entropy_len);
   // addpend checksum to the end of initial entropy
   memcpy(ENT_buf + entropy_len, &checksum, 1);
-
-  // dump_hex_str(ENT_buf, ent_cs_len);
 
   ms_index->len = ms_len;
   for (size_t i = 0; i < ms_len; i++) {
@@ -359,6 +356,13 @@ int mnemonic_to_seed(char const ms[], char const pwd[], byte_t seed[], size_t se
 
 int mnemonic_convertor(char const from[], ms_lan_t lan_from, char to[], size_t to_len, ms_lan_t lan_to) {
 #ifndef BIP39_ENGLISH_ONLY
+  // unused parameters
+  (void)from;
+  (void)lan_from;
+  (void)to;
+  (void)to_len;
+  (void)lan_to;
+
   printf("[%s:%d] not supported\n", __func__, __LINE__);
   return -1;
 #else

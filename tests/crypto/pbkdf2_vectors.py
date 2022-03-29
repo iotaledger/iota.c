@@ -14,7 +14,6 @@ import hashlib
 
 
 def print_vector(pwd, salt, iteration, dkLen):
-
     # key calculation
     vecSHA1 = hashlib.pbkdf2_hmac("sha1", pwd, salt, iteration, dkLen)
     vecSHA256 = hashlib.pbkdf2_hmac("sha256", pwd, salt, iteration, dkLen)

@@ -8,12 +8,22 @@
 #include <stdio.h>
 
 typedef uint8_t byte_t;
-typedef uint32_t payload_t;
-typedef uint8_t output_t;
-typedef uint8_t input_t;
-typedef uint8_t transaction_t;
-typedef uint8_t unlock_block_t;
-typedef uint8_t signature_t;
+
+/* clang-format off */
+/**
+ * @brief Returns string representing tabulator indentation
+ *
+ * @param[in] i Indentation level. The range of i is between 0 and 5.
+ */
+#define PRINT_INDENTATION(i)   \
+  ((i) == 0   ? "\0"           \
+   : (i) == 1 ? "\t\0"         \
+   : (i) == 2 ? "\t\t\0"       \
+   : (i) == 3 ? "\t\t\t\0"     \
+   : (i) == 4 ? "\t\t\t\t\0"   \
+   : (i) == 5 ? "\t\t\t\t\t\0" \
+              : "\0")
+/* clang-format on */
 
 /**
  * @brief Prints out hexmal value in a byte array.
@@ -23,7 +33,7 @@ typedef uint8_t signature_t;
  */
 static inline void dump_hex(byte_t const data[], size_t len) {
   for (size_t i = 0; i < len; i++) {
-    printf("0x%X, ", data[i]);
+    printf("0x%x, ", data[i]);
   }
   printf("\n");
 }
@@ -36,7 +46,7 @@ static inline void dump_hex(byte_t const data[], size_t len) {
  */
 static inline void dump_hex_str(byte_t const data[], size_t len) {
   for (size_t i = 0; i < len; i++) {
-    printf("%.2X", data[i]);
+    printf("%.2x", data[i]);
   }
   printf("\n");
 }

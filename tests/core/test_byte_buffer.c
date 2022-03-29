@@ -68,7 +68,7 @@ void test_byte_buf() {
 
 void test_hex_convertor() {
   char const *exp_str = "Hello world!";
-  char const *exp_hex = "48656C6C6F20776F726C6421";
+  char const *exp_hex = "48656c6c6f20776f726c6421";
 
   byte_buf_t *buf = byte_buf_new_with_data((byte_t *)exp_str, strlen(exp_str));
   byte_buf_t *hex = byte_buf_str2hex(buf);
@@ -85,17 +85,17 @@ void test_hex_convertor() {
 }
 
 void test_hex_bin() {
-  char const *exp_hex = "48656C6C6F20776F726C6421";
+  char const *exp_hex = "48656c6c6f20776f726c6421";
   byte_t exp_bin[12] = {0x48, 0x65, 0x6C, 0x6C, 0x6F, 0x20, 0x77, 0x6F, 0x72, 0x6C, 0x64, 0x21};
   byte_t bin[12] = {};
 
   // hex2bin
-  TEST_ASSERT(hex_2_bin(exp_hex, strlen(exp_hex), bin, 12) == 0);
+  TEST_ASSERT(hex_2_bin(exp_hex, strlen(exp_hex), NULL, bin, 12) == 0);
   TEST_ASSERT_EQUAL_MEMORY(exp_bin, bin, 12);
 
   // bin2hex
   char hex_str[(12 * 2) + 1] = {};
-  TEST_ASSERT(bin_2_hex(bin, 12, hex_str, sizeof(hex_str)) == 0);
+  TEST_ASSERT(bin_2_hex(bin, 12, NULL, hex_str, sizeof(hex_str)) == 0);
   TEST_ASSERT_EQUAL_STRING(exp_hex, hex_str);
 }
 

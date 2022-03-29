@@ -9,14 +9,14 @@ The RESTful API is low level client implementation based on [RFC: REST Node API]
   :members:
 ```
 
-## [Error Response](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/response_error.h)
+## [Error Response](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/response_error.h)
 
 ```{eval-rst}
 .. doxygenstruct:: res_err_t
   :members:
 ```
 
-## [Find Message by Index](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/find_message.h)
+## [Find Message by Index](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/find_message.h)
 
 ```{eval-rst}
 .. doxygenfunction:: find_message_by_index
@@ -36,33 +36,13 @@ The RESTful API is low level client implementation based on [RFC: REST Node API]
   :members:
 ```
 
-## [Get Balance](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_balance.h)
-
-```{eval-rst}
-.. doxygenfunction:: get_balance
-```
-
-### Response
-
-```{eval-rst}
-.. doxygenstruct:: res_balance_t
-  :members:
-```
-
-### Balance object
-
-```{eval-rst}
-.. doxygenstruct:: get_balance_t
-  :members:
-```
-
-## [Get Health](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_health.h)
+## [Get Health](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/get_health.h)
 
 ```{eval-rst}
 .. doxygenfunction:: get_health
 ```
 
-## [Get Message Children](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_message_children.h)
+## [Get Message Children](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/get_message_children.h)
 
 ```{eval-rst}
 .. doxygenfunction:: get_message_children
@@ -80,7 +60,7 @@ The RESTful API is low level client implementation based on [RFC: REST Node API]
   :members:
 ```
 
-## [Get Message Metadata](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_message_metadata.h)
+## [Get Message Metadata](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/get_message_metadata.h)
 
 ```{eval-rst}
 .. doxygenfunction:: get_message_metadata
@@ -98,7 +78,7 @@ The RESTful API is low level client implementation based on [RFC: REST Node API]
   :members:
 ```
 
-## [Get Message by ID](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_message.h)
+## [Get Message by ID](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/get_message.h)
 
 ```{eval-rst}
 .. doxygenfunction:: get_message_by_id
@@ -118,7 +98,7 @@ The RESTful API is low level client implementation based on [RFC: REST Node API]
   :members:
 ```
 
-## [Get Node Info](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_node_info.h)
+## [Get Node Info](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/get_node_info.h)
 
 ```{eval-rst}
 .. doxygenfunction:: get_node_info
@@ -138,7 +118,7 @@ The RESTful API is low level client implementation based on [RFC: REST Node API]
   :members:
 ```
 
-## [Get Output](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_output.h)
+## [Get Output](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/get_output.h)
 
 ```{eval-rst}
 .. doxygenfunction:: get_output
@@ -158,27 +138,27 @@ The RESTful API is low level client implementation based on [RFC: REST Node API]
   :members:
 ```
 
-## [Get Outputs From Address](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_outputs_from_address.h)
+## [Get Outputs From Address](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/get_outputs_id.h)
 
 ```{eval-rst}
-.. doxygenfunction:: get_outputs_from_address
+.. doxygenfunction:: get_outputs_id
 ```
 
 ### Response
 
 ```{eval-rst}
-.. doxygenstruct:: res_outputs_address_t
+.. doxygenstruct:: res_outputs_id_t
   :members:
 ```
 
 ### Address Outputs Object
 
 ```{eval-rst}
-.. doxygenstruct:: get_outputs_address_t
+.. doxygenstruct:: get_outputs_id_t
   :members:
 ```
 
-## [Get Tips](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/get_tips.h)
+## [Get Tips](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/get_tips.h)
 
 ```{eval-rst}
 .. doxygenfunction:: get_tips
@@ -191,7 +171,7 @@ The RESTful API is low level client implementation based on [RFC: REST Node API]
   :members:
 ```
 
-## [Send Message](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/v1/send_message.h)
+## [Send Message](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/restful/send_message.h)
 
 ```{eval-rst}
 .. doxygenfunction:: send_indexation_msg

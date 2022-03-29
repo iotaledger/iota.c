@@ -10,8 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "client/api/v1/get_message.h"
-#include "client/api/v1/send_message.h"
+#include "client/api/restful/get_message.h"
+#include "client/api/restful/send_message.h"
 
 #define XOR_KEY 'S'
 

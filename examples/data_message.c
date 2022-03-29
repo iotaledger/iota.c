@@ -4,8 +4,8 @@
 #include <inttypes.h>
 #include <stdio.h>
 
-#include "client/api/v1/get_message.h"
-#include "client/api/v1/send_message.h"
+#include "client/api/restful/get_message.h"
+#include "client/api/restful/send_message.h"
 
 int main(void) {
   iota_client_conf_t ctx = {.host = "chrysalis-nodes.iota.org", .port = 443, .use_tls = true};

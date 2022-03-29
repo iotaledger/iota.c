@@ -37,6 +37,7 @@
 
 #include "crypto/iota_crypto.h"
 
+#if defined(CRYPTO_USE_SODIUM)
 // store 32 bits in big-endian
 static inline void store32_be(uint8_t dst[4], uint32_t w) {
   if (is_little_endian()) {
@@ -51,6 +52,7 @@ static inline void store32_be(uint8_t dst[4], uint32_t w) {
     memcpy(dst, &w, sizeof w);
   }
 }
+#endif
 
 void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
 #if defined(CRYPTO_USE_SODIUM)
@@ -92,7 +94,7 @@ void iota_crypto_randombytes(uint8_t *const buf, const size_t len) {
 }
 
 // get ed25519 public and private key from address
-void iota_crypto_keypair(uint8_t const seed[], iota_keypair_t *keypair) {
+void iota_crypto_keypair(uint8_t const seed[], ed25519_keypair_t *keypair) {
 #if defined(CRYPTO_USE_SODIUM)
   crypto_sign_seed_keypair(keypair->pub, keypair->priv, seed);
 #elif defined(CRYPTO_USE_ED25519_DONNA)
@@ -113,6 +115,20 @@ int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, ui
 #elif defined(CRYPTO_USE_ED25519_DONNA)
   ed25519_sign(msg, msg_len, priv_key, priv_key + 32, signature);
   return 0;
+#else
+#error ed25519 is not defined
+#endif
+}
+
+int iota_crypto_sign_open(uint8_t msg[], size_t msg_len, uint8_t const pub_key[], uint8_t signature[]) {
+#if defined(CRYPTO_USE_SODIUM)
+  uint8_t sm_buff[ED_SIGNATURE_BYTES + msg_len];
+  memcpy(sm_buff, signature, ED_SIGNATURE_BYTES);
+  memcpy(sm_buff + ED_SIGNATURE_BYTES, msg, msg_len);
+  return crypto_sign_ed25519_open(msg, (unsigned long long *)&msg_len, sm_buff,
+                                  (unsigned long long)ED_SIGNATURE_BYTES + msg_len, pub_key);
+#elif defined(CRYPTO_USE_ED25519_DONNA)
+  return ed25519_sign_open(msg, msg_len, pub_key, signature);
 #else
 #error ed25519 is not defined
 #endif
@@ -153,6 +169,54 @@ int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg
   return 0;
 #else
 #error crypto lib is not defined
+#endif
+}
+
+void *iota_blake2b_new_state() {
+#if defined(CRYPTO_USE_SODIUM)
+  crypto_generichash_blake2b_state *state = malloc(sizeof(crypto_generichash_blake2b_state));
+  return state;
+#elif defined(CRYPTO_USE_BLAKE2B_REF)
+  blake2b_state *state = malloc(sizeof(blake2b_state));
+  return state;
+#else
+#error blake2b is not defined
+#endif
+}
+
+void iota_blake2b_free_state(void *state) {
+  if (state) {
+    free(state);
+  }
+}
+
+int iota_blake2b_init(void *state, size_t out_len) {
+#if defined(CRYPTO_USE_SODIUM)
+  return crypto_generichash_blake2b_init((crypto_generichash_blake2b_state *)state, NULL, 0, out_len);
+#elif defined(CRYPTO_USE_BLAKE2B_REF)
+  return blake2b_init((blake2b_state *)state, out_len);
+#else
+#error blake2b is not defined
+#endif
+}
+
+int iota_blake2b_update(void *state, uint8_t const data[], size_t data_len) {
+#if defined(CRYPTO_USE_SODIUM)
+  return crypto_generichash_blake2b_update((crypto_generichash_blake2b_state *)state, data, data_len);
+#elif defined(CRYPTO_USE_BLAKE2B_REF)
+  return blake2b_update((blake2b_state *)state, data, data_len);
+#else
+#error blake2b is not defined
+#endif
+}
+
+int iota_blake2b_final(void *state, uint8_t out[], size_t out_len) {
+#if defined(CRYPTO_USE_SODIUM)
+  return crypto_generichash_blake2b_final((crypto_generichash_blake2b_state *)state, out, out_len);
+#elif defined(CRYPTO_USE_BLAKE2B_REF)
+  return blake2b_final((blake2b_state *)state, out, out_len);
+#else
+#error blake2b is not defined
 #endif
 }
 
@@ -239,7 +303,7 @@ int iota_crypto_pbkdf2_hmac_sha512(char const pwd[], size_t pwd_len, char const 
     crypto_auth_hmacsha512_final(&hctx, U);
     memcpy(T, U, crypto_auth_hmacsha512_BYTES);
 
-    for (j = 2; j <= iterations; j++) {
+    for (j = 2; j <= (size_t)iterations; j++) {
       crypto_auth_hmacsha512_init(&hctx, (uint8_t const *)pwd, pwd_len);
       crypto_auth_hmacsha512_update(&hctx, U, crypto_auth_hmacsha512_BYTES);
       crypto_auth_hmacsha512_final(&hctx, U);
