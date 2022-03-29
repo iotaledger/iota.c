@@ -224,7 +224,23 @@ json_error_t utarray_to_json_string_array(UT_array const* const ut, cJSON* const
   cJSON_AddItemToObject(json_obj, key, array_obj);
 
   while ((p = (char**)utarray_next(ut, p))) {
-    cJSON_AddItemToArray(array_obj, cJSON_CreateString(*p));
+    size_t str_len = strlen(*p);
+    char* str_without_prefix = malloc(str_len + JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);  // Zero terminate string
+    if (!str_without_prefix) {
+      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      return JSON_MEMORY_ERROR;
+    }
+
+    memcpy(str_without_prefix, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
+    memcpy(str_without_prefix + JSON_HEX_ENCODED_STR_PREFIX_LEN, *p, str_len);
+    memset(str_without_prefix + JSON_HEX_ENCODED_STR_PREFIX_LEN + str_len, 0, 1);
+
+    if (!cJSON_AddItemToArray(array_obj, cJSON_CreateString(str_without_prefix))) {
+      printf("[%s:%d] can not create JSON string\n", __func__, __LINE__);
+      free(str_without_prefix);
+      return JSON_CREATE_FAILED;
+    }
+    free(str_without_prefix);
   }
   return JSON_OK;
 }
