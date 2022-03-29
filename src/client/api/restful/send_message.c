@@ -15,7 +15,7 @@ char const* const cmd_msg = "/api/v2/messages";
 int deser_send_message_response(char const* json_str, res_send_message_t* res) {
   int ret = -1;
 
-  // {"messageId":"322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5"}
+  // {"messageId":"0x322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5"}
   cJSON* json_obj = cJSON_Parse(json_str);
   if (json_obj == NULL) {
     return -1;
@@ -31,7 +31,7 @@ int deser_send_message_response(char const* json_str, res_send_message_t* res) {
   }
 
   // message ID
-  if ((ret = json_get_string(json_obj, JSON_KEY_MSG_ID, res->u.msg_id, sizeof(res->u.msg_id))) != 0) {
+  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->u.msg_id, sizeof(res->u.msg_id))) != 0) {
     printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
     ret = -1;
   }
@@ -77,7 +77,11 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
 
   char** p = NULL;
   while ((p = (char**)utarray_next(tips->u.tips, p))) {
-    hex_2_bin(*p, BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES), tmp_msg_parent, sizeof(tmp_msg_parent));
+    if (hex_2_bin(*p, BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES), NULL, tmp_msg_parent, sizeof(tmp_msg_parent)) != 0) {
+      printf("[%s:%d] converting hex to binary failed\n", __func__, __LINE__);
+      ret = -1;
+      goto end;
+    }
     utarray_push_back(msg->parents, tmp_msg_parent);
   }
 

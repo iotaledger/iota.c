@@ -11,7 +11,7 @@
   Example for basic output:
   "outputs": [
     { "type": 3,
-      "amount": 10000000,
+      "amount": "10000000",
       "nativeTokens": [],
       "unlockConditions": [],
       "featureBlocks": []

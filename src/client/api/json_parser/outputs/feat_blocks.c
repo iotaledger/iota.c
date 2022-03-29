@@ -10,7 +10,7 @@
   "type": 0,
   "address": {
     "type": 0,
-    "pubKeyHash": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
+    "pubKeyHash": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_feat_blk_sender_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
@@ -62,7 +62,7 @@ static cJSON *json_feat_blk_sender_serialize(feat_block_t *block) {
   "type": 1,
   "address": {
     "type": 0,
-    "pubKeyHash": "194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
+    "pubKeyHash": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   }
 */
 int json_feat_blk_issuer_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
@@ -112,7 +112,7 @@ static cJSON *json_feat_blk_issuer_serialize(feat_block_t *block) {
 
 /*
   "type": 2,
-  "data": "010203040506070809"
+  "data": "0x010203040506070809"
 */
 int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
   if (feat_block_obj == NULL || feat_blocks == NULL) {
@@ -127,11 +127,41 @@ int json_feat_blk_metadata_deserialize(cJSON *feat_block_obj, feat_blk_list_t **
     return -1;
   }
 
+  // convert hex string into binary data
+  byte_t *metadata = NULL;
+  uint32_t metadata_len = 0;
+  uint32_t metadata_str_len = strlen(metadata_obj->valuestring);
+  if (metadata_str_len >= 2) {
+    if (memcmp(metadata_obj->valuestring, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN) != 0) {
+      printf("[%s:%d] hex string without JSON_HEX_ENCODED_STRING_PREFIX prefix \n", __func__, __LINE__);
+      return -1;
+    }
+    metadata_len = (metadata_str_len - JSON_HEX_ENCODED_STR_PREFIX_LEN) / 2;
+    metadata = malloc(metadata_len);
+    if (!metadata) {
+      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      return -1;
+    }
+    if (hex_2_bin(metadata_obj->valuestring, metadata_str_len, JSON_HEX_ENCODED_STRING_PREFIX, metadata,
+                  metadata_len) != 0) {
+      printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
+      free(metadata);
+      return -1;
+    }
+  }
+
   // add new metadata feature block into a list
-  if (feat_blk_list_add_metadata(feat_blocks, (byte_t *)metadata_obj->valuestring, strlen(metadata_obj->valuestring)) !=
-      0) {
+  if (feat_blk_list_add_metadata(feat_blocks, metadata, metadata_len) != 0) {
     printf("[%s:%d] can not add new feature block into a list\n", __func__, __LINE__);
+    if (metadata) {
+      free(metadata);
+    }
     return -1;
+  }
+
+  // clean up
+  if (metadata) {
+    free(metadata);
   }
 
   return 0;
@@ -149,7 +179,7 @@ static cJSON *json_feat_blk_metadata_serialize(feat_metadata_blk_t *block) {
     cJSON_AddNumberToObject(meta, JSON_KEY_TYPE, FEAT_METADATA_BLOCK);
 
     // add metadata
-    char *data_str = malloc(BIN_TO_HEX_STR_BYTES(block->data_len));
+    char *data_str = malloc(JSON_STR_WITH_PREFIX_BYTES(block->data_len));
     if (!data_str) {
       printf("[%s:%d] allocate data error\n", __func__, __LINE__);
       cJSON_Delete(meta);
@@ -158,7 +188,8 @@ static cJSON *json_feat_blk_metadata_serialize(feat_metadata_blk_t *block) {
 
     // TODO, is data contain data length in JSON object?
     // convert data to hex string
-    if (bin_2_hex(block->data, block->data_len, data_str, BIN_TO_HEX_STR_BYTES(block->data_len)) != 0) {
+    if (bin_2_hex(block->data, block->data_len, JSON_HEX_ENCODED_STRING_PREFIX, data_str,
+                  JSON_STR_WITH_PREFIX_BYTES(block->data_len)) != 0) {
       printf("[%s:%d] convert data to hex string error\n", __func__, __LINE__);
       cJSON_Delete(meta);
       free(data_str);
@@ -174,7 +205,7 @@ static cJSON *json_feat_blk_metadata_serialize(feat_metadata_blk_t *block) {
 
 /*
   "type": 3,
-  "tag": "01020304"
+  "tag": "0x01020304"
 */
 int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_blocks) {
   if (feat_block_obj == NULL || feat_blocks == NULL) {
@@ -189,10 +220,40 @@ int json_feat_blk_tag_deserialize(cJSON *feat_block_obj, feat_blk_list_t **feat_
     return -1;
   }
 
+  // convert hex string into binary data
+  byte_t *tag = NULL;
+  uint32_t tag_len = 0;
+  uint32_t tag_str_len = strlen(tag_obj->valuestring);
+  if (tag_str_len >= 2) {
+    if (memcmp(tag_obj->valuestring, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN) != 0) {
+      printf("[%s:%d] hex string without %s prefix \n", __func__, __LINE__, JSON_HEX_ENCODED_STRING_PREFIX);
+      return -1;
+    }
+    tag_len = (tag_str_len - JSON_HEX_ENCODED_STR_PREFIX_LEN) / 2;
+    tag = malloc(tag_len);
+    if (!tag) {
+      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      return -1;
+    }
+    if (hex_2_bin(tag_obj->valuestring, tag_str_len, JSON_HEX_ENCODED_STRING_PREFIX, tag, tag_len) != 0) {
+      printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
+      free(tag);
+      return -1;
+    }
+  }
+
   // add new tag feature block into a list
-  if (feat_blk_list_add_tag(feat_blocks, (byte_t *)tag_obj->valuestring, strlen(tag_obj->valuestring)) != 0) {
+  if (feat_blk_list_add_tag(feat_blocks, tag, tag_len) != 0) {
     printf("[%s:%d] can not add new feature block into a list\n", __func__, __LINE__);
+    if (tag) {
+      free(tag);
+    }
     return -1;
+  }
+
+  // clean up
+  if (tag) {
+    free(tag);
   }
 
   return 0;
@@ -210,10 +271,11 @@ static cJSON *json_feat_blk_tag_serialize(feat_tag_blk_t *block) {
     cJSON_AddNumberToObject(meta, JSON_KEY_TYPE, FEAT_TAG_BLOCK);
 
     // add tag
-    char tag_str[BIN_TO_HEX_STR_BYTES(MAX_INDEX_TAG_BYTES)] = {};
+    char tag_str[JSON_STR_WITH_PREFIX_BYTES(MAX_INDEX_TAG_BYTES)] = {};
+
     // TODO, is tag contain tag length in JSON object?
     // convert tag to hex string
-    if (bin_2_hex(block->tag, block->tag_len, tag_str, sizeof(tag_str)) != 0) {
+    if (bin_2_hex(block->tag, block->tag_len, JSON_HEX_ENCODED_STRING_PREFIX, tag_str, sizeof(tag_str)) != 0) {
       printf("[%s:%d] convert tag to hex string error\n", __func__, __LINE__);
       cJSON_Delete(meta);
       return NULL;

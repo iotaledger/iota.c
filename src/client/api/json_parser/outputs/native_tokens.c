@@ -6,8 +6,8 @@
 
 /*
   "nativeTokens": [
-    { "id": "08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000000000000000000000000",
-      "amount": "93847598347598347598347598",
+    { "id": "0x08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000000000000000000000000",
+      "amount": "0x93847598347598347598347598",
     },
   ]
 */
@@ -35,7 +35,7 @@ int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_list_t **nat
 
     // amount
     char token_amount[STRING_NUMBER_MAX_CHARACTERS];
-    if (json_get_string(elm, JSON_KEY_AMOUNT, token_amount, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
+    if (json_get_string_with_prefix(elm, JSON_KEY_AMOUNT, token_amount, STRING_NUMBER_MAX_CHARACTERS) != JSON_OK) {
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
       return -1;
     }
@@ -61,13 +61,14 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
       return tokens;
     }
 
-    char token_id[BIN_TO_HEX_STR_BYTES(NATIVE_TOKEN_ID_BYTES)] = {};
+    char token_id[JSON_STR_WITH_PREFIX_BYTES(NATIVE_TOKEN_ID_BYTES)] = {};
     native_tokens_list_t *elm;
     LL_FOREACH(native_tokens, elm) {
       cJSON *item = cJSON_CreateObject();
       if (item) {
         // add token id
-        if (bin_2_hex(elm->token->token_id, NATIVE_TOKEN_ID_BYTES, token_id, sizeof(token_id)) != 0) {
+        if (bin_2_hex(elm->token->token_id, NATIVE_TOKEN_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, token_id,
+                      sizeof(token_id)) != 0) {
           goto item_err;
         }
         cJSON_AddStringToObject(item, JSON_KEY_ID, token_id);
@@ -77,8 +78,16 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
         if (!amount) {
           goto item_err;
         }
-        cJSON_AddStringToObject(item, JSON_KEY_AMOUNT, amount);
+        char *amount_with_prefix = malloc(strlen(amount) + JSON_HEX_ENCODED_STR_PREFIX_LEN);
+        if (!amount_with_prefix) {
+          free(amount);
+          goto item_err;
+        }
+        memcpy(amount_with_prefix, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
+        memcpy(amount_with_prefix + JSON_HEX_ENCODED_STR_PREFIX_LEN, amount, strlen(amount));
         free(amount);
+        cJSON_AddStringToObject(item, JSON_KEY_AMOUNT, amount_with_prefix);
+        free(amount_with_prefix);
       } else {
         printf("[%s:%d] new json object error\n", __func__, __LINE__);
         cJSON_Delete(tokens);

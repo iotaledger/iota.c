@@ -218,44 +218,6 @@ void test_json_uint32() {
   }
 }
 
-void test_json_uint64() {
-  typedef struct {
-    char *data;
-    uint64_t value;
-    json_error_t err;
-  } json_test_case_t;
-
-  json_test_case_t test_elm[] = {
-      {"{\"key\": 100}", 0, JSON_KEY_NOT_FOUND},
-      {"{\"num\": \"hello\"}", 0, JSON_NOT_NUMBER},
-      {"{\"num\": \"true\"}", 0, JSON_NOT_NUMBER},
-      {"{\"num\": true}", 1, JSON_NOT_NUMBER},
-      {"{\"num\": false}", 0, JSON_NOT_NUMBER},
-      {"{\"num\": 100}", 100, JSON_OK},
-      {"{\"num\": -100}", 0, JSON_NOT_UNSIGNED},
-      {"{\"num\": 5000000000}", 5000000000, JSON_OK},
-      {"{\"num\": 2779530283277762}", 2779530283277762, JSON_OK},
-  };
-
-  TEST_ASSERT(json_get_uint64(NULL, " ", NULL) == JSON_INVALID_PARAMS);
-
-  cJSON *json_obj = NULL;
-  uint64_t value = 0;
-  size_t cases = sizeof(test_elm) / sizeof(json_test_case_t);
-  for (size_t i = 0; i < cases; i++) {
-    json_obj = cJSON_Parse(test_elm[i].data);
-    TEST_ASSERT_NOT_NULL(json_obj);
-    json_error_t ret = json_get_uint64(json_obj, "num", &value);
-    TEST_ASSERT(ret == test_elm[i].err);
-    // check value
-    if (ret == JSON_OK) {
-      TEST_ASSERT(test_elm[i].value == value);
-    }
-    cJSON_Delete(json_obj);
-    json_obj = NULL;
-  }
-}
-
 void test_json_str_arr() {
   typedef struct {
     char *data;
@@ -313,7 +275,6 @@ int main(void) {
   RUN_TEST(test_json_uint8);
   RUN_TEST(test_json_uint16);
   RUN_TEST(test_json_uint32);
-  RUN_TEST(test_json_uint64);
   RUN_TEST(test_json_str_arr);
 
   return UNITY_END();

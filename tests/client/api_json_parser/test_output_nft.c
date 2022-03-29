@@ -14,9 +14,9 @@ void tearDown(void) {}
 
 void test_parse_nft_output_basic() {
   char const *const json_res =
-      "{\"type\":6,\"amount\":1000000,\"nativeTokens\":[],\"nftId\":\"bebc45994f6bd9394f552b62c6e370ce1ab52d2e\","
+      "{\"type\":6,\"amount\":\"1000000\",\"nativeTokens\":[],\"nftId\":\"0xbebc45994f6bd9394f552b62c6e370ce1ab52d2e\","
       "\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":16,\"nftId\":"
-      "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[],\"immutableFeatureBlocks\":[]}";
+      "\"0x6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[],\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -30,7 +30,8 @@ void test_parse_nft_output_basic() {
 
   // check NFT ID
   byte_t nft_id_test[NFT_ID_BYTES];
-  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", BIN_TO_HEX_BYTES(NFT_ID_BYTES), nft_id_test, NFT_ID_BYTES);
+  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL, nft_id_test,
+            NFT_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(nft_id_test, nft_output->nft_id, NFT_ID_BYTES);
 
   // check unlock conditions
@@ -46,22 +47,23 @@ void test_parse_nft_output_basic() {
 
 void test_parse_nft_output_full() {
   char const *const json_res =
-      "{\"type\":6,\"amount\":1000000,\"nativeTokens\":[{\"id\":"
-      "\"08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\","
-      "\"amount\":\"93847598347598347598347598\"},{\"id\":"
-      "\"09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
-      "\"7598347598347598\"}],\"nftId\":\"bebc45994f6bd9394f552b62c6e370ce1ab52d2e\",\"unlockConditions\":[{\"type\":0,"
-      "\"address\":{\"type\":16,\"nftId\":"
-      "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}},{\"type\":1,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"amount\":123456},{\"type\":2,"
+      "{\"type\":6,\"amount\":\"1000000\",\"nativeTokens\":[{\"id\":"
+      "\"0x08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\","
+      "\"amount\":\"0x93847598347598347598347598\"},{\"id\":"
+      "\"0x09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
+      "\"0x7598347598347598\"}],\"nftId\":\"0xbebc45994f6bd9394f552b62c6e370ce1ab52d2e\",\"unlockConditions\":[{"
+      "\"type\":0,\"address\":{\"type\":16,\"nftId\":"
+      "\"0x6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}},{\"type\":1,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"amount\":\"123456\"},{\"type\":2,"
       "\"milestoneIndex\":45598,\"unixTime\":123123},{\"type\":3,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"milestoneIndex\":45598,\"unixTime\":"
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"milestoneIndex\":45598,\"unixTime\":"
       "123123}],\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
-      "\"metadataTest_metadataTest_metadataTest_metadataTest_metadataTest\"},{\"type\":3,\"tag\":\"tagTest_tagTest_"
-      "tagTest_tagTest_tagTest_tagTest\"}],\"immutableFeatureBlocks\":[{\"type\":1,\"address\":{\"type\":0,"
-      "\"pubKeyHash\":\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
-      "\"immutableMetadataTest_immutableMetadataTest_immutableMetadataTest_ImmutableMetadataTest\"}]}";
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
+      "\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"},{\"type\":3,\"tag\":"
+      "\"0x7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f\"}],"
+      "\"immutableFeatureBlocks\":[{\"type\":1,\"address\":{\"type\":0,"
+      "\"pubKeyHash\":\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
+      "\"0x696d6d757461626c654d65746164617461546573745f696d6d757461626c654d65746164617461546573745f\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -77,15 +79,16 @@ void test_parse_nft_output_full() {
   TEST_ASSERT_EQUAL_UINT16(2, native_tokens_count(nft_output->native_tokens));
   byte_t token_id[NATIVE_TOKEN_ID_BYTES];
   hex_2_bin("08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000",
-            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), token_id, NATIVE_TOKEN_ID_BYTES);
+            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), NULL, token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(nft_output->native_tokens, token_id));
   hex_2_bin("09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000",
-            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), token_id, NATIVE_TOKEN_ID_BYTES);
+            BIN_TO_HEX_BYTES(NATIVE_TOKEN_ID_BYTES), NULL, token_id, NATIVE_TOKEN_ID_BYTES);
   TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(nft_output->native_tokens, token_id));
 
   // check NFT ID
   byte_t nft_id_test[NFT_ID_BYTES];
-  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", BIN_TO_HEX_BYTES(NFT_ID_BYTES), nft_id_test, NFT_ID_BYTES);
+  hex_2_bin("bebc45994f6bd9394f552b62c6e370ce1ab52d2e", BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL, nft_id_test,
+            NFT_ID_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(nft_id_test, nft_output->nft_id, NFT_ID_BYTES);
 
   // check unlock conditions
@@ -118,9 +121,9 @@ void test_parse_nft_output_full() {
 
 void test_parse_nft_output_wrong_unlock_condition() {
   char const *const json_res =
-      "{\"type\":6,\"amount\":1000000,\"nativeTokens\":[],\"nftId\":\"bebc45994f6bd9394f552b62c6e370ce1ab52d2e\","
+      "{\"type\":6,\"amount\":\"1000000\",\"nativeTokens\":[],\"nftId\":\"0xbebc45994f6bd9394f552b62c6e370ce1ab52d2e\","
       "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"nftId\":"
-      "\"6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[],\"immutableFeatureBlocks\":[]}";
+      "\"0x6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}],\"featureBlocks\":[],\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);

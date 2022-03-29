@@ -18,7 +18,7 @@
 typedef struct {
   char bech32_address[BIN_TO_HEX_STR_BYTES(ED25519_PUBKEY_BYTES)];  ///< The bech32 encoded address that is
                                                                     ///< returned in response
-  uint64_t waiting_reqs_count;                                      ///< The number of requests in faucet queue
+  uint32_t waiting_reqs_count;                                      ///< The number of requests in faucet queue
 } faucet_enqueue_t;
 
 /**

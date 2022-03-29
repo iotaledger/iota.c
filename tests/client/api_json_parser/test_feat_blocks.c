@@ -14,7 +14,7 @@ void tearDown(void) {}
 void test_feat_block_sender() {
   char const* const json_res =
       "{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -29,7 +29,7 @@ void test_feat_block_sender() {
   address_t test_addr;
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
-            test_addr.address, ED25519_PUBKEY_BYTES);
+            NULL, test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)feat_block->block)));
 
   cJSON_Delete(json_obj);
@@ -39,7 +39,7 @@ void test_feat_block_sender() {
 void test_feat_block_issuer() {
   char const* const json_res =
       "{\"type\":1,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -54,7 +54,7 @@ void test_feat_block_issuer() {
   address_t test_addr;
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
-            test_addr.address, ED25519_PUBKEY_BYTES);
+            NULL, test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)feat_block->block)));
 
   cJSON_Delete(json_obj);
@@ -63,7 +63,7 @@ void test_feat_block_issuer() {
 
 void test_feat_block_metadata() {
   char const* const json_res =
-      "{\"type\":2,\"data\":\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}";
+      "{\"type\":2,\"data\":\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -76,9 +76,8 @@ void test_feat_block_metadata() {
   TEST_ASSERT_NOT_NULL(feat_block);
   TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
   feat_metadata_blk_t* metadata = (feat_metadata_blk_t*)feat_block->block;
-  TEST_ASSERT_EQUAL_UINT32(80, metadata->data_len);
-  TEST_ASSERT_EQUAL_MEMORY("metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata",
-                           metadata->data, metadata->data_len);
+  TEST_ASSERT_EQUAL_UINT32(36, metadata->data_len);
+  TEST_ASSERT_EQUAL_MEMORY("metadata_metadata_metadata_metadata_", metadata->data, metadata->data_len);
 
   cJSON_Delete(json_obj);
   feat_blk_list_free(blk_list);
@@ -86,7 +85,7 @@ void test_feat_block_metadata() {
 
 void test_feat_block_tag() {
   char const* const json_res =
-      "{\"type\":3,\"tag\":\"tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_\"}";
+      "{\"type\":3,\"tag\":\"0x7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f\"}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -99,8 +98,8 @@ void test_feat_block_tag() {
   TEST_ASSERT_NOT_NULL(feat_block);
   TEST_ASSERT_EQUAL_UINT8(FEAT_TAG_BLOCK, feat_block->type);
   feat_tag_blk_t* tag = (feat_tag_blk_t*)feat_block->block;
-  TEST_ASSERT_EQUAL_UINT32(64, tag->tag_len);
-  TEST_ASSERT_EQUAL_MEMORY("tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_", tag->tag, tag->tag_len);
+  TEST_ASSERT_EQUAL_UINT32(40, tag->tag_len);
+  TEST_ASSERT_EQUAL_MEMORY("tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_", tag->tag, tag->tag_len);
 
   cJSON_Delete(json_obj);
   feat_blk_list_free(blk_list);
@@ -109,11 +108,11 @@ void test_feat_block_tag() {
 void test_feat_blocks() {
   char const* const json_res =
       "{\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
       "{\"type\":1,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
-      "{\"type\":2,\"data\":\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"},"
-      "{\"type\":3,\"tag\":\"tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_\"}]}";
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
+      "{\"type\":2,\"data\":\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"},"
+      "{\"type\":3,\"tag\":\"0x7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f\"}]}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -140,11 +139,11 @@ void test_feat_blocks() {
 void test_immut_feat_blocks() {
   char const* const json_res =
       "{\"immutableFeatureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
       "{\"type\":1,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"ad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
-      "{\"type\":2,\"data\":\"metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"},"
-      "{\"type\":3,\"tag\":\"tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_tag_\"}]}";
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
+      "{\"type\":2,\"data\":\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"},"
+      "{\"type\":3,\"tag\":\"0x7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f\"}]}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -171,7 +170,7 @@ void test_immut_feat_blocks() {
 void test_feat_blocks_unsupported_type() {
   char const* const json_res =
       "{\"featureBlocks\":[{\"type\":4,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}]}";
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}]}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 

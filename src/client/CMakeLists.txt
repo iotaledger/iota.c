@@ -34,7 +34,6 @@ target_sources(
           "api/restful/get_message.c"
           "api/restful/send_message.c"
           "api/restful/send_tagged_data.c"
-          "api/restful/find_message.c"
           "api/restful/faucet_enqueue.c"
           "api/restful/get_outputs_id.c"
           "api/restful/get_transaction_included_message.c"
@@ -65,7 +64,6 @@ target_sources(
          "api/restful/get_message.h"
          "api/restful/send_message.h"
          "api/restful/send_tagged_data.h"
-         "api/restful/find_message.h"
          "api/restful/faucet_enqueue.h"
          "api/restful/get_outputs_id.h"
          "api/restful/get_transaction_included_message.h")

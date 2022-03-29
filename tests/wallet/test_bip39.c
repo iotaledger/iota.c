@@ -35,7 +35,7 @@ void test_bip39_vectors() {
     // encode
     size_t entropy_str_len = strlen(vectors[i].ent);
     size_t entropy_bin_len = entropy_str_len / 2;
-    hex_2_bin(vectors[i].ent, entropy_str_len, entropy, sizeof(entropy));
+    hex_2_bin(vectors[i].ent, entropy_str_len, NULL, entropy, sizeof(entropy));
     mnemonic_encode(entropy, entropy_bin_len, MS_LAN_EN, ms_out, MS_BUF_SIZE);
     TEST_ASSERT_EQUAL_MEMORY(vectors[i].ms, ms_out, strlen(vectors[i].ms));
     printf("%s\n", ms_out);
@@ -58,7 +58,7 @@ void test_bip39_languages() {
       // encode
       size_t entropy_str_len = strlen(vectors[i].ent);
       size_t entropy_bin_len = entropy_str_len / 2;
-      TEST_ASSERT(hex_2_bin(vectors[i].ent, entropy_str_len, entropy, sizeof(entropy)) == 0);
+      TEST_ASSERT(hex_2_bin(vectors[i].ent, entropy_str_len, NULL, entropy, sizeof(entropy)) == 0);
       TEST_ASSERT(mnemonic_encode(entropy, entropy_bin_len, lan, ms_out, MS_BUF_SIZE) == 0);
       printf("\t%s\n", ms_out);
       // decode
@@ -76,7 +76,7 @@ void test_bip39_seed() {
   byte_t exp_seed[64] = {};
   for (size_t i = 0; i < sizeof(vectors) / sizeof(ms_vectors_t); i++) {
     TEST_ASSERT(mnemonic_to_seed(vectors[i].ms, "TREZOR", seed, sizeof(seed)) == 0);
-    hex_2_bin(vectors[i].seed, strlen(vectors[i].seed), exp_seed, sizeof(exp_seed));
+    hex_2_bin(vectors[i].seed, strlen(vectors[i].seed), NULL, exp_seed, sizeof(exp_seed));
     TEST_ASSERT_EQUAL_MEMORY(exp_seed, seed, sizeof(exp_seed));
   }
 }

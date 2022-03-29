@@ -1,6 +1,7 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -40,11 +41,11 @@ int deser_faucet_enqueue_response(char const *const j_str, res_faucet_enqueue_t 
   }
 
   // get waiting requests count
-  if (json_get_uint64(json_obj, JSON_KEY_WAITING_REQUESTS, &res->u.req_res.waiting_reqs_count) != 0) {
-    printf("[%s:%d]: gets %s json integer failed\n", __func__, __LINE__, JSON_KEY_WAITING_REQUESTS);
-    cJSON_Delete(json_obj);
+  if (json_get_uint32(json_obj, JSON_KEY_WAITING_REQUESTS, &res->u.req_res.waiting_reqs_count) != JSON_OK) {
+    printf("[%s:%d]: getting %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_WAITING_REQUESTS);
     return -1;
   }
+
   cJSON_Delete(json_obj);
   return 0;
 }

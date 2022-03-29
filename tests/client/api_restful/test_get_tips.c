@@ -29,10 +29,10 @@ void test_get_tips() {
 
 void test_deser_get_tips() {
   char const* const json_tips =
-      "{\"tipMessageIds\":[\"0a7c22aa43620d938146bcfc94a40804b26a5aaf3913bdc51b2836c47650de5c\","
-      "\"3a3ca52a4c7d96fed4eef037db4421231f09e63a817bcf913f33c0806e565de9\","
-      "\"a714ca72bb21d1e69b49a272713b9a1edc4d5679695680b5f36b907c0ed0d445\","
-      "\"ea878b98a3eb38154993ea27d597e6cbb8fda0cd7b71cc2eb345b6c62140a6bf\"]}";
+      "{\"tipMessageIds\":[\"0x0a7c22aa43620d938146bcfc94a40804b26a5aaf3913bdc51b2836c47650de5c\","
+      "\"0x3a3ca52a4c7d96fed4eef037db4421231f09e63a817bcf913f33c0806e565de9\","
+      "\"0xa714ca72bb21d1e69b49a272713b9a1edc4d5679695680b5f36b907c0ed0d445\","
+      "\"0xea878b98a3eb38154993ea27d597e6cbb8fda0cd7b71cc2eb345b6c62140a6bf\"]}";
 
   res_tips_t* res_tips = res_tips_new();
   TEST_ASSERT_NOT_NULL(res_tips);

@@ -1,9 +1,11 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/json_parser/outputs/output_nft.h"
+#include <inttypes.h>
+
 #include "client/api/json_parser/outputs/feat_blocks.h"
 #include "client/api/json_parser/outputs/native_tokens.h"
+#include "client/api/json_parser/outputs/output_nft.h"
 #include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
@@ -11,9 +13,9 @@
 /*
   "outputs": [
     { "type": 6,
-      "amount": 10000000,
+      "amount": "10000000",
       "nativeTokens": [],
-      "nftId": "bebc45994f6bd9394f552b62c6e370ce1ab52d2e",
+      "nftId": "0xbebc45994f6bd9394f552b62c6e370ce1ab52d2e",
       "unlockConditions": [],
       "featureBlocks": [],
       "immutableFeatureBlocks": []
@@ -35,10 +37,12 @@ int json_output_nft_deserialize(cJSON *output_obj, output_nft_t **nft) {
 
   // amount
   uint64_t amount;
-  if (json_get_uint64(output_obj, JSON_KEY_AMOUNT, &amount) != JSON_OK) {
-    printf("[%s:%d]: getting %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
+  char str_buff[32];
+  if (json_get_string(output_obj, JSON_KEY_AMOUNT, str_buff, sizeof(str_buff)) != JSON_OK) {
+    printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
     goto end;
   }
+  sscanf(str_buff, "%" SCNu64, &amount);
 
   // native tokens array
   if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
@@ -101,7 +105,9 @@ cJSON *json_output_nft_serialize(output_nft_t *nft) {
     }
 
     // amount
-    if (!cJSON_AddNumberToObject(output_obj, JSON_KEY_AMOUNT, nft->amount)) {
+    char amount_str[65] = {};
+    sprintf(amount_str, "%" PRIu64 "", nft->amount);
+    if (!cJSON_AddStringToObject(output_obj, JSON_KEY_AMOUNT, amount_str)) {
       printf("[%s:%d] add amount to NFT error\n", __func__, __LINE__);
       goto err;
     }
@@ -115,8 +121,8 @@ cJSON *json_output_nft_serialize(output_nft_t *nft) {
     }
 
     // NFT ID
-    char id_str[BIN_TO_HEX_STR_BYTES(NFT_ID_BYTES)] = {};
-    if (bin_2_hex(nft->nft_id, NFT_ID_BYTES, id_str, sizeof(id_str)) != 0) {
+    char id_str[JSON_STR_WITH_PREFIX_BYTES(NFT_ID_BYTES)] = {};
+    if (bin_2_hex(nft->nft_id, NFT_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, id_str, sizeof(id_str)) != 0) {
       printf("[%s:%d] convert NFT ID to hex string error\n", __func__, __LINE__);
       goto err;
     }

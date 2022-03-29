@@ -24,8 +24,8 @@ typedef struct {
   bool is_solid;                  ///< whether the message is solid
   int8_t should_promote;          ///< whether the message should be promoted, optional
   int8_t should_reattach;         ///< whether the message should be reattached, optional
-  uint64_t referenced_milestone;  ///< The milestone index that references this message, optional
-  uint64_t milestone_idx;         ///< If this message represents a milestone this is the milestone index, optional
+  uint32_t referenced_milestone;  ///< The milestone index that references this message, optional
+  uint32_t milestone_idx;         ///< If this message represents a milestone this is the milestone index, optional
 } msg_meta_t;
 
 /**

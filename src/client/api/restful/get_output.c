@@ -53,10 +53,12 @@ static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
     feat_blk_list_t *feat_blocks = feat_blk_list_new();
     uint64_t amount = 0;
     // amount
-    if ((ret = json_get_uint64(output_obj, JSON_KEY_AMOUNT, &amount)) != 0) {
-      printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
+    char str_buff[32];
+    if (json_get_string(output_obj, JSON_KEY_AMOUNT, str_buff, sizeof(str_buff)) != JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
       goto end;
     }
+    sscanf(str_buff, "%" SCNu64, &amount);
 
     if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
       printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
@@ -150,8 +152,8 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
   int ret = -1;
   long st = 0;
   byte_buf_t *http_res = NULL;
-  // cmd length = "/api/v2/outputs/" + IOTA_OUTPUT_ID_HEX_STR
-  char cmd_buffer[85] = {};
+  // cmd length = "/api/v2/outputs/0x" + IOTA_OUTPUT_ID_HEX_STR
+  char cmd_buffer[87] = {};
 
   if (conf == NULL || output_id == NULL || res == NULL) {
     // invalid parameters
@@ -165,7 +167,7 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
   }
 
   // composing API command
-  snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v2/outputs/%s", output_id);
+  snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v2/outputs/0x%s", output_id);
 
   // http client configuration
   http_client_config_t http_conf = {
@@ -243,20 +245,20 @@ int deser_get_output(char const *const j_str, res_output_t *res) {
   }
 
   // milestoneIndexBooked
-  if ((ret = json_get_uint64(json_obj, JSON_KEY_MILESTONE_INDEX_BOOKED, &res->u.data->ml_index_booked)) != 0) {
-    printf("[%s:%d]: gets %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_INDEX_BOOKED);
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_INDEX_BOOKED, &res->u.data->ml_index_booked)) != 0) {
+    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_INDEX_BOOKED);
     goto end;
   }
 
   // milestoneTimestampBooked
-  if ((ret = json_get_uint64(json_obj, JSON_KEY_MILESTONE_TIME_BOOKED, &res->u.data->ml_time_booked)) != 0) {
-    printf("[%s:%d]: gets %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_TIME_BOOKED);
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_TIME_BOOKED, &res->u.data->ml_time_booked)) != 0) {
+    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_TIME_BOOKED);
     goto end;
   }
 
   // ledgerIndex
-  if ((ret = json_get_uint64(json_obj, JSON_KEY_LEDGER_IDX, &res->u.data->ledger_index)) != 0) {
-    printf("[%s:%d]: gets %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_LEDGER_IDX, &res->u.data->ledger_index)) != 0) {
+    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
     goto end;
   }
 
@@ -285,9 +287,9 @@ void dump_output_response(res_output_t *res) {
     dump_hex_str(res->u.data->tx_id, IOTA_TRANSACTION_ID_BYTES);
     printf("outputIndex: %" PRIu16 "\n", res->u.data->output_index);
     printf("isSpent: %s\n", res->u.data->is_spent ? "True" : "False");
-    printf("milestoneIndexBooked: %" PRIu64 "\n", res->u.data->ml_index_booked);
-    printf("milestoneTimestampBooked: %" PRIu64 "\n", res->u.data->ml_time_booked);
-    printf("ledgerIndex: %" PRIu64 "\n", res->u.data->ledger_index);
+    printf("milestoneIndexBooked: %d\n", res->u.data->ml_index_booked);
+    printf("milestoneTimestampBooked: %d\n", res->u.data->ml_time_booked);
+    printf("ledgerIndex: %d\n", res->u.data->ledger_index);
     switch (res->u.data->output->output_type) {
       case OUTPUT_BASIC:
         output_basic_print((output_basic_t *)res->u.data->output->output, 0);

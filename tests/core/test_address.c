@@ -29,7 +29,7 @@ void test_ed25519_gen() {
   byte_t ed25519_serialized[33] = {};
   char bech32_str[65] = {};
   // convert seed from hex string to binary
-  TEST_ASSERT(hex_2_bin("e57fb750f3a3a67969ece5bd9ae7eef5b2256a818b2aac458941f7274985a410", 64, seed, 32) == 0);
+  TEST_ASSERT(hex_2_bin("e57fb750f3a3a67969ece5bd9ae7eef5b2256a818b2aac458941f7274985a410", 64, NULL, seed, 32) == 0);
   // dump_hex(seed, 32);
 
   TEST_ASSERT(ed25519_address_from_path(seed, sizeof(seed), "m/44'/4218'/0'/0'/0'", &ed25519_addr) == 0);
@@ -65,22 +65,42 @@ void test_alias_gen() {
 
   TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
   TEST_ASSERT(address_equal(&alias_addr, &from_bech32) == true);
+
+  // create alias address from output ID
+  byte_t output_id[] = "eb962eb4e400b5f0a5534255a721ffcd7b";
+  TEST_ASSERT(alias_address_from_output(output_id, sizeof(output_id), &alias_addr) == 0);
+
+  TEST_ASSERT(address_to_bech32(&alias_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT(str_start_with("iota1p", bech32_str) == true);
+
+  TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
+  TEST_ASSERT(address_equal(&alias_addr, &from_bech32) == true);
 }
 
 void test_nft_gen() {
-  // random alias address
-  address_t addr = {};
-  addr.type = ADDRESS_TYPE_NFT;
-  iota_crypto_randombytes(addr.address, address_len(&addr));
+  // random NFT address
+  address_t nft_addr = {};
+  nft_addr.type = ADDRESS_TYPE_NFT;
+  iota_crypto_randombytes(nft_addr.address, address_len(&nft_addr));
 
   address_t from_bech32 = {};
   char bech32_str[65] = {};
-  TEST_ASSERT(address_to_bech32(&addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT(address_to_bech32(&nft_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
   TEST_ASSERT(str_start_with("iota1z", bech32_str) == true);
   // printf("bech32 [iota]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
-  TEST_ASSERT(address_equal(&addr, &from_bech32) == true);
+  TEST_ASSERT(address_equal(&nft_addr, &from_bech32) == true);
+
+  // create NFT address from output ID
+  byte_t output_id[] = "eb962eb4e400b5f0a5534255a721ffcd7b";
+  TEST_ASSERT(alias_address_from_output(output_id, sizeof(output_id), &nft_addr) == 0);
+
+  TEST_ASSERT(address_to_bech32(&nft_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT(str_start_with("iota1p", bech32_str) == true);
+
+  TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
+  TEST_ASSERT(address_equal(&nft_addr, &from_bech32) == true);
 }
 
 void test_serializer() {

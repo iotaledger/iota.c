@@ -12,15 +12,19 @@
 // An Ed25519 address is the Blake2b-256 hash of an Ed25519 public key.
 #define ED25519_PUBKEY_BYTES ED_PUBLIC_KEY_BYTES
 // An Alias address is the Blake2b-160 hash of the OutputID which created it.
-#define ALIAS_ID_BYTES 20
+#define ALIAS_ID_BYTES CRYPTO_BLAKE2B_160_HASH_BYTES
 // A NFT address is the Blake2b-160 hash of the OutputID which created it.
-#define NFT_ID_BYTES 20
+#define NFT_ID_BYTES CRYPTO_BLAKE2B_160_HASH_BYTES
 // Maximum number of bytes an address can hold.
 #define ADDRESS_MAX_BYTES ED25519_PUBKEY_BYTES
 // Minimum number of bytes an address can hold.
 #define ADDRESS_MIN_BYTES ALIAS_ID_BYTES
 // Maximum number of bytes a serialized address can hold.
 #define ADDRESS_SERIALIZED_MAX_BYTES (1 + ED25519_PUBKEY_BYTES)
+// Transaction ID bytes
+#define IOTA_TRANSACTION_ID_BYTES 32
+// OUTPUT ID bytes = 34 (IOTA_TRANSACTION_ID + OUTPUT INDEX)
+#define IOTA_OUTPUT_ID_BYTES (IOTA_TRANSACTION_ID_BYTES + sizeof(uint16_t))
 
 /**
  * @brief Address types that supported by the protocol
@@ -75,20 +79,22 @@ int ed25519_address_from_path(byte_t seed[], size_t seed_len, char path[], addre
 /**
  * @brief Create an Alias address from output ID
  *
- * @param[in] output_id A string of output ID
+ * @param[in] output_id A output ID byte array
+ * @param[in] output_id_len A length of output ID byte array
  * @param[out] addr An Alias address object
  * @return int 0 on success
  */
-int alias_address_from_output(char const output_id[], address_t *addr);
+int alias_address_from_output(byte_t const output_id[], uint8_t output_id_len, address_t *addr);
 
 /**
  * @brief Create a NFT address from output ID
  *
- * @param[in] output_id A string of output ID
+ * @param[in] output_id A output ID byte array
+ * @param[in] output_id_len A length of output ID byte array
  * @param[out] addr A NFT address object
  * @return int 0 on success
  */
-int nft_address_from_output(char const output_id[], address_t *addr);
+int nft_address_from_output(byte_t const output_id[], uint8_t output_id_len, address_t *addr);
 
 /**
  * @brief Get the byte length of the given address

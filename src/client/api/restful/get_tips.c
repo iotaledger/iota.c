@@ -89,7 +89,7 @@ int get_tips_deserialize(char const *const j_str, res_tips_t *res) {
   }
 
   utarray_new(res->u.tips, &ut_str_icd);
-  int ret = json_string_array_to_utarray(json_obj, JSON_KEY_TIP_MSG_IDS, res->u.tips);
+  int ret = json_string_with_prefix_array_to_utarray(json_obj, JSON_KEY_TIP_MSG_IDS, res->u.tips);
   if (ret != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TIP_MSG_IDS);
     utarray_free(res->u.tips);

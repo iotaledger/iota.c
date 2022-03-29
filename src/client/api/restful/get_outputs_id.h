@@ -16,6 +16,7 @@
  */
 typedef enum {
   QUERY_PARAM_ADDRESS = 0,       ///< The Bech32-encoded address that should be used to query outputs
+  QUERY_PARAM_ALIAS_ADDRESS,     ///< The alias address that should be used to query some outputs
   QUERY_PARAM_HAS_STORAGE_RET,   ///< The presence of storage return unlock condition
   QUERY_PARAM_STORAGE_RET_ADDR,  ///< The specific return address in the storage deposit return unlock condition
   QUERY_PARAM_SENDER,            ///< To query outputs based on bech32-encoded sender address.
@@ -50,7 +51,7 @@ typedef struct outputs_query_list {
  *
  */
 typedef struct {
-  uint64_t ledger_idx;  ///< The ledger index at which the output was queried at.
+  uint32_t ledger_idx;  ///< The ledger index at which the output was queried at.
   uint32_t page_size;   ///< The number of output id's returned in a single response.
   char *cursor;         ///< The cursor to pass as api parameter to get the next set of results.
   UT_array *outputs;    ///< output IDs

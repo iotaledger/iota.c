@@ -81,8 +81,6 @@ static cJSON *unlock_block_signature_serialize(unlock_block_t const *block) {
         goto err;
       }
 
-      // buffer to hold public and signautre string
-      char str_tmp[BIN_TO_HEX_STR_BYTES(ED_PRIVATE_KEY_BYTES)] = {};
       // block data: sig type + public key + signature
       uint8_t sig_type = ((uint8_t *)block->block_data)[0];
       if (sig_type != 0) {
@@ -96,8 +94,12 @@ static cJSON *unlock_block_signature_serialize(unlock_block_t const *block) {
         goto err;
       }
 
+      // buffer to hold public and signature string
+      char str_tmp[JSON_STR_WITH_PREFIX_BYTES(ED_PRIVATE_KEY_BYTES)] = {};
+
       // add public key
-      if (bin_2_hex(block->block_data + 1, ED_PUBLIC_KEY_BYTES, str_tmp, sizeof(str_tmp)) == 0) {
+      if (bin_2_hex(block->block_data + 1, ED_PUBLIC_KEY_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, str_tmp,
+                    sizeof(str_tmp)) == 0) {
         if (cJSON_AddStringToObject(sig, JSON_KEY_PUB_KEY, str_tmp) == NULL) {
           printf("[%s:%d]: add public key to json failed\n", __func__, __LINE__);
           goto err;
@@ -108,7 +110,8 @@ static cJSON *unlock_block_signature_serialize(unlock_block_t const *block) {
       }
 
       // add signature
-      if (bin_2_hex(block->block_data + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES, str_tmp, sizeof(str_tmp)) == 0) {
+      if (bin_2_hex(block->block_data + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES, JSON_HEX_ENCODED_STRING_PREFIX,
+                    str_tmp, sizeof(str_tmp)) == 0) {
         if (cJSON_AddStringToObject(sig, JSON_KEY_SIG, str_tmp) == NULL) {
           printf("[%s:%d]: add signature to json failed\n", __func__, __LINE__);
           goto err;
@@ -220,9 +223,9 @@ static int unlock_block_nft_deserialize(cJSON *elm, unlock_list_t **unlock_block
     { "type": 0,
       "signature": {
         "type": 1,
-        "publicKey": "dd2fb44b9809782af5f31fdbf767a39303365449308f78d6c2652ac9766dbf1a",
+        "publicKey": "0xdd2fb44b9809782af5f31fdbf767a39303365449308f78d6c2652ac9766dbf1a",
         "signature":
-  "e625a71351bbccf87eeaad7e98f6a545306423b2aaf444792a1be8ccfdfe50b358583483c3dbc536b5842eeec381750c6b4495c14932be47c439a1a8ad242606"
+  "0xe625a71351bbccf87eeaad7e98f6a545306423b2aaf444792a1be8ccfdfe50b358583483c3dbc536b5842eeec381750c6b4495c14932be47c439a1a8ad242606"
       }
     },
   ]

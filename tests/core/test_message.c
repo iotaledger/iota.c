@@ -22,7 +22,7 @@ static output_basic_t* create_output_basic_one() {
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
   TEST_ASSERT(hex_2_bin("21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942",
-                        BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES), addr.address, ED25519_PUBKEY_BYTES) == 0);
+                        BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES), NULL, addr.address, ED25519_PUBKEY_BYTES) == 0);
 
   // create address unlock condition
   unlock_cond_blk_t* addr_unlock_cond = cond_blk_addr_new(&addr);
@@ -48,7 +48,7 @@ static output_basic_t* create_output_basic_two() {
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
   TEST_ASSERT(hex_2_bin("60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe",
-                        BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES), addr.address, ED25519_PUBKEY_BYTES) == 0);
+                        BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES), NULL, addr.address, ED25519_PUBKEY_BYTES) == 0);
 
   // create address unlock condition
   unlock_cond_blk_t* addr_unlock_cond = cond_blk_addr_new(&addr);
@@ -72,11 +72,11 @@ static output_basic_t* create_output_basic_two() {
 static byte_t* create_signature_unlock_block() {
   byte_t pub_key[ED_PUBLIC_KEY_BYTES] = {};
   TEST_ASSERT(hex_2_bin("31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb",
-                        BIN_TO_HEX_BYTES(ED_PUBLIC_KEY_BYTES), pub_key, sizeof(pub_key)) == 0);
+                        BIN_TO_HEX_BYTES(ED_PUBLIC_KEY_BYTES), NULL, pub_key, sizeof(pub_key)) == 0);
   byte_t sig[ED_SIGNATURE_BYTES] = {};
   TEST_ASSERT(hex_2_bin("1b51aab768dd145de99fc3710c7b05963803f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e1"
                         "60efc9fe034f810ad0cc4b0210adaafd0a",
-                        BIN_TO_HEX_BYTES(ED_SIGNATURE_BYTES), sig, sizeof(sig)) == 0);
+                        BIN_TO_HEX_BYTES(ED_SIGNATURE_BYTES), NULL, sig, sizeof(sig)) == 0);
 
   // create a signature unlock block
   byte_t* signature = malloc(ED25519_SIGNATURE_BLOCK_BYTES);
@@ -98,12 +98,12 @@ void test_message_with_tx() {
                                               90,  172, 252, 142, 91,  179, 113, 2,   177, 58};
 
   ed25519_keypair_t seed_keypair = {};
-  TEST_ASSERT(hex_2_bin("f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44", 64, seed_keypair.pub,
+  TEST_ASSERT(hex_2_bin("f7868ab6bb55800b77b8b74191ad8285a9bf428ace579d541fda47661803ff44", 64, NULL, seed_keypair.pub,
                         ED_PUBLIC_KEY_BYTES) == 0);
   TEST_ASSERT(
       hex_2_bin("256a818b2aac458941f7274985a410e57fb750f3a3a67969ece5bd9ae7eef5b2f7868ab6bb55800b77b8b74191ad8285"
                 "a9bf428ace579d541fda47661803ff44",
-                128, seed_keypair.priv, ED_PRIVATE_KEY_BYTES) == 0);
+                128, NULL, seed_keypair.priv, ED_PRIVATE_KEY_BYTES) == 0);
 
   // create an address for basic output address unlock condition
   address_t addr = {};
@@ -180,16 +180,16 @@ void test_message_with_tx_serialize() {
   // add message parents
   byte_t parent_id_1[IOTA_MESSAGE_ID_BYTES];
   hex_2_bin("32cb4c7602013ba16231fd9bf1bdd9c1b9a403c07dd155ff9979a72684dafdb3", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
-            parent_id_1, sizeof(parent_id_1));
+            NULL, parent_id_1, sizeof(parent_id_1));
   byte_t parent_id_2[IOTA_MESSAGE_ID_BYTES];
   hex_2_bin("64463ce32fb6ef011cfff38b736b466f974a92429767650777cd9b77cf7f26bf", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
-            parent_id_2, sizeof(parent_id_2));
+            NULL, parent_id_2, sizeof(parent_id_2));
   byte_t parent_id_3[IOTA_MESSAGE_ID_BYTES];
   hex_2_bin("e1a518eccfa39a03aeb4b425a51db030eeec1c32654c1c943bc008eb4dc8d862", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
-            parent_id_3, sizeof(parent_id_3));
+            NULL, parent_id_3, sizeof(parent_id_3));
   byte_t parent_id_4[IOTA_MESSAGE_ID_BYTES];
   hex_2_bin("ef8728a24dc0864a94b4f629d8ed7f56003cf84483700bac919d02622f20dc70", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
-            parent_id_4, sizeof(parent_id_4));
+            NULL, parent_id_4, sizeof(parent_id_4));
   core_message_add_parent(msg, parent_id_1);
   core_message_add_parent(msg, parent_id_2);
   core_message_add_parent(msg, parent_id_3);
@@ -213,7 +213,7 @@ void test_message_with_tx_serialize() {
   // add input with id0
   byte_t input_id0[IOTA_TRANSACTION_ID_BYTES];
   hex_2_bin("0000000000000000000000000000000000000000000000000000000000000000",
-            BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES), input_id0, sizeof(input_id0));
+            BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES), NULL, input_id0, sizeof(input_id0));
   TEST_ASSERT(tx_essence_add_input(essence, 0, input_id0, 0) == 0);
 
   // add basic output one
@@ -248,7 +248,7 @@ void test_message_with_tx_serialize() {
   TEST_ASSERT_EQUAL_INT(sizeof(test_serialized_data_str), serialized_data_hex_str_len);
   char* serialized_data_hex_str = malloc(serialized_data_hex_str_len);
   TEST_ASSERT_NOT_NULL(serialized_data_hex_str);
-  bin_2_hex(core_message_buf, core_message_expected_len, serialized_data_hex_str, serialized_data_hex_str_len);
+  bin_2_hex(core_message_buf, core_message_expected_len, NULL, serialized_data_hex_str, serialized_data_hex_str_len);
   TEST_ASSERT_EQUAL_MEMORY(test_serialized_data_str, serialized_data_hex_str, serialized_data_hex_str_len);
 
   // print serialized core message
@@ -281,16 +281,16 @@ void test_message_with_tagged_data_serialize() {
   // add message parents
   byte_t parent_id_1[IOTA_MESSAGE_ID_BYTES];
   hex_2_bin("177fc9af60009e4e4e835baf7fe9f5f05aaf9b4e391e605d67cb722bf5562669", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
-            parent_id_1, sizeof(parent_id_1));
+            NULL, parent_id_1, sizeof(parent_id_1));
   byte_t parent_id_2[IOTA_MESSAGE_ID_BYTES];
   hex_2_bin("60f767d157c2cfb12533082abb3085a22665ef19f7bf77a3e39a2b223f33108a", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
-            parent_id_2, sizeof(parent_id_2));
+            NULL, parent_id_2, sizeof(parent_id_2));
   byte_t parent_id_3[IOTA_MESSAGE_ID_BYTES];
   hex_2_bin("6af00016d7fbe8e5aa55c6688db5d5eb4241a562c4bd89ce8e6c0bc3fc3f6458", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
-            parent_id_3, sizeof(parent_id_3));
+            NULL, parent_id_3, sizeof(parent_id_3));
   byte_t parent_id_4[IOTA_MESSAGE_ID_BYTES];
   hex_2_bin("fe53e33c0b95699172a9537f116ee6a61c2cc153e4f857071bde2f72e2313288", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
-            parent_id_4, sizeof(parent_id_4));
+            NULL, parent_id_4, sizeof(parent_id_4));
   core_message_add_parent(msg, parent_id_1);
   core_message_add_parent(msg, parent_id_2);
   core_message_add_parent(msg, parent_id_3);
@@ -321,7 +321,7 @@ void test_message_with_tagged_data_serialize() {
   TEST_ASSERT_EQUAL_INT(sizeof(test_serialized_data_str), serialized_data_hex_str_len);
   char* serialized_data_hex_str = malloc(serialized_data_hex_str_len);
   TEST_ASSERT_NOT_NULL(serialized_data_hex_str);
-  bin_2_hex(core_message_buf, core_message_expected_len, serialized_data_hex_str, serialized_data_hex_str_len);
+  bin_2_hex(core_message_buf, core_message_expected_len, NULL, serialized_data_hex_str, serialized_data_hex_str_len);
   TEST_ASSERT_EQUAL_MEMORY(test_serialized_data_str, serialized_data_hex_str, serialized_data_hex_str_len);
 
   // print serialized core message

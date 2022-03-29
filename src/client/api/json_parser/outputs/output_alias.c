@@ -1,9 +1,11 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "client/api/json_parser/outputs/output_alias.h"
+#include <inttypes.h>
+
 #include "client/api/json_parser/outputs/feat_blocks.h"
 #include "client/api/json_parser/outputs/native_tokens.h"
+#include "client/api/json_parser/outputs/output_alias.h"
 #include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
@@ -11,11 +13,11 @@
 /*
   "outputs": [
     { "type": 4,
-      "amount": 10000000,
+      "amount": "10000000",
       "nativeTokens": [],
-      "aliasId": "a360c46a570510f7c7d915bf0eef932e5678b386",
+      "aliasId": "0xa360c46a570510f7c7d915bf0eef932e5678b386",
       "stateIndex": 12345,
-      "stateMetadata": "010203040506070809",
+      "stateMetadata": "0x010203040506070809",
       "foundryCounter": 54321,
       "unlockConditions": [],
       "featureBlocks": [],
@@ -39,10 +41,12 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
 
   // amount
   uint64_t amount;
-  if (json_get_uint64(output_obj, JSON_KEY_AMOUNT, &amount) != JSON_OK) {
-    printf("[%s:%d]: getting %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
+  char str_buff[32];
+  if (json_get_string(output_obj, JSON_KEY_AMOUNT, str_buff, sizeof(str_buff)) != JSON_OK) {
+    printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
     goto end;
   }
+  sscanf(str_buff, "%" SCNu64, &amount);
 
   // native tokens array
   if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
@@ -52,7 +56,7 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
 
   // aliasId
   byte_t alias_id[ALIAS_ID_BYTES];
-  if (json_get_string(output_obj, JSON_KEY_ALIAS_ID, (char *)alias_id, ALIAS_ID_BYTES) != JSON_OK) {
+  if (json_get_string_with_prefix(output_obj, JSON_KEY_ALIAS_ID, (char *)alias_id, ALIAS_ID_BYTES) != JSON_OK) {
     printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_ALIAS_ID);
     goto end;
   }
@@ -127,8 +131,10 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
     }
 
     // amount
-    if (!cJSON_AddNumberToObject(alias_obj, JSON_KEY_AMOUNT, alias->amount)) {
-      printf("[%s:%d] add amount into alias error\n", __func__, __LINE__);
+    char amount_str[65] = {};
+    sprintf(amount_str, "%" PRIu64 "", alias->amount);
+    if (!cJSON_AddStringToObject(alias_obj, JSON_KEY_AMOUNT, amount_str)) {
+      printf("[%s:%d] add amount to alias error\n", __func__, __LINE__);
       goto err;
     }
 
@@ -141,8 +147,9 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
     }
 
     // alias id
-    char alias_id_str[BIN_TO_HEX_STR_BYTES(ALIAS_ID_BYTES)] = {};
-    if (bin_2_hex(alias->alias_id, ALIAS_ID_BYTES, alias_id_str, sizeof(alias_id_str)) != 0) {
+    char alias_id_str[JSON_STR_WITH_PREFIX_BYTES(ALIAS_ID_BYTES)] = {};
+    if (bin_2_hex(alias->alias_id, ALIAS_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, alias_id_str,
+                  sizeof(alias_id_str)) != 0) {
       printf("[%s:%d] convert alias id to hex string error\n", __func__, __LINE__);
       goto err;
     }
@@ -158,13 +165,13 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
     }
 
     // state metadata
-    char *meta = malloc(BIN_TO_HEX_STR_BYTES(alias->state_metadata->len));
+    char *meta = malloc(JSON_STR_WITH_PREFIX_BYTES(alias->state_metadata->len));
     if (!meta) {
       printf("[%s:%d] allocate metadata error\n", __func__, __LINE__);
       goto err;
     }
-    if (bin_2_hex(alias->state_metadata->data, alias->state_metadata->len, meta,
-                  BIN_TO_HEX_STR_BYTES(alias->state_metadata->len)) != 0) {
+    if (bin_2_hex(alias->state_metadata->data, alias->state_metadata->len, JSON_HEX_ENCODED_STRING_PREFIX, meta,
+                  JSON_STR_WITH_PREFIX_BYTES(alias->state_metadata->len)) != 0) {
       printf("[%s:%d] convert metadata to hex string error\n", __func__, __LINE__);
       free(meta);
       goto err;

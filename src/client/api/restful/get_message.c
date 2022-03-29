@@ -87,7 +87,7 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
   }
 
   iota_str_t *cmd = NULL;
-  char const *const cmd_str = "/api/v2/messages/";
+  char const *const cmd_str = "/api/v2/messages/0x";
 
   cmd = iota_str_reserve(strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + 1);
   if (cmd == NULL) {

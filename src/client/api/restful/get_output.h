@@ -26,9 +26,9 @@ typedef struct {
   byte_t tx_id[IOTA_TRANSACTION_ID_BYTES];  ///< The transaction ID of this output
   uint16_t output_index;                    ///< the index of this output
   bool is_spent;                            ///< is spent or not
-  uint64_t ml_index_booked;                 ///< milestone index booked
-  uint64_t ml_time_booked;                  ///< milestone timestamp booked
-  uint64_t ledger_index;                    ///< ledger index
+  uint32_t ml_index_booked;                 ///< milestone index booked
+  uint32_t ml_time_booked;                  ///< milestone timestamp booked
+  uint32_t ledger_index;                    ///< ledger index
   utxo_output_t *output;                    ///< an output object
 } get_output_t;
 

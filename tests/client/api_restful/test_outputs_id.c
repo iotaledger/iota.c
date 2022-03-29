@@ -65,8 +65,8 @@ void test_deser_outputs() {
 
   // with output ids and without cursor
   char const* const data_1 =
-      "{\"pageSize\":2,\"items\":[\"1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
-      "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}";
+      "{\"pageSize\":2,\"items\":[\"0x1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
+      "\"0xed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}";
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(deser_outputs(data_1, res) == 0);
@@ -84,9 +84,9 @@ void test_deser_outputs() {
 
   // with output ids and without cursor
   char const* const data_2 =
-      "{\"pageSize\":2,\"cursor\":\"62020d37c936725634911feb5a7685e715dcef50cb2b997812567021e09181ab7e67d9020100.2\","
-      "\"items\":[\"1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
-      "\"ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}";
+      "{\"pageSize\":2,\"cursor\":\"0x62020d37c936725634911feb5a7685e715dcef50cb2b997812567021e09181ab7e67d9020100.2\","
+      "\"items\":[\"0x1c6943b0487c92fd057d4d22ad844cc37ee27fe6fbe88e5ff0d20b2233f75b9d0005\","
+      "\"0xed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c0010\"],\"ledgerIndex\":837834}";
   res = res_outputs_new();
   TEST_ASSERT_NOT_NULL(res);
   TEST_ASSERT(deser_outputs(data_2, res) == 0);
@@ -484,7 +484,12 @@ void test_get_alias_outputs() {
 }
 
 void test_get_foundry_outputs() {
-  char addr_alias[] = "atoi1zpk6m4x7m2t6k5pvgs0yd2nqelfaz09ueyyv6fwn";
+  byte_t output_id[] = "eb962eb4e400b5f0a5534255a721ffcd7b";
+  address_t addr_alias;
+  alias_address_from_output(output_id, sizeof(output_id), &addr_alias);
+  char bech32_alias[65] = {};
+  address_to_bech32(&addr_alias, "atoi", bech32_alias, sizeof(bech32_alias));
+
   char const* const addr_hex_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   char const* const addr_hex_invalid_length = "atoi1zpk6m4x7m2t6k5pvgs0yd2nqelfaz09ueyyv6fwndsjsh5262725sgnb";
   char const* const cursor = "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
@@ -496,7 +501,7 @@ void test_get_foundry_outputs() {
   //=====Tests for parameters NULL cases=====
   outputs_query_list_t* list = outputs_query_list_new();
   TEST_ASSERT_NULL(list);
-  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ADDRESS, addr_alias) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ALIAS_ADDRESS, bech32_alias) == 0);
   TEST_ASSERT_EQUAL_INT(-1, get_foundry_outputs(NULL, list, res));
   TEST_ASSERT_EQUAL_INT(-1, get_foundry_outputs(&ctx, list, NULL));
 
@@ -512,14 +517,14 @@ void test_get_foundry_outputs() {
   outputs_query_list_free(list);
   list = outputs_query_list_new();
   TEST_ASSERT_NULL(list);
-  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ADDRESS, addr_hex_invalid_length) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ALIAS_ADDRESS, addr_hex_invalid_length) == 0);
   TEST_ASSERT_EQUAL_INT(0, get_foundry_outputs(&ctx, list, res));
   TEST_ASSERT(res->is_error);
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
   }
 
-  //=====Test invalid alias address=====
+  //=====Test invalid foundry address=====
   res_outputs_free(res);
   res = NULL;
   res = res_outputs_new();
@@ -527,14 +532,14 @@ void test_get_foundry_outputs() {
   outputs_query_list_free(list);
   list = outputs_query_list_new();
   TEST_ASSERT_NULL(list);
-  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ADDRESS, addr_hex_invalid) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ALIAS_ADDRESS, addr_hex_invalid) == 0);
   TEST_ASSERT_EQUAL_INT(0, get_foundry_outputs(&ctx, list, res));
   TEST_ASSERT(res->is_error);
   if (res->is_error == true) {
     printf("Error: %s\n", res->u.error->msg);
   }
 
-  //=====Test valid alias address=====
+  //=====Test valid foundry address=====
   res_outputs_free(res);
   res = NULL;
   res = res_outputs_new();
@@ -542,7 +547,7 @@ void test_get_foundry_outputs() {
   outputs_query_list_free(list);
   list = outputs_query_list_new();
   TEST_ASSERT_NULL(list);
-  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ADDRESS, addr_alias) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ALIAS_ADDRESS, bech32_alias) == 0);
   TEST_ASSERT_EQUAL_INT(0, get_foundry_outputs(&ctx, list, res));
   TEST_ASSERT(res->is_error == false);
 

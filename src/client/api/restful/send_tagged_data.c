@@ -57,15 +57,15 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
   {
   "protocolVersion": 2,
   "parentMessageIds": [
-      "7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
-      "9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c",
-      "ccf9bf6b76a2659f332e17bfdc20f278ce25bc45e807e89cc2ab526cd2101c52",
-      "fe63a9194eadb45e456a3c618d970119dbcac25221dbf5f53e5a838ef6ef518a"
+      "0x7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
+      "0x9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c",
+      "0xccf9bf6b76a2659f332e17bfdc20f278ce25bc45e807e89cc2ab526cd2101c52",
+      "0xfe63a9194eadb45e456a3c618d970119dbcac25221dbf5f53e5a838ef6ef518a"
   ],
   "payload": {
     "type": 5,
-    "tag": "696f74612e63f09fa68b",
-    "data": "48656c6c6f20576f726c64"
+    "tag": "0x696f74612e63f09fa68b",
+    "data": "0x48656c6c6f20576f726c64"
   }
   "nonce": ""
   }
@@ -91,7 +91,7 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
   }
 
   // add nonce
-  if (!cJSON_AddNullToObject(msg_obj, JSON_KEY_NONCE)) {
+  if (!cJSON_AddStringToObject(msg_obj, JSON_KEY_NONCE, "")) {
     printf("[%s:%d] creating nonce failed\n", __func__, __LINE__);
     goto end;
   }
@@ -117,8 +117,8 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
   }
 
   // add tag
-  char tag_str[BIN_TO_HEX_STR_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
-  if (bin_2_hex(tag, tag_len, tag_str, sizeof(tag_str)) != 0) {
+  char tag_str[JSON_STR_WITH_PREFIX_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
+  if (bin_2_hex(tag, tag_len, JSON_HEX_ENCODED_STRING_PREFIX, tag_str, sizeof(tag_str)) != 0) {
     printf("[%s:%d] bin to hex tag conversion failed\n", __func__, __LINE__);
     goto end;
   }
@@ -129,13 +129,14 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
 
   // data
   if (data) {
-    char* data_str = malloc(BIN_TO_HEX_STR_BYTES(data_len));
+    char* data_str = malloc(JSON_STR_WITH_PREFIX_BYTES(data_len));
     if (!data_str) {
       printf("[%s:%d] OOM\n", __func__, __LINE__);
 
       goto end;
     }
-    if (bin_2_hex(data, data_len, data_str, BIN_TO_HEX_STR_BYTES(data_len)) != 0) {
+    if (bin_2_hex(data, data_len, JSON_HEX_ENCODED_STRING_PREFIX, data_str, JSON_STR_WITH_PREFIX_BYTES(data_len)) !=
+        0) {
       printf("[%s:%d] bin to hex data conversion failed\n", __func__, __LINE__);
       free(data_str);
 

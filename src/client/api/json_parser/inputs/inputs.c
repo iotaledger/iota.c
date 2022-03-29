@@ -9,7 +9,7 @@
   [
     {
       "type": 0,
-      "transactionId": "b3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e",
+      "transactionId": "0xb3e2d5466b68f7876e5647ada5dc6153bedd11182743dfde7b8e547cdd459d1e",
       "transactionOutputIndex": 1
     },
   ]
@@ -54,7 +54,7 @@ int json_inputs_deserialize(cJSON *inputs_obj, utxo_inputs_list_t **inputs) {
 }
 
 cJSON *json_inputs_serialize(utxo_inputs_list_t *inputs) {
-  char tx_id_str[BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES)] = {};
+  char tx_id_str[JSON_STR_WITH_PREFIX_BYTES(IOTA_TRANSACTION_ID_BYTES)] = {};
   cJSON *input_arr = NULL;
 
   // empty array
@@ -85,7 +85,8 @@ cJSON *json_inputs_serialize(utxo_inputs_list_t *inputs) {
     }
 
     // add tx id
-    if (bin_2_hex(elm->input->tx_id, IOTA_TRANSACTION_ID_BYTES, tx_id_str, sizeof(tx_id_str)) != 0) {
+    if (bin_2_hex(elm->input->tx_id, IOTA_TRANSACTION_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, tx_id_str,
+                  sizeof(tx_id_str)) != 0) {
       printf("[%s:%d] tx id convertion failed\n", __func__, __LINE__);
       cJSON_Delete(item);
       cJSON_Delete(input_arr);

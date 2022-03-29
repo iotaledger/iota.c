@@ -4,12 +4,14 @@
 #include "client/api/restful/get_outputs_id.h"
 #include "client/api/json_parser/json_utils.h"
 #include "client/network/http.h"
+#include "core/models/inputs/utxo_input.h"
 #include "core/models/outputs/output_foundry.h"
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 #include "utlist.h"
 
 #define OUTPUTS_QUERY_ADDRESS_KEY "address"
+#define OUTPUTS_QUERY_ALIAS_ADDRESS_KEY "aliasAddress"
 #define OUTPUTS_QUERY_STORAGE_RET_KEY "hasStorageReturnCondition"
 #define OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY "storageReturnAddress"
 #define OUTPUTS_QUERY_SENDER_KEY "sender"
@@ -33,9 +35,18 @@ int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e t
     next->query_item = malloc(sizeof(outputs_query_params_t));
     if (next->query_item) {
       next->query_item->type = type;
-      next->query_item->param = malloc(strlen(param) + 1);
+      if (type == QUERY_PARAM_TAG) {
+        next->query_item->param = malloc(strlen(param) + JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);
+      } else {
+        next->query_item->param = malloc(strlen(param) + 1);
+      }
       if (next->query_item->param) {
-        memcpy(next->query_item->param, param, strlen(param) + 1);
+        if (type == QUERY_PARAM_TAG) {
+          memcpy(next->query_item->param, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
+          memcpy(next->query_item->param + JSON_HEX_ENCODED_STR_PREFIX_LEN, param, strlen(param) + 1);
+        } else {
+          memcpy(next->query_item->param, param, strlen(param) + 1);
+        }
         LL_APPEND(*list, next);
         return 0;
       } else {
@@ -56,6 +67,11 @@ size_t get_outputs_query_str_len(outputs_query_list_t *list) {
     switch (elm->query_item->type) {
       case QUERY_PARAM_ADDRESS:
         query_str_len += strlen(OUTPUTS_QUERY_ADDRESS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        break;
+      case QUERY_PARAM_ALIAS_ADDRESS:
+        query_str_len += strlen(OUTPUTS_QUERY_ALIAS_ADDRESS_KEY);
         query_str_len += strlen(elm->query_item->param);
         query_str_len += 2;  // For "&" params seperator and "=" params assignment
         break;
@@ -144,6 +160,9 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
     switch (elm->query_item->type) {
       case QUERY_PARAM_ADDRESS:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_ADDRESS_KEY, elm);
+        break;
+      case QUERY_PARAM_ALIAS_ADDRESS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_ALIAS_ADDRESS_KEY, elm);
         break;
       case QUERY_PARAM_HAS_STORAGE_RET:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_STORAGE_RET_KEY, elm);
@@ -288,7 +307,7 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
     goto end;
   }
 
-  if ((ret = json_get_uint64(json_obj, JSON_KEY_LEDGER_IDX, &res->u.output_ids->ledger_idx) != JSON_OK)) {
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_LEDGER_IDX, &res->u.output_ids->ledger_idx) != JSON_OK)) {
     printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
     goto end;
   }
@@ -302,8 +321,9 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
   cJSON *json_cursor = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_CURSOR);
   if (json_cursor != NULL) {
     if (cJSON_IsString(json_cursor) && (json_cursor->valuestring != NULL)) {
-      res->u.output_ids->cursor = malloc(strlen(json_cursor->valuestring) + 1);
-      strncpy(res->u.output_ids->cursor, json_cursor->valuestring, strlen(json_cursor->valuestring) + 1);
+      res->u.output_ids->cursor = malloc(strlen(json_cursor->valuestring) - JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);
+      strncpy(res->u.output_ids->cursor, json_cursor->valuestring + JSON_HEX_ENCODED_STR_PREFIX_LEN,
+              strlen(json_cursor->valuestring) - JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);
     } else {
       printf("[%s:%d] %s is not a string\n", __func__, __LINE__, JSON_KEY_CURSOR);
       ret = JSON_NOT_STRING;
@@ -311,7 +331,8 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res) {
     }
   }
 
-  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_ITEMS, res->u.output_ids->outputs)) != JSON_OK) {
+  if ((ret = json_string_with_prefix_array_to_utarray(json_obj, JSON_KEY_ITEMS, res->u.output_ids->outputs)) !=
+      JSON_OK) {
     printf("[%s:%d]: gets %s failed\n", __func__, __LINE__, JSON_KEY_ITEMS);
     goto end;
   }

@@ -62,21 +62,21 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
 /*
 {
   "type": 0,
-  "pubKeyHash": "21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942"
+  "pubKeyHash": "0x21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942"
 }
 or
 {
   "type": 8,
-  "aliasId": "a3308d6262ae9921f46aa3308d6262ae9921f46a"
+  "aliasId": "0xa3308d6262ae9921f46aa3308d6262ae9921f46a"
 }
 or
 {
   "type": 16,
-  "nftId": "a3308d6262ae9921f46aa3308d6262ae9921f46a"
+  "nftId": "0xa3308d6262ae9921f46aa3308d6262ae9921f46a"
 }
 */
 cJSON *json_parser_common_address_serialize(address_t *address) {
-  char addr_str[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char addr_str[JSON_STR_WITH_PREFIX_BYTES(ADDRESS_MAX_BYTES)] = {};
 
   // address data object
   cJSON *addr_data = cJSON_CreateObject();
@@ -89,17 +89,20 @@ cJSON *json_parser_common_address_serialize(address_t *address) {
     int ret = -1;
     switch (address->type) {
       case ADDRESS_TYPE_ED25519:
-        if ((ret = bin_2_hex(address->address, ED25519_PUBKEY_BYTES, addr_str, sizeof(addr_str))) == 0) {
+        if ((ret = bin_2_hex(address->address, ED25519_PUBKEY_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, addr_str,
+                             sizeof(addr_str))) == 0) {
           cJSON_AddStringToObject(addr_data, JSON_KEY_PUB_KEY_HASH, addr_str);
         }
         break;
       case ADDRESS_TYPE_ALIAS:
-        if ((ret = bin_2_hex(address->address, ALIAS_ID_BYTES, addr_str, sizeof(addr_str))) == 0) {
+        if ((ret = bin_2_hex(address->address, ALIAS_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, addr_str,
+                             sizeof(addr_str))) == 0) {
           cJSON_AddStringToObject(addr_data, JSON_KEY_ALIAS_ID, addr_str);
         }
         break;
       case ADDRESS_TYPE_NFT:
-        if ((ret = bin_2_hex(address->address, NFT_ID_BYTES, addr_str, sizeof(addr_str))) == 0) {
+        if ((ret = bin_2_hex(address->address, NFT_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, addr_str,
+                             sizeof(addr_str))) == 0) {
           cJSON_AddStringToObject(addr_data, JSON_KEY_NFT_ID, addr_str);
         }
         break;

@@ -50,12 +50,12 @@ void test_deser_response_error() {
 
 void test_output_response_deserialization() {
   char const* const json_res =
-      "{\"messageId\":\"1b8a036d9decfec2e053fe69bc456a22c7a039590ae5a3c9e51dddadf19f83a5\",\"transactionId\":"
-      "\"6c1249abb6fc07a3a8730db62564b10d8703a60d34debc6df545357cc11a9bfc\",\"outputIndex\":0,\"isSpent\":false,"
+      "{\"messageId\":\"0x1b8a036d9decfec2e053fe69bc456a22c7a039590ae5a3c9e51dddadf19f83a5\",\"transactionId\":"
+      "\"0x6c1249abb6fc07a3a8730db62564b10d8703a60d34debc6df545357cc11a9bfc\",\"outputIndex\":0,\"isSpent\":false,"
       "\"milestoneIndexBooked\":9,\"milestoneTimestampBooked\":1644570172,\"ledgerIndex\":13,\"output\":{\"type\":3,"
-      "\"amount\":10000000,\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":0,"
+      "\"amount\":\"10000000\",\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":0,"
       "\"pubKeyHash\":"
-      "\"21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"}}],\"featureBlocks\":[]}}";
+      "\"0x21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"}}],\"featureBlocks\":[]}}";
 
   res_output_t* out = get_output_response_new();
   int ret = deser_get_output(json_res, out);
@@ -64,12 +64,12 @@ void test_output_response_deserialization() {
 
   byte_t tmp_id[IOTA_MESSAGE_ID_BYTES] = {};
   // validate message id
-  TEST_ASSERT(
-      hex_2_bin("1b8a036d9decfec2e053fe69bc456a22c7a039590ae5a3c9e51dddadf19f83a5", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT(hex_2_bin("1b8a036d9decfec2e053fe69bc456a22c7a039590ae5a3c9e51dddadf19f83a5", 65, NULL, tmp_id,
+                        sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, out->u.data->msg_id, IOTA_MESSAGE_ID_BYTES);
   // validate transaction id
-  TEST_ASSERT(
-      hex_2_bin("6c1249abb6fc07a3a8730db62564b10d8703a60d34debc6df545357cc11a9bfc", 65, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT(hex_2_bin("6c1249abb6fc07a3a8730db62564b10d8703a60d34debc6df545357cc11a9bfc", 65, NULL, tmp_id,
+                        sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, out->u.data->tx_id, IOTA_TRANSACTION_ID_BYTES);
   // validate output index
   TEST_ASSERT(out->u.data->output_index == 0);

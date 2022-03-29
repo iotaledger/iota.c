@@ -178,27 +178,27 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
   }
 
   // gets latest milestone timestamp
-  if ((ret = json_get_uint64(status_obj, JSON_KEY_LMT, &res->u.output_node_info->latest_milestone_timestamp)) != 0) {
-    printf("[%s:%d]: gets %s json integer failed\n", __func__, __LINE__, JSON_KEY_LMT);
+  if ((ret = json_get_uint32(status_obj, JSON_KEY_LMT, &res->u.output_node_info->latest_milestone_timestamp)) != 0) {
+    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_LMT);
     goto end;
   }
 
   // gets latestMilestoneIndex
-  if ((ret = json_get_uint64(status_obj, JSON_KEY_LM_IDX, &res->u.output_node_info->latest_milestone_index)) != 0) {
-    printf("[%s:%d]: gets %s json integer failed\n", __func__, __LINE__, JSON_KEY_LM_IDX);
+  if ((ret = json_get_uint32(status_obj, JSON_KEY_LM_IDX, &res->u.output_node_info->latest_milestone_index)) != 0) {
+    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_LM_IDX);
     goto end;
   }
 
   // gets confirmedMilestoneIndex
-  if ((ret = json_get_uint64(status_obj, JSON_KEY_CM_IDX, &res->u.output_node_info->confirmed_milestone_index)) != 0) {
-    printf("[%s:%d]: gets %s json integer failed\n", __func__, __LINE__, JSON_KEY_CM_IDX);
+  if ((ret = json_get_uint32(status_obj, JSON_KEY_CM_IDX, &res->u.output_node_info->confirmed_milestone_index)) != 0) {
+    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_CM_IDX);
     goto end;
   }
 
   // gets pruningIndex
-  if ((ret = json_get_uint64(status_obj, JSON_KEY_PRUNING_IDX, &res->u.output_node_info->pruning_milestone_index)) !=
+  if ((ret = json_get_uint32(status_obj, JSON_KEY_PRUNING_IDX, &res->u.output_node_info->pruning_milestone_index)) !=
       0) {
-    printf("[%s:%d]: gets %s json integer failed\n", __func__, __LINE__, JSON_KEY_PRUNING_IDX);
+    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_PRUNING_IDX);
     goto end;
   }
 
@@ -246,8 +246,8 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
   }
 
   // gets minPowScore
-  if ((ret = json_get_uint64(protocol_obj, JSON_KEY_MIN_POW, &res->u.output_node_info->min_pow_score)) != 0) {
-    printf("[%s:%d]: gets %s json integer failed\n", __func__, __LINE__, JSON_KEY_MIN_POW);
+  if ((ret = json_get_uint32(protocol_obj, JSON_KEY_MIN_POW, &res->u.output_node_info->min_pow_score)) != 0) {
+    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MIN_POW);
     goto end;
   }
 
@@ -307,12 +307,10 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
 
     printf("%s\tstatus:{\n", PRINT_INDENTATION(indentation));
     printf("%s\t\tisHealthy: %s\n", PRINT_INDENTATION(indentation), info->is_healthy ? "True" : "False");
-    printf("%s\t\tlatestMilestoneTimestamp: %" PRIu64 "\n", PRINT_INDENTATION(indentation),
-           info->latest_milestone_timestamp);
-    printf("%s\t\tlatestMilestoneIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->latest_milestone_index);
-    printf("%s\t\tconfirmedMilestoneIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation),
-           info->confirmed_milestone_index);
-    printf("%s\t\tpruningIndex: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->pruning_milestone_index);
+    printf("%s\t\tlatestMilestoneTimestamp: %d\n", PRINT_INDENTATION(indentation), info->latest_milestone_timestamp);
+    printf("%s\t\tlatestMilestoneIndex: %d\n", PRINT_INDENTATION(indentation), info->latest_milestone_index);
+    printf("%s\t\tconfirmedMilestoneIndex: %d\n", PRINT_INDENTATION(indentation), info->confirmed_milestone_index);
+    printf("%s\t\tpruningIndex: %d\n", PRINT_INDENTATION(indentation), info->pruning_milestone_index);
     printf("%s\t}\n", PRINT_INDENTATION(indentation));
 
     printf("%s\tmetrics:{\n", PRINT_INDENTATION(indentation));
@@ -325,7 +323,7 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
     printf("%s\t\tnetworkName: %s\n", PRINT_INDENTATION(indentation), info->network_name);
     printf("%s\t\tprotocolVersion: %d\n", PRINT_INDENTATION(indentation), info->protocol_version);
     printf("%s\t\tbech32HRP: %s\n", PRINT_INDENTATION(indentation), info->bech32hrp);
-    printf("%s\t\tminPoWScore: %" PRIu64 "\n", PRINT_INDENTATION(indentation), info->min_pow_score);
+    printf("%s\t\tminPoWScore: %d\n", PRINT_INDENTATION(indentation), info->min_pow_score);
     printf("%s\t\trentStructure:{\n", PRINT_INDENTATION(indentation));
     printf("%s\t\t\tvByteCost: %" PRIu16 "\n", PRINT_INDENTATION(indentation), info->v_byte_cost);
     printf("%s\t\t\tvByteFactorData: %" PRIu8 "\n", PRINT_INDENTATION(indentation), info->v_byte_factor_data);

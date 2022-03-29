@@ -14,10 +14,10 @@
 static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   /*
   {
-    "type": 0,
+    "type": 1,
     "networkId": "8453507715857476362",
     "inputs": input_array,
-    "inputsCommitment": "9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9",
+    "inputsCommitment": "0x9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9",
     "outputs": output_array,
     "payload": payload object
   }
@@ -33,7 +33,7 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
     return NULL;
   }
 
-  if (es->tx_type != 0) {
+  if (es->tx_type != TRANSACTION_ESSENCE_TYPE) {
     printf("[%s:%d] invalid transaction essence\n", __func__, __LINE__);
     return NULL;
   }
@@ -44,8 +44,8 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
     return NULL;
   }
 
-  // "type": 0 to denote a Transaction Essence.
-  if (!cJSON_AddNumberToObject(es_obj, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TRANSACTION)) {
+  // "type": 1 to denote a Transaction Essence.
+  if (!cJSON_AddNumberToObject(es_obj, JSON_KEY_TYPE, es->tx_type)) {
     printf("[%s:%d] add tx type failed\n", __func__, __LINE__);
     cJSON_Delete(es_obj);
     return NULL;
@@ -69,9 +69,9 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   cJSON_AddItemToObject(es_obj, JSON_KEY_INPUTS, input_arr);
 
   // inputs commitment
-  char inputs_commitment_str[BIN_TO_HEX_STR_BYTES(sizeof(es->inputs_commitment))] = {};
-  if (bin_2_hex(es->inputs_commitment, sizeof(es->inputs_commitment), inputs_commitment_str,
-                sizeof(inputs_commitment_str)) != 0) {
+  char inputs_commitment_str[JSON_STR_WITH_PREFIX_BYTES(sizeof(es->inputs_commitment))] = {};
+  if (bin_2_hex(es->inputs_commitment, sizeof(es->inputs_commitment), JSON_HEX_ENCODED_STRING_PREFIX,
+                inputs_commitment_str, sizeof(inputs_commitment_str)) != 0) {
     printf("[%s:%d] convert inputs commitment to hex string error\n", __func__, __LINE__);
     cJSON_Delete(es_obj);
     return NULL;
@@ -145,32 +145,32 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   {
     "protocolVersion": 2,
     "parentMessageIds": [
-      "596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
-      "8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
-      "a3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893",
-      "dbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff"
+      "0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
+      "0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
+      "0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893",
+      "0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff"
     ],
     "payload": {
       "type": 1,
       "index": 3,
       "timestamp": 1644478549,
       "parentMessageIds": [
-        "596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
-        "8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
-        "a3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893",
-        "dbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff"
+        "0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
+        "0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
+        "0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893",
+        "0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff"
       ],
-      "inclusionMerkleProof": "58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c",
+      "inclusionMerkleProof": "0x58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c",
       "nextPoWScore": 0,
       "nextPoWScoreMilestoneIndex": 0,
       "publicKeys": [
-        "ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c",
-        "f6752f5f46a53364e2ee9c4d662d762a81efd51010282a75cd6bd03f28ef349c"
+        "0xed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c",
+        "0xf6752f5f46a53364e2ee9c4d662d762a81efd51010282a75cd6bd03f28ef349c"
       ],
       "receipt": null,
       "signatures": [
-        "a6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b4c33cfd64dadf7bcc085a062e486c7a105",
-        "005af6a44ded27650c23457f540576515a1e1549ff50d1279bde77d2dd8802c8676053ec5c0939671db1c2d920b3c557389b19a7f1ad310dc5ed23f840ddfa05"
+        "0xa6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b4c33cfd64dadf7bcc085a062e486c7a105",
+        "0x005af6a44ded27650c23457f540576515a1e1549ff50d1279bde77d2dd8802c8676053ec5c0939671db1c2d920b3c557389b19a7f1ad310dc5ed23f840ddfa05"
       ]
     },
     "nonce": "14757395258967713456"
@@ -191,7 +191,7 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   }
 
   // parsing timestamp
-  if ((ret = json_get_uint64(payload, JSON_KEY_TIMESTAMP, &ms->timestamp)) != 0) {
+  if ((ret = json_get_uint32(payload, JSON_KEY_TIMESTAMP, &ms->timestamp)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TIMESTAMP);
     return ret;
   }
@@ -317,7 +317,7 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
 cJSON* json_transaction_serialize(transaction_payload_t* tx) {
   /*
   {
-    "type": 0,
+    "type": 6,
     "essence": essence object
     "unlockBlocks": unlock blocks object
   }
@@ -337,7 +337,7 @@ cJSON* json_transaction_serialize(transaction_payload_t* tx) {
     return NULL;
   }
 
-  // "type": 0,
+  // "type": 6,
   if (!cJSON_AddNumberToObject(tx_payload, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TRANSACTION)) {
     printf("[%s:%d] add payload type failed\n", __func__, __LINE__);
     cJSON_Delete(tx_payload);
@@ -367,8 +367,8 @@ cJSON* json_tagged_serialize(tagged_data_payload_t* tagged_data) {
   /*
   {
     "type": 5,
-    "tag": "484f524e455420464155434554"
-    "data": "494f5441202d2041206e6577206461776e0a436f756e743a203138393030350a5032c2b573"
+    "tag": "0x484f524e455420464155434554"
+    "data": "0x494f5441202d2041206e6577206461776e0a436f756e743a203138393030350a5032c2b573"
   }
   */
   cJSON* tagged_data_payload = NULL;
@@ -393,9 +393,9 @@ cJSON* json_tagged_serialize(tagged_data_payload_t* tagged_data) {
 
   // tag
   if (tagged_data->tag) {
-    char tag_str[BIN_TO_HEX_STR_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
-    if (bin_2_hex(tagged_data->tag->data, tagged_data->tag->len, tag_str,
-                  BIN_TO_HEX_STR_BYTES(tagged_data->tag->len)) != 0) {
+    char tag_str[JSON_STR_WITH_PREFIX_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
+    if (bin_2_hex(tagged_data->tag->data, tagged_data->tag->len, JSON_HEX_ENCODED_STRING_PREFIX, tag_str,
+                  sizeof(tag_str)) != 0) {
       printf("[%s:%d] bin to hex tag conversion failed\n", __func__, __LINE__);
       cJSON_Delete(tagged_data_payload);
       return NULL;
@@ -409,15 +409,15 @@ cJSON* json_tagged_serialize(tagged_data_payload_t* tagged_data) {
 
   // data
   if (tagged_data->data) {
-    char* data_str = malloc(BIN_TO_HEX_STR_BYTES(tagged_data->data->len));
+    char* data_str = malloc(JSON_STR_WITH_PREFIX_BYTES(tagged_data->data->len));
     if (!data_str) {
       printf("[%s:%d] OOM\n", __func__, __LINE__);
       cJSON_Delete(tagged_data_payload);
       return NULL;
     }
 
-    if (bin_2_hex(tagged_data->data->data, tagged_data->data->len, data_str,
-                  BIN_TO_HEX_STR_BYTES(tagged_data->data->len)) != 0) {
+    if (bin_2_hex(tagged_data->data->data, tagged_data->data->len, JSON_HEX_ENCODED_STRING_PREFIX, data_str,
+                  JSON_STR_WITH_PREFIX_BYTES(tagged_data->data->len)) != 0) {
       printf("[%s:%d] bin to hex data conversion failed\n", __func__, __LINE__);
       cJSON_Delete(tagged_data_payload);
       free(data_str);
@@ -464,20 +464,66 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data)
 
   // create a new tagged data
   if (cJSON_IsString(json_tag) && cJSON_IsString(json_data)) {
-    byte_t tmp_tag[TAGGED_DATA_TAG_MAX_LENGTH_BYTES] = {0};
-    hex_2_bin(json_tag->valuestring, strlen(json_tag->valuestring), tmp_tag, sizeof(tmp_tag));
+    byte_t* tag = NULL;
+    uint32_t tag_len = 0;
+    uint32_t tag_str_len = strlen(json_tag->valuestring);
+    if (tag_str_len >= 2) {
+      if (memcmp(json_tag->valuestring, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN) != 0) {
+        printf("[%s:%d] hex string without %s prefix \n", __func__, __LINE__, JSON_HEX_ENCODED_STRING_PREFIX);
+        return -1;
+      }
+      tag_len = (tag_str_len - JSON_HEX_ENCODED_STR_PREFIX_LEN) / 2;
+      tag = malloc(tag_len);
+      if (!tag) {
+        printf("[%s:%d] OOM\n", __func__, __LINE__);
+        return -1;
+      }
+      if (hex_2_bin(json_tag->valuestring, tag_str_len, JSON_HEX_ENCODED_STRING_PREFIX, tag, tag_len) != 0) {
+        printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
+        free(tag);
+        return -1;
+      }
+    }
 
-    byte_t* tmp_data = malloc((strlen(json_data->valuestring) / 2));
-    hex_2_bin(json_data->valuestring, strlen(json_data->valuestring), tmp_data, strlen(json_data->valuestring) / 2);
+    byte_t* metadata = NULL;
+    uint32_t metadata_len = 0;
+    uint32_t metadata_str_len = strlen(json_data->valuestring);
+    if (metadata_str_len >= 2) {
+      if (memcmp(json_data->valuestring, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN) != 0) {
+        printf("[%s:%d] hex string without %s prefix \n", __func__, __LINE__, JSON_HEX_ENCODED_STRING_PREFIX);
+        return -1;
+      }
+      metadata_len = (metadata_str_len - JSON_HEX_ENCODED_STR_PREFIX_LEN) / 2;
+      metadata = malloc(metadata_len);
+      if (!metadata) {
+        printf("[%s:%d] OOM\n", __func__, __LINE__);
+        return -1;
+      }
+      if (hex_2_bin(json_data->valuestring, metadata_str_len, JSON_HEX_ENCODED_STRING_PREFIX, metadata, metadata_len) !=
+          0) {
+        printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
+        free(metadata);
+        return -1;
+      }
+    }
 
-    *tagged_data =
-        tagged_data_new(tmp_tag, strlen(json_tag->valuestring) / 2, tmp_data, strlen(json_data->valuestring) / 2);
+    *tagged_data = tagged_data_new(tag, tag_len, metadata, metadata_len);
     if (!*tagged_data) {
       printf("[%s:%d]: can not create a new tagged data payload\n", __func__, __LINE__);
-      free(tmp_data);
+      if (tag) {
+        free(tag);
+      }
+      if (metadata) {
+        free(metadata);
+      }
       return -1;
     }
-    free(tmp_data);
+    if (tag) {
+      free(tag);
+    }
+    if (metadata) {
+      free(metadata);
+    }
   } else {
     printf("[%s:%d] tag or data is not a string\n", __func__, __LINE__);
     return -1;
