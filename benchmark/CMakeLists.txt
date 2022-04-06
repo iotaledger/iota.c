@@ -24,5 +24,5 @@ function(add_iota_benchmark benchmark_name benchmark_src)
 endfunction(add_iota_benchmark)
 
 if(WITH_IOTA_CLIENT)
-add_iota_benchmark(benchmark_send_tagged_data "client/send_tagged_data.c")
+  add_iota_benchmark(benchmark_send_tagged_data "client/send_tagged_data.c")
 endif()
