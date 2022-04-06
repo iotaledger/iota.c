@@ -19,7 +19,7 @@ executable_file=$1
 
 echo "Executing memory benchmark for: $executable_file\n"
 
-echo "Memory benchmark with time and a verbose output:"
-/bin/time -v $executable_file
-
-
+echo "Memory benchmark with Valgrind and Massif heap profiler:"
+if valgrind --tool=massif --time-unit=B --threshold=0.1 --massif-out-file=massif.out $executable_file; then
+    ms_print massif.out | less
+fi
