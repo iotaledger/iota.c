@@ -16,6 +16,7 @@ option(IOTA_TESTS "Enable IOTA Client library test cases" ON)
 option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
 option(IOTA_EXAMPLES "Build example application" OFF)
+option(IOTA_BENCHMARK "Build applications for a memory benchmarking" OFF)
 option(IOTA_WALLET_ENABLE "Enable simple wallet API" ON)
 option(MQTT_CLIENT_ENABLE "Enable MQTT Event APIs" OFF)
 # Enable for reducing the application binary size
@@ -125,4 +126,8 @@ endif()
 
 if(IOTA_EXAMPLES AND WITH_IOTA_CLIENT)
   add_subdirectory(examples)
+endif()
+
+if(IOTA_BENCHMARK)
+  add_subdirectory(benchmark)
 endif()
