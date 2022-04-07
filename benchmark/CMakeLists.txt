@@ -24,6 +24,8 @@ function(add_iota_benchmark benchmark_name benchmark_src)
 endfunction(add_iota_benchmark)
 
 add_iota_benchmark(benchmark_create_transaction_basic_output "core/create_transaction_basic_output.c")
+add_iota_benchmark(benchmark_create_transaction_basic_output_full "core/create_transaction_basic_output_full.c")
+add_iota_benchmark(benchmark_create_transaction_basic_output_max "core/create_transaction_basic_output_max.c")
 
 if(WITH_IOTA_CLIENT)
   add_iota_benchmark(benchmark_send_tagged_data "client/send_tagged_data.c")

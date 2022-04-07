@@ -21,5 +21,5 @@ echo "Executing memory benchmark for: $executable_file\n"
 
 echo "Memory benchmark with Valgrind and Massif heap profiler:"
 if valgrind --tool=massif --time-unit=B --threshold=0.1 --massif-out-file=massif.out $executable_file; then
-    ms_print massif.out | less
+    ms_print massif.out | head -33
 fi
