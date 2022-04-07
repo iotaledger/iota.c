@@ -6,8 +6,6 @@
 
 #include "core/models/outputs/native_tokens.h"
 
-#define NATIVE_TOKENS_MAX_COUNT 64
-
 // Native Tokens must be lexicographically sorted based on Token ID
 static int token_id_sort(native_tokens_list_t *token1, native_tokens_list_t *token2) {
   return memcmp(token1->token->token_id, token2->token->token_id, NATIVE_TOKEN_ID_BYTES);

@@ -32,10 +32,10 @@ static output_basic_t* create_output_basic() {
   // create feature blocks
   feat_blk_list_t* feat_blocks = feat_blk_list_new();
   feat_blk_list_add_sender(&feat_blocks, &addr);
-  byte_t test_tag[64] = "Test tagged data from a benchmark application. Test tagged dat";
+  byte_t test_tag[MAX_INDEX_TAG_BYTES] = "Test tagged data from a benchmark application. Test tagged dat";
   feat_blk_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag));
-  byte_t* test_meta = malloc(8192);
-  feat_blk_list_add_metadata(&feat_blocks, test_meta, 8192);
+  byte_t* test_meta = malloc(MAX_METADATA_LENGTH_BYTES);
+  feat_blk_list_add_metadata(&feat_blocks, test_meta, MAX_METADATA_LENGTH_BYTES);
   free(test_meta);
 
   // create native tokens
@@ -44,7 +44,7 @@ static output_basic_t* create_output_basic() {
       0xDD, 0xA7, 0xC5, 0x79, 0x47, 0x9E, 0xC, 0x93, 0xCE, 0xA7, 0x93, 0x95, 0x41, 0xF8, 0x93, 0x4D, 0xF,  0x7E, 0x3A,
       0x4,  0xCA, 0x52, 0xF8, 0x8B, 0x9B, 0x0, 0x25, 0xC0, 0xBE, 0x4A, 0xF6, 0x23, 0x59, 0x98, 0x6F, 0x64, 0xEF, 0x00};
   native_tokens_list_t* native_tokens = native_tokens_new();
-  for (uint8_t i = 0; i < 64; i++) {
+  for (uint8_t i = 0; i < NATIVE_TOKENS_MAX_COUNT; i++) {
     token_id[NATIVE_TOKEN_ID_BYTES - 1] = i;
     native_tokens_add(&native_tokens, token_id, amount);
   }
@@ -72,7 +72,7 @@ int main() {
   // add input
   byte_t tx_id[IOTA_TRANSACTION_ID_BYTES] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  for (uint8_t i = 0; i < 128; i++) {
+  for (uint8_t i = 0; i < UTXO_INPUT_MAX_COUNT; i++) {
     tx_id[IOTA_TRANSACTION_ID_BYTES - 1] = i;
     if (tx_essence_add_input(es, 0, tx_id, i) != 0) {
       printf("[%s:%d]: Can not add input to a transaction!\n", __func__, __LINE__);
@@ -88,7 +88,7 @@ int main() {
     tx_essence_free(es);
     return -1;
   }
-  for (uint8_t i = 0; i < 128; i++) {
+  for (uint8_t i = 0; i < UTXO_OUTPUT_MAX_COUNT; i++) {
     if (tx_essence_add_output(es, OUTPUT_BASIC, basic_output) != 0) {
       printf("[%s:%d]: Can not add output to a transaction!\n", __func__, __LINE__);
       output_basic_free(basic_output);
@@ -99,7 +99,7 @@ int main() {
 
   // add the output in unspent outputs list to be able to calculate inputs commitment hash
   utxo_outputs_list_t* unspent_outputs = utxo_outputs_new();
-  for (uint8_t i = 0; i < 128; i++) {
+  for (uint8_t i = 0; i < UTXO_OUTPUT_MAX_COUNT; i++) {
     if (utxo_outputs_add(&unspent_outputs, OUTPUT_BASIC, basic_output) != 0) {
       printf("[%s:%d]: Can not add unspent output to the list!\n", __func__, __LINE__);
       output_basic_free(basic_output);
