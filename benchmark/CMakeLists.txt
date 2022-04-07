@@ -29,4 +29,5 @@ add_iota_benchmark(benchmark_create_transaction_basic_output_max "core/create_tr
 
 if(WITH_IOTA_CLIENT)
   add_iota_benchmark(benchmark_send_tagged_data "client/send_tagged_data.c")
+  add_iota_benchmark(benchmark_send_tagged_data_max "client/send_tagged_data_max.c")
 endif()
