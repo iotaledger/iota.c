@@ -16,11 +16,6 @@ static int token_id_sort(native_tokens_list_t *token1, native_tokens_list_t *tok
 native_tokens_list_t *native_tokens_new() { return NULL; }
 
 native_token_t *native_tokens_find_by_id(native_tokens_list_t *nt, byte_t id[]) {
-  if (nt == NULL || id == NULL) {
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return NULL;
-  }
-
   native_tokens_list_t *elm;
   LL_FOREACH(nt, elm) {
     if (memcmp(elm->token->token_id, id, NATIVE_TOKEN_ID_BYTES) == 0) {
