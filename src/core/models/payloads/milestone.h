@@ -10,12 +10,6 @@
 #include "crypto/iota_crypto.h"
 #include "utarray.h"
 
-// Milestone signature length in binary representation
-#define MILESTONE_SIGNATURE_BYTES 64
-
-// Milestone public key length in binary representation
-#define MILESTONE_PUBLIC_KEY_BYTES 32
-
 typedef struct {
   uint32_t type;       // pyalod type, set to 1 denotes a milestone pyalod
   uint32_t index;      // The index number of the milestone.
@@ -29,7 +23,6 @@ typedef struct {
   uint32_t next_pow_score_milestone_index;  // The index of the first milestone that will require a new minimal pow
                                             // score for applying transactions. This field comes into effect only if the
                                             // Next PoW Score field is not 0.
-  UT_array *pub_keys;                       // Ed25519 Public Keys
   void *receipt;                            // The inner payload of the milestone. Can be NULL or a Receipt.
   UT_array *signatures;  // The Ed25519 signature signing the BLAKE2b-256 hash of the serialized Milestone Essence. The
                          // signatures must be in the same order as the specified public keys.
@@ -69,23 +62,6 @@ size_t milestone_payload_get_parents_count(milestone_payload_t *ms);
  * @return byte_t* NULL on failed.
  */
 byte_t *milestone_payload_get_parent(milestone_payload_t *ms, size_t index);
-
-/**
- * @brief Get keys count in a milestone
- *
- * @param[in] ms The milestone object
- * @return size_t
- */
-size_t milestone_payload_get_pub_keys_count(milestone_payload_t *ms);
-
-/**
- * @brief Get a key string from a milestone at index
- *
- * @param[in] ms The milestone object
- * @param[in] index The index of key
- * @return byte_t* NULL on failed.
- */
-byte_t *milestone_payload_get_pub_key(milestone_payload_t *ms, size_t index);
 
 /**
  * @brief Get signatures count in a milestone

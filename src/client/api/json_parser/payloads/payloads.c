@@ -140,6 +140,41 @@ static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_
   return 0;
 }
 
+static int milestone_signatures_deserialize(cJSON* payload, UT_array* signatures) {
+  if (!payload || !signatures) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // signatures array
+  cJSON* sig_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_SIGNATURES);
+  if (!cJSON_IsArray(sig_obj)) {
+    printf("[%s:%d]: %s is not an object\n", __func__, __LINE__, JSON_KEY_SIGNATURES);
+    return -1;
+  }
+
+  cJSON* elm = NULL;
+  cJSON_ArrayForEach(elm, sig_obj) {
+    byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+    sig_block[0] = 0;  // denote ed25519 signature
+    // public key
+    if (json_get_hex_str_to_bin(elm, JSON_KEY_PUB_KEY, sig_block + 1, ED_PUBLIC_KEY_BYTES) != JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_PUB_KEY);
+      return -1;
+    }
+    // signature
+    if (json_get_hex_str_to_bin(elm, JSON_KEY_SIG, sig_block + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES) !=
+        JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_SIG);
+      return -1;
+    }
+    // add signature block into a list
+    utarray_push_back(signatures, sig_block);
+  }
+
+  return 0;
+}
+
 int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   /*
   {
@@ -151,7 +186,7 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
       "0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff"
     ],
     "payload": {
-      "type": 1,
+      "type": 7,
       "index": 3,
       "timestamp": 1644478549,
       "parentMessageIds": [
@@ -163,14 +198,18 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
       "inclusionMerkleProof": "0x58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c",
       "nextPoWScore": 0,
       "nextPoWScoreMilestoneIndex": 0,
-      "publicKeys": [
-        "0xed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c",
-        "0xf6752f5f46a53364e2ee9c4d662d762a81efd51010282a75cd6bd03f28ef349c"
-      ],
       "receipt": null,
       "signatures": [
-        "0xa6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b4c33cfd64dadf7bcc085a062e486c7a105",
-        "0x005af6a44ded27650c23457f540576515a1e1549ff50d1279bde77d2dd8802c8676053ec5c0939671db1c2d920b3c557389b19a7f1ad310dc5ed23f840ddfa05"
+        { "type": 0,
+          "publicKey": "0xd85e5b1590d898d1e0cdebb2e3b5337c8b76270142663d78811683ba47c17c98",
+          "signature":
+          "0x51306b228a716b656000529b72520fc97cf227197056b289d94d717779cb9749fe9cde77477497cfc594a728ce372b8a7edf233115fb51681e4669f6f4464900"
+        },
+        { "type": 0,
+          "publicKey": "0xd9922819a39e94ddf3907f4b9c8df93f39f026244fcb609205b9a879022599f2",
+          "signature":
+          "0x1e5fff5396cfa5e9b247ab6cb402c9dfd9b239e6bcaa3c9e370789f3e180599ea267c4b4e61be4864cfae61261af5353b45c2277e1eb3f8bb178211ea7e3e003"
+        }
       ]
     },
     "nonce": "14757395258967713456"
@@ -221,20 +260,12 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
     return ret;
   }
 
-  // parsing public keys
-  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PUBLIC_KEYS, ms->pub_keys, MILESTONE_PUBLIC_KEY_BYTES)) !=
-      0) {
-    printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_PUBLIC_KEYS);
-    return ret;
-  }
-
   // parsing receipt
   // TODO parse receipt
 
   // parsing signatures
-  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_SIGNATURES, ms->signatures, MILESTONE_SIGNATURE_BYTES)) !=
-      0) {
-    printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_SIGNATURES);
+  if ((ret = milestone_signatures_deserialize(payload, ms->signatures)) != 0) {
+    printf("[%s:%d]: parsing milestone signatures failed\n", __func__, __LINE__);
     return ret;
   }
 
