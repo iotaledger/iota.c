@@ -47,7 +47,8 @@ void test_get_msg_by_id() {
         printf("it's a tagged message\n");
         core_message_print(msg->u.msg, 0);
         break;
-      case CORE_MESSAGE_PAYLOAD_DEPRECATED:
+      case CORE_MESSAGE_PAYLOAD_DEPRECATED_0:
+      case CORE_MESSAGE_PAYLOAD_DEPRECATED_1:
       case CORE_MESSAGE_PAYLOAD_UNKNOWN:
       default:
         printf("unsupported message\n");
