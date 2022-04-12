@@ -71,11 +71,11 @@ void test_deser_milestone() {
       "\"0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
       "\"0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"inclusionMerkleProof\":"
       "\"0x58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c\",\"nextPoWScore\":100,"
-      "\"nextPoWScoreMilestoneIndex\":200,\"receipt\":null,\"signatures\":[{\"type\": 0,\"publicKey\": "
-      "\"0xd85e5b1590d898d1e0cdebb2e3b5337c8b76270142663d78811683ba47c17c98\",\"signature\": "
+      "\"nextPoWScoreMilestoneIndex\":89,\"metadata\":\"0x96a31204f64a48aa58adc6ff90\",\"receipt\":null,\"signatures\":"
+      "[{\"type\":0,\"publicKey\":\"0xd85e5b1590d898d1e0cdebb2e3b5337c8b76270142663d78811683ba47c17c98\",\"signature\":"
       "\"0x51306b228a716b656000529b72520fc97cf227197056b289d94d717779cb9749fe9cde77477497cfc594a728ce372b8a7edf233115fb"
-      "51681e4669f6f4464900\"},{\"type\": 0,\"publicKey\": "
-      "\"0xd9922819a39e94ddf3907f4b9c8df93f39f026244fcb609205b9a879022599f2\",\"signature\": "
+      "51681e4669f6f4464900\"},{\"type\": "
+      "0,\"publicKey\":\"0xd9922819a39e94ddf3907f4b9c8df93f39f026244fcb609205b9a879022599f2\",\"signature\": "
       "\"0x1e5fff5396cfa5e9b247ab6cb402c9dfd9b239e6bcaa3c9e370789f3e180599ea267c4b4e61be4864cfae61261af5353b45c2277e1eb"
       "3f8bb178211ea7e3e003\"},{\"type\": 0,\"publicKey\": "
       "\"0xf9d9656a60049083eef61487632187b351294c1fa23d118060d813db6d03e8b6\",\"signature\": "
@@ -134,7 +134,13 @@ void test_deser_milestone() {
   TEST_ASSERT_EQUAL_MEMORY(tmp_proof, ms->inclusion_merkle_proof, sizeof(ms->inclusion_merkle_proof));
 
   TEST_ASSERT(100 == ms->next_pow_score);
-  TEST_ASSERT(200 == ms->next_pow_score_milestone_index);
+  TEST_ASSERT(89 == ms->next_pow_score_milestone_index);
+
+  // check metadata
+  byte_t tmp_metadata[13] = {};
+  TEST_ASSERT(hex_2_bin("96a31204f64a48aa58adc6ff90", 26, NULL, tmp_metadata, sizeof(tmp_metadata)) == 0);
+  TEST_ASSERT_EQUAL_UINT32(13, ms->metadata->len);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_metadata, ms->metadata->data, sizeof(tmp_metadata));
 
   // TODO check receipt
 
@@ -178,8 +184,9 @@ void test_deser_simple_tx() {
       "\"featureBlocks\":[]},{\"type\":3,\"amount\":\"2779530273277761\",\"nativeTokens\":[],\"unlockConditions\":[{"
       "\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0x60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe\"}}],\"featureBlocks\":[]}],\"payload\":{"
-      "\"type\":5,\"tag\":\"0x484f524e455420464155434554\",\"data\":\"\"}},\"unlockBlocks\":[{\"type\":0,\"signature\":"
-      "{\"type\":0,\"publicKey\":\"0x31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\",\"signature\":"
+      "\"type\":5,\"tag\":\"0x484f524e455420464155434554\",\"data\":\"0x\"}},\"unlockBlocks\":[{\"type\":0,"
+      "\"signature\":{\"type\":0,\"publicKey\":\"0x31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\","
+      "\"signature\":"
       "\"0x1b51aab768dd145de99fc3710c7b05963803f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f81"
       "0ad0cc4b0210adaafd0a\"}}]},\"nonce\":\"62900\"}";
 

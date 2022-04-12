@@ -99,5 +99,6 @@ static char const* const JSON_KEY_PUBLIC_KEYS = "publicKeys";
 static char const* const JSON_KEY_INPUTS_COMMITMENT = "inputsCommitment";
 static char const* const JSON_KEY_PUB_KEY_HASH = "pubKeyHash";
 static char const* const JSON_KEY_WAITING_REQUESTS = "waitingRequests";
+static char const* const JSON_KEY_METADATA = "metadata";
 
 #endif

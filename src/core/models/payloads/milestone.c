@@ -18,6 +18,7 @@ milestone_payload_t *milestone_payload_new() {
     memset(ms->inclusion_merkle_proof, 0, sizeof(ms->inclusion_merkle_proof));
     ms->next_pow_score = 0;
     ms->next_pow_score_milestone_index = 0;
+    ms->metadata = NULL;
     ms->receipt = NULL;
     utarray_new(ms->signatures, &ut_sign_icd);
   }
@@ -28,6 +29,9 @@ void milestone_payload_free(milestone_payload_t *ms) {
   if (ms) {
     if (ms->parents) {
       utarray_free(ms->parents);
+    }
+    if (ms->metadata) {
+      byte_buf_free(ms->metadata);
     }
     if (ms->signatures) {
       utarray_free(ms->signatures);
@@ -89,6 +93,13 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
     printf("%s\tNext POW Score: %d\n", PRINT_INDENTATION(indentation), ms->next_pow_score);
     printf("%s\tNext POW Score Milestone Index: %d\n", PRINT_INDENTATION(indentation),
            ms->next_pow_score_milestone_index);
+
+    if (ms->metadata) {
+      printf("%s\tMetadata: ", PRINT_INDENTATION(indentation));
+      dump_hex_str(ms->metadata->data, ms->metadata->len);
+    } else {
+      printf("%s\tMetadata: null\n", PRINT_INDENTATION(indentation));
+    }
 
     // TODO print receipt
     printf("%s\tReceipt: null\n", PRINT_INDENTATION(indentation));

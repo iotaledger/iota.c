@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "core/types.h"
+#include "core/utils/byte_buffer.h"
 #include "crypto/iota_crypto.h"
 #include "utarray.h"
 
@@ -23,6 +24,7 @@ typedef struct {
   uint32_t next_pow_score_milestone_index;  // The index of the first milestone that will require a new minimal pow
                                             // score for applying transactions. This field comes into effect only if the
                                             // Next PoW Score field is not 0.
+  byte_buf_t *metadata;                     // Binary data only relevant to milestone issuer, e.g. internal state.
   void *receipt;                            // The inner payload of the milestone. Can be NULL or a Receipt.
   UT_array *signatures;  // The Ed25519 signature signing the BLAKE2b-256 hash of the serialized Milestone Essence. The
                          // signatures must be in the same order as the specified public keys.

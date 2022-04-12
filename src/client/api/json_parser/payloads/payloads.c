@@ -260,6 +260,15 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
     return ret;
   }
 
+  // parsing metadata
+  if (cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_METADATA)) {
+    ms->metadata = byte_buf_new();
+    if ((ret = json_get_bin_buf_str(payload, JSON_KEY_METADATA, ms->metadata)) != 0) {
+      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_METADATA);
+      return ret;
+    }
+  }
+
   // parsing receipt
   // TODO parse receipt
 
