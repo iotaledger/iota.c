@@ -8,7 +8,7 @@
 #include "core/models/payloads/transaction.h"
 #include "core/models/unlock_block.h"
 
-static output_basic_t* create_output_basic() {
+static output_basic_t* create_output_basic(bool create_native_tokens) {
   // create random ED25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
@@ -39,16 +39,16 @@ static output_basic_t* create_output_basic() {
   free(test_meta);
 
   // create native tokens
-  uint256_t* amount = uint256_from_str("123456789987654321123456789987654321");
-  byte_t token_id[NATIVE_TOKEN_ID_BYTES] = {
-      0xDD, 0xA7, 0xC5, 0x79, 0x47, 0x9E, 0xC, 0x93, 0xCE, 0xA7, 0x93, 0x95, 0x41, 0xF8, 0x93, 0x4D, 0xF,  0x7E, 0x3A,
-      0x4,  0xCA, 0x52, 0xF8, 0x8B, 0x9B, 0x0, 0x25, 0xC0, 0xBE, 0x4A, 0xF6, 0x23, 0x59, 0x98, 0x6F, 0x64, 0xEF, 0x00};
   native_tokens_list_t* native_tokens = native_tokens_new();
-  for (uint8_t i = 0; i < NATIVE_TOKENS_MAX_COUNT; i++) {
-    token_id[NATIVE_TOKEN_ID_BYTES - 1] = i;
-    native_tokens_add(&native_tokens, token_id, amount);
+  if (create_native_tokens) {
+    uint256_t* amount = uint256_from_str("123456789987654321123456789987654321");
+    byte_t token_id1[NATIVE_TOKEN_ID_BYTES] = {0xDD, 0xA7, 0xC5, 0x79, 0x47, 0x9E, 0xC,  0x93, 0xCE, 0xA7,
+                                               0x93, 0x95, 0x41, 0xF8, 0x93, 0x4D, 0xF,  0x7E, 0x3A, 0x4,
+                                               0xCA, 0x52, 0xF8, 0x8B, 0x9B, 0x0,  0x25, 0xC0, 0xBE, 0x4A,
+                                               0xF6, 0x23, 0x59, 0x98, 0x6F, 0x64, 0xEF, 0x14};
+    native_tokens_add(&native_tokens, token_id1, amount);
+    uint256_free(amount);
   }
-  uint256_free(amount);
 
   // create Basic Output
   output_basic_t* output = output_basic_new(7300000, native_tokens, unlock_conds, feat_blocks);
@@ -81,14 +81,31 @@ int main() {
     }
   }
 
-  // add basic output to the outputs list
-  output_basic_t* basic_output = create_output_basic();
+  // add basic output with native tokens to the outputs list
+  output_basic_t* basic_output = create_output_basic(true);
   if (!basic_output) {
     printf("[%s:%d]: Can not create Basic output object!\n", __func__, __LINE__);
     tx_essence_free(es);
     return -1;
   }
-  for (uint8_t i = 0; i < UTXO_OUTPUT_MAX_COUNT; i++) {
+  for (uint8_t i = 0; i < UTXO_OUTPUT_MAX_COUNT / 2; i++) {
+    if (tx_essence_add_output(es, OUTPUT_BASIC, basic_output) != 0) {
+      printf("[%s:%d]: Can not add output to a transaction!\n", __func__, __LINE__);
+      output_basic_free(basic_output);
+      tx_essence_free(es);
+      return -1;
+    }
+  }
+  output_basic_free(basic_output);
+
+  // add basic output without native tokens to the outputs list
+  basic_output = create_output_basic(false);
+  if (!basic_output) {
+    printf("[%s:%d]: Can not create Basic output object!\n", __func__, __LINE__);
+    tx_essence_free(es);
+    return -1;
+  }
+  for (uint8_t i = 0; i < UTXO_OUTPUT_MAX_COUNT / 2; i++) {
     if (tx_essence_add_output(es, OUTPUT_BASIC, basic_output) != 0) {
       printf("[%s:%d]: Can not add output to a transaction!\n", __func__, __LINE__);
       output_basic_free(basic_output);
@@ -137,8 +154,14 @@ int main() {
   printf("Transaction statistics:\n");
   printf("Number of inputs: %d\n", utxo_inputs_count(es->inputs));
   printf("Number of outputs: %d\n", utxo_outputs_count(es->outputs));
-  printf("Number of native tokens in each output: %d\n",
-         native_tokens_count(((output_basic_t*)es->outputs->output->output)->native_tokens));
+
+  uint8_t num_of_native_tokens = 0;
+  utxo_outputs_list_t* elm;
+  LL_FOREACH(es->outputs, elm) {
+    num_of_native_tokens += native_tokens_count(((output_basic_t*)elm->output->output)->native_tokens);
+  }
+  printf("Number of native tokens in a transaction: %d\n", num_of_native_tokens);
+
   feat_block_t* feat_blk =
       feat_blk_list_get_type(((output_basic_t*)es->outputs->output->output)->feature_blocks, FEAT_TAG_BLOCK);
   printf("Length of TAG in each output: %d\n", ((feat_tag_blk_t*)(feat_blk->block))->tag_len);
