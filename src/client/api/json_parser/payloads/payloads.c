@@ -504,66 +504,28 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data)
 
   // create a new tagged data
   if (cJSON_IsString(json_tag) && cJSON_IsString(json_data)) {
-    byte_t* tag = NULL;
-    uint32_t tag_len = 0;
-    uint32_t tag_str_len = strlen(json_tag->valuestring);
-    if (tag_str_len >= 2) {
-      if (memcmp(json_tag->valuestring, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN) != 0) {
-        printf("[%s:%d] hex string without %s prefix \n", __func__, __LINE__, JSON_HEX_ENCODED_STRING_PREFIX);
-        return -1;
-      }
-      tag_len = (tag_str_len - JSON_HEX_ENCODED_STR_PREFIX_LEN) / 2;
-      tag = malloc(tag_len);
-      if (!tag) {
-        printf("[%s:%d] OOM\n", __func__, __LINE__);
-        return -1;
-      }
-      if (hex_2_bin(json_tag->valuestring, tag_str_len, JSON_HEX_ENCODED_STRING_PREFIX, tag, tag_len) != 0) {
-        printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
-        free(tag);
-        return -1;
-      }
-    }
-
-    byte_t* metadata = NULL;
-    uint32_t metadata_len = 0;
-    uint32_t metadata_str_len = strlen(json_data->valuestring);
-    if (metadata_str_len >= 2) {
-      if (memcmp(json_data->valuestring, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN) != 0) {
-        printf("[%s:%d] hex string without %s prefix \n", __func__, __LINE__, JSON_HEX_ENCODED_STRING_PREFIX);
-        return -1;
-      }
-      metadata_len = (metadata_str_len - JSON_HEX_ENCODED_STR_PREFIX_LEN) / 2;
-      metadata = malloc(metadata_len);
-      if (!metadata) {
-        printf("[%s:%d] OOM\n", __func__, __LINE__);
-        return -1;
-      }
-      if (hex_2_bin(json_data->valuestring, metadata_str_len, JSON_HEX_ENCODED_STRING_PREFIX, metadata, metadata_len) !=
-          0) {
-        printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
-        free(metadata);
-        return -1;
-      }
-    }
-
-    *tagged_data = tagged_data_new(tag, tag_len, metadata, metadata_len);
-    if (!*tagged_data) {
-      printf("[%s:%d]: can not create a new tagged data payload\n", __func__, __LINE__);
-      if (tag) {
-        free(tag);
-      }
-      if (metadata) {
-        free(metadata);
-      }
+    byte_buf_t* tag = byte_buf_new();
+    if (json_get_bin_buf_str(payload, JSON_KEY_TAG, tag) != 0) {
+      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TAG);
       return -1;
     }
-    if (tag) {
-      free(tag);
+
+    byte_buf_t* metadata = byte_buf_new();
+    if (json_get_bin_buf_str(payload, JSON_KEY_DATA, metadata) != 0) {
+      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_DATA);
+      byte_buf_free(tag);
+      return -1;
     }
-    if (metadata) {
-      free(metadata);
+
+    *tagged_data = tagged_data_new(tag->data, tag->len, metadata->data, metadata->len);
+    if (!*tagged_data) {
+      printf("[%s:%d]: can not create a new tagged data payload\n", __func__, __LINE__);
+      byte_buf_free(tag);
+      byte_buf_free(metadata);
+      return -1;
     }
+    byte_buf_free(tag);
+    byte_buf_free(metadata);
   } else {
     printf("[%s:%d] tag or data is not a string\n", __func__, __LINE__);
     return -1;
