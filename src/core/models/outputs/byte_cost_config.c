@@ -43,13 +43,15 @@ void byte_cost_config_free(byte_cost_config_t *config) {
 
 void byte_cost_config_set(byte_cost_config_t *config, uint16_t byte_cost, uint8_t byte_factor_data,
                           uint8_t byte_factor_key) {
-  config->v_byte_cost = byte_cost;
-  config->v_byte_factor_data = byte_factor_data;
-  config->v_byte_factor_key = byte_factor_key;
+  if (config) {
+    config->v_byte_cost = byte_cost;
+    config->v_byte_factor_data = byte_factor_data;
+    config->v_byte_factor_key = byte_factor_key;
 
-  // size of: output ID + message ID + confirmation milestone index + confirmation unix timestamp
-  config->v_byte_offset = (IOTA_OUTPUT_ID_BYTES * byte_factor_key) +    // output ID
-                          (IOTA_MESSAGE_ID_BYTES * byte_factor_data) +  // message ID
-                          (sizeof(uint32_t) * byte_factor_data) +       // confirmation milestone index
-                          (sizeof(uint32_t) * byte_factor_data);        // confirmation unix timestamp
+    // size of: output ID + message ID + confirmation milestone index + confirmation unix timestamp
+    config->v_byte_offset = (IOTA_OUTPUT_ID_BYTES * byte_factor_key) +    // output ID
+                            (IOTA_MESSAGE_ID_BYTES * byte_factor_data) +  // message ID
+                            (sizeof(uint32_t) * byte_factor_data) +       // confirmation milestone index
+                            (sizeof(uint32_t) * byte_factor_data);        // confirmation unix timestamp
+  }
 }

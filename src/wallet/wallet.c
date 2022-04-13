@@ -116,6 +116,7 @@ static utxo_outputs_list_t* basic_outputs_from_address(iota_wallet_t* w, transac
     if (ret != 0) {
       printf("[%s:%d] add query params failed\n", __func__, __LINE__);
       outputs_query_list_free(query_param);
+      res_outputs_free(res_id);
       return NULL;
     }
 
@@ -376,6 +377,11 @@ void wallet_destroy(iota_wallet_t* w) {
 }
 
 int wallet_update_node_config(iota_wallet_t* w) {
+  if (!w) {
+    printf("[%s:%d] access NULL pointer\n", __func__, __LINE__);
+    return -1;
+  }
+
   res_node_info_t* info = res_node_info_new();
   if (!info) {
     printf("[%s:%d] allocate info response failed\n", __func__, __LINE__);
@@ -418,6 +424,12 @@ int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, add
   int ret = 0;
   signing_data_list_t* sign_data = signing_new();
   utxo_outputs_list_t* outputs = NULL;
+
+  if (!w || !recv_addr) {
+    printf("[%s:%d] access NULL pointer\n", __func__, __LINE__);
+    return -1;
+  }
+
   // create message
   core_message_t* basic_msg = core_message_new(w->protocol_version);
   if (!basic_msg) {
