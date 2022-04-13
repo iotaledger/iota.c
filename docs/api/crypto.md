@@ -1,11 +1,11 @@
 # Crypto API Reference
 
-The Crypto API provides an abstraction layer with the cryptography implementation.
+The Cyppto APIs provide an abstraction layer of cryptography functions.
 
 ## ED25519 Keypair
 
 ```{eval-rst}
-.. doxygenstruct:: iota_keypair_t
+.. doxygenstruct:: ed25519_keypair_t
   :members:
 ```
 
@@ -25,6 +25,10 @@ The Crypto API provides an abstraction layer with the cryptography implementatio
 
 ```{eval-rst}
 .. doxygenfunction:: iota_crypto_sign
+```
+
+```{eval-rst}
+.. doxygenfunction:: iota_crypto_sign_open
 ```
 
 ## HMAC-SHA-256
@@ -55,6 +59,26 @@ The Crypto API provides an abstraction layer with the cryptography implementatio
 
 ```{eval-rst}
 .. doxygenfunction:: iota_blake2b_sum
+```
+
+```{eval-rst}
+.. doxygenfunction:: iota_blake2b_new_state
+```
+
+```{eval-rst}
+.. doxygenfunction:: iota_blake2b_free_state
+```
+
+```{eval-rst}
+.. doxygenfunction:: iota_blake2b_init
+```
+
+```{eval-rst}
+.. doxygenfunction:: iota_blake2b_update
+```
+
+```{eval-rst}
+.. doxygenfunction:: iota_blake2b_final
 ```
 
 ## PBKDF2 HMAC
