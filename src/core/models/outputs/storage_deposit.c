@@ -1,6 +1,8 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <inttypes.h>
+
 #include "core/models/outputs/storage_deposit.h"
 
 static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_output_type_t output_type, void *output) {
@@ -92,8 +94,8 @@ bool storage_deposit_check(byte_cost_config_t *config, utxo_output_type_t output
   }
 
   if (amount < min_storage_deposit) {
-    printf("[%s:%d] minimum storage deposit amount must be at least %fMi\n", __func__, __LINE__,
-           min_storage_deposit / 1000000.0);
+    printf("[%s:%d] minimum storage deposit amount must be at least %" PRIu64 "i\n", __func__, __LINE__,
+           min_storage_deposit);
     return false;
   }
 
@@ -106,8 +108,8 @@ bool storage_deposit_check(byte_cost_config_t *config, utxo_output_type_t output
     uint64_t min_storage_deposit_return =
         basic_address_storage_deposit(config, ((unlock_cond_storage_t *)(storage_return_cond->block))->addr);
     if (((unlock_cond_storage_t *)(storage_return_cond->block))->amount < min_storage_deposit_return) {
-      printf("[%s:%d] minimum storage deposit return amount must be at least %fMi\n", __func__, __LINE__,
-             min_storage_deposit_return / 1000000.0);
+      printf("[%s:%d] minimum storage deposit return amount must be at least %" PRIu64 "i\n", __func__, __LINE__,
+             min_storage_deposit_return);
       return false;
     }
 
