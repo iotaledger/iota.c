@@ -1,6 +1,6 @@
 # Crypto API Reference
 
-The Cyppto APIs provide an abstraction layer of cryptography functions.
+The Crypto APIs provide an abstraction layer of cryptography functions.
 
 ## ED25519 Keypair
 
