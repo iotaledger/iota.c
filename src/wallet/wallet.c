@@ -8,18 +8,9 @@
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
-#include "client/api/restful/send_message.h"
-#include "core/address.h"
-#include "core/models/inputs/utxo_input.h"
 #include "core/models/message.h"
-#include "core/models/outputs/byte_cost_config.h"
-#include "core/models/outputs/outputs.h"
-#include "core/models/outputs/unlock_conditions.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"
-#include "core/utils/macros.h"
-#include "core/utils/slip10.h"
-#include "crypto/iota_crypto.h"
 #include "wallet/bip39.h"
 #include "wallet/wallet.h"
 
@@ -105,123 +96,6 @@ static void get_address_path(uint32_t account, bool change, uint32_t index, char
   }
 }
 
-#if 0  // TODO, remove or refactor?
-static transaction_payload_t* wallet_build_transaction(iota_wallet_t* w, bool change, uint32_t sender_index,
-                                                       byte_t receiver[], uint64_t balance, char const index[],
-                                                       byte_t data[], size_t data_len) {
-  char tmp_addr[IOTA_ADDRESS_HEX_BYTES + 1] = {};
-  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
-  byte_t send_addr[ED25519_ADDRESS_BYTES] = {};
-  byte_t tmp_tx_id[TRANSACTION_ID_BYTES] = {};
-  ed25519_keypair_t addr_keypair = {};
-  res_outputs_id_t* outputs_res = NULL;
-  transaction_payload_t* tx_payload = NULL;
-  int ret = -1;
-
-  // TODO loop over start and end addresses
-  // get address keypair and address
-  get_address_path(w->account_index, change, sender_index, addr_path, sizeof(addr_path));
-
-  if (address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &addr_keypair) != 0) {
-    printf("[%s:%d] Cannot get address keypair\n", __func__, __LINE__);
-    goto done;
-  }
-
-  if (address_from_ed25519_pub(addr_keypair.pub, send_addr) != 0) {
-    printf("[%s:%d] Cannot get sending address \n", __func__, __LINE__);
-    goto done;
-  }
-
-  // get outputs
-  bin_2_hex(send_addr, sizeof(send_addr), tmp_addr, sizeof(tmp_addr));
-  if (!(outputs_res = res_outputs_new())) {
-    printf("[%s:%d] Err: invalid length of path\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  // FIXME : get_outputs_id method now accepts query params list
-  if (get_outputs_id(&w->endpoint, false, tmp_addr, outputs_res) != 0) {
-    printf("[%s:%d] Err: get outputs from address failed\n", __func__, __LINE__);
-    goto done;
-  }
-
-  if (outputs_res->is_error) {
-    printf("[%s:%d] Error get outputs from addr: %s\n", __func__, __LINE__, outputs_res->u.error->msg);
-    goto done;
-  }
-
-  if ((tx_payload = tx_payload_new()) == NULL) {
-    printf("[%s:%d] allocate tx payload failed\n", __func__, __LINE__);
-    goto done;
-  }
-
-  size_t out_counts = res_outputs_output_id_count(outputs_res);
-  // get outputs and tx id and tx output index from genesis
-  uint64_t total_balance = 0;
-  for (size_t i = 0; i < out_counts; i++) {
-    char* output_id = res_outputs_output_id(outputs_res, i);
-    res_output_t out_id_res = {};
-    ret = get_output(&w->endpoint, output_id, &out_id_res);
-    if (out_id_res.is_error) {
-      printf("[%s:%d] Error response: %s\n", __func__, __LINE__, out_id_res.u.error->msg);
-      res_err_free(out_id_res.u.error);
-    }
-
-    // add input to transaction essence
-    if (!out_id_res.u.output.is_spent) {
-      if (out_id_res.u.output.address_type == ADDRESS_VER_ED25519) {
-        hex_2_bin(out_id_res.u.output.tx_id, TRANSACTION_ID_BYTES * 2, tmp_tx_id, sizeof(tmp_tx_id));
-        ret = tx_payload_add_input_with_key(tx_payload, tmp_tx_id, out_id_res.u.output.output_idx, addr_keypair.pub,
-                                            addr_keypair.priv);
-        total_balance += out_id_res.u.output.amount;
-        if (total_balance >= balance) {
-          // balance is sufficient from current inputs
-          break;
-        }
-      } else {
-        printf("Unknow address type\n");
-      }
-    }
-  }
-
-  if (utxo_inputs_count(&tx_payload->essence->inputs) == 0) {
-    printf("[%s:%d] Err: input not found\n", __func__, __LINE__);
-    ret = -1;
-    goto done;
-  }
-
-  if (total_balance < balance) {
-    printf("[%s:%d] Err: balance is not sufficient, total:%" PRIu64 " send balance:%" PRIu64 "\n", __func__, __LINE__,
-           total_balance, balance);
-    ret = -1;
-    goto done;
-  }
-
-  uint64_t remainder = total_balance - balance;
-  if (remainder > 0) {
-    ret = tx_payload_add_output(tx_payload, OUTPUT_SINGLE_OUTPUT, receiver, balance);
-    ret = tx_payload_add_output(tx_payload, OUTPUT_SINGLE_OUTPUT, send_addr, total_balance - balance);
-  } else {
-    ret = tx_payload_add_output(tx_payload, OUTPUT_SINGLE_OUTPUT, receiver, balance);
-  }
-
-  // with indexation?
-  if (index && data && data_len != 0) {
-    ret = tx_essence_add_payload(tx_payload->essence, 2, (void*)indexation_create(index, data, data_len));
-  }
-
-done:
-  res_outputs_free(outputs_res);
-
-  if (ret == -1) {
-    tx_payload_free(tx_payload);
-    tx_payload = NULL;
-    printf("[%s:%d] Err: build tx failed\n", __func__, __LINE__);
-  }
-  return tx_payload;
-}
-#endif
-
 // create basic unspent outputs
 static utxo_outputs_list_t* basic_outputs_from_address(iota_wallet_t* w, transaction_essence_t* essence,
                                                        ed25519_keypair_t* sender_key, address_t* send_addr,
@@ -272,31 +146,56 @@ static utxo_outputs_list_t* basic_outputs_from_address(iota_wallet_t* w, transac
   utxo_outputs_list_t* unspent_outputs = utxo_outputs_new();
   for (size_t i = 0; i < res_outputs_output_id_count(res_id); i++) {
     res_output_t* output_res = get_output_response_new();
-    get_output(&w->endpoint, res_outputs_output_id(res_id, i), output_res);
-    if (!output_res->is_error) {
-      if (output_res->u.data->output->output_type == OUTPUT_BASIC) {
-        output_basic_t* o = (output_basic_t*)output_res->u.data->output->output;
-        *output_amount += o->amount;
-        // add the output as a tx input into the tx payload
-        tx_essence_add_input(essence, 0, output_res->u.data->tx_id, output_res->u.data->output_index);
-        // add the output in unspent outputs list to be able to calculate inputs commitment hash
-        utxo_outputs_add(&unspent_outputs, output_res->u.data->output->output_type, o);
+    if (output_res) {
+      ret = get_output(&w->endpoint, res_outputs_output_id(res_id, i), output_res);
+      if (ret == 0) {
+        if (!output_res->is_error) {
+          // create inputs and unlock conditions based on the basic output
+          if (output_res->u.data->output->output_type == OUTPUT_BASIC) {
+            output_basic_t* o = (output_basic_t*)output_res->u.data->output->output;
+            *output_amount += o->amount;
+            // add the output as a tx input into the tx payload
+            ret = tx_essence_add_input(essence, 0, output_res->u.data->tx_id, output_res->u.data->output_index);
+            if (ret != 0) {
+              get_output_response_free(output_res);
+              break;
+            }
+            // add the output in unspent outputs list to be able to calculate inputs commitment hash
+            ret = utxo_outputs_add(&unspent_outputs, output_res->u.data->output->output_type, o);
+            if (ret != 0) {
+              get_output_response_free(output_res);
+              break;
+            }
 
-        // add signing data (Basic output has address unlock condition)
-        unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_ADDRESS);
-        signing_data_add(unlock_cond->block, NULL, 0, sender_key, sign_data);
+            // add signing data (Basic output must have the address unlock condition)
+            // get address unlock condition from the basic output
+            unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_ADDRESS);
+            if (!unlock_cond) {
+              get_output_response_free(output_res);
+              break;
+            }
+            // add address unlock condition into the signing data list
+            ret = signing_data_add(unlock_cond->block, NULL, 0, sender_key, sign_data);
+            if (ret != 0) {
+              get_output_response_free(output_res);
+              break;
+            }
 
-        // check balance
-        if (*output_amount >= send_amount) {
-          // have got sufficient amount
-          get_output_response_free(output_res);
-          break;
+            // check balance
+            if (*output_amount >= send_amount) {
+              // have got sufficient amount
+              get_output_response_free(output_res);
+              break;
+            }
+          }
+        } else {
+          printf("[%s:%d] %s\n", __func__, __LINE__, output_res->u.error->msg);
         }
       }
+      get_output_response_free(output_res);
     } else {
-      printf("%s\n", output_res->u.error->msg);
+      break;
     }
-    get_output_response_free(output_res);
   }
 
   res_outputs_free(res_id);
@@ -342,7 +241,7 @@ iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t account
   char mnemonic_tmp[512] = {};  // buffer for random mnemonic
 
   if (!pwd) {
-    printf("passphrase is needed\n");
+    printf("[%s:%d] passphrase is needed\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -537,7 +436,11 @@ int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, add
   }
 
   get_address_path(w->account_index, change, index, addr_path, sizeof(addr_path));
-  address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &sender_key);
+  ret = address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &sender_key);
+  if (ret != 0) {
+    printf("[%s:%d] get address keypair failed\n", __func__, __LINE__);
+    goto end;
+  }
 
   // create a tx
   transaction_payload_t* tx = tx_payload_new(w->network_id);
@@ -585,6 +488,7 @@ int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, add
   // calculate inputs commitment
   ret = tx_essence_inputs_commitment_calculate(tx->essence, outputs);
   if (ret != 0) {
+    printf("[%s:%d] calculate inputs commitment error\n", __func__, __LINE__);
     goto end;
   }
 
@@ -592,6 +496,7 @@ int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, add
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   ret = core_message_essence_hash_calc(basic_msg, essence_hash, sizeof(essence_hash));
   if (ret != 0) {
+    printf("[%s:%d] calculate essence hash error\n", __func__, __LINE__);
     goto end;
   }
 
@@ -599,6 +504,7 @@ int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, add
   ret =
       signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data, &tx->unlock_blocks);
   if (ret != 0) {
+    printf("[%s:%d] sign transaction error\n", __func__, __LINE__);
     goto end;
   }
 
