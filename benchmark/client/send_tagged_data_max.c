@@ -3,13 +3,10 @@
 
 #include <stdio.h>
 
+#include "benchmark_config.h"
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/send_tagged_data.h"
 #include "core/models/outputs/feat_blocks.h"
-
-#define NODE_HOST "api.alphanet.iotaledger.net"
-#define NODE_PORT 443
-#define IS_HTTPS true
 
 int main() {
   iota_client_conf_t ctx = {.host = NODE_HOST, .port = NODE_PORT, .use_tls = IS_HTTPS};
