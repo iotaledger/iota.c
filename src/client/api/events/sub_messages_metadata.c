@@ -114,9 +114,9 @@ int event_subscribe_msg_metadata(event_client_handle_t client, int *mid, char co
     return -1;
   }
   // Buffer to store topic string : messages/{messageid}/metadata
-  char topic_buff[MSG_ID_LEN + 19] = {0};
+  char topic_buff[MSG_ID_LEN + 21] = {0};
   // Prepare topic string
-  sprintf(topic_buff, "messages/%s/metadata", msg_id);
+  sprintf(topic_buff, "messages/0x%s/metadata", msg_id);
   // Call to MQTT network layer
   return event_subscribe(client, mid, topic_buff, qos);
 }

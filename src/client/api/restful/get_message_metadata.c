@@ -167,7 +167,7 @@ int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res
     return -1;
   }
 
-  char const *const cmd_prefix = "/api/v2/messages/";
+  char const *const cmd_prefix = "/api/v2/messages/0x";
   char const *const cmd_suffix = "/metadata";
 
   iota_str_t *cmd = iota_str_reserve(strlen(cmd_prefix) + msg_str_len + strlen(cmd_suffix) + 1);

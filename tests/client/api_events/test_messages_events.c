@@ -10,7 +10,7 @@
 #include "test_config.h"
 
 // Update message id for testing
-char const *const test_message_id = "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7";
+char const *const test_message_id = "8e407c1e65f91b840618ad8cebb2dd52cd7200ea9551c14eb71237434078bc42";
 
 bool test_metadata = false;
 bool test_completed = false;
