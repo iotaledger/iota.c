@@ -48,7 +48,7 @@ static size_t cond_storage_serialize(unlock_cond_storage_t* storage, byte_t buf[
 static void cond_storage_free(unlock_cond_storage_t* storage) {
   if (storage) {
     if (storage->addr) {
-      free_address(storage->addr);
+      address_free(storage->addr);
     }
     free(storage);
   }
@@ -175,7 +175,7 @@ static size_t cond_expir_serialize(unlock_cond_expir_t* e, byte_t buf[], size_t 
 static void cond_expir_free(unlock_cond_expir_t* expir) {
   if (expir) {
     if (expir->addr) {
-      free_address(expir->addr);
+      address_free(expir->addr);
     }
     free(expir);
   }
@@ -491,7 +491,7 @@ void cond_blk_free(unlock_cond_blk_t* blk) {
       case UNLOCK_COND_STATE:
       case UNLOCK_COND_GOVERNOR:
       case UNLOCK_COND_IMMUT_ALIAS:
-        free_address((address_t*)blk->block);
+        address_free((address_t*)blk->block);
         break;
       case UNLOCK_COND_STORAGE:
         cond_storage_free((unlock_cond_storage_t*)blk->block);

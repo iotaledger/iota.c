@@ -118,7 +118,7 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
     addr->type = bytes[0];
     // check if binary length is satisfied
     if (len < address_serialized_len(addr)) {
-      free_address(addr);
+      address_free(addr);
       return NULL;
     }
 
@@ -135,7 +135,7 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
         break;
       default:
         // unknown address type
-        free_address(addr);
+        address_free(addr);
         printf("[%s:%d] unknown address type\n", __func__, __LINE__);
         return NULL;
     }
@@ -272,7 +272,7 @@ void address_print(address_t const *const addr) {
   }
 }
 
-void free_address(address_t *addr) {
+void address_free(address_t *addr) {
   if (addr) {
     free(addr);
   }

@@ -6,10 +6,16 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 * Input/Output operations
 * Common utilities(bech32, slip10)
 
-## [Address](https://github.com/iotaledger/iota.c/blob/dev/src/core/address.h)
+## Address
 
 ```{eval-rst}
-.. doxygenfunction:: address_from_ed25519_pub
+.. doxygenenum:: address_type_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenstruct:: address_t
+  :members:
 ```
 
 ```{eval-rst}
@@ -17,7 +23,31 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: address_from_path
+.. doxygenfunction:: ed25519_address_from_path
+```
+
+```{eval-rst}
+.. doxygenfunction:: alias_address_from_output
+```
+
+```{eval-rst}
+.. doxygenfunction:: nft_address_from_output
+```
+
+```{eval-rst}
+.. doxygenfunction:: address_len
+```
+
+```{eval-rst}
+.. doxygenfunction:: address_serialized_len
+```
+
+```{eval-rst}
+.. doxygenfunction:: address_serialize
+```
+
+```{eval-rst}
+.. doxygenfunction:: address_deserialize
 ```
 
 ```{eval-rst}
@@ -29,7 +59,19 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: address_bech32_to_hex
+.. doxygenfunction:: address_equal
+```
+
+```{eval-rst}
+.. doxygenfunction:: address_clone
+```
+
+```{eval-rst}
+.. doxygenfunction:: address_free
+```
+
+```{eval-rst}
+.. doxygenfunction:: address_print
 ```
 
 ## [Message](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/message.h)
