@@ -37,7 +37,7 @@ extern "C" {
 /**
  * @brief Initialize a signing data list
  *
- * @return signing_data_list_t* or NULL pointer
+ * @return a NULL pointer
  */
 signing_data_list_t* signing_new();
 
@@ -49,7 +49,7 @@ signing_data_list_t* signing_new();
 void signing_free(signing_data_list_t* signing_data_list);
 
 /**
- * @brief Find a signing data by a given index
+ * @brief Add a signing data into the list
  *
  * @param[in] unlock_address Address Unlock Condition Address - ED25519/NFT/Alias
  * @param[in] hash Optional, a NFT/Alias ID in the utxo_output

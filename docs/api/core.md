@@ -74,7 +74,14 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 .. doxygenfunction:: address_print
 ```
 
-## [Message](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/message.h)
+## Models
+
+### Message
+
+```{eval-rst}
+.. doxygenenum:: core_message_payload_type_t
+  :members:
+```
 
 ```{eval-rst}
 .. doxygenstruct:: core_message_t
@@ -90,7 +97,7 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: core_message_sign_transaction
+.. doxygenfunction:: core_message_essence_hash_calc
 ```
 
 ```{eval-rst}
@@ -100,6 +107,212 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```{eval-rst}
 .. doxygenfunction:: core_message_parent_len
 ```
+
+```{eval-rst}
+.. doxygenfunction:: core_message_get_parent_id
+```
+
+```{eval-rst}
+.. doxygenfunction:: core_message_get_payload_type
+```
+
+```{eval-rst}
+.. doxygenfunction:: core_message_serialize_len
+```
+
+```{eval-rst}
+.. doxygenfunction:: core_message_serialize
+```
+
+```{eval-rst}
+.. doxygenfunction:: core_message_print
+```
+
+### Signing
+
+```{eval-rst}
+.. doxygenstruct:: signing_data_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenstruct:: signing_data_list
+  :members:
+```
+
+```{eval-rst}
+.. doxygenfunction:: signing_new
+```
+
+```{eval-rst}
+.. doxygenfunction:: signing_free
+```
+
+```{eval-rst}
+.. doxygenfunction:: signing_data_add
+```
+
+```{eval-rst}
+.. doxygenfunction:: signing_data_count
+```
+
+```{eval-rst}
+.. doxygenfunction:: signing_get_data_by_index
+```
+
+```{eval-rst}
+.. doxygenfunction:: signing_transaction_sign
+```
+
+### Unlock Blocks
+
+```{eval-rst}
+.. doxygenenum:: unlock_type_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenstruct:: unlock_block_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenstruct:: unlock_list
+  :members:
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_add
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_add_signature
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_add_reference
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_add_alias
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_add_nft
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_count
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_get
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_find_pub
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_serialize_length
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_serialize
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_deserialize
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_free
+```
+
+```{eval-rst}
+.. doxygenfunction:: unlock_blocks_print
+```
+
+### Inputs
+
+```{eval-rst}
+.. doxygenstruct:: ed25519_keypair_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenstruct:: utxo_input_ht
+  :members:
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_new
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_free
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_find_by_id
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_count
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_add
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_add_with_key
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_serialization
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_print
+```
+
+### Outputs
+
+```{eval-rst}
+.. doxygenstruct:: outputs_ht
+  :members:
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_new
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_free
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_add
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_find_by_addr
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_count
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_serialization
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_print
+```
+
+### Payloads
 
 ## [Indexation Payload](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/payloads/indexation.h)
 
@@ -219,123 +432,6 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 
 ```{eval-rst}
 .. doxygenfunction:: tx_payload_print
-```
-
-## [Outputs](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/outputs/outputs.h)
-
-```{eval-rst}
-.. doxygenstruct:: outputs_ht
-  :members:
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_outputs_new
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_outputs_free
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_outputs_add
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_outputs_find_by_addr
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_outputs_count
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_outputs_serialization
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_outputs_print
-```
-
-## [Inputs](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/inputs/utxo_input.h)
-
-```{eval-rst}
-.. doxygenstruct:: ed25519_keypair_t
-  :members:
-```
-
-```{eval-rst}
-.. doxygenstruct:: utxo_input_ht
-  :members:
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_inputs_new
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_inputs_free
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_inputs_find_by_id
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_inputs_count
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_inputs_add
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_inputs_add_with_key
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_inputs_serialization
-```
-
-```{eval-rst}
-.. doxygenfunction:: utxo_inputs_print
-```
-
-## [Unlock Block](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/unlock_block.h)
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_new
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_add_signature
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_add_reference
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_count
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_find_pub
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_serialize_length
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_serialize
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_free
-```
-
-```{eval-rst}
-.. doxygenfunction:: unlock_blocks_print
 ```
 
 ## [Utils](https://github.com/iotaledger/iota.c/tree/dev/src/core/utils)
