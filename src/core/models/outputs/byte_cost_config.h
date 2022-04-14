@@ -46,6 +46,17 @@ byte_cost_config_t *byte_cost_config_default_new();
  */
 void byte_cost_config_free(byte_cost_config_t *config);
 
+/**
+ * @brief Set byte cost configuration
+ *
+ * @param[in, out] config A pointer to byte cost config object
+ * @param[in] byte_cost Rent of a single virtual byte denoted in IOTA tokens
+ * @param[in] byte_factor_data Multiplier for data fields
+ * @param[in] byte_factor_key Multiplier for key fields
+ */
+void byte_cost_config_set(byte_cost_config_t *config, uint16_t byte_cost, uint8_t byte_factor_data,
+                          uint8_t byte_factor_key);
+
 #ifdef __cplusplus
 }
 #endif
