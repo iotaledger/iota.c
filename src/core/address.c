@@ -143,34 +143,6 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
   return addr;
 }
 
-// get the address object from the given hex string
-int address_from_hex(char const hex[], address_t *addr) {
-  // validate hex length
-  if (hex == NULL || strlen(hex) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
-    return -1;
-  }
-
-  byte_t type = 0;
-  if (hex_2_bin(hex, 2, NULL, &type, 1) != 0) {
-    return -1;
-  }
-  addr->type = type;
-  return hex_2_bin(hex + 2, BIN_TO_HEX_BYTES(address_len(addr)), NULL, addr->address, address_len(addr));
-}
-
-// get hex string from the given address object
-int address_to_hex(address_t *addr, char hex_buf[], size_t buf_len) {
-  // validate buffer
-  if (hex_buf == NULL || buf_len <= BIN_TO_HEX_BYTES(address_serialized_len(addr))) {
-    return -1;
-  }
-  if (bin_2_hex(addr->address, 1, NULL, hex_buf, 2) != 0) {
-    return -1;
-  }
-
-  return bin_2_hex(addr->address + 1, address_len(addr), NULL, hex_buf + 2, buf_len - 2);
-}
-
 // get the address object from the given bech32 string
 int address_from_bech32(char const hrp[], char const bech32[], address_t *addr) {
   if (addr == NULL || hrp == NULL || bech32 == NULL) {
