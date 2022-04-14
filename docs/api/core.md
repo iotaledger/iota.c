@@ -236,12 +236,12 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ### Inputs
 
 ```{eval-rst}
-.. doxygenstruct:: ed25519_keypair_t
+.. doxygenstruct:: utxo_input_t
   :members:
 ```
 
 ```{eval-rst}
-.. doxygenstruct:: utxo_input_ht
+.. doxygenstruct:: utxo_inputs_list
   :members:
 ```
 
@@ -254,7 +254,7 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: utxo_inputs_find_by_id
+.. doxygenfunction:: utxo_inputs_add
 ```
 
 ```{eval-rst}
@@ -262,25 +262,48 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: utxo_inputs_add
+.. doxygenfunction:: utxo_inputs_find_by_id
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: utxo_inputs_add_with_key
+.. doxygenfunction:: utxo_inputs_find_by_index
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: utxo_inputs_serialization
+.. doxygenfunction:: utxo_inputs_serialize_len
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_serialize
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_deserialize
 ```
 
 ```{eval-rst}
 .. doxygenfunction:: utxo_inputs_print
 ```
 
+```{eval-rst}
+.. doxygenfunction:: utxo_inputs_syntactic
+```
+
 ### Outputs
 
 ```{eval-rst}
-.. doxygenstruct:: outputs_ht
+.. doxygenenum:: utxo_output_type_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenstruct:: utxo_output_t
+  :members:
+```
+
+
+```{eval-rst}
+.. doxygenstruct:: utxo_outputs_list
   :members:
 ```
 
@@ -297,61 +320,119 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: utxo_outputs_find_by_addr
-```
-
-```{eval-rst}
 .. doxygenfunction:: utxo_outputs_count
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: utxo_outputs_serialization
+.. doxygenfunction:: utxo_outputs_get
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_serialize_len
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_serialize
+```
+
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_deserialize
 ```
 
 ```{eval-rst}
 .. doxygenfunction:: utxo_outputs_print
 ```
 
+```{eval-rst}
+.. doxygenfunction:: utxo_outputs_syntactic
+```
+
 ### Payloads
 
-## [Indexation Payload](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/payloads/indexation.h)
+#### Milestone
 
 ```{eval-rst}
-.. doxygenstruct:: indexation_t
+.. doxygenstruct:: milestone_payload_t
   :members:
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: indexation_new
+.. doxygenfunction:: milestone_payload_new
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: indexation_free
+.. doxygenfunction:: milestone_payload_free
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: indexation_create
+.. doxygenfunction:: milestone_payload_get_parents_count
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: indexation_serialize_length
+.. doxygenfunction:: milestone_payload_get_parent
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: indexation_payload_serialize
+.. doxygenfunction:: milestone_payload_get_pub_keys_count
 ```
 
-## [Transaction Payload](https://github.com/iotaledger/iota.c/blob/dev/src/core/models/payloads/transaction.h)
+```{eval-rst}
+.. doxygenfunction:: milestone_payload_get_pub_key
+```
 
-### Transaction Essence
+```{eval-rst}
+.. doxygenfunction:: milestone_payload_get_signatures_count
+```
+
+```{eval-rst}
+.. doxygenfunction:: milestone_payload_get_signature
+```
+
+```{eval-rst}
+.. doxygenfunction:: milestone_payload_print
+```
+
+#### Tagged Data Payload
+
+```{eval-rst}
+.. doxygenstruct:: tagged_data_payload_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenfunction:: tagged_data_new
+```
+
+```{eval-rst}
+.. doxygenfunction:: tagged_data_free
+```
+
+```{eval-rst}
+.. doxygenfunction:: tagged_data_serialize_len
+```
+
+```{eval-rst}
+.. doxygenfunction:: tagged_data_serialize
+```
+
+```{eval-rst}
+.. doxygenfunction:: tagged_data_deserialize
+```
+
+```{eval-rst}
+.. doxygenfunction:: tagged_data_clone
+```
+
+```{eval-rst}
+.. doxygenfunction:: tagged_data_print
+```
+
+#### Transaction Payload
+
+##### Essence
 
 ```{eval-rst}
 .. doxygenstruct:: transaction_essence_t
-  :members:
-```
-
-```{eval-rst}
-.. doxygenstruct:: unlock_blocks
   :members:
 ```
 
@@ -368,15 +449,15 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: tx_essence_add_input_with_key
-```
-
-```{eval-rst}
 .. doxygenfunction:: tx_essence_add_output
 ```
 
 ```{eval-rst}
 .. doxygenfunction:: tx_essence_add_payload
+```
+
+```{eval-rst}
+.. doxygenfunction:: tx_essence_inputs_commitment_calculate
 ```
 
 ```{eval-rst}
@@ -388,10 +469,18 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
+.. doxygenfunction:: tx_essence_deserialize
+```
+
+```{eval-rst}
+.. doxygenfunction:: tx_essence_syntactic
+```
+
+```{eval-rst}
 .. doxygenfunction:: tx_essence_print
 ```
 
-### Transaction Payload
+##### Transaction
 
 ```{eval-rst}
 .. doxygenstruct:: transaction_payload_t
@@ -403,23 +492,7 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: tx_payload_add_input
-```
-
-```{eval-rst}
-.. doxygenfunction:: tx_payload_add_input_with_key
-```
-
-```{eval-rst}
-.. doxygenfunction:: tx_payload_add_output
-```
-
-```{eval-rst}
-.. doxygenfunction:: tx_payload_add_sig_block
-```
-
-```{eval-rst}
-.. doxygenfunction:: tx_payload_add_ref_block
+.. doxygenfunction:: tx_payload_free
 ```
 
 ```{eval-rst}
@@ -431,12 +504,20 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
+.. doxygenfunction:: tx_payload_deserialize
+```
+
+```{eval-rst}
 .. doxygenfunction:: tx_payload_print
 ```
 
-## [Utils](https://github.com/iotaledger/iota.c/tree/dev/src/core/utils)
+```{eval-rst}
+.. doxygenfunction:: tx_payload_syntactic
+```
 
-### [Bech32](https://github.com/iotaledger/iota.c/blob/dev/src/core/utils/bech32.h)
+## Utils
+
+### Bech32
 
 ```{eval-rst}
 .. doxygenfunction:: bech32_encode
@@ -450,7 +531,7 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 .. doxygenfunction:: bech32_convert_bits
 ```
 
-### [Slip10](https://github.com/iotaledger/iota.c/blob/dev/src/core/utils/slip10.h)
+### Slip10
 
 ```{eval-rst}
 .. doxygenstruct:: slip10_key_t

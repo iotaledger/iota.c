@@ -30,7 +30,7 @@ extern "C" {
  * @brief Create a tagged data object with tag and binary data
  *
  * @param[in] tag The binary tag in tagged data payload
- * @param[in] tag_len The len of the binary tag
+ * @param[in] tag_len The length of the binary tag
  * @param[in] data The binary data in tagged data payload
  * @param[in] data_len The length of the binary data
  * @return tagged_data_payload_t* A pointer to tagged data object

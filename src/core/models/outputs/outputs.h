@@ -44,7 +44,7 @@ typedef enum {
 } utxo_output_type_t;
 
 /**
- * @brief An utxo output
+ * @brief An UTXO output
  *
  */
 typedef struct {
@@ -53,7 +53,7 @@ typedef struct {
 } utxo_output_t;
 
 /**
- * @brief A list of utxo outputs
+ * @brief A list of UTXO outputs
  *
  */
 typedef struct utxo_outputs_list {
@@ -66,33 +66,33 @@ extern "C" {
 #endif
 
 /**
- * @brief Initialize an utxo output list
+ * @brief Initialize an UTXO output list
  *
- * @return utxo_outputs_list_t* a NULL pointer
+ * @return A NULL pointer
  */
 utxo_outputs_list_t *utxo_outputs_new();
 
 /**
- * @brief Free an utxo output list
+ * @brief Free an UTXO output list
  *
- * @param[in] outputs A list of utxo outputs
+ * @param[in] outputs A list of UTXO outputs
  */
 void utxo_outputs_free(utxo_outputs_list_t *outputs);
 
 /**
- * @brief Add an output to an utxo output table
+ * @brief Add an output to an UTXO output table
  *
- * @param[in] outputs A list of utxo outputs
- * @param[in] type UTXO output type
- * @param[in] output Pointer to an output
+ * @param[in] outputs A list of UTXO outputs
+ * @param[in] type An UTXO output type
+ * @param[in] output A pointer to an output
  * @return int 0 on success, -1 on failure
  */
 int utxo_outputs_add(utxo_outputs_list_t **outputs, utxo_output_type_t type, void *output);
 
 /**
- * @brief Get number of elements in an utxo output list
+ * @brief Get number of elements in an UTXO output list
  *
- * @param[in] outputs A list of utxo outputs
+ * @param[in] outputs A list of UTXO outputs
  * @return uint16_t A number of elements
  */
 uint16_t utxo_outputs_count(utxo_outputs_list_t *outputs);
@@ -100,24 +100,24 @@ uint16_t utxo_outputs_count(utxo_outputs_list_t *outputs);
 /**
  * @brief Get an output pointer in the list from a given index
  *
- * @param[in] outputs A list of utxo outputs
- * @param[in] index A index of an output
+ * @param[in] outputs A list of UTXO outputs
+ * @param[in] index An index of an output
  * @return utxo_output_t* A pointer to an output
  */
 utxo_output_t *utxo_outputs_get(utxo_outputs_list_t *outputs, uint16_t index);
 
 /**
- * @brief Get a length of a serialized utxo output list
+ * @brief Get a length of a serialized UTXO output list
  *
- * @param[in] outputs A list of utxo outputs
+ * @param[in] outputs A list of UTXO outputs
  * @return size_t The number of bytes of a serialized data
  */
 size_t utxo_outputs_serialize_len(utxo_outputs_list_t *outputs);
 
 /**
- * @brief Serialize utxo output list to a binary data
+ * @brief Serialize an UTXO output list to a binary data
  *
- * @param[in] outputs A list of utxo outputs
+ * @param[in] outputs A list of UTXO outputs
  * @param[out] buf A buffer holds the serialized data
  * @param[in] buf_len The length of buffer
  * @return size_t The bytes written is returned, 0 on errors
@@ -125,26 +125,26 @@ size_t utxo_outputs_serialize_len(utxo_outputs_list_t *outputs);
 size_t utxo_outputs_serialize(utxo_outputs_list_t *outputs, byte_t buf[], size_t buf_len);
 
 /**
- * @brief Deserialize binary data to a utxo output list object
+ * @brief Deserialize binary data to an UTXO output list object
  *
  * @param[in] buf The buffer holds a serialized data
  * @param[in] buf_len The length of the buffer
- * @return utxo_outputs_list_t* The deserialized utxo output list, NULL on errors
+ * @return utxo_outputs_list_t* The deserialized UTXO output list, NULL on errors
  */
 utxo_outputs_list_t *utxo_outputs_deserialize(byte_t buf[], size_t buf_len);
 
 /**
- * @brief Print an utxo output list
+ * @brief Print an UTXO output list
  *
- * @param[in] outputs A list of utxo outputs
- * @param[in] indentation Tab indentation when printing utxo output list
+ * @param[in] outputs A list of UTXO outputs
+ * @param[in] indentation Tab indentation when printing UTXO output list
  */
 void utxo_outputs_print(utxo_outputs_list_t *outputs, uint8_t indentation);
 
 /**
  * @brief UTXO Output syntactic validation
  *
- * @param[in] outputs A list of utxo outputs
+ * @param[in] outputs A list of UTXO outputs
  * @param[in] byte_cost The Byte Cost configure
  * @return true Valid
  * @return false Invalid
