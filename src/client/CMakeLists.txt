@@ -81,9 +81,8 @@ if(MQTT_CLIENT_ENABLE)
            "api/events/node_event.h"
            "api/events/sub_milestone_payload.h"
            "api/events/sub_messages_metadata.h"
-          #  "api/events/sub_outputs_payload.h"
-           "api/events/sub_serialized_output.h"
-           )
+           # "api/events/sub_outputs_payload.h"
+           "api/events/sub_serialized_output.h")
 endif()
 
 target_include_directories(
