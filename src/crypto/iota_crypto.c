@@ -38,6 +38,21 @@
 #include "crypto/iota_crypto.h"
 
 #if defined(CRYPTO_USE_SODIUM)
+/**
+ * @brief endianness check
+ *
+ * There is no standardized way to check endianness with different compilers at compile-time
+ * for better compatibility, we check it at runtime.
+ *
+ * @return true little-endian
+ * @return false big-endian
+ */
+static inline bool is_little_endian() {
+  int16_t i = 0xF;
+  char *p = (char *)&i;
+  return (p[0] == 0xF);
+}
+
 // store 32 bits in big-endian
 static inline void store32_be(uint8_t dst[4], uint32_t w) {
   if (is_little_endian()) {
