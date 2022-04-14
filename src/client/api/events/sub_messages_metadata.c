@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "client/api/events/sub_messages_metadata.h"
-#include "client/api/json_utils.h"
+#include "client/api/json_parser/json_utils.h"
 #include "client/network/mqtt/mqtt.h"
 
 msg_metadata_t *res_msg_metadata_new(void) {
@@ -55,13 +55,13 @@ int parse_messages_metadata(char *data, msg_metadata_t *res) {
   }
 
   // message ID
-  if ((ret = json_get_string(json_obj, JSON_KEY_MSG_ID, res->msg_id, sizeof(res->msg_id))) != 0) {
+  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->msg_id, sizeof(res->msg_id))) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
     goto end;
   }
 
   // parents
-  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_PARENT_IDS, res->parents)) != 0) {
+  if ((ret = json_string_with_prefix_array_to_utarray(json_obj, JSON_KEY_PARENT_IDS, res->parents)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
     goto end;
   }
@@ -96,7 +96,7 @@ int parse_messages_metadata(char *data, msg_metadata_t *res) {
 
   // gets metadata milestone index
   if (cJSON_HasObjectItem(json_obj, JSON_KEY_REF_MILESTONE_IDX)) {
-    if ((ret = json_get_uint64(json_obj, JSON_KEY_REF_MILESTONE_IDX, &res->referenced_milestone)) != 0) {
+    if ((ret = json_get_uint32(json_obj, JSON_KEY_REF_MILESTONE_IDX, &res->referenced_milestone)) != 0) {
       printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_REF_MILESTONE_IDX);
       goto end;
     }

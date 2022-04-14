@@ -23,9 +23,9 @@ void test_messages_metadata_parser(void) {
   // Sample data for testing
   char *json_data =
       "{\"messageId\":"
-      "\"cf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85\",\"parentMessageIds\":["
-      "\"d026f8b1c856d4e844cc734bbe095429fb880ec4d93f3ccffe3b292a7de17be7\","
-      "\"cf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85\"],\"isSolid\":true,"
+      "\"0xcf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85\",\"parentMessageIds\":["
+      "\"0xd026f8b1c856d4e844cc734bbe095429fb880ec4d93f3ccffe3b292a7de17be7\","
+      "\"0xcf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85\"],\"isSolid\":true,"
       "\"referencedByMilestoneIndex\":242544,\"ledgerInclusionState\":\"noTransaction\",\"shouldPromote\":true,"
       "\"shouldReattach\":false}";
 
@@ -62,7 +62,7 @@ void process_event_data(event_client_event_t *event) {
     printf("Is Solid : %s\n", res->is_solid ? "true" : "false");
     printf("Should Promote : %s\n", res->should_promote ? "true" : "false");
     printf("Should Reattach : %s\n", res->should_reattach ? "true" : "false");
-    printf("Referenced Milestone : %ld\n", res->referenced_milestone);
+    printf("Referenced Milestone : %u\n", res->referenced_milestone);
 
     // Free response object
     res_msg_metadata_free(res);

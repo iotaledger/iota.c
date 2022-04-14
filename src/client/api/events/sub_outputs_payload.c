@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/events/sub_outputs_payload.h"
-#include "client/api/json_utils.h"
+#include "client/api/json_parser/json_utils.h"
 #include "core/address.h"
 
 int event_parse_outputs_payload(char const data[], event_outputs_payload_t *res) {
@@ -38,7 +38,7 @@ int event_parse_outputs_payload(char const data[], event_outputs_payload_t *res)
   }
 
   // ledgerIndex
-  if ((ret = json_get_uint64(json_obj, JSON_KEY_LEDGER_IDX, &res->ledger_index)) != 0) {
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_LEDGER_IDX, &res->ledger_index)) != 0) {
     printf("[%s:%d]: gets %s json uint64 failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
     goto end;
   }

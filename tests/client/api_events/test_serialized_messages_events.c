@@ -1,40 +1,30 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include <string.h>
+#include <inttypes.h>
 #include <time.h>
-#include <unity/unity.h>
 
-#include "client/api/events/node_event.h"
-#include "client/api/events/sub_milestone_latest.h"
+#include "client/api/events/sub_serialized_output.h"
 #include "test_config.h"
+#include "unity/unity.h"
 
 bool test_completed = false;
+char const *const test_transaction_id = "963b96adc39ebb7f96cfc523a4b4df658c2fb4a1bb5a9f0de5fa66e7207a2236";
+char const *const test_tag = "hello_iota";
 
 void setUp(void) {}
 
 void tearDown(void) {}
 
-void test_milestone_latest_parser(void) {
-  char *json_data = "{\"index\":242412,\"timestamp\": 1609950538}";
-
-  // Test for expected events response
-  milestone_latest_t res = {};
-  TEST_ASSERT_EQUAL_INT(0, parse_milestone_latest(json_data, &res));
-  TEST_ASSERT(242412 == res.index);
-  TEST_ASSERT(1609950538 == res.timestamp);
-}
-
-void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, TOPIC_MS_LATEST)) {
-    milestone_latest_t res = {};
-    TEST_ASSERT_EQUAL_INT(0, parse_milestone_latest((char *)event->data, &res));
-    // Print received data
-    printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
+static void dump_serialized_output(unsigned char *data, uint32_t len) {
+  printf("Received Serialized Data : ");
+  for (uint32_t i = 0; i < len; i++) {
+    printf("%02x", data[i]);
   }
+  printf("\n");
 }
 
-void callback(event_client_event_t *event) {
+static void event_cb(event_client_event_t *event) {
   switch (event->event_id) {
     case NODE_EVENT_ERROR:
       printf("Node event network error : %s\n", (char *)event->data);
@@ -42,7 +32,14 @@ void callback(event_client_event_t *event) {
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
       /* Making subscriptions in the on_connect()*/
-      event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
+      // Uncomment for subscribing to respective topics
+      event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
+      // event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1);
+      // event_sub_tx_msg_tagged_data(event->client, NULL, test_tag, 1);
+      // event_subscribe(event->client, NULL, TOPIC_MS_MILESTONE, 1);
+      // event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1);
+      // event_sub_msg_tagged_data(event->client, NULL, test_tag, 1);
+      // event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -58,7 +55,8 @@ void callback(event_client_event_t *event) {
       break;
     case NODE_EVENT_DATA:
       printf("Message arrived\nTopic : %s\n", event->topic);
-      process_event_data(event);
+      dump_serialized_output(event->data, event->data_len);
+      // Once event data is received and it is verified, close and destroy event MQTT network
       TEST_ASSERT_EQUAL_INT(0, event_stop(event->client));
       test_completed = true;
       break;
@@ -67,14 +65,18 @@ void callback(event_client_event_t *event) {
   }
 }
 
-void test_milestone_latest_events(void) {
+void event_serialized_outputs(void) {
+  // Event MQTT network config parameters
   event_client_config_t config = {.host = TEST_EVENTS_HOST,
                                   .port = TEST_EVENTS_PORT,
                                   .client_id = TEST_EVENTS_CLIENT_ID,
                                   .keepalive = TEST_EVENTS_KEEP_ALIVE};
+  // Create event client
   event_client_handle_t client = event_init(&config);
   TEST_ASSERT_NOT_NULL(client);
-  TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &callback));
+  // Register callback
+  TEST_ASSERT_EQUAL_INT(0, event_register_cb(client, &event_cb));
+  // Start event client, this is a blocking call
   TEST_ASSERT_EQUAL_INT(0, event_start(client));
   // Store start time
   time_t start = time(NULL);
@@ -96,9 +98,8 @@ void test_milestone_latest_events(void) {
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_milestone_latest_parser);
 #if TEST_TANGLE_ENABLE
-  RUN_TEST(test_milestone_latest_events);
+  RUN_TEST(event_serialized_outputs);
 #endif
 
   return UNITY_END();

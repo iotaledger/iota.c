@@ -9,6 +9,7 @@
 
 #include "client/api/events/node_event.h"
 #include "core/models/message.h"
+#include "core/utils/macros.h"
 
 #define MSG_ID_LEN 64
 
@@ -17,14 +18,14 @@
  *
  */
 typedef struct {
-  char msg_id[IOTA_MESSAGE_ID_HEX_BYTES + 1];  ///< The hex encoded message ID string
-  UT_array *parents;                           ///< The parent message IDs
+  char msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< The hex encoded message ID string
+  UT_array *parents;                                         ///< The parent message IDs
   char inclusion_state[32];       ///< The ledger inclusion state of the transaction payload, one of `noTransaction`,
                                   ///< `conflicting` or `included`
   bool is_solid;                  ///< Whether the message is solid
   bool should_promote;            ///< Whether the message should be promoted, optional
   bool should_reattach;           ///< Whether the message should be reattached, optional
-  uint64_t referenced_milestone;  ///< The milestone index that references the message, optional
+  uint32_t referenced_milestone;  ///< The milestone index that references the message, optional
 } msg_metadata_t;
 
 #ifdef __cplusplus
