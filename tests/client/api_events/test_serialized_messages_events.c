@@ -9,7 +9,7 @@
 #include "unity/unity.h"
 
 bool test_completed = false;
-char const *const test_transaction_id = "963b96adc39ebb7f96cfc523a4b4df658c2fb4a1bb5a9f0de5fa66e7207a2236";
+char const *const test_transaction_id = "5e753f69b44870aa6a90adf2c366dccac00097c41d5c884dd81ef7cf29eefdd7";
 char const *const test_tag = "hello_iota";
 
 void setUp(void) {}

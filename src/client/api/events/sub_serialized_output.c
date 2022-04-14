@@ -12,9 +12,9 @@ int event_sub_txn_included_msg(event_client_handle_t client, int *mid, char cons
     return -1;
   }
   // 95 is the max length for string transactions/{transactionId}/included-message
-  char topic_buff[95] = {0};
+  char topic_buff[97] = {0};
 
-  sprintf(topic_buff, "transactions/%s/included-message", transaction_id);
+  sprintf(topic_buff, "transactions/0x%s/included-message", transaction_id);
 
   return event_subscribe(client, mid, topic_buff, qos);
 }
