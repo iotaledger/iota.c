@@ -1,10 +1,13 @@
 # Core API Reference
 
-The Core API is low level API implementation based on [iotaledger/protocol-rfcs](https://github.com/iotaledger/protocol-rfcs/pulls), it helps to process message easily with following key functions:
-* Address conversion
-* Message operations
-* Input/Output operations
-* Common utilities(bech32, slip10)
+The Core API implemented objects, structures, utils for IOTA protocol.
+
+It provides the following functionalities:
+
+* Address derivation
+* Message creations
+* UTXO Input/Output operations
+* Bech32, Slip10, uint256, and Byte Buffer utils
 
 ## Address
 
@@ -517,6 +520,41 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 
 ## Utils
 
+### uint256
+
+```{eval-rst}
+.. doxygenstruct:: uint256_t
+  :members:
+```
+
+```{eval-rst}
+.. doxygenfunction:: uint256_from_str
+```
+
+```{eval-rst}
+.. doxygenfunction:: uint256_add
+```
+
+```{eval-rst}
+.. doxygenfunction:: uint256_sub
+```
+
+```{eval-rst}
+.. doxygenfunction:: uint256_equal
+```
+
+```{eval-rst}
+.. doxygenfunction:: uint256_to_str
+```
+
+```{eval-rst}
+.. doxygenfunction:: uint256_clone
+```
+
+```{eval-rst}
+.. doxygenfunction:: uint256_free
+```
+
 ### Bech32
 
 ```{eval-rst}
@@ -556,27 +594,11 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 
-### [Byte Buffer](https://github.com/iotaledger/iota.c/blob/dev/src/core/utils/byte_buffer.h)
+### Byte Buffer
 
 ```{eval-rst}
 .. doxygenstruct:: byte_buf_t
   :members:
-```
-
-```{eval-rst}
-.. doxygenfunction:: hex2string
-```
-
-```{eval-rst}
-.. doxygenfunction:: string2hex
-```
-
-```{eval-rst}
-.. doxygenfunction:: hex_2_bin
-```
-
-```{eval-rst}
-.. doxygenfunction:: bin_2_hex
 ```
 
 ```{eval-rst}
@@ -616,6 +638,10 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
+.. doxygenfunction:: byte_buf_print
+```
+
+```{eval-rst}
 .. doxygenfunction:: byte_buf_str2hex
 ```
 
@@ -624,5 +650,21 @@ The Core API is low level API implementation based on [iotaledger/protocol-rfcs]
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: byte_buf_print
+.. doxygenfunction:: hex2string
+```
+
+```{eval-rst}
+.. doxygenfunction:: string2hex
+```
+
+```{eval-rst}
+.. doxygenfunction:: hex_2_bin
+```
+
+```{eval-rst}
+.. doxygenfunction:: bin_2_hex
+```
+
+```{eval-rst}
+.. doxygenfunction:: buf_all_zeros
 ```
