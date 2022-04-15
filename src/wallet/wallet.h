@@ -15,9 +15,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "client/api/restful/send_message.h"
 #include "client/client_service.h"
 #include "core/address.h"
 #include "core/models/message.h"
+#include "core/models/outputs/byte_cost_config.h"
 #include "core/types.h"
 
 #ifdef __cplusplus
@@ -33,10 +35,13 @@ extern "C" {
  *
  */
 typedef struct {
-  byte_t seed[64];              ///< the mnemonic seed of this wallet
-  char bech32HRP[8];            ///< The Bech32 HRP of the network. `iota` for mainnet, `atoi` for testnet.
-  uint32_t account_index;       ///< wallet account index
-  iota_client_conf_t endpoint;  ///< IOTA node endpoint
+  byte_t seed[64];               ///< the mnemonic seed of this wallet
+  char bech32HRP[8];             ///< The Bech32 HRP of the network. `iota` for mainnet, `atoi` for testnet.
+  uint32_t account_index;        ///< wallet account index
+  iota_client_conf_t endpoint;   ///< IOTA node endpoint
+  uint8_t protocol_version;      ///< Network protocol version of the connected node
+  uint64_t network_id;           ///< Network ID of the connected node
+  byte_cost_config_t byte_cost;  ///< The byte cost configuration of the network
 } iota_wallet_t;
 
 /**
@@ -98,15 +103,27 @@ int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* ba
  *
  * it unlocks expired Timelock and Expiration outputs
  *
- * @param w A wallet instance
- * @param change The change index which is {0, 1}, also known as wallet chain.
- * @param index Address index
+ * @param[in w A wallet instance
+ * @param[in] change The change index which is {0, 1}, also known as wallet chain.
+ * @param[in] index Address index
  * @return int 0 on seccess
  */
 int wallet_unlock_outputs(iota_wallet_t* w, bool change, uint32_t index);
 
-// TODO, need to be defined
-int wallet_send_iota(iota_wallet_t* w, bool change, uint32_t index, char recv_bech32[], uint64_t amount);
+/**
+ * @brief Transfer IOTA token to an address
+ *
+ * @param[in] w A wallet instance
+ * @param[in] change The change index which is {0, 1}, also known as wallet chain.
+ * @param[in] index The index of the sender address
+ * @param[in] recv_addr The receiver address
+ * @param[in] amount The amount to transfer
+ * @param[out] msg_res The response of the transfer
+ *
+ * @return int 0 on seccess
+ */
+int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, address_t* recv_addr,
+                              uint64_t const amount, res_send_message_t* msg_res);
 
 // TODO, need to be defined
 int wallet_create_native_token(iota_wallet_t* w, bool change, uint32_t index, byte_t token_id[], uint64_t amount);
@@ -122,12 +139,12 @@ int wallet_send_native_token(iota_wallet_t* w, bool change, uint32_t index, char
 void wallet_destroy(iota_wallet_t* w);
 
 /**
- * @brief Update bech32HRP from network
+ * @brief Update configurations of connected node
  *
  * @param[in] w A wallet instance
  * @return int 0 on success
  */
-int wallet_update_bech32HRP(iota_wallet_t* w);
+int wallet_update_node_config(iota_wallet_t* w);
 
 #ifdef __cplusplus
 }
