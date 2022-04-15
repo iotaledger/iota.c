@@ -118,7 +118,7 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
     addr->type = bytes[0];
     // check if binary length is satisfied
     if (len < address_serialized_len(addr)) {
-      free_address(addr);
+      address_free(addr);
       return NULL;
     }
 
@@ -135,40 +135,12 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
         break;
       default:
         // unknown address type
-        free_address(addr);
+        address_free(addr);
         printf("[%s:%d] unknown address type\n", __func__, __LINE__);
         return NULL;
     }
   }
   return addr;
-}
-
-// get the address object from the given hex string
-int address_from_hex(char const hex[], address_t *addr) {
-  // validate hex length
-  if (hex == NULL || strlen(hex) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
-    return -1;
-  }
-
-  byte_t type = 0;
-  if (hex_2_bin(hex, 2, NULL, &type, 1) != 0) {
-    return -1;
-  }
-  addr->type = type;
-  return hex_2_bin(hex + 2, BIN_TO_HEX_BYTES(address_len(addr)), NULL, addr->address, address_len(addr));
-}
-
-// get hex string from the given address object
-int address_to_hex(address_t *addr, char hex_buf[], size_t buf_len) {
-  // validate buffer
-  if (hex_buf == NULL || buf_len <= BIN_TO_HEX_BYTES(address_serialized_len(addr))) {
-    return -1;
-  }
-  if (bin_2_hex(addr->address, 1, NULL, hex_buf, 2) != 0) {
-    return -1;
-  }
-
-  return bin_2_hex(addr->address + 1, address_len(addr), NULL, hex_buf + 2, buf_len - 2);
 }
 
 // get the address object from the given bech32 string
@@ -272,7 +244,7 @@ void address_print(address_t const *const addr) {
   }
 }
 
-void free_address(address_t *addr) {
+void address_free(address_t *addr) {
   if (addr) {
     free(addr);
   }

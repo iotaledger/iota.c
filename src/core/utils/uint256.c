@@ -114,31 +114,31 @@ uint256_from_str(char const *str) {
 #ifdef __clang__
 __attribute__((no_sanitize("unsigned-integer-overflow")))
 #endif
-bool uint256_add(uint256_t *res, uint256_t *a, uint256_t *b) {
-  if (res == NULL || a == NULL || b == NULL) {
+bool uint256_add(uint256_t *sum, uint256_t *a, uint256_t *b) {
+  if (sum == NULL || a == NULL || b == NULL) {
     // invalid parameters
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return false;
   }
 
-  res->bits[0] = a->bits[0] + b->bits[0];
+  sum->bits[0] = a->bits[0] + b->bits[0];
 
-  res->bits[1] = a->bits[1] + b->bits[1];
-  if (res->bits[0] < a->bits[0]) {
-    res->bits[1] += 1;
+  sum->bits[1] = a->bits[1] + b->bits[1];
+  if (sum->bits[0] < a->bits[0]) {
+    sum->bits[1] += 1;
   }
 
-  res->bits[2] = a->bits[2] + b->bits[2];
-  if (res->bits[1] < a->bits[1]) {
-    res->bits[2] += 1;
+  sum->bits[2] = a->bits[2] + b->bits[2];
+  if (sum->bits[1] < a->bits[1]) {
+    sum->bits[2] += 1;
   }
 
-  res->bits[3] = a->bits[3] + b->bits[3];
-  if (res->bits[2] < a->bits[2]) {
-    res->bits[3] += 1;
+  sum->bits[3] = a->bits[3] + b->bits[3];
+  if (sum->bits[2] < a->bits[2]) {
+    sum->bits[3] += 1;
   }
 
-  if (res->bits[3] < a->bits[3]) {
+  if (sum->bits[3] < a->bits[3]) {
     printf("[%s:%d] Overflow occurs. Summed number is too large.\n", __func__, __LINE__);
     return false;
   }
@@ -149,31 +149,31 @@ bool uint256_add(uint256_t *res, uint256_t *a, uint256_t *b) {
 #ifdef __clang__
 __attribute__((no_sanitize("unsigned-integer-overflow")))
 #endif
-bool uint256_sub(uint256_t *res, uint256_t *a, uint256_t *b) {
-  if (res == NULL || a == NULL || b == NULL) {
+bool uint256_sub(uint256_t *diff, uint256_t *min, uint256_t *sub) {
+  if (diff == NULL || min == NULL || sub == NULL) {
     // invalid parameters
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return false;
   }
 
-  res->bits[0] = a->bits[0] - b->bits[0];
+  diff->bits[0] = min->bits[0] - sub->bits[0];
 
-  res->bits[1] = a->bits[1] - b->bits[1];
-  if (b->bits[0] > a->bits[0]) {
-    res->bits[1] -= 1;
+  diff->bits[1] = min->bits[1] - sub->bits[1];
+  if (sub->bits[0] > min->bits[0]) {
+    diff->bits[1] -= 1;
   }
 
-  res->bits[2] = a->bits[2] - b->bits[2];
-  if (b->bits[1] > a->bits[1]) {
-    res->bits[2] -= 1;
+  diff->bits[2] = min->bits[2] - sub->bits[2];
+  if (sub->bits[1] > min->bits[1]) {
+    diff->bits[2] -= 1;
   }
 
-  res->bits[3] = a->bits[3] - b->bits[3];
-  if (b->bits[2] > a->bits[2]) {
-    res->bits[3] -= 1;
+  diff->bits[3] = min->bits[3] - sub->bits[3];
+  if (sub->bits[2] > min->bits[2]) {
+    diff->bits[3] -= 1;
   }
 
-  if (b->bits[3] > a->bits[3]) {
+  if (sub->bits[3] > min->bits[3]) {
     printf("[%s:%d] Underflow occurs. Subtracted number is too small.\n", __func__, __LINE__);
     return false;
   }

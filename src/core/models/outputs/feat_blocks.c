@@ -350,7 +350,7 @@ void feat_blk_free(feat_block_t* blk) {
       switch (blk->type) {
         case FEAT_ISSUER_BLOCK:
         case FEAT_SENDER_BLOCK:
-          free_address((address_t*)blk->block);
+          address_free((address_t*)blk->block);
           break;
         case FEAT_METADATA_BLOCK:
           feat_metadata_free((feat_metadata_blk_t*)blk->block);

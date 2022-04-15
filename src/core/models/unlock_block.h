@@ -56,7 +56,7 @@ extern "C" {
 /**
  * @brief Initialize a unlock block list object
  *
- * @return unlock_list_t* a NULL pointer
+ * @return A NULL pointer
  */
 unlock_list_t* unlock_blocks_new();
 
