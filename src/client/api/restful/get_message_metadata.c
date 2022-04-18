@@ -74,12 +74,19 @@ char *msg_meta_parent_get(msg_meta_t *msg, size_t index) {
 }
 
 int parse_messages_metadata(char const *const j_str, msg_meta_t *res) {
+  if (j_str == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
   int ret = -1;
+
   cJSON *json_obj = cJSON_Parse(j_str);
   if (!json_obj) {
     printf("[%s:%d]: can not parse JSON object\n", __func__, __LINE__);
     return -1;
   }
+
   // message ID
   if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->msg_id, sizeof(res->msg_id))) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
