@@ -8,22 +8,22 @@
 
 #ifdef USE_HTTPS
 // Node
-#define NODE_HOST "api.alphanet.iotaledger.net"
-#define NODE_PORT 443
+#define NODE_HOST "localhost"
+#define NODE_PORT 14265
 
 // Faucet
-#define FAUCET_HOST "faucet.alphanet.iotaledger.net"
-#define FAUCET_PORT 443
+#define FAUCET_HOST "localhost"
+#define FAUCET_PORT 8091
 
 #define IS_HTTPS 1
 #else
 // Node
-#define NODE_HOST "api.alphanet.iotaledger.net"
-#define NODE_PORT 80
+#define NODE_HOST "localhost"
+#define NODE_PORT 14265
 
 // Faucet
-#define FAUCET_HOST "faucet.alphanet.iotaledger.net"
-#define FAUCET_PORT 80
+#define FAUCET_HOST "localhost"
+#define FAUCET_PORT 8091
 
 #define IS_HTTPS 0
 #endif
