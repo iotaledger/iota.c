@@ -8,6 +8,11 @@
 #include "client/network/mqtt/mqtt.h"
 
 int parse_milestone_payload(char *data, milestone_payload_t *res) {
+  if (res == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
   cJSON *json_obj = cJSON_Parse((char *)data);
   if (json_obj == NULL) {
     printf("[%s:%d] OOM\n", __func__, __LINE__);

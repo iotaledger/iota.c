@@ -11,8 +11,6 @@
 #include "core/models/message.h"
 #include "core/utils/macros.h"
 
-#define MSG_ID_LEN 64
-
 #ifdef __cplusplus
 extern "C" {
 #endif
