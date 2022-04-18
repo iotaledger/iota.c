@@ -4,10 +4,12 @@
 #include <string.h>
 
 #include "client/api/events/sub_serialized_output.h"
+#include "core/address.h"
 #include "core/models/payloads/tagged_data.h"
+#include "core/utils/macros.h"
 
 int event_sub_txn_included_msg(event_client_handle_t client, int *mid, char const transaction_id[], int qos) {
-  if ((strlen(transaction_id)) != EVENT_TXN_ID_LEN) {
+  if ((strlen(transaction_id)) != BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES)) {
     printf("[%s:%d]: Transaction id length is invalid\n", __func__, __LINE__);
     return -1;
   }

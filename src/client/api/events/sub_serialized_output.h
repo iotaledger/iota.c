@@ -8,7 +8,6 @@
 
 #define EVENT_MS_INDEX_MAX_LEN 64
 #define EVENT_MS_INDEX_MIN_LEN 1
-#define EVENT_TXN_ID_LEN 64
 
 /**
  * @brief Subscribes transactions/{transactionId}/included_message topic
