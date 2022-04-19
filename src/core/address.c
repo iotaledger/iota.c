@@ -50,6 +50,10 @@ int ed25519_address_from_path(byte_t seed[], size_t seed_len, char path[], addre
 }
 
 int address_from_ed25519_pub(byte_t const pub_key[], address_t *addr) {
+  if (pub_key == NULL || addr == NULL) {
+    return -1;
+  }
+
   addr->type = ADDRESS_TYPE_ED25519;
   return iota_blake2b_sum(pub_key, ED_PUBLIC_KEY_BYTES, addr->address, ED25519_PUBKEY_BYTES);
 }
