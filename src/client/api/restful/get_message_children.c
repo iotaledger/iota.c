@@ -137,7 +137,7 @@ int get_message_children(iota_client_conf_t const *ctx, char const msg_id[], res
   iota_str_t *cmd = NULL;
   byte_buf_t *http_res = NULL;
   long st = 0;
-  char const *const cmd_prefix = "/api/v2/messages/";
+  char const *const cmd_prefix = "/api/v2/messages/0x";
   char const *const cmd_suffix = "/children";
 
   if (ctx == NULL || msg_id == NULL || res == NULL) {

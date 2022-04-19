@@ -17,6 +17,9 @@
 #define TOPIC_MS_CONFIRMED "milestones/confirmed"
 #define TOPIC_MS_REFERENCED "messages/referenced"
 #define TOPIC_MESSAGES "messages"
+#define TOPIC_MS_TRANSACTION "messages/transaction"
+#define TOPIC_MS_MILESTONE "messages/milestone"
+#define TOPIC_MS_TAGGED_DATA "messages/tagged-data"
 
 /**
  * @brief Event IDs for handling IOTA Node events

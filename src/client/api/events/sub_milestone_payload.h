@@ -12,21 +12,21 @@
  *
  */
 typedef struct {
-  uint64_t timestamp;  ///< The timestamp of latest milestone
-  uint32_t index;      ///< The index of latest milestone
-} milestone_latest_t;
+  uint32_t timestamp;  ///< The timestamp of milestone payload
+  uint32_t index;      ///< The index of milestone payload
+} milestone_payload_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @brief Parse milestone latest response
+ * @brief Parse milestone payload response
  * @param[in] data Response data to parse
  * @param[out] res Parsed response object
  * @return int 0 If success
  */
-int parse_milestone_latest(char *data, milestone_latest_t *res);
+int parse_milestone_payload(char *data, milestone_payload_t *res);
 
 #ifdef __cplusplus
 }

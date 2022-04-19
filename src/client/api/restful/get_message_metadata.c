@@ -10,7 +10,7 @@
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 
-static msg_meta_t *metadata_new() {
+msg_meta_t *metadata_new() {
   msg_meta_t *meta = malloc(sizeof(msg_meta_t));
   if (meta) {
     utarray_new(meta->parents, &ut_str_icd);
@@ -24,7 +24,7 @@ static msg_meta_t *metadata_new() {
   return NULL;
 }
 
-static void metadata_free(msg_meta_t *meta) {
+void metadata_free(msg_meta_t *meta) {
   if (meta) {
     if (meta->parents) {
       utarray_free(meta->parents);
@@ -56,25 +56,80 @@ void msg_meta_free(res_msg_meta_t *res) {
   }
 }
 
-size_t msg_meta_parents_len(res_msg_meta_t *res) {
-  if (res) {
-    if (res->is_error == false) {
-      if (res->u.meta) {
-        return utarray_len(res->u.meta->parents);
-      }
-    }
+size_t msg_meta_parents_count(msg_meta_t *msg) {
+  if (msg) {
+    return utarray_len(msg->parents);
   }
   return 0;
 }
 
-char *msg_meta_parent_get(res_msg_meta_t *res, size_t index) {
-  if (res) {
-    if (index < msg_meta_parents_len(res)) {
-      char **p = (char **)utarray_eltptr(res->u.meta->parents, index);
+char *msg_meta_parent_get(msg_meta_t *msg, size_t index) {
+  if (msg) {
+    if (index < msg_meta_parents_count(msg)) {
+      char **p = (char **)utarray_eltptr(msg->parents, index);
       return *p;
     }
   }
   return NULL;
+}
+
+int parse_messages_metadata(char const *const j_str, msg_meta_t *res) {
+  if (j_str == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  int ret = -1;
+
+  cJSON *json_obj = cJSON_Parse(j_str);
+  if (!json_obj) {
+    printf("[%s:%d]: can not parse JSON object\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // message ID
+  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->msg_id, sizeof(res->msg_id))) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
+    goto end;
+  }
+
+  // parents
+  if ((ret = json_string_with_prefix_array_to_utarray(json_obj, JSON_KEY_PARENT_IDS, res->parents)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
+    goto end;
+  }
+
+  // solidation
+  if ((ret = json_get_boolean(json_obj, JSON_KEY_IS_SOLID, &res->is_solid)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_IS_SOLID);
+    goto end;
+  }
+
+  bool temp_bool = false;
+  // should promote
+  if (json_get_boolean(json_obj, JSON_KEY_SHOULD_PROMOTE, &temp_bool) == 0) {
+    // the key is presented
+    res->should_promote = temp_bool ? 1 : 0;
+  }
+
+  // should reattach
+  if (json_get_boolean(json_obj, JSON_KEY_SHOULD_REATTACH, &temp_bool) == 0) {
+    // the key is presented
+    res->should_reattach = temp_bool ? 1 : 0;
+  }
+
+  // ledger inclusion state
+  json_get_string(json_obj, JSON_KEY_LEDGER_ST, res->inclusion_state, sizeof(res->inclusion_state));
+
+  // gets referenced milestone index
+  json_get_uint32(json_obj, JSON_KEY_REF_MILESTONE_IDX, &res->referenced_milestone);
+
+  // gets milestone index
+  json_get_uint32(json_obj, JSON_KEY_MILESTONE_IDX, &res->milestone_idx);
+
+end:
+  cJSON_Delete(json_obj);
+  return ret;
 }
 
 int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res) {
@@ -89,68 +144,24 @@ int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res) {
     return -1;
   }
 
-  int ret = -1;
-
   res_err_t *res_err = deser_error(json_obj);
   if (res_err) {
     // got an error response
     res->is_error = true;
     res->u.error = res_err;
-    ret = 0;
-    goto end;
+    cJSON_Delete(json_obj);
+    return 0;
   }
+  cJSON_Delete(json_obj);
 
   // allocate message metadata object after parsing json object.
   res->u.meta = metadata_new();
   if (!res->u.meta) {
     printf("[%s:%d]: msg_meta_t object allocation failed\n", __func__, __LINE__);
-    goto end;
+    return -1;
   }
 
-  // message ID
-  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->u.meta->msg_id,
-                                         sizeof(res->u.meta->msg_id))) != 0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
-    goto end;
-  }
-
-  // parents
-  if ((ret = json_string_with_prefix_array_to_utarray(json_obj, JSON_KEY_PARENT_IDS, res->u.meta->parents)) != 0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
-    goto end;
-  }
-
-  // solidation
-  if ((ret = json_get_boolean(json_obj, JSON_KEY_IS_SOLID, &res->u.meta->is_solid)) != 0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_IS_SOLID);
-    goto end;
-  }
-
-  bool temp_bool = false;
-  // should promote
-  if (json_get_boolean(json_obj, JSON_KEY_SHOULD_PROMOTE, &temp_bool) == 0) {
-    // the key is presented
-    res->u.meta->should_promote = temp_bool ? 1 : 0;
-  }
-
-  // should reattach
-  if (json_get_boolean(json_obj, JSON_KEY_SHOULD_REATTACH, &temp_bool) == 0) {
-    // the key is presented
-    res->u.meta->should_reattach = temp_bool ? 1 : 0;
-  }
-
-  // ledger inclusion state
-  json_get_string(json_obj, JSON_KEY_LEDGER_ST, res->u.meta->inclusion_state, sizeof(res->u.meta->inclusion_state));
-
-  // gets referenced milestone index
-  json_get_uint32(json_obj, JSON_KEY_REF_MILESTONE_IDX, &res->u.meta->referenced_milestone);
-
-  // gets milestone index
-  json_get_uint32(json_obj, JSON_KEY_MILESTONE_IDX, &res->u.meta->milestone_idx);
-
-end:
-  cJSON_Delete(json_obj);
-  return ret;
+  return parse_messages_metadata(j_str, res->u.meta);
 }
 
 int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res_msg_meta_t *res) {
@@ -167,7 +178,7 @@ int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res
     return -1;
   }
 
-  char const *const cmd_prefix = "/api/v2/messages/";
+  char const *const cmd_prefix = "/api/v2/messages/0x";
   char const *const cmd_suffix = "/metadata";
 
   iota_str_t *cmd = iota_str_reserve(strlen(cmd_prefix) + msg_str_len + strlen(cmd_suffix) + 1);
