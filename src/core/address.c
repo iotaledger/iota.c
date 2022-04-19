@@ -10,11 +10,6 @@
 #include "core/utils/macros.h"
 #include "core/utils/slip10.h"
 
-static int address_from_ed25519_pub(byte_t const pub_key[], address_t *addr) {
-  addr->type = ADDRESS_TYPE_ED25519;
-  return iota_blake2b_sum(pub_key, ED_PUBLIC_KEY_BYTES, addr->address, ED25519_PUBKEY_BYTES);
-}
-
 int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], ed25519_keypair_t *keypair) {
   // derive key from seed
   slip10_key_t key = {};
@@ -52,6 +47,11 @@ int ed25519_address_from_path(byte_t seed[], size_t seed_len, char path[], addre
     return -1;
   }
   return address_from_ed25519_pub(addr_keypair.pub, addr);
+}
+
+int address_from_ed25519_pub(byte_t const pub_key[], address_t *addr) {
+  addr->type = ADDRESS_TYPE_ED25519;
+  return iota_blake2b_sum(pub_key, ED_PUBLIC_KEY_BYTES, addr->address, ED25519_PUBKEY_BYTES);
 }
 
 int alias_address_from_output(byte_t const output_id[], uint8_t output_id_len, address_t *addr) {

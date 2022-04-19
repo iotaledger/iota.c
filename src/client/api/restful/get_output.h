@@ -14,9 +14,6 @@
 #include "core/models/message.h"
 #include "core/models/outputs/outputs.h"
 
-// output id = transaction id(64 bytes) + output index(4 bytes)
-#define IOTA_OUTPUT_ID_HEX_BYTES 68
-
 /**
  * @brief An output response object
  *
