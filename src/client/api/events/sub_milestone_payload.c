@@ -20,13 +20,13 @@ int parse_milestone_payload(char *data, milestone_payload_t *res) {
   }
 
   // Parse index
-  if ((json_get_uint32(json_obj, JSON_KEY_INDEX, &(res->index))) != 0) {
+  if (json_get_uint32(json_obj, JSON_KEY_INDEX, &(res->index)) != 0) {
     printf("[%s:%d]: parse %s failed\n", __func__, __LINE__, JSON_KEY_INDEX);
     return -1;
   }
 
   // Parse timestamp
-  if ((json_get_uint32(json_obj, JSON_KEY_TIMESTAMP, &(res->timestamp))) != 0) {
+  if (json_get_uint32(json_obj, JSON_KEY_TIMESTAMP, &(res->timestamp)) != 0) {
     printf("[%s:%d]: parse %s failed\n", __func__, __LINE__, JSON_KEY_TIMESTAMP);
     return -1;
   }

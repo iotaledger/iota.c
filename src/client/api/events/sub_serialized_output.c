@@ -9,7 +9,7 @@
 #include "core/utils/macros.h"
 
 int event_sub_txn_included_msg(event_client_handle_t client, int *mid, char const transaction_id[], int qos) {
-  if ((strlen(transaction_id)) != BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES)) {
+  if (strlen(transaction_id) != BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES)) {
     printf("[%s:%d]: Transaction id length is invalid\n", __func__, __LINE__);
     return -1;
   }
@@ -22,7 +22,7 @@ int event_sub_txn_included_msg(event_client_handle_t client, int *mid, char cons
 }
 
 int event_sub_tx_msg_tagged_data(event_client_handle_t client, int *mid, char const tag[], int qos) {
-  if (((strlen(tag)) > TAGGED_DATA_TAG_MAX_LENGTH_BYTES)) {
+  if (strlen(tag) > TAGGED_DATA_TAG_MAX_LENGTH_BYTES) {
     printf("[%s:%d]: Tag length is invalid\n", __func__, __LINE__);
     return -1;
   }
@@ -35,7 +35,7 @@ int event_sub_tx_msg_tagged_data(event_client_handle_t client, int *mid, char co
 }
 
 int event_sub_msg_tagged_data(event_client_handle_t client, int *mid, char const tag[], int qos) {
-  if (((strlen(tag)) > TAGGED_DATA_TAG_MAX_LENGTH_BYTES)) {
+  if (strlen(tag) > TAGGED_DATA_TAG_MAX_LENGTH_BYTES) {
     printf("[%s:%d]: Tag length is invalid\n", __func__, __LINE__);
     return -1;
   }
