@@ -8,7 +8,7 @@
 #include "client/api/restful/send_tagged_data.h"
 
 int main() {
-  iota_client_conf_t ctx = {.host = NODE_HOST, .port = NODE_PORT, .use_tls = IS_HTTPS};
+  iota_client_conf_t ctx = {.host = NODE_HOST, .port = NODE_PORT, .use_tls = false};
 
   res_node_info_t* info = res_node_info_new();
   if (!info) {
@@ -36,8 +36,8 @@ int main() {
   }
   res_node_info_free(info);
 
-  printf("[%s:%d]: Message successfully send! URL: https://%s/api/v2/messages/0x%s\n", __func__, __LINE__, NODE_HOST,
-         res.u.msg_id);
+  printf("[%s:%d]: Message successfully send! URL: http://%s:%d/api/v2/messages/0x%s\n", __func__, __LINE__, NODE_HOST,
+         NODE_PORT, res.u.msg_id);
 
   return 0;
 }
