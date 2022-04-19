@@ -8,7 +8,10 @@
 #include <stdint.h>
 
 #include "client/api/events/node_event.h"
-#include "client/api/message.h"
+#include "client/api/json_parser/message.h"
+#include "core/address.h"
+#include "core/models/message.h"
+#include "core/utils/macros.h"
 
 // output id = transaction id(64) + output index(4)
 #define OUTPUT_ID_LEN 68
@@ -28,12 +31,12 @@ typedef struct {
  *
  */
 typedef struct {
-  char msg_id[API_MSG_ID_HEX_STR_LEN];  ///< The hex encoded message ID of the message.
-  char tx_id[API_TX_ID_HEX_STR_LEN];    ///< The hex encoded transaction id from which this output originated.
-  uint16_t output_index;                ///< The index of the output.
-  bool is_spent;                        ///< Whether this output is spent.
-  uint64_t ledger_index;                ///< The ledger(milestone) index at which this output was available at.
-  event_output_t output;                ///< The output object with output type, amount and address.
+  char msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< The hex encoded message ID of the message.
+  char tx_id[IOTA_TRANSACTION_ID_BYTES];  ///< The hex encoded transaction id from which this output originated.
+  uint16_t output_index;                  ///< The index of the output.
+  bool is_spent;                          ///< Whether this output is spent.
+  uint32_t ledger_index;                  ///< The ledger(milestone) index at which this output was available at.
+  event_output_t output;                  ///< The output object with output type, amount and address.
 } event_outputs_payload_t;
 
 /**

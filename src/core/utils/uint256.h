@@ -1,11 +1,6 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-/************************************************************
- * Custom implementation for 256 bit number representation.
- * Only a little endian format is supported at the moment.
- ***********************************************************/
-
 #ifndef __CORE_UTILS_UINT256_H__
 #define __CORE_UTILS_UINT256_H__
 
@@ -17,6 +12,9 @@
 
 /**
  * @brief A 256 bit number object.
+ *
+ * Custom implementation for 256 bit number representation.
+ * Only a little endian format is supported at the moment.
  *
  */
 typedef struct {
@@ -38,24 +36,24 @@ uint256_t *uint256_from_str(char const *str);
 /**
  * @brief Perform addition on two uint256 numbers.
  *
- * @param[out] res Sum of two numbers. A pointer to uint256 object
- * @param[in] a Summand. A pointer to uint256 object
- * @param[in] b Summand. A pointer to uint256 object
+ * @param[out] sum The sum of two numbers.
+ * @param[in] a The summand A.
+ * @param[in] b The summand B.
  * @return true On success
  * @return false On failed
  */
-bool uint256_add(uint256_t *res, uint256_t *a, uint256_t *b);
+bool uint256_add(uint256_t *sum, uint256_t *a, uint256_t *b);
 
 /**
  * @brief Perform subtraction on two uint256 numbers.
  *
- * @param[out] res Difference of two numbers. A pointer to uint256 object
- * @param[in] a Minuend. A pointer to uint256 object
- * @param[in] b Subtrahend. A pointer to uint256 object
+ * @param[out] diff The difference of two numbers.
+ * @param[in] min The minuend.
+ * @param[in] sub The subtrahend.
  * @return true On success
  * @return false On failed
  */
-bool uint256_sub(uint256_t *res, uint256_t *a, uint256_t *b);
+bool uint256_sub(uint256_t *diff, uint256_t *min, uint256_t *sub);
 
 /**
  * @brief Compare two uint256 objects (numbers)

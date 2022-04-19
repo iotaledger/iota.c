@@ -126,7 +126,7 @@ void test_serializer() {
   // convert an address object to a binary data
   ser_len = address_serialize(addr_obj, addr_ser, sizeof(addr_ser));
   TEST_ASSERT_EQUAL_MEMORY(addr_ser, addr_bin, ser_len);
-  free_address(addr_obj);
+  address_free(addr_obj);
 
   // alias serializer
   addr_bin[0] = ADDRESS_TYPE_ALIAS;
@@ -138,7 +138,7 @@ void test_serializer() {
   // convert an address object to a binary data
   ser_len = address_serialize(addr_obj, addr_ser, sizeof(addr_ser));
   TEST_ASSERT_EQUAL_MEMORY(addr_ser, addr_bin, ser_len);
-  free_address(addr_obj);
+  address_free(addr_obj);
 
   // nft serializer
   addr_bin[0] = ADDRESS_TYPE_NFT;
@@ -150,7 +150,7 @@ void test_serializer() {
   // convert an address object to a binary data
   ser_len = address_serialize(addr_obj, addr_ser, sizeof(addr_ser));
   TEST_ASSERT_EQUAL_MEMORY(addr_ser, addr_bin, ser_len);
-  free_address(addr_obj);
+  address_free(addr_obj);
 }
 
 void test_clone_equal() {
@@ -167,8 +167,8 @@ void test_clone_equal() {
   iota_crypto_randombytes(addr2->address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT(address_equal(addr1, addr2) == false);
 
-  free_address(addr1);
-  free_address(addr2);
+  address_free(addr1);
+  address_free(addr2);
 }
 
 int main() {

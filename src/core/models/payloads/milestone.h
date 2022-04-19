@@ -17,7 +17,7 @@
 #define MILESTONE_PUBLIC_KEY_BYTES 32
 
 typedef struct {
-  uint32_t type;       // pyalod type, set to 1 denotes a milestone pyalod
+  uint32_t type;       // payload type, set to 1 denotes a milestone payload
   uint32_t index;      // The index number of the milestone.
   uint32_t timestamp;  // The Unix time (seconds since Unix epoch) at which the milestone was issued.
   UT_array *parents;   // Parents of milestone message.
@@ -28,7 +28,7 @@ typedef struct {
       next_pow_score;  // The new PoW score all messages should adhere to. If 0 then the PoW score should not change.
   uint32_t next_pow_score_milestone_index;  // The index of the first milestone that will require a new minimal pow
                                             // score for applying transactions. This field comes into effect only if the
-                                            // Next PoW Score field is not 0.
+                                            // Next PoW score field is not 0.
   UT_array *pub_keys;                       // Ed25519 Public Keys
   void *receipt;                            // The inner payload of the milestone. Can be NULL or a Receipt.
   UT_array *signatures;  // The Ed25519 signature signing the BLAKE2b-256 hash of the serialized Milestone Essence. The

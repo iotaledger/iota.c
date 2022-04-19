@@ -19,7 +19,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_transaction_included_message() {
-  char const* const tx_id = "dcd849edbb30aa6d53fc22e2f341c685a435be5407329e37470ac38c0abdd8f1";
+  char const* const tx_id = "5e753f69b44870aa6a90adf2c366dccac00097c41d5c884dd81ef7cf29eefdd7";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();

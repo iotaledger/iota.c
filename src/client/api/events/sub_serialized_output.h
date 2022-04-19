@@ -6,10 +6,6 @@
 
 #include "client/api/events/node_event.h"
 
-#define EVENT_MS_INDEX_MAX_LEN 64
-#define EVENT_MS_INDEX_MIN_LEN 1
-#define EVENT_TXN_ID_LEN 64
-
 /**
  * @brief Subscribes transactions/{transactionId}/included_message topic
  *
@@ -22,14 +18,25 @@
 int event_sub_txn_included_msg(event_client_handle_t client, int *mid, char const transaction_id[], int qos);
 
 /**
- * @brief Subscribes messages/indexation/{index} topic for receiving messages with indexation payloads
+ * @brief Subscribes messages/transaction/tagged-data/{tag} topic for receiving transaction messages with {tag}
  *
  * @param[in] client The event client object
  * @param[in] mid If not NULL, mid will return the message id of the topic subscription
- * @param[in] index An index to get messages
+ * @param[in] tag A tag to get transaction messages
  * @param[in] qos The QoS level for the topic
  * @return int 0 If success
  */
-int event_sub_msg_indexation(event_client_handle_t client, int *mid, char const index[], int qos);
+int event_sub_tx_msg_tagged_data(event_client_handle_t client, int *mid, char const tag[], int qos);
+
+/**
+ * @brief Subscribes messages/tagged-data/{tag} topic for receiving messages with {tag}
+ *
+ * @param[in] client The event client object
+ * @param[in] mid If not NULL, mid will return the message id of the topic subscription
+ * @param[in] tag A tag to get messages
+ * @param[in] qos The QoS level for the topic
+ * @return int 0 If success
+ */
+int event_sub_msg_tagged_data(event_client_handle_t client, int *mid, char const tag[], int qos);
 
 #endif

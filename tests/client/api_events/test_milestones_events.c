@@ -6,7 +6,7 @@
 #include <unity/unity.h>
 
 #include "client/api/events/node_event.h"
-#include "client/api/events/sub_milestones_confirmed.h"
+#include "client/api/events/sub_milestone_payload.h"
 #include "test_config.h"
 
 bool test_completed = false;
@@ -15,22 +15,22 @@ void setUp(void) {}
 
 void tearDown(void) {}
 
-void test_milestones_confirmed_parser(void) {
-  char *json_data = "{\"index\":1139767,\"timestamp\": 1637221249}";
+void test_milestones_payload_parser(void) {
+  char *json_data = "{\"index\":242412,\"timestamp\": 1609950538}";
 
   // Test for expected events response
-  milestone_confirmed_t res = {};
-  TEST_ASSERT_EQUAL_INT(0, parse_milestones_confirmed(json_data, &res));
-  TEST_ASSERT(1139767 == res.index);
-  TEST_ASSERT(1637221249 == res.timestamp);
+  milestone_payload_t res = {};
+  TEST_ASSERT_EQUAL_INT(0, parse_milestone_payload(json_data, &res));
+  TEST_ASSERT(242412 == res.index);
+  TEST_ASSERT(1609950538 == res.timestamp);
 }
 
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, TOPIC_MS_CONFIRMED)) {
-    milestone_confirmed_t res = {};
-    TEST_ASSERT_EQUAL_INT(0, parse_milestones_confirmed((char *)event->data, &res));
+  if (!strcmp(event->topic, TOPIC_MS_LATEST)) {
+    milestone_payload_t res = {};
+    TEST_ASSERT_EQUAL_INT(0, parse_milestone_payload((char *)event->data, &res));
     // Print received data
-    printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
+    printf("Index :%u\nTimestamp : %u\n", res.index, res.timestamp);
   }
 }
 
@@ -42,7 +42,9 @@ void callback(event_client_event_t *event) {
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
       /* Making subscriptions in the on_connect()*/
-      event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
+      // Uncomment for subscribing to respective topics
+      event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
+      // event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -67,7 +69,7 @@ void callback(event_client_event_t *event) {
   }
 }
 
-void test_milestones_confirmed_events(void) {
+void test_milestone_events(void) {
   event_client_config_t config = {.host = TEST_EVENTS_HOST,
                                   .port = TEST_EVENTS_PORT,
                                   .client_id = TEST_EVENTS_CLIENT_ID,
@@ -96,10 +98,9 @@ void test_milestones_confirmed_events(void) {
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_milestones_confirmed_parser);
-
+  RUN_TEST(test_milestones_payload_parser);
 #if TEST_TANGLE_ENABLE
-  RUN_TEST(test_milestones_confirmed_events);
+  RUN_TEST(test_milestone_events);
 #endif
 
   return UNITY_END();
