@@ -8,6 +8,7 @@
 
 #include "core/address.h"
 #include "core/utils/byte_buffer.h"
+#include "core/utils/macros.h"
 #include "crypto/iota_crypto.h"
 #include "unity/unity.h"
 
@@ -15,12 +16,7 @@ void setUp(void) {}
 
 void tearDown(void) {}
 
-bool str_start_with(char const prefix[], char const str[]) {
-  size_t pre_len = strlen(prefix), str_len = strlen(str);
-  return str_len < pre_len ? false : memcmp(prefix, str, pre_len) == 0;
-}
-
-void test_ed25519_gen() {
+void test_ed25519_gen_from_seed_iota_network() {
   byte_t exp_addr[] = {0x00, 0x51, 0x55, 0x82, 0xfe, 0x64, 0x8b, 0xf,  0x10, 0xa2, 0xb2,
                        0xa1, 0xb9, 0x1d, 0x75, 0x2,  0x19, 0xc,  0x97, 0x9b, 0xaa, 0xbf,
                        0xee, 0x85, 0xb6, 0xbb, 0xb5, 0x2,  0x6,  0x92, 0xe5, 0x5d, 0x16};
@@ -51,55 +47,214 @@ void test_ed25519_gen() {
   TEST_ASSERT(address_equal(&ed25519_addr, &from_bech32) == true);
 }
 
-void test_alias_gen() {
-  // random alias address
+void test_ed25519_gen_from_seed_shimmer_network() {
+  byte_t exp_addr[] = {0x0,  0xb5, 0x77, 0x99, 0xbf, 0x74, 0xe,  0x89, 0x46, 0xfe, 0x4a,
+                       0x31, 0xf4, 0xcf, 0x37, 0x66, 0x38, 0x4a, 0xd4, 0xe2, 0x47, 0x22,
+                       0xb1, 0x54, 0xc,  0x62, 0x3a, 0x44, 0x84, 0x6d, 0xe,  0x75, 0xa0};
+  address_t ed25519_addr = {};
+  byte_t seed[32] = {};
+  byte_t ed25519_serialized[33] = {};
+  char bech32_str[65] = {};
+  // convert seed from hex string to binary
+  TEST_ASSERT(hex_2_bin("e57fb750f3a3a67969ece5bd9ae7eef5b2256a818b2aac458941f7274985a410", 64, NULL, seed, 32) == 0);
+  // dump_hex(seed, 32);
+
+  TEST_ASSERT(ed25519_address_from_path(seed, sizeof(seed), "m/44'/4219'/0'/0'/0'", &ed25519_addr) == 0);
+  // dump_hex(ed25519_addr.address, 32);
+  size_t ser_len = address_serialize(&ed25519_addr, ed25519_serialized, sizeof(ed25519_serialized));
+  TEST_ASSERT(ser_len == address_serialized_len(&ed25519_addr));
+  // dump_hex(ed25519_serialized, ser_len);
+  TEST_ASSERT_EQUAL_MEMORY(exp_addr, ed25519_serialized, ser_len);
+
+  // convert binary address to bech32 with smr HRP
+  char const* const exp_smr_bech32 = "smr1qz6h0xdlws8gj3h7fgclfnehvcuy448zgu3tz4qvvgayfprdpe66qpkmarp";
+  TEST_ASSERT(address_to_bech32(&ed25519_addr, "smr", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT_EQUAL_STRING(exp_smr_bech32, bech32_str);
+  // printf("bech32 [smr]: %s\n", bech32_str);
+
+  // bech32 to address object
+  address_t from_bech32 = {};
+  TEST_ASSERT(address_from_bech32("smr", bech32_str, &from_bech32) == 0);
+  TEST_ASSERT(address_equal(&ed25519_addr, &from_bech32) == true);
+}
+
+void test_ed25519_gen_iota_network() {
+  // ed25519 address
+  address_t ed25519_addr = {};
+  ed25519_addr.type = ADDRESS_TYPE_ED25519;
+  TEST_ASSERT(hex_2_bin("efdc112efe262b304bcf379b26c31bad029f616ee3ec4aa6345a366e4c9e43a3",
+                        BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES), NULL, ed25519_addr.address, ED25519_PUBKEY_BYTES) == 0);
+
+  address_t from_bech32 = {};
+  char bech32_str[65] = {};
+  TEST_ASSERT(address_to_bech32(&ed25519_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT(strcmp("iota1qrhacyfwlcnzkvzteumekfkrrwks98mpdm37cj4xx3drvmjvnep6xqgyzyx", bech32_str) == 0);
+  // printf("bech32 [iota]: %s\n", bech32_str);
+
+  TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
+  TEST_ASSERT(address_equal(&ed25519_addr, &from_bech32) == true);
+
+  // create ed25519 address from public key
+  byte_t ed25519_public_key[ED25519_PUBKEY_BYTES] = {0};
+  TEST_ASSERT(hex_2_bin("6f1581709bb7b1ef030d210db18e3b0ba1c776fba65d8cdaad05415142d189f8",
+                        BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES), NULL, ed25519_public_key, ED25519_PUBKEY_BYTES) == 0);
+  TEST_ASSERT(address_from_ed25519_pub(ed25519_public_key, &ed25519_addr) == 0);
+
+  TEST_ASSERT(address_to_bech32(&ed25519_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT(strcmp("iota1qrhacyfwlcnzkvzteumekfkrrwks98mpdm37cj4xx3drvmjvnep6xqgyzyx", bech32_str) == 0);
+  // printf("bech32 [iota]: %s\n", bech32_str);
+
+  TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
+  TEST_ASSERT(address_equal(&ed25519_addr, &from_bech32) == true);
+}
+
+void test_ed25519_gen_shimmer_network() {
+  // ed25519 address
+  address_t ed25519_addr = {};
+  ed25519_addr.type = ADDRESS_TYPE_ED25519;
+  TEST_ASSERT(hex_2_bin("efdc112efe262b304bcf379b26c31bad029f616ee3ec4aa6345a366e4c9e43a3",
+                        BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES), NULL, ed25519_addr.address, ED25519_PUBKEY_BYTES) == 0);
+
+  address_t from_bech32 = {};
+  char bech32_str[65] = {};
+  TEST_ASSERT(address_to_bech32(&ed25519_addr, "smr", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT(strcmp("smr1qrhacyfwlcnzkvzteumekfkrrwks98mpdm37cj4xx3drvmjvnep6xhcazjh", bech32_str) == 0);
+  // printf("bech32 [smr]: %s\n", bech32_str);
+
+  TEST_ASSERT(address_from_bech32("smr", bech32_str, &from_bech32) == 0);
+  TEST_ASSERT(address_equal(&ed25519_addr, &from_bech32) == true);
+
+  // create ed25519 address from public key
+  byte_t ed25519_public_key[ED25519_PUBKEY_BYTES] = {0};
+  TEST_ASSERT(hex_2_bin("6f1581709bb7b1ef030d210db18e3b0ba1c776fba65d8cdaad05415142d189f8",
+                        BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES), NULL, ed25519_public_key, ED25519_PUBKEY_BYTES) == 0);
+  TEST_ASSERT(address_from_ed25519_pub(ed25519_public_key, &ed25519_addr) == 0);
+
+  TEST_ASSERT(address_to_bech32(&ed25519_addr, "smr", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT(strcmp("smr1qrhacyfwlcnzkvzteumekfkrrwks98mpdm37cj4xx3drvmjvnep6xhcazjh", bech32_str) == 0);
+  // printf("bech32 [smr]: %s\n", bech32_str);
+
+  TEST_ASSERT(address_from_bech32("smr", bech32_str, &from_bech32) == 0);
+  TEST_ASSERT(address_equal(&ed25519_addr, &from_bech32) == true);
+}
+
+void test_alias_gen_iota_network() {
+  // alias address
   address_t alias_addr = {};
   alias_addr.type = ADDRESS_TYPE_ALIAS;
-  iota_crypto_randombytes(alias_addr.address, address_len(&alias_addr));
+  TEST_ASSERT(hex_2_bin("6457f5f1bc2c3ec696889309cee0665c298f6394", BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL,
+                        alias_addr.address, ALIAS_ID_BYTES) == 0);
 
   address_t from_bech32 = {};
   char bech32_str[65] = {};
   TEST_ASSERT(address_to_bech32(&alias_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(str_start_with("iota1p", bech32_str) == true);
+  TEST_ASSERT(strcmp("iota1ppj90a03hskra35k3zfsnnhqvewznrmrjsxjvqlj", bech32_str) == 0);
   // printf("bech32 [iota]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
   TEST_ASSERT(address_equal(&alias_addr, &from_bech32) == true);
 
   // create alias address from output ID
-  byte_t output_id[] = "eb962eb4e400b5f0a5534255a721ffcd7b";
+  byte_t output_id[IOTA_OUTPUT_ID_BYTES] = {0};
+  TEST_ASSERT(hex_2_bin("52fdfc072182654f163f5f0f9a621d729566c74d10037c4d7bbb0407d1e2c6490000",
+                        BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES), NULL, output_id, IOTA_OUTPUT_ID_BYTES) == 0);
   TEST_ASSERT(alias_address_from_output(output_id, sizeof(output_id), &alias_addr) == 0);
 
   TEST_ASSERT(address_to_bech32(&alias_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(str_start_with("iota1p", bech32_str) == true);
+  TEST_ASSERT(strcmp("iota1ppj90a03hskra35k3zfsnnhqvewznrmrjsxjvqlj", bech32_str) == 0);
+  // printf("bech32 [iota]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
   TEST_ASSERT(address_equal(&alias_addr, &from_bech32) == true);
 }
 
-void test_nft_gen() {
-  // random NFT address
+void test_alias_gen_shimmer_network() {
+  // alias address
+  address_t alias_addr = {};
+  alias_addr.type = ADDRESS_TYPE_ALIAS;
+  TEST_ASSERT(hex_2_bin("6457f5f1bc2c3ec696889309cee0665c298f6394", BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL,
+                        alias_addr.address, ALIAS_ID_BYTES) == 0);
+
+  address_t from_bech32 = {};
+  char bech32_str[65] = {};
+  TEST_ASSERT(address_to_bech32(&alias_addr, "smr", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT(strcmp("smr1ppj90a03hskra35k3zfsnnhqvewznrmrjs3m980c", bech32_str) == 0);
+  // printf("bech32 [smr]: %s\n", bech32_str);
+
+  TEST_ASSERT(address_from_bech32("smr", bech32_str, &from_bech32) == 0);
+  TEST_ASSERT(address_equal(&alias_addr, &from_bech32) == true);
+
+  // create alias address from output ID
+  byte_t output_id[IOTA_OUTPUT_ID_BYTES] = {0};
+  TEST_ASSERT(hex_2_bin("52fdfc072182654f163f5f0f9a621d729566c74d10037c4d7bbb0407d1e2c6490000",
+                        BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES), NULL, output_id, IOTA_OUTPUT_ID_BYTES) == 0);
+  TEST_ASSERT(alias_address_from_output(output_id, sizeof(output_id), &alias_addr) == 0);
+
+  TEST_ASSERT(address_to_bech32(&alias_addr, "smr", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT(strcmp("smr1ppj90a03hskra35k3zfsnnhqvewznrmrjs3m980c", bech32_str) == 0);
+  // printf("bech32 [smr]: %s\n", bech32_str);
+
+  TEST_ASSERT(address_from_bech32("smr", bech32_str, &from_bech32) == 0);
+  TEST_ASSERT(address_equal(&alias_addr, &from_bech32) == true);
+}
+
+void test_nft_gen_iota_network() {
+  // NFT address
   address_t nft_addr = {};
   nft_addr.type = ADDRESS_TYPE_NFT;
-  iota_crypto_randombytes(nft_addr.address, address_len(&nft_addr));
+  TEST_ASSERT(hex_2_bin("a1d81f43cc3cc1fe80c594481a63de76eb0d23e1", BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL,
+                        nft_addr.address, NFT_ID_BYTES) == 0);
 
   address_t from_bech32 = {};
   char bech32_str[65] = {};
   TEST_ASSERT(address_to_bech32(&nft_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(str_start_with("iota1z", bech32_str) == true);
+  TEST_ASSERT(strcmp("iota1zzsas86res7vrl5qck2ysxnrmemwkrfruyltffrq", bech32_str) == 0);
   // printf("bech32 [iota]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
   TEST_ASSERT(address_equal(&nft_addr, &from_bech32) == true);
 
   // create NFT address from output ID
-  byte_t output_id[] = "eb962eb4e400b5f0a5534255a721ffcd7b";
-  TEST_ASSERT(alias_address_from_output(output_id, sizeof(output_id), &nft_addr) == 0);
+  byte_t output_id[IOTA_OUTPUT_ID_BYTES] = {0};
+  TEST_ASSERT(hex_2_bin("97b9d84d33419199483daab1f81ddccdeff478b6ee9040cfe026c517f67757880000",
+                        BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES), NULL, output_id, IOTA_OUTPUT_ID_BYTES) == 0);
+  TEST_ASSERT(nft_address_from_output(output_id, sizeof(output_id), &nft_addr) == 0);
 
   TEST_ASSERT(address_to_bech32(&nft_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(str_start_with("iota1p", bech32_str) == true);
+  TEST_ASSERT(strcmp("iota1zzsas86res7vrl5qck2ysxnrmemwkrfruyltffrq", bech32_str) == 0);
+  // printf("bech32 [iota]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
+  TEST_ASSERT(address_equal(&nft_addr, &from_bech32) == true);
+}
+
+void test_nft_gen_shimmer_network() {
+  // NFT address
+  address_t nft_addr = {};
+  nft_addr.type = ADDRESS_TYPE_NFT;
+  TEST_ASSERT(hex_2_bin("a1d81f43cc3cc1fe80c594481a63de76eb0d23e1", BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL,
+                        nft_addr.address, NFT_ID_BYTES) == 0);
+
+  address_t from_bech32 = {};
+  char bech32_str[65] = {};
+  TEST_ASSERT(address_to_bech32(&nft_addr, "smr", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT(strcmp("smr1zzsas86res7vrl5qck2ysxnrmemwkrfruygzqwn2", bech32_str) == 0);
+  // printf("bech32 [smr]: %s\n", bech32_str);
+
+  TEST_ASSERT(address_from_bech32("smr", bech32_str, &from_bech32) == 0);
+  TEST_ASSERT(address_equal(&nft_addr, &from_bech32) == true);
+
+  // create NFT address from output ID
+  byte_t output_id[IOTA_OUTPUT_ID_BYTES] = {0};
+  TEST_ASSERT(hex_2_bin("97b9d84d33419199483daab1f81ddccdeff478b6ee9040cfe026c517f67757880000",
+                        BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES), NULL, output_id, IOTA_OUTPUT_ID_BYTES) == 0);
+  TEST_ASSERT(nft_address_from_output(output_id, sizeof(output_id), &nft_addr) == 0);
+
+  TEST_ASSERT(address_to_bech32(&nft_addr, "smr", bech32_str, sizeof(bech32_str)) == 0);
+  TEST_ASSERT(strcmp("smr1zzsas86res7vrl5qck2ysxnrmemwkrfruygzqwn2", bech32_str) == 0);
+  // printf("bech32 [smr]: %s\n", bech32_str);
+
+  TEST_ASSERT(address_from_bech32("smr", bech32_str, &from_bech32) == 0);
   TEST_ASSERT(address_equal(&nft_addr, &from_bech32) == true);
 }
 
@@ -174,9 +329,14 @@ void test_clone_equal() {
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_ed25519_gen);
-  RUN_TEST(test_alias_gen);
-  RUN_TEST(test_nft_gen);
+  RUN_TEST(test_ed25519_gen_from_seed_iota_network);
+  RUN_TEST(test_ed25519_gen_from_seed_shimmer_network);
+  RUN_TEST(test_ed25519_gen_iota_network);
+  RUN_TEST(test_ed25519_gen_shimmer_network);
+  RUN_TEST(test_alias_gen_iota_network);
+  RUN_TEST(test_alias_gen_shimmer_network);
+  RUN_TEST(test_nft_gen_iota_network);
+  RUN_TEST(test_nft_gen_shimmer_network);
   RUN_TEST(test_serializer);
   RUN_TEST(test_clone_equal);
 
