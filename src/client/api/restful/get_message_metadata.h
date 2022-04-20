@@ -79,7 +79,7 @@ int parse_messages_metadata(char const *const j_str, msg_meta_t *res);
 /**
  * @brief Message metadata JSON deserialization
  *
- * @param[in] j_str A string of json object
+ * @param[in] j_str A string of the JSON object
  * @param[out] res A response object of message metadata
  * @return int 0 on success
  */
@@ -105,7 +105,7 @@ char *msg_meta_parent_get(msg_meta_t *msg, size_t index);
 /**
  * @brief Gets message metadata from a given message ID
  *
- * @param[in] ctx IOTA Client conf
+ * @param[in] ctx The client configuration
  * @param[in] msg_id A message ID string for query
  * @param[out] res A message metadata response
  * @return int 0 on success

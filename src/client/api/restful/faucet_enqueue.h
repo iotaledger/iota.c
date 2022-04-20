@@ -16,7 +16,7 @@
  *
  */
 typedef struct {
-  char bech32_address[BIN_TO_HEX_STR_BYTES(ED25519_PUBKEY_BYTES)];  ///< The bech32 encoded address that is
+  char bech32_address[BIN_TO_HEX_STR_BYTES(ED25519_PUBKEY_BYTES)];  ///< The Bech32 encoded address that is
                                                                     ///< returned in response
   uint32_t waiting_reqs_count;                                      ///< The number of requests in faucet queue
 } faucet_enqueue_t;
@@ -40,7 +40,7 @@ extern "C" {
 /**
  * @brief Faucet enqueue response JSON deserialization
  *
- * @param[in] j_str A string of json object
+ * @param[in] j_str A string of the JSON object
  * @param[out] res A response object
  * @return int 0 on success
  */
@@ -49,7 +49,7 @@ int deser_faucet_enqueue_response(char const *const j_str, res_faucet_enqueue_t 
 /**
  * @brief Request tokens to address from faucet
  * @param[in] conf The client endpoint configuration
- * @param[in] addr_bech32 The bech32 address to which the tokens needs to be requested from faucet
+ * @param[in] addr_bech32 The Bech32 address to which the tokens needs to be requested from faucet
  * @param[out] res The faucet enqueue response object
  *
  * @return res_faucet_enqueue_t*

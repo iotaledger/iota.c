@@ -44,7 +44,7 @@ void res_message_free(res_message_t *msg);
 /**
  * @brief The message response deserialization
  *
- * @param[in] j_str A string of json object
+ * @param[in] j_str A string of the JSON object
  * @param[out] res the message object
  * @return int 0 on success
  */

@@ -30,7 +30,9 @@ typedef struct {
                                ///< milestone
   char network_name[32];       ///< The network name of this node
   uint8_t protocol_version;    ///< The protocol version currently used by the network
-  char bech32hrp[16];          ///< The bech32 HRP, `atoi` for testnet and `iota` for mainnet
+  char bech32hrp[16];          ///< The Bech32 HRP, the possible HRP string:
+                               ///< `atoi` for testnet, `iota` for mainnet,
+                               ///< `rms` for Shimmer testnet, `smr` for Shimmer.
   uint32_t min_pow_score;      ///< The minimum pow score of the network
   uint16_t v_byte_cost;        ///< The Byte Cost
   uint8_t v_byte_factor_data;  ///< The Byte Factor Data

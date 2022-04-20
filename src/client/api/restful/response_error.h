@@ -21,8 +21,20 @@ typedef struct {
 extern "C" {
 #endif
 
+/**
+ * @brief Free an error response object
+ *
+ * @param err The error response
+ */
 void res_err_free(res_err_t *err);
 
+/**
+ * @brief The error object deserialization
+ *
+ * @param j_obj A string of the JSON object
+ *
+ * @return res_err_t*
+ */
 res_err_t *deser_error(cJSON *j_obj);
 
 #ifdef __cplusplus
