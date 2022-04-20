@@ -1,6 +1,7 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <mcheck.h>
 #include <stdio.h>
 
 #include "core/models/outputs/output_basic.h"
@@ -29,6 +30,9 @@ static output_basic_t* create_output_basic() {
 }
 
 int main() {
+  // enable memory tracing
+  mtrace();
+
   uint16_t network_id = 2;
   transaction_essence_t* es = tx_essence_new(network_id);
   if (!es) {
@@ -98,6 +102,9 @@ int main() {
 
   // clean up
   tx_essence_free(es);
+
+  // disable memory tracing
+  muntrace();
 
   return 0;
 }
