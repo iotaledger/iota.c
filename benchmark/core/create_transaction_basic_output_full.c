@@ -1,7 +1,9 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#ifdef MTRACE_ENABLED
 #include <mcheck.h>
+#endif
 #include <stdio.h>
 
 #include "core/models/outputs/native_tokens.h"
@@ -59,8 +61,10 @@ static output_basic_t* create_output_basic() {
 }
 
 int main() {
+#ifdef MTRACE_ENABLED
   // enable memory tracing
   mtrace();
+#endif
 
   uint16_t network_id = 2;
   transaction_essence_t* es = tx_essence_new(network_id);
@@ -132,8 +136,10 @@ int main() {
   // clean up
   tx_essence_free(es);
 
+#ifdef MTRACE_ENABLED
   // disable memory tracing
   muntrace();
+#endif
 
   return 0;
 }

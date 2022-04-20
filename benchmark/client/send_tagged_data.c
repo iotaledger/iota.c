@@ -1,7 +1,9 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#ifdef MTRACE_ENABLED
 #include <mcheck.h>
+#endif
 #include <stdio.h>
 
 #include "benchmark_config.h"
@@ -9,8 +11,10 @@
 #include "client/api/restful/send_tagged_data.h"
 
 int main() {
+#ifdef MTRACE_ENABLED
   // enable memory tracing
   mtrace();
+#endif
 
   iota_client_conf_t ctx = {.host = NODE_HOST, .port = NODE_PORT, .use_tls = false};
 
@@ -43,8 +47,10 @@ int main() {
   printf("[%s:%d]: Message successfully send! URL: http://%s:%d/api/v2/messages/0x%s\n", __func__, __LINE__, NODE_HOST,
          NODE_PORT, res.u.msg_id);
 
+#ifdef MTRACE_ENABLED
   // disable memory tracing
   muntrace();
+#endif
 
   return 0;
 }
