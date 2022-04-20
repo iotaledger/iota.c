@@ -13,7 +13,6 @@ It provides the following functionalities:
 
 ```{eval-rst}
 .. doxygenenum:: address_type_t
-  :members:
 ```
 
 ```{eval-rst}
@@ -83,7 +82,6 @@ It provides the following functionalities:
 
 ```{eval-rst}
 .. doxygenenum:: core_message_payload_type_t
-  :members:
 ```
 
 ```{eval-rst}
@@ -171,7 +169,6 @@ It provides the following functionalities:
 
 ```{eval-rst}
 .. doxygenenum:: unlock_type_t
-  :members:
 ```
 
 ```{eval-rst}
@@ -296,7 +293,6 @@ It provides the following functionalities:
 
 ```{eval-rst}
 .. doxygenenum:: utxo_output_type_t
-  :members:
 ```
 
 ```{eval-rst}
