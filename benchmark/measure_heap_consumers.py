@@ -12,11 +12,11 @@ if len(sys.argv) < 2:
 
 demo_application = sys.argv[1]
 
+print("Executing " + os.path.basename(demo_application) + " application...")
 process = subprocess.Popen("export MALLOC_TRACE=./heap_consumers.txt; " + demo_application,
                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 process.wait()
 
-print("Executing " + os.path.basename(demo_application) + " application...")
 if process.returncode == 0:
     print("Application executed successfully.")
 else:
