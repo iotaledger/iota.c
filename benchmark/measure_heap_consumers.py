@@ -54,4 +54,4 @@ top_heap_memory_allocations = sorted(top_heap_memory_allocations.items(), key=la
 print("{:<12} {:<10}".format('Alloc.size', 'Occurrence'))
 for allocation in top_heap_memory_allocations:
     (size, occurrence) = allocation
-    print("{:<12} {:<10}".format(str(size) + ' KB', str(occurrence) + 'x'))
+    print("{:<12} {:<10}".format(str(size) + ' B', str(occurrence) + 'x'))

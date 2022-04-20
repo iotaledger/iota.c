@@ -20,9 +20,9 @@ function(add_iota_benchmark benchmark_name benchmark_src)
       add_compile_options("-fsanitize=address,undefined" "-fno-omit-frame-pointer" "-fsanitize-address-use-after-scope"
                           "-fno-sanitize-recover=undefined")
       add_link_options("-fsanitize=address,undefined")
+    else()
+      message(WARNING "Sanitizer is not supported on Windows or Release build")
     endif()
-  else()
-    message(WARNING "Sanitizer is not supported on Windows or Release build")
   endif()
   # mtrace
   if(ENABLE_MTRACE)
