@@ -205,16 +205,15 @@ void test_send_msg_tx_basic() {
   TEST_ASSERT(ed25519_address_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/0'", &addr_send) == 0);
   TEST_ASSERT(ed25519_address_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/1'", &addr_recv) == 0);
 
-  char const* const hrp = "atoi";
-  address_to_bech32(&addr_send, hrp, bech32_sender, sizeof(bech32_sender));
-  address_to_bech32(&addr_recv, hrp, bech32_receiver, sizeof(bech32_receiver));
-  printf("sender: %s\nreceiver: %s\n", bech32_sender, bech32_receiver);
-
-  // Get info from a node and set correct network ID in protocol version
+  // Get info from a node
   res_node_info_t* info = res_node_info_new();
   int ret = get_node_info(&ctx, info);
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_FALSE(info->is_error);
+
+  address_to_bech32(&addr_send, info->u.output_node_info->bech32hrp, bech32_sender, sizeof(bech32_sender));
+  address_to_bech32(&addr_recv, info->u.output_node_info->bech32hrp, bech32_receiver, sizeof(bech32_receiver));
+  printf("sender: %s\nreceiver: %s\n", bech32_sender, bech32_receiver);
 
   // Set correct protocol version and network ID
   uint8_t ver = info->u.output_node_info->protocol_version;

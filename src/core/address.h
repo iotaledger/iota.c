@@ -77,6 +77,15 @@ int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], ed255
 int ed25519_address_from_path(byte_t seed[], size_t seed_len, char path[], address_t *addr);
 
 /**
+ * @brief Derive ed25519 address from ed25519 public key
+ *
+ * @param[in] pub_key An ed25519 public key
+ * @param[out] addr An ed25519 address object
+ * @return int 0 on success
+ */
+int address_from_ed25519_pub(byte_t const pub_key[], address_t *addr);
+
+/**
  * @brief Derive an Alias address from output ID
  *
  * @param[in] output_id A output ID byte array

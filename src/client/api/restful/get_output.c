@@ -160,7 +160,7 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
     return -1;
   }
 
-  if (strlen(output_id) != IOTA_OUTPUT_ID_HEX_BYTES) {
+  if (strlen(output_id) != BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES)) {
     // invalid output id length
     printf("[%s:%d]: invalid output id length: %zu\n", __func__, __LINE__, strlen(output_id));
     return -1;
