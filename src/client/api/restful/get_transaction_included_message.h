@@ -23,7 +23,7 @@ int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char 
 /**
  * @brief The message response deserialization
  *
- * @param[in] j_str A string of json object
+ * @param[in] j_str A string of the JSON object
  * @param[out] res the message object
  * @return int 0 on success
  */

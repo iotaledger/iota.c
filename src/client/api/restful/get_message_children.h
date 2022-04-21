@@ -1,4 +1,3 @@
-
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
@@ -46,7 +45,7 @@ extern "C" {
 res_msg_children_t *res_msg_children_new();
 
 /**
- * @brief Frees a message children reponse object
+ * @brief Frees a message children response object
  * @param[in] res A response object
  */
 void res_msg_children_free(res_msg_children_t *res);
@@ -54,7 +53,7 @@ void res_msg_children_free(res_msg_children_t *res);
 /**
  * @brief message children JSON deserialization
  *
- * @param[in] j_str A string of json object
+ * @param[in] j_str A string of the JSON object
  * @param[out] res A response object of message children
  * @return int 0 on success
  */
@@ -71,7 +70,7 @@ size_t res_msg_children_len(res_msg_children_t *res);
 /**
  * @brief Gets the children message ID by a given index
  *
- * @param res The children respose
+ * @param res The children response
  * @param index A index
  * @return char* The hex string of children message ID
  */
@@ -80,7 +79,7 @@ char *res_msg_children_get(res_msg_children_t *res, size_t index);
 /**
  * @brief Gets message children from a given message ID
  *
- * @param[in] ctx IOTA Client conf
+ * @param[in] ctx The client configuration
  * @param[in] msg_id A message ID string for query
  * @param[out] res A message children response
  * @return int 0 on success

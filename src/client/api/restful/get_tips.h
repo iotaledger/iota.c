@@ -45,9 +45,10 @@ res_tips_t *res_tips_new();
 void res_tips_free(res_tips_t *tips);
 
 /**
- * @brief Gets tips
+ * @brief Gets tips for attaching to a message
  *
- * Returns two non-lazy tips. In case the node can only provide one tip, tip1 and tip2 are identical.
+ * Returns tips that are ideal for attaching to a message. The tips can be considered as `non-lazy` and are therefore
+ * ideal for attaching a message.
  *
  * @param[in] conf The client endpoint configuration
  * @param[out] res A response object of tips object
@@ -58,7 +59,7 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res);
 /**
  * @brief Tips response deserialization
  *
- * @param[in] j_str A string of json object
+ * @param[in] j_str A string of the JSON object
  * @param[out] res A response object of tips object
  * @return int 0 on success
  */
