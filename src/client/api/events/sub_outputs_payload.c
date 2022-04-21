@@ -9,7 +9,12 @@
 #include "core/utils/macros.h"
 
 int event_sub_outputs_id(event_client_handle_t client, int *mid, char const output_id[], int qos) {
-  if ((strlen(output_id)) != BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES)) {
+  if (output_id == NULL) {
+    printf("[%s:%d]: Output cannot be NULL\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (strlen(output_id) != BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES)) {
     printf("[%s:%d]: Output Id length is invalid\n", __func__, __LINE__);
     return -1;
   }
@@ -23,14 +28,13 @@ int event_sub_outputs_id(event_client_handle_t client, int *mid, char const outp
 
 int event_sub_outputs_unlock_address(event_client_handle_t client, int *mid, char const *const unlock_condition,
                                      char const *const addr_bech32, int qos) {
+  if (unlock_condition == NULL || addr_bech32 == NULL) {
+    printf("[%s:%d]: invalid inputs\n", __func__, __LINE__);
+    return -1;
+  }
   // Check if addr_bech32 has minimum required length
   if (strlen(addr_bech32) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
     printf("[%s:%d] invalid bech32 address\n", __func__, __LINE__);
-    return -1;
-  }
-  // Check if unlock condition is present
-  if (strlen(unlock_condition) > 0) {
-    printf("[%s:%d] invalid unlock condition\n", __func__, __LINE__);
     return -1;
   }
 
@@ -55,14 +59,13 @@ int event_sub_outputs_unlock_address(event_client_handle_t client, int *mid, cha
 
 int event_sub_outputs_unlock_address_spent(event_client_handle_t client, int *mid, char const *const unlock_condition,
                                            char const *const addr_bech32, int qos) {
+  if (unlock_condition == NULL || addr_bech32 == NULL) {
+    printf("[%s:%d]: invalid inputs\n", __func__, __LINE__);
+    return -1;
+  }
   // Check if addr_bech32 has minimum required length
   if (strlen(addr_bech32) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
     printf("[%s:%d] invalid bech32 address\n", __func__, __LINE__);
-    return -1;
-  }
-  // Check if unlock condition is present
-  if (strlen(unlock_condition) > 0) {
-    printf("[%s:%d] invalid unlock condition\n", __func__, __LINE__);
     return -1;
   }
 
@@ -86,6 +89,11 @@ int event_sub_outputs_unlock_address_spent(event_client_handle_t client, int *mi
 }
 
 int event_sub_outputs_alias_id(event_client_handle_t client, int *mid, char const alias_id[], int qos) {
+  if (alias_id == NULL) {
+    printf("[%s:%d] alias id cannot be NULL\n", __func__, __LINE__);
+    return -1;
+  }
+
   if (strlen(alias_id) != BIN_TO_HEX_BYTES(ALIAS_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;
@@ -99,6 +107,11 @@ int event_sub_outputs_alias_id(event_client_handle_t client, int *mid, char cons
 }
 
 int event_sub_outputs_nft_id(event_client_handle_t client, int *mid, char const nft_id[], int qos) {
+  if (nft_id == NULL) {
+    printf("[%s:%d] nft id cannot be NULL\n", __func__, __LINE__);
+    return -1;
+  }
+
   if (strlen(nft_id) != BIN_TO_HEX_BYTES(NFT_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;
@@ -112,6 +125,11 @@ int event_sub_outputs_nft_id(event_client_handle_t client, int *mid, char const 
 }
 
 int event_sub_outputs_foundry_id(event_client_handle_t client, int *mid, char const foundry_id[], int qos) {
+  if (foundry_id == NULL) {
+    printf("[%s:%d] foundry if cannot be NULL\n", __func__, __LINE__);
+    return -1;
+  }
+
   if (strlen(foundry_id) != BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES)) {
     printf("[%s:%d] incorrect length of id\n", __func__, __LINE__);
     return -1;

@@ -14,7 +14,7 @@
 typedef struct {
   uint32_t timestamp;  ///< The timestamp of milestone payload
   uint32_t index;      ///< The index of milestone payload
-} milestone_payload_t;
+} events_milestone_payload_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,7 +26,7 @@ extern "C" {
  * @param[out] res Parsed response object
  * @return int 0 If success
  */
-int parse_milestone_payload(char *data, milestone_payload_t *res);
+int parse_milestone_payload(char *data, events_milestone_payload_t *res);
 
 #ifdef __cplusplus
 }

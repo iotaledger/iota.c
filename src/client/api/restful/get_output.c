@@ -118,14 +118,7 @@ static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
 get_output_t *get_output_new() {
   get_output_t *output = malloc(sizeof(get_output_t));
   if (output) {
-    output->is_spent = false;
-    output->ledger_index = 0;
-    output->ml_index_booked = 0;
-    output->ml_index_spent = 0;
-    output->ml_time_booked = 0;
-    output->ml_time_spent = 0;
-    output->output_index = 0;
-    output->output = NULL;
+    memset(output, 0, sizeof(get_output_t));
     return output;
   }
   return NULL;

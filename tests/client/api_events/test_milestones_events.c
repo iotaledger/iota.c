@@ -19,7 +19,7 @@ void test_milestones_payload_parser(void) {
   char *json_data = "{\"index\":242412,\"timestamp\": 1609950538}";
 
   // Test for expected events response
-  milestone_payload_t res = {};
+  events_milestone_payload_t res = {};
   TEST_ASSERT_EQUAL_INT(0, parse_milestone_payload(json_data, &res));
   TEST_ASSERT(242412 == res.index);
   TEST_ASSERT(1609950538 == res.timestamp);
@@ -27,7 +27,7 @@ void test_milestones_payload_parser(void) {
 
 void process_event_data(event_client_event_t *event) {
   if (!strcmp(event->topic, TOPIC_MS_LATEST)) {
-    milestone_payload_t res = {};
+    events_milestone_payload_t res = {};
     TEST_ASSERT_EQUAL_INT(0, parse_milestone_payload((char *)event->data, &res));
     // Print received data
     printf("Index :%u\nTimestamp : %u\n", res.index, res.timestamp);
