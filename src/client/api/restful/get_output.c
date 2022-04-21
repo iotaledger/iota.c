@@ -333,43 +333,48 @@ int deser_get_output(char const *const j_str, res_output_t *res) {
   return parse_get_output(j_str, res->u.data);
 }
 
-void dump_output_response(res_output_t *res) {
+void print_get_output(get_output_t *res, uint8_t indentation) {
+  printf("%s{\n", PRINT_INDENTATION(indentation));
+  printf("%s\tMessage ID: ", PRINT_INDENTATION(indentation));
+  dump_hex_str(res->msg_id, IOTA_MESSAGE_ID_BYTES);
+  printf("%s\tTransaction ID: ", PRINT_INDENTATION(indentation));
+  dump_hex_str(res->tx_id, IOTA_TRANSACTION_ID_BYTES);
+  printf("%s\toutputIndex: %" PRIu16 "\n", PRINT_INDENTATION(indentation), res->output_index);
+  printf("%s\tisSpent: %s\n", PRINT_INDENTATION(indentation), res->is_spent ? "True" : "False");
+  if (res->is_spent == true) {
+    printf("%s\tmilestoneIndexSpent: %d\n", PRINT_INDENTATION(indentation), res->ml_index_spent);
+    printf("%s\tmilestoneTimestampSpent: %d\n", PRINT_INDENTATION(indentation), res->ml_time_spent);
+    printf("%s\tTransaction ID Spent: ", PRINT_INDENTATION(indentation));
+    dump_hex_str(res->tx_id_spent, IOTA_TRANSACTION_ID_BYTES);
+  }
+  printf("%s\tmilestoneIndexBooked: %d\n", PRINT_INDENTATION(indentation), res->ml_index_booked);
+  printf("%s\tmilestoneTimestampBooked: %d\n", PRINT_INDENTATION(indentation), res->ml_time_booked);
+  printf("%s\tledgerIndex: %d\n", PRINT_INDENTATION(indentation), res->ledger_index);
+  switch (res->output->output_type) {
+    case OUTPUT_BASIC:
+      output_basic_print((output_basic_t *)res->output->output, indentation + 1);
+      break;
+    case OUTPUT_ALIAS:
+      output_alias_print((output_alias_t *)res->output->output, indentation + 1);
+      break;
+    case OUTPUT_FOUNDRY:
+      output_foundry_print((output_foundry_t *)res->output->output, indentation + 1);
+      break;
+    case OUTPUT_NFT:
+      output_nft_print((output_nft_t *)res->output->output, indentation + 1);
+      break;
+    default:
+      break;
+  }
+}
+
+void dump_get_output_response(res_output_t *res, uint8_t indentation) {
   if (!res) {
     return;
   }
   if (res->is_error) {
-    printf("Error: %s\n", res->u.error->msg);
+    printf("%s\tError: %s\n", PRINT_INDENTATION(indentation), res->u.error->msg);
   } else {
-    printf("Message ID: ");
-    dump_hex_str(res->u.data->msg_id, IOTA_MESSAGE_ID_BYTES);
-    printf("Transaction ID: ");
-    dump_hex_str(res->u.data->tx_id, IOTA_TRANSACTION_ID_BYTES);
-    printf("outputIndex: %" PRIu16 "\n", res->u.data->output_index);
-    printf("isSpent: %s\n", res->u.data->is_spent ? "True" : "False");
-    if (res->u.data->is_spent == true) {
-      printf("milestoneIndexSpent: %d\n", res->u.data->ml_index_spent);
-      printf("milestoneTimestampSpent: %d\n", res->u.data->ml_time_spent);
-      printf("Transaction ID Spent: ");
-      dump_hex_str(res->u.data->tx_id_spent, IOTA_TRANSACTION_ID_BYTES);
-    }
-    printf("milestoneIndexBooked: %d\n", res->u.data->ml_index_booked);
-    printf("milestoneTimestampBooked: %d\n", res->u.data->ml_time_booked);
-    printf("ledgerIndex: %d\n", res->u.data->ledger_index);
-    switch (res->u.data->output->output_type) {
-      case OUTPUT_BASIC:
-        output_basic_print((output_basic_t *)res->u.data->output->output, 0);
-        break;
-      case OUTPUT_ALIAS:
-        output_alias_print((output_alias_t *)res->u.data->output->output, 0);
-        break;
-      case OUTPUT_FOUNDRY:
-        output_foundry_print((output_foundry_t *)res->u.data->output->output, 0);
-        break;
-      case OUTPUT_NFT:
-        output_nft_print((output_nft_t *)res->u.data->output->output, 0);
-        break;
-      default:
-        break;
-    }
+    print_get_output(res->u.data, indentation);
   }
 }

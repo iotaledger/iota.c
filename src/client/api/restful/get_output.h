@@ -105,11 +105,20 @@ int parse_get_output(char const *const j_str, get_output_t *res);
 int deser_get_output(char const *const j_str, res_output_t *res);
 
 /**
+ * @brief Print get output object
+ *
+ * @param[in] res A get output object
+ * @param[in] indentation Tab indentation when printing output response
+ */
+void print_get_output(get_output_t *res, uint8_t indentation);
+
+/**
  * @brief Print out an output response object
  *
  * @param[in] res An output response
+ * @param[in] indentation Tab indentation when printing output response
  */
-void dump_output_response(res_output_t *res);
+void dump_get_output_response(res_output_t *res, uint8_t indentation);
 
 #ifdef __cplusplus
 }

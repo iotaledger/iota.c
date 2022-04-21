@@ -27,7 +27,7 @@ void test_get_output() {
   if (res->is_error) {
     printf("%s\n", res->u.error->msg);
   } else {
-    dump_output_response(res);
+    dump_get_output_response(res, 0);
   }
   get_output_response_free(res);
 }
@@ -90,7 +90,7 @@ void test_output_response_deserialization() {
   TEST_ASSERT_NOT_NULL(o->unlock_conditions);
   TEST_ASSERT_NULL(o->feature_blocks);
 
-  dump_output_response(out);
+  dump_get_output_response(out, 0);
   get_output_response_free(out);
 }
 
@@ -145,7 +145,7 @@ void test_spent_output_response_deserialization() {
   TEST_ASSERT_NOT_NULL(o->unlock_conditions);
   TEST_ASSERT_NULL(o->feature_blocks);
 
-  dump_output_response(out);
+  dump_get_output_response(out, 0);
   get_output_response_free(out);
 }
 
