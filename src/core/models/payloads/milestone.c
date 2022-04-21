@@ -4,6 +4,7 @@
 #include "core/models/payloads/milestone.h"
 #include "core/models/message.h"
 #include "core/models/unlock_block.h"
+#include "utlist.h"
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
 static const UT_icd ut_sign_icd = {sizeof(uint8_t) * ED25519_SIGNATURE_BLOCK_BYTES, NULL, NULL, NULL};
@@ -14,12 +15,12 @@ milestone_payload_t *milestone_payload_new() {
     ms->type = CORE_MESSAGE_PAYLOAD_MILESTONE;
     ms->index = 0;
     ms->timestamp = 0;
+    memset(ms->last_milestone_id, 0, sizeof(ms->last_milestone_id));
     utarray_new(ms->parents, &ut_msg_id_icd);
-    memset(ms->inclusion_merkle_proof, 0, sizeof(ms->inclusion_merkle_proof));
-    ms->next_pow_score = 0;
-    ms->next_pow_score_milestone_index = 0;
+    memset(ms->confirmed_merkle_root, 0, sizeof(ms->confirmed_merkle_root));
+    memset(ms->applied_merkle_root, 0, sizeof(ms->applied_merkle_root));
     ms->metadata = NULL;
-    ms->receipt = NULL;
+    ms->options = NULL;
     utarray_new(ms->signatures, &ut_sign_icd);
   }
   return ms;
@@ -79,6 +80,9 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
     printf("%s\tIndex: %d\n", PRINT_INDENTATION(indentation), ms->index);
     printf("%s\tTimestamp: %d\n", PRINT_INDENTATION(indentation), ms->timestamp);
 
+    printf("%s\tLast Milestone Id: ", PRINT_INDENTATION(indentation));
+    dump_hex_str(ms->last_milestone_id, sizeof(ms->last_milestone_id));
+
     printf("%s\tParent Message Ids:\n", PRINT_INDENTATION(indentation));
     size_t parent_message_len = milestone_payload_get_parents_count(ms);
     printf("%s\tParent Message Count: %lu\n", PRINT_INDENTATION(indentation + 1), parent_message_len);
@@ -87,12 +91,11 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
       dump_hex_str(milestone_payload_get_parent(ms, index), IOTA_MESSAGE_ID_BYTES);
     }
 
-    printf("%s\tInclusion Merkle Proof: ", PRINT_INDENTATION(indentation));
-    dump_hex_str(ms->inclusion_merkle_proof, sizeof(ms->inclusion_merkle_proof));
+    printf("%s\tConfirmed Merkle Root: ", PRINT_INDENTATION(indentation));
+    dump_hex_str(ms->confirmed_merkle_root, sizeof(ms->confirmed_merkle_root));
 
-    printf("%s\tNext POW Score: %d\n", PRINT_INDENTATION(indentation), ms->next_pow_score);
-    printf("%s\tNext POW Score Milestone Index: %d\n", PRINT_INDENTATION(indentation),
-           ms->next_pow_score_milestone_index);
+    printf("%s\tApplied Merkle Root: ", PRINT_INDENTATION(indentation));
+    dump_hex_str(ms->applied_merkle_root, sizeof(ms->applied_merkle_root));
 
     if (ms->metadata) {
       printf("%s\tMetadata: ", PRINT_INDENTATION(indentation));
@@ -101,8 +104,24 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
       printf("%s\tMetadata: null\n", PRINT_INDENTATION(indentation));
     }
 
-    // TODO print receipt
-    printf("%s\tReceipt: null\n", PRINT_INDENTATION(indentation));
+    if (ms->options) {
+      milestone_options_list_t *elm;
+      LL_FOREACH(ms->options, elm) {
+        switch (elm->option->type) {
+          case MILESTONE_OPTION_RECEIPTS:
+            break;
+          case MILESTONE_OPTION_POW:
+            printf("%s\tMilestone PoW option:\n", PRINT_INDENTATION(indentation));
+            printf("%s\t\tNext POW Score: %d\n", PRINT_INDENTATION(indentation),
+                   ((milestone_pow_option_t *)elm->option->option)->next_pow_score);
+            printf("%s\t\tNext POW Score Milestone Index: %d\n", PRINT_INDENTATION(indentation),
+                   ((milestone_pow_option_t *)elm->option->option)->next_pow_score_milestone_index);
+            break;
+        }
+      }
+    } else {
+      printf("%s\tOptions: null\n", PRINT_INDENTATION(indentation));
+    }
 
     printf("%s\tSignatures: [\n", PRINT_INDENTATION(indentation));
     size_t signatures_len = milestone_payload_get_signatures_count(ms);

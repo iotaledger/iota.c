@@ -189,16 +189,15 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
       "type": 7,
       "index": 3,
       "timestamp": 1644478549,
+      "lastMilestoneId": "0xb1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea"
       "parentMessageIds": [
         "0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
         "0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
         "0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893",
         "0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff"
       ],
-      "inclusionMerkleProof": "0x58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c",
-      "nextPoWScore": 0,
-      "nextPoWScoreMilestoneIndex": 0,
-      "receipt": null,
+      "confirmedMerkleRoot": "0x9e07623408bcf0b0fb45fa1245f1c1e9787643ca397a1871b391d8732758a7e2",
+      "appliedMerkleRoot": "0x0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8",
       "signatures": [
         { "type": 0,
           "publicKey": "0xd85e5b1590d898d1e0cdebb2e3b5337c8b76270142663d78811683ba47c17c98",
@@ -235,28 +234,30 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
     return ret;
   }
 
+  // parsing last milestone ID
+  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_LAST_MILESTONE_ID, ms->last_milestone_id,
+                                     sizeof(ms->last_milestone_id))) != 0) {
+    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_LAST_MILESTONE_ID);
+    return ret;
+  }
+
   // parsing parents
   if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PARENT_IDS, ms->parents, IOTA_MESSAGE_ID_BYTES)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
     return ret;
   }
-  // parsing inclusion Merkle proof
-  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_INCLUSION_MKL, ms->inclusion_merkle_proof,
-                                     sizeof(ms->inclusion_merkle_proof))) != 0) {
-    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_INCLUSION_MKL);
+
+  // parsing confirmed Merkle root
+  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_CONFIRMED_MERKLE_ROOT, ms->confirmed_merkle_root,
+                                     sizeof(ms->confirmed_merkle_root))) != 0) {
+    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_CONFIRMED_MERKLE_ROOT);
     return ret;
   }
 
-  // parsing next Pow score
-  if ((ret = json_get_uint32(payload, JSON_KEY_NEXT_POW_SCORE, &ms->next_pow_score)) != 0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE);
-    return ret;
-  }
-
-  // parsing next Pow score milestone index
-  if ((ret = json_get_uint32(payload, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX, &ms->next_pow_score_milestone_index)) !=
-      0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX);
+  // parsing applied Merkle root
+  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_APPLIED_MERKLE_ROOT, ms->applied_merkle_root,
+                                     sizeof(ms->applied_merkle_root))) != 0) {
+    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_APPLIED_MERKLE_ROOT);
     return ret;
   }
 
@@ -268,9 +269,6 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
       return ret;
     }
   }
-
-  // parsing receipt
-  // TODO parse receipt
 
   // parsing signatures
   if ((ret = milestone_signatures_deserialize(payload, ms->signatures)) != 0) {
