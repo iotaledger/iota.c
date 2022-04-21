@@ -4,6 +4,7 @@ import fileinput
 import sys
 import re
 import os
+from operator import itemgetter
 
 if len(sys.argv) < 2:
     print("Executable file is missing")
@@ -25,7 +26,7 @@ else:
 
 print("Collecting results...")
 
-top_heap_memory_allocations = {}
+heap_memory_allocations = {}
 
 for line in fileinput.input("heap_consumers.txt", inplace=True):
     # find address in memory map
@@ -46,12 +47,22 @@ for line in fileinput.input("heap_consumers.txt", inplace=True):
         # get size of memory allocation
         size_of_allocation = int(line[[m.start() for m in re.finditer(r"0x", line)][1] + 2: len(line)], 16)
         # update dictionary
-        top_heap_memory_allocations[size_of_allocation] = top_heap_memory_allocations.get(size_of_allocation, 0) + 1
+        heap_memory_allocations[size_of_allocation] = heap_memory_allocations.get(size_of_allocation, 0) + 1
 
 print("Results for heap memory allocation are collected.\n")
 
-top_heap_memory_allocations = sorted(top_heap_memory_allocations.items(), key=lambda x: x[1], reverse=True)
+# print all heap memory allocations
+print("All heap memory allocation:")
+all_heap_memory_allocations = sorted(heap_memory_allocations.items(), key=lambda x: x[1], reverse=True)
 print("{:<12} {:<10}".format('Alloc.size', 'Occurrence'))
-for allocation in top_heap_memory_allocations:
+for allocation in all_heap_memory_allocations:
+    (size, occurrence) = allocation
+    print("{:<12} {:<10}".format(str(size) + ' B', str(occurrence) + 'x'))
+
+# print TOP 5 heap memory allocations
+print("\nTOP 5 heap memory allocation:")
+top_5_heap_memory_allocations = sorted(heap_memory_allocations.items(), key=lambda x: x[0] * x[1], reverse=True)
+print("{:<12} {:<10}".format('Alloc.size', 'Occurrence'))
+for allocation in top_5_heap_memory_allocations[:5]:
     (size, occurrence) = allocation
     print("{:<12} {:<10}".format(str(size) + ' B', str(occurrence) + 'x'))
