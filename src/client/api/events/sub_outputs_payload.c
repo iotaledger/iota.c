@@ -20,6 +20,7 @@ int event_sub_outputs_id(event_client_handle_t client, int *mid, char const outp
   }
 
   // Buffer enough for outputs/0x{outputId}
+  // 11 = length(outputs/0x) + 1(NULL terminator)
   char topic_buff[BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) + 11] = {};
 
   sprintf(topic_buff, "outputs/0x%s", output_id);
@@ -101,6 +102,7 @@ int event_sub_outputs_alias_id(event_client_handle_t client, int *mid, char cons
   }
 
   // Buffer enough for outputs/aliases/0x{aliasId}
+  // 19 = length(outputs/aliases/0x) + 1(NULL terminator)
   char topic_buff[BIN_TO_HEX_BYTES(ALIAS_ID_BYTES) + 19] = {};
   sprintf(topic_buff, "outputs/aliases/0x%s", alias_id);
 
@@ -119,6 +121,7 @@ int event_sub_outputs_nft_id(event_client_handle_t client, int *mid, char const 
   }
 
   // Buffer enough for outputs/nfts/0x{nftId}
+  // 16 = length(outputs/nfts/0x) + 1(NULL terminator)
   char topic_buff[BIN_TO_HEX_BYTES(NFT_ID_BYTES) + 16] = {};
   sprintf(topic_buff, "outputs/nfts/0x%s", nft_id);
 
@@ -137,6 +140,7 @@ int event_sub_outputs_foundry_id(event_client_handle_t client, int *mid, char co
   }
 
   // Buffer enough for outputs/foundries/0x{foundryId}
+  // 21 = length(outputs/foundries/0x) + 1(NULL terminator)
   char topic_buff[BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES) + 21] = {};
   sprintf(topic_buff, "outputs/foundries/0x%s", foundry_id);
 
