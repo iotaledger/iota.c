@@ -180,10 +180,5 @@ int main() {
   // clean up
   tx_essence_free(es);
 
-#ifdef MTRACE_ENABLED
-  // disable memory tracing
-  muntrace();
-#endif
-
   return 0;
 }

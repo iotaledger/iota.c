@@ -17,7 +17,7 @@ option(IOTA_ASAN_ENABLED "Enable Address sanitizer" OFF)
 option(ENABLED_JEMALLOC "Enable jemalloc memory allocator" OFF)
 option(IOTA_EXAMPLES "Build example application" OFF)
 option(IOTA_BENCHMARK "Build applications for a memory benchmarking" OFF)
-option(ENABLE_MTRACE "Enable mtrace in applications for memory benchmarking" OFF)
+option(ENABLE_MTRACE "Enable mtrace in benchmark applications" OFF)
 option(IOTA_WALLET_ENABLE "Enable simple wallet API" ON)
 option(MQTT_CLIENT_ENABLE "Enable MQTT Event APIs" OFF)
 # Enable for reducing the application binary size

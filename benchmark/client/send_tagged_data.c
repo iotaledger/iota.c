@@ -47,10 +47,5 @@ int main() {
   printf("[%s:%d]: Message successfully send! URL: http://%s:%d/api/v2/messages/0x%s\n", __func__, __LINE__, NODE_HOST,
          NODE_PORT, res.u.msg_id);
 
-#ifdef MTRACE_ENABLED
-  // disable memory tracing
-  muntrace();
-#endif
-
   return 0;
 }
