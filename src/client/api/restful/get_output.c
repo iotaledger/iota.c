@@ -132,27 +132,29 @@ get_output_t *get_output_new() {
 }
 
 void get_output_free(get_output_t *res) {
-  switch (res->output->output_type) {
-    case OUTPUT_SINGLE_OUTPUT:
-    case OUTPUT_DUST_ALLOWANCE:
-    case OUTPUT_TREASURY:
-      printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
-      break;
-    case OUTPUT_BASIC:
-      output_basic_free((output_basic_t *)res->output->output);
-      break;
-    case OUTPUT_ALIAS:
-      output_alias_free((output_alias_t *)res->output->output);
-      break;
-    case OUTPUT_FOUNDRY:
-      output_foundry_free((output_foundry_t *)res->output->output);
-      break;
-    case OUTPUT_NFT:
-      output_nft_free((output_nft_t *)res->output->output);
-      break;
+  if (res) {
+    switch (res->output->output_type) {
+      case OUTPUT_SINGLE_OUTPUT:
+      case OUTPUT_DUST_ALLOWANCE:
+      case OUTPUT_TREASURY:
+        printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
+        break;
+      case OUTPUT_BASIC:
+        output_basic_free((output_basic_t *)res->output->output);
+        break;
+      case OUTPUT_ALIAS:
+        output_alias_free((output_alias_t *)res->output->output);
+        break;
+      case OUTPUT_FOUNDRY:
+        output_foundry_free((output_foundry_t *)res->output->output);
+        break;
+      case OUTPUT_NFT:
+        output_nft_free((output_nft_t *)res->output->output);
+        break;
+    }
+    free(res->output);
+    free(res);
   }
-  free(res->output);
-  free(res);
 }
 
 res_output_t *get_output_response_new() {
