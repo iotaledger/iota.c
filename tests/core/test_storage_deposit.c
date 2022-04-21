@@ -151,7 +151,7 @@ void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_low
   output_basic_free(output);
 }
 
-void test_storage_deposit_check_sufficient_output_not_microtransaction() {
+void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_high() {
   // create random ED25519 address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ED25519;
@@ -159,9 +159,9 @@ void test_storage_deposit_check_sufficient_output_not_microtransaction() {
 
   byte_cost_config_t* config = byte_cost_config_default_new();
 
-  // 234001i will be sent, which is more than minimum storage protection amount for created output (234000i)
-  uint64_t amount = 447001;
-  uint64_t storage_deposit = 213000;
+  // storage deposit will exceed outputs amount
+  uint64_t amount = 234000;
+  uint64_t storage_deposit = 234001;
 
   // create unlock conditions
   cond_blk_list_t* unlock_conds = cond_blk_list_new();
@@ -191,7 +191,7 @@ int main() {
   RUN_TEST(test_storage_deposit_check_sufficient_output_deposit_native_tokens_sent);
   RUN_TEST(test_storage_deposit_check_sufficient_output_amount_too_low);
   RUN_TEST(test_storage_deposit_check_sufficient_output_return_storage_deposit_too_low);
-  RUN_TEST(test_storage_deposit_check_sufficient_output_not_microtransaction);
+  RUN_TEST(test_storage_deposit_check_sufficient_output_return_storage_deposit_too_high);
 
   return UNITY_END();
 }

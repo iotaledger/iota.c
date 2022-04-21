@@ -1,9 +1,26 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <stdio.h>
+#include <unistd.h>  // for Linux sleep()
+
+#include "client/api/restful/faucet_enqueue.h"
 #include "core/address.h"
+#include "core/utils/macros.h"
 #include "unity/unity.h"
 #include "wallet/wallet.h"
+
+#define TEST_WITH_PRIVATE_TANGLE 0
+
+// API endpoint
+#define NODE_HOST "localhost"
+#define NODE_PORT 14265
+#define NODE_IS_HTTPS 0
+
+// faucet endpoint
+#define FAUCET_HOST "localhost"
+#define FAUCET_PORT 8091
+#define FAUCET_IS_HTTPS 0
 
 void setUp(void) {}
 
@@ -52,11 +69,81 @@ void test_wallet_ed25519_address() {
   wallet_destroy(w);
 }
 
+static int request_token(char const* const addr) {
+  iota_client_conf_t ctx = {.host = FAUCET_HOST, .port = FAUCET_PORT, .use_tls = FAUCET_IS_HTTPS};
+  res_faucet_enqueue_t res = {};
+  // Test bech32 address with invalid len
+  TEST_ASSERT_EQUAL_INT(0, req_tokens_to_addr_from_faucet(&ctx, addr, &res));
+  if (res.is_error == true) {
+    printf("request token err: %s\n", res.u.error->msg);
+    return -1;
+  } else {
+    printf("request token: %s\n", addr);
+  }
+  return 0;
+}
+
+void test_wallet_basic_transfer() {
+  iota_wallet_t* w = wallet_create(test_mnemonic, "", 0);
+  TEST_ASSERT_NOT_NULL(w);
+
+  // set endpoint and update node info
+  TEST_ASSERT(wallet_set_endpoint(w, NODE_HOST, NODE_PORT, NODE_IS_HTTPS) == 0);
+  TEST_ASSERT(wallet_update_node_config(w) == 0);
+
+  // get address
+  address_t sender, receiver;
+  TEST_ASSERT(wallet_ed25519_address_from_index(w, false, 0, &sender) == 0);
+  TEST_ASSERT(wallet_ed25519_address_from_index(w, false, 1, &receiver) == 0);
+
+  // request token from the fuacet
+  char sender_bech32[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  TEST_ASSERT(address_to_bech32(&sender, w->bech32HRP, sender_bech32, sizeof(sender_bech32)) == 0);
+  TEST_ASSERT(request_token(sender_bech32) == 0);
+  // wait a little bit for getting tokens from faucet
+  sleep(3);
+
+  // transfer IOTA tokens
+  res_send_message_t msg_res = {};
+  // this transfer should be failed due to storage deposit
+  int ret = wallet_send_basic_outputs(w, 0, 0, &receiver, 212999, &msg_res);
+  TEST_ASSERT(ret != 0);
+  if (ret == 0) {
+    if (msg_res.is_error) {
+      printf("[%s:%d] Error: %s\n", __func__, __LINE__, msg_res.u.error->msg);
+      res_err_free(msg_res.u.error);
+    } else {
+      printf("[%s:%d] Message ID: %s\n", __func__, __LINE__, msg_res.u.msg_id);
+    }
+  } else {
+    printf("[%s:%d] send message failed\n", __func__, __LINE__);
+  }
+
+  // this transfer should be sent to the Tangle
+  ret = wallet_send_basic_outputs(w, 0, 0, &receiver, 1000000, &msg_res);
+  TEST_ASSERT(ret == 0);
+  if (ret == 0) {
+    if (msg_res.is_error) {
+      printf("[%s:%d] Error: %s\n", __func__, __LINE__, msg_res.u.error->msg);
+      res_err_free(msg_res.u.error);
+    } else {
+      printf("[%s:%d] Message ID: %s\n", __func__, __LINE__, msg_res.u.msg_id);
+    }
+  } else {
+    printf("[%s:%d] send message failed\n", __func__, __LINE__);
+  }
+
+  wallet_destroy(w);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_wallet_creation);
   RUN_TEST(test_wallet_ed25519_address);
+#if TEST_WITH_PRIVATE_TANGLE
+  RUN_TEST(test_wallet_basic_transfer);
+#endif
 
   return UNITY_END();
 }

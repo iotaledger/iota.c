@@ -24,8 +24,8 @@
  *
  */
 typedef struct {
-  uint8_t pub[ED_PUBLIC_KEY_BYTES];    ///< 32 bytes public key
-  uint8_t priv[ED_PRIVATE_KEY_BYTES];  ///< 64 bytes private key
+  uint8_t pub[ED_PUBLIC_KEY_BYTES];    ///< Public key with 32 bytes
+  uint8_t priv[ED_PRIVATE_KEY_BYTES];  ///< Private key with 64 bytes
 } ed25519_keypair_t;
 
 #ifdef __cplusplus
@@ -33,25 +33,25 @@ extern "C" {
 #endif
 
 /**
- * @brief fill-in random bytes into the given byte buffer.
+ * @brief Fill-in random bytes into the given byte buffer.
  *
  * @param[out] buf A buffer holds random bytes
- * @param[in] len The length of byte buffer
+ * @param[in] len The length of the buffer
  */
 void iota_crypto_randombytes(uint8_t *const buf, const size_t len);
 
 /**
- * @brief derives key pair from a given seed(IOTA_SEED_BYTES)
+ * @brief Derives key pair from a given ed25519 seed
  *
- * @param[in] seed A given seed with length of IOTA_SEED_BYTES
+ * @param[in] seed A given seed with length of the ed25519 seed
  * @param[out] keypair A keypair derived from the seed
  */
 void iota_crypto_keypair(uint8_t const seed[], ed25519_keypair_t *keypair);
 
 /**
- * @brief signs message by the given private key
+ * @brief Signs message by the given ed25519 private key
  *
- * @param[in] priv_key The private key
+ * @param[in] priv_key The ed25519 private key
  * @param[in] msg A byte buffer holds the message data
  * @param[in] msg_len The length of the message
  * @param[out] signature The output signature
@@ -60,18 +60,18 @@ void iota_crypto_keypair(uint8_t const seed[], ed25519_keypair_t *keypair);
 int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, uint8_t signature[]);
 
 /**
- * @brief verify if the signature is valid for the message and public key
+ * @brief Verify if the signature is valid with the message and public key
  *
  * @param[in] msg A byte buffer holds the message data
  * @param[in] msg_len The length of the message
- * @param[in] pub_key The public key
- * @param[out] signature The signature
+ * @param[in] pub_key The ed25519 public key
+ * @param[in] signature The ed25519 signature
  * @return int 0 if valid and -1 if invalid
  */
 int iota_crypto_sign_open(uint8_t msg[], size_t msg_len, uint8_t const pub_key[], uint8_t signature[]);
 
 /**
- * @brief HMAC-SHA-256 interface
+ * @brief HMAC-SHA-256 hash computation
  *
  * @param[in] secret_key The private/secret key
  * @param[in] msg A buffer holds message data
@@ -82,7 +82,7 @@ int iota_crypto_sign_open(uint8_t msg[], size_t msg_len, uint8_t const pub_key[]
 int iota_crypto_hmacsha256(uint8_t const secret_key[], uint8_t msg[], size_t msg_len, uint8_t auth[]);
 
 /**
- * @brief HMAC-SHA-512 interface
+ * @brief HMAC-SHA-512 hash computation
  *
  * @param[in] secret_key The private/secret key
  * @param[in] msg A buffer holds message data
@@ -94,7 +94,7 @@ int iota_crypto_hmacsha512(uint8_t const secret_key[], uint8_t msg[], size_t msg
 
 /**
  * @brief Create Blake2b state object which is needed for partially hash calculations
- * @return void*
+ * @return void* A pointer to the Blake2b state
  */
 void *iota_blake2b_new_state();
 
@@ -135,7 +135,7 @@ int iota_blake2b_update(void *state, uint8_t const data[], size_t data_len);
 int iota_blake2b_final(void *state, uint8_t out[], size_t out_len);
 
 /**
- * @brief Blake2b hash function
+ * @brief Blake2b hash computation
  *
  * @param[in] msg The message to hash
  * @param[in] msg_len The length of message
@@ -146,56 +146,41 @@ int iota_blake2b_final(void *state, uint8_t out[], size_t out_len);
 int iota_blake2b_sum(uint8_t const msg[], size_t msg_len, uint8_t out[], size_t out_len);
 
 /**
- * @brief SHA-256 HASH
+ * @brief SHA-256 computation
  *
- * @param[in] msg message data
- * @param[in] msg_len the length of data
- * @param[out] hash the output hash
+ * @param[in] msg The message
+ * @param[in] msg_len The length of message
+ * @param[out] hash The output hash
  * @return int 0 on success
  */
 int iota_crypto_sha256(uint8_t const msg[], size_t msg_len, uint8_t hash[]);
 
 /**
- * @brief SHA-512 HASH
+ * @brief SHA-512 computation
  *
- * @param[in] msg message data
- * @param[in] msg_len the length of data
- * @param[out] hash the output hash
+ * @param[in] msg The message
+ * @param[in] msg_len The length of the message
+ * @param[out] hash The output hash
  * @return int 0 on success
  */
 int iota_crypto_sha512(uint8_t const msg[], size_t msg_len, uint8_t hash[]);
 
 /**
- * @brief PBKDF2 HMAC SHA512
+ * @brief PBKDF2 HMAC SHA512 computation
  *
  * Ref: https://datatracker.ietf.org/doc/html/rfc2898#section-5.2
  *
- * @param[in] pwd password buffer, an octet string
- * @param[in] pwd_len the length of password
- * @param[in] salt salt buffer, an octet string
- * @param[in] salt_len the length of salt
- * @param[in] iterations iteration count, must be bigger than 0
- * @param[out] dk derived key
- * @param[in] dk_len the length of derived key
+ * @param[in] pwd The password buffer, an octet string
+ * @param[in] pwd_len The length of password
+ * @param[in] salt The salt buffer, an octet string
+ * @param[in] salt_len The length of salt
+ * @param[in] iterations The iteration counter, must be bigger than 0
+ * @param[out] dk The derived key
+ * @param[in] dk_len The length of derived key
  * @return int 0 on success
  */
 int iota_crypto_pbkdf2_hmac_sha512(char const pwd[], size_t pwd_len, char const salt[], size_t salt_len,
                                    int32_t iterations, uint8_t dk[], size_t dk_len);
-
-/**
- * @brief endianness check
- *
- * There is no standardized way to check endianness with different compilers at compile-time
- * for better compatibility, we check it at runtime.
- *
- * @return true little-endian
- * @return false big-endian
- */
-static inline bool is_little_endian() {
-  int16_t i = 0xF;
-  char *p = (char *)&i;
-  return (p[0] == 0xF);
-}
 
 #ifdef __cplusplus
 }

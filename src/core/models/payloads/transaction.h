@@ -13,7 +13,7 @@
 #include "core/models/unlock_block.h"
 #include "core/types.h"
 
-// have one transaction essence only which is 0
+// have one transaction essence only which is 1
 #define TRANSACTION_ESSENCE_TYPE 1
 
 /**
@@ -26,7 +26,7 @@
  *
  */
 typedef struct {
-  uint8_t tx_type;      ///< Set to value 0 to denote a Transaction Essence.
+  uint8_t tx_type;      ///< Set to value 1 to denote a Transaction Essence.
   uint64_t network_id;  ///< Network identifier. It is first 8 bytes of the `BLAKE2b-256` hash of the network name
                         ///< (identifier string of the network).
   utxo_inputs_list_t* inputs;                               ///< An UTXO input list.
@@ -46,7 +46,7 @@ typedef struct {
  *
  */
 typedef struct {
-  uint32_t type;                   ///< Set to value 0 to denote a Transaction payload.
+  uint32_t type;                   ///< Set to value 6 to denote a Transaction payload.
   transaction_essence_t* essence;  ///< Describes the essence data making up a transaction by defining its inputs and
                                    ///< outputs and an optional payload.
   unlock_list_t* unlock_blocks;    ///< Defines a list of unlock blocks (signature, reference, alias, NFT) which unlock
@@ -96,7 +96,7 @@ int tx_essence_add_output(transaction_essence_t* es, utxo_output_type_t type, vo
 /**
  * @brief Add a payload to essence
  *
- * support tagged data payload at this moment, type = 5
+ * support tagged data payload at this moment
  *
  * @param[in] es An essence object
  * @param[in] type A payload type
@@ -160,7 +160,7 @@ bool tx_essence_syntactic(transaction_essence_t* es, byte_cost_config_t* byte_co
 void tx_essence_print(transaction_essence_t* es, uint8_t indentation);
 
 /**
- * @brief Allocate a tansaction payload object
+ * @brief Allocate a transaction payload object
  *
  * @param[in] network_id A network ID
  * @return transaction_payload_t*
@@ -197,7 +197,7 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
  *
  * @param[in] buf The buffer holds a serialized data
  * @param[in] buf_len The length of the buffer
- * @return transaction_payload_t* The deserialized txn payload, NULL on errors
+ * @return transaction_payload_t* The deserialized tx payload, NULL on errors
  */
 transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len);
 
@@ -210,7 +210,7 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len);
 void tx_payload_print(transaction_payload_t* tx, uint8_t indentation);
 
 /**
- * @brief Transaction pyaload syntactic validation
+ * @brief Transaction payload syntactic validation
  *
  * @param[in] tx A transaction payload
  * @param[in] byte_cost The Byte Cost configure

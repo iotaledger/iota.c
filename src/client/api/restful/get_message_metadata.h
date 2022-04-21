@@ -43,6 +43,19 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @brief Allocates message metadata object
+ * @return msg_meta_t*
+ */
+msg_meta_t *metadata_new();
+
+/**
+ * @brief Frees a message metadata object
+ * @param[in] meta A msg_meta_t* object
+ */
+void metadata_free(msg_meta_t *meta);
+
 /**
  * @brief Allocates message metadata response
  * @return res_msg_meta_t*
@@ -56,9 +69,17 @@ res_msg_meta_t *msg_meta_new();
 void msg_meta_free(res_msg_meta_t *res);
 
 /**
+ * @brief Parse a message metadata response
+ * @param[in] data The response data to be parsed
+ * @param[out] res The message metadata object
+ * @return int 0 If success
+ */
+int parse_messages_metadata(char const *const j_str, msg_meta_t *res);
+
+/**
  * @brief Message metadata JSON deserialization
  *
- * @param[in] j_str A string of json object
+ * @param[in] j_str A string of the JSON object
  * @param[out] res A response object of message metadata
  * @return int 0 on success
  */
@@ -70,7 +91,7 @@ int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res);
  * @param[in] res A metadata response
  * @return size_t A number of parent
  */
-size_t msg_meta_parents_len(res_msg_meta_t *res);
+size_t msg_meta_parents_count(msg_meta_t *msg);
 
 /**
  * @brief Gets the parent message ID by a given index
@@ -79,12 +100,12 @@ size_t msg_meta_parents_len(res_msg_meta_t *res);
  * @param[in] index An index
  * @return char* The string of parent message ID
  */
-char *msg_meta_parent_get(res_msg_meta_t *res, size_t index);
+char *msg_meta_parent_get(msg_meta_t *msg, size_t index);
 
 /**
  * @brief Gets message metadata from a given message ID
  *
- * @param[in] ctx IOTA Client conf
+ * @param[in] ctx The client configuration
  * @param[in] msg_id A message ID string for query
  * @param[out] res A message metadata response
  * @return int 0 on success

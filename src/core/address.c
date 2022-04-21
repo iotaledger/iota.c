@@ -10,11 +10,6 @@
 #include "core/utils/macros.h"
 #include "core/utils/slip10.h"
 
-static int address_from_ed25519_pub(byte_t const pub_key[], address_t *addr) {
-  addr->type = ADDRESS_TYPE_ED25519;
-  return iota_blake2b_sum(pub_key, ED_PUBLIC_KEY_BYTES, addr->address, ED25519_PUBKEY_BYTES);
-}
-
 int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], ed25519_keypair_t *keypair) {
   // derive key from seed
   slip10_key_t key = {};
@@ -52,6 +47,15 @@ int ed25519_address_from_path(byte_t seed[], size_t seed_len, char path[], addre
     return -1;
   }
   return address_from_ed25519_pub(addr_keypair.pub, addr);
+}
+
+int address_from_ed25519_pub(byte_t const pub_key[], address_t *addr) {
+  if (pub_key == NULL || addr == NULL) {
+    return -1;
+  }
+
+  addr->type = ADDRESS_TYPE_ED25519;
+  return iota_blake2b_sum(pub_key, ED_PUBLIC_KEY_BYTES, addr->address, ED25519_PUBKEY_BYTES);
 }
 
 int alias_address_from_output(byte_t const output_id[], uint8_t output_id_len, address_t *addr) {
@@ -118,7 +122,7 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
     addr->type = bytes[0];
     // check if binary length is satisfied
     if (len < address_serialized_len(addr)) {
-      free_address(addr);
+      address_free(addr);
       return NULL;
     }
 
@@ -135,40 +139,12 @@ address_t *address_deserialize(byte_t bytes[], size_t len) {
         break;
       default:
         // unknown address type
-        free_address(addr);
+        address_free(addr);
         printf("[%s:%d] unknown address type\n", __func__, __LINE__);
         return NULL;
     }
   }
   return addr;
-}
-
-// get the address object from the given hex string
-int address_from_hex(char const hex[], address_t *addr) {
-  // validate hex length
-  if (hex == NULL || strlen(hex) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
-    return -1;
-  }
-
-  byte_t type = 0;
-  if (hex_2_bin(hex, 2, NULL, &type, 1) != 0) {
-    return -1;
-  }
-  addr->type = type;
-  return hex_2_bin(hex + 2, BIN_TO_HEX_BYTES(address_len(addr)), NULL, addr->address, address_len(addr));
-}
-
-// get hex string from the given address object
-int address_to_hex(address_t *addr, char hex_buf[], size_t buf_len) {
-  // validate buffer
-  if (hex_buf == NULL || buf_len <= BIN_TO_HEX_BYTES(address_serialized_len(addr))) {
-    return -1;
-  }
-  if (bin_2_hex(addr->address, 1, NULL, hex_buf, 2) != 0) {
-    return -1;
-  }
-
-  return bin_2_hex(addr->address + 1, address_len(addr), NULL, hex_buf + 2, buf_len - 2);
 }
 
 // get the address object from the given bech32 string
@@ -272,7 +248,7 @@ void address_print(address_t const *const addr) {
   }
 }
 
-void free_address(address_t *addr) {
+void address_free(address_t *addr) {
   if (addr) {
     free(addr);
   }

@@ -327,7 +327,7 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
 
     // payload in an essence
     cJSON* payload_obj = cJSON_GetObjectItemCaseSensitive(essence_obj, JSON_KEY_PAYLOAD);
-    if (!cJSON_IsNull(payload_obj)) {
+    if (payload_obj) {
       if (json_essence_payload_deserialize(payload_obj, (tagged_data_payload_t**)(&tx->essence->payload),
                                            &tx->essence->payload_len) != 0) {
         return -1;

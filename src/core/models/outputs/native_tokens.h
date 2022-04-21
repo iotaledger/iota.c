@@ -11,6 +11,8 @@
 #include "core/utils/uint256.h"
 #include "utlist.h"
 
+// Maximum number of Native Tokens in an output
+#define NATIVE_TOKENS_MAX_COUNT 64
 // Native Token ID length in bytes
 #define NATIVE_TOKEN_ID_BYTES 38
 // Serialized bytes = token ID(38 bytes) + amount(uint256_t)

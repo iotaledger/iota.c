@@ -33,7 +33,7 @@ byte_buf_t* byte_buf_new();
 /**
  * @brief Allocates data buffer with given data
  *
- * @param[in] data Inital data
+ * @param[in] data Initial data
  * @param[in] len The size of data
  * @return byte_buf_t*
  */
@@ -71,6 +71,8 @@ void byte_buf_free(byte_buf_t* buf);
 /**
  * @brief Converts byte buffer to string
  *
+ * Appending a null terminator to the end of data
+ *
  * @param[out] buf A byte buffer object
  * @return true
  * @return false
@@ -105,7 +107,7 @@ byte_buf_t* byte_buf_clone(byte_buf_t* buf);
 bool byte_buf_reserve(byte_buf_t* buf, size_t len);
 
 /**
- * @brief Dumps buffer infomation for debug propose
+ * @brief Dumps buffer information for debug propose
  *
  * @param[in] buf A byte buffer
  */

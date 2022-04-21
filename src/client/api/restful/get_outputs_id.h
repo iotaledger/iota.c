@@ -52,7 +52,7 @@ typedef struct outputs_query_list {
  */
 typedef struct {
   uint32_t ledger_idx;  ///< The ledger index at which the output was queried at.
-  uint32_t page_size;   ///< The number of output id's returned in a single response.
+  uint32_t page_size;   ///< The number of output IDs returned in a single response.
   char *cursor;         ///< The cursor to pass as api parameter to get the next set of results.
   UT_array *outputs;    ///< output IDs
 } get_outputs_id_t;
@@ -74,7 +74,9 @@ extern "C" {
 #endif
 
 /**
- * @brief New outputs query params list
+ * @brief New a query parameter list
+ *
+ * The filter for output IDs
  *
  * @return outputs_query_list_t*
  */
@@ -94,7 +96,7 @@ int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e t
  * @brief Get the length of query string present in list
  *
  * @param[in] list A query item list
- * @return size_t Query string len
+ * @return size_t The length of the query string
  */
 size_t get_outputs_query_str_len(outputs_query_list_t *list);
 
@@ -104,7 +106,7 @@ size_t get_outputs_query_str_len(outputs_query_list_t *list);
  * @param[in] list A query item list
  * @param[in] buf A buffer to hold query string
  * @param[in] buf_len The length of the buffer
- * @return size_t Query string len
+ * @return size_t the length in bytes that written to the buffer
  */
 size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_len);
 
@@ -115,7 +117,7 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
 void outputs_query_list_free(outputs_query_list_t *list);
 
 /**
- * @brief Allocats an output address response object
+ * @brief Allocates an output address response object
  *
  * @return res_outputs_id_t*
  */
@@ -129,19 +131,19 @@ res_outputs_id_t *res_outputs_new();
 void res_outputs_free(res_outputs_id_t *res);
 
 /**
- * @brief Gets an output id by given index
+ * @brief Gets an output ID by a given index
  *
  * @param[in] res A response object
- * @param[in] index The index of output id
+ * @param[in] index The index of the output ID
  * @return char* A pointer to a string
  */
 char *res_outputs_output_id(res_outputs_id_t *res, size_t index);
 
 /**
- * @brief Gets the output id count
+ * @brief Gets the output ID count
  *
  * @param[in] res A response object
- * @return size_t The length of output ids
+ * @return size_t The length of output IDs
  */
 size_t res_outputs_output_id_count(res_outputs_id_t *res);
 
@@ -158,7 +160,7 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res);
  * @brief Gets output IDs from a given address
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] list A list of optional query params
+ * @param[in] list A list of optional query parameters
  * @param[out] res A response object
  * @return int 0 on successful
  */
@@ -178,7 +180,7 @@ int get_nft_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, 
  * @brief Gets output IDs from a given Alias address
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] list A list of optional query params
+ * @param[in] list A list of optional query parameters
  * @param[out] res A response object
  * @return int 0 on successful
  */
@@ -188,7 +190,7 @@ int get_alias_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list
  * @brief Gets output IDs from a given Foundry address
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] list A list of optional query params
+ * @param[in] list A list of optional query parameters
  * @param[out] res A response object
  * @return int 0 on successful
  */
@@ -198,7 +200,7 @@ int get_foundry_outputs(iota_client_conf_t const *conf, outputs_query_list_t *li
  * @brief Gets output IDs from a given NFT ID
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] nft_id An NFT id in hex string format
+ * @param[in] nft_id An NFT ID in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
@@ -208,7 +210,7 @@ int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[],
  * @brief Gets output IDs from a given Alias ID
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] alias_id An Alias id in hex string format
+ * @param[in] alias_id An Alias ID in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
@@ -218,7 +220,7 @@ int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_i
  * @brief Gets output IDs from a given Foundry ID
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] foundry_id A Foundry id in hex string format
+ * @param[in] foundry_id A Foundry ID in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */

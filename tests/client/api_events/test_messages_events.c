@@ -7,10 +7,11 @@
 
 #include "client/api/events/node_event.h"
 #include "client/api/events/sub_messages_metadata.h"
+#include "client/api/restful/get_message_metadata.h"
 #include "test_config.h"
 
 // Update message id for testing
-char const *const test_message_id = "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7";
+char const *const test_message_id = "e11720f7cd52e8419209fa5f71aafe5d896465ad16372dd1d9e52b057ad7f993";
 
 bool test_metadata = false;
 bool test_completed = false;
@@ -23,15 +24,15 @@ void test_messages_metadata_parser(void) {
   // Sample data for testing
   char *json_data =
       "{\"messageId\":"
-      "\"cf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85\",\"parentMessageIds\":["
-      "\"d026f8b1c856d4e844cc734bbe095429fb880ec4d93f3ccffe3b292a7de17be7\","
-      "\"cf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85\"],\"isSolid\":true,"
+      "\"0xcf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85\",\"parentMessageIds\":["
+      "\"0xd026f8b1c856d4e844cc734bbe095429fb880ec4d93f3ccffe3b292a7de17be7\","
+      "\"0xcf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85\"],\"isSolid\":true,"
       "\"referencedByMilestoneIndex\":242544,\"ledgerInclusionState\":\"noTransaction\",\"shouldPromote\":true,"
       "\"shouldReattach\":false}";
 
   // Test for expected events response
   // Create and allocate memory for response object
-  msg_metadata_t *res = res_msg_metadata_new();
+  msg_meta_t *res = metadata_new();
   TEST_ASSERT_EQUAL_INT(0, parse_messages_metadata(json_data, res));
   TEST_ASSERT_EQUAL_STRING("cf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85", res->msg_id);
   TEST_ASSERT((strcmp(res->inclusion_state, "noTransaction") == 0) ||
@@ -41,31 +42,31 @@ void test_messages_metadata_parser(void) {
   TEST_ASSERT_FALSE(res->should_reattach);
   TEST_ASSERT_EQUAL_UINT64(242544, res->referenced_milestone);
   // Free response object
-  res_msg_metadata_free(res);
+  metadata_free(res);
 }
 
 void process_event_data(event_client_event_t *event) {
   if (((strstr(event->topic, "messages/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) ||
       (!strcmp(event->topic, TOPIC_MS_REFERENCED))) {
     // Create and allocate memory for response object
-    msg_metadata_t *res = res_msg_metadata_new();
+    msg_meta_t *res = metadata_new();
     TEST_ASSERT_EQUAL_INT(0, parse_messages_metadata((char *)event->data, res));
 
     // Print received data
     printf("Msg Id :%s\n", res->msg_id);
     // Get parent id count
-    size_t parents_count = res_msg_metadata_parents_count(res);
+    size_t parents_count = msg_meta_parents_count(res);
     for (size_t i = 0; i < parents_count; i++) {
-      printf("Parent Id %zu : %s\n", i + 1, res_msg_metadata_parent_get(res, i));
+      printf("Parent Id %zu : %s\n", i + 1, msg_meta_parent_get(res, i));
     }
     printf("Inclusion State : %s\n", res->inclusion_state);
     printf("Is Solid : %s\n", res->is_solid ? "true" : "false");
     printf("Should Promote : %s\n", res->should_promote ? "true" : "false");
     printf("Should Reattach : %s\n", res->should_reattach ? "true" : "false");
-    printf("Referenced Milestone : %ld\n", res->referenced_milestone);
+    printf("Referenced Milestone : %u\n", res->referenced_milestone);
 
     // Free response object
-    res_msg_metadata_free(res);
+    metadata_free(res);
   }
 }
 
@@ -147,8 +148,8 @@ int main() {
   RUN_TEST(test_messages_metadata_parser);
 
 #if TEST_TANGLE_ENABLE
-  test_metadata = false;
-  RUN_TEST(test_messages_events);
+  // test_metadata = false;
+  // RUN_TEST(test_messages_events);
 
   test_completed = false;
   test_metadata = true;

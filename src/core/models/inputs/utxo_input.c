@@ -82,11 +82,6 @@ uint16_t utxo_inputs_count(utxo_inputs_list_t *inputs) {
 }
 
 utxo_input_t *utxo_inputs_find_by_id(utxo_inputs_list_t *inputs, byte_t id[]) {
-  if (inputs == NULL) {
-    printf("[%s:%d] empty input list\n", __func__, __LINE__);
-    return NULL;
-  }
-
   if (id == NULL) {
     printf("[%s:%d] invalid transaction id\n", __func__, __LINE__);
     return NULL;
@@ -104,11 +99,6 @@ utxo_input_t *utxo_inputs_find_by_id(utxo_inputs_list_t *inputs, byte_t id[]) {
 }
 
 utxo_input_t *utxo_inputs_find_by_index(utxo_inputs_list_t *inputs, uint16_t index) {
-  if (inputs == NULL) {
-    printf("[%s:%d] empty input list\n", __func__, __LINE__);
-    return NULL;
-  }
-
   if (index >= UTXO_OUTPUT_MAX_COUNT) {
     printf("[%s:%d] invalid index\n", __func__, __LINE__);
     return NULL;
