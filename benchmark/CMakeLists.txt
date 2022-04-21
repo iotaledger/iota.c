@@ -10,21 +10,6 @@ function(add_iota_benchmark benchmark_name benchmark_src)
   target_include_directories(${benchmark_name} PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/benchmark
                                                        ${CMAKE_INSTALL_PREFIX}/include)
   target_compile_options(${benchmark_name} PRIVATE -Wall -Wextra)
-  # ASAN
-  if(IOTA_ASAN_ENABLED)
-    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-      add_compile_options("-fsanitize=address,undefined,unsigned-integer-overflow" "-fsanitize-address-use-after-scope"
-                          "-fno-omit-frame-pointer" "-fno-sanitize-recover=undefined,unsigned-integer-overflow")
-      add_link_options("-fsanitize=address,undefined,unsigned-integer-overflow")
-    elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
-      add_compile_options("-fsanitize=address,undefined" "-fno-omit-frame-pointer" "-fsanitize-address-use-after-scope"
-                          "-fno-sanitize-recover=undefined")
-      add_link_options("-fsanitize=address,undefined")
-    else()
-      message(WARNING "Sanitizer is not supported on Windows or Release build")
-    endif()
-  endif()
-  # mtrace
   if(ENABLE_MTRACE)
     target_compile_definitions(${benchmark_name} PRIVATE MTRACE_ENABLED)
   endif()
