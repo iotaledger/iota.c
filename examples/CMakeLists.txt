@@ -24,11 +24,9 @@ add_iota_example(get_message "client/get_message.c")
 add_iota_example(node_info "client/node_info.c")
 
 if(IOTA_WALLET_ENABLE)
-#  add_iota_example(wallet_send_tx "wallet_send_tx.c")
-#  add_iota_example(wallet_get_balance "wallet_get_balance.c")
-#  add_iota_example(wallet_list_addresses "wallet_list_addresses.c")
+  add_iota_example(send_basic_output "wallet/send_basic_output.c")
 endif()
 
 if(MQTT_CLIENT_ENABLE)
-#  add_iota_example(get_event_messages "get_event_messages.c")
+#  add_iota_example(get_event_messages "client/get_event_messages.c")
 endif()
