@@ -16,7 +16,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_msg_by_id() {
-  char const* const msg_id = "11aeaa50d60a990416b8d6c9c46d213ce0e0c5eda00012981ba9d3a793ada1d6";
+  char const* const msg_id = "c7217f10fbeabd96afc22cf8b058c4ccc9d2b1fe2b393091b7bda629c3afe222";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();
@@ -72,15 +72,16 @@ void test_deser_milestone() {
       "\"0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
       "\"0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"confirmedMerkleRoot\":"
       "\"0x58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c\",\"appliedMerkleRoot\":"
-      "\"0x0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8\",\"nextPoWScore\":100,"
-      "\"nextPoWScoreMilestoneIndex\":89,\"metadata\":\"0x96a31204f64a48aa58adc6ff90\",\"receipt\":null,\"signatures\":"
-      "[{\"type\":0,\"publicKey\":\"0xd85e5b1590d898d1e0cdebb2e3b5337c8b76270142663d78811683ba47c17c98\",\"signature\":"
+      "\"0x0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8\",\"metadata\":"
+      "\"0x96a31204f64a48aa58adc6ff90\",\"options\":[{\"type\":1,\"nextPoWScore\":2000,\"nextPoWScoreMilestoneIndex\":"
+      "15475}],\"signatures\":[{\"type\":0,\"publicKey\":"
+      "\"0xd85e5b1590d898d1e0cdebb2e3b5337c8b76270142663d78811683ba47c17c98\",\"signature\":"
       "\"0x51306b228a716b656000529b72520fc97cf227197056b289d94d717779cb9749fe9cde77477497cfc594a728ce372b8a7edf233115fb"
-      "51681e4669f6f4464900\"},{\"type\": "
-      "0,\"publicKey\":\"0xd9922819a39e94ddf3907f4b9c8df93f39f026244fcb609205b9a879022599f2\",\"signature\": "
+      "51681e4669f6f4464900\"},{\"type\":0,\"publicKey\":"
+      "\"0xd9922819a39e94ddf3907f4b9c8df93f39f026244fcb609205b9a879022599f2\",\"signature\": "
       "\"0x1e5fff5396cfa5e9b247ab6cb402c9dfd9b239e6bcaa3c9e370789f3e180599ea267c4b4e61be4864cfae61261af5353b45c2277e1eb"
-      "3f8bb178211ea7e3e003\"},{\"type\": "
-      "0,\"publicKey\":\"0xf9d9656a60049083eef61487632187b351294c1fa23d118060d813db6d03e8b6\",\"signature\": "
+      "3f8bb178211ea7e3e003\"},{\"type\":0,\"publicKey\":"
+      "\"0xf9d9656a60049083eef61487632187b351294c1fa23d118060d813db6d03e8b6\",\"signature\": "
       "\"0xb5be8a9e682df9a900dc0961150d24b6b13418ce11744530b688de852525d939026c9ebb2af66aebecbbe06287149677a7a2e92e9f7f"
       "9182ee9fb0681d3e8d0c\"}]},\"nonce\":\"14757395258967713456\"}";
 
@@ -150,7 +151,14 @@ void test_deser_milestone() {
   TEST_ASSERT_EQUAL_UINT32(13, ms->metadata->len);
   TEST_ASSERT_EQUAL_MEMORY(tmp_metadata, ms->metadata->data, sizeof(tmp_metadata));
 
-  // TODO check receipt
+  // check options
+  TEST_ASSERT_NOT_NULL(ms->options);
+  TEST_ASSERT_NOT_NULL(ms->options->option);
+  TEST_ASSERT_EQUAL_UINT8(MILESTONE_OPTION_POW, ms->options->option->type);
+  TEST_ASSERT_NOT_NULL(ms->options->option->option);
+  TEST_ASSERT_EQUAL_UINT32(2000, ((milestone_pow_option_t*)ms->options->option->option)->next_pow_score);
+  TEST_ASSERT_EQUAL_UINT32(15475,
+                           ((milestone_pow_option_t*)ms->options->option->option)->next_pow_score_milestone_index);
 
   // check signatures
   byte_t tmp_sign[ED25519_SIGNATURE_BLOCK_BYTES] = {};

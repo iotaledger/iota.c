@@ -34,6 +34,19 @@ void milestone_payload_free(milestone_payload_t *ms) {
     if (ms->metadata) {
       byte_buf_free(ms->metadata);
     }
+    if (ms->options) {
+      milestone_options_list_t *elm, *tmp;
+      LL_FOREACH_SAFE(ms->options, elm, tmp) {
+        if (elm->option) {
+          if (elm->option->option) {
+            free(elm->option->option);
+          }
+          free(elm->option);
+        }
+        LL_DELETE(ms->options, elm);
+        free(elm);
+      }
+    }
     if (ms->signatures) {
       utarray_free(ms->signatures);
     }
@@ -101,26 +114,30 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
       printf("%s\tMetadata: ", PRINT_INDENTATION(indentation));
       dump_hex_str(ms->metadata->data, ms->metadata->len);
     } else {
-      printf("%s\tMetadata: null\n", PRINT_INDENTATION(indentation));
+      printf("%s\tMetadata:\n", PRINT_INDENTATION(indentation));
     }
 
     if (ms->options) {
+      printf("%s\tOptions: [\n", PRINT_INDENTATION(indentation));
       milestone_options_list_t *elm;
+      uint8_t milestone_option_index = 0;
       LL_FOREACH(ms->options, elm) {
+        printf("%s\t\t#%d\n", PRINT_INDENTATION(indentation), milestone_option_index);
         switch (elm->option->type) {
           case MILESTONE_OPTION_RECEIPTS:
             break;
           case MILESTONE_OPTION_POW:
-            printf("%s\tMilestone PoW option:\n", PRINT_INDENTATION(indentation));
-            printf("%s\t\tNext POW Score: %d\n", PRINT_INDENTATION(indentation),
+            printf("%s\t\t\tType: Milestone PoW Option\n", PRINT_INDENTATION(indentation));
+            printf("%s\t\t\tNext POW Score: %d\n", PRINT_INDENTATION(indentation),
                    ((milestone_pow_option_t *)elm->option->option)->next_pow_score);
-            printf("%s\t\tNext POW Score Milestone Index: %d\n", PRINT_INDENTATION(indentation),
+            printf("%s\t\t\tNext POW Score Milestone Index: %d\n", PRINT_INDENTATION(indentation),
                    ((milestone_pow_option_t *)elm->option->option)->next_pow_score_milestone_index);
             break;
         }
       }
+      printf("%s\t]\n", PRINT_INDENTATION(indentation));
     } else {
-      printf("%s\tOptions: null\n", PRINT_INDENTATION(indentation));
+      printf("%s\tOptions: []\n", PRINT_INDENTATION(indentation));
     }
 
     printf("%s\tSignatures: [\n", PRINT_INDENTATION(indentation));

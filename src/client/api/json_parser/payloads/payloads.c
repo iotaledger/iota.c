@@ -140,6 +140,98 @@ static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_
   return 0;
 }
 
+/*
+"options": [
+  {
+    "type": 1,
+    "nextPoWScore": 2000,
+    "nextPoWScoreMilestoneIndex": 15475
+  }
+]
+*/
+static int milestone_options_deserialize(cJSON* payload, milestone_options_list_t** options) {
+  if (payload == NULL || *options != NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // options array
+  cJSON* options_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_OPTIONS);
+  if (!cJSON_IsArray(options_obj)) {
+    printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_OPTIONS);
+    return -1;
+  }
+
+  cJSON* elm = NULL;
+  cJSON_ArrayForEach(elm, options_obj) {
+    // type
+    uint8_t option_type;
+    if (json_get_uint8(elm, JSON_KEY_TYPE, &option_type) != JSON_OK) {
+      printf("[%s:%d]: getting %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_TYPE);
+      return -1;
+    }
+
+    // milestone options
+    switch (option_type) {
+      case MILESTONE_OPTION_RECEIPTS:
+        break;
+      case MILESTONE_OPTION_POW: {
+        milestone_options_list_t* new_option = malloc(sizeof(milestone_options_list_t));
+        if (!new_option) {
+          printf("[%s:%d]: OOM\n", __func__, __LINE__);
+          return -1;
+        }
+        new_option->option = malloc(sizeof(milestone_option_t));
+        if (!new_option->option) {
+          printf("[%s:%d]: OOM\n", __func__, __LINE__);
+          free(new_option);
+          return -1;
+        }
+        new_option->option->option = malloc(sizeof(milestone_pow_option_t));
+        if (!new_option->option->option) {
+          printf("[%s:%d]: OOM\n", __func__, __LINE__);
+          free(new_option->option);
+          free(new_option);
+          return -1;
+        }
+
+        // set milestone option type
+        new_option->option->type = MILESTONE_OPTION_POW;
+
+        // parsing next Pow score
+        if (json_get_uint32(elm, JSON_KEY_NEXT_POW_SCORE,
+                            &((milestone_pow_option_t*)new_option->option->option)->next_pow_score) != 0) {
+          printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE);
+          free(new_option->option->option);
+          free(new_option->option);
+          free(new_option);
+          return -1;
+        }
+
+        // parsing next Pow score milestone index
+        if (json_get_uint32(elm, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX,
+                            &((milestone_pow_option_t*)new_option->option->option)->next_pow_score_milestone_index) !=
+            0) {
+          printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX);
+          free(new_option->option->option);
+          free(new_option->option);
+          free(new_option);
+          return -1;
+        }
+
+        LL_APPEND(*options, new_option);
+
+        break;
+      }
+      default:
+        printf("[%s:%d] unsupported milestone option\n", __func__, __LINE__);
+        return -1;
+    }
+  }
+
+  return 0;
+}
+
 static int milestone_signatures_deserialize(cJSON* payload, UT_array* signatures) {
   if (!payload || !signatures) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
@@ -198,6 +290,14 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
       ],
       "confirmedMerkleRoot": "0x9e07623408bcf0b0fb45fa1245f1c1e9787643ca397a1871b391d8732758a7e2",
       "appliedMerkleRoot": "0x0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8",
+      "metadata": "0xd6ac43e9ca750",
+      "options": [
+        {
+        "type": 1,
+        "nextPoWScore": 2000,
+        "nextPoWScoreMilestoneIndex": 15475
+        }
+      ],
       "signatures": [
         { "type": 0,
           "publicKey": "0xd85e5b1590d898d1e0cdebb2e3b5337c8b76270142663d78811683ba47c17c98",
@@ -266,6 +366,14 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
     ms->metadata = byte_buf_new();
     if ((ret = json_get_bin_buf_str(payload, JSON_KEY_METADATA, ms->metadata)) != 0) {
       printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_METADATA);
+      return ret;
+    }
+  }
+
+  // parsing options
+  if (cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_OPTIONS)) {
+    if ((ret = milestone_options_deserialize(payload, &ms->options)) != 0) {
+      printf("[%s:%d]: parsing milestone options failed\n", __func__, __LINE__);
       return ret;
     }
   }
