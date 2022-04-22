@@ -21,6 +21,7 @@ int main(void) {
 
   if (get_node_info(&ctx, info) != 0) {
     printf("Retrieving node info failed!\n");
+    res_node_info_free(info);
     return -1;
   }
 

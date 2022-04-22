@@ -18,8 +18,8 @@ function(add_iota_example example_name example_src)
   endif()
 endfunction(add_iota_example)
 
-#add_iota_example(data_message "data_message.c")
-add_iota_example(encrypted_data_message "client/encrypted_data_message.c")
+add_iota_example(encrypted_tagged_data_message "client/encrypted_tagged_data_message.c")
+add_iota_example(tagged_data_message "client/tagged_data_message.c")
 add_iota_example(get_message "client/get_message.c")
 add_iota_example(node_info "client/node_info.c")
 

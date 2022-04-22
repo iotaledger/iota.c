@@ -14,6 +14,8 @@
 #include "core/models/payloads/tagged_data.h"
 
 #define XOR_KEY 'S'
+#define TAG "iota.c\xF0\x9F\xA6\x8B"
+#define DATA "Hello from encrypted data message example."
 
 /**
  * @brief Simple encryption/decryption algorithm for this example
@@ -38,23 +40,21 @@ static int xor_encrypt_decrypt(byte_t *src, size_t src_len, byte_t *dest, size_t
 }
 
 int main(void) {
-  char const *const data = "Hello from encrypted data message example.";
+  iota_client_conf_t ctx = {.host = "localhost", .port = 443, .use_tls = true};
+
   byte_t encrypted[100] = {};
   byte_t decrypted[100] = {};
 
   // data encryption
-  if (xor_encrypt_decrypt((byte_t *)data, strlen(data), encrypted, sizeof(encrypted)) != 0) {
+  if (xor_encrypt_decrypt((byte_t *)DATA, strlen(DATA), encrypted, sizeof(encrypted)) != 0) {
     printf("Failed to encrypt data!\n");
     return -1;
   }
 
-  iota_client_conf_t ctx = {.host = "localhost", .port = 443, .use_tls = true};
-
   // send encrypted data
-  printf("Sending encrypted data message to the network...\n");
+  printf("Sending encrypted data message to the Tangle...\n");
   res_send_message_t res = {};
-  byte_t tag[] = "iota.c\xF0\x9F\xA6\x8B";
-  if (send_tagged_data_message(&ctx, 2, tag, sizeof(tag), encrypted, strlen((char *)encrypted), &res) == 0) {
+  if (send_tagged_data_message(&ctx, 2, (byte_t *)TAG, strlen(TAG), encrypted, strlen((char *)encrypted), &res) == 0) {
     if (res.is_error) {
       printf("API response: %s\n", res.u.error->msg);
       return -1;
@@ -73,7 +73,8 @@ int main(void) {
     return -1;
   }
 
-  // get message from the tangle
+  // fetch message from the Tangle
+  printf("Fetching message from the Tangle...\n");
   if (get_message_by_id(&ctx, res.u.msg_id, msg) == 0) {
     if (msg->is_error) {
       printf("API response: %s\n", msg->u.error->msg);
@@ -81,7 +82,16 @@ int main(void) {
       return -1;
     }
   } else {
-    printf("Retrieving message from a node failed!\n");
+    printf("Fetching message from a node failed!\n");
+    res_message_free(msg);
+    return -1;
+  }
+
+  printf("Message successfully fetched.\n");
+
+  // check if fetched message is Tagged Data message
+  if (msg->u.msg->payload_type != CORE_MESSAGE_PAYLOAD_TAGGED) {
+    printf("Fetched message is not a Tagged Data message!\n");
     res_message_free(msg);
     return -1;
   }
@@ -102,7 +112,7 @@ int main(void) {
   printf("Decrypted data: %s\n", decrypted);
 
   // check if original data and decrypted data are matching
-  if (memcmp(data, decrypted, strlen(data)) == 0) {
+  if (memcmp(DATA, decrypted, strlen(DATA)) == 0) {
     printf("Original data and decrypted data match!\n");
   } else {
     printf("Original data and decrypted data do not match!\n");
