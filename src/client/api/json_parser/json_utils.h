@@ -84,6 +84,16 @@ json_error_t json_get_hex_str_to_bin(cJSON const* const obj, char const key[], b
 json_error_t json_get_byte_buf_str(cJSON const* const obj, char const key[], byte_buf_t* buf);
 
 /**
+ * @brief Converts a binary data string from a JSON object by key to byte buffer object
+ *
+ * @param[in] obj A JSON object
+ * @param[in] key The key of element
+ * @param[out] buf A buffer holds the string
+ * @return json_error_t
+ */
+json_error_t json_get_bin_buf_str(cJSON const* const obj, char const key[], byte_buf_t* buf);
+
+/**
  * @brief Gets a boolean value from a JSON object.
  *
  * @param[in] obj A JSON object.

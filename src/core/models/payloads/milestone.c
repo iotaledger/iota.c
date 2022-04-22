@@ -3,10 +3,11 @@
 
 #include "core/models/payloads/milestone.h"
 #include "core/models/message.h"
+#include "core/models/unlock_block.h"
+#include "utlist.h"
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
-static const UT_icd ut_pub_key_icd = {sizeof(uint8_t) * MILESTONE_PUBLIC_KEY_BYTES, NULL, NULL, NULL};
-static const UT_icd ut_sign_icd = {sizeof(uint8_t) * MILESTONE_SIGNATURE_BYTES, NULL, NULL, NULL};
+static const UT_icd ut_sign_icd = {sizeof(uint8_t) * ED25519_SIGNATURE_BLOCK_BYTES, NULL, NULL, NULL};
 
 milestone_payload_t *milestone_payload_new() {
   milestone_payload_t *ms = malloc(sizeof(milestone_payload_t));
@@ -14,12 +15,12 @@ milestone_payload_t *milestone_payload_new() {
     ms->type = CORE_MESSAGE_PAYLOAD_MILESTONE;
     ms->index = 0;
     ms->timestamp = 0;
+    memset(ms->last_milestone_id, 0, sizeof(ms->last_milestone_id));
     utarray_new(ms->parents, &ut_msg_id_icd);
-    memset(ms->inclusion_merkle_proof, 0, sizeof(ms->inclusion_merkle_proof));
-    ms->next_pow_score = 0;
-    ms->next_pow_score_milestone_index = 0;
-    utarray_new(ms->pub_keys, &ut_pub_key_icd);
-    ms->receipt = NULL;
+    memset(ms->confirmed_merkle_root, 0, sizeof(ms->confirmed_merkle_root));
+    memset(ms->applied_merkle_root, 0, sizeof(ms->applied_merkle_root));
+    ms->metadata = NULL;
+    ms->options = NULL;
     utarray_new(ms->signatures, &ut_sign_icd);
   }
   return ms;
@@ -30,8 +31,21 @@ void milestone_payload_free(milestone_payload_t *ms) {
     if (ms->parents) {
       utarray_free(ms->parents);
     }
-    if (ms->pub_keys) {
-      utarray_free(ms->pub_keys);
+    if (ms->metadata) {
+      byte_buf_free(ms->metadata);
+    }
+    if (ms->options) {
+      milestone_options_list_t *elm, *tmp;
+      LL_FOREACH_SAFE(ms->options, elm, tmp) {
+        if (elm->option) {
+          if (elm->option->option) {
+            free(elm->option->option);
+          }
+          free(elm->option);
+        }
+        LL_DELETE(ms->options, elm);
+        free(elm);
+      }
     }
     if (ms->signatures) {
       utarray_free(ms->signatures);
@@ -51,22 +65,6 @@ byte_t *milestone_payload_get_parent(milestone_payload_t *ms, size_t index) {
   if (ms) {
     if (ms->parents && (index < milestone_payload_get_parents_count(ms))) {
       return utarray_eltptr(ms->parents, index);
-    }
-  }
-  return NULL;
-}
-
-size_t milestone_payload_get_pub_keys_count(milestone_payload_t *ms) {
-  if (ms) {
-    return utarray_len(ms->pub_keys);
-  }
-  return 0;
-}
-
-byte_t *milestone_payload_get_pub_key(milestone_payload_t *ms, size_t index) {
-  if (ms) {
-    if (ms->pub_keys && (index < milestone_payload_get_pub_keys_count(ms))) {
-      return utarray_eltptr(ms->pub_keys, index);
     }
   }
   return NULL;
@@ -95,6 +93,9 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
     printf("%s\tIndex: %d\n", PRINT_INDENTATION(indentation), ms->index);
     printf("%s\tTimestamp: %d\n", PRINT_INDENTATION(indentation), ms->timestamp);
 
+    printf("%s\tLast Milestone Id: ", PRINT_INDENTATION(indentation));
+    dump_hex_str(ms->last_milestone_id, sizeof(ms->last_milestone_id));
+
     printf("%s\tParent Message Ids:\n", PRINT_INDENTATION(indentation));
     size_t parent_message_len = milestone_payload_get_parents_count(ms);
     printf("%s\tParent Message Count: %lu\n", PRINT_INDENTATION(indentation + 1), parent_message_len);
@@ -103,31 +104,55 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
       dump_hex_str(milestone_payload_get_parent(ms, index), IOTA_MESSAGE_ID_BYTES);
     }
 
-    printf("%s\tInclusion Merkle Proof: ", PRINT_INDENTATION(indentation));
-    dump_hex_str(ms->inclusion_merkle_proof, sizeof(ms->inclusion_merkle_proof));
+    printf("%s\tConfirmed Merkle Root: ", PRINT_INDENTATION(indentation));
+    dump_hex_str(ms->confirmed_merkle_root, sizeof(ms->confirmed_merkle_root));
 
-    printf("%s\tNext POW Score: %d\n", PRINT_INDENTATION(indentation), ms->next_pow_score);
-    printf("%s\tNext POW Score Milestone Index: %d\n", PRINT_INDENTATION(indentation),
-           ms->next_pow_score_milestone_index);
+    printf("%s\tApplied Merkle Root: ", PRINT_INDENTATION(indentation));
+    dump_hex_str(ms->applied_merkle_root, sizeof(ms->applied_merkle_root));
 
-    printf("%s\tPublic Keys:\n", PRINT_INDENTATION(indentation));
-    size_t pub_keys_len = milestone_payload_get_pub_keys_count(ms);
-    printf("%s\tPublic Keys Count: %lu\n", PRINT_INDENTATION(indentation + 1), pub_keys_len);
-    for (size_t index = 0; index < pub_keys_len; index++) {
-      printf("%s\t#%lu ", PRINT_INDENTATION(indentation + 1), index);
-      dump_hex_str(milestone_payload_get_pub_key(ms, index), MILESTONE_PUBLIC_KEY_BYTES);
+    if (ms->metadata) {
+      printf("%s\tMetadata: ", PRINT_INDENTATION(indentation));
+      dump_hex_str(ms->metadata->data, ms->metadata->len);
+    } else {
+      printf("%s\tMetadata:\n", PRINT_INDENTATION(indentation));
     }
 
-    // TODO print receipt
-    printf("%s\tReceipt: null\n", PRINT_INDENTATION(indentation));
+    if (ms->options) {
+      printf("%s\tOptions: [\n", PRINT_INDENTATION(indentation));
+      milestone_options_list_t *elm;
+      uint8_t milestone_option_index = 0;
+      LL_FOREACH(ms->options, elm) {
+        printf("%s\t\t#%d\n", PRINT_INDENTATION(indentation), milestone_option_index);
+        switch (elm->option->type) {
+          case MILESTONE_OPTION_RECEIPTS:
+            break;
+          case MILESTONE_OPTION_POW:
+            printf("%s\t\t\tType: Milestone PoW Option\n", PRINT_INDENTATION(indentation));
+            printf("%s\t\t\tNext POW Score: %d\n", PRINT_INDENTATION(indentation),
+                   ((milestone_pow_option_t *)elm->option->option)->next_pow_score);
+            printf("%s\t\t\tNext POW Score Milestone Index: %d\n", PRINT_INDENTATION(indentation),
+                   ((milestone_pow_option_t *)elm->option->option)->next_pow_score_milestone_index);
+            break;
+        }
+      }
+      printf("%s\t]\n", PRINT_INDENTATION(indentation));
+    } else {
+      printf("%s\tOptions: []\n", PRINT_INDENTATION(indentation));
+    }
 
-    printf("%s\tSignatures:\n", PRINT_INDENTATION(indentation));
+    printf("%s\tSignatures: [\n", PRINT_INDENTATION(indentation));
     size_t signatures_len = milestone_payload_get_signatures_count(ms);
     printf("%s\tSignatures Count: %lu\n", PRINT_INDENTATION(indentation + 1), signatures_len);
     for (size_t index = 0; index < signatures_len; index++) {
-      printf("%s\t#%lu ", PRINT_INDENTATION(indentation + 1), index);
-      dump_hex_str(milestone_payload_get_signature(ms, index), MILESTONE_SIGNATURE_BYTES);
+      printf("%s\t#%lu\n", PRINT_INDENTATION(indentation + 1), index);
+      byte_t *signature = milestone_payload_get_signature(ms, index);
+      printf("%s\t\t\tType: %s\n", PRINT_INDENTATION(indentation), signature[0] ? "UNKNOWN" : "ED25519");
+      printf("%s\t\t\tPub key: ", PRINT_INDENTATION(indentation));
+      dump_hex_str(signature + 1, ED_PUBLIC_KEY_BYTES);
+      printf("%s\t\t\tSignature: ", PRINT_INDENTATION(indentation));
+      dump_hex_str(signature + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES);
     }
+    printf("%s]\n", PRINT_INDENTATION(indentation + 1));
 
     printf("%s]\n", PRINT_INDENTATION(indentation));
   } else {

@@ -16,7 +16,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_get_msg_by_id() {
-  char const* const msg_id = "96ff3d1c7bc5e72d74c055a717f57752aae595155cfc458108a60698914e7566";
+  char const* const msg_id = "c7217f10fbeabd96afc22cf8b058c4ccc9d2b1fe2b393091b7bda629c3afe222";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
 
   res_message_t* msg = res_message_new();
@@ -47,7 +47,8 @@ void test_get_msg_by_id() {
         printf("it's a tagged message\n");
         core_message_print(msg->u.msg, 0);
         break;
-      case CORE_MESSAGE_PAYLOAD_DEPRECATED:
+      case CORE_MESSAGE_PAYLOAD_DEPRECATED_0:
+      case CORE_MESSAGE_PAYLOAD_DEPRECATED_1:
       case CORE_MESSAGE_PAYLOAD_UNKNOWN:
       default:
         printf("unsupported message\n");
@@ -63,20 +64,26 @@ void test_deser_milestone() {
       "\"0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
       "\"0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
       "\"0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
-      "\"0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"payload\":{\"type\":1,\"index\":3,"
-      "\"timestamp\":1644478549,\"parentMessageIds\":["
+      "\"0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"payload\":{\"type\":7,\"index\":3,"
+      "\"timestamp\":1644478549,\"lastMilestoneId\":"
+      "\"0xb1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea\",\"parentMessageIds\":["
       "\"0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
       "\"0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
       "\"0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
-      "\"0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"inclusionMerkleProof\":"
-      "\"0x58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c\",\"nextPoWScore\":100,"
-      "\"nextPoWScoreMilestoneIndex\":200,\"publicKeys\":["
-      "\"0xed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c\","
-      "\"0xf6752f5f46a53364e2ee9c4d662d762a81efd51010282a75cd6bd03f28ef349c\"],\"receipt\":null,\"signatures\":["
-      "\"0xa6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b4c33cfd64dadf7"
-      "bcc085a062e486c7a105\","
-      "\"0x005af6a44ded27650c23457f540576515a1e1549ff50d1279bde77d2dd8802c8676053ec5c0939671db1c2d920b3c557389b19a7f1ad"
-      "310dc5ed23f840ddfa05\"]},\"nonce\":\"14757395258967713456\"}";
+      "\"0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"confirmedMerkleRoot\":"
+      "\"0x58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c\",\"appliedMerkleRoot\":"
+      "\"0x0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8\",\"metadata\":"
+      "\"0x96a31204f64a48aa58adc6ff90\",\"options\":[{\"type\":0},{\"type\":1,\"nextPoWScore\":2000,"
+      "\"nextPoWScoreMilestoneIndex\":15475}],\"signatures\":[{\"type\":0,\"publicKey\":"
+      "\"0xd85e5b1590d898d1e0cdebb2e3b5337c8b76270142663d78811683ba47c17c98\",\"signature\":"
+      "\"0x51306b228a716b656000529b72520fc97cf227197056b289d94d717779cb9749fe9cde77477497cfc594a728ce372b8a7edf233115fb"
+      "51681e4669f6f4464900\"},{\"type\":0,\"publicKey\":"
+      "\"0xd9922819a39e94ddf3907f4b9c8df93f39f026244fcb609205b9a879022599f2\",\"signature\": "
+      "\"0x1e5fff5396cfa5e9b247ab6cb402c9dfd9b239e6bcaa3c9e370789f3e180599ea267c4b4e61be4864cfae61261af5353b45c2277e1eb"
+      "3f8bb178211ea7e3e003\"},{\"type\":0,\"publicKey\":"
+      "\"0xf9d9656a60049083eef61487632187b351294c1fa23d118060d813db6d03e8b6\",\"signature\": "
+      "\"0xb5be8a9e682df9a900dc0961150d24b6b13418ce11744530b688de852525d939026c9ebb2af66aebecbbe06287149677a7a2e92e9f7f"
+      "9182ee9fb0681d3e8d0c\"}]},\"nonce\":\"14757395258967713456\"}";
 
   res_message_t* res = res_message_new();
   TEST_ASSERT_NOT_NULL(res);
@@ -109,6 +116,11 @@ void test_deser_milestone() {
   TEST_ASSERT(3 == ms->index);
   TEST_ASSERT(1644478549 == ms->timestamp);
 
+  byte_t tmp_last_milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
+  TEST_ASSERT(hex_2_bin("b1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea", 65, NULL,
+                        tmp_last_milestone_id, sizeof(tmp_last_milestone_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_last_milestone_id, ms->last_milestone_id, sizeof(ms->last_milestone_id));
+
   // check parentMessageIds
   TEST_ASSERT_EQUAL_INT(4, milestone_payload_get_parents_count(ms));
   TEST_ASSERT(hex_2_bin("596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3", 65, NULL, tmp_id,
@@ -127,33 +139,45 @@ void test_deser_milestone() {
   byte_t tmp_proof[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(hex_2_bin("58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c", 65, NULL, tmp_proof,
                         sizeof(tmp_proof)) == 0);
-  TEST_ASSERT_EQUAL_MEMORY(tmp_proof, ms->inclusion_merkle_proof, sizeof(ms->inclusion_merkle_proof));
+  TEST_ASSERT_EQUAL_MEMORY(tmp_proof, ms->confirmed_merkle_root, sizeof(ms->confirmed_merkle_root));
 
-  TEST_ASSERT(100 == ms->next_pow_score);
-  TEST_ASSERT(200 == ms->next_pow_score_milestone_index);
+  TEST_ASSERT(hex_2_bin("0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8", 65, NULL, tmp_proof,
+                        sizeof(tmp_proof)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_proof, ms->applied_merkle_root, sizeof(ms->applied_merkle_root));
 
-  // check publicKeys
-  TEST_ASSERT_EQUAL_INT(2, milestone_payload_get_pub_keys_count(ms));
-  TEST_ASSERT(hex_2_bin("ed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c", 65, NULL, tmp_id,
-                        sizeof(tmp_id)) == 0);
-  TEST_ASSERT_EQUAL_MEMORY(tmp_id, milestone_payload_get_pub_key(ms, 0), sizeof(tmp_id));
-  TEST_ASSERT(hex_2_bin("f6752f5f46a53364e2ee9c4d662d762a81efd51010282a75cd6bd03f28ef349c", 65, NULL, tmp_id,
-                        sizeof(tmp_id)) == 0);
-  TEST_ASSERT_EQUAL_MEMORY(tmp_id, milestone_payload_get_pub_key(ms, 1), sizeof(tmp_id));
+  // check metadata
+  byte_t tmp_metadata[13] = {};
+  TEST_ASSERT(hex_2_bin("96a31204f64a48aa58adc6ff90", 26, NULL, tmp_metadata, sizeof(tmp_metadata)) == 0);
+  TEST_ASSERT_EQUAL_UINT32(13, ms->metadata->len);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_metadata, ms->metadata->data, sizeof(tmp_metadata));
 
-  // TODO check receipt
+  // check options
+  TEST_ASSERT_NOT_NULL(ms->options);
+  TEST_ASSERT_NOT_NULL(ms->options->option);
+  TEST_ASSERT_EQUAL_UINT8(MILESTONE_OPTION_POW, ms->options->option->type);
+  TEST_ASSERT_NOT_NULL(ms->options->option->option);
+  TEST_ASSERT_EQUAL_UINT32(2000, ((milestone_pow_option_t*)ms->options->option->option)->next_pow_score);
+  TEST_ASSERT_EQUAL_UINT32(15475,
+                           ((milestone_pow_option_t*)ms->options->option->option)->next_pow_score_milestone_index);
 
   // check signatures
-  byte_t tmp_sign[MILESTONE_SIGNATURE_BYTES] = {};
-  TEST_ASSERT_EQUAL_INT(2, milestone_payload_get_signatures_count(ms));
-  TEST_ASSERT(hex_2_bin("a6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b"
-                        "4c33cfd64dadf7bcc085a062e486c7a105",
-                        129, NULL, tmp_sign, sizeof(tmp_sign)) == 0);
+  byte_t tmp_sign[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+  TEST_ASSERT_EQUAL_INT(3, milestone_payload_get_signatures_count(ms));
+  TEST_ASSERT(
+      hex_2_bin("00d85e5b1590d898d1e0cdebb2e3b5337c8b76270142663d78811683ba47c17c9851306b228a716b656000529b72520fc97cf2"
+                "27197056b289d94d717779cb9749fe9cde77477497cfc594a728ce372b8a7edf233115fb51681e4669f6f4464900",
+                194, NULL, tmp_sign, sizeof(tmp_sign)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_sign, milestone_payload_get_signature(ms, 0), sizeof(tmp_sign));
-  TEST_ASSERT(hex_2_bin("005af6a44ded27650c23457f540576515a1e1549ff50d1279bde77d2dd8802c8676053ec5c0939671db1c2d920b3c5"
-                        "57389b19a7f1ad310dc5ed23f840ddfa05",
-                        129, NULL, tmp_sign, sizeof(tmp_sign)) == 0);
+  TEST_ASSERT(
+      hex_2_bin("00d9922819a39e94ddf3907f4b9c8df93f39f026244fcb609205b9a879022599f21e5fff5396cfa5e9b247ab6cb402c9dfd9b2"
+                "39e6bcaa3c9e370789f3e180599ea267c4b4e61be4864cfae61261af5353b45c2277e1eb3f8bb178211ea7e3e003",
+                194, NULL, tmp_sign, sizeof(tmp_sign)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_sign, milestone_payload_get_signature(ms, 1), sizeof(tmp_sign));
+  TEST_ASSERT(
+      hex_2_bin("00f9d9656a60049083eef61487632187b351294c1fa23d118060d813db6d03e8b6b5be8a9e682df9a900dc0961150d24b6b134"
+                "18ce11744530b688de852525d939026c9ebb2af66aebecbbe06287149677a7a2e92e9f7f9182ee9fb0681d3e8d0c",
+                194, NULL, tmp_sign, sizeof(tmp_sign)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_sign, milestone_payload_get_signature(ms, 2), sizeof(tmp_sign));
 
   // print core message
   core_message_print(res->u.msg, 0);
@@ -176,8 +200,9 @@ void test_deser_simple_tx() {
       "\"featureBlocks\":[]},{\"type\":3,\"amount\":\"2779530273277761\",\"nativeTokens\":[],\"unlockConditions\":[{"
       "\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0x60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe\"}}],\"featureBlocks\":[]}],\"payload\":{"
-      "\"type\":5,\"tag\":\"0x484f524e455420464155434554\",\"data\":\"\"}},\"unlockBlocks\":[{\"type\":0,\"signature\":"
-      "{\"type\":0,\"publicKey\":\"0x31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\",\"signature\":"
+      "\"type\":5,\"tag\":\"0x484f524e455420464155434554\",\"data\":\"0x\"}},\"unlockBlocks\":[{\"type\":0,"
+      "\"signature\":{\"type\":0,\"publicKey\":\"0x31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\","
+      "\"signature\":"
       "\"0x1b51aab768dd145de99fc3710c7b05963803f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f81"
       "0ad0cc4b0210adaafd0a\"}}]},\"nonce\":\"62900\"}";
 

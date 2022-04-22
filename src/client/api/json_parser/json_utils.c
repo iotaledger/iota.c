@@ -115,6 +115,60 @@ json_error_t json_get_byte_buf_str(cJSON const* const obj, char const key[], byt
   return JSON_OK;
 }
 
+json_error_t json_get_bin_buf_str(cJSON const* const obj, char const key[], byte_buf_t* buf) {
+  if (obj == NULL || key == NULL || buf == NULL) {
+    // invalid parameters
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return JSON_INVALID_PARAMS;
+  }
+
+  cJSON* json_value = cJSON_GetObjectItemCaseSensitive(obj, key);
+  if (json_value == NULL) {
+    printf("[%s:%d] JSON key not found: %s\n", __func__, __LINE__, key);
+    return JSON_KEY_NOT_FOUND;
+  }
+
+  if (cJSON_IsString(json_value) && (json_value->valuestring != NULL)) {
+    size_t str_len = strlen(json_value->valuestring);
+
+    if (str_len >= 2) {
+      if (memcmp(json_value->valuestring, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN) != 0) {
+        printf("[%s:%d] hex string without %s prefix\n", __func__, __LINE__, JSON_HEX_ENCODED_STRING_PREFIX);
+        return JSON_NOT_HEX_STRING;
+      }
+    } else {
+      printf("[%s:%d] hex string length too small\n", __func__, __LINE__);
+      return JSON_NOT_HEX_STRING;
+    }
+
+    size_t bin_len = (str_len - JSON_HEX_ENCODED_STR_PREFIX_LEN) / 2;
+    if (bin_len == 0) {
+      printf("[%s:%d] zero length hex string\n", __func__, __LINE__);
+      return JSON_OK;
+    }
+    byte_t* bin_elm = calloc(1, bin_len);
+    if (!bin_elm) {
+      printf("[%s:%d] OOM\n", __func__, __LINE__);
+      return JSON_MEMORY_ERROR;
+    }
+
+    // convert hex string to binary
+    if (hex_2_bin(json_value->valuestring, str_len, JSON_HEX_ENCODED_STRING_PREFIX, bin_elm, bin_len) == 0) {
+      byte_buf_append(buf, bin_elm, bin_len);
+      free(bin_elm);
+    } else {
+      printf("[%s:%d] convert hex string to binary error\n", __func__, __LINE__);
+      free(bin_elm);
+      return JSON_ERR;
+    }
+  } else {
+    printf("[%s:%d] %s is not a string\n", __func__, __LINE__, key);
+    return JSON_NOT_STRING;
+  }
+
+  return JSON_OK;
+}
+
 json_error_t json_get_boolean(cJSON const* const obj, char const key[], bool* const boolean) {
   if (obj == NULL || key == NULL || boolean == NULL) {
     // invalid parameters

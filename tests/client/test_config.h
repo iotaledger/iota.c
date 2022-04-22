@@ -10,15 +10,28 @@
 #define USE_HTTPS
 
 #ifdef USE_HTTPS
+// Node
 #define TEST_NODE_HOST "api.lb-0.h.chrysalis-devnet.iota.cafe"
 #define TEST_NODE_PORT 443
+
+// Faucet
+#define TEST_FAUCET_HOST "faucet.chrysalis-devnet.iota.cafe"
+#define TEST_FAUCET_PORT 443
+
 #define TEST_IS_HTTPS 1
 #else
-#define TEST_NODE_HOST "chrysalis-nodes.iota.org"
+// Node
+#define TEST_NODE_HOST "api.lb-0.h.chrysalis-devnet.iota.cafe"
 #define TEST_NODE_PORT 80
+
+// Faucet
+#define TEST_FAUCET_HOST "faucet.chrysalis-devnet.iota.cafe"
+#define TEST_FAUCET_PORT 80
+
 #define TEST_IS_HTTPS 0
 #endif
 
+// MQTT
 #define TEST_EVENTS_HOST "mqtt.lb-0.h.chrysalis-devnet.iota.cafe"
 #define TEST_EVENTS_PORT 1883
 #define TEST_EVENTS_CLIENT_ID "iota_test_2"

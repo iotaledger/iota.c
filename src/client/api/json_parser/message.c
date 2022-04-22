@@ -62,7 +62,8 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
       case CORE_MESSAGE_PAYLOAD_INDEXATION:
       case CORE_MESSAGE_PAYLOAD_RECEIPT:
       case CORE_MESSAGE_PAYLOAD_TREASURY:
-      case CORE_MESSAGE_PAYLOAD_DEPRECATED:
+      case CORE_MESSAGE_PAYLOAD_DEPRECATED_0:
+      case CORE_MESSAGE_PAYLOAD_DEPRECATED_1:
       default:
         printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
         ret = -1;
@@ -147,7 +148,8 @@ cJSON* json_message_serialize(core_message_t* msg) {
     case CORE_MESSAGE_PAYLOAD_INDEXATION:
     case CORE_MESSAGE_PAYLOAD_RECEIPT:
     case CORE_MESSAGE_PAYLOAD_TREASURY:
-    case CORE_MESSAGE_PAYLOAD_DEPRECATED:
+    case CORE_MESSAGE_PAYLOAD_DEPRECATED_0:
+    case CORE_MESSAGE_PAYLOAD_DEPRECATED_1:
     default:
       printf("[%s:%d] unsupported payload type\n", __func__, __LINE__);
       cJSON_Delete(msg_obj);

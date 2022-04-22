@@ -22,7 +22,8 @@ static char const* const JSON_KEY_ERROR = "error";
 static char const* const JSON_KEY_ESSENCE = "essence";
 static char const* const JSON_KEY_FEATURES = "features";
 static char const* const JSON_KEY_PLUGINS = "plugins";
-static char const* const JSON_KEY_INCLUSION_MKL = "inclusionMerkleProof";
+static char const* const JSON_KEY_CONFIRMED_MERKLE_ROOT = "confirmedMerkleRoot";
+static char const* const JSON_KEY_APPLIED_MERKLE_ROOT = "appliedMerkleRoot";
 static char const* const JSON_KEY_INDEX = "index";
 static char const* const JSON_KEY_INPUTS = "inputs";
 static char const* const JSON_KEY_IS_HEALTHY = "isHealthy";
@@ -66,6 +67,7 @@ static char const* const JSON_KEY_BECH32HRP = "bech32HRP";
 static char const* const JSON_KEY_IS_SOLID = "isSolid";
 static char const* const JSON_KEY_REF_MILESTONE_IDX = "referencedByMilestoneIndex";
 static char const* const JSON_KEY_MILESTONE_IDX = "milestoneIndex";
+static char const* const JSON_KEY_LAST_MILESTONE_ID = "lastMilestoneId";
 static char const* const JSON_KEY_LEDGER_ST = "ledgerInclusionState";
 static char const* const JSON_KEY_SHOULD_PROMOTE = "shouldPromote";
 static char const* const JSON_KEY_SHOULD_REATTACH = "shouldReattach";
@@ -102,5 +104,7 @@ static char const* const JSON_KEY_PUBLIC_KEYS = "publicKeys";
 static char const* const JSON_KEY_INPUTS_COMMITMENT = "inputsCommitment";
 static char const* const JSON_KEY_PUB_KEY_HASH = "pubKeyHash";
 static char const* const JSON_KEY_WAITING_REQUESTS = "waitingRequests";
+static char const* const JSON_KEY_METADATA = "metadata";
+static char const* const JSON_KEY_OPTIONS = "options";
 
 #endif
