@@ -14,17 +14,19 @@ int main(void) {
   iota_client_conf_t ctx = {.host = "localhost", .port = 443, .use_tls = true};
 
   res_node_info_t *info = res_node_info_new();
-  if (info) {
-    int ret = get_node_info(&ctx, info);
-    if (ret == 0) {
-      node_info_print(info, 0);
-    } else {
-      printf("Retrieving node info failed!\n");
-    }
-    res_node_info_free(info);
-  } else {
+  if (!info) {
     printf("Failed to create a response node info object!\n");
+    return -1;
   }
+
+  if (get_node_info(&ctx, info) != 0) {
+    printf("Retrieving node info failed!\n");
+    return -1;
+  }
+
+  node_info_print(info, 0);
+
+  res_node_info_free(info);
 
   return 0;
 }

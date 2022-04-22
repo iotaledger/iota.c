@@ -64,15 +64,16 @@ int main(void) {
     return -1;
   }
 
+  printf("Message successfully sent.\n");
   printf("Message ID: %s\nEncrypted data: %s\n", res.u.msg_id, encrypted);
 
-  // get message from the tangle
   res_message_t *msg = res_message_new();
   if (!msg) {
     printf("Failed to create a response message object!\n");
     return -1;
   }
 
+  // get message from the tangle
   if (get_message_by_id(&ctx, res.u.msg_id, msg) == 0) {
     if (msg->is_error) {
       printf("API response: %s\n", msg->u.error->msg);
@@ -85,6 +86,7 @@ int main(void) {
     return -1;
   }
 
+  // get data from a retrieved message
   byte_t message_data[100] = {};
   uint8_t message_data_size = ((tagged_data_payload_t *)msg->u.msg->payload)->data->len;
   memcpy(message_data, ((tagged_data_payload_t *)msg->u.msg->payload)->data->data, message_data_size);
