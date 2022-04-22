@@ -174,6 +174,7 @@ static int milestone_options_deserialize(cJSON* payload, milestone_options_list_
     // milestone options
     switch (option_type) {
       case MILESTONE_OPTION_RECEIPTS:
+        printf("[%s:%d]: Receipt milestone option is currently not supported.\n", __func__, __LINE__);
         break;
       case MILESTONE_OPTION_POW: {
         milestone_options_list_t* new_option = malloc(sizeof(milestone_options_list_t));
