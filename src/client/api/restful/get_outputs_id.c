@@ -22,7 +22,7 @@
 #define OUTPUTS_QUERY_GOV_KEY "governor"
 #define OUTPUTS_QUERY_ISSUER_KEY "issuer"
 
-#define INDEXER_OUTPUTS_API_PATH "/api/plugins/indexer/v1/outputs"
+#define INDEXER_OUTPUTS_API_PATH "/api/plugins/indexer/v1/basic-outputs"
 #define INDEXER_ALIASES_API_PATH "/api/plugins/indexer/v1/aliases"
 #define INDEXER_NFT_API_PATH "/api/plugins/indexer/v1/nfts"
 #define INDEXER_FOUNDRY_API_PATH "/api/plugins/indexer/v1/foundries"
