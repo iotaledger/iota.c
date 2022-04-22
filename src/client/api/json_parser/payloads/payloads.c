@@ -140,6 +140,134 @@ static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_
   return 0;
 }
 
+/*
+"options": [
+  {
+    "type": 1,
+    "nextPoWScore": 2000,
+    "nextPoWScoreMilestoneIndex": 15475
+  }
+]
+*/
+static int milestone_options_deserialize(cJSON* payload, milestone_options_list_t** options) {
+  if (payload == NULL || *options != NULL) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // options array
+  cJSON* options_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_OPTIONS);
+  if (!cJSON_IsArray(options_obj)) {
+    printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_OPTIONS);
+    return -1;
+  }
+
+  cJSON* elm = NULL;
+  cJSON_ArrayForEach(elm, options_obj) {
+    // type
+    uint8_t option_type;
+    if (json_get_uint8(elm, JSON_KEY_TYPE, &option_type) != JSON_OK) {
+      printf("[%s:%d]: getting %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_TYPE);
+      return -1;
+    }
+
+    // milestone options
+    switch (option_type) {
+      case MILESTONE_OPTION_RECEIPTS:
+        printf("[%s:%d]: Receipt milestone option is currently not supported.\n", __func__, __LINE__);
+        break;
+      case MILESTONE_OPTION_POW: {
+        milestone_options_list_t* new_option = malloc(sizeof(milestone_options_list_t));
+        if (!new_option) {
+          printf("[%s:%d]: OOM\n", __func__, __LINE__);
+          return -1;
+        }
+        new_option->option = malloc(sizeof(milestone_option_t));
+        if (!new_option->option) {
+          printf("[%s:%d]: OOM\n", __func__, __LINE__);
+          free(new_option);
+          return -1;
+        }
+        new_option->option->option = malloc(sizeof(milestone_pow_option_t));
+        if (!new_option->option->option) {
+          printf("[%s:%d]: OOM\n", __func__, __LINE__);
+          free(new_option->option);
+          free(new_option);
+          return -1;
+        }
+
+        // set milestone option type
+        new_option->option->type = MILESTONE_OPTION_POW;
+
+        // parsing next Pow score
+        if (json_get_uint32(elm, JSON_KEY_NEXT_POW_SCORE,
+                            &((milestone_pow_option_t*)new_option->option->option)->next_pow_score) != 0) {
+          printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE);
+          free(new_option->option->option);
+          free(new_option->option);
+          free(new_option);
+          return -1;
+        }
+
+        // parsing next Pow score milestone index
+        if (json_get_uint32(elm, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX,
+                            &((milestone_pow_option_t*)new_option->option->option)->next_pow_score_milestone_index) !=
+            0) {
+          printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX);
+          free(new_option->option->option);
+          free(new_option->option);
+          free(new_option);
+          return -1;
+        }
+
+        LL_APPEND(*options, new_option);
+
+        break;
+      }
+      default:
+        printf("[%s:%d] unsupported milestone option\n", __func__, __LINE__);
+        return -1;
+    }
+  }
+
+  return 0;
+}
+
+static int milestone_signatures_deserialize(cJSON* payload, UT_array* signatures) {
+  if (!payload || !signatures) {
+    printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // signatures array
+  cJSON* sig_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_SIGNATURES);
+  if (!cJSON_IsArray(sig_obj)) {
+    printf("[%s:%d]: %s is not an object\n", __func__, __LINE__, JSON_KEY_SIGNATURES);
+    return -1;
+  }
+
+  cJSON* elm = NULL;
+  cJSON_ArrayForEach(elm, sig_obj) {
+    byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+    sig_block[0] = 0;  // denote ed25519 signature
+    // public key
+    if (json_get_hex_str_to_bin(elm, JSON_KEY_PUB_KEY, sig_block + 1, ED_PUBLIC_KEY_BYTES) != JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_PUB_KEY);
+      return -1;
+    }
+    // signature
+    if (json_get_hex_str_to_bin(elm, JSON_KEY_SIG, sig_block + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES) !=
+        JSON_OK) {
+      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_SIG);
+      return -1;
+    }
+    // add signature block into a list
+    utarray_push_back(signatures, sig_block);
+  }
+
+  return 0;
+}
+
 int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   /*
   {
@@ -151,26 +279,37 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
       "0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff"
     ],
     "payload": {
-      "type": 1,
+      "type": 7,
       "index": 3,
       "timestamp": 1644478549,
+      "lastMilestoneId": "0xb1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea"
       "parentMessageIds": [
         "0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
         "0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
         "0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893",
         "0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff"
       ],
-      "inclusionMerkleProof": "0x58f3fe3e0727eb7a34a2fe8a7a3d2a1b5b33650c26b34c1955909db3e8a1176c",
-      "nextPoWScore": 0,
-      "nextPoWScoreMilestoneIndex": 0,
-      "publicKeys": [
-        "0xed3c3f1a319ff4e909cf2771d79fece0ac9bd9fd2ee49ea6c0885c9cb3b1248c",
-        "0xf6752f5f46a53364e2ee9c4d662d762a81efd51010282a75cd6bd03f28ef349c"
+      "confirmedMerkleRoot": "0x9e07623408bcf0b0fb45fa1245f1c1e9787643ca397a1871b391d8732758a7e2",
+      "appliedMerkleRoot": "0x0e5751c026e543b2e8ab2eb06099daa1d1e5df47778f7787faab45cdf12fe3a8",
+      "metadata": "0xd6ac43e9ca750",
+      "options": [
+        {
+        "type": 1,
+        "nextPoWScore": 2000,
+        "nextPoWScoreMilestoneIndex": 15475
+        }
       ],
-      "receipt": null,
       "signatures": [
-        "0xa6989002bdfcab4eb8ea7144a9a79789ef331c46377ed8036e87a3fac601d1207af5904814bec2d4dc790ff250574b4c33cfd64dadf7bcc085a062e486c7a105",
-        "0x005af6a44ded27650c23457f540576515a1e1549ff50d1279bde77d2dd8802c8676053ec5c0939671db1c2d920b3c557389b19a7f1ad310dc5ed23f840ddfa05"
+        { "type": 0,
+          "publicKey": "0xd85e5b1590d898d1e0cdebb2e3b5337c8b76270142663d78811683ba47c17c98",
+          "signature":
+          "0x51306b228a716b656000529b72520fc97cf227197056b289d94d717779cb9749fe9cde77477497cfc594a728ce372b8a7edf233115fb51681e4669f6f4464900"
+        },
+        { "type": 0,
+          "publicKey": "0xd9922819a39e94ddf3907f4b9c8df93f39f026244fcb609205b9a879022599f2",
+          "signature":
+          "0x1e5fff5396cfa5e9b247ab6cb402c9dfd9b239e6bcaa3c9e370789f3e180599ea267c4b4e61be4864cfae61261af5353b45c2277e1eb3f8bb178211ea7e3e003"
+        }
       ]
     },
     "nonce": "14757395258967713456"
@@ -196,45 +335,53 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
     return ret;
   }
 
+  // parsing last milestone ID
+  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_LAST_MILESTONE_ID, ms->last_milestone_id,
+                                     sizeof(ms->last_milestone_id))) != 0) {
+    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_LAST_MILESTONE_ID);
+    return ret;
+  }
+
   // parsing parents
   if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PARENT_IDS, ms->parents, IOTA_MESSAGE_ID_BYTES)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
     return ret;
   }
-  // parsing inclusion Merkle proof
-  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_INCLUSION_MKL, ms->inclusion_merkle_proof,
-                                     sizeof(ms->inclusion_merkle_proof))) != 0) {
-    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_INCLUSION_MKL);
+
+  // parsing confirmed Merkle root
+  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_CONFIRMED_MERKLE_ROOT, ms->confirmed_merkle_root,
+                                     sizeof(ms->confirmed_merkle_root))) != 0) {
+    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_CONFIRMED_MERKLE_ROOT);
     return ret;
   }
 
-  // parsing next Pow score
-  if ((ret = json_get_uint32(payload, JSON_KEY_NEXT_POW_SCORE, &ms->next_pow_score)) != 0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE);
+  // parsing applied Merkle root
+  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_APPLIED_MERKLE_ROOT, ms->applied_merkle_root,
+                                     sizeof(ms->applied_merkle_root))) != 0) {
+    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_APPLIED_MERKLE_ROOT);
     return ret;
   }
 
-  // parsing next Pow score milestone index
-  if ((ret = json_get_uint32(payload, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX, &ms->next_pow_score_milestone_index)) !=
-      0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_NEXT_POW_SCORE_MILESTONE_IDX);
-    return ret;
+  // parsing metadata
+  if (cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_METADATA)) {
+    ms->metadata = byte_buf_new();
+    if ((ret = json_get_bin_buf_str(payload, JSON_KEY_METADATA, ms->metadata)) != 0) {
+      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_METADATA);
+      return ret;
+    }
   }
 
-  // parsing public keys
-  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PUBLIC_KEYS, ms->pub_keys, MILESTONE_PUBLIC_KEY_BYTES)) !=
-      0) {
-    printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_PUBLIC_KEYS);
-    return ret;
+  // parsing options
+  if (cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_OPTIONS)) {
+    if ((ret = milestone_options_deserialize(payload, &ms->options)) != 0) {
+      printf("[%s:%d]: parsing milestone options failed\n", __func__, __LINE__);
+      return ret;
+    }
   }
-
-  // parsing receipt
-  // TODO parse receipt
 
   // parsing signatures
-  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_SIGNATURES, ms->signatures, MILESTONE_SIGNATURE_BYTES)) !=
-      0) {
-    printf("[%s:%d]: parsing %s array failed\n", __func__, __LINE__, JSON_KEY_SIGNATURES);
+  if ((ret = milestone_signatures_deserialize(payload, ms->signatures)) != 0) {
+    printf("[%s:%d]: parsing milestone signatures failed\n", __func__, __LINE__);
     return ret;
   }
 
@@ -464,66 +611,28 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data)
 
   // create a new tagged data
   if (cJSON_IsString(json_tag) && cJSON_IsString(json_data)) {
-    byte_t* tag = NULL;
-    uint32_t tag_len = 0;
-    uint32_t tag_str_len = strlen(json_tag->valuestring);
-    if (tag_str_len >= 2) {
-      if (memcmp(json_tag->valuestring, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN) != 0) {
-        printf("[%s:%d] hex string without %s prefix \n", __func__, __LINE__, JSON_HEX_ENCODED_STRING_PREFIX);
-        return -1;
-      }
-      tag_len = (tag_str_len - JSON_HEX_ENCODED_STR_PREFIX_LEN) / 2;
-      tag = malloc(tag_len);
-      if (!tag) {
-        printf("[%s:%d] OOM\n", __func__, __LINE__);
-        return -1;
-      }
-      if (hex_2_bin(json_tag->valuestring, tag_str_len, JSON_HEX_ENCODED_STRING_PREFIX, tag, tag_len) != 0) {
-        printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
-        free(tag);
-        return -1;
-      }
-    }
-
-    byte_t* metadata = NULL;
-    uint32_t metadata_len = 0;
-    uint32_t metadata_str_len = strlen(json_data->valuestring);
-    if (metadata_str_len >= 2) {
-      if (memcmp(json_data->valuestring, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN) != 0) {
-        printf("[%s:%d] hex string without %s prefix \n", __func__, __LINE__, JSON_HEX_ENCODED_STRING_PREFIX);
-        return -1;
-      }
-      metadata_len = (metadata_str_len - JSON_HEX_ENCODED_STR_PREFIX_LEN) / 2;
-      metadata = malloc(metadata_len);
-      if (!metadata) {
-        printf("[%s:%d] OOM\n", __func__, __LINE__);
-        return -1;
-      }
-      if (hex_2_bin(json_data->valuestring, metadata_str_len, JSON_HEX_ENCODED_STRING_PREFIX, metadata, metadata_len) !=
-          0) {
-        printf("[%s:%d] can not covert hex value into a bin value\n", __func__, __LINE__);
-        free(metadata);
-        return -1;
-      }
-    }
-
-    *tagged_data = tagged_data_new(tag, tag_len, metadata, metadata_len);
-    if (!*tagged_data) {
-      printf("[%s:%d]: can not create a new tagged data payload\n", __func__, __LINE__);
-      if (tag) {
-        free(tag);
-      }
-      if (metadata) {
-        free(metadata);
-      }
+    byte_buf_t* tag = byte_buf_new();
+    if (json_get_bin_buf_str(payload, JSON_KEY_TAG, tag) != 0) {
+      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TAG);
       return -1;
     }
-    if (tag) {
-      free(tag);
+
+    byte_buf_t* metadata = byte_buf_new();
+    if (json_get_bin_buf_str(payload, JSON_KEY_DATA, metadata) != 0) {
+      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_DATA);
+      byte_buf_free(tag);
+      return -1;
     }
-    if (metadata) {
-      free(metadata);
+
+    *tagged_data = tagged_data_new(tag->data, tag->len, metadata->data, metadata->len);
+    if (!*tagged_data) {
+      printf("[%s:%d]: can not create a new tagged data payload\n", __func__, __LINE__);
+      byte_buf_free(tag);
+      byte_buf_free(metadata);
+      return -1;
     }
+    byte_buf_free(tag);
+    byte_buf_free(metadata);
   } else {
     printf("[%s:%d] tag or data is not a string\n", __func__, __LINE__);
     return -1;
