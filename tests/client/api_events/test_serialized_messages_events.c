@@ -31,15 +31,20 @@ static void event_cb(event_client_event_t *event) {
       break;
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
+      int ret = -1;
       /* Making subscriptions in the on_connect()*/
       // Uncomment for subscribing to respective topics
-      event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
-      // event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1);
-      // event_sub_tx_msg_tagged_data(event->client, NULL, test_tag, 1);
-      // event_subscribe(event->client, NULL, TOPIC_MS_MILESTONE, 1);
-      // event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1);
-      // event_sub_msg_tagged_data(event->client, NULL, test_tag, 1);
-      // event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1);
+      ret = event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1);
+      // ret = event_sub_tx_msg_tagged_data(event->client, NULL, test_tag, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_MS_MILESTONE, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1);
+      // ret = event_sub_msg_tagged_data(event->client, NULL, test_tag, 1);
+      // ret = event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1);
+      if (ret != 0) {
+        printf("Subscription failed\n");
+        test_completed = true;
+      }
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");

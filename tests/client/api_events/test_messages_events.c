@@ -80,10 +80,16 @@ void callback(event_client_event_t *event) {
       /* Making subscriptions in the on_connect()*/
       if (!test_metadata) {
         // Subscribe to message referenced topic
-        event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1);
+        if (event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1) != 0) {
+          printf("Subscription to %s topic failed\n", TOPIC_MS_REFERENCED);
+          test_completed = true;
+        }
       } else {
         // Subscribe to messages/{messageId}/metadata topic
-        event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1);
+        if (event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1) != 0) {
+          printf("Subscription to %s topic failed\n", "messages/{messageId}/metadata");
+          test_completed = true;
+        }
       }
       break;
     case NODE_EVENT_DISCONNECTED:

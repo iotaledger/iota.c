@@ -37,23 +37,57 @@ void callback(event_client_event_t *event) {
       /* Making subscriptions in the on_connect() callback means that if the
        * connection drops and is automatically resumed by the client, then the
        * subscriptions will be recreated when the client reconnects. */
-      event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
-      event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
-      event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1);
-      event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
-      event_subscribe(event->client, NULL, TOPIC_MS_MILESTONE, 1);
-      event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1);
-      event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1);
-      event_sub_tx_msg_tagged_data(event->client, NULL, test_tag, 1);
-      event_sub_msg_tagged_data(event->client, NULL, test_tag, 1);
-      event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1);
-      event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1);
-      event_sub_outputs_id(event->client, NULL, test_output_id, 1);
-      event_sub_outputs_unlock_address(event->client, NULL, "address", test_bech32, 1);
-      event_sub_outputs_unlock_address_spent(event->client, NULL, "address", test_bech32, 1);
-      event_sub_outputs_alias_id(event->client, NULL, alias_id, 1);
-      event_sub_outputs_nft_id(event->client, NULL, nft_id, 1);
-      event_sub_outputs_foundry_id(event->client, NULL, foundry_id, 1);
+      if (event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_LATEST);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_CONFIRMED);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_REFERENCED);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MESSAGES);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MS_MILESTONE, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_MILESTONE);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_TRANSACTION);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_TAGGED_DATA);
+      }
+      if (event_sub_tx_msg_tagged_data(event->client, NULL, test_tag, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "messages/transaction/tagged-data/{tag}");
+      }
+      if (event_sub_msg_tagged_data(event->client, NULL, test_tag, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "messages/tagged-data/{tag}");
+      }
+      if (event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "transactions/{transactionId}/included_message");
+      }
+      if (event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "messages/{messageid}/metadata");
+      }
+      if (event_sub_outputs_id(event->client, NULL, test_output_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "outputs/{outputId}");
+      }
+      if (event_sub_outputs_unlock_address(event->client, NULL, "address", test_bech32, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "outputs/unlock/{condition}/{address}");
+      }
+      if (event_sub_outputs_unlock_address_spent(event->client, NULL, "address", test_bech32, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "outputs/unlock/{condition}/{address}/spent");
+      }
+      if (event_sub_outputs_alias_id(event->client, NULL, alias_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "utputs/aliases/{aliasId}");
+      }
+      if (event_sub_outputs_nft_id(event->client, NULL, nft_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "outputs/nfts/{nftId}");
+      }
+      if (event_sub_outputs_foundry_id(event->client, NULL, foundry_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "outputs/foundries/{foundryId}");
+      }
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");

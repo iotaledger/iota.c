@@ -35,19 +35,24 @@ static void event_cb(event_client_event_t *event) {
       break;
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
+      int ret = -1;
       /* Making subscriptions in the on_connect()*/
       // Uncomment for subscribing to respective topics
 
-      event_sub_outputs_id(event->client, NULL, test_output_id, 1);
+      ret = event_sub_outputs_id(event->client, NULL, test_output_id, 1);
 
       /* Allowed values for unlock condition: "address", "storage-return", "expiration", "state-controller", "governor",
        * "immutable-alias", "+" */
-      // event_sub_outputs_unlock_address(event->client, NULL, "address", test_bech32, 1);
-      // event_sub_outputs_unlock_address_spent(event->client, NULL, "address", test_bech32, 1);
+      // ret = event_sub_outputs_unlock_address(event->client, NULL, "address", test_bech32, 1);
+      // ret = event_sub_outputs_unlock_address_spent(event->client, NULL, "address", test_bech32, 1);
 
-      // event_sub_outputs_alias_id(event->client, NULL, alias_id, 1);
-      // event_sub_outputs_nft_id(event->client, NULL, nft_id, 1);
-      // event_sub_outputs_foundry_id(event->client, NULL, foundry_id, 1);
+      // ret = event_sub_outputs_alias_id(event->client, NULL, alias_id, 1);
+      // ret = event_sub_outputs_nft_id(event->client, NULL, nft_id, 1);
+      // ret = event_sub_outputs_foundry_id(event->client, NULL, foundry_id, 1);
+      if (ret != 0) {
+        printf("Subscription failed\n");
+        test_completed = true;
+      }
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");

@@ -41,10 +41,15 @@ void callback(event_client_event_t *event) {
       break;
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
+      int ret = -1;
       /* Making subscriptions in the on_connect()*/
       // Uncomment for subscribing to respective topics
-      event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
-      // event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
+      ret = event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
+      if (ret != 0) {
+        printf("Subscription failed\n");
+        test_completed = true;
+      }
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
