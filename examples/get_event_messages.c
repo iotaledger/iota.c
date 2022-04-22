@@ -6,18 +6,21 @@
 
 #include "client/api/events/node_event.h"
 #include "client/api/events/sub_messages_metadata.h"
-#include "client/api/events/sub_milestone_latest.h"
-#include "client/api/events/sub_milestones_confirmed.h"
+#include "client/api/events/sub_milestone_payload.h"
 #include "client/api/events/sub_outputs_payload.h"
 #include "client/api/events/sub_serialized_output.h"
+#include "client/api/restful/get_message_metadata.h"
+#include "client/api/restful/get_output.h"
 
 // Update message id for testing
-char const *const test_message_id = "406d0d18ee7cd35e80465b61d1a90842bfa49012392057f65c22d7d4eb7768c7";
-char const *const test_output_id = "3912942d1cb588d8091eff2069bdd797a0a834739dc8ea550e35fb0dc8609c820000";
+char const *const test_message_id = "4a0c386d0587a6fda9defb85103e975714e6baeb7cd4d0ab673531057c8ae16e";
+char const *const test_transaction_id = "5e753f69b44870aa6a90adf2c366dccac00097c41d5c884dd81ef7cf29eefdd7";
 char const *const test_bech32 = "atoi1qqs7y6ec5vcg6cnz46vjrar2epc52lhksyar3a4zua7fg7ca08y5ymep8aa";
-char const *const test_ed25519 = "21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942";
-char const *const test_transaction_id = "963b96adc39ebb7f96cfc523a4b4df658c2fb4a1bb5a9f0de5fa66e7207a2236";
-char const *const test_index = "546573746e6574205370616d6d6572";
+char const *const test_output_id = "5e753f69b44870aa6a90adf2c366dccac00097c41d5c884dd81ef7cf29eefdd70000";
+char const *const alias_id = "23dc192ede262b3f4bce379b26c31bad029f62fe";
+char const *const nft_id = "efdc112efe262b304bcf379b26c31bad029f61de";
+char const *const foundry_id = "56ec192ede262b3f4bce379b26c31bad029f63bc23ef56ee48cf";
+char const *const test_tag = "IOTA TEST DATA";
 
 bool is_error = false;
 
@@ -34,16 +37,57 @@ void callback(event_client_event_t *event) {
       /* Making subscriptions in the on_connect() callback means that if the
        * connection drops and is automatically resumed by the client, then the
        * subscriptions will be recreated when the client reconnects. */
-      event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
-      event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
-      event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1);
-      event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
-      event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1);
-      event_sub_address_outputs(event->client, NULL, test_bech32, true, 1);
-      event_sub_address_outputs(event->client, NULL, test_ed25519, false, 1);
-      event_sub_outputs_id(event->client, NULL, test_output_id, 1);
-      event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1);
-      event_sub_msg_indexation(event->client, NULL, test_index, 1);
+      if (event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_LATEST);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_CONFIRMED);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_REFERENCED);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MESSAGES);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MS_MILESTONE, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_MILESTONE);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_TRANSACTION);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_TAGGED_DATA);
+      }
+      if (event_sub_tx_msg_tagged_data(event->client, NULL, test_tag, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "messages/transaction/tagged-data/{tag}");
+      }
+      if (event_sub_msg_tagged_data(event->client, NULL, test_tag, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "messages/tagged-data/{tag}");
+      }
+      if (event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "transactions/{transactionId}/included_message");
+      }
+      if (event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "messages/{messageid}/metadata");
+      }
+      if (event_sub_outputs_id(event->client, NULL, test_output_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "outputs/{outputId}");
+      }
+      if (event_sub_outputs_unlock_address(event->client, NULL, "address", test_bech32, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "outputs/unlock/{condition}/{address}");
+      }
+      if (event_sub_outputs_unlock_address_spent(event->client, NULL, "address", test_bech32, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "outputs/unlock/{condition}/{address}/spent");
+      }
+      if (event_sub_outputs_alias_id(event->client, NULL, alias_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "utputs/aliases/{aliasId}");
+      }
+      if (event_sub_outputs_nft_id(event->client, NULL, nft_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "outputs/nfts/{nftId}");
+      }
+      if (event_sub_outputs_foundry_id(event->client, NULL, foundry_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "outputs/foundries/{foundryId}");
+      }
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");
@@ -66,40 +110,31 @@ void callback(event_client_event_t *event) {
   }
 }
 
-void parse_and_print_message_metadata(char *data) {
-  msg_metadata_t *res = res_msg_metadata_new();
+static void parse_and_print_message_metadata(event_client_event_t *event) {
+  // Create and allocate memory for response object
+  msg_meta_t *res = metadata_new();
   if (res) {
-    if (parse_messages_metadata(data, res) == 0) {
-      printf("Msg Id :%s\n", res->msg_id);
-      size_t parents_count = res_msg_metadata_parents_count(res);
-      for (size_t i = 0; i < parents_count; i++) {
-        printf("Parent Id %zu : %s\n", i + 1, res_msg_metadata_parent_get(res, i));
-      }
-      printf("Inclusion State : %s\n", res->inclusion_state);
-      printf("Is Solid : %s\n", res->is_solid ? "true" : "false");
-      printf("Should Promote : %s\n", res->should_promote ? "true" : "false");
-      printf("Should Reattach : %s\n", res->should_reattach ? "true" : "false");
-      printf("Referenced Milestone : %ld\n", res->referenced_milestone);
+    parse_messages_metadata((char *)event->data, res);
+
+    // Print received data
+    printf("Msg Id :%s\n", res->msg_id);
+    // Get parent id count
+    size_t parents_count = msg_meta_parents_count(res);
+    for (size_t i = 0; i < parents_count; i++) {
+      printf("Parent Id %zu : %s\n", i + 1, msg_meta_parent_get(res, i));
     }
-    res_msg_metadata_free(res);
-  } else {
-    is_error = true;
+    printf("Inclusion State : %s\n", res->inclusion_state);
+    printf("Is Solid : %s\n", res->is_solid ? "true" : "false");
+    printf("Should Promote : %s\n", res->should_promote ? "true" : "false");
+    printf("Should Reattach : %s\n", res->should_reattach ? "true" : "false");
+    printf("Referenced Milestone : %u\n", res->referenced_milestone);
+
+    // Free response object
+    metadata_free(res);
   }
 }
 
-void parse_and_print_output_payload(char *data) {
-  event_outputs_payload_t res = {};
-  event_parse_outputs_payload(data, &res);
-  printf("Message ID: %s\n", res.msg_id);
-  printf("Transaction ID: %s\n", res.tx_id);
-  printf("Output Index: %d\n", res.output_index);
-  printf("Ledger Index: %" PRIu64 "\n", res.ledger_index);
-  printf("isSpent: %s\n", res.is_spent ? "True" : "False");
-  printf("Addr: %s\n", res.output.addr);
-  printf("Amount: %" PRIu64 "\n", res.output.amount);
-}
-
-void print_serialized_data(unsigned char *data, uint32_t len) {
+static void print_serialized_data(unsigned char *data, uint32_t len) {
   printf("Received Serialized Data : ");
   for (uint32_t i = 0; i < len; i++) {
     printf("%02x", data[i]);
@@ -107,31 +142,66 @@ void print_serialized_data(unsigned char *data, uint32_t len) {
   printf("\n");
 }
 
+static void parse_and_print_output_payload(event_client_event_t *event) {
+  get_output_t *output = get_output_new();
+  if (output) {
+    parse_get_output((char const *const)event->data, output);
+    print_get_output(output, 0);
+    get_output_free(output);
+  }
+}
+
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, TOPIC_MS_LATEST)) {
-    milestone_latest_t res = {};
-    if (parse_milestone_latest((char *)event->data, &res) == 0) {
-      printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
+  // check for topics milestones/latest and milestones/confirmed
+  if (!strcmp(event->topic, TOPIC_MS_LATEST) || !strcmp(event->topic, TOPIC_MS_CONFIRMED)) {
+    events_milestone_payload_t res = {};
+    if (parse_milestone_payload((char *)event->data, &res) == 0) {
+      printf("Index :%u\nTimestamp : %u\n", res.index, res.timestamp);
     }
-  } else if (!strcmp(event->topic, TOPIC_MS_CONFIRMED)) {
-    milestone_confirmed_t res = {};
-    if (parse_milestones_confirmed((char *)event->data, &res) == 0) {
-      printf("Index :%u\nTimestamp : %lu\n", res.index, res.timestamp);
-    }
-  } else if (!strcmp(event->topic, TOPIC_MS_REFERENCED)) {
-    parse_and_print_message_metadata(event->data);
-  } else if (!strcmp(event->topic, TOPIC_MESSAGES)) {
+  }
+  // check for topic messages/referenced
+  else if (!strcmp(event->topic, TOPIC_MS_REFERENCED)) {
+    parse_and_print_message_metadata(event);
+  }
+  // check for topic messages
+  else if (!strcmp(event->topic, TOPIC_MESSAGES)) {
     print_serialized_data(event->data, event->data_len);
-  } else if ((strstr(event->topic, "messages/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) {
-    parse_and_print_message_metadata(event->data);
-  } else if ((strstr(event->topic, "outputs/") != NULL)) {
-    parse_and_print_output_payload(event->data);
-  } else if ((strstr(event->topic, "addresses/") != NULL)) {
-    parse_and_print_output_payload(event->data);
-  } else if ((strstr(event->topic, "transactions/") != NULL) && (strstr(event->topic, "/included-message") != NULL)) {
+  }
+  // check for topic messages/milestone
+  else if (!strcmp(event->topic, TOPIC_MS_MILESTONE)) {
     print_serialized_data(event->data, event->data_len);
-  } else if (strstr(event->topic, "messages/indexation/")) {
+  }
+  // check for topic messages/transaction
+  else if (!strcmp(event->topic, TOPIC_MS_TRANSACTION)) {
     print_serialized_data(event->data, event->data_len);
+  }
+  // check for topic messages/tagged-data
+  else if (!strcmp(event->topic, TOPIC_MS_TAGGED_DATA)) {
+    print_serialized_data(event->data, event->data_len);
+  }
+  // check for topics messages/transaction/tagged-data/{tag} and messages/tagged-data/{tag}
+  else if (strstr(event->topic, "messages/transaction/tagged-data/") != NULL ||
+           strstr(event->topic, "messages/tagged-data/") != NULL) {
+    print_serialized_data(event->data, event->data_len);
+  }
+  // check for topic messages/{messageId}/metadata
+  else if ((strstr(event->topic, "messages/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) {
+    parse_and_print_message_metadata(event);
+  }
+  // check for topic transactions/{transactionId}/included-message
+  else if ((strstr(event->topic, "transactions/") != NULL) && (strstr(event->topic, "/included-message") != NULL)) {
+    print_serialized_data(event->data, event->data_len);
+  }
+  /* check for topics :
+  1. outputs/{outputId}
+  2. outputs/unlock/{condition}/{address}
+  3. outputs/unlock/{condition}/{address}/spent
+  4. outputs/aliases/{aliasId}
+  5. outputs/nfts/{nftId}
+  6. outputs/foundries/{foundryId}
+  */
+  else if (strstr(event->topic, "outputs/") != NULL) {
+    parse_and_print_output_payload(event);
   }
 }
 

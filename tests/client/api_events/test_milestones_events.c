@@ -19,7 +19,7 @@ void test_milestones_payload_parser(void) {
   char *json_data = "{\"index\":242412,\"timestamp\": 1609950538}";
 
   // Test for expected events response
-  milestone_payload_t res = {};
+  events_milestone_payload_t res = {};
   TEST_ASSERT_EQUAL_INT(0, parse_milestone_payload(json_data, &res));
   TEST_ASSERT(242412 == res.index);
   TEST_ASSERT(1609950538 == res.timestamp);
@@ -27,7 +27,7 @@ void test_milestones_payload_parser(void) {
 
 void process_event_data(event_client_event_t *event) {
   if (!strcmp(event->topic, TOPIC_MS_LATEST)) {
-    milestone_payload_t res = {};
+    events_milestone_payload_t res = {};
     TEST_ASSERT_EQUAL_INT(0, parse_milestone_payload((char *)event->data, &res));
     // Print received data
     printf("Index :%u\nTimestamp : %u\n", res.index, res.timestamp);
@@ -41,10 +41,15 @@ void callback(event_client_event_t *event) {
       break;
     case NODE_EVENT_CONNECTED:
       printf("Node event network connected\n");
+      int ret = -1;
       /* Making subscriptions in the on_connect()*/
       // Uncomment for subscribing to respective topics
-      event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
-      // event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
+      ret = event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
+      if (ret != 0) {
+        printf("Subscription failed\n");
+        test_completed = true;
+      }
       break;
     case NODE_EVENT_DISCONNECTED:
       printf("Node event network disconnected\n");

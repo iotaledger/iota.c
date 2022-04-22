@@ -6,6 +6,10 @@
 
 #include "client/api/events/node_event.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Subscribes transactions/{transactionId}/included_message topic
  *
@@ -38,5 +42,9 @@ int event_sub_tx_msg_tagged_data(event_client_handle_t client, int *mid, char co
  * @return int 0 If success
  */
 int event_sub_msg_tagged_data(event_client_handle_t client, int *mid, char const tag[], int qos);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

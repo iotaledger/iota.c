@@ -19,14 +19,17 @@
  *
  */
 typedef struct {
-  byte_t msg_id[IOTA_MESSAGE_ID_BYTES];     ///< the message IDs that references the output
-  byte_t tx_id[IOTA_TRANSACTION_ID_BYTES];  ///< The transaction ID of this output
-  uint16_t output_index;                    ///< the index of this output
-  bool is_spent;                            ///< is spent or not
-  uint32_t ml_index_booked;                 ///< milestone index booked
-  uint32_t ml_time_booked;                  ///< milestone timestamp booked
-  uint32_t ledger_index;                    ///< ledger index
-  utxo_output_t *output;                    ///< an output object
+  byte_t msg_id[IOTA_MESSAGE_ID_BYTES];           ///< the message IDs that references the output
+  byte_t tx_id[IOTA_TRANSACTION_ID_BYTES];        ///< The transaction ID of this output
+  uint16_t output_index;                          ///< the index of this output
+  bool is_spent;                                  ///< is spent or not
+  uint32_t ml_index_spent;                        ///< milestone index spent (present only if is_spent is true)
+  uint32_t ml_time_spent;                         ///< milestone timestamp spent (present only if is_spent is true)
+  byte_t tx_id_spent[IOTA_TRANSACTION_ID_BYTES];  ///< The transaction ID of spent (present only if is_spent is true)
+  uint32_t ml_index_booked;                       ///< milestone index booked
+  uint32_t ml_time_booked;                        ///< milestone timestamp booked
+  uint32_t ledger_index;                          ///< ledger index
+  utxo_output_t *output;                          ///< an output object
 } get_output_t;
 
 /**
@@ -44,6 +47,20 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @brief Create an output object
+ *
+ * @return get_output_t*
+ */
+get_output_t *get_output_new();
+
+/**
+ * @brief Free an output object
+ *
+ * @param[in] res An output object
+ */
+void get_output_free(get_output_t *res);
 
 /**
  * @brief Create an output response object
@@ -70,6 +87,15 @@ void get_output_response_free(res_output_t *res);
 int get_output(iota_client_conf_t const *conf, char const output_id[], res_output_t *res);
 
 /**
+ * @brief Parse an output response JSON Object
+ *
+ * @param[in] j_str A string of the JSON response object
+ * @param[out] res The output of parsed object
+ * @return int 0 on success
+ */
+int parse_get_output(char const *const j_str, get_output_t *res);
+
+/**
  * @brief The JSON deserialization of the get output response
  *
  * @param[in] j_str A string of the JSON object
@@ -79,11 +105,20 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
 int deser_get_output(char const *const j_str, res_output_t *res);
 
 /**
+ * @brief Print get output object
+ *
+ * @param[in] res A get output object
+ * @param[in] indentation Tab indentation when printing output response
+ */
+void print_get_output(get_output_t *res, uint8_t indentation);
+
+/**
  * @brief Print out an output response object
  *
  * @param[in] res An output response
+ * @param[in] indentation Tab indentation when printing output response
  */
-void dump_output_response(res_output_t *res);
+void dump_get_output_response(res_output_t *res, uint8_t indentation);
 
 #ifdef __cplusplus
 }

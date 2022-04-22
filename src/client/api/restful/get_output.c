@@ -115,34 +115,57 @@ static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
   return -1;
 }
 
-res_output_t *get_output_response_new() { return malloc(sizeof(res_output_t)); }
+get_output_t *get_output_new() {
+  get_output_t *output = malloc(sizeof(get_output_t));
+  if (output) {
+    memset(output, 0, sizeof(get_output_t));
+    return output;
+  }
+  return NULL;
+}
+
+void get_output_free(get_output_t *res) {
+  if (res) {
+    switch (res->output->output_type) {
+      case OUTPUT_SINGLE_OUTPUT:
+      case OUTPUT_DUST_ALLOWANCE:
+      case OUTPUT_TREASURY:
+        printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
+        break;
+      case OUTPUT_BASIC:
+        output_basic_free((output_basic_t *)res->output->output);
+        break;
+      case OUTPUT_ALIAS:
+        output_alias_free((output_alias_t *)res->output->output);
+        break;
+      case OUTPUT_FOUNDRY:
+        output_foundry_free((output_foundry_t *)res->output->output);
+        break;
+      case OUTPUT_NFT:
+        output_nft_free((output_nft_t *)res->output->output);
+        break;
+    }
+    free(res->output);
+    free(res);
+  }
+}
+
+res_output_t *get_output_response_new() {
+  res_output_t *output = malloc(sizeof(res_output_t));
+  if (output) {
+    output->is_error = false;
+    output->u.data = NULL;
+    return output;
+  }
+  return NULL;
+}
 
 void get_output_response_free(res_output_t *res) {
   if (res) {
     if (res->is_error) {
       res_err_free(res->u.error);
     } else {
-      switch (res->u.data->output->output_type) {
-        case OUTPUT_SINGLE_OUTPUT:
-        case OUTPUT_DUST_ALLOWANCE:
-        case OUTPUT_TREASURY:
-          printf("[%s:%d] deprecated or unsupported output type must not be used\n", __func__, __LINE__);
-          break;
-        case OUTPUT_BASIC:
-          output_basic_free((output_basic_t *)res->u.data->output->output);
-          break;
-        case OUTPUT_ALIAS:
-          output_alias_free((output_alias_t *)res->u.data->output->output);
-          break;
-        case OUTPUT_FOUNDRY:
-          output_foundry_free((output_foundry_t *)res->u.data->output->output);
-          break;
-        case OUTPUT_NFT:
-          output_nft_free((output_nft_t *)res->u.data->output->output);
-          break;
-      }
-      free(res->u.data->output);
-      free(res->u.data);
+      get_output_free(res->u.data);
     }
     free(res);
   }
@@ -191,8 +214,91 @@ done:
   return ret;
 }
 
-int deser_get_output(char const *const j_str, res_output_t *res) {
+int parse_get_output(char const *const j_str, get_output_t *res) {
   int ret = -1;
+  if (j_str == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
+  cJSON *json_obj = cJSON_Parse(j_str);
+  if (json_obj == NULL) {
+    return -1;
+  }
+
+  // message ID
+  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_MSG_ID, res->msg_id, sizeof(res->msg_id))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
+    goto end;
+  }
+
+  // transaction ID
+  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_TX_ID, res->tx_id, sizeof(res->tx_id))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TX_ID);
+    goto end;
+  }
+
+  // output index
+  if ((ret = json_get_uint16(json_obj, JSON_KEY_OUTPUT_IDX, &res->output_index)) != 0) {
+    printf("[%s:%d]: gets %s json uint16 failed\n", __func__, __LINE__, JSON_KEY_OUTPUT_IDX);
+    goto end;
+  }
+
+  // is spent
+  if ((ret = json_get_boolean(json_obj, JSON_KEY_IS_SPENT, &res->is_spent)) != 0) {
+    printf("[%s:%d]: gets %s json bool failed\n", __func__, __LINE__, JSON_KEY_IS_SPENT);
+    goto end;
+  }
+
+  if (res->is_spent) {
+    // milestoneIndexSpent
+    if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_INDEX_SPENT, &res->ml_index_spent)) != 0) {
+      printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_INDEX_SPENT);
+      goto end;
+    }
+    // milestoneTimestampSpent
+    if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_TIME_SPENT, &res->ml_time_spent)) != 0) {
+      printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_TIME_SPENT);
+      goto end;
+    }
+    // transactionIdSpent
+    if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_TX_ID_SPENT, res->tx_id_spent, sizeof(res->tx_id_spent))) !=
+        0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TX_ID_SPENT);
+      goto end;
+    }
+  }
+
+  // milestoneIndexBooked
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_INDEX_BOOKED, &res->ml_index_booked)) != 0) {
+    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_INDEX_BOOKED);
+    goto end;
+  }
+
+  // milestoneTimestampBooked
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_TIME_BOOKED, &res->ml_time_booked)) != 0) {
+    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_TIME_BOOKED);
+    goto end;
+  }
+
+  // ledgerIndex
+  if ((ret = json_get_uint32(json_obj, JSON_KEY_LEDGER_IDX, &res->ledger_index)) != 0) {
+    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
+    goto end;
+  }
+
+  cJSON *output_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_OUTPUT);
+  if ((ret = json_output_deserialize(output_obj, &res->output)) != 0) {
+    printf("[%s:%d]: gets output object failed\n", __func__, __LINE__);
+    goto end;
+  }
+
+end:
+  cJSON_Delete(json_obj);
+  return ret;
+}
+
+int deser_get_output(char const *const j_str, res_output_t *res) {
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
@@ -208,103 +314,62 @@ int deser_get_output(char const *const j_str, res_output_t *res) {
     // got an error response
     res->is_error = true;
     res->u.error = res_err;
-    ret = 0;
-    goto end;
-  } else {
-    res->is_error = false;
-    res->u.data = malloc(sizeof(get_output_t));
-    if (res->u.data == NULL) {
-      printf("[%s:%d]: allocate data failed\n", __func__, __LINE__);
-      return -1;
-    }
+    cJSON_Delete(json_obj);
+    return 0;
   }
-
-  // message ID
-  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_MSG_ID, res->u.data->msg_id, sizeof(res->u.data->msg_id))) !=
-      0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
-    goto end;
-  }
-
-  // transaction ID
-  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_TX_ID, res->u.data->tx_id, sizeof(res->u.data->tx_id))) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TX_ID);
-    goto end;
-  }
-
-  // output index
-  if ((ret = json_get_uint16(json_obj, JSON_KEY_OUTPUT_IDX, &res->u.data->output_index)) != 0) {
-    printf("[%s:%d]: gets %s json uint16 failed\n", __func__, __LINE__, JSON_KEY_OUTPUT_IDX);
-    goto end;
-  }
-
-  // is spent
-  if ((ret = json_get_boolean(json_obj, JSON_KEY_IS_SPENT, &res->u.data->is_spent)) != 0) {
-    printf("[%s:%d]: gets %s json bool failed\n", __func__, __LINE__, JSON_KEY_IS_SPENT);
-    goto end;
-  }
-
-  // milestoneIndexBooked
-  if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_INDEX_BOOKED, &res->u.data->ml_index_booked)) != 0) {
-    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_INDEX_BOOKED);
-    goto end;
-  }
-
-  // milestoneTimestampBooked
-  if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_TIME_BOOKED, &res->u.data->ml_time_booked)) != 0) {
-    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_TIME_BOOKED);
-    goto end;
-  }
-
-  // ledgerIndex
-  if ((ret = json_get_uint32(json_obj, JSON_KEY_LEDGER_IDX, &res->u.data->ledger_index)) != 0) {
-    printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
-    goto end;
-  }
-
-  cJSON *output_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_OUTPUT);
-  if ((ret = json_output_deserialize(output_obj, &res->u.data->output)) != 0) {
-    printf("[%s:%d]: gets output object failed\n", __func__, __LINE__);
-    goto end;
-  }
-
-end:
   cJSON_Delete(json_obj);
 
-  return ret;
+  res->u.data = get_output_new();
+  if (res->u.data == NULL) {
+    printf("[%s:%d]: allocate data failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  return parse_get_output(j_str, res->u.data);
 }
 
-void dump_output_response(res_output_t *res) {
+void print_get_output(get_output_t *res, uint8_t indentation) {
+  printf("%s{\n", PRINT_INDENTATION(indentation));
+  printf("%s\tMessage ID: ", PRINT_INDENTATION(indentation));
+  dump_hex_str(res->msg_id, IOTA_MESSAGE_ID_BYTES);
+  printf("%s\tTransaction ID: ", PRINT_INDENTATION(indentation));
+  dump_hex_str(res->tx_id, IOTA_TRANSACTION_ID_BYTES);
+  printf("%s\toutputIndex: %" PRIu16 "\n", PRINT_INDENTATION(indentation), res->output_index);
+  printf("%s\tisSpent: %s\n", PRINT_INDENTATION(indentation), res->is_spent ? "True" : "False");
+  if (res->is_spent == true) {
+    printf("%s\tmilestoneIndexSpent: %d\n", PRINT_INDENTATION(indentation), res->ml_index_spent);
+    printf("%s\tmilestoneTimestampSpent: %d\n", PRINT_INDENTATION(indentation), res->ml_time_spent);
+    printf("%s\tTransaction ID Spent: ", PRINT_INDENTATION(indentation));
+    dump_hex_str(res->tx_id_spent, IOTA_TRANSACTION_ID_BYTES);
+  }
+  printf("%s\tmilestoneIndexBooked: %d\n", PRINT_INDENTATION(indentation), res->ml_index_booked);
+  printf("%s\tmilestoneTimestampBooked: %d\n", PRINT_INDENTATION(indentation), res->ml_time_booked);
+  printf("%s\tledgerIndex: %d\n", PRINT_INDENTATION(indentation), res->ledger_index);
+  switch (res->output->output_type) {
+    case OUTPUT_BASIC:
+      output_basic_print((output_basic_t *)res->output->output, indentation + 1);
+      break;
+    case OUTPUT_ALIAS:
+      output_alias_print((output_alias_t *)res->output->output, indentation + 1);
+      break;
+    case OUTPUT_FOUNDRY:
+      output_foundry_print((output_foundry_t *)res->output->output, indentation + 1);
+      break;
+    case OUTPUT_NFT:
+      output_nft_print((output_nft_t *)res->output->output, indentation + 1);
+      break;
+    default:
+      break;
+  }
+}
+
+void dump_get_output_response(res_output_t *res, uint8_t indentation) {
   if (!res) {
     return;
   }
   if (res->is_error) {
-    printf("Error: %s\n", res->u.error->msg);
+    printf("%s\tError: %s\n", PRINT_INDENTATION(indentation), res->u.error->msg);
   } else {
-    printf("Message ID: ");
-    dump_hex_str(res->u.data->msg_id, IOTA_MESSAGE_ID_BYTES);
-    printf("Transaction ID: ");
-    dump_hex_str(res->u.data->tx_id, IOTA_TRANSACTION_ID_BYTES);
-    printf("outputIndex: %" PRIu16 "\n", res->u.data->output_index);
-    printf("isSpent: %s\n", res->u.data->is_spent ? "True" : "False");
-    printf("milestoneIndexBooked: %d\n", res->u.data->ml_index_booked);
-    printf("milestoneTimestampBooked: %d\n", res->u.data->ml_time_booked);
-    printf("ledgerIndex: %d\n", res->u.data->ledger_index);
-    switch (res->u.data->output->output_type) {
-      case OUTPUT_BASIC:
-        output_basic_print((output_basic_t *)res->u.data->output->output, 0);
-        break;
-      case OUTPUT_ALIAS:
-        output_alias_print((output_alias_t *)res->u.data->output->output, 0);
-        break;
-      case OUTPUT_FOUNDRY:
-        output_foundry_print((output_foundry_t *)res->u.data->output->output, 0);
-        break;
-      case OUTPUT_NFT:
-        output_nft_print((output_nft_t *)res->u.data->output->output, 0);
-        break;
-      default:
-        break;
-    }
+    print_get_output(res->u.data, indentation);
   }
 }

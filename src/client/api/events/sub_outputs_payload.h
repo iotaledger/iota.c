@@ -13,43 +13,9 @@
 #include "core/models/message.h"
 #include "core/utils/macros.h"
 
-// output id = transaction id(64) + output index(4)
-#define OUTPUT_ID_LEN 68
-
-/**
- * @brief The output object of the response
- *
- */
-typedef struct {
-  uint32_t output_type;  ///< The output type
-  uint64_t amount;       ///< The amount of the output
-  char addr[65];         ///< A hex string of the ed25519 address
-} event_output_t;
-
-/**
- * @brief The structure for outputs payload response
- *
- */
-typedef struct {
-  char msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< The hex encoded message ID of the message.
-  char tx_id[IOTA_TRANSACTION_ID_BYTES];  ///< The hex encoded transaction id from which this output originated.
-  uint16_t output_index;                  ///< The index of the output.
-  bool is_spent;                          ///< Whether this output is spent.
-  uint32_t ledger_index;                  ///< The ledger(milestone) index at which this output was available at.
-  event_output_t output;                  ///< The output object with output type, amount and address.
-} event_outputs_payload_t;
-
-/**
- * @brief Subscribes addresses/{address}/outputs event
- *
- * @param[in] client The event client object
- * @param[out] mid If not NULL, mid will return the message id of the topic subscription
- * @param[in] addr An address string
- * @param[in] is_bech32 The address type, true: Bech32 address, false: ed25519 address
- * @param[in] qos The QoS level to be used with the topic
- * @return int 0 If success
- */
-int event_sub_address_outputs(event_client_handle_t client, int *mid, char const addr[], bool is_bech32, int qos);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @brief Subscribes outputs/{outputId} event
@@ -63,12 +29,68 @@ int event_sub_address_outputs(event_client_handle_t client, int *mid, char const
 int event_sub_outputs_id(event_client_handle_t client, int *mid, char const output_id[], int qos);
 
 /**
- * @brief Parse the outputs payload
+ * @brief Subscribes outputs/unlock/{condition}/{address} event
  *
- * @param[in] data The string data of the response
- * @param[out] res The output payload object
+ * @param[in] client The event client object
+ * @param[out] mid If not NULL, mid will return the message id of the topic subscription
+ * @param[in] unlock_condition Type of unlock condition of the output to look for. Allowed values:
+ * "address", "storage-return", "expiration", "state-controller", "governor", "immutable-alias", "+"
+ * @param[in] bech32_addr Bech32 encoded address
+ * @param[in] qos The QoS level to be used with the topic
  * @return int 0 If success
  */
-int event_parse_outputs_payload(char const data[], event_outputs_payload_t *res);
+int event_sub_outputs_unlock_address(event_client_handle_t client, int *mid, char const *const unlock_condition,
+                                     char const *const addr_bech32, int qos);
+
+/**
+ * @brief Subscribes outputs/unlock/{condition}/{address}/spent event
+ *
+ * @param[in] client The event client object
+ * @param[out] mid If not NULL, mid will return the message id of the topic subscription
+ * @param[in] unlock_condition Type of unlock condition of the output to look for. Allowed values:
+ * "address", "storage-return", "expiration", "state-controller", "governor", "immutable-alias", "+"
+ * @param[in] bech32_addr Bech32 encoded address
+ * @param[in] qos The QoS level to be used with the topic
+ * @return int 0 If success
+ */
+int event_sub_outputs_unlock_address_spent(event_client_handle_t client, int *mid, char const *const unlock_condition,
+                                           char const *const addr_bech32, int qos);
+
+/**
+ * @brief Subscribes  outputs/aliases/{aliasId} event
+ *
+ * @param[in] client The event client object
+ * @param[out] mid If not NULL, mid will return the message id of the topic subscription
+ * @param[in] alias_id An alias id
+ * @param[in] qos The QoS level to be used with the topic
+ * @return int 0 If success
+ */
+int event_sub_outputs_alias_id(event_client_handle_t client, int *mid, char const alias_id[], int qos);
+
+/**
+ * @brief Subscribes  outputs/nfts/{nftId} event
+ *
+ * @param[in] client The event client object
+ * @param[out] mid If not NULL, mid will return the message id of the topic subscription
+ * @param[in] nft_id A nft id
+ * @param[in] qos The QoS level to be used with the topic
+ * @return int 0 If success
+ */
+int event_sub_outputs_nft_id(event_client_handle_t client, int *mid, char const nft_id[], int qos);
+
+/**
+ * @brief Subscribes  outputs/foundries/{foundryId} event
+ *
+ * @param[in] client The event client object
+ * @param[out] mid If not NULL, mid will return the message id of the topic subscription
+ * @param[in] foundry_id A foundry id
+ * @param[in] qos The QoS level to be used with the topic
+ * @return int 0 If success
+ */
+int event_sub_outputs_foundry_id(event_client_handle_t client, int *mid, char const foundry_id[], int qos);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
