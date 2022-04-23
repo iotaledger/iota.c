@@ -28,5 +28,5 @@ if(IOTA_WALLET_ENABLE)
 endif()
 
 if(MQTT_CLIENT_ENABLE)
-#  add_iota_example(get_event_messages "client/get_event_messages.c")
+  # add_iota_example(get_event_messages "client/get_event_messages.c")
 endif()

@@ -22,9 +22,9 @@ static char const* const test_mnemonic =
     "acoustic trophy damage hint search taste love bicycle foster cradle brown govern endless depend situate athlete "
     "pudding blame question genius transfer van random vast";
 static char const* const bech32_receiver =
-    "rms1qrhacyfwlcnzkvzteumekfkrrwks98mpdm37cj4xx3drvmjvnep6xrlkcfw";  // smr for mainnet, rms for testnet
+    "rms1qrhacyfwlcnzkvzteumekfkrrwks98mpdm37cj4xx3drvmjvnep6xrlkcfw";  // receiver address in bech32 format
 uint32_t const sender_addr_index = 0;                                   // address index of the wallet
-uint64_t const amount = 1;                                              // send out 1Mi
+uint64_t const amount = 1;  // transfer 1Mi from a sender to a receiver address
 
 int main(void) {
   iota_wallet_t* w = wallet_create(test_mnemonic, "", 0);
