@@ -1,14 +1,11 @@
-# IOTA C Client Documentation
+# IOTA C Client API Reference
 
 ## Welcome
 
-This is an IOTA Client library documentation for Chrysalis, aka IOTA 1.5.
+This is an IOTA Client library for IOTA Shimmer network.
+Learn more about IOTA, please visit [IOTA WiKi](https://wiki.iota.org/).
+This C Client is still a highly development project for POSIX systems and embedded development, the implementation can be found in [iotaledger/iota.c](https://github.com/iotaledger/iota.c).
 
-Learn more about Chrysalis changes, please visit [Chrysalis Documentation](https://chrysalis.docs.iota.org/).
-
-This C Client is still in highly development, the source can be found on [iotaledger/iota.c](https://github.com/iotaledger/iota.c).
-
-Integration to new hardware platform is welcome.
 
 ```{toctree}
 ---
