@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
-#include <unity/unity.h>
 
-#include "core/types.h"
 #include "core/utils/bech32.h"
+#include "unity/unity.h"
 
 static const char *valid_checksum[] = {
     "A12UEL5L",

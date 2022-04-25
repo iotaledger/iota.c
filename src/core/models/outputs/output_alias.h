@@ -10,7 +10,6 @@
 #include "core/models/outputs/feat_blocks.h"
 #include "core/models/outputs/native_tokens.h"
 #include "core/models/outputs/unlock_conditions.h"
-#include "core/types.h"
 #include "core/utils/byte_buffer.h"
 
 /**

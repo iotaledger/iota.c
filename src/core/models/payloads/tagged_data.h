@@ -6,7 +6,6 @@
 
 #include <stdint.h>
 
-#include "core/types.h"
 #include "core/utils/byte_buffer.h"
 
 // Maximum length of tag in bytes

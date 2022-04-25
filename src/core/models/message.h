@@ -8,7 +8,6 @@
 #include <stdlib.h>
 
 #include "core/models/payloads/milestone.h"
-#include "core/types.h"
 
 // Message ID length in binary form
 #define IOTA_MESSAGE_ID_BYTES 32

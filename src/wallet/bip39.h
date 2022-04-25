@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "core/types.h"
+#include "core/utils/byte_buffer.h"
 
 #define BIP39_SEED_BYTES 64
 

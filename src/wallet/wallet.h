@@ -20,7 +20,6 @@
 #include "core/address.h"
 #include "core/models/message.h"
 #include "core/models/outputs/byte_cost_config.h"
-#include "core/types.h"
 
 #ifdef __cplusplus
 extern "C" {

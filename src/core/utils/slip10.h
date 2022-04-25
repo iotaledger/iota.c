@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-#include "core/types.h"
+#include "core/utils/byte_buffer.h"
 
 #define BIP32_HARDENED (1UL << 31)
 #define MAX_PIB32_PATH 32

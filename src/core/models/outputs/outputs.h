@@ -11,7 +11,6 @@
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/output_nft.h"
-#include "core/types.h"
 
 // Maximum number of outputs in a transaction payload.
 #define UTXO_OUTPUT_MAX_COUNT 128

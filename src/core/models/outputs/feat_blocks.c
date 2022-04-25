@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "core/models/outputs/feat_blocks.h"
+#include "core/utils/macros.h"
 #include "utlist.h"
 
 static feat_metadata_blk_t* feat_metadata_new(byte_t const data[], uint32_t data_len) {

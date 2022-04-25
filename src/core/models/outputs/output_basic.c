@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "core/models/outputs/outputs.h"
+#include "core/utils/macros.h"
 
 // maximum number of unlock condition blocks
 #define MAX_BASIC_CONDITION_BLOCKS_COUNT 4

@@ -8,7 +8,6 @@
 
 #include "core/address.h"
 #include "core/models/message.h"
-#include "core/types.h"
 #include "crypto/iota_crypto.h"
 
 // Maximum number of inputs in a transaction payload.

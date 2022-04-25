@@ -7,7 +7,6 @@
 #include <stdint.h>
 
 #include "core/address.h"
-#include "core/types.h"
 
 /*
  * New output features that do not introduce unlocking conditions, but rather add new functionality and add constraints

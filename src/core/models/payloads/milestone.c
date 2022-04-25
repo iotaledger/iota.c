@@ -4,6 +4,7 @@
 #include "core/models/payloads/milestone.h"
 #include "core/models/message.h"
 #include "core/models/unlock_block.h"
+#include "core/utils/macros.h"
 #include "utlist.h"
 
 static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
