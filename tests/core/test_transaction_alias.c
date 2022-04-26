@@ -66,7 +66,7 @@ void test_tx_alias_unlock_funds() {
   // This test case has two inputs (Alias input and Basic input) and creates a new Alias output
 
   ed25519_keypair_t state_controller_key = {};
-  // IOTA BIP44 Paths: m/44'/4128'/Account'/Change'/Index'
+  // IOTA BIP44 Paths: m/44'/4218'/Account'/Change'/Index'
   address_keypair_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/0'", &state_controller_key);
 
   address_t state_controller_addr = {};

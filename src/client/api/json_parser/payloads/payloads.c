@@ -282,7 +282,7 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
       "type": 7,
       "index": 3,
       "timestamp": 1644478549,
-      "lastMilestoneId": "0xb1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea"
+      "previousMilestoneId": "0xb1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea"
       "parentMessageIds": [
         "0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
         "0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
@@ -335,10 +335,10 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
     return ret;
   }
 
-  // parsing last milestone ID
-  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_LAST_MILESTONE_ID, ms->last_milestone_id,
-                                     sizeof(ms->last_milestone_id))) != 0) {
-    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_LAST_MILESTONE_ID);
+  // parsing previous milestone ID
+  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_PREVIOUS_MILESTONE_ID, ms->previous_milestone_id,
+                                     sizeof(ms->previous_milestone_id))) != 0) {
+    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_PREVIOUS_MILESTONE_ID);
     return ret;
   }
 

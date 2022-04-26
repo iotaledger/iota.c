@@ -53,8 +53,9 @@ typedef struct {
   uint32_t type;       // payload type, set to 7 denotes a milestone payload
   uint32_t index;      // The index number of the milestone.
   uint32_t timestamp;  // The Unix time (seconds since Unix epoch) at which the milestone was issued.
-  byte_t last_milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES];  // The milestone ID of the milestone with index number - 1
-  UT_array *parents;                                        // Parents of milestone message.
+  byte_t
+      previous_milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES];  // The milestone ID of the milestone with index number - 1
+  UT_array *parents;                                         // Parents of milestone message.
   byte_t confirmed_merkle_root[CRYPTO_BLAKE2B_256_HASH_BYTES];  // The Merkle tree hash (BLAKE2b-256) of the message
                                                                 // IDs of all messages confirmed by this milestone.
   byte_t applied_merkle_root[CRYPTO_BLAKE2B_256_HASH_BYTES];    // The Merkle tree hash (BLAKE2b-256) of the message IDs

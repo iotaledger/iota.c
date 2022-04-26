@@ -47,7 +47,7 @@ void test_sign_nft_tx_with_basic_input() {
   ed25519_keypair_t sender_key = {};
   char bech32_sender[65] = {};
   char bech32_receiver[65] = {};
-  // IOTA BIP44 Paths: m/44'/4128'/Account'/Change'/Index'
+  // IOTA BIP44 Paths: m/44'/4218'/Account'/Change'/Index'
   TEST_ASSERT(address_keypair_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/0'", &sender_key) ==
               0);
   TEST_ASSERT(ed25519_address_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/0'", &addr_send) == 0);
@@ -157,7 +157,7 @@ void test_sign_nft_tx_with_nft_input() {
   ed25519_keypair_t sender_key = {};
   char bech32_sender[65] = {};
   char bech32_receiver[65] = {};
-  // IOTA BIP44 Paths: m/44'/4128'/Account'/Change'/Index'
+  // IOTA BIP44 Paths: m/44'/4218'/Account'/Change'/Index'
   TEST_ASSERT(address_keypair_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/1'", &sender_key) ==
               0);
   TEST_ASSERT(ed25519_address_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/1'", &addr_send) == 0);
@@ -269,7 +269,7 @@ void test_sign_nft_tx_with_nft_and_basic_input() {
   ed25519_keypair_t sender_key = {};
   char bech32_sender[65] = {};
   char bech32_receiver[65] = {};
-  // IOTA BIP44 Paths: m/44'/4128'/Account'/Change'/Index'
+  // IOTA BIP44 Paths: m/44'/4218'/Account'/Change'/Index'
   TEST_ASSERT(address_keypair_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/2'", &sender_key) ==
               0);
   TEST_ASSERT(ed25519_address_from_path(mnemonic_seed, sizeof(mnemonic_seed), "m/44'/4218'/0'/0'/2'", &addr_send) == 0);

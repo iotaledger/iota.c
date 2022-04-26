@@ -14,8 +14,38 @@
 #include "wallet/bip39.h"
 #include "wallet/wallet.h"
 
-// max length of m/44'/4218'/Account'/Change'
+// max length of m/44'/4218'/Account'/Change' or m/44'/4219'/Account'/Change'
 #define IOTA_ACCOUNT_PATH_MAX 128
+
+/**
+ * @brief Coin types that are supported by the protocol
+ *
+ * https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+ * IOTA BIP44 Paths: m/44'/4218'/Account'/Change'/Index'
+ * SMR  BIP44 Paths: m/44'/4219'/Account'/Change'/Index'
+ *
+ */
+typedef enum {
+  COIN_TYPE_IOTA = 4218,    ///< Denotes an IOTA coin (IOTA)
+  COIN_TYPE_SHIMMER = 4219  ///< Denotes a Shimmer coin (SMR)
+} coin_type_bip44_t;
+
+/**
+ * @brief Different networks that are available to use
+ *
+ */
+typedef enum {
+  NETWORK_TYPE_IOTA_MAINNET = 0,  ///< Denotes an IOTA main network
+  NETWORK_TYPE_IOTA_TESTNET,      ///< Denotes an IOTA test network
+  NETWORK_TYPE_SHIMMER_MAINNET,   ///< Denotes a Shimmer main network
+  NETWORK_TYPE_SHIMMER_TESTNET    ///< Denotes a Shimmer test network
+} network_type_t;
+
+// A Human-Readable Part of an address
+static const char address_hrp_name[4][5] = {[NETWORK_TYPE_IOTA_MAINNET] = "iota",
+                                            [NETWORK_TYPE_IOTA_TESTNET] = "atoi",
+                                            [NETWORK_TYPE_SHIMMER_MAINNET] = "smr",
+                                            [NETWORK_TYPE_SHIMMER_TESTNET] = "rms"};
 
 // TODO: unused function at the moment
 #if 0
@@ -79,21 +109,35 @@ static int validate_pib44_path(char const path[]) {
 /**
  * @brief Get the address path
  *
+ * @param[in] bech32HRP A Human-Readable Part of an address
  * @param[in] account The account index
  * @param[in] change change index which is {0, 1}, also known as wallet chain.
  * @param[in] index Address index
- * @param[in] buf The buffer holds BIP44 path
+ * @param[out] buf The buffer holds BIP44 path
  * @param[in] buf_len the length of the buffer
  */
-static void get_address_path(uint32_t account, bool change, uint32_t index, char* buf, size_t buf_len) {
-  int ret_size = 0;
-  // IOTA BIP44 Paths: m/44'/4128'/Account'/Change'/Index'
-  // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
-  ret_size = snprintf(buf, buf_len, "m/44'/4218'/%" PRIu32 "'/%d'/%" PRIu32 "'", account, change, index);
+static int get_address_path(char bech32HRP[], uint32_t account, bool change, uint32_t index, char* buf,
+                            size_t buf_len) {
+  coin_type_bip44_t coin_type;
+
+  if ((strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_IOTA_MAINNET]) == 0) ||
+      (strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_IOTA_TESTNET]) == 0)) {
+    coin_type = COIN_TYPE_IOTA;
+  } else if ((strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_SHIMMER_MAINNET]) == 0) ||
+             (strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_SHIMMER_TESTNET]) == 0)) {
+    coin_type = COIN_TYPE_SHIMMER;
+  } else {
+    printf("[%s:%d] unknown coin type\n", __func__, __LINE__);
+    return -1;
+  }
+
+  int ret_size = snprintf(buf, buf_len, "m/44'/%d'/%" PRIu32 "'/%d'/%" PRIu32 "'", coin_type, account, change, index);
   if ((size_t)ret_size >= buf_len) {
     buf[buf_len - 1] = '\0';
     printf("[%s:%d] path is truncated\n", __func__, __LINE__);
   }
+
+  return 0;
 }
 
 // create basic unspent outputs
@@ -313,7 +357,11 @@ int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t in
   }
 
   // derive ed25519 address from seed and path
-  get_address_path(w->account_index, change, index, bip_path_buf, sizeof(bip_path_buf));
+  if (get_address_path(w->bech32HRP, w->account_index, change, index, bip_path_buf, sizeof(bip_path_buf)) != 0) {
+    printf("[%s:%d] Can not derive ed25519 address from seed and path\n", __func__, __LINE__);
+    return -1;
+  }
+
   return ed25519_address_from_path(w->seed, sizeof(w->seed), bip_path_buf, out);
 }
 
@@ -447,7 +495,12 @@ int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, add
     goto end;
   }
 
-  get_address_path(w->account_index, change, index, addr_path, sizeof(addr_path));
+  ret = get_address_path(w->bech32HRP, w->account_index, change, index, addr_path, sizeof(addr_path));
+  if (ret != 0) {
+    printf("[%s:%d] Can not derive ed25519 address from seed and path\n", __func__, __LINE__);
+    goto end;
+  }
+
   ret = address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &sender_key);
   if (ret != 0) {
     printf("[%s:%d] get address keypair failed\n", __func__, __LINE__);

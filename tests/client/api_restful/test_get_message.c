@@ -65,7 +65,7 @@ void test_deser_milestone() {
       "\"0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
       "\"0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
       "\"0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"payload\":{\"type\":7,\"index\":3,"
-      "\"timestamp\":1644478549,\"lastMilestoneId\":"
+      "\"timestamp\":1644478549,\"previousMilestoneId\":"
       "\"0xb1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea\",\"parentMessageIds\":["
       "\"0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
       "\"0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
@@ -116,10 +116,10 @@ void test_deser_milestone() {
   TEST_ASSERT(3 == ms->index);
   TEST_ASSERT(1644478549 == ms->timestamp);
 
-  byte_t tmp_last_milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
+  byte_t tmp_previous_milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(hex_2_bin("b1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea", 65, NULL,
-                        tmp_last_milestone_id, sizeof(tmp_last_milestone_id)) == 0);
-  TEST_ASSERT_EQUAL_MEMORY(tmp_last_milestone_id, ms->last_milestone_id, sizeof(ms->last_milestone_id));
+                        tmp_previous_milestone_id, sizeof(tmp_previous_milestone_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_previous_milestone_id, ms->previous_milestone_id, sizeof(ms->previous_milestone_id));
 
   // check parentMessageIds
   TEST_ASSERT_EQUAL_INT(4, milestone_payload_get_parents_count(ms));
