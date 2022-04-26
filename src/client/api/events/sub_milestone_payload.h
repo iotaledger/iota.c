@@ -6,7 +6,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "core/types.h"
+
+#include "core/utils/byte_buffer.h"
 #include "crypto/iota_crypto.h"
 
 /**
