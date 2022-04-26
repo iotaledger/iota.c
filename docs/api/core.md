@@ -372,14 +372,6 @@ It provides the following functionalities:
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: milestone_payload_get_pub_keys_count
-```
-
-```{eval-rst}
-.. doxygenfunction:: milestone_payload_get_pub_key
-```
-
-```{eval-rst}
 .. doxygenfunction:: milestone_payload_get_signatures_count
 ```
 
