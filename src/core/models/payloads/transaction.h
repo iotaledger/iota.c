@@ -11,7 +11,6 @@
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/outputs/outputs.h"
 #include "core/models/unlock_block.h"
-#include "core/types.h"
 
 // have one transaction essence only which is 1
 #define TRANSACTION_ESSENCE_TYPE 1

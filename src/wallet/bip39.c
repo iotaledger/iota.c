@@ -1,6 +1,7 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <stdio.h>
 #include <string.h>
 
 #include "crypto/iota_crypto.h"
@@ -275,7 +276,7 @@ int mnemonic_encode(byte_t const entropy[], ms_entropy_t ent_len, ms_lan_t lan, 
 
     // get string from the wordlist
     size_t offset = 0;
-    for (size_t i = 0; i < ms.len; i++) {
+    for (uint8_t i = 0; i < ms.len; i++) {
       int n;
       if (i < ms.len - 1) {
         n = snprintf(ms_out + offset, ms_len - offset, "%s%s", lan_p[ms.index[i]].p, BIP39_MS_SEPERATOR);

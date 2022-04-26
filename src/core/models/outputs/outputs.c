@@ -8,6 +8,7 @@
 
 #include "core/models/outputs/outputs.h"
 #include "core/models/outputs/storage_deposit.h"
+#include "core/utils/macros.h"
 #include "utlist.h"
 
 utxo_outputs_list_t *utxo_outputs_new() { return NULL; }

@@ -1,8 +1,10 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "core/models/outputs/byte_cost_config.h"
+#include <stdio.h>
+
 #include "core/models/inputs/utxo_input.h"
+#include "core/models/outputs/byte_cost_config.h"
 
 // Defines the rent of a single virtual byte denoted in IOTA tokens
 #define DEFAULT_BYTE_COST 500

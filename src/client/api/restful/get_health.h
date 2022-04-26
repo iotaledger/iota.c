@@ -8,7 +8,6 @@
 #include <stdint.h>
 
 #include "client/client_service.h"
-#include "core/types.h"
 
 #ifdef __cplusplus
 extern "C" {

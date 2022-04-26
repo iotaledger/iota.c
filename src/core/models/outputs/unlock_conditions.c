@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "core/models/outputs/unlock_conditions.h"
+#include "core/utils/macros.h"
 #include "utlist.h"
 
 static unlock_cond_storage_t* cond_storage_new(address_t const* const addr, uint64_t amount) {

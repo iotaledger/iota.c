@@ -4,8 +4,6 @@
 #ifndef __TESTS_CORE_SLIP10_H__
 #define __TESTS_CORE_SLIP10_H__
 
-#include "core/types.h"
-
 typedef struct {
   char *str;
   uint32_t exp_path[32];

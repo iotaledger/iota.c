@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <inttypes.h>
+#include <stdio.h>
 
 #include "core/models/outputs/storage_deposit.h"
 

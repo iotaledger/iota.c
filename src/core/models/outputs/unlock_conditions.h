@@ -5,7 +5,6 @@
 #define __CORE_MODELS_OUTPUT_UNLOCK_COND_H__
 
 #include "core/address.h"
-#include "core/types.h"
 
 /**
  * New output features that introduce unlocking conditions, that is, they define constraints on how the output can be

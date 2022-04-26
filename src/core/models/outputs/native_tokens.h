@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "core/types.h"
+#include "core/utils/byte_buffer.h"
 #include "core/utils/uint256.h"
 #include "utlist.h"
 

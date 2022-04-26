@@ -5,7 +5,8 @@
 #define __CORE_MODELS_UNLOCK_BLOCK_H__
 
 #include <stdint.h>
-#include "core/types.h"
+
+#include "core/utils/byte_buffer.h"
 #include "crypto/iota_crypto.h"
 
 // ed25519 signature block  = signature type + public key + signature

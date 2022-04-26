@@ -5,9 +5,11 @@
 #define __CORE_UTILS_BYTE_BUFFER_H__
 
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
-#include "core/types.h"
+typedef uint8_t byte_t;
 
 /**
  * @brief byte buffer object
@@ -182,6 +184,32 @@ int bin_2_hex(byte_t const bin[], size_t bin_len, char const* prefix, char str_b
  * @return false If buffer has also some other numbers
  */
 bool buf_all_zeros(uint8_t array[], size_t arr_len);
+
+/**
+ * @brief Prints out hexadecimal value in a byte array.
+ *
+ * @param[in] data A byte_t buffer
+ * @param[in] len The length of data
+ */
+static inline void dump_hex(byte_t const data[], size_t len) {
+  for (size_t i = 0; i < len; i++) {
+    printf("0x%x, ", data[i]);
+  }
+  printf("\n");
+}
+
+/**
+ * @brief Prints out hexadecimal value in a string.
+ *
+ * @param[in] data A byte_t buffer
+ * @param[in] len The length of data
+ */
+static inline void dump_hex_str(byte_t const data[], size_t len) {
+  for (size_t i = 0; i < len; i++) {
+    printf("%.2x", data[i]);
+  }
+  printf("\n");
+}
 
 #ifdef __cplusplus
 }

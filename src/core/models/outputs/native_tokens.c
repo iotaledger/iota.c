@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "core/models/outputs/native_tokens.h"
+#include "core/utils/macros.h"
 
 // Native Tokens must be lexicographically sorted based on Token ID
 static int token_id_sort(native_tokens_list_t *token1, native_tokens_list_t *token2) {

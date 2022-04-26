@@ -7,6 +7,7 @@
 #include "core/address.h"
 #include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/outputs.h"
+#include "core/utils/macros.h"
 
 #define MIN_NFT_CONDITION_BLOCKS_COUNT 1
 // maximum number of unlock condition blocks

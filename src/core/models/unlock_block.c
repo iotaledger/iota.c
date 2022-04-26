@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "core/models/unlock_block.h"
+#include "core/utils/macros.h"
 #include "utlist.h"
 
 // Maximum Unlock Block Count == Maximum Input Count

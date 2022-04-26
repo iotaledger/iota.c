@@ -1,12 +1,13 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include <mosquitto.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "client/network/mqtt/mqtt.h"
+#include "core/utils/macros.h"
+#include "mosquitto.h"
 
 struct mqtt_client {
   struct mosquitto *mosq;
@@ -17,6 +18,8 @@ struct mqtt_client {
 
 /* Callback called when the client receives a CONNACK message from the broker. */
 void on_mqtt_connect(struct mosquitto *mosq, void *client, int reason_code) {
+  UNUSED(mosq);
+
   /* Print out the connection result.*/
   printf("[%s:%d]: Connect Mqtt: %s\n", __func__, __LINE__, mosquitto_connack_string(reason_code));
   // Create an event with eventid corresponding to MQTT Connected
@@ -35,6 +38,8 @@ void on_mqtt_connect(struct mosquitto *mosq, void *client, int reason_code) {
 
 /* Callback called when the broker sends a SUBACK in response to a SUBSCRIBE. */
 void on_mqtt_subscribe(struct mosquitto *mosq, void *client, int mid, int qos_count, const int *granted_qos) {
+  UNUSED(mosq);
+
   int i;
   bool have_subscription = false;
 
@@ -59,6 +64,8 @@ void on_mqtt_subscribe(struct mosquitto *mosq, void *client, int mid, int qos_co
 
 /* Callback called when a topic is unsubscribed. */
 void on_mqtt_unsubscribe(struct mosquitto *mosq, void *client, int mid) {
+  UNUSED(mosq);
+
   mqtt_client_event_t *mqtt_event = malloc(sizeof(mqtt_client_event_t));
   mqtt_event->event_id = MQTT_UNSUBSCRIBED;
   mqtt_event->msg_id = mid;
@@ -68,6 +75,8 @@ void on_mqtt_unsubscribe(struct mosquitto *mosq, void *client, int mid) {
 
 /* Callback called when the client receives a message. */
 void on_mqtt_message(struct mosquitto *mosq, void *client, const struct mosquitto_message *msg) {
+  UNUSED(mosq);
+
   /* Pass data to callback function */
   mqtt_client_event_t *mqtt_event = malloc(sizeof(mqtt_client_event_t));
   mqtt_event->event_id = MQTT_DATA;
@@ -83,6 +92,8 @@ void on_mqtt_message(struct mosquitto *mosq, void *client, const struct mosquitt
 }
 
 void on_mqtt_disconnect(struct mosquitto *mosq, void *client, int mid) {
+  UNUSED(mosq);
+
   mqtt_client_event_t *mqtt_event = malloc(sizeof(mqtt_client_event_t));
   mqtt_event->event_id = MQTT_DISCONNECTED;
   mqtt_event->msg_id = mid;

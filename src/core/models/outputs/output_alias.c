@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "core/models/outputs/outputs.h"
+#include "core/utils/macros.h"
 
 // maximum number of feature blocks
 #define MAX_ALIAS_FEATURE_BLOCKS_COUNT 2

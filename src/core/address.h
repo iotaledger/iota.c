@@ -5,8 +5,9 @@
 #define __CORE_ADDRESS_H__
 
 #include <stdbool.h>
+#include <stdint.h>
 
-#include "core/types.h"
+#include "core/utils/byte_buffer.h"
 #include "crypto/iota_crypto.h"
 
 // An Ed25519 address is the Blake2b-256 hash of an Ed25519 public key.

@@ -9,7 +9,6 @@
 
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
-#include "core/types.h"
 #include "utarray.h"
 
 /**
