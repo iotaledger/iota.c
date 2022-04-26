@@ -20,7 +20,7 @@
 /**
  * @brief Simple encryption/decryption algorithm for this example
  *
- * @param src A string for encryption/decryption
+ * @param src A byte array for encryption/decryption
  * @param dest A buffer which stores an encrypted/decrypted data
  * @param dest_len A buffer length
  * @return int 0 on success

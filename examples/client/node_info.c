@@ -25,7 +25,12 @@ int main(void) {
     return -1;
   }
 
-  node_info_print(info, 0);
+  if (info->is_error) {
+    // got an error message from node.
+    printf("Error: %s\n", info->u.error->msg);
+  } else {
+    node_info_print(info, 0);
+  }
 
   res_node_info_free(info);
 

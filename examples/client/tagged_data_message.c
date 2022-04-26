@@ -66,21 +66,24 @@ int main(void) {
     return -1;
   }
 
-  // print fetched message
-  iota_str_t *tag = iota_str_new("");
-  iota_str_appendn(tag, (char const *)((tagged_data_payload_t *)msg->u.msg->payload)->tag->data,
-                   ((tagged_data_payload_t *)msg->u.msg->payload)->tag->len);
-  iota_str_t *data = iota_str_new("");
-  iota_str_appendn(data, (char const *)((tagged_data_payload_t *)msg->u.msg->payload)->data->data,
-                   ((tagged_data_payload_t *)msg->u.msg->payload)->data->len);
+  // Convert byte arrays to a strings
+  if (!byte_buf2str(((tagged_data_payload_t *)msg->u.msg->payload)->tag)) {
+    printf("Failed to convert byte array to a string!\n");
+    res_message_free(msg);
+    return -1;
+  }
+  if (!byte_buf2str(((tagged_data_payload_t *)msg->u.msg->payload)->data)) {
+    printf("Failed to convert byte array to a string!\n");
+    res_message_free(msg);
+    return -1;
+  }
 
+  // print fetched message
   printf("Tagged Data:\n");
-  printf("\tTag: %s\n", tag->buf);
-  printf("\tData: %s\n", data->buf);
+  printf("\tTag: %s\n", ((tagged_data_payload_t *)msg->u.msg->payload)->tag->data);
+  printf("\tData: %s\n", ((tagged_data_payload_t *)msg->u.msg->payload)->data->data);
 
   // clean up resources
-  iota_str_destroy(tag);
-  iota_str_destroy(data);
   res_message_free(msg);
 
   return 0;

@@ -7,8 +7,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "core/utils/byte_buffer.h"
-
 // Macro for unused function arguments
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
