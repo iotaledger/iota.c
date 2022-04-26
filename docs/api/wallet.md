@@ -1,19 +1,15 @@
 # Wallet API Reference
 
-This is reference implementation as wallet APIs. Users are able to implement wallet application based on [RESTful APIs](./restful.md#restful-api-reference).
+The Wallet API provides some helper methods for developers to create wallet alllications.
 
-## Setting
+## Wallet Configuration
 
 ```{eval-rst}
 .. doxygenstruct:: iota_wallet_t
   :members:
 ```
 
-```{eval-rst}
-.. doxygenfunction:: wallet_update_bech32HRP
-```
-
-## Create
+## Create and Destory Methods
 
 ```{eval-rst}
 .. doxygenfunction:: wallet_create
@@ -23,23 +19,19 @@ This is reference implementation as wallet APIs. Users are able to implement wal
 .. doxygenfunction:: wallet_destroy
 ```
 
-## Endpoint
-
 ```{eval-rst}
 .. doxygenfunction:: wallet_set_endpoint
 ```
 
-## Address
-
 ```{eval-rst}
-.. doxygenfunction:: wallet_address_from_index
+.. doxygenfunction:: wallet_update_node_config
 ```
 
-```{eval-rst}
-.. doxygenfunction:: wallet_bech32_from_index
-```
+## Address Methods
 
-## Balance
+```{eval-rst}
+.. doxygenfunction:: wallet_ed25519_address_from_index
+```
 
 ```{eval-rst}
 .. doxygenfunction:: wallet_balance_by_address
@@ -49,14 +41,10 @@ This is reference implementation as wallet APIs. Users are able to implement wal
 .. doxygenfunction:: wallet_balance_by_bech32
 ```
 
-```{eval-rst}
-.. doxygenfunction:: wallet_balance_by_index
-```
-
-## Send
+## UTXO Methods
 
 ```{eval-rst}
-.. doxygenfunction:: wallet_send
+.. doxygenfunction:: wallet_send_basic_outputs
 ```
 
 ## Mnemonic Sentence
