@@ -13,8 +13,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define TOPIC_MS_LATEST "milestone-info/latest"
-#define TOPIC_MS_CONFIRMED "milestone-info/confirmed"
+#define TOPIC_MILESTONE_LATEST "milestone-info/latest"
+#define TOPIC_MILESTONE_CONFIRMED "milestone-info/confirmed"
+#define TOPIC_MILESTONES "milestones"
 #define TOPIC_MS_REFERENCED "messages/referenced"
 #define TOPIC_MESSAGES "messages"
 #define TOPIC_MS_TRANSACTION "messages/transaction"

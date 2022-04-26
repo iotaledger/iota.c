@@ -34,7 +34,7 @@ void test_milestones_payload_parser(void) {
 }
 
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, TOPIC_MS_LATEST)) {
+  if (!strcmp(event->topic, TOPIC_MILESTONE_LATEST) || !strcmp(event->topic, TOPIC_MILESTONE_CONFIRMED)) {
     events_milestone_payload_t res = {};
     TEST_ASSERT_EQUAL_INT(0, parse_milestone_payload((char *)event->data, &res));
     // Print received data
@@ -54,8 +54,8 @@ void callback(event_client_event_t *event) {
       int ret = -1;
       /* Making subscriptions in the on_connect()*/
       // Uncomment for subscribing to respective topics
-      ret = event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
-      // ret = event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
+      ret = event_subscribe(event->client, NULL, TOPIC_MILESTONE_LATEST, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_MILESTONE_CONFIRMED, 1);
       if (ret != 0) {
         printf("Subscription failed\n");
         test_completed = true;

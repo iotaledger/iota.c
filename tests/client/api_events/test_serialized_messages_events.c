@@ -34,7 +34,8 @@ static void event_cb(event_client_event_t *event) {
       int ret = -1;
       /* Making subscriptions in the on_connect()*/
       // Uncomment for subscribing to respective topics
-      ret = event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
+      ret = event_subscribe(event->client, NULL, TOPIC_MILESTONES, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
       // ret = event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1);
       // ret = event_sub_tx_msg_tagged_data(event->client, NULL, test_tag, 1);
       // ret = event_subscribe(event->client, NULL, TOPIC_MS_MILESTONE, 1);

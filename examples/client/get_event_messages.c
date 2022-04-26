@@ -37,14 +37,17 @@ void callback(event_client_event_t *event) {
       /* Making subscriptions in the on_connect() callback means that if the
        * connection drops and is automatically resumed by the client, then the
        * subscriptions will be recreated when the client reconnects. */
-      if (event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1) != 0) {
-        printf("Subscription to %s topic failed\n", TOPIC_MS_LATEST);
+      if (event_subscribe(event->client, NULL, TOPIC_MILESTONE_LATEST, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MILESTONE_LATEST);
       }
-      if (event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1) != 0) {
-        printf("Subscription to %s topic failed\n", TOPIC_MS_CONFIRMED);
+      if (event_subscribe(event->client, NULL, TOPIC_MILESTONE_CONFIRMED, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MILESTONE_CONFIRMED);
       }
       if (event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1) != 0) {
         printf("Subscription to %s topic failed\n", TOPIC_MS_REFERENCED);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MILESTONES, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MILESTONES);
       }
       if (event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1) != 0) {
         printf("Subscription to %s topic failed\n", TOPIC_MESSAGES);
@@ -153,11 +156,15 @@ static void parse_and_print_output_payload(event_client_event_t *event) {
 
 void process_event_data(event_client_event_t *event) {
   // check for topics milestones/latest and milestones/confirmed
-  if (!strcmp(event->topic, TOPIC_MS_LATEST) || !strcmp(event->topic, TOPIC_MS_CONFIRMED)) {
+  if (!strcmp(event->topic, TOPIC_MILESTONE_LATEST) || !strcmp(event->topic, TOPIC_MILESTONE_CONFIRMED)) {
     events_milestone_payload_t res = {};
     if (parse_milestone_payload((char *)event->data, &res) == 0) {
       printf("Index :%u\nTimestamp : %u\n", res.index, res.timestamp);
     }
+  }
+  // check for topic milestones
+  else if (!strcmp(event->topic, TOPIC_MILESTONES)) {
+    print_serialized_data(event->data, event->data_len);
   }
   // check for topic messages/referenced
   else if (!strcmp(event->topic, TOPIC_MS_REFERENCED)) {
