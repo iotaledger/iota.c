@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Subscribes messages/{messageid}/metadata event
+ * @brief Subscribes message-metadata/{messageid} event
  *
  * @param[in] client The event client instance
  * @param[out] mid If not NULL, mid will return the message id of the topic subscription

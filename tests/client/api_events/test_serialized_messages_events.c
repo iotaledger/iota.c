@@ -37,6 +37,7 @@ static void event_cb(event_client_event_t *event) {
       ret = event_subscribe(event->client, NULL, TOPIC_MILESTONES, 1);
       // ret = event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
       // ret = event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_MS_TXN_TAGGED_DATA, 1);
       // ret = event_sub_tx_msg_tagged_data(event->client, NULL, test_tag, 1);
       // ret = event_subscribe(event->client, NULL, TOPIC_MS_MILESTONE, 1);
       // ret = event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1);
