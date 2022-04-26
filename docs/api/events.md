@@ -1,160 +1,157 @@
 # Event API Reference
 
-The Event API is event subscribers based on [RFC: Node Event API](https://github.com/iotaledger/protocol-rfcs/pull/33), it provides an easy way to subscribe node events via MQTT protocol.
+The Event API is event subscribers based on [TIP-28 Node Event API](https://github.com/iotaledger/tips/pull/66), it provides an easy way to subscribe node events via MQTT protocol.
 
-## [Event Client Configuration](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/node_event.h)
+## Event Client Configuration
 
 ```{eval-rst}
 .. doxygenstruct:: event_client_config_t
   :members:
 ```
 
-## [Event IDs](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/node_event.h)
+## Event IDs
 
 ```{eval-rst}
 .. doxygenenum:: event_client_event_id_t
 ```
 
-## [Initialize Event Service](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/node_event.h)
+## Initialize Event Service
 
 ```{eval-rst}
 .. doxygenfunction:: event_init
 ```
 
-## [Register Event Callback Handler](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/node_event.h)
+## Register Event Callback Handler
 
 ```{eval-rst}
 .. doxygenfunction:: event_register_cb
 ```
 
-## [Subscribe To A Topic](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/node_event.h)
+## Subscribe To A Topic
 
 ```{eval-rst}
 .. doxygenfunction:: event_subscribe
 ```
 
-## [Unsubscribe To A Topic](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/node_event.h)
+## Unsubscribe To A Topic
 
 ```{eval-rst}
 .. doxygenfunction:: event_unsubscribe
 ```
 
-## [Start Event Service](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/node_event.h)
+## Start Event Service
 
 ```{eval-rst}
 .. doxygenfunction:: event_start
 ```
 
-## [Stop Event Service](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/node_event.h)
+## Stop Event Service
 
 ```{eval-rst}
 .. doxygenfunction:: event_stop
 ```
 
-## [Destroy Event Service](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/node_event.h)
+## Destroy Event Service
 
 ```{eval-rst}
 .. doxygenfunction:: event_destroy
 ```
 
-## IOTA Node Events
+## IOTA Event Topics
 
-### [Confirmed Milestones](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/sub_milestones_confirmed.h)
+### milestone-info/latest
 
-```{eval-rst}
-.. doxygenstruct:: milestone_confirmed_t
-  :members:
+Use `TOPIC_MS_LATEST`
+
+```
+event_subscribe(event_client_handle_t client, int *mid, TOPIC_MS_LATEST, int qos);
 ```
 
-#### Parse Confirmed Milestone JSON response
-```{eval-rst}
-.. doxygenfunction:: parse_milestones_confirmed
+### milestone-info/confirmed
+
+```
+event_subscribe(event->client, NULL, TOPIC_MS_CONGIRMED, 1);
 ```
 
-### [The Latest Milestone](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/sub_milestone_latest.h)
+### milestones
 
-```{eval-rst}
-.. doxygenstruct:: milestone_latest_t
-  :members:
+TODO
+
+### messages
+
+```
+event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
 ```
 
-#### Parse Confirmed Milestone JSON response
-```{eval-rst}
-.. doxygenfunction:: parse_milestone_latest
+### messages/transaction
+
+```
+event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1);
 ```
 
-### [The Message Metadata](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/sub_messages_metadata.h)
+### messages/transaction/tagged-data
 
-```{eval-rst}
-.. doxygenstruct:: msg_metadata_t
-  :members:
+TODO
+
+### messages/transaction/tagged-data/{tag}
+
+TODO
+
+### messages/tagged-data
+
+```
+event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1);
 ```
 
-#### Subscribe for messages/{messageid}/metadata event
-```{eval-rst}
-.. doxygenfunction:: event_subscribe_msg_metadata
-```
+### messages/tagged-data/{tag}
 
-#### Allocate a message metadata onject
-```{eval-rst}
-.. doxygenfunction:: res_msg_metadata_new
-```
+TODO
 
-#### Free a message metadata object
-```{eval-rst}
-.. doxygenfunction:: res_msg_metadata_free
-```
+### transactions/{transaction ID}/included-message
 
-#### Parse a message metadata response
-```{eval-rst}
-.. doxygenfunction:: parse_messages_metadata
-```
+TODO
 
-#### Get the count of parent message ids
-```{eval-rst}
-.. doxygenfunction:: res_msg_metadata_parents_count
-```
+### message-metadata/{message ID}
 
-#### Get a parent message ID by index
-```{eval-rst}
-.. doxygenfunction:: res_msg_metadata_parent_get
-```
+TODO
 
-### [The Output Payloads](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/sub_outputs_payload.h)
+### message-metadata/referenced
 
-```{eval-rst}
-.. doxygenstruct:: event_outputs_payload_t
-  :members:
-```
+TODO
 
-```{eval-rst}
-.. doxygenstruct:: event_output_t
-  :members:
-```
+### outputs/{Output ID}
 
-#### Subscribe for addresses/{address}/outputs event
-```{eval-rst}
-.. doxygenfunction:: event_sub_address_outputs
-```
-
-#### Subscribe for outputs/{outputId} event
 ```{eval-rst}
 .. doxygenfunction:: event_sub_outputs_id
 ```
 
-#### Parse the outputs payload
+### outputs/nft/{NFT ID}
+
 ```{eval-rst}
-.. doxygenfunction:: event_parse_outputs_payload
+.. doxygenfunction:: event_sub_outputs_nft_id
 ```
 
-### [The Serialized Outputs](https://github.com/iotaledger/iota.c/blob/dev/src/client/api/events/sub_serialized_output.h)
+### outputs/aliases/{Alias ID}
 
-#### Subscribe for transactions/{transactionId}/included_message event
 ```{eval-rst}
-.. doxygenfunction:: event_sub_txn_included_msg
+.. doxygenfunction:: event_sub_outputs_alias_id
 ```
 
-#### Subscribe for messages/indexation/{index} event
+### outputs/foundries/{Foundry ID}
+
 ```{eval-rst}
-.. doxygenfunction:: event_sub_msg_indexation
+.. doxygenfunction:: event_sub_outputs_foundry_id
 ```
+
+### outputs/unlock/{condition}/{address}
+
+```{eval-rst}
+.. doxygenfunction:: event_sub_outputs_unlock_address
+```
+
+### outputs/unlock/{condition}/{address}/spent
+
+```{eval-rst}
+.. doxygenfunction:: event_sub_outputs_unlock_address_spent
+```
+
