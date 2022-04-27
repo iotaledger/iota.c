@@ -86,7 +86,7 @@ void callback(event_client_event_t *event) {
         printf("Subscription to %s topic failed\n", "outputs/unlock/{condition}/{address}/spent");
       }
       if (event_sub_outputs_alias_id(event->client, NULL, alias_id, 1) != 0) {
-        printf("Subscription to %s topic failed\n", "utputs/aliases/{aliasId}");
+        printf("Subscription to %s topic failed\n", "outputs/aliases/{aliasId}");
       }
       if (event_sub_outputs_nft_id(event->client, NULL, nft_id, 1) != 0) {
         printf("Subscription to %s topic failed\n", "outputs/nfts/{nftId}");
