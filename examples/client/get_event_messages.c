@@ -169,10 +169,6 @@ void process_event_data(event_client_event_t *event) {
   else if (!strcmp(event->topic, TOPIC_MILESTONES)) {
     print_serialized_data(event->data, event->data_len);
   }
-  // check for topic message-metadata/referenced
-  else if (!strcmp(event->topic, TOPIC_MS_REFERENCED)) {
-    parse_and_print_message_metadata(event);
-  }
   // check for topic messages
   else if (!strcmp(event->topic, TOPIC_MESSAGES)) {
     print_serialized_data(event->data, event->data_len);
@@ -198,8 +194,8 @@ void process_event_data(event_client_event_t *event) {
            strstr(event->topic, "messages/tagged-data/") != NULL) {
     print_serialized_data(event->data, event->data_len);
   }
-  // check for topic message-metadata/{messageId}
-  else if ((strstr(event->topic, "messages/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) {
+  // check for topic message-metadata/{messageId} and message-metadata/referenced
+  else if (!strcmp(event->topic, "message-metadata/")) {
     parse_and_print_message_metadata(event);
   }
   // check for topic transactions/{transactionId}/included-message

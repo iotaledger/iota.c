@@ -26,10 +26,10 @@ int event_sub_tx_msg_tagged_data(event_client_handle_t client, int *mid, char co
     printf("[%s:%d]: Tag length is invalid\n", __func__, __LINE__);
     return -1;
   }
-  // 98 is the max length for string messages/transaction/tagged-data/{tag}, tag max len is 64 bytes
-  char topic_buff[98] = {0};
+  // 100 is the max length for string messages/transaction/tagged-data/0x{tag}, tag max len is 64 bytes
+  char topic_buff[100] = {0};
 
-  sprintf(topic_buff, "messages/transaction/tagged-data/%s", tag);
+  sprintf(topic_buff, "messages/transaction/tagged-data/0x%s", tag);
 
   return event_subscribe(client, mid, topic_buff, qos);
 }
@@ -39,10 +39,10 @@ int event_sub_msg_tagged_data(event_client_handle_t client, int *mid, char const
     printf("[%s:%d]: Tag length is invalid\n", __func__, __LINE__);
     return -1;
   }
-  // 86 is the max length for string messages/tagged-data/{tag}, tag max len is 64 bytes
-  char topic_buff[86] = {0};
+  // 88 is the max length for string messages/tagged-data/0x{tag}, tag max len is 64 bytes
+  char topic_buff[88] = {0};
 
-  sprintf(topic_buff, "messages/tagged-data/%s", tag);
+  sprintf(topic_buff, "messages/tagged-data/0x%s", tag);
 
   return event_subscribe(client, mid, topic_buff, qos);
 }
