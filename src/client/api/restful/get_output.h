@@ -11,11 +11,10 @@
 #include "client/client_service.h"
 #include "client/network/http.h"
 #include "core/models/inputs/utxo_input.h"
-#include "core/models/message.h"
 #include "core/models/outputs/outputs.h"
 
 /**
- * @brief An output response object
+ * @brief An output metadata object
  *
  */
 typedef struct {
@@ -29,7 +28,15 @@ typedef struct {
   uint32_t ml_index_booked;                       ///< milestone index booked
   uint32_t ml_time_booked;                        ///< milestone timestamp booked
   uint32_t ledger_index;                          ///< ledger index
-  utxo_output_t *output;                          ///< an output object
+} output_meta_t;
+
+/**
+ * @brief An output response object
+ *
+ */
+typedef struct {
+  output_meta_t meta;     ///< output metadata
+  utxo_output_t *output;  ///< an output object
 } get_output_t;
 
 /**
@@ -59,7 +66,7 @@ get_output_t *get_output_new();
  * @brief Free an output object
  *
  * @param[in] res An output object
- */
+ *
 void get_output_free(get_output_t *res);
 
 /**
@@ -85,6 +92,16 @@ void get_output_response_free(res_output_t *res);
  * @return int 0 on success
  */
 int get_output(iota_client_conf_t const *conf, char const output_id[], res_output_t *res);
+
+/**
+ * @brief Get an output metadata from a given output ID
+ *
+ * @param[in] conf The client endpoint configuration
+ * @param[in] output_id A hex string of the output ID
+ * @param[out] res The response object from node
+ * @return int 0 on success
+ */
+int get_output_meta(iota_client_conf_t const *conf, char const output_id[], res_output_t *res);
 
 /**
  * @brief Parse an output response JSON Object
