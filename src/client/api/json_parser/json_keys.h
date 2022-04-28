@@ -69,7 +69,6 @@ static char const* const JSON_KEY_REF_MILESTONE_IDX = "referencedByMilestoneInde
 static char const* const JSON_KEY_MILESTONE_IDX = "milestoneIndex";
 static char const* const JSON_KEY_MILESTONE_ID = "milestoneId";
 static char const* const JSON_KEY_PREVIOUS_MILESTONE_ID = "previousMilestoneId";
-static char const* const JSON_KEY_MILESTONE_ID = "milestoneId";
 static char const* const JSON_KEY_LEDGER_ST = "ledgerInclusionState";
 static char const* const JSON_KEY_SHOULD_PROMOTE = "shouldPromote";
 static char const* const JSON_KEY_SHOULD_REATTACH = "shouldReattach";
