@@ -13,8 +13,8 @@ int event_sub_txn_included_msg(event_client_handle_t client, int *mid, char cons
     printf("[%s:%d]: Transaction id length is invalid\n", __func__, __LINE__);
     return -1;
   }
-  // 97 is the max length for string transactions/{transactionId}/included-message
-  char topic_buff[97] = {0};
+  // buffer for holding string "transactions/0x{transactionId}/included-message"
+  char topic_buff[33 + BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES)] = {0};
 
   sprintf(topic_buff, "transactions/0x%s/included-message", transaction_id);
 
