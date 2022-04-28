@@ -66,7 +66,7 @@ get_output_t *get_output_new();
  * @brief Free an output object
  *
  * @param[in] res An output object
- *
+ */
 void get_output_free(get_output_t *res);
 
 /**
