@@ -37,7 +37,6 @@ int event_sub_tx_msg_tagged_data(event_client_handle_t client, int *mid, byte_t 
   }
 
   sprintf(topic_buff, "messages/transaction/tagged-data/0x%s", tag_str);
-  printf("topic_buff : %s\n", topic_buff);
 
   return event_subscribe(client, mid, topic_buff, qos);
 }
