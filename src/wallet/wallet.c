@@ -200,7 +200,8 @@ static utxo_outputs_list_t* basic_outputs_from_address(iota_wallet_t* w, transac
             output_basic_t* o = (output_basic_t*)output_res->u.data->output->output;
             *output_amount += o->amount;
             // add the output as a tx input into the tx payload
-            ret = tx_essence_add_input(essence, 0, output_res->u.data->tx_id, output_res->u.data->output_index);
+            ret =
+                tx_essence_add_input(essence, 0, output_res->u.data->meta.tx_id, output_res->u.data->meta.output_index);
             if (ret != 0) {
               get_output_response_free(output_res);
               break;
