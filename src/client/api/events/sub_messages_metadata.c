@@ -12,10 +12,10 @@ int event_subscribe_msg_metadata(event_client_handle_t client, int *mid, char co
     printf("[%s:%d]: Message Id length is invalid\n", __func__, __LINE__);
     return -1;
   }
-  // Buffer to store topic string : messages/{messageid}/metadata
-  char topic_buff[BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + 21] = {0};
+  // Buffer to store topic string : message-metadata/0x{messageid}
+  char topic_buff[BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + 20] = {0};
   // Prepare topic string
-  sprintf(topic_buff, "messages/0x%s/metadata", msg_id);
+  sprintf(topic_buff, "message-metadata/0x%s", msg_id);
   // Call to MQTT network layer
   return event_subscribe(client, mid, topic_buff, qos);
 }

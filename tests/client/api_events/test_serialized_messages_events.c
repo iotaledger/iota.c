@@ -10,7 +10,7 @@
 
 bool test_completed = false;
 char const *const test_transaction_id = "5e753f69b44870aa6a90adf2c366dccac00097c41d5c884dd81ef7cf29eefdd7";
-char const *const test_tag = "hello_iota";
+char const *const test_tag = "IOTA TAGGED DATA";
 
 void setUp(void) {}
 
@@ -34,12 +34,14 @@ static void event_cb(event_client_event_t *event) {
       int ret = -1;
       /* Making subscriptions in the on_connect()*/
       // Uncomment for subscribing to respective topics
-      ret = event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
+      ret = event_subscribe(event->client, NULL, TOPIC_MILESTONES, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
       // ret = event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1);
-      // ret = event_sub_tx_msg_tagged_data(event->client, NULL, test_tag, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_MS_TXN_TAGGED_DATA, 1);
+      // ret = event_sub_tx_msg_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1);
       // ret = event_subscribe(event->client, NULL, TOPIC_MS_MILESTONE, 1);
       // ret = event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1);
-      // ret = event_sub_msg_tagged_data(event->client, NULL, test_tag, 1);
+      // ret = event_sub_msg_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1);
       // ret = event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1);
       if (ret != 0) {
         printf("Subscription failed\n");

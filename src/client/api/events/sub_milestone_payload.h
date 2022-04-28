@@ -7,13 +7,17 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "core/utils/byte_buffer.h"
+#include "crypto/iota_crypto.h"
+
 /**
  * @brief Stores timestamp and index
  *
  */
 typedef struct {
-  uint32_t timestamp;  ///< The timestamp of milestone payload
-  uint32_t index;      ///< The index of milestone payload
+  uint32_t timestamp;                                  ///< The timestamp of milestone payload
+  uint32_t index;                                      ///< The index of milestone payload
+  byte_t milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES];  ///< The milestone id
 } events_milestone_payload_t;
 
 #ifdef __cplusplus

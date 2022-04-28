@@ -37,14 +37,17 @@ void callback(event_client_event_t *event) {
       /* Making subscriptions in the on_connect() callback means that if the
        * connection drops and is automatically resumed by the client, then the
        * subscriptions will be recreated when the client reconnects. */
-      if (event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1) != 0) {
-        printf("Subscription to %s topic failed\n", TOPIC_MS_LATEST);
+      if (event_subscribe(event->client, NULL, TOPIC_MILESTONE_LATEST, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MILESTONE_LATEST);
       }
-      if (event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1) != 0) {
-        printf("Subscription to %s topic failed\n", TOPIC_MS_CONFIRMED);
+      if (event_subscribe(event->client, NULL, TOPIC_MILESTONE_CONFIRMED, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MILESTONE_CONFIRMED);
       }
       if (event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1) != 0) {
         printf("Subscription to %s topic failed\n", TOPIC_MS_REFERENCED);
+      }
+      if (event_subscribe(event->client, NULL, TOPIC_MILESTONES, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MILESTONES);
       }
       if (event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1) != 0) {
         printf("Subscription to %s topic failed\n", TOPIC_MESSAGES);
@@ -55,20 +58,23 @@ void callback(event_client_event_t *event) {
       if (event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1) != 0) {
         printf("Subscription to %s topic failed\n", TOPIC_MS_TRANSACTION);
       }
+      if (event_subscribe(event->client, NULL, TOPIC_MS_TXN_TAGGED_DATA, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_MS_TXN_TAGGED_DATA);
+      }
       if (event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1) != 0) {
         printf("Subscription to %s topic failed\n", TOPIC_MS_TAGGED_DATA);
       }
-      if (event_sub_tx_msg_tagged_data(event->client, NULL, test_tag, 1) != 0) {
+      if (event_sub_tx_msg_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1) != 0) {
         printf("Subscription to %s topic failed\n", "messages/transaction/tagged-data/{tag}");
       }
-      if (event_sub_msg_tagged_data(event->client, NULL, test_tag, 1) != 0) {
+      if (event_sub_msg_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1) != 0) {
         printf("Subscription to %s topic failed\n", "messages/tagged-data/{tag}");
       }
       if (event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1) != 0) {
         printf("Subscription to %s topic failed\n", "transactions/{transactionId}/included_message");
       }
       if (event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1) != 0) {
-        printf("Subscription to %s topic failed\n", "messages/{messageid}/metadata");
+        printf("Subscription to %s topic failed\n", "message-metadata/{messageid}");
       }
       if (event_sub_outputs_id(event->client, NULL, test_output_id, 1) != 0) {
         printf("Subscription to %s topic failed\n", "outputs/{outputId}");
@@ -80,7 +86,7 @@ void callback(event_client_event_t *event) {
         printf("Subscription to %s topic failed\n", "outputs/unlock/{condition}/{address}/spent");
       }
       if (event_sub_outputs_alias_id(event->client, NULL, alias_id, 1) != 0) {
-        printf("Subscription to %s topic failed\n", "utputs/aliases/{aliasId}");
+        printf("Subscription to %s topic failed\n", "outputs/aliases/{aliasId}");
       }
       if (event_sub_outputs_nft_id(event->client, NULL, nft_id, 1) != 0) {
         printf("Subscription to %s topic failed\n", "outputs/nfts/{nftId}");
@@ -152,16 +158,16 @@ static void parse_and_print_output_payload(event_client_event_t *event) {
 }
 
 void process_event_data(event_client_event_t *event) {
-  // check for topics milestones/latest and milestones/confirmed
-  if (!strcmp(event->topic, TOPIC_MS_LATEST) || !strcmp(event->topic, TOPIC_MS_CONFIRMED)) {
+  // check for topics milestone-info/latest and milestone-info/confirmed
+  if (!strcmp(event->topic, TOPIC_MILESTONE_LATEST) || !strcmp(event->topic, TOPIC_MILESTONE_CONFIRMED)) {
     events_milestone_payload_t res = {};
     if (parse_milestone_payload((char *)event->data, &res) == 0) {
       printf("Index :%u\nTimestamp : %u\n", res.index, res.timestamp);
     }
   }
-  // check for topic messages/referenced
-  else if (!strcmp(event->topic, TOPIC_MS_REFERENCED)) {
-    parse_and_print_message_metadata(event);
+  // check for topic milestones
+  else if (!strcmp(event->topic, TOPIC_MILESTONES)) {
+    print_serialized_data(event->data, event->data_len);
   }
   // check for topic messages
   else if (!strcmp(event->topic, TOPIC_MESSAGES)) {
@@ -175,6 +181,10 @@ void process_event_data(event_client_event_t *event) {
   else if (!strcmp(event->topic, TOPIC_MS_TRANSACTION)) {
     print_serialized_data(event->data, event->data_len);
   }
+  // check for topic messages/transaction/tagged-data
+  else if (!strcmp(event->topic, TOPIC_MS_TXN_TAGGED_DATA)) {
+    print_serialized_data(event->data, event->data_len);
+  }
   // check for topic messages/tagged-data
   else if (!strcmp(event->topic, TOPIC_MS_TAGGED_DATA)) {
     print_serialized_data(event->data, event->data_len);
@@ -184,8 +194,8 @@ void process_event_data(event_client_event_t *event) {
            strstr(event->topic, "messages/tagged-data/") != NULL) {
     print_serialized_data(event->data, event->data_len);
   }
-  // check for topic messages/{messageId}/metadata
-  else if ((strstr(event->topic, "messages/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) {
+  // check for topic message-metadata/{messageId} and message-metadata/referenced
+  else if (!strcmp(event->topic, "message-metadata/")) {
     parse_and_print_message_metadata(event);
   }
   // check for topic transactions/{transactionId}/included-message
@@ -206,8 +216,7 @@ void process_event_data(event_client_event_t *event) {
 }
 
 int main(void) {
-  event_client_config_t config = {
-      .host = "mqtt.lb-0.h.chrysalis-devnet.iota.cafe", .port = 1883, .client_id = "iota_test_1234", .keepalive = 60};
+  event_client_config_t config = {.host = "localhost", .port = 1883, .client_id = "iota_test_1234", .keepalive = 60};
   event_client_handle_t client = event_init(&config);
   event_register_cb(client, &callback);
   // Runs event client in a non blocking call.

@@ -7,6 +7,7 @@
 
 #include "client/api/events/node_event.h"
 #include "client/api/events/sub_milestone_payload.h"
+#include "core/utils/byte_buffer.h"
 #include "test_config.h"
 
 bool test_completed = false;
@@ -16,21 +17,30 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_milestones_payload_parser(void) {
-  char *json_data = "{\"index\":242412,\"timestamp\": 1609950538}";
+  char *json_data =
+      "{\"milestoneIndex\":242412,\"milestoneTimestamp\": 1609950538,\"milestoneId\": "
+      "\"0x7a09324557e9200f39bf493fc8fd6ac43e9ca750c6f6d884cc72386ddcb7d695\"}";
 
   // Test for expected events response
   events_milestone_payload_t res = {};
   TEST_ASSERT_EQUAL_INT(0, parse_milestone_payload(json_data, &res));
   TEST_ASSERT(242412 == res.index);
   TEST_ASSERT(1609950538 == res.timestamp);
+
+  byte_t tmp_milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
+  TEST_ASSERT(hex_2_bin("7a09324557e9200f39bf493fc8fd6ac43e9ca750c6f6d884cc72386ddcb7d695", 65, NULL, tmp_milestone_id,
+                        sizeof(tmp_milestone_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_milestone_id, res.milestone_id, sizeof(res.milestone_id));
 }
 
 void process_event_data(event_client_event_t *event) {
-  if (!strcmp(event->topic, TOPIC_MS_LATEST)) {
+  if (!strcmp(event->topic, TOPIC_MILESTONE_LATEST) || !strcmp(event->topic, TOPIC_MILESTONE_CONFIRMED)) {
     events_milestone_payload_t res = {};
     TEST_ASSERT_EQUAL_INT(0, parse_milestone_payload((char *)event->data, &res));
     // Print received data
-    printf("Index :%u\nTimestamp : %u\n", res.index, res.timestamp);
+    printf("milestoneIndex :%u\nmilestoneTimestamp : %u\n", res.index, res.timestamp);
+    printf("milestoneId: ");
+    dump_hex_str(res.milestone_id, sizeof(res.milestone_id));
   }
 }
 
@@ -44,8 +54,8 @@ void callback(event_client_event_t *event) {
       int ret = -1;
       /* Making subscriptions in the on_connect()*/
       // Uncomment for subscribing to respective topics
-      ret = event_subscribe(event->client, NULL, TOPIC_MS_LATEST, 1);
-      // ret = event_subscribe(event->client, NULL, TOPIC_MS_CONFIRMED, 1);
+      ret = event_subscribe(event->client, NULL, TOPIC_MILESTONE_LATEST, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_MILESTONE_CONFIRMED, 1);
       if (ret != 0) {
         printf("Subscription failed\n");
         test_completed = true;

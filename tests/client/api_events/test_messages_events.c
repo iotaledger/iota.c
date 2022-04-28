@@ -154,8 +154,8 @@ int main() {
   RUN_TEST(test_messages_metadata_parser);
 
 #if TEST_TANGLE_ENABLE
-  // test_metadata = false;
-  // RUN_TEST(test_messages_events);
+  test_metadata = false;
+  RUN_TEST(test_messages_events);
 
   test_completed = false;
   test_metadata = true;
