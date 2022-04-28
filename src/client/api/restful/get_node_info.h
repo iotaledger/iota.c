@@ -9,36 +9,69 @@
 
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
+#include "core/utils/byte_buffer.h"
+#include "crypto/iota_crypto.h"
 #include "utarray.h"
+
+/**
+ * @brief The milestone information
+ *
+ */
+typedef struct {
+  uint32_t index;                                      ///< A milestone index
+  uint32_t timestamp;                                  ///< A milestone timestamp
+  byte_t milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES];  ///< A milestone ID
+} milestone_info_t;
+
+/**
+ * @brief The rent structure used by given node/network
+ *
+ */
+typedef struct {
+  uint16_t v_byte_cost;        ///< The Byte Cost
+  uint8_t v_byte_factor_data;  ///< The Byte Factor Data
+  uint8_t v_byte_factor_key;   ///< The Byte Factor Key
+} rent_structure_info_t;
+
+/**
+ * @brief The base token information
+ *
+ */
+typedef struct {
+  char name[32];           ///< The base token name
+  char ticker_symbol[16];  ///< The base token ticker symbol
+  char unit[16];           ///< The base token unit
+  char subunit[16];        ///< The base token subunit
+  uint32_t decimals;       ///< The base token amount of decimals
+  bool use_metric_prefix;  ///< The base token uses the metric prefix
+} base_token_info_t;
 
 /**
  * @brief The general information about the node
  *
  */
 typedef struct {
-  char name[32];                        ///< The name of this node
-  char version[32];                     ///< The version of this node
-  bool is_healthy;                      ///< Whether the node is healthy.
-  uint32_t latest_milestone_timestamp;  ///< The timestamp of the latest known milestone
-  uint32_t latest_milestone_index;      ///< The latest known milestone index
-  uint32_t confirmed_milestone_index;   ///< The current confirmed milestone's index
-  uint32_t pruning_milestone_index;     ///< The milestone index at which the last pruning commenced
-  float msg_per_sec;                    ///< The current rate of new messages per second
-  float referenced_msg_per_sec;         ///< The current rate of referenced messages per second
-  float referenced_rate;       ///< The ratio of referenced messages in relation to new messages of the last confirmed
-                               ///< milestone
-  char network_name[32];       ///< The network name of this node
-  uint8_t protocol_version;    ///< The protocol version currently used by the network
-  char bech32hrp[16];          ///< The Bech32 HRP, the possible HRP string:
-                               ///< `atoi` for testnet, `iota` for mainnet,
-                               ///< `rms` for Shimmer testnet, `smr` for Shimmer.
-  uint32_t min_pow_score;      ///< The minimum pow score of the network
-  uint16_t v_byte_cost;        ///< The Byte Cost
-  uint8_t v_byte_factor_data;  ///< The Byte Factor Data
-  uint8_t v_byte_factor_key;   ///< The Byte Factor Key
-
-  UT_array *features;  ///< The features this node exposes
-  UT_array *plugins;   ///< The plugins paths
+  char name[32];                         ///< The name of this node
+  char version[32];                      ///< The version of this node
+  bool is_healthy;                       ///< Whether the node is healthy.
+  milestone_info_t latest_milestone;     ///< The latest known milestone
+  milestone_info_t confirmed_milestone;  ///< The current confirmed milestone
+  uint32_t pruning_milestone_index;      ///< The milestone index at which the last pruning commenced
+  float msg_per_sec;                     ///< The current rate of new messages per second
+  float referenced_msg_per_sec;          ///< The current rate of referenced messages per second
+  float referenced_rate;     ///< The ratio of referenced messages in relation to new messages of the last confirmed
+                             ///< milestone
+  char network_name[32];     ///< The network name of this node
+  uint8_t protocol_version;  ///< The protocol version currently used by the network
+  char bech32hrp[16];        ///< The Bech32 HRP, the possible HRP string:
+                             ///< `atoi` for testnet, `iota` for mainnet,
+                             ///< `rms` for Shimmer testnet, `smr` for Shimmer.
+  uint32_t min_pow_score;    ///< The minimum pow score of the network
+  rent_structure_info_t rent_structure;  ///< The rent structure used by given node/network
+  uint64_t token_supply;                 ///< Current supply of base token on the network
+  base_token_info_t base_token;          ///< Base token information
+  UT_array *features;                    ///< The features this node exposes
+  UT_array *plugins;                     ///< The plugins paths
 } get_node_info_t;
 
 /**

@@ -456,8 +456,9 @@ int wallet_update_node_config(iota_wallet_t* w) {
       }
 
       // update byte cost
-      byte_cost_config_set(&w->byte_cost, info->u.output_node_info->v_byte_cost,
-                           info->u.output_node_info->v_byte_factor_data, info->u.output_node_info->v_byte_factor_key);
+      byte_cost_config_set(&w->byte_cost, info->u.output_node_info->rent_structure.v_byte_cost,
+                           info->u.output_node_info->rent_structure.v_byte_factor_data,
+                           info->u.output_node_info->rent_structure.v_byte_factor_key);
 
     } else {
       ret = -2;
