@@ -315,10 +315,12 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
   }
 
   // gets base token subunit
-  if ((ret = json_get_string(base_token_obj, JSON_KEY_SUBUNIT, res->u.output_node_info->base_token.subunit,
-                             sizeof(res->u.output_node_info->base_token.subunit))) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_SUBUNIT);
-    goto end;
+  if (cJSON_HasObjectItem(base_token_obj, JSON_KEY_SUBUNIT)) {
+    if ((ret = json_get_string(base_token_obj, JSON_KEY_SUBUNIT, res->u.output_node_info->base_token.subunit,
+                               sizeof(res->u.output_node_info->base_token.subunit))) != 0) {
+      printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_SUBUNIT);
+      goto end;
+    }
   }
 
   // gets base token decimals
