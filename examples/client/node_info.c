@@ -14,7 +14,6 @@ int main(void) {
   iota_client_conf_t ctx = {.host = "localhost", .port = 443, .use_tls = true};
 
   res_node_info_t *info = res_node_info_new();
-
   if (!info) {
     printf("Failed to create a response node info object!\n");
     return -1;

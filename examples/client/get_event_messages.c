@@ -64,10 +64,10 @@ void callback(event_client_event_t *event) {
       if (event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1) != 0) {
         printf("Subscription to %s topic failed\n", TOPIC_MS_TAGGED_DATA);
       }
-      if (event_sub_tx_msg_tagged_data(event->client, NULL, test_tag, 1) != 0) {
+      if (event_sub_tx_msg_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1) != 0) {
         printf("Subscription to %s topic failed\n", "messages/transaction/tagged-data/{tag}");
       }
-      if (event_sub_msg_tagged_data(event->client, NULL, test_tag, 1) != 0) {
+      if (event_sub_msg_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1) != 0) {
         printf("Subscription to %s topic failed\n", "messages/tagged-data/{tag}");
       }
       if (event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1) != 0) {

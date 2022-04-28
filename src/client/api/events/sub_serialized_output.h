@@ -5,6 +5,7 @@
 #define __SUB_SERIALIZED_OUTPUT_H__
 
 #include "client/api/events/node_event.h"
+#include "core/utils/byte_buffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,10 +28,11 @@ int event_sub_txn_included_msg(event_client_handle_t client, int *mid, char cons
  * @param[in] client The event client object
  * @param[in] mid If not NULL, mid will return the message id of the topic subscription
  * @param[in] tag A tag to get transaction messages
+ * @param[in] tag_len The length of the tag in bytes
  * @param[in] qos The QoS level for the topic
  * @return int 0 If success
  */
-int event_sub_tx_msg_tagged_data(event_client_handle_t client, int *mid, char const tag[], int qos);
+int event_sub_tx_msg_tagged_data(event_client_handle_t client, int *mid, byte_t tag[], uint8_t tag_len, int qos);
 
 /**
  * @brief Subscribes messages/tagged-data/{tag} topic for receiving messages with {tag}
@@ -38,10 +40,11 @@ int event_sub_tx_msg_tagged_data(event_client_handle_t client, int *mid, char co
  * @param[in] client The event client object
  * @param[in] mid If not NULL, mid will return the message id of the topic subscription
  * @param[in] tag A tag to get messages
+ * @param[in] tag_len The length of the tag in bytes
  * @param[in] qos The QoS level for the topic
  * @return int 0 If success
  */
-int event_sub_msg_tagged_data(event_client_handle_t client, int *mid, char const tag[], int qos);
+int event_sub_msg_tagged_data(event_client_handle_t client, int *mid, byte_t tag[], uint8_t tag_len, int qos);
 
 #ifdef __cplusplus
 }
