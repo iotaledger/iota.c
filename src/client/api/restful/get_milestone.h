@@ -57,6 +57,16 @@ int deser_get_milestone(char const *const j_str, res_milestone_t *res);
  */
 int get_milestone_by_id(iota_client_conf_t const *conf, char const ms_id[], res_milestone_t *res);
 
+/**
+ * @brief Get milestone by a given index
+ *
+ * @param[in] conf The client endpoint configuration
+ * @param[in] index An index of the milestone to look up
+ * @param[out] res The milestone response object
+ * @return int 0 on success
+ */
+int get_milestone_by_index(iota_client_conf_t const *conf, uint32_t index, res_milestone_t *res);
+
 #ifdef __cplusplus
 }
 #endif

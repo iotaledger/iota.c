@@ -122,3 +122,50 @@ done:
   byte_buf_free(http_res);
   return ret;
 }
+
+int get_milestone_by_index(iota_client_conf_t const *conf, uint32_t index, res_milestone_t *res) {
+  if (conf == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
+  iota_str_t *cmd = NULL;
+  char const *const cmd_str = "/api/v2/milestones/by-index/";
+
+  // reserver buffer enough for cmd_str + index(max str len needed to store a unit32_t value) + null character
+  cmd = iota_str_reserve(strlen(cmd_str) + 10 + 1);
+  if (cmd == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API command
+  snprintf(cmd->buf, cmd->cap, "%s%u", cmd_str, index);
+  cmd->len = strlen(cmd->buf);
+
+  // http client configuration
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
+
+  int ret = -1;
+
+  byte_buf_t *http_res = byte_buf_new();
+  if (!http_res) {
+    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+    goto done;
+  }
+
+  // send request via http client
+  long st = 0;
+  ret = http_client_get(&http_conf, http_res, &st);
+  if (ret == 0) {
+    byte_buf2str(http_res);
+    // json deserialization
+    ret = deser_get_milestone((char const *const)http_res->data, res);
+  }
+
+done:
+  // cleanup command
+  iota_str_destroy(cmd);
+  byte_buf_free(http_res);
+  return ret;
+}

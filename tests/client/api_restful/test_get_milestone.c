@@ -10,6 +10,7 @@
 #include "unity/unity.h"
 
 char const* const test_ms_id = "5d8d0ea61538ca51c95419bcc5958bfd8c791599b66d4f0cdb37c131cde2996a";
+uint32_t test_index = 1546;
 
 void setUp(void) {}
 
@@ -94,7 +95,31 @@ void test_get_milestone_by_id() {
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
   res_milestone_t* res = res_milestone_new();
   TEST_ASSERT_NOT_NULL(res);
+  // Test for invalid inputs
+  TEST_ASSERT(get_milestone_by_id(NULL, test_ms_id, res) == -1);
+  TEST_ASSERT(get_milestone_by_id(&ctx, NULL, res) == -1);
+  TEST_ASSERT(get_milestone_by_id(&ctx, test_ms_id, NULL) == -1);
+
+  // Test for valid inputs
   TEST_ASSERT(get_milestone_by_id(&ctx, test_ms_id, res) == 0);
+  if (res->is_error) {
+    printf("API error response: %s\n", res->u.error->msg);
+  } else {
+    milestone_payload_print(res->u.ms, 0);
+  }
+  res_milestone_free(res);
+}
+
+void test_get_milestone_by_index() {
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
+  res_milestone_t* res = res_milestone_new();
+  TEST_ASSERT_NOT_NULL(res);
+  // Test for invalid inputs
+  TEST_ASSERT(get_milestone_by_index(NULL, test_index, res) == -1);
+  TEST_ASSERT(get_milestone_by_index(&ctx, test_index, NULL) == -1);
+
+  // Test for valid inputs
+  TEST_ASSERT(get_milestone_by_index(&ctx, test_index, res) == 0);
   if (res->is_error) {
     printf("API error response: %s\n", res->u.error->msg);
   } else {
@@ -109,6 +134,7 @@ int main() {
   RUN_TEST(test_deser_get_milestone);
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_milestone_by_id);
+  RUN_TEST(test_get_milestone_by_index);
 #endif
   return UNITY_END();
 }
