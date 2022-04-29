@@ -91,6 +91,34 @@ void test_deser_get_milestone() {
   res_milestone_free(res);
 }
 
+void test_deser_utxo_changes() {
+  char const* const utxo_changes_res =
+      "{\"index\": 15465,\"createdOutputs\": "
+      "[\"0x1ee46e19f4219ee65afc10227d0ca22753f76ef32d1e922e5cbe3fbc9b5a52980100\","
+      "\"0xee3447d088e3e2c53c5b3e56a38fdc859ca2c4b4161cf256c0462ce4d34731820100\","
+      "\"0xf8bdbfb0f57ade7fbb95d31b11e2dbda9b2a35e9dc0cd3e11cb324e8a6bedc260100\"],\"consumedOutputs\": "
+      "[\"0x3d36ec4afb2d634b9313f84606b98b69675a3ef6f44dcdecb18c30945b57221e0100\"]}";
+
+  res_utxo_changes_t* res = res_utxo_changes_new();
+  TEST_ASSERT_NOT_NULL(res);
+  TEST_ASSERT(deser_get_utxo_changes(utxo_changes_res, res) == 0);
+  TEST_ASSERT(res->is_error == false);
+
+  utxo_changes_t* utxo_changes = res->u.utxo_changes;
+  TEST_ASSERT_EQUAL_UINT32(15465, utxo_changes->index);
+
+  TEST_ASSERT_EQUAL_STRING("1ee46e19f4219ee65afc10227d0ca22753f76ef32d1e922e5cbe3fbc9b5a52980100",
+                           *(char**)utarray_eltptr(utxo_changes->createdOutputs, (unsigned int)0));
+  TEST_ASSERT_EQUAL_STRING("ee3447d088e3e2c53c5b3e56a38fdc859ca2c4b4161cf256c0462ce4d34731820100",
+                           *(char**)utarray_eltptr(utxo_changes->createdOutputs, (unsigned int)1));
+  TEST_ASSERT_EQUAL_STRING("f8bdbfb0f57ade7fbb95d31b11e2dbda9b2a35e9dc0cd3e11cb324e8a6bedc260100",
+                           *(char**)utarray_eltptr(utxo_changes->createdOutputs, (unsigned int)2));
+
+  TEST_ASSERT_EQUAL_STRING("3d36ec4afb2d634b9313f84606b98b69675a3ef6f44dcdecb18c30945b57221e0100",
+                           *(char**)utarray_eltptr(utxo_changes->consumedOutputs, (unsigned int)0));
+  res_utxo_changes_free(res);
+}
+
 void test_get_milestone_by_id() {
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
   res_milestone_t* res = res_milestone_new();
@@ -128,13 +156,53 @@ void test_get_milestone_by_index() {
   res_milestone_free(res);
 }
 
+void test_get_utxo_changes_by_ms_id() {
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
+  res_utxo_changes_t* res = res_utxo_changes_new();
+  TEST_ASSERT_NOT_NULL(res);
+  // Test for invalid inputs
+  TEST_ASSERT(get_utxo_changes_by_ms_id(NULL, test_ms_id, res) == -1);
+  TEST_ASSERT(get_utxo_changes_by_ms_id(&ctx, NULL, res) == -1);
+  TEST_ASSERT(get_utxo_changes_by_ms_id(&ctx, test_ms_id, NULL) == -1);
+
+  // Test for valid inputs
+  TEST_ASSERT(get_utxo_changes_by_ms_id(&ctx, test_ms_id, res) == 0);
+  if (res->is_error) {
+    printf("API error response: %s\n", res->u.error->msg);
+  } else {
+    print_utxo_changes(res, 0);
+  }
+  res_utxo_changes_free(res);
+}
+
+void test_get_utxo_changes_by_ms_index() {
+  iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
+  res_utxo_changes_t* res = res_utxo_changes_new();
+  TEST_ASSERT_NOT_NULL(res);
+  // Test for invalid inputs
+  TEST_ASSERT(get_utxo_changes_by_ms_index(NULL, test_index, res) == -1);
+  TEST_ASSERT(get_utxo_changes_by_ms_index(&ctx, test_index, NULL) == -1);
+
+  // Test for valid inputs
+  TEST_ASSERT(get_utxo_changes_by_ms_index(&ctx, test_index, res) == 0);
+  if (res->is_error) {
+    printf("API error response: %s\n", res->u.error->msg);
+  } else {
+    print_utxo_changes(res, 0);
+  }
+  res_utxo_changes_free(res);
+}
+
 int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_deser_get_milestone);
+  RUN_TEST(test_deser_utxo_changes);
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_milestone_by_id);
   RUN_TEST(test_get_milestone_by_index);
+  RUN_TEST(test_get_utxo_changes_by_ms_id);
+  RUN_TEST(test_get_utxo_changes_by_ms_index);
 #endif
   return UNITY_END();
 }
