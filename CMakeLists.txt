@@ -123,6 +123,7 @@ add_subdirectory(src)
 
 if(IOTA_TESTS)
   add_subdirectory(tests)
+  add_subdirectory(functional-tests)
 endif()
 
 if(IOTA_EXAMPLES AND WITH_IOTA_CLIENT)
