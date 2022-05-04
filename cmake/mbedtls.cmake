@@ -6,7 +6,7 @@
 if (NOT __MBEDTLS_INCLUDED)
   set(__MBEDTLS_INCLUDED TRUE)
 
-  set(MBEDTLS_VERSION "v2.16.11")
+  set(MBEDTLS_VERSION "v2.28.0")
 
   ExternalProject_Add(
     mbedtls_download
@@ -15,7 +15,7 @@ if (NOT __MBEDTLS_INCLUDED)
     DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/download
     DOWNLOAD_NAME mbedtls_${MBEDTLS_VERSION}.tar.gz
     URL https://github.com/ARMmbed/mbedtls/archive/refs/tags/${MBEDTLS_VERSION}.tar.gz
-    URL_HASH SHA256=c18e7e9abf95e69e425260493720470021384a1728417042060a35d0b7b18b41
+    URL_HASH SHA256=6519579b836ed78cc549375c7c18b111df5717e86ca0eeff4cb64b2674f424cc
     CONFIGURE_COMMAND ""
     INSTALL_COMMAND ""
     BUILD_COMMAND ""

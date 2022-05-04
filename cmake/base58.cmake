@@ -10,9 +10,9 @@ if (NOT __BASE58_INCLUDED)
     base58_download
     PREFIX ${PROJECT_BINARY_DIR}/base58
     DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/download
-    DOWNLOAD_NAME d7591398443987e84d19833d86634c6ffe8b0796.tar.gz
-    URL https://github.com/bitcoin/libbase58/archive/d7591398443987e84d19833d86634c6ffe8b0796.tar.gz
-    URL_HASH SHA256=2c4291fc4363130716b2828af14af784af54f273ae0905b0ba4b0ea018103419
+    DOWNLOAD_NAME b1dd03fa8d1be4be076bb6152325c6b5cf64f678.tar.gz
+    URL https://github.com/bitcoin/libbase58/archive/b1dd03fa8d1be4be076bb6152325c6b5cf64f678.tar.gz
+    URL_HASH SHA256=73b4c9bbb2002f781df6b92e40a5ed2b38ef74dfbf90ce83dc6e18af52e7a4b8
     CONFIGURE_COMMAND ""
     INSTALL_COMMAND ""
     BUILD_COMMAND ""

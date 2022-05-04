@@ -10,9 +10,9 @@ if (NOT __UTF8PROC_INCLUDED)
     ext_utf8proc
     PREFIX ${PROJECT_BINARY_DIR}/utf8proc
     DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/download
-    DOWNLOAD_NAME utf8proc_v2.6.1.tar.gz
-    URL https://github.com/JuliaStrings/utf8proc/archive/refs/tags/v2.6.1.tar.gz
-    URL_HASH SHA256=4c06a9dc4017e8a2438ef80ee371d45868bda2237a98b26554de7a95406b283b
+    DOWNLOAD_NAME utf8proc_v2.7.0.tar.gz
+    URL https://github.com/JuliaStrings/utf8proc/archive/refs/tags/v2.7.0.tar.gz
+    URL_HASH SHA256=4bb121e297293c0fd55f08f83afab6d35d48f0af4ecc07523ad8ec99aa2b12a1
     CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_INSTALL_PREFIX}
     -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
