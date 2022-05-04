@@ -86,8 +86,10 @@ static int request_token() {
     if (res.is_error == true) {
       if (strstr(res.u.error->msg, "have enough funds")) {
         printf("[%s:%d] POST faucet enqueue: PASS - have enough funds\n", __func__, __LINE__);
+        res_err_free(res.u.error);
       } else {
         printf("[%s:%d] request token err: %s\n", __func__, __LINE__, res.u.error->msg);
+        res_err_free(res.u.error);
         return -1;
       }
     } else {
