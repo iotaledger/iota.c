@@ -4,7 +4,6 @@ import fileinput
 import sys
 import re
 import os
-from operator import itemgetter
 
 if len(sys.argv) < 2:
     print("Executable file is missing")
@@ -12,9 +11,10 @@ if len(sys.argv) < 2:
     quit()
 
 demo_application = sys.argv[1]
+heap_consumers_file_path = os.getcwd() + "/heap_consumers.txt"
 
 print("Executing " + os.path.basename(demo_application) + " application...")
-process = subprocess.Popen("export MALLOC_TRACE=./heap_consumers.txt; " + demo_application,
+process = subprocess.Popen("export MALLOC_TRACE=" + heap_consumers_file_path + ";" + demo_application,
                            shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 process.wait()
 
@@ -28,7 +28,7 @@ print("Collecting results...")
 
 heap_memory_allocations = {}
 
-for line in fileinput.input("heap_consumers.txt", inplace=True):
+for line in fileinput.input(heap_consumers_file_path, inplace=True):
     # find address in memory map
     start = line.find('[')
     end = line.find(']')
