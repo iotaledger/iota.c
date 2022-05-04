@@ -6,6 +6,7 @@
 
 #include "client/api/restful/faucet_enqueue.h"
 #include "client/api/restful/get_message.h"
+#include "client/api/restful/get_message_children.h"
 #include "client/api/restful/get_message_metadata.h"
 #include "client/api/restful/get_milestone.h"
 #include "client/api/restful/response_error.h"
@@ -103,6 +104,10 @@ static int send_basic_tx() {
 
   // validating /api/v2/tips and /api/v2/message with basic outputs
   // send 1Mi to reciver
+  printf("Basic sender: ");
+  address_print(&g_sender);
+  printf("Basic receiver: ");
+  address_print(&g_receiver);
   ret = wallet_send_basic_outputs(g_w, false, 0, &g_receiver, 1000000, &msg_res);
   if (ret == 0) {
     if (msg_res.is_error) {
@@ -265,13 +270,75 @@ static int fetch_milestone() {
 
 static int validating_messages(iota_wallet_t* w) {
   int ret = 0;
+  printf("Test Message IDs:\n");
+  printf("Basic: 0x%s\n", g_basic_msg_id);
+  printf("Milestone: 0x%s\n", g_milestone_msg_id);
+  printf("Tagged Data: 0x%s\n", g_tagged_data_msg_id);
+
   // validating /api/v2/messages/{messageId}
+  // Basic outputs
   res_message_t* msg_from_id = res_message_new();
   if (msg_from_id) {
     ret = get_message_by_id(&w->endpoint, g_basic_msg_id, msg_from_id);
     if (ret == 0) {
-      core_message_print(msg_from_id->u.msg, 0);
-      printf("[%s:%d] GET /api/v2/messages/{messageId}: PASS\n", __func__, __LINE__);
+      if (msg_from_id->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, msg_from_id->u.error->msg);
+        res_message_free(msg_from_id);
+        return -1;
+      } else {
+        // core_message_print(msg_from_id->u.msg, 0);
+        printf("[%s:%d] GET /api/v2/messages/{messageId}: Basic Outputs PASS\n", __func__, __LINE__);
+      }
+    } else {
+      printf("[%s:%d] performed get_message_by_id failed\n", __func__, __LINE__);
+      res_message_free(msg_from_id);
+      return ret;
+    }
+  } else {
+    printf("[%s:%d] allocate message response failed\n", __func__, __LINE__);
+    return -1;
+  }
+  res_message_free(msg_from_id);
+  msg_from_id = NULL;
+
+  // Milestone
+  msg_from_id = res_message_new();
+  if (msg_from_id) {
+    ret = get_message_by_id(&w->endpoint, g_milestone_msg_id, msg_from_id);
+    if (ret == 0) {
+      // milestone ID is not a message
+      if (msg_from_id->is_error) {
+        printf("[%s:%d] GET /api/v2/messages/{messageId}: Milestone PASS\n", __func__, __LINE__);
+      } else {
+        printf("[%s:%d] GET /api/v2/messages/{messageId}: Milestone NG\n", __func__, __LINE__);
+        res_message_free(msg_from_id);
+        return -1;
+      }
+    } else {
+      printf("[%s:%d] performed get_message_by_id failed\n", __func__, __LINE__);
+      res_message_free(msg_from_id);
+      return ret;
+    }
+  } else {
+    printf("[%s:%d] allocate message response failed\n", __func__, __LINE__);
+    return -1;
+  }
+  res_message_free(msg_from_id);
+  msg_from_id = NULL;
+
+  // Tagged message
+  msg_from_id = res_message_new();
+  if (msg_from_id) {
+    ret = get_message_by_id(&w->endpoint, g_tagged_data_msg_id, msg_from_id);
+    if (ret == 0) {
+      if (msg_from_id->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, msg_from_id->u.error->msg);
+        res_message_free(msg_from_id);
+        return -1;
+      } else {
+        // core_message_print(msg_from_id->u.msg, 0);
+        printf("[%s:%d] GET /api/v2/messages/{messageId}: Tagged Data PASS\n", __func__, __LINE__);
+      }
     } else {
       printf("[%s:%d] performed get_message_by_id failed\n", __func__, __LINE__);
       res_message_free(msg_from_id);
@@ -288,7 +355,60 @@ static int validating_messages(iota_wallet_t* w) {
   if (meta) {
     ret = get_message_metadata(&w->endpoint, g_basic_msg_id, meta);
     if (ret == 0) {
-      printf("[%s:%d] get_message_metadata PASS\n", __func__, __LINE__);
+      if (meta->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, meta->u.error->msg);
+        msg_meta_free(meta);
+        return -1;
+      } else {
+        printf("[%s:%d] GET /api/v2/messages/{messageId}/metadata: Basic Outputs PASS\n", __func__, __LINE__);
+      }
+    } else {
+      printf("[%s:%d] performed get_message_metadata failed\n", __func__, __LINE__);
+      msg_meta_free(meta);
+      return ret;
+    }
+  } else {
+    printf("[%s:%d] allocate message metadata response failed\n", __func__, __LINE__);
+    return -1;
+  }
+  msg_meta_free(meta);
+  meta = NULL;
+  // Milestone
+  meta = msg_meta_new();
+  if (meta) {
+    ret = get_message_metadata(&w->endpoint, g_milestone_msg_id, meta);
+    if (ret == 0) {
+      // milestone ID is not a message
+      if (meta->is_error) {
+        printf("[%s:%d] GET /api/v2/messages/{messageId}/metadata: Milestone PASS\n", __func__, __LINE__);
+      } else {
+        printf("[%s:%d] GET /api/v2/messages/{messageId}/metadata: Milestone NG\n", __func__, __LINE__);
+        msg_meta_free(meta);
+        return -1;
+      }
+    } else {
+      printf("[%s:%d] performed get_message_metadata failed\n", __func__, __LINE__);
+      msg_meta_free(meta);
+      return ret;
+    }
+  } else {
+    printf("[%s:%d] allocate message metadata response failed\n", __func__, __LINE__);
+    return -1;
+  }
+  msg_meta_free(meta);
+  meta = NULL;
+  // Tagged data
+  meta = msg_meta_new();
+  if (meta) {
+    ret = get_message_metadata(&w->endpoint, g_tagged_data_msg_id, meta);
+    if (ret == 0) {
+      if (meta->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, meta->u.error->msg);
+        msg_meta_free(meta);
+        return -1;
+      } else {
+        printf("[%s:%d] GET /api/v2/messages/{messageId}/metadata: Tagged Data PASS\n", __func__, __LINE__);
+      }
     } else {
       printf("[%s:%d] performed get_message_metadata failed\n", __func__, __LINE__);
       msg_meta_free(meta);
@@ -301,6 +421,75 @@ static int validating_messages(iota_wallet_t* w) {
   msg_meta_free(meta);
 
   // validating /api/v2/messages/{messageId}/children
+  res_msg_children_t* msg_child = res_msg_children_new();
+  if (msg_child) {
+    ret = get_message_children(&w->endpoint, g_basic_msg_id, msg_child);
+    if (ret == 0) {
+      if (msg_child->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, msg_child->u.error->msg);
+        res_msg_children_free(msg_child);
+        return -1;
+      } else {
+        printf("[%s:%d] GET /api/v2/messages/{messageId}/children: Basic Outputs PASS\n", __func__, __LINE__);
+      }
+    } else {
+      printf("[%s:%d] performed get_message_children failed\n", __func__, __LINE__);
+      res_msg_children_free(msg_child);
+      return ret;
+    }
+  } else {
+    printf("[%s:%d] allocate message children response failed\n", __func__, __LINE__);
+    return -1;
+  }
+  res_msg_children_free(msg_child);
+  msg_child = NULL;
+  // Milestone
+  msg_child = res_msg_children_new();
+  if (msg_child) {
+    ret = get_message_children(&w->endpoint, g_milestone_msg_id, msg_child);
+    if (ret == 0) {
+      // milestone is not a message
+      if (msg_child->is_error) {
+        printf("[%s:%d] GET /api/v2/messages/{messageId}/children: Milestone PASS\n", __func__, __LINE__);
+      } else {
+        printf("[%s:%d] GET /api/v2/messages/{messageId}/children: Milestone NG\n", __func__, __LINE__);
+        printf("[%s:%d] https://github.com/gohornet/hornet/issues/1488\n", __func__, __LINE__);
+        // res_msg_children_free(msg_child);
+        // return -1;
+      }
+    } else {
+      printf("[%s:%d] performed get_message_children failed\n", __func__, __LINE__);
+      res_msg_children_free(msg_child);
+      return ret;
+    }
+  } else {
+    printf("[%s:%d] allocate message children response failed\n", __func__, __LINE__);
+    return -1;
+  }
+  res_msg_children_free(msg_child);
+  msg_child = NULL;
+  // Tagged Data
+  msg_child = res_msg_children_new();
+  if (msg_child) {
+    ret = get_message_children(&w->endpoint, g_tagged_data_msg_id, msg_child);
+    if (ret == 0) {
+      if (msg_child->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, msg_child->u.error->msg);
+        res_msg_children_free(msg_child);
+        return -1;
+      } else {
+        printf("[%s:%d] GET /api/v2/messages/{messageId}/children: Tagged Data PASS\n", __func__, __LINE__);
+      }
+    } else {
+      printf("[%s:%d] performed get_message_children failed\n", __func__, __LINE__);
+      res_msg_children_free(msg_child);
+      return ret;
+    }
+  } else {
+    printf("[%s:%d] allocate message children response failed\n", __func__, __LINE__);
+    return -1;
+  }
+  res_msg_children_free(msg_child);
 
   return 0;
 }
@@ -344,7 +533,11 @@ int main() {
   }
 
   // validate core restful APIs
-  // validating_messages(g_w);
+  if (validating_messages(g_w)) {
+    printf("[%s:%d] validate message endpoints failed\n", __func__, __LINE__);
+    wallet_destroy(g_w);
+    return -1;
+  }
 
   wallet_destroy(g_w);
   return 0;
