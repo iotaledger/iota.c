@@ -529,7 +529,7 @@ int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, add
   outputs =
       basic_outputs_from_address(w, tx->essence, &sender_key, &sender_addr, send_amount, &sign_data, &output_amount);
   if (!outputs) {
-    printf("[%s:%d] get outputs from address failed\n", __func__, __LINE__);
+    printf("[%s:%d] get empty outputs from the address\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }

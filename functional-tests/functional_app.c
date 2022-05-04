@@ -9,6 +9,9 @@
 #include "client/api/restful/get_message_children.h"
 #include "client/api/restful/get_message_metadata.h"
 #include "client/api/restful/get_milestone.h"
+#include "client/api/restful/get_output.h"
+#include "client/api/restful/get_outputs_id.h"
+#include "client/api/restful/get_transaction_included_message.h"
 #include "client/api/restful/response_error.h"
 #include "client/api/restful/send_tagged_data.h"
 #include "core/address.h"
@@ -27,6 +30,8 @@ iota_wallet_t* g_w = NULL;
 char g_basic_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];
 char g_milestone_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];
 char g_tagged_data_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];
+char g_output_id[BIN_TO_HEX_STR_BYTES(IOTA_OUTPUT_ID_BYTES)];
+char g_transaction_id[BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES)];
 
 address_t g_sender;
 address_t g_receiver;
@@ -79,8 +84,12 @@ static int request_token() {
   ret = req_tokens_to_addr_from_faucet(&ctx, sender_bech32, &res);
   if (ret == 0) {
     if (res.is_error == true) {
-      printf("[%s:%d] request token err: %s\n", __func__, __LINE__, res.u.error->msg);
-      return -1;
+      if (strstr(res.u.error->msg, "have enough funds")) {
+        printf("[%s:%d] POST faucet enqueue: PASS - have enough funds\n", __func__, __LINE__);
+      } else {
+        printf("[%s:%d] request token err: %s\n", __func__, __LINE__, res.u.error->msg);
+        return -1;
+      }
     } else {
       printf("request token: %s\n", sender_bech32);
       printf("[%s:%d] POST faucet enqueue: PASS\n", __func__, __LINE__);
@@ -494,6 +503,156 @@ static int validating_messages(iota_wallet_t* w) {
   return 0;
 }
 
+static int validating_indexers_basic(iota_wallet_t* w) {
+  int ret = 0;
+  res_outputs_id_t* res_ids = NULL;
+
+  // get bech32 address as the query paramter
+  char bech32_addr[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  if (address_to_bech32(&g_sender, g_w->bech32HRP, bech32_addr, sizeof(bech32_addr)) != 0) {
+    printf("[%s:%d] convert sender address to bech32 address failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // prepare query filter
+  outputs_query_list_t* filter = outputs_query_list_new();
+  // add query paramters
+  if (outputs_query_list_add(&filter, QUERY_PARAM_ADDRESS, bech32_addr) != 0) {
+    printf("[%s:%d] add query paramter failed\n", __func__, __LINE__);
+    outputs_query_list_free(filter);
+    return -1;
+  }
+
+  // query output IDs
+  res_ids = res_outputs_new();
+  if (res_ids) {
+    ret = get_outputs_id(&g_w->endpoint, filter, res_ids);
+    if (ret == 0) {
+      if (res_ids->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, res_ids->u.error->msg);
+        outputs_query_list_free(filter);
+        res_outputs_free(res_ids);
+        return -1;
+      } else {
+        // check if there are outputs in this address
+        if (res_outputs_output_id_count(res_ids) < 1) {
+          printf("[%s:%d] no outputs in this address\n", __func__, __LINE__);
+          outputs_query_list_free(filter);
+          res_outputs_free(res_ids);
+          return -1;
+        }
+        strncpy(g_output_id, res_outputs_output_id(res_ids, 0), sizeof(g_output_id));
+        printf("[%s:%d] GET /api/plugins/indexer/v1/outputs/basic: PASS\n", __func__, __LINE__);
+      }
+    } else {
+      printf("[%s:%d] performed get_outputs_id failed\n", __func__, __LINE__);
+      outputs_query_list_free(filter);
+      res_outputs_free(res_ids);
+      return -1;
+    }
+
+  } else {
+    printf("[%s:%d] allocate the output response failed\n", __func__, __LINE__);
+    outputs_query_list_free(filter);
+    return -1;
+  }
+  outputs_query_list_free(filter);
+  res_outputs_free(res_ids);
+
+  return 0;
+}
+
+static int validating_utxo(iota_wallet_t* w) {
+  int ret = 0;
+  printf("Testing output ID: 0x%s\n", g_basic_msg_id);
+
+  // find an output by its ID
+  res_output_t* res_output = get_output_response_new();
+  if (res_output) {
+    // get the output object
+    if (get_output(&g_w->endpoint, g_output_id, res_output) != 0) {
+      printf("[%s:%d] performed get_output failed\n", __func__, __LINE__);
+      get_output_response_free(res_output);
+      return -1;
+    } else {
+      if (res_output->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, res_output->u.error->msg);
+        get_output_response_free(res_output);
+        return -1;
+      } else {
+        // dump_get_output_response(res_output, 0);
+        printf("[%s:%d] GET /api/v2/outputs/{outputId}: PASS\n", __func__, __LINE__);
+      }
+    }
+  } else {
+    printf("[%s:%d] allocate output response failed\n", __func__, __LINE__);
+    return -1;
+  }
+  get_output_response_free(res_output);
+  res_output = NULL;
+
+  // get the metadata of an output ID
+  res_output = get_output_response_new();
+  if (res_output) {
+    // get output metadata
+    if (get_output_meta(&g_w->endpoint, g_output_id, res_output) != 0) {
+      printf("[%s:%d] performed get_output_meta failed\n", __func__, __LINE__);
+      get_output_response_free(res_output);
+      return -1;
+    } else {
+      if (res_output->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, res_output->u.error->msg);
+        get_output_response_free(res_output);
+        return -1;
+      } else {
+        // dump_get_output_response(res_output, 0);
+        if (bin_2_hex(res_output->u.data->meta.tx_id, IOTA_TRANSACTION_ID_BYTES, NULL, g_transaction_id,
+                      sizeof(g_transaction_id)) != 0) {
+          printf("[%s:%d] convert transaction ID failed\n", __func__, __LINE__);
+        } else {
+          printf("[%s:%d] GET /api/v2/outputs/{outputId}/meta: PASS\n", __func__, __LINE__);
+        }
+      }
+    }
+  } else {
+    printf("[%s:%d] allocate output response failed\n", __func__, __LINE__);
+    return -1;
+  }
+  get_output_response_free(res_output);
+
+  printf("Testing transaction ID: 0x%s\n", g_transaction_id);
+  // TODO: should be tested after hoenet alpha11
+#if 0
+  // transaction included message
+  res_message_t* msg = res_message_new();
+  if(msg){
+    if(get_transaction_included_message_by_id(&g_w->endpoint, g_transaction_id, msg) != 0){
+      printf("[%s:%d] performed get_transaction_included_message_by_id failed\n", __func__, __LINE__);
+      res_message_free(msg);
+      return -1;
+    }else{
+      if(msg->is_error){
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, msg->u.error->msg);
+        res_message_free(msg);
+        return -1;
+      }else{
+        if(core_message_get_payload_type(msg->u.msg) == CORE_MESSAGE_PAYLOAD_TRANSACTION){
+          printf("[%s:%d] GET /api/v2/transactions/{transactionId}/included-message: PASS\n", __func__, __LINE__);
+        }else{
+          printf("[%s:%d] it's not a transaction payload\n", __func__, __LINE__);
+          res_message_free(msg);
+          return -1;
+        }
+      }
+    }
+  }else{
+    printf("[%s:%d] allocate message response failed\n", __func__, __LINE__);
+    return -1;
+  }
+#endif
+  return 0;
+}
+
 int main() {
   int ret = 0;
   // TODO read config
@@ -512,6 +671,7 @@ int main() {
   }
 
   // send basic tx
+  // get an valid message ID for messages endpoints test
   if (send_basic_tx() != 0) {
     printf("[%s:%d] send basic tx failed\n", __func__, __LINE__);
     wallet_destroy(g_w);
@@ -519,6 +679,7 @@ int main() {
   }
 
   // send tagged message
+  // get an valid message ID for messages endpoints test
   if (send_tagged_payload() != 0) {
     printf("[%s:%d] send tagged message failed\n", __func__, __LINE__);
     wallet_destroy(g_w);
@@ -532,9 +693,24 @@ int main() {
     return -1;
   }
 
-  // validate core restful APIs
+  // validate messages endpoints
   if (validating_messages(g_w)) {
     printf("[%s:%d] validate message endpoints failed\n", __func__, __LINE__);
+    wallet_destroy(g_w);
+    return -1;
+  }
+
+  // validate Indexer endpoints
+  // get the testing output ID from indexer for validating UTXO endpoints
+  if (validating_indexers_basic(g_w)) {
+    printf("[%s:%d] validate basic indexer endpoints failed\n", __func__, __LINE__);
+    wallet_destroy(g_w);
+    return -1;
+  }
+
+  // validate UTXO endpoints
+  if (validating_utxo(g_w)) {
+    printf("[%s:%d] validate UTXO endpoints failed\n", __func__, __LINE__);
     wallet_destroy(g_w);
     return -1;
   }
