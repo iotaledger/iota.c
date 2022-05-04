@@ -26,7 +26,7 @@ if (NOT __BLAKE2_INCLUDE)
   set(blake2_install_lib ${CMAKE_INSTALL_PREFIX}/lib)
 
   file(WRITE ${blake2_cmake_dir}/CMakeLists.txt
-    "cmake_minimum_required(VERSION 3.5)\n"
+    "cmake_minimum_required(VERSION 3.15)\n"
     "project(blake2 C)\n"
     "add_library(blake2 STATIC)\n"
     "target_sources(\n"
