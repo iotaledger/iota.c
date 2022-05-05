@@ -1,7 +1,5 @@
 # Memory Benchmark for IOTA C Client Library
 
----
-
 ## About
 
 When talking about memory usage of a program, we usually distinguish between **non-volatile** (eg. disk/flash) and
@@ -29,6 +27,7 @@ Demo applications are in `core` and `client` folders.
 * [Python 3](https://www.python.org)
 * [Valgrind](https://valgrind.org)
 * [Bloaty](https://github.com/google/bloaty)
+* [size](https://man7.org/linux/man-pages/man1/size.1.html)
 
 To compile and build all library modules and demo applications for a Release build using GCC compiler and libsodium crypto library we need to execute:
 
