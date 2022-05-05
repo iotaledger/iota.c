@@ -1,0 +1,13 @@
+{
+	"mnemonic": "acoustic trophy damage hint search taste love bicycle foster cradle brown govern endless depend situate athlete pudding blame question genius transfer van random vast",
+	"sender_index": 0,
+	"receiver_index": 1,
+	"node":"localhost",
+	"port": 14265,
+	"use_tls": false,
+	"faucet":"localhost",
+	"faucet_port": 8091,
+	"faucet_use_tls": false,
+	"show_payload": true,
+	"delay": 10
+}
