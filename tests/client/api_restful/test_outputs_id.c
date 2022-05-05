@@ -574,7 +574,7 @@ void test_get_foundry_outputs() {
 }
 
 void test_get_output_ids_from_nft_id() {
-  char nft_id[] = "efdc112efe262b304bcf379b26c31bad029f61de";
+  char nft_id[] = "19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f";
   char const* const id_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   char const* const id_invalid_length = "efdc112efe262b304bcf379b26c31bad029f61def346ab52ef";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};
@@ -619,7 +619,7 @@ void test_get_output_ids_from_nft_id() {
 }
 
 void test_get_output_ids_from_alias_id() {
-  char alias_id[] = "23dc192ede262b3f4bce379b26c31bad029f62fe";
+  char alias_id[] = "01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248";
   char const* const id_invalid = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
   char const* const id_invalid_length = "23dc192ede262b3f4bce379b26c31bad029f62fe246ec78";
   iota_client_conf_t ctx = {.host = TEST_NODE_HOST, .port = TEST_NODE_PORT, .use_tls = TEST_IS_HTTPS};

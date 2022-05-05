@@ -28,8 +28,9 @@ static byte_t tx_id4[IOTA_TRANSACTION_ID_BYTES] = {20, 29, 142, 249, 151, 34,  2
                                                    70, 54, 200, 73,  171, 165, 88,  139, 221, 25, 99,
                                                    30, 72, 252, 142, 91,  49,  73,  120, 110, 90};
 
-static byte_t nft_id[NFT_ID_BYTES] = {0x99, 0xf9, 0x13, 0xf4, 0xe0, 0xbc, 0x18, 0xe2, 0xa6, 0x99,
-                                      0x5e, 0xa2, 0x4f, 0x4d, 0x6a, 0x46, 0x03, 0x18, 0xfd, 0x4f};
+static byte_t nft_id[NFT_ID_BYTES] = {0x99, 0xf9, 0x13, 0xf4, 0xe0, 0xbc, 0x18, 0xe2, 0xa6, 0x99, 0x5e,
+                                      0xa2, 0x4f, 0x4d, 0x6a, 0x46, 0x03, 0x18, 0xfd, 0x4f, 0x4d, 0x6a,
+                                      0x13, 0xf4, 0xe0, 0xbc, 0x18, 0xe2, 0xa6, 0x99, 0x5e, 0xa2};
 
 void setUp(void) {}
 
@@ -81,7 +82,7 @@ void test_sign_nft_tx_with_basic_input() {
   // signature data for input
   TEST_ASSERT(signing_data_add(&addr_send, NULL, 0, &sender_key, &sign_data_list) == 0);
 
-  // create nft output with nft_id = "0000000000000000000000000000000000000000"
+  // create nft output with nft_id = "0000000000000000000000000000000000000000000000000000000000000000"
   byte_t nft_id[NFT_ID_BYTES] = {0};
 
   // create ED25519 address unlock condition for nft output
