@@ -10,9 +10,9 @@ if (NOT __MOSQUITTO_INCLUDED)
     ext_mosquitto
     PREFIX ${PROJECT_BINARY_DIR}/mosquitto
     DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/download
-    DOWNLOAD_NAME mosquitto_v2.0.12.tar.gz
-    URL https://github.com/eclipse/mosquitto/archive/v2.0.12.tar.gz
-    URL_HASH SHA256=b4995d1505f5643d98ff9a921e0399437fc95c4f0c92693cfe28401baf1fed21
+    DOWNLOAD_NAME mosquitto_v2.0.14.tar.gz
+    URL https://github.com/eclipse/mosquitto/archive/v2.0.14.tar.gz
+    URL_HASH SHA256=c0ce97b1911d1769ccfd65da237e919fd7eaa60209fd190c113d63fbd0c40347
     BUILD_IN_SOURCE TRUE
     CMAKE_ARGS
     -DWITH_CJSON:STRING=OFF

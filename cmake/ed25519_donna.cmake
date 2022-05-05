@@ -26,7 +26,7 @@ if (NOT __ED25519_INCLUDE)
   set(ed25519_install_lib ${CMAKE_INSTALL_PREFIX}/lib)
 
   file(WRITE ${ed25519_cmake_dir}/CMakeLists.txt
-    "cmake_minimum_required(VERSION 3.5)\n"
+    "cmake_minimum_required(VERSION 3.15)\n"
     "project(ed25519 C)\n"
     "option(CRYPTO_MBEDTLS \"Use mbedtls hash function\" OFF)\n"
     "option(CRYPTO_OPENSSL \"Use openssl hash function\" OFF)\n"

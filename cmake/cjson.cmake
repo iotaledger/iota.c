@@ -10,9 +10,9 @@ if (NOT __CJSON_INCLUDED)
     ext_cjson
     PREFIX ${PROJECT_BINARY_DIR}/cjson
     DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/download
-    DOWNLOAD_NAME cjson_v1.7.14.tar.gz
-    URL https://github.com/DaveGamble/cJSON/archive/v1.7.14.tar.gz
-    URL_HASH SHA256=fb50a663eefdc76bafa80c82bc045af13b1363e8f45cec8b442007aef6a41343
+    DOWNLOAD_NAME cjson_v1.7.15.tar.gz
+    URL https://github.com/DaveGamble/cJSON/archive/v1.7.15.tar.gz
+    URL_HASH SHA256=5308fd4bd90cef7aa060558514de6a1a4a0819974a26e6ed13973c5f624c24b2
     BUILD_IN_SOURCE TRUE
     CMAKE_ARGS
     -DENABLE_CJSON_TEST:STRING=Off
