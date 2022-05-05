@@ -185,7 +185,7 @@ void test_unlock_conditions() {
       "{\"type\":5,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
       "{\"type\":6,\"address\":{\"type\":8,"
-      "\"aliasId\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}]}";
+      "\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}]}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 

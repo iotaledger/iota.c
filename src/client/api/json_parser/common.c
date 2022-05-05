@@ -67,12 +67,12 @@ int json_parser_common_address_deserialize(cJSON *json_obj, char const *const js
 or
 {
   "type": 8,
-  "aliasId": "0xa3308d6262ae9921f46aa3308d6262ae9921f46a"
+  "aliasId": "0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248"
 }
 or
 {
   "type": 16,
-  "nftId": "0xa3308d6262ae9921f46aa3308d6262ae9921f46a"
+  "nftId": "0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f"
 }
 */
 cJSON *json_parser_common_address_serialize(address_t *address) {
