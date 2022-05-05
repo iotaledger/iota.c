@@ -13,12 +13,8 @@
 #include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
 #include "client/api/restful/get_transaction_included_message.h"
-#include "client/api/restful/response_error.h"
 #include "client/api/restful/send_tagged_data.h"
-#include "client/client_service.h"
 #include "core/address.h"
-#include "core/models/message.h"
-#include "core/models/payloads/milestone.h"
 #include "core/utils/byte_buffer.h"
 #include "core/utils/macros.h"
 #include "wallet/wallet.h"
@@ -50,7 +46,7 @@ test_config_t g_config;
 
 static void dump_test_config(test_config_t* config) {
   printf("=========Test Config==========\n");
-  printf("Mnemonic: %s\n", config->mnemonic);
+  printf("Mnemonic: \"%s\"\n", config->mnemonic);
   printf("Sender Address Index: %u\n", config->sender_index);
   printf("Receiver Address Index: %u\n", config->receiver_index);
   printf("Node: %s:%d tls: %s\n", config->node_config.host, config->node_config.port,
@@ -59,7 +55,40 @@ static void dump_test_config(test_config_t* config) {
          config->faucet_config.use_tls ? "true" : "false");
   printf("Show paylaod: %s\n", config->show_payload ? "true" : "false");
   printf("Delay: %d\n", config->delay);
-  printf("==============================\n");
+}
+
+static void dump_test_params(test_data_t* config) {
+  char bech32_tmp[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+
+  printf("=========Test Paramters==========\n");
+  if (g_params.w) {
+    printf("Basic Sender: \n\t");
+    address_print(&g_params.sender);
+    if (address_to_bech32(&g_params.sender, g_params.w->bech32HRP, bech32_tmp, sizeof(bech32_tmp)) == 0) {
+      printf("\t%s\n", bech32_tmp);
+    }
+    printf("Basic Receiver: \n\t");
+    address_print(&g_params.recv);
+    if (address_to_bech32(&g_params.recv, g_params.w->bech32HRP, bech32_tmp, sizeof(bech32_tmp)) == 0) {
+      printf("\t%s\n", bech32_tmp);
+    }
+  }
+
+  if (!buf_all_zeros((uint8_t*)g_params.basic_msg_id, sizeof(g_params.basic_msg_id))) {
+    printf("Basic message ID: 0x%s\n", g_params.basic_msg_id);
+  }
+  if (!buf_all_zeros((uint8_t*)g_params.milestone_msg_id, sizeof(g_params.milestone_msg_id))) {
+    printf("Miletone ID: 0x%s\n", g_params.milestone_msg_id);
+  }
+  if (!buf_all_zeros((uint8_t*)g_params.tagged_msg_id, sizeof(g_params.tagged_msg_id))) {
+    printf("Tagged message ID: 0x%s\n", g_params.tagged_msg_id);
+  }
+  if (!buf_all_zeros((uint8_t*)g_params.output_id, sizeof(g_params.output_id))) {
+    printf("Output ID: 0x%s\n", g_params.output_id);
+  }
+  if (!buf_all_zeros((uint8_t*)g_params.tx_id, sizeof(g_params.tx_id))) {
+    printf("Transaction ID: 0x%s\n", g_params.tx_id);
+  }
 }
 
 static int parse_config(char* const config_data) {
@@ -176,10 +205,6 @@ static int read_config_file(char const* const config) {
     printf("[%s:%d] parsing config data failed\n", __func__, __LINE__);
     free(file_buf);
     return -1;
-  }
-
-  if (g_config.show_payload) {
-    dump_test_config(&g_config);
   }
 
   free(file_buf);
@@ -654,6 +679,7 @@ static int validating_messages(iota_wallet_t* w) {
       if (msg_child->is_error) {
         printf("[%s:%d] GET /api/v2/messages/{messageId}/children: Milestone PASS\n", __func__, __LINE__);
       } else {
+        // TODO, fix hornet#1488
         printf("[%s:%d] GET /api/v2/messages/{messageId}/children: Milestone NG\n", __func__, __LINE__);
         printf("[%s:%d] https://github.com/gohornet/hornet/issues/1488\n", __func__, __LINE__);
         // res_msg_children_free(msg_child);
@@ -853,19 +879,24 @@ static int validating_utxo(iota_wallet_t* w) {
   return 0;
 }
 
+void summary() {
+  dump_test_config(&g_config);
+  dump_test_params(&g_params);
+}
+
 int main(int argc, char* argv[]) {
   int ret = 0;
 
   // read config
   if (argc < 2) {
-    if (read_config_file("./config.json") != 0) {
+    if ((ret = read_config_file("./config.json")) != 0) {
       printf("[%s:%d] read config file error\n", __func__, __LINE__);
-      return -1;
+      return ret;
     }
   } else {
-    if (read_config_file(argv[1]) != 0) {
+    if ((ret = read_config_file(argv[1])) != 0) {
       printf("[%s:%d] read config file error\n", __func__, __LINE__);
-      return -1;
+      return ret;
     }
   }
 
@@ -873,81 +904,81 @@ int main(int argc, char* argv[]) {
   memset(&g_params, 0, sizeof(test_data_t));
 
   // try connect to the node
-  if (get_info() != 0) {
+  if ((ret = get_info()) != 0) {
     printf("[%s:%d] connecting to node failed\n", __func__, __LINE__);
-    return -1;
+    goto done;
   }
 
   // wallet init
-  if (init_wallet() != 0) {
+  if ((ret = init_wallet()) != 0) {
     printf("[%s:%d] init wallet failed\n", __func__, __LINE__);
-    return -1;
+    goto done;
   }
 
   // request tokens for sender
-  if (request_token() != 0) {
+  if ((ret = request_token()) != 0) {
     printf("[%s:%d] request token from faucet failed\n", __func__, __LINE__);
-    wallet_destroy(g_params.w);
-    return -1;
+    goto done;
   }
 
   // wait a little bit for getting tokens from faucet
-  printf("[%s:%d] waiting for faucet...", __func__, __LINE__);
+  printf("[%s:%d] waiting for faucet...\n", __func__, __LINE__);
   sleep(g_config.delay + 10);
 
   // send basic tx
   // get an valid message ID for messages endpoints test
-  if (send_basic_tx() != 0) {
+  if ((ret = send_basic_tx()) != 0) {
     printf("[%s:%d] send basic tx failed\n", __func__, __LINE__);
-    wallet_destroy(g_params.w);
-    return -1;
+    goto done;
   }
 
   // wait a little bit for message get confirmed
-  printf("[%s:%d] waiting for message confirmation...", __func__, __LINE__);
+  printf("[%s:%d] waiting for message confirmation...\n", __func__, __LINE__);
   sleep(g_config.delay);
 
   // send tagged message
   // get an valid message ID for messages endpoints test
-  if (send_tagged_payload() != 0) {
+  if ((ret = send_tagged_payload()) != 0) {
     printf("[%s:%d] send tagged message failed\n", __func__, __LINE__);
-    wallet_destroy(g_params.w);
-    return -1;
+    goto done;
   }
 
   // wait a little bit for ledger status update
-  printf("[%s:%d] waiting for ledger status update...", __func__, __LINE__);
+  printf("[%s:%d] waiting for ledger status update...\n", __func__, __LINE__);
   sleep(g_config.delay);
 
   // fetch milestone
-  if (fetch_milestone() != 0) {
+  if ((ret = fetch_milestone()) != 0) {
     printf("[%s:%d] fetch milestone failed\n", __func__, __LINE__);
-    wallet_destroy(g_params.w);
-    return -1;
+    goto done;
   }
 
   // validate messages endpoints
-  if (validating_messages(g_params.w)) {
+  if ((ret = validating_messages(g_params.w)) != 0) {
     printf("[%s:%d] validate message endpoints failed\n", __func__, __LINE__);
-    wallet_destroy(g_params.w);
-    return -1;
+    goto done;
   }
 
   // validate Indexer endpoints
   // get the testing output ID from indexer for validating UTXO endpoints
-  if (validating_indexers_basic(g_params.w)) {
+  if ((ret = validating_indexers_basic(g_params.w)) != 0) {
     printf("[%s:%d] validate basic indexer endpoints failed\n", __func__, __LINE__);
-    wallet_destroy(g_params.w);
-    return -1;
+    goto done;
   }
 
   // validate UTXO endpoints
-  if (validating_utxo(g_params.w)) {
+  if ((ret = validating_utxo(g_params.w)) != 0) {
     printf("[%s:%d] validate UTXO endpoints failed\n", __func__, __LINE__);
-    wallet_destroy(g_params.w);
-    return -1;
+    goto done;
   }
 
+done:
+  summary();
+  if(ret !=0){
+    printf("Error occured!!! Test is not passed!!!\n");
+  }else{
+    printf("Client API tests passed!!!\n");
+  }
   wallet_destroy(g_params.w);
-  return 0;
+  return ret;
 }
