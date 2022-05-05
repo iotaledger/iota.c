@@ -24,9 +24,9 @@
 #include "wallet/wallet.h"
 
 typedef struct {
-  char mnemonic[512];
-  uint32_t sender_index;
-  uint32_t receiver_index;
+  char mnemonic[512];                ///< mnemonic sentance
+  uint32_t sender_index;             ///< Index of sender address
+  uint32_t receiver_index;           ///< Index of receiver address
   iota_client_conf_t node_config;    ///< node config
   iota_client_conf_t faucet_config;  ///< faucet config
   bool show_payload;                 ///< True for showing message payloads
@@ -44,7 +44,7 @@ typedef struct {
   iota_wallet_t* w;
 } test_data_t;
 
-// paramters and settings for functional test
+// global parameters and configurations for functional test
 test_data_t g_params;
 test_config_t g_config;
 
