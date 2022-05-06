@@ -13,6 +13,7 @@
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
+#include "client/api/restful/get_tips.h"
 #include "client/api/restful/get_transaction_included_message.h"
 #include "client/api/restful/send_tagged_data.h"
 #include "functional_cases.h"
@@ -44,6 +45,40 @@ static int get_info(test_config_t* conf, test_data_t* params, test_item_t* items
     res_node_info_free(info);
   } else {
     printf("[%s:%d] allocate the node info response failed\n", __func__, __LINE__);
+  }
+  return 0;
+}
+
+static int restful_get_tips(test_config_t* conf, test_data_t* params, test_item_t* items) {
+  if (!conf || !params || !items) {
+    printf("[%s:%d] invalid params\n", __func__, __LINE__);
+    return -1;
+  }
+
+  res_tips_t* tips = res_tips_new();
+  if (tips) {
+    int ret = get_tips(&conf->node_config, tips);
+    if (ret == 0) {
+      if (tips->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, tips->u.error->msg);
+      } else {
+        if (get_tips_id_count(tips) > 0) {
+          printf("[%s:%d] GET /api/v2/tips: PASS\n", __func__, __LINE__);
+          items[CORE_GET_TIPS].st = STATE_PASS;
+        } else {
+          printf("[%s:%d] empty tips\n", __func__, __LINE__);
+          items[CORE_GET_TIPS].st = STATE_NG;
+        }
+      }
+    } else {
+      printf("[%s:%d] performed get_tips failed\n", __func__, __LINE__);
+      res_tips_free(tips);
+      items[CORE_GET_TIPS].st = STATE_NG;
+      return ret;
+    }
+    res_tips_free(tips);
+  } else {
+    printf("[%s:%d] allocate the tips response failed\n", __func__, __LINE__);
   }
   return 0;
 }
@@ -809,6 +844,11 @@ int restful_api_tests(test_config_t* conf, test_data_t* params, test_item_t* ite
     goto done;
   }
 
+  // try connect to the node
+  if ((ret = restful_get_tips(conf, params, items)) != 0) {
+    printf("[%s:%d] get tips failed\n", __func__, __LINE__);
+  }
+
   // wallet init
   if ((ret = init_wallet(conf, params, items)) != 0) {
     printf("[%s:%d] init wallet failed\n", __func__, __LINE__);
@@ -818,7 +858,6 @@ int restful_api_tests(test_config_t* conf, test_data_t* params, test_item_t* ite
   // request tokens for sender
   if ((ret = request_token(conf, params, items)) != 0) {
     printf("[%s:%d] request token from faucet failed\n", __func__, __LINE__);
-    goto done;
   }
 
   // wait a little bit for getting tokens from faucet
@@ -840,7 +879,6 @@ int restful_api_tests(test_config_t* conf, test_data_t* params, test_item_t* ite
   // get an valid message ID for messages endpoints test
   if ((ret = send_tagged_payload(conf, params, items)) != 0) {
     printf("[%s:%d] send tagged message failed\n", __func__, __LINE__);
-    goto done;
   }
 
   // wait a little bit for ledger status update
@@ -850,26 +888,22 @@ int restful_api_tests(test_config_t* conf, test_data_t* params, test_item_t* ite
   // fetch milestone
   if ((ret = fetch_milestone(conf, params, items)) != 0) {
     printf("[%s:%d] fetch milestone failed\n", __func__, __LINE__);
-    goto done;
   }
 
   // validate messages endpoints
   if ((ret = validating_messages(conf, params, items)) != 0) {
     printf("[%s:%d] validate message endpoints failed\n", __func__, __LINE__);
-    goto done;
   }
 
   // validate Indexer endpoints
   // get the testing output ID from indexer for validating UTXO endpoints
   if ((ret = validating_indexers_basic(conf, params, items)) != 0) {
     printf("[%s:%d] validate basic indexer endpoints failed\n", __func__, __LINE__);
-    goto done;
   }
 
   // validate UTXO endpoints
   if ((ret = validating_utxo(conf, params, items)) != 0) {
     printf("[%s:%d] validate UTXO endpoints failed\n", __func__, __LINE__);
-    goto done;
   }
 
 done:

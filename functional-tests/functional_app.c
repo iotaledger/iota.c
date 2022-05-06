@@ -293,7 +293,6 @@ int main(int argc, char* argv[]) {
     printf("[%s:%d] restful api test failed\n", __func__, __LINE__);
   }
 
-done:
   summary();
   wallet_destroy(g_params.w);
   return ret;
