@@ -1,6 +1,6 @@
 if(IOTA_WALLET_ENABLE)
 
-  add_executable(functional-tests "functional_app.c")
+  add_executable(functional-tests "functional_app.c" "functional_cases.c")
 
   set_target_properties(functional-tests PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 99)
 
