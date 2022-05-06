@@ -4,7 +4,7 @@ The `functional-tests` is an application which test the functionality of iota.c 
 
 # Usage
 
-Make sure `IOTA_TESTS` and `IOTA_WALLET_ENABLE` is enabled during CMake config, for example:
+Make sure `IOTA_TESTS` and `IOTA_WALLET_ENABLE` is enabled during CMake configuration, for example:
 
 ```
 git clone https://github.com/iotaledger/iota.c.git
@@ -14,7 +14,7 @@ cmake -DIOTA_TESTS=TRUE -DIOTA_WALLET_ENABLE=TRUE -DCryptoUse=libsodium -DCMAKE_
 make -j8
 ```
 
-After build wihtout problems the application is in `build/functional-tests` folder.
+After build without problems the application is in `build/functional-tests` folder.
 
 ```
 cd functional-tests

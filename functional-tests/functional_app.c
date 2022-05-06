@@ -77,7 +77,7 @@ static void print_test_item(test_item_t* tests) {
         printf("\t%s\n", tests[i].name);
       }
     }
-    printf("Not Avaliable:\n");
+    printf("Not Available:\n");
     for (uint32_t i = CORE_GET_NODE_INFO; i < MAX_TEST_CASE; i++) {
       if (tests[i].st == STATE_NA) {
         printf("\t%s\n", tests[i].name);
@@ -101,7 +101,7 @@ static void dump_test_config(test_config_t* config) {
            config->node_config.use_tls ? "true" : "false");
     printf("Faucet: %s:%d tls: %s\n", config->faucet_config.host, config->faucet_config.port,
            config->faucet_config.use_tls ? "true" : "false");
-    printf("Show paylaod: %s\n", config->show_payload ? "true" : "false");
+    printf("Show payload: %s\n", config->show_payload ? "true" : "false");
     printf("Delay: %d\n", config->delay);
   }
 }
@@ -127,7 +127,7 @@ static void dump_test_params(test_data_t* params) {
       printf("Basic message ID: 0x%s\n", params->basic_msg_id);
     }
     if (!buf_all_zeros((uint8_t*)params->milestone_msg_id, sizeof(params->milestone_msg_id))) {
-      printf("Miletone ID: 0x%s\n", params->milestone_msg_id);
+      printf("Milestone ID: 0x%s\n", params->milestone_msg_id);
     }
     if (!buf_all_zeros((uint8_t*)params->tagged_msg_id, sizeof(params->tagged_msg_id))) {
       printf("Tagged message ID: 0x%s\n", params->tagged_msg_id);
@@ -290,7 +290,7 @@ int main(int argc, char* argv[]) {
   memset(&g_params, 0, sizeof(test_data_t));
 
   if (restful_api_tests(&g_config, &g_params, test_cases) != 0) {
-    printf("[%s:%d] restful api test failed\n", __func__, __LINE__);
+    printf("[%s:%d] restful API test failed\n", __func__, __LINE__);
   }
 
   summary();

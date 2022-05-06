@@ -306,7 +306,7 @@ static int fetch_milestone(test_config_t* conf, test_data_t* params, test_item_t
         }
       }
     } else {
-      printf("[%s:%d] perfrome get_milestone_by_id failed\n", __func__, __LINE__);
+      printf("[%s:%d] performed get_milestone_by_id failed\n", __func__, __LINE__);
       items[CORE_GET_MILESTONES].st = STATE_NG;
       res_milestone_free(res_ml);
       return -1;
@@ -335,13 +335,13 @@ static int fetch_milestone(test_config_t* conf, test_data_t* params, test_item_t
         items[CORE_GET_MILESTONES_INDEX_UTXO].st = STATE_PASS;
       }
     } else {
-      printf("[%s:%d] perfrome get_utxo_changes_by_ms_index failed\n", __func__, __LINE__);
+      printf("[%s:%d] performed get_utxo_changes_by_ms_index failed\n", __func__, __LINE__);
       items[CORE_GET_MILESTONES_INDEX_UTXO].st = STATE_NG;
       res_milestone_free(res_ml);
       return -1;
     }
   } else {
-    printf("[%s:%d] allocate milestone utxo response failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocate milestone UTXO response failed\n", __func__, __LINE__);
     return -1;
   }
   res_utxo_changes_free(res_ml_utxo);
@@ -673,7 +673,7 @@ static int validating_indexers_basic(test_config_t* conf, test_data_t* params, t
   outputs_query_list_t* filter = outputs_query_list_new();
   // add query paramters
   if (outputs_query_list_add(&filter, QUERY_PARAM_ADDRESS, bech32_addr) != 0) {
-    printf("[%s:%d] add query paramter failed\n", __func__, __LINE__);
+    printf("[%s:%d] add query parameter failed\n", __func__, __LINE__);
     outputs_query_list_free(filter);
     return -1;
   }
@@ -796,7 +796,7 @@ static int validating_utxo(test_config_t* conf, test_data_t* params, test_item_t
   get_output_response_free(res_output);
 
   printf("Testing transaction ID: 0x%s\n", params->tx_id);
-  // TODO: should be tested after hoenet alpha11
+  // TODO: should be tested in Hornet alpha11
 #if 0
   // transaction included message
   res_message_t* msg = res_message_new();
