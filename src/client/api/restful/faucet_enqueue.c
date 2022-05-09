@@ -118,7 +118,7 @@ int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const ad
       printf("[%s:%d]: buffer to string conversion failed\n", __func__, __LINE__);
       return -1;
     }
-    printf("Response : %s\n", http_res->data);
+    // printf("Response : %s\n", http_res->data);
     ret = deser_faucet_enqueue_response((char const *)http_res->data, res);
   } else {
     printf("[%s:%d]: http client post failed\n", __func__, __LINE__);

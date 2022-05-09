@@ -411,6 +411,7 @@ void print_get_output(get_output_t *res, uint8_t indentation) {
         break;
     }
   }
+  printf("%s}\n", PRINT_INDENTATION(indentation));
 }
 
 void dump_get_output_response(res_output_t *res, uint8_t indentation) {

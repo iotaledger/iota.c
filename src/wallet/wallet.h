@@ -29,6 +29,11 @@ extern "C" {
 #define NODE_DEFAULT_HOST "chrysalis-nodes.iota.org"
 #define NODE_DEFAULT_PORT 443
 
+// a custom bip44 coin type, for the wallet application
+#define WALLET_CUSTOM_COIN_TYPE 1234
+// HRP for hornet provate tangle
+#define WALLET_CUSTOM_NETWORK_HRP "tst"
+
 /**
  * @brief IOTA wallet setting
  *
