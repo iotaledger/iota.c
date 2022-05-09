@@ -10,9 +10,9 @@ if (NOT __BLAKE2_INCLUDE)
     blake2_download
     PREFIX ${PROJECT_BINARY_DIR}/blake2
     DOWNLOAD_DIR ${PROJECT_BINARY_DIR}/download
-    DOWNLOAD_NAME b52178a376ca85a8ffe50492263c2a5bc0fa4f46.tar.gz
-    URL https://github.com/BLAKE2/BLAKE2/archive/b52178a376ca85a8ffe50492263c2a5bc0fa4f46.tar.gz
-    URL_HASH SHA256=ea748df6fbefb2c0fd14eeaade54a543524611fc6f7b69430ce1ed74193d37b3
+    DOWNLOAD_NAME 54f4faa4c16ea34bcd59d16e8da46a64b259fc07.tar.gz
+    URL https://github.com/BLAKE2/BLAKE2/archive/54f4faa4c16ea34bcd59d16e8da46a64b259fc07.tar.gz
+    URL_HASH SHA256=710753a61f3f67eff11bc1a4e3374651a266493e6c1691c70197e72c3c6379d9
     CONFIGURE_COMMAND ""
     INSTALL_COMMAND ""
     BUILD_COMMAND ""
@@ -26,7 +26,7 @@ if (NOT __BLAKE2_INCLUDE)
   set(blake2_install_lib ${CMAKE_INSTALL_PREFIX}/lib)
 
   file(WRITE ${blake2_cmake_dir}/CMakeLists.txt
-    "cmake_minimum_required(VERSION 3.5)\n"
+    "cmake_minimum_required(VERSION 3.15)\n"
     "project(blake2 C)\n"
     "add_library(blake2 STATIC)\n"
     "target_sources(\n"

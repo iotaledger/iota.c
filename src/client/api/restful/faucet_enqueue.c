@@ -9,7 +9,7 @@
 #include "client/api/restful/faucet_enqueue.h"
 #include "client/network/http.h"
 
-const char *const faucet_enqueue_api_path = "/api/plugins/faucet/v1/enqueue";
+const char *const faucet_enqueue_api_path = "/api/enqueue";
 
 int deser_faucet_enqueue_response(char const *const j_str, res_faucet_enqueue_t *res) {
   if (j_str == NULL || res == NULL) {
