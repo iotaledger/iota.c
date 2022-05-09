@@ -10,8 +10,7 @@ set_target_properties(iota_crypto PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 9
 target_sources(
   iota_crypto
   PRIVATE "iota_crypto.c"
-  PUBLIC "iota_crypto.h"
-          "constants.h")
+  PUBLIC "iota_crypto.h" "constants.h")
 
 target_include_directories(iota_crypto PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 
