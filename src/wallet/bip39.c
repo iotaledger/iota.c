@@ -4,10 +4,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "core/constants.h"
 #include "crypto/iota_crypto.h"
 #include "utf8proc.h"
 #include "wallet/bip39.h"
-#include "core/constants.h"
 
 #ifndef BIP39_ENGLISH_ONLY
 #include "wallet/wordlists/chinese_simplified.h"

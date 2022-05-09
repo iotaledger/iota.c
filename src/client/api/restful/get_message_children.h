@@ -8,7 +8,7 @@
 
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
-#include "core/constants.h"
+#include "client/constants.h"
 #include "core/utils/macros.h"
 #include "utarray.h"
 

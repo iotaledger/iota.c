@@ -7,6 +7,7 @@
 #include "client/api/restful/get_tips.h"
 #include "client/api/restful/send_tagged_data.h"
 #include "core/models/payloads/tagged_data.h"
+#include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 
 int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t tag[], uint8_t tag_len, byte_t data[],
@@ -173,13 +174,27 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
   }
   // not needed anymore
   free(msg_str);
+
+  iota_str_t* cmd = NULL;
+  char const* const cmd_str = "/messages";
+  // reserver buffer enough for NODE_API_PATH + cmd_str
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + 1);
+  if (cmd == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API command
+  snprintf(cmd->buf, cmd->cap, "%s%s", NODE_API_PATH, cmd_str);
+  cmd->len = strlen(cmd->buf);
+
   // config http client
-  http_client_config_t http_conf = {
-      .host = conf->host, .path = "/api/v2/messages", .use_tls = conf->use_tls, .port = conf->port};
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
   long http_st_code = 0;
   byte_buf_t* http_res = byte_buf_new();
   if (!http_res) {
     printf("[%s:%d] allocating buffer for http response failed\n", __func__, __LINE__);
+    iota_str_destroy(cmd);
     goto end;
   }
   if ((ret = http_client_post(&http_conf, json_data, http_res, &http_st_code)) == 0) {
@@ -188,12 +203,14 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
       byte_buf_free(json_data);
       byte_buf_free(http_res);
       printf("[%s:%d]: buffer to string conversion failed\n", __func__, __LINE__);
+      iota_str_destroy(cmd);
       goto end;
     }
     ret = deser_send_message_response((char const*)http_res->data, res);
   } else {
     printf("[%s:%d]: http client post failed\n", __func__, __LINE__);
   }
+  iota_str_destroy(cmd);
   byte_buf_free(json_data);
   byte_buf_free(http_res);
 

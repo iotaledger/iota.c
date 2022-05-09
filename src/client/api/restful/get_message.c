@@ -6,7 +6,7 @@
 
 #include "client/api/json_parser/message.h"
 #include "client/api/restful/get_message.h"
-#include "core/constants.h"
+#include "client/constants.h"
 #include "client/network/http.h"
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
@@ -87,16 +87,16 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
   }
 
   iota_str_t *cmd = NULL;
-  char const *const cmd_str = "/api/v2/messages/0x";
+  char const *const cmd_str = "/messages/0x";
 
-  cmd = iota_str_reserve(strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + 1);
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s", cmd_str, msg_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, msg_id);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/restful/get_transaction_included_message.h"
+#include "client/constants.h"
 #include "client/network/http.h"
-#include "core/constants.h"
 #include "core/models/inputs/utxo_input.h"
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
@@ -22,19 +22,23 @@ int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char 
   int ret = -1;
   byte_buf_t *http_res = NULL;
 
-  // compose restful API command
-  char cmd_buffer[105] = {0};  // 105 = max size of api path(38) + 0x + IOTA_TRANSACTION_ID_HEX_BYTES(64) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v2/transactions/0x%s/included-message", tx_id);
+  iota_str_t *cmd = NULL;
+  char const *const cmd_pre = "/transactions/0x";
+  char const *const cmd_post = "/included-message";
 
-  // check if data stored is not more than buffer length
-  if (snprintf_ret > ((int)sizeof(cmd_buffer) - 1)) {
-    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
-    goto done;
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_pre) + strlen(cmd_post) +
+                         BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES) + 1);
+  if (cmd == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
   }
 
+  // composing API command
+  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_pre, cmd_post, tx_id);
+  cmd->len = strlen(cmd->buf);
+
   // http client configuration
-  http_client_config_t http_conf = {
-      .host = conf->host, .path = cmd_buffer, .use_tls = conf->use_tls, .port = conf->port};
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
