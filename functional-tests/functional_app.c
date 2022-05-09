@@ -5,7 +5,10 @@
 #include "client/api/json_parser/json_utils.h"
 #include "functional_cases.h"
 
-// list all test cases
+/**
+ * @brief list all test cases and inital state
+ *
+ */
 test_item_t test_cases[MAX_TEST_CASE] = {
     // node
     {CORE_GET_NODE_INFO, "GET /api/v2/info", STATE_NA},

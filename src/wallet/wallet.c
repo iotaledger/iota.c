@@ -18,17 +18,19 @@
 #define IOTA_ACCOUNT_PATH_MAX 128
 
 /**
- * @brief Coin types that are supported by the protocol
+ * @brief BIP-0044 coin types that are supported by this wallet
  *
  * https://github.com/satoshilabs/slips/blob/master/slip-0044.md
  * IOTA BIP44 Paths: m/44'/4218'/Account'/Change'/Index'
  * SMR  BIP44 Paths: m/44'/4219'/Account'/Change'/Index'
  *
+ * BIP-0044: https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
+ *
  */
 typedef enum {
   COIN_TYPE_IOTA = 4218,                      ///< Denotes an IOTA coin (IOTA)
   COIN_TYPE_SHIMMER = 4219,                   ///< Denotes a Shimmer coin (SMR)
-  COIN_TYPE_CUSTOM = WALLET_CUSTOM_COIN_TYPE  ///< Denotes a Shimmer coin (SMR)
+  COIN_TYPE_CUSTOM = WALLET_CUSTOM_COIN_TYPE  ///< Denotes a custom coin
 } coin_type_bip44_t;
 
 /**

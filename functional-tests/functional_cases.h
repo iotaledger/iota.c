@@ -10,8 +10,12 @@
 #include "core/utils/macros.h"
 #include "wallet/wallet.h"
 
+/**
+ * @brief the test configuration
+ *
+ */
 typedef struct {
-  char mnemonic[512];                ///< mnemonic sentance
+  char mnemonic[512];                ///< mnemonic sentence
   uint32_t sender_index;             ///< Index of sender address
   uint32_t receiver_index;           ///< Index of receiver address
   iota_client_conf_t node_config;    ///< node config
@@ -20,25 +24,37 @@ typedef struct {
   uint16_t delay;                    ///< delay time for checking transaction in secondes
 } test_config_t;
 
+/**
+ * @brief dynamic test paramters used in test cases
+ *
+ */
 typedef struct {
-  address_t sender;
-  address_t recv;
-  char basic_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];
-  char milestone_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];
-  char tagged_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];
-  char output_id[BIN_TO_HEX_STR_BYTES(IOTA_OUTPUT_ID_BYTES)];
-  char tx_id[BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES)];
+  address_t sender;                                                ///< A sender address derived from sender_index
+  address_t recv;                                                  ///< A receiver address derived from receiver_index
+  char basic_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< A message ID of a basic value transaction
+  char milestone_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< A message ID of a milestone message
+  char tagged_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];     ///< A message ID of a tagged data message
+  char output_id[BIN_TO_HEX_STR_BYTES(IOTA_OUTPUT_ID_BYTES)];          ///< An output ID of the sender address
+  char tx_id[BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES)];         ///< A transaction ID of an output
   iota_wallet_t* w;
 } test_data_t;
 
-typedef enum{
-  STATE_NOT_SUPPORT = -1,
-  STATE_NA,
-  STATE_NG,
-  STATE_PASS
-}test_state_e;
+/**
+ * @brief State of a test case
+ *
+ */
+typedef enum {
+  STATE_NOT_SUPPORT = -1,  ///< The test case is not supported
+  STATE_NA,                ///< The test cases is not avaliable. test cases is needed or not be tested.
+  STATE_NG,                ///< The test cases is not good, needs an investgation.
+  STATE_PASS               ///< The test cases is passed
+} test_state_e;
 
-typedef enum{
+/**
+ * @brief The list of test IDs
+ *
+ */
+typedef enum {
   CORE_GET_NODE_INFO = 0,
   CORE_GET_TIPS,
   // messages
@@ -76,18 +92,30 @@ typedef enum{
   // faucet
   FAUCET_GET_ENQUEUE,
   MAX_TEST_CASE
-}test_cases_e;
+} test_cases_e;
 
-typedef struct{
-  test_cases_e id;
-  char const * const name;
-  test_state_e st;
+/**
+ * @brief A test item
+ *
+ */
+typedef struct {
+  test_cases_e id;         ///< the ID of this test case
+  char const* const name;  ///< the name or description of this case
+  test_state_e st;         ///< the state of the case
 } test_item_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/**
+ * @brief run restfull API tests
+ *
+ * @param[in] conf The configuration object
+ * @param[in, out] params The test paramter object
+ * @param[in, out] items The test case object
+ * @return int
+ */
 int restful_api_tests(test_config_t* conf, test_data_t* params, test_item_t* items);
 
 #ifdef __cplusplus
