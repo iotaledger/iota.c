@@ -11,7 +11,7 @@ target_sources(
   iota_crypto
   PRIVATE "iota_crypto.c"
   PUBLIC "iota_crypto.h"
-         "constants.h")
+          "constants.h")
 
 target_include_directories(iota_crypto PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 
