@@ -7,21 +7,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "core/constants.h"
 #include "core/utils/byte_buffer.h"
 #include "crypto/iota_crypto.h"
-
-// An Ed25519 address is the Blake2b-256 hash of an Ed25519 public key.
-#define ED25519_PUBKEY_BYTES ED_PUBLIC_KEY_BYTES
-// An Alias address is the Blake2b-160 hash of the OutputID which created it.
-#define ALIAS_ID_BYTES CRYPTO_BLAKE2B_160_HASH_BYTES
-// A NFT address is the Blake2b-160 hash of the OutputID which created it.
-#define NFT_ID_BYTES CRYPTO_BLAKE2B_160_HASH_BYTES
-// Maximum number of bytes an address can hold.
-#define ADDRESS_MAX_BYTES ED25519_PUBKEY_BYTES
-// Minimum number of bytes an address can hold.
-#define ADDRESS_MIN_BYTES ALIAS_ID_BYTES
-// Maximum number of bytes a serialized address can hold.
-#define ADDRESS_SERIALIZED_MAX_BYTES (1 + ED25519_PUBKEY_BYTES)
 
 /**
  * @brief Address types that supported by the protocol

@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "client/api/json_parser/outputs/unlock_conditions.h"
+#include "client/constants.h"
 #include "core/utils/macros.h"
 #include "unity/unity.h"
 

@@ -10,9 +10,6 @@
 #include "core/models/message.h"
 #include "crypto/iota_crypto.h"
 
-// Maximum number of inputs in a transaction payload.
-#define UTXO_INPUT_MAX_COUNT 128
-
 /**
  * @brief UTXO input structure
  *
