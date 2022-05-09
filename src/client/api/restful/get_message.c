@@ -6,8 +6,8 @@
 
 #include "client/api/json_parser/message.h"
 #include "client/api/restful/get_message.h"
+#include "core/constants.h"
 #include "client/network/http.h"
-#include "core/address.h"
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 

@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-#include "core/address.h"
+#include "core/constants.h"
 #include "core/models/message.h"
 #include "crypto/iota_crypto.h"
 

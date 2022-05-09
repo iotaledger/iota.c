@@ -22,10 +22,6 @@
 #define ADDRESS_MIN_BYTES ALIAS_ID_BYTES
 // Maximum number of bytes a serialized address can hold.
 #define ADDRESS_SERIALIZED_MAX_BYTES (1 + ED25519_PUBKEY_BYTES)
-// Transaction ID bytes
-#define IOTA_TRANSACTION_ID_BYTES 32
-// OUTPUT ID bytes = 34 (IOTA_TRANSACTION_ID + OUTPUT INDEX)
-#define IOTA_OUTPUT_ID_BYTES (IOTA_TRANSACTION_ID_BYTES + sizeof(uint16_t))
 
 /**
  * @brief Address types that supported by the protocol

@@ -3,6 +3,7 @@
 
 #include "client/api/restful/get_transaction_included_message.h"
 #include "client/network/http.h"
+#include "core/constants.h"
 #include "core/models/inputs/utxo_input.h"
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"

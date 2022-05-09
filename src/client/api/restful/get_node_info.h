@@ -9,8 +9,8 @@
 
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
+#include "core/constants.h"
 #include "core/utils/byte_buffer.h"
-#include "crypto/iota_crypto.h"
 #include "utarray.h"
 
 /**

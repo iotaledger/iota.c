@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/json_parser/inputs/inputs.h"
+#include "core/constants.h"
 #include "core/models/message.h"
 #include "core/utils/macros.h"
 

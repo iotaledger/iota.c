@@ -9,7 +9,7 @@
 #include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "client/api/restful/get_output.h"
 #include "client/network/http.h"
-#include "core/address.h"
+#include "core/constants.h"
 #include "core/utils/macros.h"
 
 // deserialize json object to an output object

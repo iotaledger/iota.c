@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #include "client/api/restful/get_milestone.h"
-#include "core/models/message.h"
+#include "core/constants.h"
 #include "core/models/unlock_block.h"
 #include "test_config.h"
 #include "unity/unity.h"
