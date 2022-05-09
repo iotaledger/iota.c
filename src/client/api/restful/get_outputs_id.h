@@ -77,7 +77,7 @@ extern "C" {
  *
  * The filter for output IDs
  *
- * @return outputs_query_list_t*
+ * @return NULL
  */
 outputs_query_list_t *outputs_query_list_new();
 
