@@ -15,7 +15,7 @@
     { "type": 4,
       "amount": "10000000",
       "nativeTokens": [],
-      "aliasId": "0xa360c46a570510f7c7d915bf0eef932e5678b386",
+      "aliasId": "0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248",
       "stateIndex": 12345,
       "stateMetadata": "0x010203040506070809",
       "foundryCounter": 54321,
