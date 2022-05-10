@@ -11,12 +11,6 @@
 #include "core/models/outputs/unlock_conditions.h"
 #include "core/utils/uint256.h"
 
-// The concatenation of Address || Serial Number || Token Scheme Type
-#define FOUNDRY_ID_BYTES 26
-
-// Token tag length in bytes
-#define TOKEN_TAG_BYTES_LEN 12
-
 /**
  * @brief Token scheme types
  *

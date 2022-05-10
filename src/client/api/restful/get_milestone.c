@@ -87,16 +87,16 @@ int get_milestone_by_id(iota_client_conf_t const *conf, char const ms_id[], res_
   }
 
   iota_str_t *cmd = NULL;
-  char const *const cmd_str = "/api/v2/milestones/0x";
+  char const *const cmd_str = "/milestones/0x";
 
-  cmd = iota_str_reserve(strlen(cmd_str) + BIN_TO_HEX_BYTES(CRYPTO_BLAKE2B_256_HASH_BYTES) + 1);
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(CRYPTO_BLAKE2B_256_HASH_BYTES) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s", cmd_str, ms_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, ms_id);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
@@ -133,17 +133,17 @@ int get_milestone_by_index(iota_client_conf_t const *conf, uint32_t index, res_m
   }
 
   iota_str_t *cmd = NULL;
-  char const *const cmd_str = "/api/v2/milestones/by-index/";
+  char const *const cmd_str = "/milestones/by-index/";
 
   // reserver buffer enough for cmd_str + index(max str len needed to store a unit32_t value) + null character
-  cmd = iota_str_reserve(strlen(cmd_str) + 10 + 1);
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + 10 + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%u", cmd_str, index);
+  snprintf(cmd->buf, cmd->cap, "%s%s%u", NODE_API_PATH, cmd_str, index);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
@@ -313,18 +313,18 @@ int get_utxo_changes_by_ms_id(iota_client_conf_t const *conf, char const ms_id[]
   }
 
   iota_str_t *cmd = NULL;
-  char const *const cmd_str_pre = "/api/v2/milestones/0x";
+  char const *const cmd_str_pre = "/milestones/0x";
   char const *const cmd_str_post = "/utxo-changes";
 
-  cmd = iota_str_reserve(strlen(cmd_str_pre) + BIN_TO_HEX_BYTES(CRYPTO_BLAKE2B_256_HASH_BYTES) + strlen(cmd_str_post) +
-                         1);
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str_pre) + BIN_TO_HEX_BYTES(CRYPTO_BLAKE2B_256_HASH_BYTES) +
+                         strlen(cmd_str_post) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", cmd_str_pre, ms_id, cmd_str_post);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_str_pre, ms_id, cmd_str_post);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
@@ -361,12 +361,12 @@ int get_utxo_changes_by_ms_index(iota_client_conf_t const *conf, uint32_t index,
   }
 
   iota_str_t *cmd = NULL;
-  char const *const cmd_str_pre = "/api/v2/milestones/by-index/";
+  char const *const cmd_str_pre = "/milestones/by-index/";
   char const *const cmd_str_post = "/utxo-changes";
 
-  // reserver buffer enough for cmd_str_pre + index(max str len needed to store a unit32_t value) + cmd_str_post + null
-  // character
-  cmd = iota_str_reserve(strlen(cmd_str_pre) + 10 + strlen(cmd_str_post) + 1);
+  // reserver buffer enough for NODE_API_PATH + cmd_str_pre + index(max str len needed to store a unit32_t value) +
+  // cmd_str_post + null character
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str_pre) + 10 + strlen(cmd_str_post) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;

@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define IOTA_ENDPOINT_MAX_LEN 256
+#include "client/constants.h"
 
 /**
  * @brief Client endpoint configuration

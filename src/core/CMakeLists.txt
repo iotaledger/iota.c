@@ -34,6 +34,7 @@ target_sources(
           "models/signing.c"
           "models/unlock_block.c"
   PUBLIC "address.h"
+         "constants.h"
          "utils/iota_str.h"
          "utils/byte_buffer.h"
          "utils/slip10.h"

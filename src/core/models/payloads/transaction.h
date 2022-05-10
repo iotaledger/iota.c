@@ -12,9 +12,6 @@
 #include "core/models/outputs/outputs.h"
 #include "core/models/unlock_block.h"
 
-// have one transaction essence only which is 1
-#define TRANSACTION_ESSENCE_TYPE 1
-
 /**
  * @brief Transaction Essence, the essence data making up a transaction by defining its inputs and outputs and an
  * optional payload.

@@ -137,7 +137,7 @@ int get_message_children(iota_client_conf_t const *ctx, char const msg_id[], res
   iota_str_t *cmd = NULL;
   byte_buf_t *http_res = NULL;
   long st = 0;
-  char const *const cmd_prefix = "/api/v2/messages/0x";
+  char const *const cmd_prefix = "/messages/0x";
   char const *const cmd_suffix = "/children";
 
   if (ctx == NULL || msg_id == NULL || res == NULL) {
@@ -150,14 +150,14 @@ int get_message_children(iota_client_conf_t const *ctx, char const msg_id[], res
     return -1;
   }
 
-  cmd = iota_str_reserve(strlen(cmd_prefix) + msg_str_len + strlen(cmd_suffix) + 1);
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_prefix) + msg_str_len + strlen(cmd_suffix) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", cmd_prefix, msg_id, cmd_suffix);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_prefix, msg_id, cmd_suffix);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration

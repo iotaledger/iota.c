@@ -14,9 +14,6 @@
  *
  */
 
-// Maximun Unlock Condition Blocks in a list
-#define MAX_UNLOCK_CONDITION_BLOCK_COUNT 4
-
 /**
  * @brief all Unlock Condition types
  *

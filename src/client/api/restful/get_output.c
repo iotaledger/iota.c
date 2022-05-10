@@ -8,8 +8,9 @@
 #include "client/api/json_parser/outputs/native_tokens.h"
 #include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "client/api/restful/get_output.h"
+#include "client/constants.h"
 #include "client/network/http.h"
-#include "core/address.h"
+#include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 
 // deserialize json object to an output object
@@ -178,8 +179,6 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
   int ret = -1;
   long st = 0;
   byte_buf_t *http_res = NULL;
-  // cmd length = "/api/v2/outputs/0x" + output ID
-  char cmd_buffer[19 + BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES)] = {};
 
   if (conf == NULL || output_id == NULL || res == NULL) {
     // invalid parameters
@@ -192,12 +191,21 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
     return -1;
   }
 
+  iota_str_t *cmd = NULL;
+  char const *const cmd_str = "/outputs/0x";
+  // reserver buffer enough for NODE_API_PATH + cmd_info + BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) + 1
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) + 1);
+  if (cmd == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
   // composing API command
-  snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v2/outputs/0x%s", output_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, output_id);
+  cmd->len = strlen(cmd->buf);
 
   // http client configuration
-  http_client_config_t http_conf = {
-      .host = conf->host, .path = cmd_buffer, .use_tls = conf->use_tls, .port = conf->port};
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
@@ -213,6 +221,7 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
 
 done:
   // cleanup command
+  iota_str_destroy(cmd);
   byte_buf_free(http_res);
   return ret;
 }
@@ -221,8 +230,6 @@ int get_output_meta(iota_client_conf_t const *conf, char const output_id[], res_
   int ret = -1;
   long st = 0;
   byte_buf_t *http_res = NULL;
-  // cmd length = "/api/v2/outputs/0x" + output ID+ "/metadata"
-  char cmd_buffer[28 + BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES)] = {};
 
   if (conf == NULL || output_id == NULL || res == NULL) {
     // invalid parameters
@@ -235,12 +242,23 @@ int get_output_meta(iota_client_conf_t const *conf, char const output_id[], res_
     return -1;
   }
 
+  iota_str_t *cmd = NULL;
+  char const *const cmd_pre = "/outputs/0x";
+  char const *const cmd_post = "/metadata";
+
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_pre) + strlen(cmd_post) +
+                         BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) + 1);
+  if (cmd == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
   // composing API command
-  snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/v2/outputs/0x%s/metadata", output_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_pre, cmd_post, output_id);
+  cmd->len = strlen(cmd->buf);
 
   // http client configuration
-  http_client_config_t http_conf = {
-      .host = conf->host, .path = cmd_buffer, .use_tls = conf->use_tls, .port = conf->port};
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
 
   if ((http_res = byte_buf_new()) == NULL) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
@@ -256,6 +274,7 @@ int get_output_meta(iota_client_conf_t const *conf, char const output_id[], res_
 
 done:
   // cleanup command
+  iota_str_destroy(cmd);
   byte_buf_free(http_res);
   return ret;
 }
