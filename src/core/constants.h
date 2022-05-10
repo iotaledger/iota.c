@@ -69,8 +69,6 @@
 /****** Constants related to foundry output ******/
 // The concatenation of Address || Serial Number || Token Scheme Type
 #define FOUNDRY_ID_BYTES 26
-// Token tag length in bytes
-#define TOKEN_TAG_BYTES_LEN 12
 
 /****** Constants related to UTXO output ******/
 // Maximum number of outputs in a transaction payload.
