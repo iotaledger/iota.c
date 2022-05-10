@@ -291,43 +291,52 @@ int parse_get_output(char const *const j_str, get_output_t *res) {
     return -1;
   }
 
+  // metadata object
+  cJSON *json_metadata_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_METADATA);
+  if (!json_metadata_obj) {
+    printf("[%s:%d]: gets %s json object failed\n", __func__, __LINE__, JSON_KEY_METADATA);
+    goto end;
+  }
+
   // message ID
-  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_MSG_ID, res->meta.msg_id, sizeof(res->meta.msg_id))) != 0) {
+  if ((ret = json_get_hex_str_to_bin(json_metadata_obj, JSON_KEY_MSG_ID, res->meta.msg_id, sizeof(res->meta.msg_id))) !=
+      0) {
     printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
     goto end;
   }
 
   // transaction ID
-  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_TX_ID, res->meta.tx_id, sizeof(res->meta.tx_id))) != 0) {
+  if ((ret = json_get_hex_str_to_bin(json_metadata_obj, JSON_KEY_TX_ID, res->meta.tx_id, sizeof(res->meta.tx_id))) !=
+      0) {
     printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TX_ID);
     goto end;
   }
 
   // output index
-  if ((ret = json_get_uint16(json_obj, JSON_KEY_OUTPUT_IDX, &res->meta.output_index)) != 0) {
+  if ((ret = json_get_uint16(json_metadata_obj, JSON_KEY_OUTPUT_IDX, &res->meta.output_index)) != 0) {
     printf("[%s:%d]: gets %s json uint16 failed\n", __func__, __LINE__, JSON_KEY_OUTPUT_IDX);
     goto end;
   }
 
   // is spent
-  if ((ret = json_get_boolean(json_obj, JSON_KEY_IS_SPENT, &res->meta.is_spent)) != 0) {
+  if ((ret = json_get_boolean(json_metadata_obj, JSON_KEY_IS_SPENT, &res->meta.is_spent)) != 0) {
     printf("[%s:%d]: gets %s json bool failed\n", __func__, __LINE__, JSON_KEY_IS_SPENT);
     goto end;
   }
 
   if (res->meta.is_spent) {
     // milestoneIndexSpent
-    if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_INDEX_SPENT, &res->meta.ml_index_spent)) != 0) {
+    if ((ret = json_get_uint32(json_metadata_obj, JSON_KEY_MILESTONE_INDEX_SPENT, &res->meta.ml_index_spent)) != 0) {
       printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_INDEX_SPENT);
       goto end;
     }
     // milestoneTimestampSpent
-    if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_TIME_SPENT, &res->meta.ml_time_spent)) != 0) {
+    if ((ret = json_get_uint32(json_metadata_obj, JSON_KEY_MILESTONE_TIME_SPENT, &res->meta.ml_time_spent)) != 0) {
       printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_TIME_SPENT);
       goto end;
     }
     // transactionIdSpent
-    if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_TX_ID_SPENT, res->meta.tx_id_spent,
+    if ((ret = json_get_hex_str_to_bin(json_metadata_obj, JSON_KEY_TX_ID_SPENT, res->meta.tx_id_spent,
                                        sizeof(res->meta.tx_id_spent))) != 0) {
       printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_TX_ID_SPENT);
       goto end;
@@ -335,19 +344,19 @@ int parse_get_output(char const *const j_str, get_output_t *res) {
   }
 
   // milestoneIndexBooked
-  if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_INDEX_BOOKED, &res->meta.ml_index_booked)) != 0) {
+  if ((ret = json_get_uint32(json_metadata_obj, JSON_KEY_MILESTONE_INDEX_BOOKED, &res->meta.ml_index_booked)) != 0) {
     printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_INDEX_BOOKED);
     goto end;
   }
 
   // milestoneTimestampBooked
-  if ((ret = json_get_uint32(json_obj, JSON_KEY_MILESTONE_TIME_BOOKED, &res->meta.ml_time_booked)) != 0) {
+  if ((ret = json_get_uint32(json_metadata_obj, JSON_KEY_MILESTONE_TIME_BOOKED, &res->meta.ml_time_booked)) != 0) {
     printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_TIME_BOOKED);
     goto end;
   }
 
   // ledgerIndex
-  if ((ret = json_get_uint32(json_obj, JSON_KEY_LEDGER_IDX, &res->meta.ledger_index)) != 0) {
+  if ((ret = json_get_uint32(json_metadata_obj, JSON_KEY_LEDGER_IDX, &res->meta.ledger_index)) != 0) {
     printf("[%s:%d]: gets %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_LEDGER_IDX);
     goto end;
   }
@@ -397,21 +406,23 @@ int deser_get_output(char const *const j_str, res_output_t *res) {
 
 void print_get_output(get_output_t *res, uint8_t indentation) {
   printf("%s{\n", PRINT_INDENTATION(indentation));
-  printf("%s\tMessage ID: ", PRINT_INDENTATION(indentation));
+  printf("%s\tMetadata: {\n", PRINT_INDENTATION(indentation));
+  printf("%s\t\tMessage ID: ", PRINT_INDENTATION(indentation));
   dump_hex_str(res->meta.msg_id, IOTA_MESSAGE_ID_BYTES);
-  printf("%s\tTransaction ID: ", PRINT_INDENTATION(indentation));
+  printf("%s\t\tTransaction ID: ", PRINT_INDENTATION(indentation));
   dump_hex_str(res->meta.tx_id, IOTA_TRANSACTION_ID_BYTES);
-  printf("%s\toutputIndex: %" PRIu16 "\n", PRINT_INDENTATION(indentation), res->meta.output_index);
-  printf("%s\tisSpent: %s\n", PRINT_INDENTATION(indentation), res->meta.is_spent ? "True" : "False");
+  printf("%s\t\tOutput Index: %" PRIu16 "\n", PRINT_INDENTATION(indentation), res->meta.output_index);
+  printf("%s\t\tIs Spent: %s\n", PRINT_INDENTATION(indentation), res->meta.is_spent ? "True" : "False");
   if (res->meta.is_spent == true) {
-    printf("%s\tmilestoneIndexSpent: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_index_spent);
-    printf("%s\tmilestoneTimestampSpent: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_time_spent);
-    printf("%s\tTransaction ID Spent: ", PRINT_INDENTATION(indentation));
+    printf("%s\t\tMilestone Index Spent: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_index_spent);
+    printf("%s\t\tMilestone Timestamp Spent: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_time_spent);
+    printf("%s\t\tTransaction ID Spent: ", PRINT_INDENTATION(indentation));
     dump_hex_str(res->meta.tx_id_spent, IOTA_TRANSACTION_ID_BYTES);
   }
-  printf("%s\tmilestoneIndexBooked: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_index_booked);
-  printf("%s\tmilestoneTimestampBooked: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_time_booked);
-  printf("%s\tledgerIndex: %d\n", PRINT_INDENTATION(indentation), res->meta.ledger_index);
+  printf("%s\t\tMilestone Index Booked: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_index_booked);
+  printf("%s\t\tMilestone Timestamp Booked: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_time_booked);
+  printf("%s\t\tLedger Index: %d\n", PRINT_INDENTATION(indentation), res->meta.ledger_index);
+  printf("%s\t}\n", PRINT_INDENTATION(indentation));
   if (res->output) {
     switch (res->output->output_type) {
       case OUTPUT_BASIC:

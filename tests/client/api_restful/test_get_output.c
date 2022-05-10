@@ -69,9 +69,10 @@ void test_deser_response_error() {
 
 void test_output_response_deserialization() {
   char const* const json_res =
-      "{\"messageId\":\"0x1b8a036d9decfec2e053fe69bc456a22c7a039590ae5a3c9e51dddadf19f83a5\",\"transactionId\":"
+      "{\"metadata\":{\"messageId\": "
+      "\"0x1b8a036d9decfec2e053fe69bc456a22c7a039590ae5a3c9e51dddadf19f83a5\",\"transactionId\":"
       "\"0x6c1249abb6fc07a3a8730db62564b10d8703a60d34debc6df545357cc11a9bfc\",\"outputIndex\":0,\"isSpent\":false,"
-      "\"milestoneIndexBooked\":9,\"milestoneTimestampBooked\":1644570172,\"ledgerIndex\":13,\"output\":{\"type\":3,"
+      "\"milestoneIndexBooked\":9,\"milestoneTimestampBooked\":1644570172,\"ledgerIndex\":13},\"output\":{\"type\":3,"
       "\"amount\":\"10000000\",\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":0,"
       "\"pubKeyHash\":"
       "\"0x21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"}}],\"featureBlocks\":[]}}";
@@ -115,11 +116,12 @@ void test_output_response_deserialization() {
 
 void test_spent_output_response_deserialization() {
   char const* const json_res =
-      "{\"messageId\": \"0x9cd745ef6800c8e8c80b09174ee4b250b3c43dfa62d7c6a4e61f848febf731a0\",\"transactionId\": "
+      "{\"metadata\":{\"messageId\": "
+      "\"0x9cd745ef6800c8e8c80b09174ee4b250b3c43dfa62d7c6a4e61f848febf731a0\",\"transactionId\": "
       "\"0xfa0de75d225cca2799395e5fc340702fc7eac821d2bdd79911126f131ae097a2\",\"outputIndex\": 1,\"isSpent\": "
       "true,\"milestoneIndexSpent\": 1234570,\"milestoneTimestampSpent\": 1643207176,\"transactionIdSpent\": "
       "\"0xaf7579fb57746219561072c2cc0e4d0fbb8d493d075bd21bf25ae81a450c11ef\",\"milestoneIndexBooked\": "
-      "1234567,\"milestoneTimestampBooked\": 1643207146,\"ledgerIndex\": 946704,\"output\": {\"type\": 3,\"amount\": "
+      "1234567,\"milestoneTimestampBooked\": 1643207146,\"ledgerIndex\": 946704},\"output\": {\"type\": 3,\"amount\": "
       "\"1000\",\"nativeTokens\":[],\"unlockConditions\": [{\"type\": 0,\"address\": {\"type\": 0,\"pubKeyHash\": "
       "\"0x8eaf87ac1f52eb05f2c7c0c15502df990a228838dc37bd18de9503d69afd257d\"}}],\"featureBlocks\":[]}}";
 
@@ -170,9 +172,10 @@ void test_spent_output_response_deserialization() {
 
 void test_output_metadata_response_deserialization() {
   char const* const json_res =
-      "{\"messageId\":\"0x00a9b3ab3fb1c43c24f2af74d18f216af6a9f6e60d56c9a57e07b2d6f953d019\",\"transactionId\":"
+      "{\"metadata\":{\"messageId\": "
+      "\"0x00a9b3ab3fb1c43c24f2af74d18f216af6a9f6e60d56c9a57e07b2d6f953d019\",\"transactionId\":"
       "\"0xa4679847ebafe542ab27988be47235d1ed8acc38b8874cb440344ebb5bcf653e\",\"outputIndex\":0,\"isSpent\":false,"
-      "\"milestoneIndexBooked\":83,\"milestoneTimestampBooked\":1651051050,\"ledgerIndex\":2028}";
+      "\"milestoneIndexBooked\":83,\"milestoneTimestampBooked\":1651051050,\"ledgerIndex\":2028}}";
 
   res_output_t* out = get_output_response_new();
   int ret = deser_get_output(json_res, out);
