@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "core/constants.h"
 #include "core/models/unlock_block.h"
 #include "core/utils/macros.h"
 #include "utlist.h"

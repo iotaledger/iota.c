@@ -9,6 +9,7 @@
 #include "client/api/restful/send_tagged_data.h"
 #include "client/network/http.h"
 #include "core/utils/byte_buffer.h"
+#include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 #include "crypto/iota_crypto.h"
 #include "test_config.h"
@@ -45,12 +46,21 @@ void test_send_tagged_data() {
   // Valid data and tag
   TEST_ASSERT(send_tagged_data_message(&ctx, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
 
-  // Get message by message id and verify tag and data
-  char cmd_str[84] = {0};  // "/api/v2/messages/{messageid}"
-  snprintf(cmd_str, 84, "/api/v2/messages/%s%s", JSON_HEX_ENCODED_STRING_PREFIX, res.u.msg_id);
+  // Valid data and tag
+  TEST_ASSERT(send_tagged_data_message(&ctx, 2, binary_tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
+
+  iota_str_t* cmd = NULL;
+  char const* const cmd_str = "/messages/0x";
+
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + 1);
+  TEST_ASSERT_NOT_NULL(cmd);
+
+  // composing API command
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, res.u.msg_id);
+  cmd->len = strlen(cmd->buf);
 
   // http client configuration
-  http_client_config_t http_conf = {.host = ctx.host, .path = cmd_str, .use_tls = ctx.use_tls, .port = ctx.port};
+  http_client_config_t http_conf = {.host = ctx.host, .path = cmd->buf, .use_tls = ctx.use_tls, .port = ctx.port};
 
   byte_buf_t* http_res = byte_buf_new();
   TEST_ASSERT_NOT_NULL(http_res);
@@ -100,12 +110,18 @@ void test_send_binary_tagged_data() {
   // Valid data and tag
   TEST_ASSERT(send_tagged_data_message(&ctx, 2, binary_tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
 
-  // Get message by message id and verify tag and data
-  char cmd_str[84] = {0};  // "/api/v2/messages/{messageid}"
-  snprintf(cmd_str, 84, "/api/v2/messages/%s%s", JSON_HEX_ENCODED_STRING_PREFIX, res.u.msg_id);
+  iota_str_t* cmd = NULL;
+  char const* const cmd_str = "/messages/0x";
+
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + 1);
+  TEST_ASSERT_NOT_NULL(cmd);
+
+  // composing API command
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, res.u.msg_id);
+  cmd->len = strlen(cmd->buf);
 
   // http client configuration
-  http_client_config_t http_conf = {.host = ctx.host, .path = cmd_str, .use_tls = ctx.use_tls, .port = ctx.port};
+  http_client_config_t http_conf = {.host = ctx.host, .path = cmd->buf, .use_tls = ctx.use_tls, .port = ctx.port};
 
   byte_buf_t* http_res = byte_buf_new();
   TEST_ASSERT_NOT_NULL(http_res);
@@ -140,6 +156,7 @@ void test_send_binary_tagged_data() {
 
   cJSON_Delete(json_obj);
   byte_buf_free(http_res);
+  iota_str_destroy(cmd);
 }
 
 int main() {

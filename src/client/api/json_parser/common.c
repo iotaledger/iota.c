@@ -3,6 +3,7 @@
 
 #include "client/api/json_parser/common.h"
 #include "cJSON.h"
+#include "client/constants.h"
 #include "core/utils/macros.h"
 
 int json_parser_common_address_deserialize(cJSON *json_obj, char const *const json_address_key, address_t *address) {

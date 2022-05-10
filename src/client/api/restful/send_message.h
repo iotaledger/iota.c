@@ -9,6 +9,7 @@
 
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
+#include "client/constants.h"
 #include "core/models/message.h"
 #include "core/utils/macros.h"
 

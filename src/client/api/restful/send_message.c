@@ -10,8 +10,6 @@
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 
-char const* const cmd_msg = "/api/v2/messages";
-
 int deser_send_message_response(char const* json_str, res_send_message_t* res) {
   int ret = -1;
 
@@ -107,8 +105,21 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
   json_data->data = (byte_t*)msg_str;
   json_data->cap = json_data->len = strlen(msg_str) + 1;
 
+  iota_str_t* cmd = NULL;
+  char const* const cmd_str = "/messages";
+  // reserver buffer enough for NODE_API_PATH + cmd_str
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + 1);
+  if (cmd == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API command
+  snprintf(cmd->buf, cmd->cap, "%s%s", NODE_API_PATH, cmd_str);
+  cmd->len = strlen(cmd->buf);
+
   // config http client
-  http_client_config_t http_conf = {.host = conf->host, .path = cmd_msg, .use_tls = conf->use_tls, .port = conf->port};
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
 
   if ((ret = http_client_post(&http_conf, json_data, node_res, &http_st_code)) == 0) {
     // deserialize node response
@@ -118,6 +129,7 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
     printf("[%s:%d]: http client post failed\n", __func__, __LINE__);
   }
 
+  iota_str_destroy(cmd);
 end:
   byte_buf_free(json_data);
   byte_buf_free(node_res);

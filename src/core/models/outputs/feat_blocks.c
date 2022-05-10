@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "core/constants.h"
 #include "core/models/outputs/feat_blocks.h"
 #include "core/utils/macros.h"
 #include "utlist.h"

@@ -18,16 +18,19 @@
 #define IOTA_ACCOUNT_PATH_MAX 128
 
 /**
- * @brief Coin types that are supported by the protocol
+ * @brief BIP-0044 coin types that are supported by this wallet
  *
  * https://github.com/satoshilabs/slips/blob/master/slip-0044.md
  * IOTA BIP44 Paths: m/44'/4218'/Account'/Change'/Index'
  * SMR  BIP44 Paths: m/44'/4219'/Account'/Change'/Index'
  *
+ * BIP-0044: https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
+ *
  */
 typedef enum {
-  COIN_TYPE_IOTA = 4218,    ///< Denotes an IOTA coin (IOTA)
-  COIN_TYPE_SHIMMER = 4219  ///< Denotes a Shimmer coin (SMR)
+  COIN_TYPE_IOTA = 4218,                      ///< Denotes an IOTA coin (IOTA)
+  COIN_TYPE_SHIMMER = 4219,                   ///< Denotes a Shimmer coin (SMR)
+  COIN_TYPE_CUSTOM = WALLET_CUSTOM_COIN_TYPE  ///< Denotes a custom coin
 } coin_type_bip44_t;
 
 /**
@@ -38,14 +41,16 @@ typedef enum {
   NETWORK_TYPE_IOTA_MAINNET = 0,  ///< Denotes an IOTA main network
   NETWORK_TYPE_IOTA_TESTNET,      ///< Denotes an IOTA test network
   NETWORK_TYPE_SHIMMER_MAINNET,   ///< Denotes a Shimmer main network
-  NETWORK_TYPE_SHIMMER_TESTNET    ///< Denotes a Shimmer test network
+  NETWORK_TYPE_SHIMMER_TESTNET,   ///< Denotes a Shimmer test network
+  NETWORK_TYPE_CUSTOM             ///< Denotes a custom network
 } network_type_t;
 
 // A Human-Readable Part of an address
-static const char address_hrp_name[4][5] = {[NETWORK_TYPE_IOTA_MAINNET] = "iota",
+static const char address_hrp_name[5][5] = {[NETWORK_TYPE_IOTA_MAINNET] = "iota",
                                             [NETWORK_TYPE_IOTA_TESTNET] = "atoi",
                                             [NETWORK_TYPE_SHIMMER_MAINNET] = "smr",
-                                            [NETWORK_TYPE_SHIMMER_TESTNET] = "rms"};
+                                            [NETWORK_TYPE_SHIMMER_TESTNET] = "rms",
+                                            [NETWORK_TYPE_CUSTOM] = WALLET_CUSTOM_NETWORK_HRP};
 
 // TODO: unused function at the moment
 #if 0
@@ -120,15 +125,17 @@ static int get_address_path(char bech32HRP[], uint32_t account, bool change, uin
                             size_t buf_len) {
   coin_type_bip44_t coin_type;
 
+  // get bip44 path based on the bech32 HRP
   if ((strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_IOTA_MAINNET]) == 0) ||
       (strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_IOTA_TESTNET]) == 0)) {
     coin_type = COIN_TYPE_IOTA;
   } else if ((strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_SHIMMER_MAINNET]) == 0) ||
              (strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_SHIMMER_TESTNET]) == 0)) {
     coin_type = COIN_TYPE_SHIMMER;
+  } else if (strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_CUSTOM]) == 0) {
+    coin_type = COIN_TYPE_CUSTOM;
   } else {
-    printf("[%s:%d] unknown coin type\n", __func__, __LINE__);
-    return -1;
+    coin_type = COIN_TYPE_IOTA;
   }
 
   int ret_size = snprintf(buf, buf_len, "m/44'/%d'/%" PRIu32 "'/%d'/%" PRIu32 "'", coin_type, account, change, index);
@@ -524,7 +531,7 @@ int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, add
   outputs =
       basic_outputs_from_address(w, tx->essence, &sender_key, &sender_addr, send_amount, &sign_data, &output_amount);
   if (!outputs) {
-    printf("[%s:%d] get outputs from address failed\n", __func__, __LINE__);
+    printf("[%s:%d] get empty outputs from the address\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }

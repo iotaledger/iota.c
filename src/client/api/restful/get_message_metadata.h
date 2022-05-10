@@ -8,8 +8,9 @@
 
 #include "client/api/restful/response_error.h"
 #include "client/client_service.h"
-#include "core/models/message.h"
+#include "client/constants.h"
 #include "core/utils/macros.h"
+#include "utarray.h"
 
 /**
  * @brief Stores the message metadata object
@@ -110,6 +111,14 @@ char *msg_meta_parent_get(msg_meta_t *msg, size_t index);
  * @return int 0 on success
  */
 int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res_msg_meta_t *res);
+
+/**
+ * @brief Print a message metadata object
+ *
+ * @param[in] res res_msg_meta_t*
+ * @param[in] indentation Tab indentation when printing message children
+ */
+void print_message_metadata(res_msg_meta_t *res, uint8_t indentation);
 
 #ifdef __cplusplus
 }

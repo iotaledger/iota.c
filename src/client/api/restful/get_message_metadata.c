@@ -19,6 +19,7 @@ msg_meta_t *metadata_new() {
     meta->should_reattach = -1;
     meta->referenced_milestone = 0;
     meta->milestone_idx = 0;
+    memset(meta->inclusion_state, 0, sizeof(meta->inclusion_state));
     return meta;
   }
   return NULL;
@@ -178,17 +179,17 @@ int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res
     return -1;
   }
 
-  char const *const cmd_prefix = "/api/v2/messages/0x";
+  char const *const cmd_prefix = "/messages/0x";
   char const *const cmd_suffix = "/metadata";
 
-  iota_str_t *cmd = iota_str_reserve(strlen(cmd_prefix) + msg_str_len + strlen(cmd_suffix) + 1);
+  iota_str_t *cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_prefix) + msg_str_len + strlen(cmd_suffix) + 1);
   if (!cmd) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", cmd_prefix, msg_id, cmd_suffix);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_prefix, msg_id, cmd_suffix);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
@@ -213,4 +214,43 @@ done:
   iota_str_destroy(cmd);
   byte_buf_free(http_res);
   return ret;
+}
+
+void print_message_metadata(res_msg_meta_t *res, uint8_t indentation) {
+  if (res == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return;
+  }
+  if (res->is_error) {
+    printf("Error: %s\n", res->u.error->msg);
+  } else {
+    msg_meta_t *meta = res->u.meta;
+    printf("%s{\n", PRINT_INDENTATION(indentation));
+    printf("%s\tmessageId: %s\n", PRINT_INDENTATION(indentation), meta->msg_id);
+    int len = utarray_len(meta->parents);
+    if (len > 0) {
+      printf("%s\tparentMessageIds: [\n", PRINT_INDENTATION(indentation));
+      for (int i = 0; i < len; i++) {
+        printf(i > 0 ? ",\n" : "");
+        printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(meta->parents, (unsigned int)i));
+      }
+      printf("\n");
+      printf("%s\t]\n", PRINT_INDENTATION(indentation));
+    } else {
+      printf("%s\tparentMessageIds: []\n", PRINT_INDENTATION(indentation));
+    }
+    printf("%s\tisSolid: %s\n", PRINT_INDENTATION(indentation), meta->is_solid ? "true" : "false");
+    printf("%s\treferencedByMilestoneIndex: %u\n", PRINT_INDENTATION(indentation), meta->referenced_milestone);
+    printf("%s\tmilestoneIndex: %u\n", PRINT_INDENTATION(indentation), meta->milestone_idx);
+    if (!buf_all_zeros((uint8_t *)meta->inclusion_state, sizeof(meta->inclusion_state))) {
+      printf("%s\tledgerInclustionState: %s\n", PRINT_INDENTATION(indentation), meta->inclusion_state);
+    }
+    if (meta->should_promote >= 0) {
+      printf("%s\tshouldPromote: %s\n", PRINT_INDENTATION(indentation), meta->should_promote ? "true" : "false");
+    }
+    if (meta->should_reattach >= 0) {
+      printf("%s\tshouldReattach: %s\n", PRINT_INDENTATION(indentation), meta->should_reattach ? "true" : "false");
+    }
+    printf("%s}\n", PRINT_INDENTATION(indentation));
+  }
 }

@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "client/api/json_parser/unlock_blocks.h"
+#include "client/constants.h"
 #include "unity/unity.h"
 
 void setUp(void) {}
