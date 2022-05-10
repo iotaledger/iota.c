@@ -19,8 +19,8 @@ void test_parse_foundry_output_basic() {
       "\"mintedTokens\":\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":8,"
-      "\"aliasId\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[],\"immutableFeatureBlocks\":[]"
-      "}";
+      "\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"featureBlocks\":[],"
+      "\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -79,9 +79,10 @@ void test_parse_foundry_output_full() {
       "\"0x20000000000000000000000000000000000000000\", "
       "\"meltedTokens\":\"0x10000000000000000000000000000000000000000\", \"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,"
-      "\"address\":{\"type\":8,\"aliasId\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{"
-      "\"type\":2,\"data\":\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}],"
-      "\"immutableFeatureBlocks\":[{\"type\":2,\"data\":"
+      "\"address\":{\"type\":8,\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],"
+      "\"featureBlocks\":[{\"type\":2,\"data\":"
+      "\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}],\"immutableFeatureBlocks\":[{"
+      "\"type\":2,\"data\":"
       "\"0x696d6d757461626c654d65746164617461546573745f696d6d757461626c654d65746164617461546573745f\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
@@ -152,8 +153,8 @@ void test_parse_foundry_output_wrong_unlock_condition() {
       "\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":8,"
-      "\"aliasId\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":2,\"data\":"
-      "\"0xmetadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}],"
+      "\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"featureBlocks\":[{"
+      "\"type\":2,\"data\":\"0xmetadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}],"
       "\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
@@ -177,8 +178,8 @@ void test_parse_foundry_output_wrong_feature_block() {
       "\"mintedTokens\":\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":8,"
-      "\"aliasId\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[{\"type\":3,\"tag\":"
-      "\"0xtagDemo_tagDemo_tagDemo\"}],\"immutableFeatureBlocks\":[]}";
+      "\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"featureBlocks\":[{"
+      "\"type\":3,\"tag\":\"0xtagDemo_tagDemo_tagDemo\"}],\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
