@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "core/address.h"
+#include "core/constants.h"
 #include "core/models/outputs/output_foundry.h"
 #include "core/utils/byte_buffer.h"
 #include "crypto/iota_crypto.h"

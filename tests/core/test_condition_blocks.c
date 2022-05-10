@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "core/constants.h"
 #include "core/models/outputs/unlock_conditions.h"
 #include "crypto/iota_crypto.h"
 #include "unity/unity.h"

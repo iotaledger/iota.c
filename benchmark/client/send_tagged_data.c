@@ -9,6 +9,7 @@
 #include "benchmark_config.h"
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/send_tagged_data.h"
+#include "client/constants.h"
 
 int main() {
 #ifdef MTRACE_ENABLED
@@ -44,8 +45,8 @@ int main() {
   }
   res_node_info_free(info);
 
-  printf("[%s:%d]: Message successfully send! URL: http://%s:%d/api/v2/messages/0x%s\n", __func__, __LINE__, NODE_HOST,
-         NODE_PORT, res.u.msg_id);
+  printf("[%s:%d]: Message successfully send! URL: http://%s:%d%s/messages/0x%s\n", __func__, __LINE__, NODE_HOST,
+         NODE_PORT, NODE_API_PATH, res.u.msg_id);
 
   return 0;
 }

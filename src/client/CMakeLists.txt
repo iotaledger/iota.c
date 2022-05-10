@@ -40,6 +40,7 @@ target_sources(
           "api/restful/get_transaction_included_message.c"
   PUBLIC "network/http.h"
          "client_service.h"
+         "constants.h"
          "api/json_parser/json_utils.h"
          "api/json_parser/json_keys.h"
          "api/json_parser/common.h"

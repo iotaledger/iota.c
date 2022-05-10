@@ -90,14 +90,26 @@ size_t get_node_plugins_num(res_node_info_t *info) {
 
 int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   int ret = 0;
-  char const *const cmd_info = "/api/v2/info";
   if (conf == NULL || res == NULL) {
     printf("[%s:%d]: get_node_info failed (null parameter)\n", __func__, __LINE__);
     return -1;
   }
 
+  iota_str_t *cmd = NULL;
+  char const *const cmd_info = "/info";
+  // reserver buffer enough for NODE_API_PATH + cmd_info
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_info) + 1);
+  if (cmd == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API command
+  snprintf(cmd->buf, cmd->cap, "%s%s", NODE_API_PATH, cmd_info);
+  cmd->len = strlen(cmd->buf);
+
   // http client configuration
-  http_client_config_t http_conf = {.host = conf->host, .path = cmd_info, .use_tls = conf->use_tls, .port = conf->port};
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
 
   byte_buf_t *http_res = byte_buf_new();
   if (http_res == NULL) {
@@ -120,6 +132,7 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
   ret = deser_node_info((char const *const)http_res->data, res);
 
 done:
+  iota_str_destroy(cmd);
   byte_buf_free(http_res);
 
   return ret;
