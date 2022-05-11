@@ -7,16 +7,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "core/constants.h"
 #include "core/utils/byte_buffer.h"
 #include "core/utils/uint256.h"
 #include "utlist.h"
-
-// Maximum number of Native Tokens in an output
-#define NATIVE_TOKENS_MAX_COUNT 64
-// Native Token ID length in bytes
-#define NATIVE_TOKEN_ID_BYTES 38
-// Serialized bytes = token ID(38 bytes) + amount(uint256_t)
-#define NATIVE_TOKENS_SERIALIZED_BYTES (NATIVE_TOKEN_ID_BYTES + 32)
 
 /**
  * @brief Native Token structure

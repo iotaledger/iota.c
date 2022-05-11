@@ -9,17 +9,6 @@
 #include "core/utils/byte_buffer.h"
 #include "crypto/iota_crypto.h"
 
-// ed25519 signature block  = signature type + public key + signature
-#define ED25519_SIGNATURE_BLOCK_BYTES (1 + ED_PUBLIC_KEY_BYTES + ED_SIGNATURE_BYTES)  // 97 bytes
-// unlock_type_t + reference = 1 + 2
-#define UNLOCK_REFERENCE_SERIALIZE_BYTES (1 + sizeof(uint16_t))
-//  unlock_type_t + signature type + pub_key + signature
-#define UNLOCK_SIGNATURE_SERIALIZE_BYTES (1 + ED25519_SIGNATURE_BLOCK_BYTES)
-// unlock_type_t + alias index = 1 + 2
-#define UNLOCK_ALIAS_SERIALIZE_BYTES (1 + sizeof(uint16_t))
-// unlock_type_t + NFT index = 1 + 2
-#define UNLOCK_NFT_SERIALIZE_BYTES (1 + sizeof(uint16_t))
-
 /**
  * @brief Unlock block types that are supported by the protocol
  *

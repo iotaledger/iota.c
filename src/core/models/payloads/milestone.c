@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "core/models/payloads/milestone.h"
+#include "core/constants.h"
 #include "core/models/message.h"
 #include "core/models/unlock_block.h"
 #include "core/utils/macros.h"

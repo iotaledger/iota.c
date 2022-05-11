@@ -46,7 +46,7 @@ static int create_unlock_block_alias_or_nft(signing_data_t* sign_data, signing_d
   uint8_t index = 0;
   if (signing_data_list) {
     LL_FOREACH(signing_data_list, elm) {
-      if (memcmp(elm->sign_data->hash, sign_data->unlock_address.address, CRYPTO_BLAKE2B_160_HASH_BYTES) == 0) {
+      if (memcmp(elm->sign_data->hash, sign_data->unlock_address.address, CRYPTO_BLAKE2B_256_HASH_BYTES) == 0) {
         if (sign_data->unlock_address.type == ADDRESS_TYPE_ALIAS) {
           if (unlock_blocks_add_alias(unlock_blocks, index) != 0) {
             printf("[%s:%d] adding Alias unlock block failed\n", __func__, __LINE__);
@@ -95,7 +95,7 @@ int signing_data_add(address_t* unlock_address, byte_t hash[], uint8_t hash_len,
     return -1;
   }
 
-  if (hash != NULL && hash_len < CRYPTO_BLAKE2B_160_HASH_BYTES) {
+  if (hash != NULL && hash_len < CRYPTO_BLAKE2B_256_HASH_BYTES) {
     printf("[%s:%d] hash array length is too small\n", __func__, __LINE__);
     return -1;
   }
@@ -116,7 +116,7 @@ int signing_data_add(address_t* unlock_address, byte_t hash[], uint8_t hash_len,
 
   memcpy(&sign_data->unlock_address, unlock_address, sizeof(address_t));
   if (hash) {
-    memcpy(sign_data->hash, hash, CRYPTO_BLAKE2B_160_HASH_BYTES);
+    memcpy(sign_data->hash, hash, CRYPTO_BLAKE2B_256_HASH_BYTES);
   }
   if (keypair) {
     sign_data->keypair = malloc(sizeof(ed25519_keypair_t));

@@ -183,7 +183,6 @@ err:
       "amount": "10000000",
       "nativeTokens": [],
       "serialNumber": 123456,
-      "tokenTag": "TokenTAGDemo",
       "tokenScheme": {
         "type" : 0,
         "mintedTokens" : "0x100000000000000000000000000000000000000000",
@@ -194,7 +193,7 @@ err:
         {  "type": 0,
            "address": {
             "type": 8,
-            "aliasId": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c"
+            "aliasId": "0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248"
             }
         }
       ],
@@ -246,13 +245,6 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
   uint32_t serial_number;
   if (json_get_uint32(output_obj, JSON_KEY_SERIAL_NUMBER, &serial_number) != JSON_OK) {
     printf("[%s:%d]: getting %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_SERIAL_NUMBER);
-    goto end;
-  }
-
-  // token tag
-  byte_t token_tag[TOKEN_TAG_BYTES_LEN];
-  if (json_get_string_with_prefix(output_obj, JSON_KEY_TOKEN_TAG, (char *)token_tag, TOKEN_TAG_BYTES_LEN) != JSON_OK) {
-    printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_TOKEN_TAG);
     goto end;
   }
 
@@ -328,8 +320,8 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
   }
 
   // create foundry output
-  *foundry = output_foundry_new((address_t *)unlock_cond_address->block, amount, tokens, serial_number, token_tag,
-                                token_scheme, metadata, metadata_len, immut_metadata, immut_metadata_len);
+  *foundry = output_foundry_new((address_t *)unlock_cond_address->block, amount, tokens, serial_number, token_scheme,
+                                metadata, metadata_len, immut_metadata, immut_metadata_len);
   if (!*foundry) {
     printf("[%s:%d]: creating foundry output object failed\n", __func__, __LINE__);
     goto end;
@@ -377,15 +369,6 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
     // serialNumber
     if (!cJSON_AddNumberToObject(output_obj, JSON_KEY_SERIAL_NUMBER, foundry->serial)) {
       printf("[%s:%d] add type to foundry error\n", __func__, __LINE__);
-      goto err;
-    }
-
-    // tokenTag
-    char tag_str[JSON_STR_WITH_PREFIX_BYTES(TOKEN_TAG_BYTES_LEN)] = {};
-    memcpy(tag_str, JSON_HEX_ENCODED_STRING_PREFIX, JSON_HEX_ENCODED_STR_PREFIX_LEN);
-    memcpy(tag_str + JSON_HEX_ENCODED_STR_PREFIX_LEN, foundry->token_tag, TOKEN_TAG_BYTES_LEN);
-    if (!cJSON_AddStringToObject(output_obj, JSON_KEY_TOKEN_TAG, tag_str)) {
-      printf("[%s:%d] add token tag to foundry error\n", __func__, __LINE__);
       goto err;
     }
 

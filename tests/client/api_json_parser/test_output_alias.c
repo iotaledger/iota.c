@@ -17,9 +17,10 @@ void test_parse_alias_output_basic() {
       "{\"type\":4, \"amount\":\"1000000\",\"nativeTokens\":[],\"aliasId\":\"0xtestAliasID\","
       "\"stateIndex\":12345,\"stateMetadata\":\"0xtestMetadataTestMetadataTestMetadata\",\"foundryCounter\":54321,"
       "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"nftId\":"
-      "\"0x6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
-      "{\"type\":5,\"address\":{\"type\":16,\"nftId\":\"0x6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
-      "\"featureBlocks\":[],\"immutableFeatureBlocks\":[]}";
+      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}, "
+      "{\"type\":5,\"address\":{\"type\":16,\"nftId\":"
+      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}],\"featureBlocks\":[],"
+      "\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -58,8 +59,9 @@ void test_parse_alias_output_full() {
       "\"0x7598347598347598\"}],\"aliasId\":\"0xtestAliasID\","
       "\"stateIndex\":12345,\"stateMetadata\":\"0xtestMetadataTestMetadataTestMetadata\",\"foundryCounter\":54321,"
       "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"nftId\":"
-      "\"0x6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
-      "{\"type\":5,\"address\":{\"type\":16,\"nftId\":\"0x6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
+      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}, "
+      "{\"type\":5,\"address\":{\"type\":16,\"nftId\":"
+      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}], "
       "\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,"
       "\"data\":\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}],"
@@ -124,8 +126,9 @@ void test_parse_alias_output_wrong_unlock_condition() {
       "{\"type\":4, \"amount\":\"1000000\",\"nativeTokens\":[],\"aliasId\":\"0xtestAliasID\","
       "\"stateIndex\":12345,\"stateMetadata\":\"0xtestMetadataTestMetadataTestMetadata\",\"foundryCounter\":54321,"
       "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"nftId\":"
-      "\"0x6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}, "
-      "{\"type\":0,\"address\":{\"type\":16,\"nfdId\":\"0x6dadd4deda97ab502c441e46aa60cfd3d13cbcc9\"}}], "
+      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}, "
+      "{\"type\":0,\"address\":{\"type\":16,\"nfdId\":"
+      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}], "
       "\"featureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);

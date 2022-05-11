@@ -36,9 +36,21 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
     return -1;
   }
 
+  iota_str_t *cmd = NULL;
+  char const *const cmd_tips = "/tips";
+  // reserver buffer enough for NODE_API_PATH + cmd_tips
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_tips) + 1);
+  if (cmd == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API command
+  snprintf(cmd->buf, cmd->cap, "%s%s", NODE_API_PATH, cmd_tips);
+  cmd->len = strlen(cmd->buf);
+
   // http client configuration
-  http_client_config_t http_conf = {
-      .host = conf->host, .path = "/api/v2/tips", .use_tls = conf->use_tls, .port = conf->port};
+  http_client_config_t http_conf = {.host = conf->host, .path = cmd->buf, .use_tls = conf->use_tls, .port = conf->port};
 
   byte_buf_t *http_res = byte_buf_new();
   if (!http_res) {
@@ -50,6 +62,7 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
   long status = 0;
   if (http_client_get(&http_conf, http_res, &status) != 0) {
     printf("[%s:%d] network error\n", __func__, __LINE__);
+    iota_str_destroy(cmd);
     byte_buf_free(http_res);
     return -1;
   }
@@ -57,12 +70,14 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
   // convert response byte buffer into a string
   if (byte_buf2str(http_res) != true) {
     printf("[%s:%d]: byte buffer to string conversion failed\n", __func__, __LINE__);
+    iota_str_destroy(cmd);
     byte_buf_free(http_res);
     return -1;
   }
 
   // json deserialization
   int ret = get_tips_deserialize((char const *const)http_res->data, res);
+  iota_str_destroy(cmd);
   byte_buf_free(http_res);
 
   return ret;

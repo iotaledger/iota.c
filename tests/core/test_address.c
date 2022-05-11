@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "core/address.h"
+#include "core/constants.h"
 #include "core/utils/byte_buffer.h"
 #include "core/utils/macros.h"
 #include "crypto/iota_crypto.h"
@@ -262,13 +263,13 @@ void test_alias_gen_iota_network() {
   // alias address
   address_t alias_addr = {};
   alias_addr.type = ADDRESS_TYPE_ALIAS;
-  TEST_ASSERT(hex_2_bin("6457f5f1bc2c3ec696889309cee0665c298f6394", BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL,
-                        alias_addr.address, ALIAS_ID_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248",
+                        BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL, alias_addr.address, ALIAS_ID_BYTES) == 0);
 
   address_t from_bech32 = {};
   char bech32_str[65] = {};
   TEST_ASSERT(address_to_bech32(&alias_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("iota1ppj90a03hskra35k3zfsnnhqvewznrmrjsxjvqlj", bech32_str) == 0);
+  TEST_ASSERT(strcmp("iota1pqq64rfq9fgm2a0tjfyt94vqm3s5j5y07z20crkhnsj5s6f4t9eysrgtqzj", bech32_str) == 0);
   // printf("bech32 [iota]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
@@ -281,7 +282,7 @@ void test_alias_gen_iota_network() {
   TEST_ASSERT(alias_address_from_output(output_id, sizeof(output_id), &alias_addr) == 0);
 
   TEST_ASSERT(address_to_bech32(&alias_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("iota1ppj90a03hskra35k3zfsnnhqvewznrmrjsxjvqlj", bech32_str) == 0);
+  TEST_ASSERT(strcmp("iota1prlgpsht03ekmghhex8v7y67a835uns8dtlxu807hj0v279c74kj76j6rev", bech32_str) == 0);
   // printf("bech32 [iota]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
@@ -292,13 +293,13 @@ void test_alias_gen_iota_test_network() {
   // alias address
   address_t alias_addr = {};
   alias_addr.type = ADDRESS_TYPE_ALIAS;
-  TEST_ASSERT(hex_2_bin("6457f5f1bc2c3ec696889309cee0665c298f6394", BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL,
-                        alias_addr.address, ALIAS_ID_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248",
+                        BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL, alias_addr.address, ALIAS_ID_BYTES) == 0);
 
   address_t from_bech32 = {};
   char bech32_str[65] = {};
   TEST_ASSERT(address_to_bech32(&alias_addr, "atoi", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("atoi1ppj90a03hskra35k3zfsnnhqvewznrmrjstev296", bech32_str) == 0);
+  TEST_ASSERT(strcmp("atoi1pqq64rfq9fgm2a0tjfyt94vqm3s5j5y07z20crkhnsj5s6f4t9eysyx6pcl", bech32_str) == 0);
   // printf("bech32 [atoi]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("atoi", bech32_str, &from_bech32) == 0);
@@ -311,7 +312,7 @@ void test_alias_gen_iota_test_network() {
   TEST_ASSERT(alias_address_from_output(output_id, sizeof(output_id), &alias_addr) == 0);
 
   TEST_ASSERT(address_to_bech32(&alias_addr, "atoi", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("atoi1ppj90a03hskra35k3zfsnnhqvewznrmrjstev296", bech32_str) == 0);
+  TEST_ASSERT(strcmp("atoi1prlgpsht03ekmghhex8v7y67a835uns8dtlxu807hj0v279c74kj7autzrp", bech32_str) == 0);
   // printf("bech32 [atoi]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("atoi", bech32_str, &from_bech32) == 0);
@@ -322,13 +323,13 @@ void test_alias_gen_shimmer_network() {
   // alias address
   address_t alias_addr = {};
   alias_addr.type = ADDRESS_TYPE_ALIAS;
-  TEST_ASSERT(hex_2_bin("6457f5f1bc2c3ec696889309cee0665c298f6394", BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL,
-                        alias_addr.address, ALIAS_ID_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248",
+                        BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL, alias_addr.address, ALIAS_ID_BYTES) == 0);
 
   address_t from_bech32 = {};
   char bech32_str[65] = {};
   TEST_ASSERT(address_to_bech32(&alias_addr, "smr", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("smr1ppj90a03hskra35k3zfsnnhqvewznrmrjs3m980c", bech32_str) == 0);
+  TEST_ASSERT(strcmp("smr1pqq64rfq9fgm2a0tjfyt94vqm3s5j5y07z20crkhnsj5s6f4t9eys5cjq5r", bech32_str) == 0);
   // printf("bech32 [smr]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("smr", bech32_str, &from_bech32) == 0);
@@ -341,7 +342,7 @@ void test_alias_gen_shimmer_network() {
   TEST_ASSERT(alias_address_from_output(output_id, sizeof(output_id), &alias_addr) == 0);
 
   TEST_ASSERT(address_to_bech32(&alias_addr, "smr", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("smr1ppj90a03hskra35k3zfsnnhqvewznrmrjs3m980c", bech32_str) == 0);
+  TEST_ASSERT(strcmp("smr1prlgpsht03ekmghhex8v7y67a835uns8dtlxu807hj0v279c74kj7dzrr0a", bech32_str) == 0);
   // printf("bech32 [smr]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("smr", bech32_str, &from_bech32) == 0);
@@ -352,13 +353,13 @@ void test_alias_gen_shimmer_test_network() {
   // alias address
   address_t alias_addr = {};
   alias_addr.type = ADDRESS_TYPE_ALIAS;
-  TEST_ASSERT(hex_2_bin("6457f5f1bc2c3ec696889309cee0665c298f6394", BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL,
-                        alias_addr.address, ALIAS_ID_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248",
+                        BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL, alias_addr.address, ALIAS_ID_BYTES) == 0);
 
   address_t from_bech32 = {};
   char bech32_str[65] = {};
   TEST_ASSERT(address_to_bech32(&alias_addr, "rms", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("rms1ppj90a03hskra35k3zfsnnhqvewznrmrjskcefsh", bech32_str) == 0);
+  TEST_ASSERT(strcmp("rms1pqq64rfq9fgm2a0tjfyt94vqm3s5j5y07z20crkhnsj5s6f4t9eysqle606", bech32_str) == 0);
   // printf("bech32 [rms]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("rms", bech32_str, &from_bech32) == 0);
@@ -371,7 +372,7 @@ void test_alias_gen_shimmer_test_network() {
   TEST_ASSERT(alias_address_from_output(output_id, sizeof(output_id), &alias_addr) == 0);
 
   TEST_ASSERT(address_to_bech32(&alias_addr, "rms", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("rms1ppj90a03hskra35k3zfsnnhqvewznrmrjskcefsh", bech32_str) == 0);
+  TEST_ASSERT(strcmp("rms1prlgpsht03ekmghhex8v7y67a835uns8dtlxu807hj0v279c74kj7e9ge5y", bech32_str) == 0);
   // printf("bech32 [rms]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("rms", bech32_str, &from_bech32) == 0);
@@ -382,13 +383,13 @@ void test_nft_gen_iota_network() {
   // NFT address
   address_t nft_addr = {};
   nft_addr.type = ADDRESS_TYPE_NFT;
-  TEST_ASSERT(hex_2_bin("a1d81f43cc3cc1fe80c594481a63de76eb0d23e1", BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL,
-                        nft_addr.address, NFT_ID_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f",
+                        BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL, nft_addr.address, NFT_ID_BYTES) == 0);
 
   address_t from_bech32 = {};
   char bech32_str[65] = {};
   TEST_ASSERT(address_to_bech32(&nft_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("iota1zzsas86res7vrl5qck2ysxnrmemwkrfruyltffrq", bech32_str) == 0);
+  TEST_ASSERT(strcmp("iota1zqvus2ejwc0asu56rfk80a7pwkt7fwdszavhjnjj8q0k5qzskrq379njp5j", bech32_str) == 0);
   // printf("bech32 [iota]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
@@ -401,7 +402,7 @@ void test_nft_gen_iota_network() {
   TEST_ASSERT(nft_address_from_output(output_id, sizeof(output_id), &nft_addr) == 0);
 
   TEST_ASSERT(address_to_bech32(&nft_addr, "iota", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("iota1zzsas86res7vrl5qck2ysxnrmemwkrfruyltffrq", bech32_str) == 0);
+  TEST_ASSERT(strcmp("iota1zqc4nvg4ufcj3dkmzmd4uc034fx8pkz2nxl820a28mnsmxkec6ntw0vklm7", bech32_str) == 0);
   // printf("bech32 [iota]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("iota", bech32_str, &from_bech32) == 0);
@@ -412,13 +413,13 @@ void test_nft_gen_iota_test_network() {
   // NFT address
   address_t nft_addr = {};
   nft_addr.type = ADDRESS_TYPE_NFT;
-  TEST_ASSERT(hex_2_bin("a1d81f43cc3cc1fe80c594481a63de76eb0d23e1", BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL,
-                        nft_addr.address, NFT_ID_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f",
+                        BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL, nft_addr.address, NFT_ID_BYTES) == 0);
 
   address_t from_bech32 = {};
   char bech32_str[65] = {};
   TEST_ASSERT(address_to_bech32(&nft_addr, "atoi", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("atoi1zzsas86res7vrl5qck2ysxnrmemwkrfruyjqfreg", bech32_str) == 0);
+  TEST_ASSERT(strcmp("atoi1zqvus2ejwc0asu56rfk80a7pwkt7fwdszavhjnjj8q0k5qzskrq37zarqwl", bech32_str) == 0);
   // printf("bech32 [atoi]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("atoi", bech32_str, &from_bech32) == 0);
@@ -431,7 +432,7 @@ void test_nft_gen_iota_test_network() {
   TEST_ASSERT(nft_address_from_output(output_id, sizeof(output_id), &nft_addr) == 0);
 
   TEST_ASSERT(address_to_bech32(&nft_addr, "atoi", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("atoi1zzsas86res7vrl5qck2ysxnrmemwkrfruyjqfreg", bech32_str) == 0);
+  TEST_ASSERT(strcmp("atoi1zqc4nvg4ufcj3dkmzmd4uc034fx8pkz2nxl820a28mnsmxkec6ntwgz87pn", bech32_str) == 0);
   // printf("bech32 [atoi]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("atoi", bech32_str, &from_bech32) == 0);
@@ -442,13 +443,13 @@ void test_nft_gen_shimmer_network() {
   // NFT address
   address_t nft_addr = {};
   nft_addr.type = ADDRESS_TYPE_NFT;
-  TEST_ASSERT(hex_2_bin("a1d81f43cc3cc1fe80c594481a63de76eb0d23e1", BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL,
-                        nft_addr.address, NFT_ID_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f",
+                        BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL, nft_addr.address, NFT_ID_BYTES) == 0);
 
   address_t from_bech32 = {};
   char bech32_str[65] = {};
   TEST_ASSERT(address_to_bech32(&nft_addr, "smr", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("smr1zzsas86res7vrl5qck2ysxnrmemwkrfruygzqwn2", bech32_str) == 0);
+  TEST_ASSERT(strcmp("smr1zqvus2ejwc0asu56rfk80a7pwkt7fwdszavhjnjj8q0k5qzskrq37jrtpzr", bech32_str) == 0);
   // printf("bech32 [smr]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("smr", bech32_str, &from_bech32) == 0);
@@ -461,7 +462,7 @@ void test_nft_gen_shimmer_network() {
   TEST_ASSERT(nft_address_from_output(output_id, sizeof(output_id), &nft_addr) == 0);
 
   TEST_ASSERT(address_to_bech32(&nft_addr, "smr", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("smr1zzsas86res7vrl5qck2ysxnrmemwkrfruygzqwn2", bech32_str) == 0);
+  TEST_ASSERT(strcmp("smr1zqc4nvg4ufcj3dkmzmd4uc034fx8pkz2nxl820a28mnsmxkec6ntwcu0ld0", bech32_str) == 0);
   // printf("bech32 [smr]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("smr", bech32_str, &from_bech32) == 0);
@@ -472,13 +473,13 @@ void test_nft_gen_shimmer_test_network() {
   // NFT address
   address_t nft_addr = {};
   nft_addr.type = ADDRESS_TYPE_NFT;
-  TEST_ASSERT(hex_2_bin("a1d81f43cc3cc1fe80c594481a63de76eb0d23e1", BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL,
-                        nft_addr.address, NFT_ID_BYTES) == 0);
+  TEST_ASSERT(hex_2_bin("19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f",
+                        BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL, nft_addr.address, NFT_ID_BYTES) == 0);
 
   address_t from_bech32 = {};
   char bech32_str[65] = {};
   TEST_ASSERT(address_to_bech32(&nft_addr, "rms", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("rms1zzsas86res7vrl5qck2ysxnrmemwkrfruy0puqv9", bech32_str) == 0);
+  TEST_ASSERT(strcmp("rms1zqvus2ejwc0asu56rfk80a7pwkt7fwdszavhjnjj8q0k5qzskrq37xyqme6", bech32_str) == 0);
   // printf("bech32 [rms]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("rms", bech32_str, &from_bech32) == 0);
@@ -491,7 +492,7 @@ void test_nft_gen_shimmer_test_network() {
   TEST_ASSERT(nft_address_from_output(output_id, sizeof(output_id), &nft_addr) == 0);
 
   TEST_ASSERT(address_to_bech32(&nft_addr, "rms", bech32_str, sizeof(bech32_str)) == 0);
-  TEST_ASSERT(strcmp("rms1zzsas86res7vrl5qck2ysxnrmemwkrfruy0puqv9", bech32_str) == 0);
+  TEST_ASSERT(strcmp("rms1zqc4nvg4ufcj3dkmzmd4uc034fx8pkz2nxl820a28mnsmxkec6ntwvmy9kk", bech32_str) == 0);
   // printf("bech32 [rms]: %s\n", bech32_str);
 
   TEST_ASSERT(address_from_bech32("rms", bech32_str, &from_bech32) == 0);

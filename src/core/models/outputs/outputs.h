@@ -12,11 +12,6 @@
 #include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/output_nft.h"
 
-// Maximum number of outputs in a transaction payload.
-#define UTXO_OUTPUT_MAX_COUNT 128
-
-static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
-
 /**
  * @brief UTXO output types
  *

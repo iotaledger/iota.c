@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unity/unity.h>
 
+#include "core/constants.h"
 #include "core/models/unlock_block.h"
 
 void setUp(void) {}

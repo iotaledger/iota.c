@@ -9,9 +9,6 @@
 
 #include "core/models/payloads/milestone.h"
 
-// Message ID length in binary form
-#define IOTA_MESSAGE_ID_BYTES 32
-
 typedef enum {
   CORE_MESSAGE_PAYLOAD_DEPRECATED_0 = 0,
   CORE_MESSAGE_PAYLOAD_DEPRECATED_1,
