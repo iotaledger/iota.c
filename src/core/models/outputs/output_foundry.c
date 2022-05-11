@@ -252,8 +252,8 @@ void token_scheme_print(token_scheme_t* scheme, uint8_t indentation) {
 }
 
 output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_tokens_list_t* tokens,
-                                     uint32_t serial_num, byte_t token_tag[], token_scheme_t* token_scheme,
-                                     byte_t meta[], size_t meta_len, byte_t immut_meta[], size_t immut_meta_len) {
+                                     uint32_t serial_num, token_scheme_t* token_scheme, byte_t meta[], size_t meta_len,
+                                     byte_t immut_meta[], size_t immut_meta_len) {
   if (!alias || !token_scheme) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
@@ -294,8 +294,6 @@ output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_t
 
   // Store serial number
   output->serial = serial_num;
-  // Copy token tag, 12 bytes
-  memcpy(output->token_tag, token_tag, TOKEN_TAG_BYTES_LEN);
   // Add token scheme
   output->token_scheme = token_scheme_clone(token_scheme);
 
@@ -364,8 +362,6 @@ size_t output_foundry_serialize_len(output_foundry_t* output) {
   length += native_tokens_serialize_len(output->native_tokens);
   // serial number
   length += sizeof(output->serial);
-  // token tag
-  length += TOKEN_TAG_BYTES_LEN;
   // token_scheme
   length += token_scheme_serialize_len(output->token_scheme);
   // unlock conditions
@@ -404,9 +400,6 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
   // serial number
   memcpy(buf + offset, &output->serial, sizeof(output->serial));
   offset += sizeof(output->serial);
-  // token tag
-  memcpy(buf + offset, output->token_tag, TOKEN_TAG_BYTES_LEN);
-  offset += TOKEN_TAG_BYTES_LEN;
   // token scheme
   offset += token_scheme_serialize(output->token_scheme, buf + offset, buf_len - offset);
   // condition blocks
@@ -480,15 +473,6 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   }
   memcpy(&output->serial, &buf[offset], sizeof(output->serial));
   offset += sizeof(output->serial);
-
-  // token tag
-  if (buf_len < offset + TOKEN_TAG_BYTES_LEN) {
-    printf("[%s:%d] invalid data length\n", __func__, __LINE__);
-    output_foundry_free(output);
-    return NULL;
-  }
-  memcpy(&output->token_tag, &buf[offset], TOKEN_TAG_BYTES_LEN);
-  offset += TOKEN_TAG_BYTES_LEN;
 
   // token scheme
   output->token_scheme = token_scheme_deserialize(&buf[offset], buf_len - offset);
@@ -577,7 +561,6 @@ output_foundry_t* output_foundry_clone(output_foundry_t const* const output) {
     new_output->amount = output->amount;
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
     new_output->serial = output->serial;
-    memcpy(new_output->token_tag, output->token_tag, TOKEN_TAG_BYTES_LEN);
     new_output->token_scheme = token_scheme_clone(output->token_scheme);
     new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
     new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
@@ -601,10 +584,6 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
   native_tokens_print(output->native_tokens, indentation + 1);
 
   printf("%s\tSerial Number: %" PRIu32 "\n", PRINT_INDENTATION(indentation), output->serial);
-
-  // print token tag
-  printf("%s\tToken Tag: ", PRINT_INDENTATION(indentation));
-  dump_hex_str(output->token_tag, TOKEN_TAG_BYTES_LEN);
 
   // print token scheme
   token_scheme_print(output->token_scheme, indentation + 1);

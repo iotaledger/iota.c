@@ -15,8 +15,8 @@ void tearDown(void) {}
 
 void test_parse_foundry_output_basic() {
   char const *const json_res =
-      "{\"type\":5,\"amount\":\"1000000\",\"nativeTokens\":[],\"serialNumber\":123456,\"tokenTag\":\"0xTokenTAGDemo\","
-      "\"tokenScheme\":{\"type\":0,\"mintedTokens\":\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
+      "{\"type\":5,\"amount\":\"1000000\",\"nativeTokens\":[],\"serialNumber\":123456,\"tokenScheme\":{\"type\":0,"
+      "\"mintedTokens\":\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":8,"
       "\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"featureBlocks\":[],"
@@ -32,8 +32,6 @@ void test_parse_foundry_output_basic() {
   TEST_ASSERT_EQUAL_UINT64(1000000, foundry_output->amount);
   TEST_ASSERT_NULL(foundry_output->native_tokens);
   TEST_ASSERT_EQUAL_UINT32(123456, foundry_output->serial);
-  char *tag_str = "TokenTAGDemo";
-  TEST_ASSERT_EQUAL_MEMORY((byte_t *)tag_str, foundry_output->token_tag, TOKEN_TAG_BYTES_LEN);
 
   // check token scheme
   TEST_ASSERT_EQUAL_UINT8(0, foundry_output->token_scheme->type);
@@ -77,9 +75,9 @@ void test_parse_foundry_output_full() {
       "\"0x08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\",\"amount\":"
       "\"0x93847598347598347598347598\"},{\"id\":"
       "\"0x09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
-      "\"0x7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"0xTokenTAGDemo\",\"tokenScheme\":{\"type\":0, "
-      "\"mintedTokens\":\"0x20000000000000000000000000000000000000000\", \"meltedTokens\":"
-      "\"0x10000000000000000000000000000000000000000\", \"maximumSupply\":"
+      "\"0x7598347598347598\"}],\"serialNumber\":123456,\"tokenScheme\":{\"type\":0,\"mintedTokens\":"
+      "\"0x20000000000000000000000000000000000000000\", "
+      "\"meltedTokens\":\"0x10000000000000000000000000000000000000000\", \"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,"
       "\"address\":{\"type\":8,\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],"
       "\"featureBlocks\":[{\"type\":2,\"data\":"
@@ -108,8 +106,6 @@ void test_parse_foundry_output_full() {
   TEST_ASSERT_NOT_NULL(native_tokens_find_by_id(foundry_output->native_tokens, token_id));
 
   TEST_ASSERT_EQUAL_UINT32(123456, foundry_output->serial);
-  char *tag_str = "TokenTAGDemo";
-  TEST_ASSERT_EQUAL_MEMORY((byte_t *)tag_str, foundry_output->token_tag, TOKEN_TAG_BYTES_LEN);
 
   // check token scheme
   TEST_ASSERT_EQUAL_UINT8(0, foundry_output->token_scheme->type);
@@ -153,8 +149,8 @@ void test_parse_foundry_output_wrong_unlock_condition() {
       "\"0x08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\",\"amount\":"
       "\"0x93847598347598347598347598\"},{\"id\":"
       "\"0x09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
-      "\"0x7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\",\"tokenScheme\":{\"type\":0,"
-      "\"mintedTokens\":\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
+      "\"0x7598347598347598\"}],\"serialNumber\":123456,\"tokenScheme\":{\"type\":0,\"mintedTokens\":"
+      "\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":8,"
       "\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"featureBlocks\":[{"
@@ -178,7 +174,7 @@ void test_parse_foundry_output_wrong_feature_block() {
       "\"0x08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\",\"amount\":"
       "\"0x93847598347598347598347598\"},{\"id\":"
       "\"0x09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
-      "\"0x7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\",\"tokenScheme\":{\"type\":0,"
+      "\"0x7598347598347598\"}],\"serialNumber\":123456,\"tokenScheme\":{\"type\":0,"
       "\"mintedTokens\":\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":8,"
@@ -202,12 +198,12 @@ void test_parse_foundry_output_wrong_immutable_feature_block() {
       "\"0x08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\",\"amount\":"
       "\"0x93847598347598347598347598\"},{\"id\":"
       "\"0x09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
-      "\"0x7598347598347598\"}],\"serialNumber\":123456,\"tokenTag\":\"TokenTAGDemo\",\"tokenScheme\":{\"type\":0,"
-      "\"mintedTokens\":\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
+      "\"0x7598347598347598\"}],\"serialNumber\":123456,\"tokenScheme\":{\"type\":0,\"mintedTokens\":"
+      "\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
-      "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,"
-      "\"address\":{\"type\":8,\"address\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],"
-      "\"featureBlocks\":[],\"immutableFeatureBlocks\":[{\"type\":3,\"tag\":\"0xtagDemo_tagDemo_tagDemo\"}]}";
+      "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":8,"
+      "\"address\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[],\"immutableFeatureBlocks\":[{"
+      "\"type\":3,\"tag\":\"0xtagDemo_tagDemo_tagDemo\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);

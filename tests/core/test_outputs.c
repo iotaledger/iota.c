@@ -147,15 +147,11 @@ static output_foundry_t* create_output_foundry() {
   addr.type = ADDRESS_TYPE_ALIAS;
   iota_crypto_randombytes(addr.address, ALIAS_ID_BYTES);
 
-  // create random token tag
-  byte_t token_tag[TOKEN_TAG_BYTES_LEN];
-  iota_crypto_randombytes(token_tag, TOKEN_TAG_BYTES_LEN);
-
   // create token scheme
   token_scheme_t* token_scheme = token_scheme_simple_new(minted_tokens, melted_tokens, max_supply);
 
   // create Foundry Output
-  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_tag, token_scheme, test_meta,
+  output_foundry_t* output = output_foundry_new(&addr, 123456789, native_tokens, 22, token_scheme, test_meta,
                                                 sizeof(test_meta), test_immut_meta, sizeof(test_immut_meta));
 
   uint256_free(amount1);
@@ -312,7 +308,6 @@ void test_utxo_outputs() {
   TEST_ASSERT_EQUAL_UINT8(native_tokens_count(foundry_output->native_tokens),
                           native_tokens_count(foundry_from_deser->native_tokens));
   TEST_ASSERT_EQUAL_INT32(foundry_output->serial, foundry_from_deser->serial);
-  TEST_ASSERT_EQUAL_MEMORY(foundry_output->token_tag, foundry_from_deser->token_tag, TOKEN_TAG_BYTES_LEN);
   TEST_ASSERT_EQUAL_UINT8(foundry_output->token_scheme->type, foundry_from_deser->token_scheme->type);
   token_scheme_simple_t* simple_scheme = foundry_output->token_scheme->token_scheme;
   TEST_ASSERT_NOT_NULL(simple_scheme);

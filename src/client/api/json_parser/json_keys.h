@@ -92,7 +92,6 @@ static char const* const JSON_KEY_STATE_INDEX = "stateIndex";
 static char const* const JSON_KEY_FOUNDRY_COUNTER = "foundryCounter";
 static char const* const JSON_KEY_STATE_METADATA = "stateMetadata";
 static char const* const JSON_KEY_SERIAL_NUMBER = "serialNumber";
-static char const* const JSON_KEY_TOKEN_TAG = "tokenTag";
 static char const* const JSON_KEY_MINTED_TOKENS = "mintedTokens";
 static char const* const JSON_KEY_MELTED_TOKENS = "meltedTokens";
 static char const* const JSON_KEY_MAX_SUPPLY = "maximumSupply";
