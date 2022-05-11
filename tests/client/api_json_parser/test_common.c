@@ -35,7 +35,7 @@ void test_parse_ed25519_address() {
 void test_parse_alias_address() {
   char const* const json_res =
       "{\"address\":{\"type\":8,\"aliasId\":"
-      "\"0xad32258255e7cf927a4833f457f220b7187cf975\"}}";
+      "\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -45,8 +45,8 @@ void test_parse_alias_address() {
 
   address_t test_addr;
   test_addr.type = ADDRESS_TYPE_ALIAS;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975", BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL, test_addr.address,
-            ALIAS_ID_BYTES);
+  hex_2_bin("01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248", BIN_TO_HEX_BYTES(ALIAS_ID_BYTES), NULL,
+            test_addr.address, ALIAS_ID_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, &address));
 
   cJSON_Delete(json_obj);
@@ -55,7 +55,7 @@ void test_parse_alias_address() {
 void test_parse_nft_address() {
   char const* const json_res =
       "{\"address\":{\"type\":16,\"nftId\":"
-      "\"0xad32258255e7cf927a4833f457f220b7187cf975\"}}";
+      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -65,8 +65,8 @@ void test_parse_nft_address() {
 
   address_t test_addr;
   test_addr.type = ADDRESS_TYPE_NFT;
-  hex_2_bin("ad32258255e7cf927a4833f457f220b7187cf975", BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL, test_addr.address,
-            NFT_ID_BYTES);
+  hex_2_bin("19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f", BIN_TO_HEX_BYTES(NFT_ID_BYTES), NULL,
+            test_addr.address, NFT_ID_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, &address));
 
   cJSON_Delete(json_obj);
@@ -75,7 +75,7 @@ void test_parse_nft_address() {
 void test_parse_unsupported_address_type() {
   char const* const json_res =
       "{\"address\":{\"type\":10,\"address\":"
-      "\"0xad32258255e7cf927a4833f457f220b7187cf975\"}}";
+      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 

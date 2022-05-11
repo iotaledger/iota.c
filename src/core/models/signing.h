@@ -15,7 +15,7 @@
  */
 typedef struct {
   address_t unlock_address;  ///< Address in Unlock Condition (Address, Governor, State Controller) - ED25519/NFT/Alias
-  byte_t hash[CRYPTO_BLAKE2B_160_HASH_BYTES];  ///< Optional, a NFT/Alias ID in the utxo_output
+  byte_t hash[CRYPTO_BLAKE2B_256_HASH_BYTES];  ///< Optional, a NFT/Alias ID in the utxo_output
   ed25519_keypair_t* keypair;                  ///< Optional, ed25519 keypair (this is for ed25519 address)
 } signing_data_t;
 

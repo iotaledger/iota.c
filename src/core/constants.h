@@ -23,10 +23,10 @@
 /****** Constants related to addresses ******/
 // An Ed25519 address is the Blake2b-256 hash of an Ed25519 public key.
 #define ED25519_PUBKEY_BYTES ED_PUBLIC_KEY_BYTES
-// An Alias address is the Blake2b-160 hash of the OutputID which created it.
-#define ALIAS_ID_BYTES CRYPTO_BLAKE2B_160_HASH_BYTES
-// A NFT address is the Blake2b-160 hash of the OutputID which created it.
-#define NFT_ID_BYTES CRYPTO_BLAKE2B_160_HASH_BYTES
+// An Alias address is the Blake2b-256 hash of the OutputID which created it.
+#define ALIAS_ID_BYTES CRYPTO_BLAKE2B_256_HASH_BYTES
+// A NFT address is the Blake2b-256 hash of the OutputID which created it.
+#define NFT_ID_BYTES CRYPTO_BLAKE2B_256_HASH_BYTES
 // Maximum number of bytes an address can hold.
 #define ADDRESS_MAX_BYTES ED25519_PUBKEY_BYTES
 // Minimum number of bytes an address can hold.
@@ -69,8 +69,6 @@
 /****** Constants related to foundry output ******/
 // The concatenation of Address || Serial Number || Token Scheme Type
 #define FOUNDRY_ID_BYTES 26
-// Token tag length in bytes
-#define TOKEN_TAG_BYTES_LEN 12
 
 /****** Constants related to UTXO output ******/
 // Maximum number of outputs in a transaction payload.

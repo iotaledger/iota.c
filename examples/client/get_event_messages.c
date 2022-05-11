@@ -17,8 +17,8 @@ char const *const test_message_id = "4a0c386d0587a6fda9defb85103e975714e6baeb7cd
 char const *const test_transaction_id = "5e753f69b44870aa6a90adf2c366dccac00097c41d5c884dd81ef7cf29eefdd7";
 char const *const test_bech32 = "atoi1qqs7y6ec5vcg6cnz46vjrar2epc52lhksyar3a4zua7fg7ca08y5ymep8aa";
 char const *const test_output_id = "5e753f69b44870aa6a90adf2c366dccac00097c41d5c884dd81ef7cf29eefdd70000";
-char const *const alias_id = "23dc192ede262b3f4bce379b26c31bad029f62fe";
-char const *const nft_id = "efdc112efe262b304bcf379b26c31bad029f61de";
+char const *const alias_id = "01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248";
+char const *const nft_id = "19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f";
 char const *const foundry_id = "56ec192ede262b3f4bce379b26c31bad029f63bc23ef56ee48cf";
 char const *const test_tag = "IOTA TEST DATA";
 

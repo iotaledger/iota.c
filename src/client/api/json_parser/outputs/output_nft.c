@@ -15,7 +15,7 @@
     { "type": 6,
       "amount": "10000000",
       "nativeTokens": [],
-      "nftId": "0xbebc45994f6bd9394f552b62c6e370ce1ab52d2e",
+      "nftId": "0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f",
       "unlockConditions": [],
       "featureBlocks": [],
       "immutableFeatureBlocks": []
