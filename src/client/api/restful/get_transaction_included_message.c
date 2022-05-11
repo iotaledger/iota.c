@@ -55,6 +55,7 @@ int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char 
 
 done:
   // cleanup command
+  iota_str_destroy(cmd);
   byte_buf_free(http_res);
   return ret;
 }
