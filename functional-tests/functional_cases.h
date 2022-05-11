@@ -18,6 +18,7 @@ typedef struct {
   char mnemonic[512];                ///< mnemonic sentence
   uint32_t sender_index;             ///< Index of sender address
   uint32_t receiver_index;           ///< Index of receiver address
+  uint32_t coin_type;                ///< SLIP44 coin type
   iota_client_conf_t node_config;    ///< node config
   iota_client_conf_t faucet_config;  ///< faucet config
   bool show_payload;                 ///< True for showing message payloads

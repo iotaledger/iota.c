@@ -22,6 +22,15 @@
 #define FAUCET_PORT 8091
 #define FAUCET_IS_HTTPS 0
 
+// predefined coin types
+#if defined(NETWORK_TYPE_SHIMMER)
+#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_SHIMMER
+#elif defined(NETWORK_TYPE_MAINNET)
+#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_IOTA
+#else
+#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_TEST
+#endif
+
 void setUp(void) {}
 
 void tearDown(void) {}
@@ -32,16 +41,16 @@ static char const* const test_mnemonic =
 
 void test_wallet_creation() {
   // create wallet with mnemonic
-  iota_wallet_t* w = wallet_create(test_mnemonic, "", 0);
+  iota_wallet_t* w = wallet_create(test_mnemonic, "", SLIP44_COIN_TYPE, 0);
   TEST_ASSERT_NOT_NULL(w);
   wallet_destroy(w);
   w = NULL;
 
-  w = wallet_create(NULL, NULL, 0);
+  w = wallet_create(NULL, NULL, SLIP44_COIN_TYPE, 0);
   TEST_ASSERT_NULL(w);
   wallet_destroy(w);
 
-  w = wallet_create(NULL, "", 0);
+  w = wallet_create(NULL, "", SLIP44_COIN_TYPE, 0);
   TEST_ASSERT_NOT_NULL(w);
   wallet_destroy(w);
 }
@@ -58,7 +67,7 @@ void test_wallet_ed25519_address() {
                                              0xB3, 0x2A, 0x5C, 0x38, 0xD1, 0x6,  0x3,  0x57, 0x43, 0x58};
   char exp_bech32[] = "iota1qpg2xkj66wwgn8p2ggnp7p582gj8g6p79us5hve2tsudzpsr2ap4skprwjg";
 
-  iota_wallet_t* w = wallet_create(test_mnemonic, "", 0);
+  iota_wallet_t* w = wallet_create(test_mnemonic, "", SLIP44_COIN_TYPE_IOTA, 0);
   TEST_ASSERT(wallet_ed25519_address_from_index(w, false, 0, &tmp_addr) == 0);
   TEST_ASSERT_EQUAL_MEMORY(exp_pubkey, tmp_addr.address, sizeof(exp_pubkey));
   TEST_ASSERT_EQUAL_MEMORY(exp_seed, w->seed, sizeof(exp_seed));
@@ -84,7 +93,7 @@ static int request_token(char const* const addr) {
 }
 
 void test_wallet_basic_transfer() {
-  iota_wallet_t* w = wallet_create(test_mnemonic, "", 0);
+  iota_wallet_t* w = wallet_create(test_mnemonic, "", SLIP44_COIN_TYPE, 0);
   TEST_ASSERT_NOT_NULL(w);
 
   // set endpoint and update node info

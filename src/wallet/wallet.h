@@ -29,10 +29,13 @@ extern "C" {
 #define NODE_DEFAULT_HOST "chrysalis-nodes.iota.org"
 #define NODE_DEFAULT_PORT 443
 
-// a custom bip44 coin type, for the wallet application
-#define WALLET_CUSTOM_COIN_TYPE 1234
-// HRP for hornet provate tangle
-#define WALLET_CUSTOM_NETWORK_HRP "tst"
+// Registered coin types: https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+// default coin type for testnet (all coins)
+#define SLIP44_COIN_TYPE_TEST 1
+// default coin type for IOTA mainnet
+#define SLIP44_COIN_TYPE_IOTA 4218
+// default coin type for IOTA shimmer
+#define SLIP44_COIN_TYPE_SHIMMER 4219
 
 /**
  * @brief IOTA wallet setting
@@ -42,6 +45,7 @@ typedef struct {
   byte_t seed[64];               ///< the mnemonic seed of this wallet
   char bech32HRP[8];             ///< The Bech32 HRP of the network. `iota` for mainnet, `atoi` for testnet.
   uint32_t account_index;        ///< wallet account index
+  uint32_t coin_type;            ///< the path component of SLIP44 coin type
   iota_client_conf_t endpoint;   ///< IOTA node endpoint
   uint8_t protocol_version;      ///< Network protocol version of the connected node
   uint64_t network_id;           ///< Network ID of the connected node
@@ -53,10 +57,11 @@ typedef struct {
  *
  * @param[in] ms A string of mnemonic, NULL for genrating a random mnemonic
  * @param[in] pwd A passphase for seed deivation
+ * @param[in] coin_type The path component of SLIP44 coin type
  * @param[in] account_index The account index
  * @return iota_wallet_t*
  */
-iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t account_index);
+iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t coin_type, uint32_t account_index);
 
 /**
  * @brief Set a node endpoint, if not calling this method default is "http://localhost:14265/"
