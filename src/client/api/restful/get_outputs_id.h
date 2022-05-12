@@ -159,71 +159,85 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res);
  * @brief Gets output IDs from a given address
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] list A list of optional query parameters
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
+int get_basic_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                      res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given NFT address
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] addr An NFT address in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_nft_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
+int get_nft_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                    res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Alias address
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] list A list of optional query parameters
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_alias_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
+int get_alias_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                      res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Foundry address
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] list A list of optional query parameters
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_foundry_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
+int get_foundry_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                        res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given NFT ID
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] nft_id An NFT ID in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[], res_outputs_id_t *res);
+int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const *const indexer_path, char const nft_id[],
+                            res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Alias ID
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] alias_id An Alias ID in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_id[], res_outputs_id_t *res);
+int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const *const indexer_path, char const alias_id[],
+                              res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Foundry ID
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] foundry_id A Foundry ID in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const foundry_id[], res_outputs_id_t *res);
+int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const *const indexer_path, char const foundry_id[],
+                                res_outputs_id_t *res);
 
 #ifdef __cplusplus
 }
