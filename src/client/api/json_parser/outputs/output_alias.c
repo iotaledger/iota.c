@@ -49,9 +49,11 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
   sscanf(str_buff, "%" SCNu64, &amount);
 
   // native tokens array
-  if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
-    printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
-    goto end;
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_NATIVE_TOKENS) != NULL) {
+    if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
+      goto end;
+    }
   }
 
   // aliasId
@@ -69,9 +71,11 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
   }
 
   // stateMetadata
-  if (json_get_byte_buf_str(output_obj, JSON_KEY_STATE_METADATA, state_metadata) != JSON_OK) {
-    printf("[%s:%d]: getting %s json byte buffer failed\n", __func__, __LINE__, JSON_KEY_STATE_METADATA);
-    goto end;
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_STATE_METADATA) != NULL) {
+    if (json_get_byte_buf_str(output_obj, JSON_KEY_STATE_METADATA, state_metadata) != JSON_OK) {
+      printf("[%s:%d]: getting %s json byte buffer failed\n", __func__, __LINE__, JSON_KEY_STATE_METADATA);
+      goto end;
+    }
   }
 
   // foundryCounter
@@ -88,15 +92,19 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
   }
 
   // feature blocks array
-  if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
-    printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
-    goto end;
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS) != NULL) {
+    if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
+      goto end;
+    }
   }
 
   // immutable feature blocks array
-  if (json_feat_blocks_deserialize(output_obj, true, &immut_feat_blocks) != 0) {
-    printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_IMMUTABLE_BLOCKS);
-    goto end;
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_BLOCKS) != NULL) {
+    if (json_feat_blocks_deserialize(output_obj, true, &immut_feat_blocks) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_IMMUTABLE_BLOCKS);
+      goto end;
+    }
   }
 
   // create alias output

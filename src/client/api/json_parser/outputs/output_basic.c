@@ -41,9 +41,11 @@ int json_output_basic_deserialize(cJSON *output_obj, output_basic_t **basic) {
   sscanf(str_buff, "%" SCNu64, &amount);
 
   // native tokens array
-  if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
-    printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
-    goto end;
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_NATIVE_TOKENS) != NULL) {
+    if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
+      goto end;
+    }
   }
 
   // unlock conditions array
@@ -53,9 +55,11 @@ int json_output_basic_deserialize(cJSON *output_obj, output_basic_t **basic) {
   }
 
   // feature blocks array
-  if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
-    printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
-    goto end;
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS) != NULL) {
+    if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
+      goto end;
+    }
   }
 
   // create basic output
