@@ -171,7 +171,7 @@ static utxo_outputs_list_t* basic_outputs_from_address(iota_wallet_t* w, transac
       return NULL;
     }
 
-    ret = get_outputs_id(&w->endpoint, query_param, res_id);
+    ret = get_basic_outputs(&w->endpoint, "/indexer/v1", query_param, res_id);
     if (ret != 0) {
       printf("[%s:%d] get output ID failed\n", __func__, __LINE__);
       outputs_query_list_free(query_param);

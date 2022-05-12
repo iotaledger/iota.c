@@ -68,7 +68,7 @@
 
 /****** Constants related to foundry output ******/
 // The concatenation of Address || Serial Number || Token Scheme Type
-#define FOUNDRY_ID_BYTES 26
+#define FOUNDRY_ID_BYTES 38
 
 /****** Constants related to UTXO output ******/
 // Maximum number of outputs in a transaction payload.
