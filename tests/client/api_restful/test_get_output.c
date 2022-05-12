@@ -172,13 +172,13 @@ void test_spent_output_response_deserialization() {
 
 void test_output_metadata_response_deserialization() {
   char const* const json_res =
-      "{\"metadata\":{\"messageId\": "
+      "{\"messageId\": "
       "\"0x00a9b3ab3fb1c43c24f2af74d18f216af6a9f6e60d56c9a57e07b2d6f953d019\",\"transactionId\":"
       "\"0xa4679847ebafe542ab27988be47235d1ed8acc38b8874cb440344ebb5bcf653e\",\"outputIndex\":0,\"isSpent\":false,"
-      "\"milestoneIndexBooked\":83,\"milestoneTimestampBooked\":1651051050,\"ledgerIndex\":2028}}";
+      "\"milestoneIndexBooked\":83,\"milestoneTimestampBooked\":1651051050,\"ledgerIndex\":2028}";
 
   res_output_t* out = get_output_response_new();
-  int ret = deser_get_output(json_res, out);
+  int ret = deser_get_output_meta(json_res, out);
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_FALSE(out->is_error);
 
