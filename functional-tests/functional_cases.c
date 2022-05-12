@@ -90,7 +90,7 @@ static int init_wallet(test_config_t* conf, test_data_t* params, test_item_t* it
   }
 
   int ret = 0;
-  params->w = wallet_create(conf->mnemonic, "", 0);
+  params->w = wallet_create(conf->mnemonic, "", conf->coin_type, 0);
   if (!params->w) {
     printf("[%s:%d] wallet create failed\n", __func__, __LINE__);
     return -1;

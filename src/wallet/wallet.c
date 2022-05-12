@@ -17,41 +17,6 @@
 // max length of m/44'/4218'/Account'/Change' or m/44'/4219'/Account'/Change'
 #define IOTA_ACCOUNT_PATH_MAX 128
 
-/**
- * @brief BIP-0044 coin types that are supported by this wallet
- *
- * https://github.com/satoshilabs/slips/blob/master/slip-0044.md
- * IOTA BIP44 Paths: m/44'/4218'/Account'/Change'/Index'
- * SMR  BIP44 Paths: m/44'/4219'/Account'/Change'/Index'
- *
- * BIP-0044: https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki
- *
- */
-typedef enum {
-  COIN_TYPE_IOTA = 4218,                      ///< Denotes an IOTA coin (IOTA)
-  COIN_TYPE_SHIMMER = 4219,                   ///< Denotes a Shimmer coin (SMR)
-  COIN_TYPE_CUSTOM = WALLET_CUSTOM_COIN_TYPE  ///< Denotes a custom coin
-} coin_type_bip44_t;
-
-/**
- * @brief Different networks that are available to use
- *
- */
-typedef enum {
-  NETWORK_TYPE_IOTA_MAINNET = 0,  ///< Denotes an IOTA main network
-  NETWORK_TYPE_IOTA_TESTNET,      ///< Denotes an IOTA test network
-  NETWORK_TYPE_SHIMMER_MAINNET,   ///< Denotes a Shimmer main network
-  NETWORK_TYPE_SHIMMER_TESTNET,   ///< Denotes a Shimmer test network
-  NETWORK_TYPE_CUSTOM             ///< Denotes a custom network
-} network_type_t;
-
-// A Human-Readable Part of an address
-static const char address_hrp_name[5][5] = {[NETWORK_TYPE_IOTA_MAINNET] = "iota",
-                                            [NETWORK_TYPE_IOTA_TESTNET] = "atoi",
-                                            [NETWORK_TYPE_SHIMMER_MAINNET] = "smr",
-                                            [NETWORK_TYPE_SHIMMER_TESTNET] = "rms",
-                                            [NETWORK_TYPE_CUSTOM] = WALLET_CUSTOM_NETWORK_HRP};
-
 // TODO: unused function at the moment
 #if 0
 // validate path: m/44',/4218',/Account',/Change'
@@ -114,31 +79,15 @@ static int validate_pib44_path(char const path[]) {
 /**
  * @brief Get the address path
  *
- * @param[in] bech32HRP A Human-Readable Part of an address
- * @param[in] account The account index
+ * @param[in] wallet A wallet object
  * @param[in] change change index which is {0, 1}, also known as wallet chain.
  * @param[in] index Address index
  * @param[out] buf The buffer holds BIP44 path
  * @param[in] buf_len the length of the buffer
  */
-static int get_address_path(char bech32HRP[], uint32_t account, bool change, uint32_t index, char* buf,
-                            size_t buf_len) {
-  coin_type_bip44_t coin_type;
-
-  // get bip44 path based on the bech32 HRP
-  if ((strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_IOTA_MAINNET]) == 0) ||
-      (strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_IOTA_TESTNET]) == 0)) {
-    coin_type = COIN_TYPE_IOTA;
-  } else if ((strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_SHIMMER_MAINNET]) == 0) ||
-             (strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_SHIMMER_TESTNET]) == 0)) {
-    coin_type = COIN_TYPE_SHIMMER;
-  } else if (strcmp(bech32HRP, address_hrp_name[NETWORK_TYPE_CUSTOM]) == 0) {
-    coin_type = COIN_TYPE_CUSTOM;
-  } else {
-    coin_type = COIN_TYPE_IOTA;
-  }
-
-  int ret_size = snprintf(buf, buf_len, "m/44'/%d'/%" PRIu32 "'/%d'/%" PRIu32 "'", coin_type, account, change, index);
+static int get_address_path(iota_wallet_t* wallet, bool change, uint32_t index, char* buf, size_t buf_len) {
+  int ret_size = snprintf(buf, buf_len, "m/44'/%" PRIu32 "'/%" PRIu32 "'/%d'/%" PRIu32 "'", wallet->coin_type,
+                          wallet->account_index, change, index);
   if ((size_t)ret_size >= buf_len) {
     buf[buf_len - 1] = '\0';
     printf("[%s:%d] path is truncated\n", __func__, __LINE__);
@@ -290,7 +239,7 @@ static int basic_receiver_output(transaction_essence_t* essence, address_t* recv
   return ret;
 }
 
-iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t account_index) {
+iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t coin_type, uint32_t account_index) {
   char mnemonic_tmp[512] = {};  // buffer for random mnemonic
 
   if (!pwd) {
@@ -305,6 +254,7 @@ iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t account
     w->endpoint.port = NODE_DEFAULT_PORT;
     w->endpoint.use_tls = true;
     w->account_index = account_index;
+    w->coin_type = coin_type;
 
     // drive mnemonic seed from the given sentence and password
     if (ms) {
@@ -365,7 +315,7 @@ int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t in
   }
 
   // derive ed25519 address from seed and path
-  if (get_address_path(w->bech32HRP, w->account_index, change, index, bip_path_buf, sizeof(bip_path_buf)) != 0) {
+  if (get_address_path(w, change, index, bip_path_buf, sizeof(bip_path_buf)) != 0) {
     printf("[%s:%d] Can not derive ed25519 address from seed and path\n", __func__, __LINE__);
     return -1;
   }
@@ -504,7 +454,7 @@ int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, add
     goto end;
   }
 
-  ret = get_address_path(w->bech32HRP, w->account_index, change, index, addr_path, sizeof(addr_path));
+  ret = get_address_path(w, change, index, addr_path, sizeof(addr_path));
   if (ret != 0) {
     printf("[%s:%d] Can not derive ed25519 address from seed and path\n", __func__, __LINE__);
     goto end;
