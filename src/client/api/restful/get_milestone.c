@@ -207,20 +207,20 @@ int utxo_changes_deserialize(cJSON *json_obj, utxo_changes_t *res) {
   // parsing index
   if ((ret = json_get_uint32(json_obj, JSON_KEY_INDEX, &res->index)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_INDEX);
-    return -1;
+    return ret;
   }
 
   // createdOutputs
   if ((ret = json_string_with_prefix_array_to_utarray(json_obj, JSON_KEY_CREATED_OUTPUTS, res->createdOutputs)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_CREATED_OUTPUTS);
-    return -1;
+    return ret;
   }
 
   // consumedOutputs
   if ((ret = json_string_with_prefix_array_to_utarray(json_obj, JSON_KEY_CONSUMED_OUTPUTS, res->consumedOutputs)) !=
       0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_CONSUMED_OUTPUTS);
-    return -1;
+    return ret;
   }
 
   return ret;
