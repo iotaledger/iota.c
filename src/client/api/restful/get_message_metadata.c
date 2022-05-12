@@ -20,6 +20,7 @@ msg_meta_t *metadata_new() {
     meta->referenced_milestone = 0;
     meta->milestone_idx = 0;
     memset(meta->inclusion_state, 0, sizeof(meta->inclusion_state));
+    meta->conflict_reason = 0;
     return meta;
   }
   return NULL;
@@ -121,6 +122,9 @@ int parse_messages_metadata(char const *const j_str, msg_meta_t *res) {
 
   // ledger inclusion state
   json_get_string(json_obj, JSON_KEY_LEDGER_ST, res->inclusion_state, sizeof(res->inclusion_state));
+
+  // has conflict reason
+  json_get_uint8(json_obj, JSON_KEY_CONFLICT_REASON, &res->conflict_reason);
 
   // gets referenced milestone index
   json_get_uint32(json_obj, JSON_KEY_REF_MILESTONE_IDX, &res->referenced_milestone);
@@ -244,6 +248,9 @@ void print_message_metadata(res_msg_meta_t *res, uint8_t indentation) {
     printf("%s\tmilestoneIndex: %u\n", PRINT_INDENTATION(indentation), meta->milestone_idx);
     if (!buf_all_zeros((uint8_t *)meta->inclusion_state, sizeof(meta->inclusion_state))) {
       printf("%s\tledgerInclustionState: %s\n", PRINT_INDENTATION(indentation), meta->inclusion_state);
+    }
+    if (meta->conflict_reason > 0) {
+      printf("%s\tconflictReason: %d\n", PRINT_INDENTATION(indentation), meta->conflict_reason);
     }
     if (meta->should_promote >= 0) {
       printf("%s\tshouldPromote: %s\n", PRINT_INDENTATION(indentation), meta->should_promote ? "true" : "false");
