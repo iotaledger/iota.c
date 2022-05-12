@@ -27,9 +27,6 @@
 
 #include "core/utils/bech32.h"
 
-// A Bech32[2] string is at most 90 characters long and consists of: [HRP, "1", data]
-#define BECH32_MAX_STRING_LEN 90
-
 static uint32_t bech32_polymod_step(uint32_t pre) {
   uint8_t b = pre >> 25;
   return ((pre & 0x1FFFFFF) << 5) ^ (-((b >> 0) & 1) & 0x3b6a57b2UL) ^ (-((b >> 1) & 1) & 0x26508e6dUL) ^
