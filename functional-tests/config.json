@@ -9,5 +9,6 @@
 	"faucet_port": 8091,
 	"faucet_use_tls": false,
 	"show_payload": true,
+	"coin_type": 1,
 	"delay": 10
 }
