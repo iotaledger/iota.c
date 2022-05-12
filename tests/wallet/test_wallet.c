@@ -22,6 +22,11 @@
 #define FAUCET_PORT 8091
 #define FAUCET_IS_HTTPS 0
 
+// using SLIP44_COIN_TYPE_TEST as default coin type
+// uncomment one to choose another coin type
+// #define NETWORK_TYPE_SHIMMER
+// #define NETWORK_TYPE_MAINNET
+
 // predefined coin types
 #if defined(NETWORK_TYPE_SHIMMER)
 #define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_SHIMMER
