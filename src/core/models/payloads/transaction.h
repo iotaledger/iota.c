@@ -198,6 +198,16 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
 transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len);
 
 /**
+ * @brief Calculate and return transaction payload ID
+ *
+ * @param[in] tx A transaction payload
+ * @param[out] id Calculated transaction payload ID
+ * @param[in] id_len Length of transaction payload ID array
+ * @return int 0 on success
+ */
+int tx_payload_calculate_id(transaction_payload_t* tx, byte_t id[], uint8_t id_len);
+
+/**
  * @brief Print out a transaction payload
  *
  * @param[in] tx A transaction payload
