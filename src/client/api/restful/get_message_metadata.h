@@ -26,6 +26,7 @@ typedef struct {
   int8_t should_reattach;         ///< whether the message should be reattached, optional
   uint32_t referenced_milestone;  ///< The milestone index that references this message, optional
   uint32_t milestone_idx;         ///< If this message represents a milestone this is the milestone index, optional
+  uint8_t conflict_reason;        ///< a reason why the message has conflict, optional
 } msg_meta_t;
 
 /**

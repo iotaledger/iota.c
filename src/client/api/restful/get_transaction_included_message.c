@@ -34,7 +34,7 @@ int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char 
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_pre, cmd_post, tx_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_pre, tx_id, cmd_post);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
@@ -55,6 +55,7 @@ int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char 
 
 done:
   // cleanup command
+  iota_str_destroy(cmd);
   byte_buf_free(http_res);
   return ret;
 }

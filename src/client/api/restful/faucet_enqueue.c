@@ -8,6 +8,7 @@
 #include "client/api/json_parser/json_utils.h"
 #include "client/api/restful/faucet_enqueue.h"
 #include "client/network/http.h"
+#include "core/utils/bech32.h"
 
 const char *const faucet_enqueue_api_path = "/api/enqueue";
 
@@ -58,8 +59,8 @@ int req_tokens_to_addr_from_faucet(iota_client_conf_t const *conf, char const ad
     return -1;
   }
 
-  // Check if addr_bech32 has minimum required length
-  if (strlen(addr_bech32) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
+  // Check if addr_bech32 has a valid length
+  if (strlen(addr_bech32) < 8 || strlen(addr_bech32) > BECH32_MAX_STRING_LEN) {
     printf("[%s:%d] invalid bech32 address\n", __func__, __LINE__);
     return -1;
   }
