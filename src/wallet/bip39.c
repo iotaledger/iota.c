@@ -6,8 +6,12 @@
 
 #include "core/constants.h"
 #include "crypto/iota_crypto.h"
-#include "utf8proc.h"
 #include "wallet/bip39.h"
+
+#if defined(ESP32) || defined(ESP_PLATFORM)
+// for esp32 Arduino
+#define BIP39_ENGLISH_ONLY
+#endif
 
 #ifndef BIP39_ENGLISH_ONLY
 #include "wallet/wordlists/chinese_simplified.h"
@@ -314,44 +318,19 @@ int mnemonic_to_seed(char const ms[], char const pwd[], byte_t seed[], size_t se
     return -2;
   }
 
-  utf8proc_uint8_t *normalize_ms = utf8proc_NFKD((utf8proc_uint8_t *)ms);
-  if (normalize_ms == NULL) {
-    return -3;
-  }
-
-  utf8proc_uint8_t *normalize_pwd = utf8proc_NFKD((utf8proc_uint8_t *)pwd);
-  if (normalize_pwd == NULL) {
-    free(normalize_ms);
-    return -4;
-  }
-  size_t pwd_len = strlen((char const *)normalize_pwd);
+  size_t pwd_len = strlen(pwd);
 
   byte_t *phrase_tmp = malloc(phrase_len + pwd_len + 1 * sizeof(byte_t));
   if (phrase_tmp == NULL) {
-    free(normalize_ms);
-    free(normalize_pwd);
-    return -5;
+    return -3;
   }
 
   memcpy(phrase_tmp, phrase, phrase_len);
-  memcpy(phrase_tmp + phrase_len, normalize_pwd, pwd_len);
+  memcpy(phrase_tmp + phrase_len, pwd, pwd_len);
   phrase_tmp[phrase_len + pwd_len] = '\0';
 
-  utf8proc_uint8_t *normalize_phrase = utf8proc_NFKD(phrase_tmp);
-  if (normalize_phrase == NULL) {
-    free(normalize_ms);
-    free(normalize_pwd);
-    free(phrase_tmp);
-    return -6;
-  }
-
-  iota_crypto_pbkdf2_hmac_sha512((char const *)normalize_ms, strlen((char const *)normalize_ms),
-                                 (char const *)normalize_phrase, strlen((char const *)normalize_phrase), 2048, seed,
-                                 seed_len);
-  free(normalize_ms);
-  free(normalize_pwd);
+  iota_crypto_pbkdf2_hmac_sha512(ms, strlen(ms), phrase_tmp, strlen(phrase_tmp), 2048, seed, seed_len);
   free(phrase_tmp);
-  free(normalize_phrase);
 
   return 0;
 }

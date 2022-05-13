@@ -18,7 +18,7 @@ target_include_directories(
                      "${CMAKE_INSTALL_PREFIX}/include/cjson" # for esp32 compatibility
 )
 
-add_dependencies(iota_wallet iota_client ext_utf8proc)
+add_dependencies(iota_wallet iota_client)
 
 target_compile_options(iota_wallet PRIVATE -Wall -Wextra)
 
@@ -27,7 +27,6 @@ if(BIP39_ENGLISH_ONLY)
 endif()
 
 target_link_libraries(iota_wallet PUBLIC iota_client)
-target_link_libraries(iota_wallet PRIVATE utf8proc)
 
 # install client lib and headers
 install(TARGETS iota_wallet DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")

@@ -1,6 +1,11 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#if defined(ESP32) || defined(ESP_PLATFORM)
+// for esp32 Arduino
+#define CRYPTO_USE_SODIUM
+#endif
+
 #ifdef CRYPTO_USE_SODIUM
 #include <sodium.h>
 #include <sodium/crypto_auth_hmacsha512.h>

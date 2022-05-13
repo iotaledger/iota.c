@@ -1,6 +1,7 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.
 
+#if defined(__ZEPHYR__)
 #include <logging/log.h>
 #include <sys/util.h>
 LOG_MODULE_REGISTER(iota_http, CONFIG_IOTA_HTTP_CLIENT_LOG_LEVEL);
@@ -224,3 +225,4 @@ int http_client_get(http_client_config_t const* const config, byte_buf_t* const 
   close(sock);
   return 0;
 }
+#endif
