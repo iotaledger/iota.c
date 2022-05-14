@@ -27,7 +27,7 @@ uint32_t const sender_addr_index = 0;                                   // addre
 uint64_t const amount = 1;  // transfer 1Mi from a sender to a receiver address
 
 int main(void) {
-  iota_wallet_t* w = wallet_create(test_mnemonic, "", 0);
+  iota_wallet_t* w = wallet_create(test_mnemonic, "", SLIP44_COIN_TYPE_IOTA, 0);
   if (!w) {
     printf("Failed to create a wallet object!\n");
     return -1;
