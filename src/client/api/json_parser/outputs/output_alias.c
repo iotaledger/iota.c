@@ -173,24 +173,26 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
     }
 
     // state metadata
-    char *meta = malloc(JSON_STR_WITH_PREFIX_BYTES(alias->state_metadata->len));
-    if (!meta) {
-      printf("[%s:%d] allocate metadata error\n", __func__, __LINE__);
-      goto err;
-    }
-    if (bin_2_hex(alias->state_metadata->data, alias->state_metadata->len, JSON_HEX_ENCODED_STRING_PREFIX, meta,
-                  JSON_STR_WITH_PREFIX_BYTES(alias->state_metadata->len)) != 0) {
-      printf("[%s:%d] convert metadata to hex string error\n", __func__, __LINE__);
+    if (alias->state_metadata) {
+      char *meta = malloc(JSON_STR_WITH_PREFIX_BYTES(alias->state_metadata->len));
+      if (!meta) {
+        printf("[%s:%d] allocate metadata error\n", __func__, __LINE__);
+        goto err;
+      }
+      if (bin_2_hex(alias->state_metadata->data, alias->state_metadata->len, JSON_HEX_ENCODED_STRING_PREFIX, meta,
+                    JSON_STR_WITH_PREFIX_BYTES(alias->state_metadata->len)) != 0) {
+        printf("[%s:%d] convert metadata to hex string error\n", __func__, __LINE__);
+        free(meta);
+        goto err;
+      }
+      if (!cJSON_AddStringToObject(alias_obj, JSON_KEY_STATE_METADATA, meta)) {
+        printf("[%s:%d] add metadata into alias error\n", __func__, __LINE__);
+        free(meta);
+        cJSON_Delete(tmp);
+        goto err;
+      }
       free(meta);
-      goto err;
     }
-    if (!cJSON_AddStringToObject(alias_obj, JSON_KEY_ALIAS_ID, meta)) {
-      printf("[%s:%d] add metadata into alias error\n", __func__, __LINE__);
-      free(meta);
-      cJSON_Delete(tmp);
-      goto err;
-    }
-    free(meta);
 
     // foundry counter
     if (!cJSON_AddNumberToObject(alias_obj, JSON_KEY_FOUNDRY_COUNTER, alias->foundry_counter)) {
