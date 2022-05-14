@@ -403,7 +403,8 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
 
   byte_t* offset = buf;
   // write payload type
-  memset(offset, CORE_MESSAGE_PAYLOAD_TRANSACTION, sizeof(uint32_t));
+  uint32_t payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  memcpy(offset, &payload_type, sizeof(uint32_t));
   offset += sizeof(uint32_t);
   // write essence
   size_t essence_len = tx_essence_serialize_length(tx->essence);
