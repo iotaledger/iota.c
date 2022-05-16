@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -105,6 +106,7 @@ static void dump_test_config(test_config_t* config) {
     printf("Faucet: %s:%d tls: %s\n", config->faucet_config.host, config->faucet_config.port,
            config->faucet_config.use_tls ? "true" : "false");
     printf("Show payload: %s\n", config->show_payload ? "true" : "false");
+    printf("Coin Type: %" PRIu32 "\n", config->coin_type);
     printf("Delay: %d\n", config->delay);
   }
 }
@@ -170,6 +172,12 @@ static int parse_config(char* const config_data) {
   // address index of receiver
   if ((ret = json_get_uint32(config_obj, "receiver_index", &g_config.sender_index)) != 0) {
     printf("[%s:%d] get receiver address index failed\n", __func__, __LINE__);
+    goto end;
+  }
+
+  // coin type
+  if ((ret = json_get_uint32(config_obj, "coin_type", &g_config.coin_type)) != 0) {
+    printf("[%s:%d] get coin type failed\n", __func__, __LINE__);
     goto end;
   }
 
