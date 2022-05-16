@@ -15,10 +15,23 @@ void tearDown(void) {}
 
 void test_query_params() {
   char addr[] = "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk";
+  char addr_alias[] = "rms1qzc7h2etq6ph4ssgpls6lucg9m84jrtngrvewsp8gjv6y5h4tth9xnas62c";
   char const* const cursor = "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
   char const* const expected_query_str =
-      "address=atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&pageSize=2&cursor="
-      "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2";
+      "address=atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&aliasAddress="
+      "rms1qzc7h2etq6ph4ssgpls6lucg9m84jrtngrvewsp8gjv6y5h4tth9xnas62c&hasNativeTokens=true&minNativeTokenCount=2&"
+      "maxNativeTokenCount=5&hasStorageReturnCondition=true&storageReturnAddress="
+      "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&hasTimelockCondition=true&timelockedBefore="
+      "1643383242&timelockedAfter=1643383242&timelockedBeforeMilestone=1000&timelockedAfterMilestone=1000&"
+      "hasExpirationCondition=false&expiresBefore=1643383242&expiresAfter=1643383242&expiresBeforeMilestone=2000&"
+      "expiresAfterMilestone=2200&expirationReturnAddress="
+      "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&sender="
+      "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&tag=0x4ec7f23&createdBefore=1643383242&"
+      "createdAfter=1643383242&pageSize=2&cursor="
+      "6209d527453cf2b9896146f13fbef94f66883d5e4bfe5600399e9328655fe0850fd3d05a0000.2&stateController="
+      "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&governor="
+      "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&issuer="
+      "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk";
   outputs_query_list_t* list = outputs_query_list_new();
   TEST_ASSERT_NULL(list);
   // Check query string len with an empty list
@@ -29,14 +42,33 @@ void test_query_params() {
   TEST_ASSERT_EQUAL(0, ret);
   // Add address query parameter
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ADDRESS, addr) == 0);
-  query_str_len = get_outputs_query_str_len(list);
-  TEST_ASSERT_EQUAL(72, query_str_len);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ALIAS_ADDRESS, addr_alias) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_NATIVE_TOKENS, "true") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_MIN_NATIVE_TOKENS, "2") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_MAX_NATIVE_TOKENS, "5") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_STORAGE_RET, "true") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STORAGE_RET_ADDR, addr) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_TIMELOCK, "true") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_TIMELOCKED_BEFORE, "1643383242") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_TIMELOCKED_AFTER, "1643383242") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_TIMELOCKED_BEFORE_MS, "1000") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_TIMELOCKED_AFTER_MS, "1000") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_HAS_EXP_COND, "false") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_EXPIRES_BEFORE, "1643383242") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_EXPIRES_AFTER, "1643383242") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_EXPIRES_BEFORE_MS, "2000") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_EXPIRES_AFTER_MS, "2200") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_EXP_RETURN_ADDR, addr) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_SENDER, addr) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_TAG, "4ec7f23") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_CREATED_BEFORE, "1643383242") == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_CREATED_AFTER, "1643383242") == 0);
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_PAGE_SIZE, "2") == 0);
-  query_str_len = get_outputs_query_str_len(list);
-  TEST_ASSERT_EQUAL(83, query_str_len);
   TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_CURSOR, cursor) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_STATE_CTRL, addr) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_GOV, addr) == 0);
+  TEST_ASSERT(outputs_query_list_add(&list, QUERY_PARAM_ISSUER, addr) == 0);
   query_str_len = get_outputs_query_str_len(list);
-  TEST_ASSERT_EQUAL(169, query_str_len);
   TEST_ASSERT_NOT_EQUAL(0, query_str_len);
   char* buffer = malloc(query_str_len + 1);
   TEST_ASSERT_NOT_NULL(buffer);
