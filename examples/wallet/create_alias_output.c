@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * @brief A simple example of sending a transaction to the Tangle using wallet APIs.
+ * @brief A simple example of creating a transaction with an alias output using wallet APIs.
  *
  */
 
 #include <inttypes.h>
 #include <stdio.h>
 
-#include "wallet/output_basic.h"
+#include "wallet/output_alias.h"
 #include "wallet/wallet.h"
 
 #define Mi 1000000
@@ -22,8 +22,10 @@
 static char const* const test_mnemonic =
     "acoustic trophy damage hint search taste love bicycle foster cradle brown govern endless depend situate athlete "
     "pudding blame question genius transfer van random vast";
-static char const* const bech32_receiver =
-    "atoi1qpswqe4v8z2cdtgc7sfj0hfneqh37lhmjgnth36mfndwcxkjrakcvx42lsn";  // receiver address in bech32 format
+static char const* const bech32_state_controller =
+    "atoi1qp5vf2vufsz4etrr4wq524a7expjecc75ahqh5605yfrup0vfva7jyq50z9";  // state controller address in bech32 format
+static char const* const bech32_governor =
+    "atoi1qp5vf2vufsz4etrr4wq524a7expjecc75ahqh5605yfrup0vfva7jyq50z9";  // governor address in bech32 format
 uint32_t const sender_addr_index = 0;                                    // address index of the wallet
 uint64_t const amount = 1;  // transfer 1Mi from a sender to a receiver address
 
@@ -46,7 +48,7 @@ int main(void) {
     return -1;
   }
 
-  address_t sender, receiver;
+  address_t sender, state_controller, governor;
   if (wallet_ed25519_address_from_index(w, false, sender_addr_index, &sender) != 0) {
     printf("Failed to generate a sender address from an index!\n");
     wallet_destroy(w);
@@ -62,20 +64,49 @@ int main(void) {
   }
 
   // convert bech32 address to binary
-  if (address_from_bech32(w->bech32HRP, bech32_receiver, &receiver) != 0) {
-    printf("Failed converting receiver address to binary format!\n");
+  if (address_from_bech32(w->bech32HRP, bech32_state_controller, &state_controller) != 0) {
+    printf("Failed converting state controller address to binary format!\n");
+    wallet_destroy(w);
+    return -1;
+  }
+
+  // convert bech32 address to binary
+  if (address_from_bech32(w->bech32HRP, bech32_state_controller, &governor) != 0) {
+    printf("Failed converting governor address to binary format!\n");
     wallet_destroy(w);
     return -1;
   }
 
   printf("Sender address: %s\n", bech32_sender);
-  printf("Receiver address: %s\n", bech32_receiver);
+  printf("State controller address: %s\n", bech32_state_controller);
+  printf("Governor address: %s\n", bech32_governor);
   printf("Amount to send: %" PRIu64 "\n", amount * Mi);
 
   // transfer tokens
   printf("Sending transaction message to the Tangle...\n");
   res_send_message_t msg_res = {};
-  if (wallet_send_basic_output(w, 0, 0, &receiver, amount * Mi, &msg_res) != 0) {
+  byte_t alias_id[ALIAS_ID_BYTES] = {0};
+  byte_t alias_output_id[IOTA_OUTPUT_ID_BYTES] = {0};
+  if (wallet_create_alias_output(w, 0, 0, amount * Mi, &state_controller, &governor, &msg_res, alias_id,
+                                 alias_output_id) != 0) {
+    printf("Sending message to the Tangle failed!\n");
+    wallet_destroy(w);
+    return -1;
+  }
+
+  if (msg_res.is_error) {
+    printf("Error: %s\n", msg_res.u.error->msg);
+    res_err_free(msg_res.u.error);
+    wallet_destroy(w);
+    return -1;
+  }
+
+  printf("Message successfully sent.\n");
+  printf("Message ID: %s\n", msg_res.u.msg_id);
+
+  // create a second transaction with the actual alias ID
+  if (wallet_send_alias_output(w, 0, 0, amount * Mi, alias_id, &state_controller, &governor, alias_output_id,
+                               &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;

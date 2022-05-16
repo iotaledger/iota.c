@@ -8,6 +8,7 @@
 #include "core/address.h"
 #include "core/utils/macros.h"
 #include "unity/unity.h"
+#include "wallet/output_basic.h"
 #include "wallet/wallet.h"
 
 #define TEST_WITH_PRIVATE_TANGLE 0
@@ -120,7 +121,7 @@ void test_wallet_basic_transfer() {
   // transfer IOTA tokens
   res_send_message_t msg_res = {};
   // this transfer should be failed due to storage deposit
-  int ret = wallet_send_basic_outputs(w, 0, 0, &receiver, 212999, &msg_res);
+  int ret = wallet_send_basic_output(w, 0, 0, &receiver, 212999, &msg_res);
   TEST_ASSERT(ret != 0);
   if (ret == 0) {
     if (msg_res.is_error) {
@@ -134,7 +135,7 @@ void test_wallet_basic_transfer() {
   }
 
   // this transfer should be sent to the Tangle
-  ret = wallet_send_basic_outputs(w, 0, 0, &receiver, 1000000, &msg_res);
+  ret = wallet_send_basic_output(w, 0, 0, &receiver, 1000000, &msg_res);
   TEST_ASSERT(ret == 0);
   if (ret == 0) {
     if (msg_res.is_error) {

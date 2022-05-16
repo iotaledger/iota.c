@@ -10,8 +10,8 @@ set_target_properties(iota_wallet PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 9
 
 target_sources(
   iota_wallet
-  PRIVATE "wallet.c" "bip39.c"
-  PUBLIC "wallet.h")
+  PRIVATE "wallet.c" "output_basic.c" "output_alias.c" "bip39.c"
+  PUBLIC "wallet.h" "output_basic.h" "output_alias.h")
 
 target_include_directories(
   iota_wallet PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CURL_INCLUDE_DIRS}"
