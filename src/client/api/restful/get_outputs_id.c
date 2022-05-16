@@ -558,7 +558,7 @@ int get_basic_outputs(iota_client_conf_t const *conf, char const *const indexer_
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -594,7 +594,7 @@ int get_nft_outputs(iota_client_conf_t const *conf, char const *const indexer_pa
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -630,7 +630,7 @@ int get_alias_outputs(iota_client_conf_t const *conf, char const *const indexer_
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -666,7 +666,7 @@ int get_foundry_outputs(iota_client_conf_t const *conf, char const *const indexe
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -708,7 +708,7 @@ int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const *const in
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -744,7 +744,7 @@ int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const *const 
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -780,7 +780,7 @@ int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const *cons
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
