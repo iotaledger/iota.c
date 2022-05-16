@@ -135,17 +135,26 @@ int wallet_balance_by_address(iota_wallet_t* w, address_t* addr, uint64_t* balan
 int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* balance);
 
 /**
- * @brief Send core message to a network
+ * @brief Create and prepare core message
  *
  * @param[in] w A wallet instance
  * @param[in] tx A string of bech32 address
  * @param[in] unspent_outputs A list of unspent outputs
  * @param[in] sign_data A list of signing data
+ * @return core_message_t*
+ */
+core_message_t* wallet_create_core_message(iota_wallet_t* w, transaction_payload_t* tx,
+                                           utxo_outputs_list_t* unspent_outputs, signing_data_list_t* sign_data);
+
+/**
+ * @brief Send core message to a network
+ *
+ * @param[in] w A wallet instance
+ * @param[in] core_msg A core message which will be sent
  * @param[out] msg_res A response of the transfer
  * @return int 0 on success
  */
-int wallet_send_message(iota_wallet_t* w, transaction_payload_t* tx, utxo_outputs_list_t* unspent_outputs,
-                        signing_data_list_t* sign_data, res_send_message_t* msg_res);
+int wallet_send_message(iota_wallet_t* w, core_message_t* core_msg, res_send_message_t* msg_res);
 
 #ifdef __cplusplus
 }

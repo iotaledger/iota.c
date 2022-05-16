@@ -85,11 +85,11 @@ static int add_unspent_basic_outputs_to_essence(transaction_essence_t* essence, 
   return 0;
 }
 
-utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, transaction_essence_t* essence,
-                                                      ed25519_keypair_t* sender_key, address_t* send_addr,
-                                                      uint64_t send_amount, signing_data_list_t** sign_data,
+utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_t* send_addr,
+                                                      ed25519_keypair_t* sender_key, uint64_t send_amount,
+                                                      transaction_essence_t* essence, signing_data_list_t** sign_data,
                                                       uint64_t* total_output_amount) {
-  if (w == NULL || essence == NULL || sender_key == NULL || send_addr == NULL || total_output_amount == NULL) {
+  if (w == NULL || send_addr == NULL || sender_key == NULL || essence == NULL || total_output_amount == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
@@ -151,8 +151,8 @@ utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, transact
   return unspent_outputs;
 }
 
-int wallet_output_basic_create(transaction_essence_t* essence, address_t* recv_addr, uint64_t amount) {
-  if (essence == NULL || recv_addr == NULL) {
+int wallet_output_basic_create(address_t* recv_addr, uint64_t amount, transaction_essence_t* essence) {
+  if (recv_addr == NULL || essence == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -233,7 +233,7 @@ int wallet_send_basic_output(iota_wallet_t* w, bool change, uint32_t index, addr
 
   // get unspent basic outputs from a sender address
   uint64_t total_unspent_amount = 0;
-  unspent_outputs = wallet_get_unspent_basic_outputs(w, tx->essence, &sender_key, &sender_addr, send_amount, &sign_data,
+  unspent_outputs = wallet_get_unspent_basic_outputs(w, &sender_addr, &sender_key, send_amount, tx->essence, &sign_data,
                                                      &total_unspent_amount);
   if (!unspent_outputs) {
     printf("[%s:%d] address does not have any unspent basic outputs\n", __func__, __LINE__);
@@ -249,7 +249,7 @@ int wallet_send_basic_output(iota_wallet_t* w, bool change, uint32_t index, addr
   }
 
   // create the receiver output
-  ret = wallet_output_basic_create(tx->essence, recv_addr, send_amount);
+  ret = wallet_output_basic_create(recv_addr, send_amount, tx->essence);
   if (ret != 0) {
     printf("[%s:%d] create a receiver basic output failed\n", __func__, __LINE__);
     goto end;
@@ -257,15 +257,25 @@ int wallet_send_basic_output(iota_wallet_t* w, bool change, uint32_t index, addr
 
   // check if reminder is needed
   if (total_unspent_amount > send_amount) {
-    ret = wallet_output_basic_create(tx->essence, &sender_addr, total_unspent_amount - send_amount);
+    ret = wallet_output_basic_create(&sender_addr, total_unspent_amount - send_amount, tx->essence);
     if (ret != 0) {
       printf("[%s:%d] create a reminder basic output failed\n", __func__, __LINE__);
       goto end;
     }
   }
 
+  // create a core message
+  core_message_t* message = wallet_create_core_message(w, tx, unspent_outputs, sign_data);
+  if (!message) {
+    printf("[%s:%d] can not create a core message\n", __func__, __LINE__);
+    goto end;
+  }
+
   // send a message to a network
-  ret = wallet_send_message(w, tx, unspent_outputs, sign_data, msg_res);
+  ret = wallet_send_message(w, message, msg_res);
+
+  // clean up memory
+  core_message_free(message);
 
 end:
   signing_free(sign_data);

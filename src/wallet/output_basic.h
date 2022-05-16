@@ -27,14 +27,34 @@ extern "C" {
 int wallet_send_basic_output(iota_wallet_t* w, bool change, uint32_t index, address_t* recv_addr,
                              uint64_t const send_amount, res_send_message_t* msg_res);
 
-// create basic unspent outputs
-utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, transaction_essence_t* essence,
-                                                      ed25519_keypair_t* sender_key, address_t* send_addr,
-                                                      uint64_t send_amount, signing_data_list_t** sign_data,
+/**
+ * @brief Get unspent basic outputs from a network and add them into a transaction essence
+ *
+ * @param[in] w A wallet instance
+ * @param[in] send_addr A sender address
+ * @param[in] sender_key A sender private key
+ * @param[in] send_amount An amount to transfer
+ * @param[out] essence Transaction essence to add unspent basic outputs into it.
+ * @param[out] sign_data A
+ * @param[out] total_output_amount A
+ *
+ * @return int 0 on success
+ */
+utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_t* send_addr,
+                                                      ed25519_keypair_t* sender_key, uint64_t send_amount,
+                                                      transaction_essence_t* essence, signing_data_list_t** sign_data,
                                                       uint64_t* total_output_amount);
 
-// create a receiver for a basic output
-int wallet_output_basic_create(transaction_essence_t* essence, address_t* recv_addr, uint64_t amount);
+/**
+ * @brief Create a basic output and add it into a transaction essence
+ *
+ * @param[in] recv_addr A receiver address
+ * @param[in] amount An amount for basic output
+ * @param[out] essence Transaction essence to add unspent basic outputs into it.
+ *
+ * @return int 0 on success
+ */
+int wallet_output_basic_create(address_t* recv_addr, uint64_t amount, transaction_essence_t* essence);
 
 #ifdef __cplusplus
 }

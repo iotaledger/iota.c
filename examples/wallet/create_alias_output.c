@@ -82,7 +82,7 @@ int main(void) {
   printf("Governor address: %s\n", bech32_governor);
   printf("Amount to send: %" PRIu64 "\n", amount * Mi);
 
-  // transfer tokens
+  // create alias output
   printf("Sending transaction message to the Tangle...\n");
   res_send_message_t msg_res = {};
   byte_t alias_id[ALIAS_ID_BYTES] = {0};
@@ -104,7 +104,7 @@ int main(void) {
   printf("Message successfully sent.\n");
   printf("Message ID: %s\n", msg_res.u.msg_id);
 
-  // create a second transaction with the actual alias ID
+  // create a second transaction with an actual alias ID
   if (wallet_send_alias_output(w, 0, 0, amount * Mi, alias_id, &state_controller, &governor, alias_output_id,
                                &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");

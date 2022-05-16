@@ -74,9 +74,14 @@ static utxo_outputs_list_t* alias_outputs_from_output_id(iota_wallet_t* w, trans
 }
 
 // create a receiver for an alias output
-static int alias_receiver_output(transaction_essence_t* essence, byte_t alias_id[], uint32_t state_index,
-                                 address_t* state_ctrl_addr, address_t* govern_addr, uint64_t const amount,
-                                 address_t* sender) {
+static int wallet_output_alias_create(transaction_essence_t* essence, byte_t alias_id[], uint32_t state_index,
+                                      address_t* state_ctrl_addr, address_t* govern_addr, uint64_t const amount,
+                                      address_t* sender) {
+  if (essence == NULL || alias_id == NULL || state_ctrl_addr == NULL || govern_addr == NULL || sender == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
   unlock_cond_blk_t* state = cond_blk_state_new(state_ctrl_addr);
   if (!state) {
     printf("[%s:%d] unable to create state controller address unlock condition\n", __func__, __LINE__);
@@ -115,10 +120,13 @@ static int alias_receiver_output(transaction_essence_t* essence, byte_t alias_id
   feat_blk_list_add_issuer(&immut_feat_blocks, sender);
 
   output_alias_t* alias_output =
-      output_alias_new(amount, NULL, alias_id, state_index, NULL, 0, 0, cond_blocks, NULL, NULL);
+      output_alias_new(amount, NULL, alias_id, state_index, NULL, 0, 0, cond_blocks, feat_blocks, immut_feat_blocks);
   if (!alias_output) {
     cond_blk_free(state);
+    cond_blk_free(governor);
     cond_blk_list_free(cond_blocks);
+    feat_blk_list_free(feat_blocks);
+    feat_blk_list_free(immut_feat_blocks);
     printf("[%s:%d] creating alias output failed\n", __func__, __LINE__);
     return -1;
   }
@@ -131,8 +139,11 @@ static int alias_receiver_output(transaction_essence_t* essence, byte_t alias_id
   }
 
   cond_blk_free(state);
+  cond_blk_free(governor);
   cond_blk_list_free(cond_blocks);
   output_alias_free(alias_output);
+  feat_blk_list_free(feat_blocks);
+  feat_blk_list_free(immut_feat_blocks);
 
   return ret;
 }
@@ -140,59 +151,48 @@ static int alias_receiver_output(transaction_essence_t* essence, byte_t alias_id
 int wallet_create_alias_output(iota_wallet_t* w, bool change, uint32_t index, uint64_t const send_amount,
                                address_t* state_ctrl_addr, address_t* govern_addr, res_send_message_t* msg_res,
                                byte_t alias_id[], byte_t alias_output_id[]) {
-  if (!w || !state_ctrl_addr || !govern_addr || !alias_id) {
-    printf("[%s:%d] access NULL pointer\n", __func__, __LINE__);
+  if (w == NULL || state_ctrl_addr == NULL || govern_addr == NULL || msg_res == NULL || alias_id == NULL ||
+      alias_output_id == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
-  // create message
-  core_message_t* basic_msg = core_message_new(w->protocol_version);
-  if (!basic_msg) {
-    printf("[%s:%d] create message object failed\n", __func__, __LINE__);
-    return -1;
-  }
+  address_t sender_addr = {0};
+  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {0};
+  ed25519_keypair_t sender_key = {0};
 
-  utxo_outputs_list_t* outputs = NULL;
-  signing_data_list_t* sign_data = signing_new();
-
-  address_t sender_addr;
-  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
-  ed25519_keypair_t sender_key = {};
-  int ret = 0;
-
-  ret = wallet_ed25519_address_from_index(w, change, index, &sender_addr);
-  if (ret != 0) {
+  if (wallet_ed25519_address_from_index(w, change, index, &sender_addr) != 0) {
     printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
-    goto end;
+    return -1;
   }
 
-  ret = get_address_path(w, change, index, addr_path, sizeof(addr_path));
-  if (ret != 0) {
+  if (get_address_path(w, change, index, addr_path, sizeof(addr_path)) != 0) {
     printf("[%s:%d] Can not derive ed25519 address from seed and path\n", __func__, __LINE__);
-    goto end;
+    return -1;
   }
 
-  ret = address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &sender_key);
-  if (ret != 0) {
+  if (address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &sender_key) != 0) {
     printf("[%s:%d] get address keypair failed\n", __func__, __LINE__);
-    goto end;
+    return -1;
   }
+
+  int ret = 0;
+  utxo_outputs_list_t* unspent_outputs = NULL;
+  signing_data_list_t* sign_data = signing_new();
 
   // create a tx
   transaction_payload_t* tx = tx_payload_new(w->network_id);
-  if (tx == NULL) {
+  if (!tx) {
     printf("[%s:%d] create tx payload failed\n", __func__, __LINE__);
+    ret = -1;
     goto end;
-  } else {
-    basic_msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
-    basic_msg->payload = tx;
   }
 
   // get outputs from the sender address
   uint64_t output_amount = 0;
-  outputs = wallet_get_unspent_basic_outputs(w, tx->essence, &sender_key, &sender_addr, send_amount, &sign_data,
-                                             &output_amount);
-  if (!outputs) {
+  unspent_outputs = wallet_get_unspent_basic_outputs(w, &sender_addr, &sender_key, send_amount, tx->essence, &sign_data,
+                                                     &output_amount);
+  if (!unspent_outputs) {
     printf("[%s:%d] get empty outputs from the address\n", __func__, __LINE__);
     ret = -1;
     goto end;
@@ -205,9 +205,10 @@ int wallet_create_alias_output(iota_wallet_t* w, bool change, uint32_t index, ui
     goto end;
   }
 
-  // create the receiver output
+  // create alias output
   byte_t alias_id_zero[ALIAS_ID_BYTES] = {0};
-  ret = alias_receiver_output(tx->essence, alias_id_zero, 0, state_ctrl_addr, govern_addr, send_amount, &sender_addr);
+  ret = wallet_output_alias_create(tx->essence, alias_id_zero, 0, state_ctrl_addr, govern_addr, send_amount,
+                                   &sender_addr);
   if (ret != 0) {
     printf("[%s:%d] create the receiver output failed\n", __func__, __LINE__);
     goto end;
@@ -215,70 +216,44 @@ int wallet_create_alias_output(iota_wallet_t* w, bool change, uint32_t index, ui
 
   // check if reminder is needed
   if (output_amount > send_amount) {
-    ret = wallet_output_basic_create(tx->essence, &sender_addr, output_amount - send_amount);
+    ret = wallet_output_basic_create(&sender_addr, output_amount - send_amount, tx->essence);
     if (ret != 0) {
       printf("[%s:%d] create the reminder output failed\n", __func__, __LINE__);
       goto end;
     }
   }
 
-  // calculate inputs commitment
-  ret = tx_essence_inputs_commitment_calculate(tx->essence, outputs);
-  if (ret != 0) {
-    printf("[%s:%d] calculate inputs commitment error\n", __func__, __LINE__);
+  // create a core message
+  core_message_t* message = wallet_create_core_message(w, tx, unspent_outputs, sign_data);
+  if (!message) {
+    printf("[%s:%d] can not create a core message\n", __func__, __LINE__);
     goto end;
   }
 
-  // calculate transaction essence hash
-  byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
-  ret = core_message_essence_hash_calc(basic_msg, essence_hash, sizeof(essence_hash));
-  if (ret != 0) {
-    printf("[%s:%d] calculate essence hash error\n", __func__, __LINE__);
-    goto end;
-  }
-
-  // sign transaction
-  ret =
-      signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data, &tx->unlock_blocks);
-  if (ret != 0) {
-    printf("[%s:%d] sign transaction error\n", __func__, __LINE__);
-    goto end;
-  }
-
-  // syntactic validation
-  if (tx_payload_syntactic(tx, &w->byte_cost)) {
-    // send out message
-    ret = send_core_message(&w->endpoint, basic_msg, msg_res);
-  } else {
+  // calculate transaction payload ID
+  byte_t payload_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {0};
+  if (tx_payload_calculate_id(tx, payload_id, sizeof(payload_id)) != 0) {
     ret = -1;
-    printf("[%s:%d] invalid transaction payload\n", __func__, __LINE__);
+    printf("[%s:%d] can not calculate transaction payload ID\n", __func__, __LINE__);
+    goto end;
   }
+
+  memcpy(alias_output_id, payload_id, sizeof(payload_id));
+  memset(alias_output_id + sizeof(payload_id), 0, sizeof(uint16_t));
 
   // calculate alias ID
-  if (ret == 0) {
-    // calculate transaction payload ID
-    byte_t payload_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {0};
-    if (tx_payload_calculate_id(tx, payload_id, sizeof(payload_id)) != 0) {
-      ret = -1;
-      printf("[%s:%d] can not calculate transaction payload ID\n", __func__, __LINE__);
-      goto end;
-    }
-
-    memcpy(alias_output_id, payload_id, sizeof(payload_id));
-    memset(alias_output_id + sizeof(payload_id), 0, sizeof(uint16_t));
-
-    // calculate alias ID
-    if (iota_blake2b_sum(alias_output_id, IOTA_OUTPUT_ID_BYTES, alias_id, ALIAS_ID_BYTES) != 0) {
-      ret = -1;
-      printf("[%s:%d] calculating alias ID failed\n", __func__, __LINE__);
-      goto end;
-    }
+  if (iota_blake2b_sum(alias_output_id, IOTA_OUTPUT_ID_BYTES, alias_id, ALIAS_ID_BYTES) != 0) {
+    ret = -1;
+    printf("[%s:%d] calculating alias ID failed\n", __func__, __LINE__);
+    goto end;
   }
+
+  // send a message to a network
+  ret = wallet_send_message(w, message, msg_res);
 
 end:
   signing_free(sign_data);
-  core_message_free(basic_msg);
-  utxo_outputs_free(outputs);
+  utxo_outputs_free(unspent_outputs);
   return ret;
 }
 
@@ -342,7 +317,7 @@ int wallet_send_alias_output(iota_wallet_t* w, bool change, uint32_t index, uint
   }
 
   // create the receiver output
-  ret = alias_receiver_output(tx->essence, alias_id, 1, state_ctrl_addr, govern_addr, send_amount, &sender_addr);
+  ret = wallet_output_alias_create(tx->essence, alias_id, 1, state_ctrl_addr, govern_addr, send_amount, &sender_addr);
   if (ret != 0) {
     printf("[%s:%d] create the receiver output failed\n", __func__, __LINE__);
     goto end;
