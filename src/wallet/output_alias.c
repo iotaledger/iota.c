@@ -13,10 +13,11 @@
 #include "wallet/output_basic.h"
 #include "wallet/wallet.h"
 
-// create basic unspent outputs
+// create alias unspent outputs
 static utxo_outputs_list_t* alias_outputs_from_output_id(iota_wallet_t* w, transaction_essence_t* essence,
-                                                         ed25519_keypair_t* sender_key, byte_t output_id[],
-                                                         signing_data_list_t** sign_data) {
+                                                         ed25519_keypair_t* state_controller_key, byte_t output_id[],
+                                                         signing_data_list_t** sign_data,
+                                                         uint64_t* total_output_amount) {
   int ret = 0;
 
   utxo_outputs_list_t* unspent_outputs = utxo_outputs_new();
@@ -34,8 +35,8 @@ static utxo_outputs_list_t* alias_outputs_from_output_id(iota_wallet_t* w, trans
     if (ret == 0) {
       if (!output_res->is_error) {
         // create inputs and unlock conditions based on the basic output
-        if (output_res->u.data->output->output_type == OUTPUT_BASIC) {
-          output_basic_t* o = (output_basic_t*)output_res->u.data->output->output;
+        if (output_res->u.data->output->output_type == OUTPUT_ALIAS) {
+          output_alias_t* output = (output_alias_t*)output_res->u.data->output->output;
           // add the output as a tx input into the tx payload
           ret = tx_essence_add_input(essence, 0, output_res->u.data->meta.tx_id, output_res->u.data->meta.output_index);
           if (ret != 0) {
@@ -43,25 +44,27 @@ static utxo_outputs_list_t* alias_outputs_from_output_id(iota_wallet_t* w, trans
             return NULL;
           }
           // add the output in unspent outputs list to be able to calculate inputs commitment hash
-          ret = utxo_outputs_add(&unspent_outputs, output_res->u.data->output->output_type, o);
+          ret = utxo_outputs_add(&unspent_outputs, output_res->u.data->output->output_type, output);
           if (ret != 0) {
             get_output_response_free(output_res);
             return NULL;
           }
 
-          // add signing data (Basic output must have the address unlock condition)
-          // get address unlock condition from the basic output
-          unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_ADDRESS);
+          // add signing data (Alias output must have the state unlock condition)
+          // get state unlock condition from the alias output
+          unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE);
           if (!unlock_cond) {
             get_output_response_free(output_res);
             return NULL;
           }
           // add address unlock condition into the signing data list
-          ret = signing_data_add(unlock_cond->block, NULL, 0, sender_key, sign_data);
+          ret = signing_data_add(unlock_cond->block, NULL, 0, state_controller_key, sign_data);
           if (ret != 0) {
             get_output_response_free(output_res);
             return NULL;
           }
+
+          *total_output_amount = output->amount;
         }
       } else {
         printf("[%s:%d] %s\n", __func__, __LINE__, output_res->u.error->msg);
@@ -75,9 +78,9 @@ static utxo_outputs_list_t* alias_outputs_from_output_id(iota_wallet_t* w, trans
 
 // create a receiver for an alias output
 static int wallet_output_alias_create(transaction_essence_t* essence, byte_t alias_id[], uint32_t state_index,
-                                      address_t* state_ctrl_addr, address_t* govern_addr, uint64_t const amount,
+                                      address_t* state_ctrl_addr, address_t* govern_addr, uint64_t amount,
                                       address_t* sender) {
-  if (essence == NULL || alias_id == NULL || state_ctrl_addr == NULL || govern_addr == NULL || sender == NULL) {
+  if (essence == NULL || alias_id == NULL || state_ctrl_addr == NULL || govern_addr == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -257,9 +260,9 @@ end:
   return ret;
 }
 
-int wallet_send_alias_output(iota_wallet_t* w, bool change, uint32_t index, uint64_t const send_amount,
-                             byte_t alias_id[], address_t* state_ctrl_addr, address_t* govern_addr, byte_t output_id[],
-                             res_send_message_t* msg_res) {
+int wallet_send_alias_state_transition(iota_wallet_t* w, byte_t alias_id[], address_t* state_ctrl_addr,
+                                       address_t* govern_addr, byte_t output_id[],
+                                       ed25519_keypair_t* state_controller_keypair, res_send_message_t* msg_res) {
   if (!w || !alias_id || !state_ctrl_addr || !govern_addr) {
     printf("[%s:%d] access NULL pointer\n", __func__, __LINE__);
     return -1;
@@ -275,28 +278,7 @@ int wallet_send_alias_output(iota_wallet_t* w, bool change, uint32_t index, uint
   utxo_outputs_list_t* outputs = NULL;
   signing_data_list_t* sign_data = signing_new();
 
-  address_t sender_addr;
-  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
-  ed25519_keypair_t sender_key = {};
   int ret = 0;
-
-  ret = wallet_ed25519_address_from_index(w, change, index, &sender_addr);
-  if (ret != 0) {
-    printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
-    goto end;
-  }
-
-  ret = get_address_path(w, change, index, addr_path, sizeof(addr_path));
-  if (ret != 0) {
-    printf("[%s:%d] Can not derive ed25519 address from seed and path\n", __func__, __LINE__);
-    goto end;
-  }
-
-  ret = address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &sender_key);
-  if (ret != 0) {
-    printf("[%s:%d] get address keypair failed\n", __func__, __LINE__);
-    goto end;
-  }
 
   // create a tx
   transaction_payload_t* tx = tx_payload_new(w->network_id);
@@ -309,7 +291,9 @@ int wallet_send_alias_output(iota_wallet_t* w, bool change, uint32_t index, uint
   }
 
   // get outputs from the sender address
-  outputs = alias_outputs_from_output_id(w, tx->essence, &sender_key, output_id, &sign_data);
+  uint64_t total_output_amount = 0;
+  outputs = alias_outputs_from_output_id(w, tx->essence, state_controller_keypair, output_id, &sign_data,
+                                         &total_output_amount);
   if (!outputs) {
     printf("[%s:%d] get empty outputs from the address\n", __func__, __LINE__);
     ret = -1;
@@ -317,7 +301,8 @@ int wallet_send_alias_output(iota_wallet_t* w, bool change, uint32_t index, uint
   }
 
   // create the receiver output
-  ret = wallet_output_alias_create(tx->essence, alias_id, 1, state_ctrl_addr, govern_addr, send_amount, &sender_addr);
+  ret = wallet_output_alias_create(tx->essence, alias_id, 1, state_ctrl_addr, govern_addr, total_output_amount,
+                                   state_ctrl_addr);
   if (ret != 0) {
     printf("[%s:%d] create the receiver output failed\n", __func__, __LINE__);
     goto end;
