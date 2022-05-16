@@ -681,7 +681,7 @@ static int validating_indexers_basic(test_config_t* conf, test_data_t* params, t
   // query output IDs
   res_ids = res_outputs_new();
   if (res_ids) {
-    ret = get_basic_outputs(&params->w->endpoint, "/indexer/v1", filter, res_ids);
+    ret = get_basic_outputs(&params->w->endpoint, params->w->indexer_path, filter, res_ids);
     if (ret == 0) {
       if (res_ids->is_error) {
         printf("[%s:%d] Err: %s\n", __func__, __LINE__, res_ids->u.error->msg);
