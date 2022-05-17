@@ -110,6 +110,8 @@ static utxo_outputs_list_t* wallet_get_unspent_alias_output(iota_wallet_t* w, tr
     return NULL;
   }
 
+  get_output_response_free(alias_output_res);
+
   return unspent_outputs;
 }
 
@@ -254,6 +256,9 @@ int wallet_alias_create_transaction(iota_wallet_t* w, address_t* sender_addr, ed
   // send a message to a network
   ret = wallet_send_message(w, message, msg_res);
 
+  // clean up memory
+  core_message_free(message);
+
 end:
   signing_free(sign_data);
   utxo_outputs_free(unspent_outputs);
@@ -307,6 +312,9 @@ int wallet_alias_state_transition_transaction(iota_wallet_t* w, byte_t alias_id[
 
   // send a message to a network
   ret = wallet_send_message(w, message, msg_res);
+
+  // clean up memory
+  core_message_free(message);
 
 end:
   signing_free(sign_data);

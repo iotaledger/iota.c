@@ -342,12 +342,8 @@ int wallet_send_message(iota_wallet_t* w, core_message_t* core_msg, res_send_mes
   // send message to a network
   if (send_core_message(&w->endpoint, core_msg, msg_res) != 0) {
     printf("[%s:%d] failed to send a message to a network\n", __func__, __LINE__);
-    core_message_free(core_msg);
     return -1;
   }
-
-  // clean up memory
-  core_message_free(core_msg);
 
   return 0;
 }
