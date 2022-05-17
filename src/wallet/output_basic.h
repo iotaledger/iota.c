@@ -24,15 +24,15 @@ extern "C" {
  *
  * @return int 0 on success
  */
-int wallet_send_basic_output(iota_wallet_t* w, bool change, uint32_t index, address_t* recv_addr,
-                             uint64_t const send_amount, res_send_message_t* msg_res);
+int wallet_basic_transaction(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair,
+                             uint64_t const send_amount, address_t* recv_addr, res_send_message_t* msg_res);
 
 /**
  * @brief Get unspent basic outputs from a network and add them into a transaction essence
  *
  * @param[in] w A wallet instance
  * @param[in] send_addr A sender address
- * @param[in] sender_key A sender private key
+ * @param[in] sender_keypair A sender private key
  * @param[in] send_amount An amount to transfer
  * @param[out] essence Transaction essence to add unspent basic outputs into it.
  * @param[out] sign_data A
@@ -41,7 +41,7 @@ int wallet_send_basic_output(iota_wallet_t* w, bool change, uint32_t index, addr
  * @return int 0 on success
  */
 utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_t* send_addr,
-                                                      ed25519_keypair_t* sender_key, uint64_t send_amount,
+                                                      ed25519_keypair_t* sender_keypair, uint64_t send_amount,
                                                       transaction_essence_t* essence, signing_data_list_t** sign_data,
                                                       uint64_t* total_output_amount);
 

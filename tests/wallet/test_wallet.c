@@ -86,6 +86,12 @@ void test_wallet_basic_transfer() {
   TEST_ASSERT(wallet_ed25519_address_from_index(w, false, 0, &sender) == 0);
   TEST_ASSERT(wallet_ed25519_address_from_index(w, false, 1, &receiver) == 0);
 
+  // get sender keypair
+  ed25519_keypair_t sender_keypair;
+  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
+  TEST_ASSERT(get_address_path(w, false, 0, addr_path, sizeof(addr_path)) == 0);
+  TEST_ASSERT(address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &sender_keypair) == 0);
+
   // request token from the fuacet
   char sender_bech32[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
   TEST_ASSERT(address_to_bech32(&sender, w->bech32HRP, sender_bech32, sizeof(sender_bech32)) == 0);
@@ -96,7 +102,7 @@ void test_wallet_basic_transfer() {
   // transfer IOTA tokens
   res_send_message_t msg_res = {};
   // this transfer should be failed due to storage deposit
-  int ret = wallet_send_basic_output(w, 0, 0, &receiver, 212999, &msg_res);
+  int ret = wallet_basic_transaction(w, &sender, &sender_keypair, 212999, &receiver, &msg_res);
   TEST_ASSERT(ret != 0);
   if (ret == 0) {
     if (msg_res.is_error) {
@@ -110,7 +116,7 @@ void test_wallet_basic_transfer() {
   }
 
   // this transfer should be sent to the Tangle
-  ret = wallet_send_basic_output(w, 0, 0, &receiver, 1000000, &msg_res);
+  ret = wallet_basic_transaction(w, &sender, &sender_keypair, 1000000, &receiver, &msg_res);
   TEST_ASSERT(ret == 0);
   if (ret == 0) {
     if (msg_res.is_error) {

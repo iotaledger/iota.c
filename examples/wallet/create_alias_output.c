@@ -39,7 +39,7 @@ static int get_address_and_keypair(iota_wallet_t* w, bool change, uint32_t index
   }
 
   if (get_address_path(w, change, index, addr_path, sizeof(addr_path)) != 0) {
-    printf("[%s:%d] Can not derive ed25519 address from seed and path\n", __func__, __LINE__);
+    printf("[%s:%d] can not derive address path from seed and path\n", __func__, __LINE__);
     return -1;
   }
 

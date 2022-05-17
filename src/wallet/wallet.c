@@ -232,7 +232,7 @@ int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t in
 
   // derive ed25519 address from seed and path
   if (get_address_path(w, change, index, bip_path_buf, sizeof(bip_path_buf)) != 0) {
-    printf("[%s:%d] Can not derive ed25519 address from seed and path\n", __func__, __LINE__);
+    printf("[%s:%d] can not derive ed25519 address from seed and path\n", __func__, __LINE__);
     return -1;
   }
 

@@ -86,10 +86,10 @@ static int add_unspent_basic_outputs_to_essence(transaction_essence_t* essence, 
 }
 
 utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_t* send_addr,
-                                                      ed25519_keypair_t* sender_key, uint64_t send_amount,
+                                                      ed25519_keypair_t* sender_keypair, uint64_t send_amount,
                                                       transaction_essence_t* essence, signing_data_list_t** sign_data,
                                                       uint64_t* total_output_amount) {
-  if (w == NULL || send_addr == NULL || sender_key == NULL || essence == NULL || total_output_amount == NULL) {
+  if (w == NULL || send_addr == NULL || sender_keypair == NULL || essence == NULL || total_output_amount == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
@@ -130,7 +130,7 @@ utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_
 
     if (output_res->u.data->output->output_type == OUTPUT_BASIC) {
       uint64_t output_amount = 0;
-      if (add_unspent_basic_outputs_to_essence(essence, output_res->u.data, sender_key, sign_data, &unspent_outputs,
+      if (add_unspent_basic_outputs_to_essence(essence, output_res->u.data, sender_keypair, sign_data, &unspent_outputs,
                                                &output_amount) != 0) {
         get_output_response_free(output_res);
         break;
@@ -193,29 +193,10 @@ int wallet_output_basic_create(address_t* recv_addr, uint64_t amount, transactio
   return 0;
 }
 
-int wallet_send_basic_output(iota_wallet_t* w, bool change, uint32_t index, address_t* recv_addr,
-                             const uint64_t send_amount, res_send_message_t* msg_res) {
-  if (w == NULL || recv_addr == NULL || msg_res == NULL) {
+int wallet_basic_transaction(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair,
+                             uint64_t const send_amount, address_t* recv_addr, res_send_message_t* msg_res) {
+  if (w == NULL || sender_addr == NULL || sender_keypair == NULL || recv_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
-  address_t sender_addr = {0};
-  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {0};
-  ed25519_keypair_t sender_key = {0};
-
-  if (wallet_ed25519_address_from_index(w, change, index, &sender_addr) != 0) {
-    printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
-    return -1;
-  }
-
-  if (get_address_path(w, change, index, addr_path, sizeof(addr_path)) != 0) {
-    printf("[%s:%d] can not derive ed25519 address from seed and path\n", __func__, __LINE__);
-    return -1;
-  }
-
-  if (address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &sender_key) != 0) {
-    printf("[%s:%d] get address keypair failed\n", __func__, __LINE__);
     return -1;
   }
 
@@ -233,8 +214,8 @@ int wallet_send_basic_output(iota_wallet_t* w, bool change, uint32_t index, addr
 
   // get unspent basic outputs from a sender address
   uint64_t total_unspent_amount = 0;
-  unspent_outputs = wallet_get_unspent_basic_outputs(w, &sender_addr, &sender_key, send_amount, tx->essence, &sign_data,
-                                                     &total_unspent_amount);
+  unspent_outputs = wallet_get_unspent_basic_outputs(w, sender_addr, sender_keypair, send_amount, tx->essence,
+                                                     &sign_data, &total_unspent_amount);
   if (!unspent_outputs) {
     printf("[%s:%d] address does not have any unspent basic outputs\n", __func__, __LINE__);
     ret = -1;
@@ -257,7 +238,7 @@ int wallet_send_basic_output(iota_wallet_t* w, bool change, uint32_t index, addr
 
   // check if reminder is needed
   if (total_unspent_amount > send_amount) {
-    ret = wallet_output_basic_create(&sender_addr, total_unspent_amount - send_amount, tx->essence);
+    ret = wallet_output_basic_create(sender_addr, total_unspent_amount - send_amount, tx->essence);
     if (ret != 0) {
       printf("[%s:%d] create a reminder basic output failed\n", __func__, __LINE__);
       goto end;
