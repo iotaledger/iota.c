@@ -8,6 +8,7 @@
 
 #include <inttypes.h>
 #include <stdio.h>
+#include <unistd.h>  // for Linux sleep()
 
 #include "wallet/output_alias.h"
 #include "wallet/wallet.h"
@@ -22,9 +23,9 @@
 static char const* const test_mnemonic =
     "acoustic trophy damage hint search taste love bicycle foster cradle brown govern endless depend situate athlete "
     "pudding blame question genius transfer van random vast";
-uint32_t const sender_addr_index = 0;            // address index of a sender
-uint32_t const state_controller_addr_index = 1;  // address index of a state controller
-uint32_t const governor_addr_index = 2;          // address index of a governor
+uint32_t const sender_addr_index = 0;      // address index of a sender
+uint32_t const state_ctrl_addr_index = 1;  // address index of a state controller
+uint32_t const govern_addr_index = 2;      // address index of a governor
 
 uint64_t const amount = 1;  // transfer 1Mi from a sender to a receiver address
 
@@ -69,62 +70,60 @@ int main(void) {
     return -1;
   }
 
-  address_t sender, state_controller, governor;
-  ed25519_keypair_t sender_keypair, state_controller_keypair, governor_keypair;
-  if (get_address_and_keypair(w, false, sender_addr_index, &sender, &sender_keypair) != 0) {
+  address_t sender_addr, state_ctrl_addr, govern_addr;
+  ed25519_keypair_t sender_keypair, state_ctrl_keypair, govern_keypair;
+  if (get_address_and_keypair(w, false, sender_addr_index, &sender_addr, &sender_keypair) != 0) {
     printf("Failed to generate a sender address and private key from an index!\n");
     wallet_destroy(w);
     return -1;
   }
-  if (get_address_and_keypair(w, false, state_controller_addr_index, &state_controller, &state_controller_keypair) !=
-      0) {
-    printf("Failed to generate a sender address and private key from an index!\n");
-    wallet_destroy(w);
-    return -1;
-  }
-  if (get_address_and_keypair(w, false, governor_addr_index, &governor, &governor_keypair) != 0) {
+  if (get_address_and_keypair(w, false, state_ctrl_addr_index, &state_ctrl_addr, &state_ctrl_keypair) != 0) {
     printf("Failed to generate a state controller address and private key from an index!\n");
+    wallet_destroy(w);
+    return -1;
+  }
+  if (get_address_and_keypair(w, false, govern_addr_index, &govern_addr, &govern_keypair) != 0) {
+    printf("Failed to generate a governor address and private key from an index!\n");
     wallet_destroy(w);
     return -1;
   }
 
   // convert sender address to bech32 format
   char bech32_sender[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
-  if (address_to_bech32(&sender, w->bech32HRP, bech32_sender, sizeof(bech32_sender)) != 0) {
+  if (address_to_bech32(&sender_addr, w->bech32HRP, bech32_sender, sizeof(bech32_sender)) != 0) {
     printf("Failed converting sender address to bech32 format!\n");
     wallet_destroy(w);
     return -1;
   }
 
   // convert state controller address to bech32 format
-  char bech32_state_controller[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
-  if (address_to_bech32(&state_controller, w->bech32HRP, bech32_state_controller, sizeof(bech32_state_controller)) !=
-      0) {
+  char bech32_state_ctrl[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  if (address_to_bech32(&state_ctrl_addr, w->bech32HRP, bech32_state_ctrl, sizeof(bech32_state_ctrl)) != 0) {
     printf("Failed converting state controller address to bech32 format!\n");
     wallet_destroy(w);
     return -1;
   }
 
   // convert governor address to bech32 format
-  char bech32_governor[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
-  if (address_to_bech32(&governor, w->bech32HRP, bech32_governor, sizeof(bech32_governor)) != 0) {
+  char bech32_govern[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  if (address_to_bech32(&govern_addr, w->bech32HRP, bech32_govern, sizeof(bech32_govern)) != 0) {
     printf("Failed converting governor address to bech32 format!\n");
     wallet_destroy(w);
     return -1;
   }
 
   printf("Sender address: %s\n", bech32_sender);
-  printf("State controller address: %s\n", bech32_state_controller);
-  printf("Governor address: %s\n", bech32_governor);
+  printf("State controller address: %s\n", bech32_state_ctrl);
+  printf("Governor address: %s\n", bech32_govern);
   printf("Amount to send: %" PRIu64 "\n", amount * Mi);
 
   // create alias output
   printf("Sending transaction message to the Tangle...\n");
+
   res_send_message_t msg_res = {};
-  byte_t alias_id[ALIAS_ID_BYTES] = {0};
-  byte_t alias_output_id[IOTA_OUTPUT_ID_BYTES] = {0};
-  if (wallet_create_alias_output(w, 0, 0, amount * Mi, &state_controller, &governor, &msg_res, alias_id,
-                                 alias_output_id) != 0) {
+  byte_t output_id[IOTA_OUTPUT_ID_BYTES] = {0};
+  if (wallet_alias_create_transaction(w, &sender_addr, &sender_keypair, amount * Mi, &state_ctrl_addr, &govern_addr,
+                                      output_id, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
@@ -140,9 +139,20 @@ int main(void) {
   printf("Message successfully sent.\n");
   printf("Message ID: %s\n", msg_res.u.msg_id);
 
+  // wait for a message to be included into a tangle
+  sleep(10);
+
+  // calculate alias Id
+  byte_t alias_id[ALIAS_ID_BYTES] = {0};
+  if (output_alias_calculate_id(output_id, sizeof(output_id), alias_id, sizeof(alias_id)) != 0) {
+    printf("Calculating alias Id failed!\n");
+    wallet_destroy(w);
+    return -1;
+  }
+
   // create a second transaction with an actual alias ID
-  if (wallet_send_alias_state_transition(w, alias_id, &state_controller, &governor, alias_output_id,
-                                         &state_controller_keypair, &msg_res) != 0) {
+  if (wallet_alias_state_transition_transaction(w, alias_id, output_id, &state_ctrl_addr, &state_ctrl_keypair,
+                                                &govern_addr, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;

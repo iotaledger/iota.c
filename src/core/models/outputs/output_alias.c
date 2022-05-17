@@ -99,6 +99,31 @@ void output_alias_free(output_alias_t* output) {
   }
 }
 
+int output_alias_calculate_id(byte_t output_id[], size_t output_id_len, byte_t alias_id[], size_t alias_id_len) {
+  if (output_id == NULL || alias_id == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (output_id_len != IOTA_OUTPUT_ID_BYTES) {
+    printf("[%s:%d] invalid output_id array length\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (alias_id_len != ALIAS_ID_BYTES) {
+    printf("[%s:%d] invalid alias_id array length\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // calculate alias identifier
+  if (iota_blake2b_sum(output_id, IOTA_OUTPUT_ID_BYTES, alias_id, ALIAS_ID_BYTES) != 0) {
+    printf("[%s:%d] calculating alias ID failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  return 0;
+}
+
 size_t output_alias_serialize_len(output_alias_t* output) {
   if (output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
