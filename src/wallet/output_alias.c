@@ -264,9 +264,11 @@ int wallet_create_alias_output(iota_wallet_t* w, bool change, uint32_t index, ui
     goto end;
   }
 
+  // create alias output ID
   memcpy(alias_output_id, payload_id, sizeof(payload_id));
-  // TODO fix index number
-  memset(alias_output_id + sizeof(payload_id), 0, sizeof(uint16_t));
+  memset(alias_output_id + sizeof(payload_id), 0,
+         sizeof(uint16_t));  // index is always 0 because in this function alias output is added into a transaction
+                             // essence before basic output
 
   // calculate alias ID
   if (iota_blake2b_sum(alias_output_id, IOTA_OUTPUT_ID_BYTES, alias_id, ALIAS_ID_BYTES) != 0) {
