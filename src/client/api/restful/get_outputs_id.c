@@ -78,143 +78,144 @@ int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e t
 
 size_t get_outputs_query_str_len(outputs_query_list_t *list) {
   size_t query_str_len = 0;
+  uint8_t params_seperator_len = 2;  // For "&" params seperator and "=" params assignment
   outputs_query_list_t *elm;
   LL_FOREACH(list, elm) {
     switch (elm->query_item->type) {
       case QUERY_PARAM_ADDRESS:
         query_str_len += strlen(OUTPUTS_QUERY_ADDRESS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_ALIAS_ADDRESS:
         query_str_len += strlen(OUTPUTS_QUERY_ALIAS_ADDRESS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_HAS_NATIVE_TOKENS:
         query_str_len += strlen(OUTPUTS_QUERY_HAS_NATIVE_TOKENS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_MIN_NATIVE_TOKENS:
         query_str_len += strlen(OUTPUTS_QUERY_MIN_NATIVE_TOKENS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_MAX_NATIVE_TOKENS:
         query_str_len += strlen(OUTPUTS_QUERY_MAX_NATIVE_TOKENS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_HAS_STORAGE_RET:
         query_str_len += strlen(OUTPUTS_QUERY_STORAGE_RET_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_STORAGE_RET_ADDR:
         query_str_len += strlen(OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_HAS_TIMELOCK:
         query_str_len += strlen(OUTPUTS_QUERY_HAS_TIMELOCK_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_TIMELOCKED_BEFORE:
         query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_BEFORE_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_TIMELOCKED_AFTER:
         query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_AFTER_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_TIMELOCKED_BEFORE_MS:
         query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_BEFORE_MS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_TIMELOCKED_AFTER_MS:
         query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_AFTER_MS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_HAS_EXP_COND:
         query_str_len += strlen(OUTPUTS_QUERY_HAS_EXP_COND_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_EXPIRES_BEFORE:
         query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_BEFORE_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_EXPIRES_AFTER:
         query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_AFTER_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_EXPIRES_BEFORE_MS:
         query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_BEFORE_MS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_EXPIRES_AFTER_MS:
         query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_AFTER_MS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_EXP_RETURN_ADDR:
         query_str_len += strlen(OUTPUTS_QUERY_EXP_RETURN_ADDR_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_SENDER:
         query_str_len += strlen(OUTPUTS_QUERY_SENDER_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_TAG:
         query_str_len += strlen(OUTPUTS_QUERY_TAG_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_CREATED_BEFORE:
         query_str_len += strlen(OUTPUTS_QUERY_CREATED_BEFORE_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_CREATED_AFTER:
         query_str_len += strlen(OUTPUTS_QUERY_CREATED_AFTER_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_PAGE_SIZE:
         query_str_len += strlen(OUTPUTS_QUERY_PAGE_SIZE_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_CURSOR:
         query_str_len += strlen(OUTPUTS_QUERY_CURSOR_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_STATE_CTRL:
         query_str_len += strlen(OUTPUTS_QUERY_STATE_CTRL_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_GOV:
         query_str_len += strlen(OUTPUTS_QUERY_GOV_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_ISSUER:
         query_str_len += strlen(OUTPUTS_QUERY_ISSUER_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       default:
         break;

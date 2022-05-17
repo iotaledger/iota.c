@@ -8,8 +8,6 @@
 // We don't enable it by default but enable it for a local test is recommended.
 #define TEST_TANGLE_ENABLE 0
 
-#define TEST_INDEXER_API_PATH "/indexer/v1"
-
 #define USE_HTTPS
 
 #ifdef USE_HTTPS
