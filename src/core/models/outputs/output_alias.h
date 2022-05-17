@@ -64,17 +64,6 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_list_t* tokens, 
 void output_alias_free(output_alias_t* output);
 
 /**
- * @brief Calculate and return Alias identifier from Output identifier
- *
- * @param[in] output_id A buffer that holds Output identifier
- * @param[in] output_id_len The length of a buffer that holds Output identifier
- * @param[out] alias_id A buffer which will hold Alias identifier
- * @param[in] alias_id_len The length of a buffer which will hold Alias identifier
- * @return size_t The bytes written is returned, 0 on errors
- */
-int output_alias_calculate_id(byte_t output_id[], size_t output_id_len, byte_t alias_id[], size_t alias_id_len);
-
-/**
  * @brief Get the length of a serialized Alias Output
  *
  * @param[in] output Alias Output object.

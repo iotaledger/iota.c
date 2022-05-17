@@ -143,15 +143,23 @@ int main(void) {
   sleep(10);
 
   // calculate alias Id
-  byte_t alias_id[ALIAS_ID_BYTES] = {0};
-  if (output_alias_calculate_id(output_id, sizeof(output_id), alias_id, sizeof(alias_id)) != 0) {
-    printf("Calculating alias Id failed!\n");
+  address_t alias_addr = {0};
+  if (alias_address_from_output(output_id, sizeof(output_id), &alias_addr) != 0) {
+    printf("Can not create alias address from output Id!\n");
     wallet_destroy(w);
     return -1;
   }
 
+  char bech32_alias[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  if (address_to_bech32(&alias_addr, w->bech32HRP, bech32_alias, sizeof(bech32_alias)) != 0) {
+    printf("Failed converting alias address to bech32 format!\n");
+    wallet_destroy(w);
+    return -1;
+  }
+  printf("Alias address: %s\n", bech32_sender);
+
   // create a second transaction with an actual alias ID
-  if (wallet_alias_state_transition_transaction(w, alias_id, output_id, &state_ctrl_addr, &state_ctrl_keypair,
+  if (wallet_alias_state_transition_transaction(w, alias_addr.address, output_id, &state_ctrl_addr, &state_ctrl_keypair,
                                                 &govern_addr, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
