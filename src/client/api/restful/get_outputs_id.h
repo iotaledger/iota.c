@@ -14,17 +14,34 @@
  *
  */
 typedef enum {
-  QUERY_PARAM_ADDRESS = 0,       ///< The Bech32-encoded address that should be used to query outputs
-  QUERY_PARAM_ALIAS_ADDRESS,     ///< The alias address that should be used to query some outputs
-  QUERY_PARAM_HAS_STORAGE_RET,   ///< The presence of storage return unlock condition
-  QUERY_PARAM_STORAGE_RET_ADDR,  ///< The specific return address in the storage deposit return unlock condition
-  QUERY_PARAM_SENDER,            ///< To query outputs based on bech32-encoded sender address.
-  QUERY_PARAM_TAG,               ///< A tag block to search for outputs matching it
-  QUERY_PARAM_PAGE_SIZE,         ///< The maximum amount of items returned in one api call
-  QUERY_PARAM_CURSOR,            ///<  A cursor to start the query (confirmationMS+outputId.pageSize)
-  QUERY_PARAM_STATE_CTRL,        ///< To query outputs based on bech32-encoded state controller address
-  QUERY_PARAM_GOV,               ///< To query outputs based on bech32-encoded governor (governance controller) address
-  QUERY_PARAM_ISSUER             ///< To query outputs based on bech32-encoded issuer address
+  QUERY_PARAM_ADDRESS = 0,        ///< The Bech32-encoded address that should be used to query outputs
+  QUERY_PARAM_ALIAS_ADDRESS,      ///< The alias address that should be used to query some outputs
+  QUERY_PARAM_HAS_NATIVE_TOKENS,  ///< To filter outputs based on the presence of native tokens
+  QUERY_PARAM_MIN_NATIVE_TOKENS,  ///< To filter outputs that have at least a certain number of distinct native tokens
+  QUERY_PARAM_MAX_NATIVE_TOKENS,  ///< To filter outputs that have at most a certain number of distinct native tokens
+  QUERY_PARAM_HAS_STORAGE_RET,    ///< The presence of storage return unlock condition
+  QUERY_PARAM_STORAGE_RET_ADDR,   ///< The specific return address in the storage deposit return unlock condition
+  QUERY_PARAM_HAS_TIMELOCK,       ///< To filter outputs based on the presence of timelock unlock condition
+  QUERY_PARAM_TIMELOCKED_BEFORE,  ///< To return outputs that are timelocked before a certain Unix timestamp
+  QUERY_PARAM_TIMELOCKED_AFTER,   ///< To return outputs that are timelocked after a certain Unix timestamp
+  QUERY_PARAM_TIMELOCKED_BEFORE_MS,  ///< To return outputs that are timelocked before a certain milestone index
+  QUERY_PARAM_TIMELOCKED_AFTER_MS,   ///< To return outputs that are timelocked after a certain milestone index
+  QUERY_PARAM_HAS_EXP_COND,          ///< To filters outputs based on the presence of expiration unlock condition
+  QUERY_PARAM_EXPIRES_BEFORE,        ///< To return outputs that expire before a certain Unix timestamp
+  QUERY_PARAM_EXPIRES_AFTER,         ///< To return outputs that expire after a certain Unix timestamp
+  QUERY_PARAM_EXPIRES_BEFORE_MS,     ///< To return outputs that expire before a certain milestone index
+  QUERY_PARAM_EXPIRES_AFTER_MS,      ///< To return outputs that expire after a certain milestone index
+  QUERY_PARAM_EXP_RETURN_ADDR,       ///< To filter outputs based on the presence of a specific return address in the
+                                     ///< expiration unlock condition
+  QUERY_PARAM_SENDER,                ///< To query outputs based on bech32-encoded sender address
+  QUERY_PARAM_TAG,                   ///< A tag block to search for outputs matching it
+  QUERY_PARAM_CREATED_BEFORE,        ///< To return outputs that were created before a certain Unix timestamp
+  QUERY_PARAM_CREATED_AFTER,         ///< To return outputs that were created after a certain Unix timestamp
+  QUERY_PARAM_PAGE_SIZE,             ///< The maximum amount of items returned in one api call
+  QUERY_PARAM_CURSOR,                ///< A cursor to start the query (confirmationMS+outputId.pageSize)
+  QUERY_PARAM_STATE_CTRL,            ///< To query outputs based on bech32-encoded state controller address
+  QUERY_PARAM_GOV,    ///< To query outputs based on bech32-encoded governor (governance controller) address
+  QUERY_PARAM_ISSUER  ///< To query outputs based on bech32-encoded issuer address
 } outputs_query_params_e;
 
 /**

@@ -8,8 +8,6 @@
 // We don't enable it by default but enable it for a local test is recommended.
 #define TEST_TANGLE_ENABLE 0
 
-#define TEST_INDEXER_API_PATH "/indexer/v1"
-
 #define USE_HTTPS
 
 #ifdef USE_HTTPS
@@ -41,5 +39,21 @@
 #define TEST_EVENTS_KEEP_ALIVE 60
 
 #define TEST_TIMEOUT_SECONDS 30
+
+// Wallet
+
+// using SLIP44_COIN_TYPE_TEST as default coin type
+// uncomment one to choose another coin type
+// #define NETWORK_TYPE_SHIMMER
+// #define NETWORK_TYPE_MAINNET
+
+// predefined coin types
+#if defined(NETWORK_TYPE_SHIMMER)
+#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_SHIMMER
+#elif defined(NETWORK_TYPE_MAINNET)
+#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_IOTA
+#else
+#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_TEST
+#endif
 
 #endif

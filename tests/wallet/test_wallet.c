@@ -7,34 +7,9 @@
 #include "client/api/restful/faucet_enqueue.h"
 #include "core/address.h"
 #include "core/utils/macros.h"
+#include "test_config.h"
 #include "unity/unity.h"
 #include "wallet/wallet.h"
-
-#define TEST_WITH_PRIVATE_TANGLE 0
-
-// API endpoint
-#define NODE_HOST "localhost"
-#define NODE_PORT 14265
-#define NODE_IS_HTTPS 0
-
-// faucet endpoint
-#define FAUCET_HOST "localhost"
-#define FAUCET_PORT 8091
-#define FAUCET_IS_HTTPS 0
-
-// using SLIP44_COIN_TYPE_TEST as default coin type
-// uncomment one to choose another coin type
-// #define NETWORK_TYPE_SHIMMER
-// #define NETWORK_TYPE_MAINNET
-
-// predefined coin types
-#if defined(NETWORK_TYPE_SHIMMER)
-#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_SHIMMER
-#elif defined(NETWORK_TYPE_MAINNET)
-#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_IOTA
-#else
-#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_TEST
-#endif
 
 void setUp(void) {}
 
@@ -84,7 +59,7 @@ void test_wallet_ed25519_address() {
 }
 
 static int request_token(char const* const addr) {
-  iota_client_conf_t ctx = {.host = FAUCET_HOST, .port = FAUCET_PORT, .use_tls = FAUCET_IS_HTTPS};
+  iota_client_conf_t ctx = {.host = TEST_FAUCET_HOST, .port = TEST_FAUCET_PORT, .use_tls = TEST_IS_HTTPS};
   res_faucet_enqueue_t res = {};
   // Test bech32 address with invalid len
   TEST_ASSERT_EQUAL_INT(0, req_tokens_to_addr_from_faucet(&ctx, addr, &res));
@@ -102,7 +77,7 @@ void test_wallet_basic_transfer() {
   TEST_ASSERT_NOT_NULL(w);
 
   // set endpoint and update node info
-  TEST_ASSERT(wallet_set_endpoint(w, NODE_HOST, NODE_PORT, NODE_IS_HTTPS) == 0);
+  TEST_ASSERT(wallet_set_endpoint(w, TEST_NODE_HOST, TEST_NODE_PORT, TEST_IS_HTTPS) == 0);
   TEST_ASSERT(wallet_update_node_config(w) == 0);
 
   // get address
@@ -155,7 +130,7 @@ int main() {
 
   RUN_TEST(test_wallet_creation);
   RUN_TEST(test_wallet_ed25519_address);
-#if TEST_WITH_PRIVATE_TANGLE
+#if TEST_TANGLE_ENABLE
   RUN_TEST(test_wallet_basic_transfer);
 #endif
 

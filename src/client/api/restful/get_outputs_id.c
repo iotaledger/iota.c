@@ -12,10 +12,26 @@
 
 #define OUTPUTS_QUERY_ADDRESS_KEY "address"
 #define OUTPUTS_QUERY_ALIAS_ADDRESS_KEY "aliasAddress"
+#define OUTPUTS_QUERY_HAS_NATIVE_TOKENS_KEY "hasNativeTokens"
+#define OUTPUTS_QUERY_MIN_NATIVE_TOKENS_KEY "minNativeTokenCount"
+#define OUTPUTS_QUERY_MAX_NATIVE_TOKENS_KEY "maxNativeTokenCount"
 #define OUTPUTS_QUERY_STORAGE_RET_KEY "hasStorageReturnCondition"
 #define OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY "storageReturnAddress"
+#define OUTPUTS_QUERY_HAS_TIMELOCK_KEY "hasTimelockCondition"
+#define OUTPUTS_QUERY_TIMELOCKED_BEFORE_KEY "timelockedBefore"
+#define OUTPUTS_QUERY_TIMELOCKED_AFTER_KEY "timelockedAfter"
+#define OUTPUTS_QUERY_TIMELOCKED_BEFORE_MS_KEY "timelockedBeforeMilestone"
+#define OUTPUTS_QUERY_TIMELOCKED_AFTER_MS_KEY "timelockedAfterMilestone"
+#define OUTPUTS_QUERY_HAS_EXP_COND_KEY "hasExpirationCondition"
+#define OUTPUTS_QUERY_EXPIRES_BEFORE_KEY "expiresBefore"
+#define OUTPUTS_QUERY_EXPIRES_AFTER_KEY "expiresAfter"
+#define OUTPUTS_QUERY_EXPIRES_BEFORE_MS_KEY "expiresBeforeMilestone"
+#define OUTPUTS_QUERY_EXPIRES_AFTER_MS_KEY "expiresAfterMilestone"
+#define OUTPUTS_QUERY_EXP_RETURN_ADDR_KEY "expirationReturnAddress"
 #define OUTPUTS_QUERY_SENDER_KEY "sender"
 #define OUTPUTS_QUERY_TAG_KEY "tag"
+#define OUTPUTS_QUERY_CREATED_BEFORE_KEY "createdBefore"
+#define OUTPUTS_QUERY_CREATED_AFTER_KEY "createdAfter"
 #define OUTPUTS_QUERY_PAGE_SIZE_KEY "pageSize"
 #define OUTPUTS_QUERY_CURSOR_KEY "cursor"
 #define OUTPUTS_QUERY_STATE_CTRL_KEY "stateController"
@@ -62,63 +78,144 @@ int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e t
 
 size_t get_outputs_query_str_len(outputs_query_list_t *list) {
   size_t query_str_len = 0;
+  uint8_t params_seperator_len = 2;  // For "&" params seperator and "=" params assignment
   outputs_query_list_t *elm;
   LL_FOREACH(list, elm) {
     switch (elm->query_item->type) {
       case QUERY_PARAM_ADDRESS:
         query_str_len += strlen(OUTPUTS_QUERY_ADDRESS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_ALIAS_ADDRESS:
         query_str_len += strlen(OUTPUTS_QUERY_ALIAS_ADDRESS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_HAS_NATIVE_TOKENS:
+        query_str_len += strlen(OUTPUTS_QUERY_HAS_NATIVE_TOKENS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_MIN_NATIVE_TOKENS:
+        query_str_len += strlen(OUTPUTS_QUERY_MIN_NATIVE_TOKENS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_MAX_NATIVE_TOKENS:
+        query_str_len += strlen(OUTPUTS_QUERY_MAX_NATIVE_TOKENS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_HAS_STORAGE_RET:
         query_str_len += strlen(OUTPUTS_QUERY_STORAGE_RET_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_STORAGE_RET_ADDR:
         query_str_len += strlen(OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_HAS_TIMELOCK:
+        query_str_len += strlen(OUTPUTS_QUERY_HAS_TIMELOCK_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_TIMELOCKED_BEFORE:
+        query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_BEFORE_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_TIMELOCKED_AFTER:
+        query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_AFTER_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_TIMELOCKED_BEFORE_MS:
+        query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_BEFORE_MS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_TIMELOCKED_AFTER_MS:
+        query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_AFTER_MS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_HAS_EXP_COND:
+        query_str_len += strlen(OUTPUTS_QUERY_HAS_EXP_COND_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_EXPIRES_BEFORE:
+        query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_BEFORE_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_EXPIRES_AFTER:
+        query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_AFTER_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_EXPIRES_BEFORE_MS:
+        query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_BEFORE_MS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_EXPIRES_AFTER_MS:
+        query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_AFTER_MS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_EXP_RETURN_ADDR:
+        query_str_len += strlen(OUTPUTS_QUERY_EXP_RETURN_ADDR_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_SENDER:
         query_str_len += strlen(OUTPUTS_QUERY_SENDER_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_TAG:
         query_str_len += strlen(OUTPUTS_QUERY_TAG_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_CREATED_BEFORE:
+        query_str_len += strlen(OUTPUTS_QUERY_CREATED_BEFORE_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_CREATED_AFTER:
+        query_str_len += strlen(OUTPUTS_QUERY_CREATED_AFTER_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_PAGE_SIZE:
         query_str_len += strlen(OUTPUTS_QUERY_PAGE_SIZE_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_CURSOR:
         query_str_len += strlen(OUTPUTS_QUERY_CURSOR_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_STATE_CTRL:
         query_str_len += strlen(OUTPUTS_QUERY_STATE_CTRL_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_GOV:
         query_str_len += strlen(OUTPUTS_QUERY_GOV_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_ISSUER:
         query_str_len += strlen(OUTPUTS_QUERY_ISSUER_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       default:
         break;
@@ -164,17 +261,65 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
       case QUERY_PARAM_ALIAS_ADDRESS:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_ALIAS_ADDRESS_KEY, elm);
         break;
+      case QUERY_PARAM_HAS_NATIVE_TOKENS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_HAS_NATIVE_TOKENS_KEY, elm);
+        break;
+      case QUERY_PARAM_MIN_NATIVE_TOKENS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_MIN_NATIVE_TOKENS_KEY, elm);
+        break;
+      case QUERY_PARAM_MAX_NATIVE_TOKENS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_MAX_NATIVE_TOKENS_KEY, elm);
+        break;
       case QUERY_PARAM_HAS_STORAGE_RET:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_STORAGE_RET_KEY, elm);
         break;
       case QUERY_PARAM_STORAGE_RET_ADDR:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY, elm);
         break;
+      case QUERY_PARAM_HAS_TIMELOCK:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_HAS_TIMELOCK_KEY, elm);
+        break;
+      case QUERY_PARAM_TIMELOCKED_BEFORE:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TIMELOCKED_BEFORE_KEY, elm);
+        break;
+      case QUERY_PARAM_TIMELOCKED_AFTER:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TIMELOCKED_AFTER_KEY, elm);
+        break;
+      case QUERY_PARAM_TIMELOCKED_BEFORE_MS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TIMELOCKED_BEFORE_MS_KEY, elm);
+        break;
+      case QUERY_PARAM_TIMELOCKED_AFTER_MS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TIMELOCKED_AFTER_MS_KEY, elm);
+        break;
+      case QUERY_PARAM_HAS_EXP_COND:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_HAS_EXP_COND_KEY, elm);
+        break;
+      case QUERY_PARAM_EXPIRES_BEFORE:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_EXPIRES_BEFORE_KEY, elm);
+        break;
+      case QUERY_PARAM_EXPIRES_AFTER:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_EXPIRES_AFTER_KEY, elm);
+        break;
+      case QUERY_PARAM_EXPIRES_BEFORE_MS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_EXPIRES_BEFORE_MS_KEY, elm);
+        break;
+      case QUERY_PARAM_EXPIRES_AFTER_MS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_EXPIRES_AFTER_MS_KEY, elm);
+        break;
+      case QUERY_PARAM_EXP_RETURN_ADDR:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_EXP_RETURN_ADDR_KEY, elm);
+        break;
       case QUERY_PARAM_SENDER:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_SENDER_KEY, elm);
         break;
       case QUERY_PARAM_TAG:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TAG_KEY, elm);
+        break;
+      case QUERY_PARAM_CREATED_BEFORE:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_CREATED_BEFORE_KEY, elm);
+        break;
+      case QUERY_PARAM_CREATED_AFTER:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_CREATED_AFTER_KEY, elm);
         break;
       case QUERY_PARAM_PAGE_SIZE:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_PAGE_SIZE_KEY, elm);
@@ -414,7 +559,7 @@ int get_basic_outputs(iota_client_conf_t const *conf, char const *const indexer_
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -450,7 +595,7 @@ int get_nft_outputs(iota_client_conf_t const *conf, char const *const indexer_pa
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -486,7 +631,7 @@ int get_alias_outputs(iota_client_conf_t const *conf, char const *const indexer_
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -522,7 +667,7 @@ int get_foundry_outputs(iota_client_conf_t const *conf, char const *const indexe
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -564,7 +709,7 @@ int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const *const in
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -600,7 +745,7 @@ int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const *const 
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
@@ -636,7 +781,7 @@ int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const *cons
     return -1;
   }
 
-  if (strcmp(indexer_path, INDEXER_API_PATH)) {
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
     printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }

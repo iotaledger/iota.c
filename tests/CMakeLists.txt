@@ -6,7 +6,8 @@
 # function for test cases
 function(add_iota_test test_src test_name)
   add_executable(${test_name} "${test_src}")
-  target_include_directories(${test_name} PRIVATE ${PROJECT_SOURCE_DIR}/src ${CMAKE_INSTALL_PREFIX}/include)
+  target_include_directories(${test_name} PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_SOURCE_DIR}/tests
+                                                  ${CMAKE_INSTALL_PREFIX}/include)
   add_dependencies(${test_name} ext_unity)
   target_compile_options(${test_name} PRIVATE -Wall -Wextra)
   if(${test_src} MATCHES "^core")
