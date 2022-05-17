@@ -39,4 +39,20 @@
 
 #define TEST_TIMEOUT_SECONDS 30
 
+// Wallet
+
+// using SLIP44_COIN_TYPE_TEST as default coin type
+// uncomment one to choose another coin type
+// #define NETWORK_TYPE_SHIMMER
+// #define NETWORK_TYPE_MAINNET
+
+// predefined coin types
+#if defined(NETWORK_TYPE_SHIMMER)
+#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_SHIMMER
+#elif defined(NETWORK_TYPE_MAINNET)
+#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_IOTA
+#else
+#define SLIP44_COIN_TYPE SLIP44_COIN_TYPE_TEST
+#endif
+
 #endif
