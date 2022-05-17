@@ -120,7 +120,7 @@ static utxo_outputs_list_t* basic_outputs_from_address(iota_wallet_t* w, transac
       return NULL;
     }
 
-    ret = get_outputs_id(&w->endpoint, query_param, res_id);
+    ret = get_basic_outputs(&w->endpoint, w->indexer_path, query_param, res_id);
     if (ret != 0) {
       printf("[%s:%d] get output ID failed\n", __func__, __LINE__);
       outputs_query_list_free(query_param);
@@ -416,6 +416,17 @@ int wallet_update_node_config(iota_wallet_t* w) {
       byte_cost_config_set(&w->byte_cost, info->u.output_node_info->rent_structure.v_byte_cost,
                            info->u.output_node_info->rent_structure.v_byte_factor_data,
                            info->u.output_node_info->rent_structure.v_byte_factor_key);
+
+      // update indexer path
+      size_t len = utarray_len(info->u.output_node_info->plugins);
+      for (size_t i = 0; i < len; i++) {
+        char** p = (char**)utarray_eltptr(info->u.output_node_info->plugins, i);
+        // indexer path contains "indexer" string
+        if (strstr(*p, "indexer")) {
+          w->indexer_path[0] = '/';
+          memcpy(&w->indexer_path[1], *p, strlen(*p) + 1);
+        }
+      }
 
     } else {
       ret = -2;
