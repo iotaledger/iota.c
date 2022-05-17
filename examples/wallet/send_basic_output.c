@@ -15,8 +15,9 @@
 #define Mi 1000000
 
 #define NODE_HOST "localhost"
-#define NODE_PORT 14265
-#define NODE_USE_TLS false
+#define NODE_PORT 443
+#define NODE_USE_TLS true
+#define TEST_COIN_TYPE SLIP44_COIN_TYPE_SHIMMER
 
 // replace this with your mnemonic string
 static char const* const test_mnemonic =
@@ -28,7 +29,7 @@ uint32_t const sender_addr_index = 0;                                    // addr
 uint64_t const amount = 1;  // transfer 1Mi from a sender to a receiver address
 
 int main(void) {
-  iota_wallet_t* w = wallet_create(test_mnemonic, "", SLIP44_COIN_TYPE_IOTA, 0);
+  iota_wallet_t* w = wallet_create(test_mnemonic, "", TEST_COIN_TYPE, 0);
   if (!w) {
     printf("Failed to create a wallet object!\n");
     return -1;

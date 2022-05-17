@@ -47,6 +47,7 @@ typedef struct {
   uint8_t protocol_version;      ///< Network protocol version of the connected node
   uint64_t network_id;           ///< Network ID of the connected node
   byte_cost_config_t byte_cost;  ///< The byte cost configuration of the network
+  char indexer_path[15];         ///< The indexer plugins api path, max len 15
 } iota_wallet_t;
 
 #ifdef __cplusplus
