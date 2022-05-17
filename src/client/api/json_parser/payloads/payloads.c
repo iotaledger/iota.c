@@ -628,6 +628,7 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data)
 
     byte_buf_t* metadata = byte_buf_new();
     int res = json_get_bin_buf_str(payload, JSON_KEY_DATA, metadata);
+    // metadata in payload may be an empty string (this is a valid response)
     if ((res != JSON_OK) && (res != JSON_NOT_HEX_STRING)) {
       printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_DATA);
       byte_buf_free(tag);
