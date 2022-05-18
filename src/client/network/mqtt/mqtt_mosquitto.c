@@ -1,6 +1,8 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#if !defined(__XTENSA__) && !defined(ESP32) && !defined(ESP_PLATFORM) && !defined(__ZEPHYR__)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -213,3 +215,4 @@ int mqtt_destroy(mqtt_client_handle_t client) {
   free(client);
   return 0;
 }
+#endif
