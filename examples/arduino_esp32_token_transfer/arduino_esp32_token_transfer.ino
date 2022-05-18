@@ -8,7 +8,7 @@
 #include <WiFi.h>
 #include <string.h>
 
-#include <iota_c.h>
+#include <iota_client.h>
 
 #define Mi 1000000
 

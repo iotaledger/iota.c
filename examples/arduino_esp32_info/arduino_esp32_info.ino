@@ -9,7 +9,7 @@
 #include <WiFi.h>
 #include <string.h>
 
-#include <iota_c.h>
+#include <iota_client.h>
 
 // please set your WiFi SSID and Passward
 const char* ssid = "xxxxx";

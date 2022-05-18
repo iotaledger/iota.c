@@ -5,8 +5,8 @@
 
 #include "client/api/events/sub_messages_metadata.h"
 #include "client/api/json_parser/json_utils.h"
-#include "client/network/mqtt/mqtt.h"
 #include "client/constants.h"
+#include "client/network/mqtt/mqtt.h"
 
 int event_subscribe_msg_metadata(event_client_handle_t client, int *mid, char const msg_id[], int qos) {
   if (strlen(msg_id) != BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES)) {
