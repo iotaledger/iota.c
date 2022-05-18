@@ -169,8 +169,11 @@ int main(void) {
   printf("Message successfully sent.\n");
   printf("Message ID: %s\n", msg_res.u.msg_id);
 
+  // wait for a message to be included into a tangle
+  sleep(15);
+
   // create a third transaction to destroy alias output
-  /*if (wallet_alias_destroy_transaction(w, output_id, &govern_keypair, &sender_addr, &msg_res) != 0) {
+  if (wallet_alias_destroy_transaction(w, alias_addr.address, &govern_keypair, &sender_addr, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
@@ -184,7 +187,7 @@ int main(void) {
   }
 
   printf("Message successfully sent.\n");
-  printf("Message ID: %s\n", msg_res.u.msg_id);*/
+  printf("Message ID: %s\n", msg_res.u.msg_id);
 
   wallet_destroy(w);
 

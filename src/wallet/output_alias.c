@@ -361,9 +361,9 @@ end:
   return ret;
 }
 
-int wallet_alias_destroy_transaction(iota_wallet_t* w, byte_t output_id[], ed25519_keypair_t* govern_keypair,
+int wallet_alias_destroy_transaction(iota_wallet_t* w, byte_t alias_id[], ed25519_keypair_t* govern_keypair,
                                      address_t* recv_addr, res_send_message_t* msg_res) {
-  if (w == NULL || output_id == NULL || govern_keypair == NULL || recv_addr == NULL || msg_res == NULL) {
+  if (w == NULL || alias_id == NULL || govern_keypair == NULL || recv_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -383,7 +383,7 @@ int wallet_alias_destroy_transaction(iota_wallet_t* w, byte_t output_id[], ed255
   // get outputs from the sender address
   uint64_t alias_output_amount = 0;
   unspent_outputs =
-      wallet_get_unspent_alias_output(w, tx->essence, govern_keypair, output_id, &sign_data, &alias_output_amount);
+      wallet_get_unspent_alias_output(w, tx->essence, govern_keypair, alias_id, &sign_data, &alias_output_amount);
   if (!unspent_outputs) {
     printf("[%s:%d] address does not have any unspent alias outputs\n", __func__, __LINE__);
     ret = -1;
