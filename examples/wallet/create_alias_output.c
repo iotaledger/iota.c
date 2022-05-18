@@ -18,6 +18,7 @@
 #define NODE_HOST "localhost"
 #define NODE_PORT 14265
 #define NODE_USE_TLS false
+#define TEST_COIN_TYPE SLIP44_COIN_TYPE_IOTA
 
 // replace this with your mnemonic string
 static char const* const test_mnemonic =
@@ -52,7 +53,7 @@ static int get_address_and_keypair(iota_wallet_t* w, bool change, uint32_t index
 }
 
 int main(void) {
-  iota_wallet_t* w = wallet_create(test_mnemonic, "", SLIP44_COIN_TYPE_IOTA, 0);
+  iota_wallet_t* w = wallet_create(test_mnemonic, "", TEST_COIN_TYPE, 0);
   if (!w) {
     printf("Failed to create a wallet object!\n");
     return -1;
