@@ -139,7 +139,7 @@ int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* ba
  * @brief Create and prepare core message
  *
  * @param[in] w A wallet instance
- * @param[in] tx A string of bech32 address
+ * @param[in] tx A transaction payload
  * @param[in] unspent_outputs A list of unspent outputs
  * @param[in] sign_data A list of signing data
  * @return core_message_t*

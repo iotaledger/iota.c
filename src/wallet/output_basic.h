@@ -16,10 +16,10 @@ extern "C" {
  * @brief Transfer IOTA token to an address
  *
  * @param[in] w A wallet instance
- * @param[in] change The change index which is {0, 1}, also known as wallet chain.
- * @param[in] index The index of the sender address
- * @param[in] recv_addr The receiver address
+ * @param[in] sender_addr The sender address
+ * @param[in] sender_keypair The sender private key
  * @param[in] send_amount The amount to transfer
+ * @param[in] recv_addr The receiver address
  * @param[out] msg_res The response of the transfer
  *
  * @return int 0 on success
@@ -35,8 +35,8 @@ int wallet_basic_transaction(iota_wallet_t* w, address_t* sender_addr, ed25519_k
  * @param[in] sender_keypair A sender private key
  * @param[in] send_amount An amount to transfer
  * @param[out] essence Transaction essence to add unspent basic outputs into it.
- * @param[out] sign_data A
- * @param[out] total_output_amount A
+ * @param[out] sign_data A list of signing data
+ * @param[out] total_output_amount A total amount of all unspent basic outputs
  *
  * @return int 0 on success
  */
