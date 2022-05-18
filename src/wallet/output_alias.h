@@ -12,11 +12,14 @@ extern "C" {
 
 int wallet_alias_create_transaction(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair,
                                     uint64_t const send_amount, address_t* state_ctrl_addr, address_t* govern_addr,
-                                    byte_t output_id[], res_send_message_t* msg_res);
+                                    address_t* alias_addr, res_send_message_t* msg_res);
 
-int wallet_alias_state_transition_transaction(iota_wallet_t* w, byte_t alias_id[], byte_t output_id[],
-                                              address_t* state_ctrl_addr, ed25519_keypair_t* state_ctrl_keypair,
-                                              address_t* govern_addr, res_send_message_t* msg_res);
+int wallet_alias_state_transition_transaction(iota_wallet_t* w, byte_t alias_id[], address_t* state_ctrl_addr,
+                                              ed25519_keypair_t* state_ctrl_keypair, address_t* govern_addr,
+                                              res_send_message_t* msg_res);
+
+int wallet_alias_destroy_transaction(iota_wallet_t* w, byte_t alias_id[], ed25519_keypair_t* govern_keypair,
+                                     address_t* recv_addr, res_send_message_t* msg_res);
 
 #ifdef __cplusplus
 }

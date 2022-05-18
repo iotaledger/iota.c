@@ -121,9 +121,9 @@ int main(void) {
   printf("Sending transaction message to the Tangle...\n");
 
   res_send_message_t msg_res = {};
-  byte_t output_id[IOTA_OUTPUT_ID_BYTES] = {0};
+  address_t alias_addr = {0};
   if (wallet_alias_create_transaction(w, &sender_addr, &sender_keypair, amount * Mi, &state_ctrl_addr, &govern_addr,
-                                      output_id, &msg_res) != 0) {
+                                      &alias_addr, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
@@ -140,26 +140,19 @@ int main(void) {
   printf("Message ID: %s\n", msg_res.u.msg_id);
 
   // wait for a message to be included into a tangle
-  sleep(10);
+  sleep(15);
 
-  // calculate alias Id
-  address_t alias_addr = {0};
-  if (alias_address_from_output(output_id, sizeof(output_id), &alias_addr) != 0) {
-    printf("Can not create alias address from output Id!\n");
-    wallet_destroy(w);
-    return -1;
-  }
-
+  // convert alias address to bech32 format
   char bech32_alias[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
   if (address_to_bech32(&alias_addr, w->bech32HRP, bech32_alias, sizeof(bech32_alias)) != 0) {
     printf("Failed converting alias address to bech32 format!\n");
     wallet_destroy(w);
     return -1;
   }
-  printf("Alias address: %s\n", bech32_sender);
+  printf("Alias address: %s\n", bech32_alias);
 
   // create a second transaction with an actual alias ID
-  if (wallet_alias_state_transition_transaction(w, alias_addr.address, output_id, &state_ctrl_addr, &state_ctrl_keypair,
+  if (wallet_alias_state_transition_transaction(w, alias_addr.address, &state_ctrl_addr, &state_ctrl_keypair,
                                                 &govern_addr, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
@@ -175,6 +168,23 @@ int main(void) {
 
   printf("Message successfully sent.\n");
   printf("Message ID: %s\n", msg_res.u.msg_id);
+
+  // create a third transaction to destroy alias output
+  /*if (wallet_alias_destroy_transaction(w, output_id, &govern_keypair, &sender_addr, &msg_res) != 0) {
+    printf("Sending message to the Tangle failed!\n");
+    wallet_destroy(w);
+    return -1;
+  }
+
+  if (msg_res.is_error) {
+    printf("Error: %s\n", msg_res.u.error->msg);
+    res_err_free(msg_res.u.error);
+    wallet_destroy(w);
+    return -1;
+  }
+
+  printf("Message successfully sent.\n");
+  printf("Message ID: %s\n", msg_res.u.msg_id);*/
 
   wallet_destroy(w);
 
