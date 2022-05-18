@@ -12,7 +12,7 @@
 
 #define Mi 1000000
 
-// please set your WiFi SSID and Passward
+// please set your WiFi SSID and Password
 char const* const ssid = "xxxxx";
 char const* const passwd = "sssss";
 
