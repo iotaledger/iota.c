@@ -329,7 +329,8 @@ int mnemonic_to_seed(char const ms[], char const pwd[], byte_t seed[], size_t se
   memcpy(phrase_tmp + phrase_len, pwd, pwd_len);
   phrase_tmp[phrase_len + pwd_len] = '\0';
 
-  iota_crypto_pbkdf2_hmac_sha512(ms, strlen(ms), phrase_tmp, strlen(phrase_tmp), 2048, seed, seed_len);
+  iota_crypto_pbkdf2_hmac_sha512(ms, strlen(ms), (char const *)phrase_tmp, strlen((const char *)phrase_tmp), 2048, seed,
+                                 seed_len);
   free(phrase_tmp);
 
   return 0;

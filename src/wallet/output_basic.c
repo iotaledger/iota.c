@@ -32,7 +32,7 @@ static res_outputs_id_t* get_unspent_basic_output_ids(iota_wallet_t* w, address_
   }
 
   // query output IDs from indexer by bech32 address
-  if (get_basic_outputs(&w->endpoint, "/indexer/v1", query_param, res_id) != 0) {
+  if (get_basic_outputs(&w->endpoint, INDEXER_API_PATH, query_param, res_id) != 0) {
     printf("[%s:%d] get output ID failed\n", __func__, __LINE__);
     outputs_query_list_free(query_param);
     res_outputs_free(res_id);
