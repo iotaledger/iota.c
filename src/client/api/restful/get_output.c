@@ -62,9 +62,12 @@ static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
     }
     sscanf(str_buff, "%" SCNu64, &amount);
 
-    if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
-      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
-      goto end;
+    // native tokens array
+    if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_NATIVE_TOKENS) != NULL) {
+      if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
+        printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
+        goto end;
+      }
     }
 
     // unlock conditions array
@@ -74,9 +77,12 @@ static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
     }
 
     // feature blocks array
-    if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
-      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
-      goto end;
+    if ((cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_BLOCKS) != NULL) ||
+        (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS) != NULL)) {
+      if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
+        printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
+        goto end;
+      }
     }
 
     // create basic output
@@ -254,7 +260,7 @@ int get_output_meta(iota_client_conf_t const *conf, char const output_id[], res_
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_pre, cmd_post, output_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_pre, output_id, cmd_post);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
@@ -269,7 +275,7 @@ int get_output_meta(iota_client_conf_t const *conf, char const output_id[], res_
   if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
-    ret = deser_get_output((char const *const)http_res->data, res);
+    ret = deser_get_output_meta((char const *const)http_res->data, res);
   }
 
 done:
@@ -288,6 +294,40 @@ int parse_get_output(char const *const j_str, get_output_t *res) {
 
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
+    return -1;
+  }
+
+  // metadata object
+  cJSON *json_metadata_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_METADATA);
+  if (!json_metadata_obj) {
+    printf("[%s:%d]: gets %s json object failed\n", __func__, __LINE__, JSON_KEY_METADATA);
+    goto end;
+  }
+  if ((ret = parse_get_output_meta(json_metadata_obj, res)) != 0) {
+    printf("[%s:%d]: failed to parse output metadata\n", __func__, __LINE__);
+    goto end;
+  }
+
+  // output object
+  cJSON *output_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_OUTPUT);
+  if (!output_obj) {
+    printf("[%s:%d]: gets %s json object failed\n", __func__, __LINE__, JSON_KEY_OUTPUT);
+    goto end;
+  }
+  if ((ret = json_output_deserialize(output_obj, &res->output)) != 0) {
+    printf("[%s:%d]: failed to deserialize output object\n", __func__, __LINE__);
+    goto end;
+  }
+
+end:
+  cJSON_Delete(json_obj);
+  return ret;
+}
+
+int parse_get_output_meta(cJSON *json_obj, get_output_t *res) {
+  int ret = -1;
+  if (json_obj == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
 
@@ -352,16 +392,7 @@ int parse_get_output(char const *const j_str, get_output_t *res) {
     goto end;
   }
 
-  cJSON *output_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_OUTPUT);
-  if (output_obj) {
-    if ((ret = json_output_deserialize(output_obj, &res->output)) != 0) {
-      printf("[%s:%d]: gets output object failed\n", __func__, __LINE__);
-      goto end;
-    }
-  }
-
 end:
-  cJSON_Delete(json_obj);
   return ret;
 }
 
@@ -395,23 +426,57 @@ int deser_get_output(char const *const j_str, res_output_t *res) {
   return parse_get_output(j_str, res->u.data);
 }
 
+int deser_get_output_meta(char const *const j_str, res_output_t *res) {
+  if (j_str == NULL || res == NULL) {
+    printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
+    return -1;
+  }
+
+  cJSON *json_obj = cJSON_Parse(j_str);
+  if (json_obj == NULL) {
+    return -1;
+  }
+
+  res_err_t *res_err = deser_error(json_obj);
+  if (res_err) {
+    // got an error response
+    res->is_error = true;
+    res->u.error = res_err;
+    cJSON_Delete(json_obj);
+    return 0;
+  }
+
+  res->u.data = get_output_new();
+  if (res->u.data == NULL) {
+    printf("[%s:%d]: allocate data failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  int result = parse_get_output_meta(json_obj, res->u.data);
+  cJSON_Delete(json_obj);
+
+  return result;
+}
+
 void print_get_output(get_output_t *res, uint8_t indentation) {
   printf("%s{\n", PRINT_INDENTATION(indentation));
-  printf("%s\tMessage ID: ", PRINT_INDENTATION(indentation));
+  printf("%s\tMetadata: {\n", PRINT_INDENTATION(indentation));
+  printf("%s\t\tMessage ID: ", PRINT_INDENTATION(indentation));
   dump_hex_str(res->meta.msg_id, IOTA_MESSAGE_ID_BYTES);
-  printf("%s\tTransaction ID: ", PRINT_INDENTATION(indentation));
+  printf("%s\t\tTransaction ID: ", PRINT_INDENTATION(indentation));
   dump_hex_str(res->meta.tx_id, IOTA_TRANSACTION_ID_BYTES);
-  printf("%s\toutputIndex: %" PRIu16 "\n", PRINT_INDENTATION(indentation), res->meta.output_index);
-  printf("%s\tisSpent: %s\n", PRINT_INDENTATION(indentation), res->meta.is_spent ? "True" : "False");
+  printf("%s\t\tOutput Index: %" PRIu16 "\n", PRINT_INDENTATION(indentation), res->meta.output_index);
+  printf("%s\t\tIs Spent: %s\n", PRINT_INDENTATION(indentation), res->meta.is_spent ? "True" : "False");
   if (res->meta.is_spent == true) {
-    printf("%s\tmilestoneIndexSpent: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_index_spent);
-    printf("%s\tmilestoneTimestampSpent: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_time_spent);
-    printf("%s\tTransaction ID Spent: ", PRINT_INDENTATION(indentation));
+    printf("%s\t\tMilestone Index Spent: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_index_spent);
+    printf("%s\t\tMilestone Timestamp Spent: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_time_spent);
+    printf("%s\t\tTransaction ID Spent: ", PRINT_INDENTATION(indentation));
     dump_hex_str(res->meta.tx_id_spent, IOTA_TRANSACTION_ID_BYTES);
   }
-  printf("%s\tmilestoneIndexBooked: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_index_booked);
-  printf("%s\tmilestoneTimestampBooked: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_time_booked);
-  printf("%s\tledgerIndex: %d\n", PRINT_INDENTATION(indentation), res->meta.ledger_index);
+  printf("%s\t\tMilestone Index Booked: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_index_booked);
+  printf("%s\t\tMilestone Timestamp Booked: %d\n", PRINT_INDENTATION(indentation), res->meta.ml_time_booked);
+  printf("%s\t\tLedger Index: %d\n", PRINT_INDENTATION(indentation), res->meta.ledger_index);
+  printf("%s\t}\n", PRINT_INDENTATION(indentation));
   if (res->output) {
     switch (res->output->output_type) {
       case OUTPUT_BASIC:

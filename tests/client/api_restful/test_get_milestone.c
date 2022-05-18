@@ -18,7 +18,7 @@ void tearDown(void) {}
 
 void test_deser_get_milestone() {
   char const* const simple_ms =
-      "{\"type\": 7,\"index\": 15465,\"timestamp\": 1602227215,\"previousMilestoneId\": "
+      "{\"type\": 7,\"index\": 15465,\"timestamp\": 1602227215,\"protocolVersion\":2,\"previousMilestoneId\": "
       "\"0x7ad3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006\",\"parentMessageIds\": "
       "[\"0x7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006\","
       "\"0x7a09324557e9200f39bf493fc8fd6ac43e9ca750c6f6d884cc72386ddcb7d695\","
@@ -39,6 +39,7 @@ void test_deser_get_milestone() {
   milestone_payload_t* ms = res->u.ms;
   TEST_ASSERT_EQUAL_UINT32(15465, ms->index);
   TEST_ASSERT_EQUAL_UINT32(1602227215, ms->timestamp);
+  TEST_ASSERT(2 == ms->protocol_version);
 
   // check previousMilestoneId
   byte_t tmp_ms_id[IOTA_MESSAGE_ID_BYTES] = {};

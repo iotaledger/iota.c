@@ -17,6 +17,7 @@ milestone_payload_t *milestone_payload_new() {
     ms->type = CORE_MESSAGE_PAYLOAD_MILESTONE;
     ms->index = 0;
     ms->timestamp = 0;
+    ms->protocol_version = 0;
     memset(ms->previous_milestone_id, 0, sizeof(ms->previous_milestone_id));
     utarray_new(ms->parents, &ut_msg_id_icd);
     memset(ms->confirmed_merkle_root, 0, sizeof(ms->confirmed_merkle_root));
@@ -94,6 +95,10 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
 
     printf("%s\tIndex: %d\n", PRINT_INDENTATION(indentation), ms->index);
     printf("%s\tTimestamp: %d\n", PRINT_INDENTATION(indentation), ms->timestamp);
+
+    if (ms->protocol_version > 0) {
+      printf("%s\tProtocol Version: %d\n", PRINT_INDENTATION(indentation), ms->protocol_version);
+    }
 
     printf("%s\tPrevious Milestone Id: ", PRINT_INDENTATION(indentation));
     dump_hex_str(ms->previous_milestone_id, sizeof(ms->previous_milestone_id));

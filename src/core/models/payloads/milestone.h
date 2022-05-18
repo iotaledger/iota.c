@@ -50,9 +50,10 @@ typedef struct milestone_options_list {
 } milestone_options_list_t;
 
 typedef struct {
-  uint32_t type;       // payload type, set to 7 denotes a milestone payload
-  uint32_t index;      // The index number of the milestone.
-  uint32_t timestamp;  // The Unix time (seconds since Unix epoch) at which the milestone was issued.
+  uint32_t type;             // payload type, set to 7 denotes a milestone payload
+  uint32_t index;            // The index number of the milestone.
+  uint32_t timestamp;        // The Unix time (seconds since Unix epoch) at which the milestone was issued.
+  uint8_t protocol_version;  ///< Protocol version number of message.
   byte_t
       previous_milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES];  // The milestone ID of the milestone with index number - 1
   UT_array *parents;                                         // Parents of milestone message.

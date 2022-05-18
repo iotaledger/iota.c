@@ -91,7 +91,7 @@ void test_deser_tagged_data_meta() {
       "\"0x78166ab7a2ec81936424c4bf559f7ca00407ee292297159c5d47040ac92d6366\","
       "\"0xa7f29921627eec53e77103fe90d90efdc59f3b16fb3dbba28b940b34833bba6c\","
       "\"0xf4ffa7a9761d7555fb84c7681bc5cc8e9a5d719da85e967598e34686d322a07a\"],\"isSolid\":true,"
-      "\"referencedByMilestoneIndex\":3,\"ledgerInclusionState\":\"noTransaction\"}";
+      "\"referencedByMilestoneIndex\":3,\"ledgerInclusionState\":\"conflicting\",\"conflictReason\":1}";
 
   res_msg_meta_t* meta = msg_meta_new();
   TEST_ASSERT_NOT_NULL(meta);
@@ -112,7 +112,8 @@ void test_deser_tagged_data_meta() {
   TEST_ASSERT_TRUE(meta->u.meta->is_solid);
   TEST_ASSERT(meta->u.meta->referenced_milestone == 3);
   TEST_ASSERT(meta->u.meta->milestone_idx == 0);
-  TEST_ASSERT_EQUAL_STRING("noTransaction", meta->u.meta->inclusion_state);
+  TEST_ASSERT_EQUAL_STRING("conflicting", meta->u.meta->inclusion_state);
+  TEST_ASSERT(meta->u.meta->conflict_reason == 1);
   TEST_ASSERT(meta->u.meta->should_promote == -1);
   TEST_ASSERT(meta->u.meta->should_reattach == -1);
   msg_meta_free(meta);

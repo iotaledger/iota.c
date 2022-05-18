@@ -236,9 +236,11 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
   sscanf(str_buff, "%" SCNu64, &amount);
 
   // native tokens array
-  if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
-    printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
-    goto end;
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_NATIVE_TOKENS) != NULL) {
+    if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
+      goto end;
+    }
   }
 
   // serial number
@@ -276,14 +278,17 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
   }
 
   // feature blocks array
-  if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
-    printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
-    goto end;
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS) != NULL) {
+    if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
+      printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
+      goto end;
+    }
   }
   if (feat_blk_list_len(feat_blocks) > 1) {
     printf("[%s:%d]: there must be at most one feature block in a list\n", __func__, __LINE__);
     goto end;
   }
+
   // there may be a metadata feature block
   byte_t *metadata = NULL;
   uint32_t metadata_len = 0;
@@ -298,14 +303,17 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
   }
 
   // immutable feature blocks array
-  if (json_feat_blocks_deserialize(output_obj, true, &immut_feat_blocks) != 0) {
-    printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_IMMUTABLE_BLOCKS);
-    goto end;
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_BLOCKS) != NULL) {
+    if (json_feat_blocks_deserialize(output_obj, true, &immut_feat_blocks) != 0) {
+      printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_IMMUTABLE_BLOCKS);
+      goto end;
+    }
   }
   if (feat_blk_list_len(immut_feat_blocks) > 1) {
     printf("[%s:%d]: there must be at most one immutable feature block in a list\n", __func__, __LINE__);
     goto end;
   }
+
   // there may be a metadata immutable feature block
   byte_t *immut_metadata = NULL;
   uint32_t immut_metadata_len = 0;
