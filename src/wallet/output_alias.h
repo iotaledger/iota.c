@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Create a new alias output on the network
+ * @brief Send transaction which creates a new alias output
  *
  * @param[in] w A wallet instance
  * @param[in] sender_addr The sender address
@@ -24,12 +24,12 @@ extern "C" {
  *
  * @return int 0 on success
  */
-int wallet_alias_create_transaction(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair,
-                                    uint64_t const send_amount, address_t* state_ctrl_addr, address_t* govern_addr,
-                                    address_t* alias_addr, res_send_message_t* msg_res);
+int wallet_alias_create_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair,
+                             uint64_t const send_amount, address_t* state_ctrl_addr, address_t* govern_addr,
+                             address_t* alias_addr, res_send_message_t* msg_res);
 
 /**
- * @brief Send alias state transition transaction to the network
+ * @brief Send alias state transition transaction
  *
  * @param[in] w A wallet instance
  * @param[in] alias_id The alias identifier
@@ -40,12 +40,12 @@ int wallet_alias_create_transaction(iota_wallet_t* w, address_t* sender_addr, ed
  *
  * @return int 0 on success
  */
-int wallet_alias_state_transition_transaction(iota_wallet_t* w, byte_t alias_id[], address_t* state_ctrl_addr,
-                                              ed25519_keypair_t* state_ctrl_keypair, address_t* govern_addr,
-                                              res_send_message_t* msg_res);
+int wallet_alias_state_transition_send(iota_wallet_t* w, byte_t alias_id[], address_t* state_ctrl_addr,
+                                       ed25519_keypair_t* state_ctrl_keypair, address_t* govern_addr,
+                                       res_send_message_t* msg_res);
 
 /**
- * @brief Destroy alias output on the network
+ * @brief Send transaction which destroys alias output
  *
  * @param[in] w A wallet instance
  * @param[in] alias_id The alias identifier
@@ -55,8 +55,8 @@ int wallet_alias_state_transition_transaction(iota_wallet_t* w, byte_t alias_id[
  *
  * @return int 0 on success
  */
-int wallet_alias_destroy_transaction(iota_wallet_t* w, byte_t alias_id[], ed25519_keypair_t* govern_keypair,
-                                     address_t* recv_addr, res_send_message_t* msg_res);
+int wallet_alias_destroy_send(iota_wallet_t* w, byte_t alias_id[], ed25519_keypair_t* govern_keypair,
+                              address_t* recv_addr, res_send_message_t* msg_res);
 
 #ifdef __cplusplus
 }

@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Transfer IOTA token to an address
+ * @brief Send basic transaction which transfers IOTA tokens to an address
  *
  * @param[in] w A wallet instance
  * @param[in] sender_addr The sender address
@@ -24,8 +24,8 @@ extern "C" {
  *
  * @return int 0 on success
  */
-int wallet_basic_transaction(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair,
-                             uint64_t const send_amount, address_t* recv_addr, res_send_message_t* msg_res);
+int wallet_basic_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair,
+                      uint64_t const send_amount, address_t* recv_addr, res_send_message_t* msg_res);
 
 /**
  * @brief Get unspent basic outputs from a network and add them into a transaction essence

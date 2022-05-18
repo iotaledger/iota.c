@@ -192,9 +192,9 @@ static int wallet_output_alias_create(transaction_essence_t* essence, byte_t ali
   return 0;
 }
 
-int wallet_alias_create_transaction(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair,
-                                    uint64_t const send_amount, address_t* state_ctrl_addr, address_t* govern_addr,
-                                    address_t* alias_addr, res_send_message_t* msg_res) {
+int wallet_alias_create_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair,
+                             uint64_t const send_amount, address_t* state_ctrl_addr, address_t* govern_addr,
+                             address_t* alias_addr, res_send_message_t* msg_res) {
   if (w == NULL || sender_addr == NULL || sender_keypair == NULL || state_ctrl_addr == NULL || govern_addr == NULL ||
       alias_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -288,9 +288,9 @@ end:
   return ret;
 }
 
-int wallet_alias_state_transition_transaction(iota_wallet_t* w, byte_t alias_id[], address_t* state_ctrl_addr,
-                                              ed25519_keypair_t* state_ctrl_keypair, address_t* govern_addr,
-                                              res_send_message_t* msg_res) {
+int wallet_alias_state_transition_send(iota_wallet_t* w, byte_t alias_id[], address_t* state_ctrl_addr,
+                                       ed25519_keypair_t* state_ctrl_keypair, address_t* govern_addr,
+                                       res_send_message_t* msg_res) {
   if (w == NULL || alias_id == NULL || state_ctrl_addr == NULL || state_ctrl_keypair == NULL || govern_addr == NULL ||
       msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -358,8 +358,8 @@ end:
   return ret;
 }
 
-int wallet_alias_destroy_transaction(iota_wallet_t* w, byte_t alias_id[], ed25519_keypair_t* govern_keypair,
-                                     address_t* recv_addr, res_send_message_t* msg_res) {
+int wallet_alias_destroy_send(iota_wallet_t* w, byte_t alias_id[], ed25519_keypair_t* govern_keypair,
+                              address_t* recv_addr, res_send_message_t* msg_res) {
   if (w == NULL || alias_id == NULL || govern_keypair == NULL || recv_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;

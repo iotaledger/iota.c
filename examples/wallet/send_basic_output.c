@@ -90,7 +90,7 @@ int main(void) {
   // transfer tokens
   printf("Sending transaction message to the Tangle...\n");
   res_send_message_t msg_res = {};
-  if (wallet_basic_transaction(w, &sender, &sender_keypair, amount * Mi, &receiver, &msg_res) != 0) {
+  if (wallet_basic_send(w, &sender, &sender_keypair, amount * Mi, &receiver, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;

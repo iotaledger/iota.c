@@ -193,8 +193,8 @@ int wallet_output_basic_create(address_t* recv_addr, uint64_t amount, transactio
   return 0;
 }
 
-int wallet_basic_transaction(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair,
-                             uint64_t const send_amount, address_t* recv_addr, res_send_message_t* msg_res) {
+int wallet_basic_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair,
+                      uint64_t const send_amount, address_t* recv_addr, res_send_message_t* msg_res) {
   if (w == NULL || sender_addr == NULL || sender_keypair == NULL || recv_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
