@@ -337,11 +337,9 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   }
 
   // parsing protocol version
-  if (cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_PROTOCOL_VERSION) != NULL) {
-    if ((ret = json_get_uint8(payload, JSON_KEY_PROTOCOL_VERSION, &ms->protocol_version)) != 0) {
-      printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PROTOCOL_VERSION);
-      return ret;
-    }
+  if ((ret = json_get_uint8(payload, JSON_KEY_PROTOCOL_VERSION, &ms->protocol_version)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PROTOCOL_VERSION);
+    return ret;
   }
 
   // parsing previous milestone ID
