@@ -118,7 +118,7 @@ int main(void) {
   printf("Amount to send: %" PRIu64 "\n", amount * Mi);
 
   // create alias output
-  printf("Sending transaction message to the Tangle...\n");
+  printf("Sending create alias transaction message to the Tangle...\n");
 
   res_send_message_t msg_res = {};
   address_t alias_addr = {0};
@@ -140,6 +140,7 @@ int main(void) {
   printf("Message ID: %s\n", msg_res.u.msg_id);
 
   // wait for a message to be included into a tangle
+  printf("Waiting for message confirmation...\n");
   sleep(15);
 
   // convert alias address to bech32 format
@@ -150,6 +151,9 @@ int main(void) {
     return -1;
   }
   printf("Alias address: %s\n", bech32_alias);
+
+  // send state transition transaction
+  printf("Sending alias state transition transaction message to the Tangle...\n");
 
   // create a second transaction with an actual alias ID
   if (wallet_alias_state_transition_transaction(w, alias_addr.address, &state_ctrl_addr, &state_ctrl_keypair,
@@ -170,7 +174,11 @@ int main(void) {
   printf("Message ID: %s\n", msg_res.u.msg_id);
 
   // wait for a message to be included into a tangle
+  printf("Waiting for message confirmation...\n");
   sleep(15);
+
+  // send alias destroy transaction
+  printf("Sending alias destroy transaction message to the Tangle...\n");
 
   // create a third transaction to destroy alias output
   if (wallet_alias_destroy_transaction(w, alias_addr.address, &govern_keypair, &sender_addr, &msg_res) != 0) {
