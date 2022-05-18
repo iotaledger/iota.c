@@ -282,6 +282,7 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
       "type": 7,
       "index": 3,
       "timestamp": 1644478549,
+      "protocolVersion": 2,
       "previousMilestoneId": "0xb1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea"
       "parentMessageIds": [
         "0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
@@ -332,6 +333,12 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   // parsing timestamp
   if ((ret = json_get_uint32(payload, JSON_KEY_TIMESTAMP, &ms->timestamp)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_TIMESTAMP);
+    return ret;
+  }
+
+  // parsing protocol version
+  if ((ret = json_get_uint8(payload, JSON_KEY_PROTOCOL_VERSION, &ms->protocol_version)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PROTOCOL_VERSION);
     return ret;
   }
 
@@ -619,6 +626,7 @@ int json_tagged_deserialize(cJSON* payload, tagged_data_payload_t** tagged_data)
 
     byte_buf_t* metadata = byte_buf_new();
     int res = json_get_bin_buf_str(payload, JSON_KEY_DATA, metadata);
+    // metadata in payload may be an empty string (this is a valid response)
     if ((res != JSON_OK) && (res != JSON_NOT_HEX_STRING)) {
       printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_DATA);
       byte_buf_free(tag);

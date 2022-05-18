@@ -65,7 +65,7 @@ void test_deser_milestone() {
       "\"0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
       "\"0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
       "\"0xdbea0f0641f639a689401e85676214c6b51b0823df4414d3201d33aa7fb34aff\"],\"payload\":{\"type\":7,\"index\":3,"
-      "\"timestamp\":1644478549,\"previousMilestoneId\":"
+      "\"timestamp\":1644478549,\"protocolVersion\":2,\"previousMilestoneId\":"
       "\"0xb1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea\",\"parentMessageIds\":["
       "\"0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
       "\"0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
@@ -115,6 +115,7 @@ void test_deser_milestone() {
   milestone_payload_t* ms = (milestone_payload_t*)msg->payload;
   TEST_ASSERT(3 == ms->index);
   TEST_ASSERT(1644478549 == ms->timestamp);
+  TEST_ASSERT(2 == ms->protocol_version);
 
   byte_t tmp_previous_milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(hex_2_bin("b1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea", 65, NULL,

@@ -71,11 +71,10 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
   }
 
   // stateMetadata
-  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_STATE_METADATA) != NULL) {
-    if (json_get_byte_buf_str(output_obj, JSON_KEY_STATE_METADATA, state_metadata) != JSON_OK) {
-      printf("[%s:%d]: getting %s json byte buffer failed\n", __func__, __LINE__, JSON_KEY_STATE_METADATA);
-      goto end;
-    }
+  json_error_t ret = json_get_byte_buf_str(output_obj, JSON_KEY_STATE_METADATA, state_metadata);
+  if ((ret != JSON_OK) && (ret != JSON_KEY_NOT_FOUND)) {
+    printf("[%s:%d]: getting %s json byte buffer failed\n", __func__, __LINE__, JSON_KEY_STATE_METADATA);
+    goto end;
   }
 
   // foundryCounter
