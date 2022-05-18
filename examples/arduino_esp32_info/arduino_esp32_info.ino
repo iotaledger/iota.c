@@ -11,7 +11,7 @@
 
 #include <iota_client.h>
 
-// please set your WiFi SSID and Passward
+// please set your WiFi SSID and Password
 const char* ssid = "xxxxx";
 const char* passwd = "sssss";
 
