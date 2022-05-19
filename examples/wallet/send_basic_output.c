@@ -23,10 +23,9 @@
 static char const* const test_mnemonic =
     "acoustic trophy damage hint search taste love bicycle foster cradle brown govern endless depend situate athlete "
     "pudding blame question genius transfer van random vast";
-static char const* const bech32_receiver =
-    "atoi1qpswqe4v8z2cdtgc7sfj0hfneqh37lhmjgnth36mfndwcxkjrakcvx42lsn";  // receiver address in bech32 format
-uint32_t const sender_addr_index = 0;                                    // address index of the wallet
-uint64_t const amount = 1;  // transfer 1Mi from a sender to a receiver address
+uint32_t const sender_addr_index = 0;    // address index of a sender
+uint32_t const receiver_addr_index = 1;  // address index of a receiver
+uint64_t const amount = 1;               // transfer 1Mi from a sender to a receiver address
 
 int main(void) {
   iota_wallet_t* w = wallet_create(test_mnemonic, "", TEST_COIN_TYPE, 0);
@@ -53,6 +52,11 @@ int main(void) {
     wallet_destroy(w);
     return -1;
   }
+  if (wallet_ed25519_address_from_index(w, false, receiver_addr_index, &receiver) != 0) {
+    printf("Failed to generate a receiver address from an index!\n");
+    wallet_destroy(w);
+    return -1;
+  }
 
   // convert sender address to bech32 format
   char bech32_sender[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
@@ -62,9 +66,10 @@ int main(void) {
     return -1;
   }
 
-  // convert receiver bech32 address to binary
-  if (address_from_bech32(w->bech32HRP, bech32_receiver, &receiver) != 0) {
-    printf("Failed converting receiver address to binary format!\n");
+  // convert receiver address to bech32 format
+  char bech32_receiver[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  if (address_to_bech32(&receiver, w->bech32HRP, bech32_receiver, sizeof(bech32_receiver)) != 0) {
+    printf("Failed converting receiver address to bech32 format!\n");
     wallet_destroy(w);
     return -1;
   }
