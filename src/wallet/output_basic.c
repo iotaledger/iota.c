@@ -62,10 +62,12 @@ static int add_unspent_basic_outputs_to_essence(transaction_essence_t* essence, 
   // create inputs and unlock conditions based on the basic output
   output_basic_t* output = (output_basic_t*)output_data_res->output->output;
   *total_output_amount += output->amount;
+
   // add the output as a tx input into the tx payload
   if (tx_essence_add_input(essence, 0, output_data_res->meta.tx_id, output_data_res->meta.output_index) != 0) {
     return -1;
   }
+
   // add the output in unspent outputs list to be able to calculate inputs commitment hash
   if (utxo_outputs_add(unspent_outputs, output_data_res->output->output_type, output) != 0) {
     return -1;
@@ -77,6 +79,7 @@ static int add_unspent_basic_outputs_to_essence(transaction_essence_t* essence, 
   if (!unlock_cond) {
     return -1;
   }
+
   // add address unlock condition into the signing data list
   if (signing_data_add(unlock_cond->block, NULL, 0, sender_key, sign_data) != 0) {
     return -1;
@@ -132,8 +135,11 @@ utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_
       uint64_t output_amount = 0;
       if (add_unspent_basic_outputs_to_essence(essence, output_res->u.data, sender_keypair, sign_data, &unspent_outputs,
                                                &output_amount) != 0) {
+        printf("[%s:%d] failed to add basic unspent output to transaction essence\n", __func__, __LINE__);
         get_output_response_free(output_res);
-        break;
+        utxo_outputs_free(unspent_outputs);
+        res_outputs_free(res_id);
+        return NULL;
       }
       *total_output_amount += output_amount;
       // check balance
@@ -143,6 +149,8 @@ utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_
         break;
       }
     }
+
+    get_output_response_free(output_res);
   }
 
   // clean up memory
