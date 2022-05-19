@@ -15,9 +15,9 @@
 #define Mi 1000000
 
 #define NODE_HOST "localhost"
-#define NODE_PORT 443
-#define NODE_USE_TLS true
-#define TEST_COIN_TYPE SLIP44_COIN_TYPE_SHIMMER
+#define NODE_PORT 14265
+#define NODE_USE_TLS false
+#define TEST_COIN_TYPE SLIP44_COIN_TYPE_IOTA
 
 // replace this with your mnemonic string
 static char const* const test_mnemonic =
@@ -54,20 +54,6 @@ int main(void) {
     return -1;
   }
 
-  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
-  if (get_address_path(w, false, sender_addr_index, addr_path, sizeof(addr_path)) != 0) {
-    printf("[%s:%d] can not derive address path from seed and path\n", __func__, __LINE__);
-    wallet_destroy(w);
-    return -1;
-  }
-
-  ed25519_keypair_t sender_keypair;
-  if (address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &sender_keypair) != 0) {
-    printf("[%s:%d] get address keypair failed\n", __func__, __LINE__);
-    wallet_destroy(w);
-    return -1;
-  }
-
   // convert sender address to bech32 format
   char bech32_sender[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
   if (address_to_bech32(&sender, w->bech32HRP, bech32_sender, sizeof(bech32_sender)) != 0) {
@@ -76,7 +62,7 @@ int main(void) {
     return -1;
   }
 
-  // convert bech32 address to binary
+  // convert receiver bech32 address to binary
   if (address_from_bech32(w->bech32HRP, bech32_receiver, &receiver) != 0) {
     printf("Failed converting receiver address to binary format!\n");
     wallet_destroy(w);
@@ -90,7 +76,7 @@ int main(void) {
   // transfer tokens
   printf("Sending transaction message to the Tangle...\n");
   res_send_message_t msg_res = {};
-  if (wallet_basic_send(w, &sender, &sender_keypair, amount * Mi, &receiver, &msg_res) != 0) {
+  if (wallet_basic_output_send(w, false, sender_addr_index, amount * Mi, &receiver, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;

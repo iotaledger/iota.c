@@ -206,7 +206,7 @@ int wallet_update_node_config(iota_wallet_t* w) {
   return ret;
 }
 
-int get_address_path(iota_wallet_t* w, bool change, uint32_t index, char* buf, size_t buf_len) {
+int wallet_get_address_path(iota_wallet_t* w, bool change, uint32_t index, char* buf, size_t buf_len) {
   if (w == NULL || buf == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -231,12 +231,34 @@ int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t in
   char bip_path_buf[IOTA_ACCOUNT_PATH_MAX] = {0};
 
   // derive ed25519 address from seed and path
-  if (get_address_path(w, change, index, bip_path_buf, sizeof(bip_path_buf)) != 0) {
+  if (wallet_get_address_path(w, change, index, bip_path_buf, sizeof(bip_path_buf)) != 0) {
     printf("[%s:%d] can not derive ed25519 address from seed and path\n", __func__, __LINE__);
     return -1;
   }
 
   return ed25519_address_from_path(w->seed, sizeof(w->seed), bip_path_buf, addr);
+}
+
+int wallet_get_address_and_keypair_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* addr,
+                                              ed25519_keypair_t* keypair) {
+  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
+
+  if (wallet_ed25519_address_from_index(w, change, index, addr) != 0) {
+    printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (wallet_get_address_path(w, change, index, addr_path, sizeof(addr_path)) != 0) {
+    printf("[%s:%d] can not derive address path from seed and path\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, keypair) != 0) {
+    printf("[%s:%d] get address keypair failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  return 0;
 }
 
 int wallet_balance_by_address(iota_wallet_t* w, address_t* addr, uint64_t* balance) {

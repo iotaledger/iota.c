@@ -181,27 +181,13 @@ static int send_basic_tx(test_config_t* conf, test_data_t* params, test_item_t* 
     return -1;
   }
 
-  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
-  ret = get_address_path(params->w, false, conf->receiver_index, addr_path, sizeof(addr_path));
-  if (ret != 0) {
-    printf("[%s:%d] can not derive address path from seed and path\n", __func__, __LINE__);
-    return -1;
-  }
-
-  ed25519_keypair_t sender_keypair;
-  ret = address_keypair_from_path(params->w->seed, sizeof(params->w->seed), addr_path, &sender_keypair);
-  if (ret != 0) {
-    printf("[%s:%d] get address keypair failed\n", __func__, __LINE__);
-    return -1;
-  }
-
   // validating /api/v2/tips and /api/v2/message with basic outputs
   // send 1Mi to receiver
   printf("Basic sender: ");
   address_print(&params->sender);
   printf("Basic receiver: ");
   address_print(&params->recv);
-  ret = wallet_basic_send(params->w, &params->sender, &sender_keypair, 1000000, &params->recv, &msg_res);
+  ret = wallet_basic_output_send(params->w, false, conf->sender_index, 1000000, &params->recv, &msg_res);
   if (ret == 0) {
     if (msg_res.is_error) {
       printf("[%s:%d] Error: %s\n", __func__, __LINE__, msg_res.u.error->msg);

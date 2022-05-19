@@ -27,30 +27,7 @@ static char const* const test_mnemonic =
 uint32_t const sender_addr_index = 0;      // address index of a sender
 uint32_t const state_ctrl_addr_index = 1;  // address index of a state controller
 uint32_t const govern_addr_index = 2;      // address index of a governor
-
-uint64_t const amount = 1;  // transfer 1Mi from a sender to a receiver address
-
-static int get_address_and_keypair(iota_wallet_t* w, bool change, uint32_t index, address_t* addr,
-                                   ed25519_keypair_t* keypair) {
-  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
-
-  if (wallet_ed25519_address_from_index(w, change, index, addr) != 0) {
-    printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
-    return -1;
-  }
-
-  if (get_address_path(w, change, index, addr_path, sizeof(addr_path)) != 0) {
-    printf("[%s:%d] can not derive address path from seed and path\n", __func__, __LINE__);
-    return -1;
-  }
-
-  if (address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, keypair) != 0) {
-    printf("[%s:%d] get address keypair failed\n", __func__, __LINE__);
-    return -1;
-  }
-
-  return 0;
-}
+uint64_t const amount = 1;                 // transfer 1Mi from a sender to a receiver address
 
 int main(void) {
   iota_wallet_t* w = wallet_create(test_mnemonic, "", TEST_COIN_TYPE, 0);
@@ -72,20 +49,16 @@ int main(void) {
   }
 
   address_t sender_addr, state_ctrl_addr, govern_addr;
-  ed25519_keypair_t sender_keypair, state_ctrl_keypair, govern_keypair;
-  if (get_address_and_keypair(w, false, sender_addr_index, &sender_addr, &sender_keypair) != 0) {
-    printf("Failed to generate a sender address and private key from an index!\n");
-    wallet_destroy(w);
+  if (wallet_ed25519_address_from_index(w, false, sender_addr_index, &sender_addr) != 0) {
+    printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
     return -1;
   }
-  if (get_address_and_keypair(w, false, state_ctrl_addr_index, &state_ctrl_addr, &state_ctrl_keypair) != 0) {
-    printf("Failed to generate a state controller address and private key from an index!\n");
-    wallet_destroy(w);
+  if (wallet_ed25519_address_from_index(w, false, state_ctrl_addr_index, &state_ctrl_addr) != 0) {
+    printf("[%s:%d] get state controller address failed\n", __func__, __LINE__);
     return -1;
   }
-  if (get_address_and_keypair(w, false, govern_addr_index, &govern_addr, &govern_keypair) != 0) {
-    printf("Failed to generate a governor address and private key from an index!\n");
-    wallet_destroy(w);
+  if (wallet_ed25519_address_from_index(w, false, govern_addr_index, &govern_addr) != 0) {
+    printf("[%s:%d] get governor address failed\n", __func__, __LINE__);
     return -1;
   }
 
@@ -123,8 +96,8 @@ int main(void) {
 
   res_send_message_t msg_res = {};
   address_t alias_addr = {0};
-  if (wallet_alias_create_send(w, &sender_addr, &sender_keypair, amount * Mi, &state_ctrl_addr, &govern_addr,
-                               &alias_addr, &msg_res) != 0) {
+  if (wallet_alias_output_create(w, false, sender_addr_index, amount * Mi, &state_ctrl_addr, &govern_addr, &alias_addr,
+                                 &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
@@ -157,8 +130,8 @@ int main(void) {
   printf("Sending alias state transition transaction message to the Tangle...\n");
 
   // create a second transaction with an actual alias ID
-  if (wallet_alias_state_transition_send(w, alias_addr.address, &state_ctrl_addr, &state_ctrl_keypair, &govern_addr,
-                                         &msg_res) != 0) {
+  if (wallet_alias_output_state_transition(w, alias_addr.address, false, state_ctrl_addr_index, &govern_addr,
+                                           &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
@@ -182,7 +155,7 @@ int main(void) {
   printf("Sending alias destroy transaction message to the Tangle...\n");
 
   // create a third transaction to destroy alias output
-  if (wallet_alias_destroy_send(w, alias_addr.address, &govern_keypair, &sender_addr, &msg_res) != 0) {
+  if (wallet_alias_output_destroy(w, alias_addr.address, false, govern_addr_index, &sender_addr, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;

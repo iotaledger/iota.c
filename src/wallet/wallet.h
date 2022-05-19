@@ -94,13 +94,13 @@ int wallet_update_node_config(iota_wallet_t* w);
 /**
  * @brief Get the address path
  *
- * @param[in] wallet A wallet object
+ * @param[in] w A wallet object
  * @param[in] change change index which is {0, 1}, also known as wallet chain.
  * @param[in] index Address index
  * @param[out] buf The buffer holds BIP44 path
  * @param[in] buf_len the length of the buffer
  */
-int get_address_path(iota_wallet_t* wallet, bool change, uint32_t index, char* buf, size_t buf_len);
+int wallet_get_address_path(iota_wallet_t* w, bool change, uint32_t index, char* buf, size_t buf_len);
 
 /**
  * @brief Get an ed25519 address from the given account, change, and index
@@ -114,6 +114,21 @@ int get_address_path(iota_wallet_t* wallet, bool change, uint32_t index, char* b
  * @return int 0 on success
  */
 int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* addr);
+
+/**
+ * @brief Get an ed25519 address and keypair from the given account, change, and index
+ *
+ * https://chrysalis.docs.iota.org/guides/dev_guide/#addresskey-space
+ *
+ * @param[in] w A wallet instance
+ * @param[in] change The change index which is {0, 1}, also known as wallet chain.
+ * @param[in] index Address index
+ * @param[out] addr A created ed25519 address
+ * @param[out] keypair A created keypair
+ * @return int 0 on success
+ */
+int wallet_get_address_and_keypair_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* addr,
+                                              ed25519_keypair_t* keypair);
 
 /**
  * @brief Get balance by a given address
