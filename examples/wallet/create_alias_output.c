@@ -27,7 +27,7 @@ static char const* const test_mnemonic =
 uint32_t const sender_addr_index = 0;      // address index of a sender
 uint32_t const state_ctrl_addr_index = 1;  // address index of a state controller
 uint32_t const govern_addr_index = 2;      // address index of a governor
-uint64_t const amount = 1;                 // transfer 1Mi from a sender to a receiver address
+uint64_t const amount = 1;                 // transfer 1Mi from a sender to an alias output (address)
 
 int main(void) {
   iota_wallet_t* w = wallet_create(test_mnemonic, "", TEST_COIN_TYPE, 0);

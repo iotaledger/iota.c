@@ -259,6 +259,7 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
   message = wallet_create_core_message(w, tx, unspent_outputs, sign_data);
   if (!message) {
     printf("[%s:%d] can not create a core message\n", __func__, __LINE__);
+    ret = -1;
     goto end;
   }
 

@@ -70,14 +70,14 @@ static int add_unspent_alias_output_to_essence(transaction_essence_t* essence, g
     return -1;
   }
 
-  // add signing data (Alias output must have the state unlock condition)
-  // get state unlock condition from the alias output
+  // add signing data (Alias output must have the state controller unlock condition)
+  // get state controller unlock condition from the alias output
   unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE);
   if (!unlock_cond) {
     return -1;
   }
 
-  // add state unlock unlock condition into the signing data list
+  // add state controller unlock condition into the signing data list
   if (signing_data_add(unlock_cond->block, NULL, 0, state_controller_key, sign_data) != 0) {
     return -1;
   }
@@ -261,6 +261,7 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
   message = wallet_create_core_message(w, tx, unspent_outputs, sign_data);
   if (!message) {
     printf("[%s:%d] can not create a core message\n", __func__, __LINE__);
+    ret = -1;
     goto end;
   }
 
@@ -364,6 +365,7 @@ int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bo
   message = wallet_create_core_message(w, tx, unspent_outputs, sign_data);
   if (!message) {
     printf("[%s:%d] can not create a core message\n", __func__, __LINE__);
+    ret = -1;
     goto end;
   }
 
@@ -439,6 +441,7 @@ int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern
   message = wallet_create_core_message(w, tx, unspent_outputs, sign_data);
   if (!message) {
     printf("[%s:%d] can not create a core message\n", __func__, __LINE__);
+    ret = -1;
     goto end;
   }
 
