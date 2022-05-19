@@ -13,6 +13,7 @@ maxdepth: 2
 caption: IOTA C Client
 ---
 client_intro.md
+client_arduino.md
 client_examples.md
 ```
 
