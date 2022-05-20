@@ -12,14 +12,14 @@
 #include "core/models/outputs/unlock_conditions.h"
 
 /**
- * @brief An output type which can hold native tokens and feature blocks
+ * @brief An output type which can hold native tokens and features
  *
  */
 typedef struct {
   uint64_t amount;                      ///< The amount of IOTA tokens to held by the output
   native_tokens_list_t* native_tokens;  ///< The native tokens held by the output
   cond_blk_list_t* unlock_conditions;   ///< Define how the output can be unlocked and spent
-  feat_blk_list_t* feature_blocks;      ///< The feature blocks which modulate the constraints on the output
+  feature_list_t* features;             ///< The features which modulate the constraints on the output
 } output_basic_t;
 
 #ifdef __cplusplus
@@ -32,12 +32,12 @@ extern "C" {
  * @param[in] amount The amount of IOTA tokens to held by the output
  * @param[in] tokens List of native tokens held by the output
  * @param[in] cond_blocks Set of unlock condition blocks
- * @param[in] feat_blocks List of feature blocks
+ * @param[in] features List of features
  *
  * @return output_basic_t* or NULL on failure
  */
 output_basic_t* output_basic_new(uint64_t amount, native_tokens_list_t* tokens, cond_blk_list_t* cond_blocks,
-                                 feat_blk_list_t* feat_blocks);
+                                 feature_list_t* features);
 
 /**
  * @brief Free Basic Output object
@@ -67,7 +67,7 @@ size_t output_basic_serialize(output_basic_t* output, byte_t buf[], size_t buf_l
 /**
  * @brief Deserialize a binary data to a Basic Output object
  *
- * @param[in] buf The block data in binary
+ * @param[in] buf The basic output data in binary
  * @param[in] buf_len The length of the data
  * @return output_basic_t* or NULL on failure
  */

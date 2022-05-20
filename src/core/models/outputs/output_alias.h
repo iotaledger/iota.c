@@ -26,8 +26,8 @@ typedef struct {
   byte_buf_t* state_metadata;  ///< Metadata that can only be changed by the state controller
   uint32_t foundry_counter;    ///< The counter that denotes the number of foundries created by this alias account
   cond_blk_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
-  feat_blk_list_t* feature_blocks;     ///< Define functionality of this output
-  feat_blk_list_t* immutable_blocks;   ///< Immutable blocks are defined upon deployment of the UTXO state machine and
+  feature_list_t* features;            ///< Define functionality of this output
+  feature_list_t* immutable_features;  ///< Immutable Features are defined upon deployment of the UTXO state machine and
                                        ///< are not allowed to change in any future state transition
 } output_alias_t;
 
@@ -46,15 +46,15 @@ extern "C" {
  * @param[in] metadata_len Length of metadata byte array
  * @param[in] foundry_counter The counter that denotes the number of foundries created by this alias account
  * @param[in] cond_blocks Set of unlock condition blocks
- * @param[in] feat_blocks Set of feature blocks
- * @param[in] immut_feat_blocks List of immutable feature blocks
+ * @param[in] features Set of features
+ * @param[in] immut_features List of immutable features
  *
  * @return output_alias_t* or NULL on failure
  */
 output_alias_t* output_alias_new(uint64_t amount, native_tokens_list_t* tokens, byte_t alias_id[], uint32_t state_index,
                                  byte_t* metadata, uint32_t metadata_len, uint32_t foundry_counter,
-                                 cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks,
-                                 feat_blk_list_t* immut_feat_blocks);
+                                 cond_blk_list_t* cond_blocks, feature_list_t* features,
+                                 feature_list_t* immut_features);
 
 /**
  * @brief Free Alias Output object.
@@ -84,7 +84,7 @@ size_t output_alias_serialize(output_alias_t* output, byte_t buf[], size_t buf_l
 /**
  * @brief Deserialize a binary data to a Alias Output object
  *
- * @param[in] buf The block data in binary
+ * @param[in] buf The alias data in binary
  * @param[in] buf_len The length of the data
  * @return output_alias_t* or NULL on failure
  */

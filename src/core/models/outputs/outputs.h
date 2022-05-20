@@ -20,8 +20,7 @@
  * SigLockedDustAllowanceOutput: Works in the same way as a SigLockedSingleOutput but additionally controls the dust
  *                               allowance on the target address.
  * Treasury output: Describes an output which holds the treasury of a network.
- * Basic output: Describes a deposit to a single address. The output might contain optional feature blocks and
- *                  native tokens.
+ * Basic output: Describes a deposit to a single address. The output might contain optional features and native tokens.
  * Alias output: Describes an alias account in the ledger.
  * Foundry output: Describes a foundry that controls supply of native tokens.
  * NFT output: Describes a unique, non-fungible token deposit to a single address.

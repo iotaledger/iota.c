@@ -48,9 +48,9 @@ typedef struct {
   uint32_t serial;                      ///< The serial number of the foundry
   token_scheme_t* token_scheme;         ///< The token scheme used by this foundry
   cond_blk_list_t* unlock_conditions;   ///< Define how the output can be unlocked and spent
-  feat_blk_list_t* feature_blocks;      ///< The feature blocks which modulate the constraints on this output
-  feat_blk_list_t* immutable_blocks;    ///< Immutable blocks are defined upon deployment of the UTXO state machine and
-                                        ///< are not allowed to change in any future state transition
+  feature_list_t* features;             ///< The features which modulate the constraints on this output
+  feature_list_t* immutable_features;  ///< Immutable Features are defined upon deployment of the UTXO state machine and
+                                       ///< are not allowed to change in any future state transition
 } output_foundry_t;
 
 #ifdef __cplusplus
@@ -172,7 +172,7 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
 /**
  * @brief Deserialize a binary data to a Foundry Output object
  *
- * @param[in] buf The block data in binary
+ * @param[in] buf The foundry data in binary
  * @param[in] buf_len The length of the data
  * @return output_foundry_t* or NULL on failure
  */

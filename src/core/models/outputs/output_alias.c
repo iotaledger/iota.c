@@ -7,15 +7,15 @@
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
 
-// maximum number of feature blocks
-#define MAX_ALIAS_FEATURE_BLOCKS_COUNT 2
-// maximum number of immutable feature blocks
-#define MAX_ALIAS_IMMUTABLE_FEATURE_BLOCKS_COUNT 2
+// maximum number of features
+#define MAX_ALIAS_FEATURES_COUNT 2
+// maximum number of immutable features
+#define MAX_ALIAS_IMMUTABLE_FEATURES_COUNT 2
 
 output_alias_t* output_alias_new(uint64_t amount, native_tokens_list_t* tokens, byte_t alias_id[], uint32_t state_index,
                                  byte_t* metadata, uint32_t metadata_len, uint32_t foundry_counter,
-                                 cond_blk_list_t* cond_blocks, feat_blk_list_t* feat_blocks,
-                                 feat_blk_list_t* immut_feat_blocks) {
+                                 cond_blk_list_t* cond_blocks, feature_list_t* features,
+                                 feature_list_t* immut_features) {
   if (alias_id == NULL || cond_blocks == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
@@ -77,11 +77,11 @@ output_alias_t* output_alias_new(uint64_t amount, native_tokens_list_t* tokens, 
     return NULL;
   }
 
-  // add feature blocks
-  output->feature_blocks = feat_blk_list_clone(feat_blocks);
+  // add features
+  output->features = feature_list_clone(features);
 
-  // add immutable feature blocks
-  output->immutable_blocks = feat_blk_list_clone(immut_feat_blocks);
+  // add immutable features
+  output->immutable_features = feature_list_clone(immut_features);
 
   return output;
 }
@@ -93,8 +93,8 @@ void output_alias_free(output_alias_t* output) {
     }
     byte_buf_free(output->state_metadata);
     cond_blk_list_free(output->unlock_conditions);
-    feat_blk_list_free(output->feature_blocks);
-    feat_blk_list_free(output->immutable_blocks);
+    feature_list_free(output->features);
+    feature_list_free(output->immutable_features);
     free(output);
   }
 }
@@ -127,10 +127,10 @@ size_t output_alias_serialize_len(output_alias_t* output) {
   length += sizeof(uint32_t);
   // unlock conditions
   length += cond_blk_list_serialize_len(output->unlock_conditions);
-  // feature blocks
-  length += feat_blk_list_serialize_len(output->feature_blocks);
-  // immutable feature blocks
-  length += feat_blk_list_serialize_len(output->immutable_blocks);
+  // features
+  length += feature_list_serialize_len(output->features);
+  // immutable features
+  length += feature_list_serialize_len(output->immutable_features);
 
   return length;
 }
@@ -187,17 +187,17 @@ size_t output_alias_serialize(output_alias_t* output, byte_t buf[], size_t buf_l
   // unlock conditions
   offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
 
-  // feature blocks
-  if (output->feature_blocks) {
-    offset += feat_blk_list_serialize(&output->feature_blocks, buf + offset, buf_len - offset);
+  // features
+  if (output->features) {
+    offset += feature_list_serialize(&output->features, buf + offset, buf_len - offset);
   } else {
     memset(buf + offset, 0, sizeof(uint8_t));
     offset += sizeof(uint8_t);
   }
 
-  // immutable feature blocks
-  if (output->immutable_blocks) {
-    offset += feat_blk_list_serialize(&output->immutable_blocks, buf + offset, buf_len - offset);
+  // immutable features
+  if (output->immutable_features) {
+    offset += feature_list_serialize(&output->immutable_features, buf + offset, buf_len - offset);
   } else {
     memset(buf + offset, 0, sizeof(uint8_t));
     offset += sizeof(uint8_t);
@@ -322,21 +322,21 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
     offset += cond_blk_list_serialize_len(output->unlock_conditions);
   }
 
-  // feature blocks
-  uint8_t feat_block_count = 0;
-  memcpy(&feat_block_count, &buf[offset], sizeof(uint8_t));
-  if (feat_block_count > MAX_ALIAS_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
+  // features
+  uint8_t features_count = 0;
+  memcpy(&features_count, &buf[offset], sizeof(uint8_t));
+  if (features_count > MAX_ALIAS_FEATURES_COUNT) {
+    printf("[%s:%d] invalid features count\n", __func__, __LINE__);
     output_alias_free(output);
     return NULL;
-  } else if (feat_block_count > 0) {
-    output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
-    if (!output->feature_blocks) {
-      printf("[%s:%d] can not deserialize feature blocks\n", __func__, __LINE__);
+  } else if (features_count > 0) {
+    output->features = feature_list_deserialize(&buf[offset], buf_len - offset);
+    if (!output->features) {
+      printf("[%s:%d] can not deserialize features\n", __func__, __LINE__);
       output_alias_free(output);
       return NULL;
     }
-    offset += feat_blk_list_serialize_len(output->feature_blocks);
+    offset += feature_list_serialize_len(output->features);
   } else {
     if (buf_len < offset + sizeof(uint8_t)) {
       printf("[%s:%d] invalid data length\n", __func__, __LINE__);
@@ -346,21 +346,21 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
     offset += sizeof(uint8_t);
   }
 
-  // immutable feature blocks
-  uint8_t immut_feat_block_count = 0;
-  memcpy(&immut_feat_block_count, &buf[offset], sizeof(uint8_t));
-  if (immut_feat_block_count > MAX_ALIAS_IMMUTABLE_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] invalid immutable feature block count\n", __func__, __LINE__);
+  // immutable features
+  uint8_t immut_features_count = 0;
+  memcpy(&immut_features_count, &buf[offset], sizeof(uint8_t));
+  if (immut_features_count > MAX_ALIAS_IMMUTABLE_FEATURES_COUNT) {
+    printf("[%s:%d] invalid immutable feature count\n", __func__, __LINE__);
     output_alias_free(output);
     return NULL;
-  } else if (immut_feat_block_count > 0) {
-    output->immutable_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
-    if (!output->immutable_blocks) {
-      printf("[%s:%d] can not deserialize immutable feature blocks\n", __func__, __LINE__);
+  } else if (immut_features_count > 0) {
+    output->immutable_features = feature_list_deserialize(&buf[offset], buf_len - offset);
+    if (!output->immutable_features) {
+      printf("[%s:%d] can not deserialize immutable features\n", __func__, __LINE__);
       output_alias_free(output);
       return NULL;
     }
-    offset += feat_blk_list_serialize_len(output->immutable_blocks);
+    offset += feature_list_serialize_len(output->immutable_features);
   } else {
     if (buf_len < offset + sizeof(uint8_t)) {
       printf("[%s:%d] invalid data length\n", __func__, __LINE__);
@@ -391,8 +391,8 @@ output_alias_t* output_alias_clone(output_alias_t const* const output) {
     }
     new_output->foundry_counter = output->foundry_counter;
     new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
-    new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
-    new_output->immutable_blocks = feat_blk_list_clone(output->immutable_blocks);
+    new_output->features = feature_list_clone(output->features);
+    new_output->immutable_features = feature_list_clone(output->immutable_features);
   }
 
   return new_output;
@@ -428,10 +428,10 @@ void output_alias_print(output_alias_t* output, uint8_t indentation) {
 
   // print unlock condition blocks
   cond_blk_list_print(output->unlock_conditions, indentation + 1);
-  // print feature blocks
-  feat_blk_list_print(output->feature_blocks, false, indentation + 1);
-  // print immutable feature blocks
-  feat_blk_list_print(output->immutable_blocks, true, indentation + 1);
+  // print features
+  feature_list_print(output->features, false, indentation + 1);
+  // print immutable features
+  feature_list_print(output->immutable_features, true, indentation + 1);
 
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }
@@ -469,46 +469,45 @@ bool output_alias_syntactic(output_alias_t* output) {
   cond_blk_list_sort(&output->unlock_conditions);
 
   // == Feature Blocks validation ===
-  // 0<= feature block count <= 2
-  if (feat_blk_list_len(output->feature_blocks) > MAX_ALIAS_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] invalid feature block count must smaller than %d\n", __func__, __LINE__,
-           MAX_ALIAS_FEATURE_BLOCKS_COUNT);
+  // 0<= features count <= 2
+  if (feature_list_len(output->features) > MAX_ALIAS_FEATURES_COUNT) {
+    printf("[%s:%d] invalid feature count must smaller than %d\n", __func__, __LINE__, MAX_ALIAS_FEATURES_COUNT);
     return false;
   }
-  if (feat_blk_list_len(output->feature_blocks) > 0) {
-    // feature block types
+  if (feature_list_len(output->features) > 0) {
+    // feature types
     // - Sender
     // - Metadata
-    if (feat_blk_list_get_type(output->feature_blocks, FEAT_ISSUER_BLOCK) ||
-        feat_blk_list_get_type(output->feature_blocks, FEAT_TAG_BLOCK)) {
-      printf("[%s:%d] Issuer and Tag blocks are not allowed\n", __func__, __LINE__);
+    if (feature_list_get_type(output->features, FEAT_ISSUER_TYPE) ||
+        feature_list_get_type(output->features, FEAT_TAG_TYPE)) {
+      printf("[%s:%d] Issuer and Tag features are not allowed\n", __func__, __LINE__);
       return false;
     }
   }
   // Blocks must stored in ascending order based on their Block Type
-  feat_blk_list_sort(&output->feature_blocks);
+  feature_list_sort(&output->features);
 
   // == Immutable Feature Blocks validation ===
-  // 0<= immutable block count <= 2
-  if (feat_blk_list_len(output->immutable_blocks) > MAX_ALIAS_IMMUTABLE_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] invalid feature block count must smaller than %d\n", __func__, __LINE__,
-           MAX_ALIAS_IMMUTABLE_FEATURE_BLOCKS_COUNT);
+  // 0<= immutable feature count <= 2
+  if (feature_list_len(output->immutable_features) > MAX_ALIAS_IMMUTABLE_FEATURES_COUNT) {
+    printf("[%s:%d] invalid immutable feature count must smaller than %d\n", __func__, __LINE__,
+           MAX_ALIAS_IMMUTABLE_FEATURES_COUNT);
     return false;
   }
 
-  if (feat_blk_list_len(output->immutable_blocks) > 0) {
-    // immutable block types
+  if (feature_list_len(output->immutable_features) > 0) {
+    // immutable feature types
     // - Issuer
     // - Metadata
-    if (feat_blk_list_get_type(output->immutable_blocks, FEAT_SENDER_BLOCK) ||
-        feat_blk_list_get_type(output->immutable_blocks, FEAT_TAG_BLOCK)) {
-      printf("[%s:%d] Sender and Tag Feature blocks are not allowed\n", __func__, __LINE__);
+    if (feature_list_get_type(output->immutable_features, FEAT_SENDER_TYPE) ||
+        feature_list_get_type(output->immutable_features, FEAT_TAG_TYPE)) {
+      printf("[%s:%d] Sender and Tag Feature are not allowed\n", __func__, __LINE__);
       return false;
     }
   }
 
   // Blocks must stored in ascending order based on their Block Type
-  feat_blk_list_sort(&output->immutable_blocks);
+  feature_list_sort(&output->immutable_features);
 
   return true;
 }

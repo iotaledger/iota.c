@@ -50,7 +50,7 @@
 // Maximum length of tag in bytes
 #define TAGGED_DATA_TAG_MAX_LENGTH_BYTES 64
 
-/****** Constants related to feature blocks ******/
+/****** Constants related to features ******/
 // Maximum possible length in bytes of a Tag
 #define MAX_INDEX_TAG_BYTES 64
 // Maximun possible length in bytes of Metadata

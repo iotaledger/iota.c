@@ -9,11 +9,11 @@
 
 // maximum number of unlock condition blocks
 #define MAX_BASIC_CONDITION_BLOCKS_COUNT 4
-// maximum number of feature blocks
-#define MAX_BASIC_FEATURE_BLOCKS_COUNT 3
+// maximum number of features
+#define MAX_BASIC_FEATURES_COUNT 3
 
 output_basic_t* output_basic_new(uint64_t amount, native_tokens_list_t* tokens, cond_blk_list_t* cond_blocks,
-                                 feat_blk_list_t* feat_blocks) {
+                                 feature_list_t* features) {
   if (cond_blocks == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
@@ -53,8 +53,8 @@ output_basic_t* output_basic_new(uint64_t amount, native_tokens_list_t* tokens, 
     return NULL;
   }
 
-  // add feature blocks
-  output->feature_blocks = feat_blk_list_clone(feat_blocks);
+  // add features
+  output->features = feature_list_clone(features);
 
   return output;
 }
@@ -65,7 +65,7 @@ void output_basic_free(output_basic_t* output) {
       native_tokens_free(output->native_tokens);
     }
     cond_blk_list_free(output->unlock_conditions);
-    feat_blk_list_free(output->feature_blocks);
+    feature_list_free(output->features);
     free(output);
   }
 }
@@ -85,8 +85,8 @@ size_t output_basic_serialize_len(output_basic_t* output) {
   length += native_tokens_serialize_len(output->native_tokens);
   // unlock conditions
   length += cond_blk_list_serialize_len(output->unlock_conditions);
-  // feature blocks
-  length += feat_blk_list_serialize_len(output->feature_blocks);
+  // features
+  length += feature_list_serialize_len(output->features);
 
   return length;
 }
@@ -119,9 +119,9 @@ size_t output_basic_serialize(output_basic_t* output, byte_t buf[], size_t buf_l
   // unlock conditions
   offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
 
-  // feature blocks
-  if (output->feature_blocks) {
-    offset += feat_blk_list_serialize(&output->feature_blocks, buf + offset, buf_len - offset);
+  // features
+  if (output->features) {
+    offset += feature_list_serialize(&output->features, buf + offset, buf_len - offset);
   } else {
     memset(buf + offset, 0, sizeof(uint8_t));
     offset += sizeof(uint8_t);
@@ -191,21 +191,21 @@ output_basic_t* output_basic_deserialize(byte_t buf[], size_t buf_len) {
     offset += cond_blk_list_serialize_len(output->unlock_conditions);
   }
 
-  // feature blocks
-  uint8_t feat_block_count = 0;
-  memcpy(&feat_block_count, &buf[offset], sizeof(uint8_t));
-  if (feat_block_count > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] invalid feature block count\n", __func__, __LINE__);
+  // features
+  uint8_t feat_count = 0;
+  memcpy(&feat_count, &buf[offset], sizeof(uint8_t));
+  if (feat_count > MAX_BASIC_FEATURES_COUNT) {
+    printf("[%s:%d] invalid feature count\n", __func__, __LINE__);
     output_basic_free(output);
     return NULL;
-  } else if (feat_block_count > 0) {
-    output->feature_blocks = feat_blk_list_deserialize(&buf[offset], buf_len - offset);
-    if (!output->feature_blocks) {
-      printf("[%s:%d] can not deserialize feature blocks\n", __func__, __LINE__);
+  } else if (feat_count > 0) {
+    output->features = feature_list_deserialize(&buf[offset], buf_len - offset);
+    if (!output->features) {
+      printf("[%s:%d] can not deserialize features\n", __func__, __LINE__);
       output_basic_free(output);
       return NULL;
     }
-    offset += feat_blk_list_serialize_len(output->feature_blocks);
+    offset += feature_list_serialize_len(output->features);
   } else {
     if (buf_len < offset + sizeof(uint8_t)) {
       printf("[%s:%d] invalid data length\n", __func__, __LINE__);
@@ -228,7 +228,7 @@ output_basic_t* output_basic_clone(output_basic_t const* const output) {
     new_output->amount = output->amount;
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
     new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
-    new_output->feature_blocks = feat_blk_list_clone(output->feature_blocks);
+    new_output->features = feature_list_clone(output->features);
   }
 
   return new_output;
@@ -247,8 +247,8 @@ void output_basic_print(output_basic_t* output, uint8_t indentation) {
   native_tokens_print(output->native_tokens, indentation + 1);
   // print unlock condition blocks
   cond_blk_list_print(output->unlock_conditions, indentation + 1);
-  // print feature blocks
-  feat_blk_list_print(output->feature_blocks, false, indentation + 1);
+  // print features
+  feature_list_print(output->features, false, indentation + 1);
 
   printf("%s]\n", PRINT_INDENTATION(indentation));
 }
@@ -294,25 +294,25 @@ bool output_basic_syntactic(output_basic_t* output) {
   // Unlock Condition must be sorted in ascending order based on their type
   cond_blk_list_sort(&output->unlock_conditions);
 
-  // 0<= feature block count <= 3
-  if (feat_blk_list_len(output->feature_blocks) > MAX_BASIC_FEATURE_BLOCKS_COUNT) {
-    printf("[%s:%d] feature block count must smaller than %d\n", __func__, __LINE__, MAX_BASIC_CONDITION_BLOCKS_COUNT);
+  // 0<= feature count <= 3
+  if (feature_list_len(output->features) > MAX_BASIC_FEATURES_COUNT) {
+    printf("[%s:%d] feature count must smaller than %d\n", __func__, __LINE__, MAX_BASIC_CONDITION_BLOCKS_COUNT);
     return false;
   }
 
-  if (feat_blk_list_len(output->feature_blocks) > 0) {
-    // feature block types
+  if (feature_list_len(output->features) > 0) {
+    // feature types
     // - Sender
     // - Metadata
     // - Tag
-    if (feat_blk_list_get_type(output->feature_blocks, FEAT_ISSUER_BLOCK)) {
-      printf("[%s:%d] Issuer Feature Block is not allowed\n", __func__, __LINE__);
+    if (feature_list_get_type(output->features, FEAT_ISSUER_TYPE)) {
+      printf("[%s:%d] Issuer Feature is not allowed\n", __func__, __LINE__);
       return false;
     }
   }
 
   // Blocks must stored in ascending order based on their Block Type
-  feat_blk_list_sort(&output->feature_blocks);
+  feature_list_sort(&output->features);
 
   return true;
 }

@@ -4,6 +4,7 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "core/models/message.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "core/utils/macros.h"
