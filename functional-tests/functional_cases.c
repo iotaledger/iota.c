@@ -17,6 +17,7 @@
 #include "client/api/restful/get_transaction_included_message.h"
 #include "client/api/restful/send_tagged_data.h"
 #include "functional_cases.h"
+#include "wallet/output_basic.h"
 
 static int get_info(test_config_t* conf, test_data_t* params, test_item_t* items) {
   if (!conf || !params || !items) {
@@ -174,13 +175,19 @@ static int send_basic_tx(test_config_t* conf, test_data_t* params, test_item_t* 
     return -1;
   }
 
+  ret = wallet_ed25519_address_from_index(params->w, false, conf->sender_index, &params->sender);
+  if (ret != 0) {
+    printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
+    return -1;
+  }
+
   // validating /api/v2/tips and /api/v2/message with basic outputs
   // send 1Mi to receiver
   printf("Basic sender: ");
   address_print(&params->sender);
   printf("Basic receiver: ");
   address_print(&params->recv);
-  ret = wallet_send_basic_outputs(params->w, false, conf->sender_index, &params->recv, 1000000, &msg_res);
+  ret = wallet_basic_output_send(params->w, false, conf->sender_index, 1000000, &params->recv, &msg_res);
   if (ret == 0) {
     if (msg_res.is_error) {
       printf("[%s:%d] Error: %s\n", __func__, __LINE__, msg_res.u.error->msg);

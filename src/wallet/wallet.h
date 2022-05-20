@@ -8,7 +8,7 @@
  * @brief Simple wallet APIs
  *
  * A reference wallet implementation for users to create there own wallet.
- * This wallet implementation will not contain any storage mechanism which storage could vary on deferent devices.
+ * This wallet implementation will not contain any storage mechanism which storage could vary on different devices.
  *
  */
 
@@ -20,14 +20,11 @@
 #include "core/address.h"
 #include "core/models/message.h"
 #include "core/models/outputs/byte_cost_config.h"
+#include "core/models/payloads/transaction.h"
+#include "core/models/signing.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#define NODE_DEFAULT_HRP "iota"
-#define NODE_DEFAULT_HOST "chrysalis-nodes.iota.org"
-#define NODE_DEFAULT_PORT 443
+// max length of m/44'/4218'/Account'/Change' or m/44'/4219'/Account'/Change'
+#define IOTA_ACCOUNT_PATH_MAX 128
 
 // Registered coin types: https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 // default coin type for testnet (all coins)
@@ -53,16 +50,27 @@ typedef struct {
   char indexer_path[15];         ///< The indexer plugins api path, max len 15
 } iota_wallet_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Create a wallet instance from the given mnemonic, password, and account index
  *
- * @param[in] ms A string of mnemonic, NULL for genrating a random mnemonic
- * @param[in] pwd A passphase for seed deivation
+ * @param[in] ms A string of mnemonic, NULL for generating a random mnemonic
+ * @param[in] pwd A passphrase for seed derivation
  * @param[in] coin_type The path component of SLIP44 coin type
  * @param[in] account_index The account index
  * @return iota_wallet_t*
  */
 iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t coin_type, uint32_t account_index);
+
+/**
+ * @brief Destroy the wallet account
+ *
+ * @param[in] w A wallet instance
+ */
+void wallet_destroy(iota_wallet_t* w);
 
 /**
  * @brief Set a node endpoint, if not calling this method default is "http://localhost:14265/"
@@ -76,6 +84,25 @@ iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t coin_ty
 int wallet_set_endpoint(iota_wallet_t* w, char const host[], uint16_t port, bool use_tls);
 
 /**
+ * @brief Update configurations of connected node
+ *
+ * @param[in] w A wallet instance
+ * @return int 0 on success
+ */
+int wallet_update_node_config(iota_wallet_t* w);
+
+/**
+ * @brief Get the address path
+ *
+ * @param[in] w A wallet object
+ * @param[in] change change index which is {0, 1}, also known as wallet chain.
+ * @param[in] index Address index
+ * @param[out] buf The buffer holds BIP44 path
+ * @param[in] buf_len the length of the buffer
+ */
+int wallet_get_address_path(iota_wallet_t* w, bool change, uint32_t index, char* buf, size_t buf_len);
+
+/**
  * @brief Get an ed25519 address from the given account, change, and index
  *
  * https://chrysalis.docs.iota.org/guides/dev_guide/#addresskey-space
@@ -86,7 +113,22 @@ int wallet_set_endpoint(iota_wallet_t* w, char const host[], uint16_t port, bool
  * @param[out] addr A buffer holds ed25519 address
  * @return int 0 on success
  */
-int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* out);
+int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* addr);
+
+/**
+ * @brief Get an ed25519 address and keypair from the given account, change, and index
+ *
+ * https://chrysalis.docs.iota.org/guides/dev_guide/#addresskey-space
+ *
+ * @param[in] w A wallet instance
+ * @param[in] change The change index which is {0, 1}, also known as wallet chain.
+ * @param[in] index Address index
+ * @param[out] addr A created ed25519 address
+ * @param[out] keypair A created keypair
+ * @return int 0 on success
+ */
+int wallet_get_address_and_keypair_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* addr,
+                                              ed25519_keypair_t* keypair);
 
 /**
  * @brief Get balance by a given address
@@ -109,52 +151,26 @@ int wallet_balance_by_address(iota_wallet_t* w, address_t* addr, uint64_t* balan
 int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* balance);
 
 /**
- * @brief Unlock outputs of the given address index
- *
- * it unlocks expired Timelock and Expiration outputs
- *
- * @param[in w A wallet instance
- * @param[in] change The change index which is {0, 1}, also known as wallet chain.
- * @param[in] index Address index
- * @return int 0 on seccess
- */
-int wallet_unlock_outputs(iota_wallet_t* w, bool change, uint32_t index);
-
-/**
- * @brief Transfer IOTA token to an address
+ * @brief Create and prepare core message
  *
  * @param[in] w A wallet instance
- * @param[in] change The change index which is {0, 1}, also known as wallet chain.
- * @param[in] index The index of the sender address
- * @param[in] recv_addr The receiver address
- * @param[in] amount The amount to transfer
- * @param[out] msg_res The response of the transfer
- *
- * @return int 0 on seccess
+ * @param[in] tx A transaction payload
+ * @param[in] unspent_outputs A list of unspent outputs
+ * @param[in] sign_data A list of signing data
+ * @return core_message_t*
  */
-int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, address_t* recv_addr,
-                              uint64_t const amount, res_send_message_t* msg_res);
-
-// TODO, need to be defined
-int wallet_create_native_token(iota_wallet_t* w, bool change, uint32_t index, byte_t token_id[], uint64_t amount);
-
-// TODO, need to be defined
-int wallet_send_native_token(iota_wallet_t* w, bool change, uint32_t index, char recv_bech32[], uint64_t amount);
+core_message_t* wallet_create_core_message(iota_wallet_t* w, transaction_payload_t* tx,
+                                           utxo_outputs_list_t* unspent_outputs, signing_data_list_t* sign_data);
 
 /**
- * @brief Destory the wallet account
+ * @brief Send core message to a network
  *
  * @param[in] w A wallet instance
- */
-void wallet_destroy(iota_wallet_t* w);
-
-/**
- * @brief Update configurations of connected node
- *
- * @param[in] w A wallet instance
+ * @param[in] core_msg A core message which will be sent
+ * @param[out] msg_res A response of the transfer
  * @return int 0 on success
  */
-int wallet_update_node_config(iota_wallet_t* w);
+int wallet_send_message(iota_wallet_t* w, core_message_t* core_msg, res_send_message_t* msg_res);
 
 #ifdef __cplusplus
 }

@@ -6,6 +6,10 @@
 #include "client/api/json_parser/json_utils.h"
 #include "client/api/json_parser/outputs/feat_blocks.h"
 #include "client/api/json_parser/outputs/native_tokens.h"
+#include "client/api/json_parser/outputs/output_alias.h"
+#include "client/api/json_parser/outputs/output_basic.h"
+#include "client/api/json_parser/outputs/output_foundry.h"
+#include "client/api/json_parser/outputs/output_nft.h"
 #include "client/api/json_parser/outputs/unlock_conditions.h"
 #include "client/api/restful/get_output.h"
 #include "client/constants.h"
@@ -15,112 +19,65 @@
 
 // deserialize json object to an output object
 static int json_output_deserialize(cJSON *output_obj, utxo_output_t **output) {
-  if (output_obj || *output == NULL) {
-#if 0  // FIXME: support other output types
-    int ret = 0;
-    utxo_output_t *tmp_output = malloc(sizeof(utxo_output_t));
-    // output type
-    if ((ret = json_get_uint32(output_obj, JSON_KEY_TYPE, &tmp_output->output_type)) != 0) {
-      printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
-      goto end;
-    }
-    switch (tmp_output->output_type) {
-      case OUTPUT_BASIC:
-      case OUTPUT_ALIAS:
-      case OUTPUT_FOUNDRY:
-      case OUTPUT_NFT:
-        break;
-      default:
-        break;
-    }
-#else
-    int ret = 0;
-    utxo_output_t *tmp_output = malloc(sizeof(utxo_output_t));
-    if (tmp_output == NULL) {
-      goto end;
-    }
-    // output type
-    if ((ret = json_get_uint32(output_obj, JSON_KEY_TYPE, &tmp_output->output_type)) != 0) {
-      printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
-      goto end;
-    }
-
-    if (tmp_output->output_type != OUTPUT_BASIC) {
-      printf("[%s:%d]: FIXME, support other output types\n", __func__, __LINE__);
-      goto end;
-    }
-
-    native_tokens_list_t *tokens = native_tokens_new();
-    cond_blk_list_t *cond_blocks = cond_blk_list_new();
-    feat_blk_list_t *feat_blocks = feat_blk_list_new();
-    uint64_t amount = 0;
-    // amount
-    char str_buff[32];
-    if (json_get_string(output_obj, JSON_KEY_AMOUNT, str_buff, sizeof(str_buff)) != JSON_OK) {
-      printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
-      goto end;
-    }
-    sscanf(str_buff, "%" SCNu64, &amount);
-
-    // native tokens array
-    if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_NATIVE_TOKENS) != NULL) {
-      if (json_native_tokens_deserialize(output_obj, &tokens) != 0) {
-        printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_NATIVE_TOKENS);
-        goto end;
-      }
-    }
-
-    // unlock conditions array
-    if (json_cond_blk_list_deserialize(output_obj, &cond_blocks) != 0) {
-      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_UNLOCK_CONDITIONS);
-      goto end;
-    }
-
-    // feature blocks array
-    if ((cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_BLOCKS) != NULL) ||
-        (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS) != NULL)) {
-      if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
-        printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
-        goto end;
-      }
-    }
-
-    // create basic output
-    tmp_output->output = output_basic_new(amount, tokens, cond_blocks, feat_blocks);
-    if (tokens) {
-      native_tokens_free(tokens);
-    }
-    cond_blk_list_free(cond_blocks);
-    feat_blk_list_free(feat_blocks);
-    if (!tmp_output->output) {
-      printf("[%s:%d]: creating output object failed \n", __func__, __LINE__);
-      goto end;
-    }
-    *output = tmp_output;
-#endif
-    return 0;
-
-  end:
-    if (tmp_output) {
-      switch (tmp_output->output_type) {
-        case OUTPUT_BASIC:
-          output_basic_free((output_basic_t *)tmp_output->output);
-          break;
-        case OUTPUT_ALIAS:
-          output_alias_free((output_alias_t *)tmp_output->output);
-          break;
-        case OUTPUT_FOUNDRY:
-          output_foundry_free((output_foundry_t *)tmp_output->output);
-          break;
-        case OUTPUT_NFT:
-          output_nft_free((output_nft_t *)tmp_output->output);
-          break;
-        default:
-          break;
-      }
-    }
+  if (output_obj == NULL || *output != NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
   }
-  return -1;
+
+  utxo_output_t *tmp_output = malloc(sizeof(utxo_output_t));
+  if (!tmp_output) {
+    printf("[%s:%d]: OOM\n", __func__, __LINE__);
+    return -1;
+  }
+  tmp_output->output = NULL;
+
+  // output type
+  if (json_get_uint32(output_obj, JSON_KEY_TYPE, &tmp_output->output_type) != 0) {
+    printf("[%s:%d]: gets output %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
+    free(tmp_output);
+    return -1;
+  }
+
+  int ret = -1;
+
+  switch (tmp_output->output_type) {
+    case OUTPUT_BASIC: {
+      output_basic_t *basic_output = tmp_output->output;
+      ret = json_output_basic_deserialize(output_obj, &basic_output);
+      tmp_output->output = basic_output;
+      break;
+    }
+    case OUTPUT_ALIAS: {
+      output_alias_t *alias_output = tmp_output->output;
+      ret = json_output_alias_deserialize(output_obj, &alias_output);
+      tmp_output->output = alias_output;
+      break;
+    }
+    case OUTPUT_FOUNDRY: {
+      output_foundry_t *foundry_output = tmp_output->output;
+      ret = json_output_foundry_deserialize(output_obj, &foundry_output);
+      tmp_output->output = foundry_output;
+      break;
+    }
+    case OUTPUT_NFT: {
+      output_nft_t *nft_output = tmp_output->output;
+      ret = json_output_nft_deserialize(output_obj, &nft_output);
+      tmp_output->output = nft_output;
+      break;
+    }
+    default:
+      printf("[%s:%d]: unsupported output type\n", __func__, __LINE__);
+      ret = -1;
+      break;
+  }
+
+  if (ret == 0) {
+    *output = tmp_output;
+  } else {
+    free(tmp_output);
+  }
+
+  return ret;
 }
 
 get_output_t *get_output_new() {

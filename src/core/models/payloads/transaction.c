@@ -260,7 +260,7 @@ size_t tx_essence_serialize(transaction_essence_t* es, byte_t buf[], size_t buf_
 
 transaction_essence_t* tx_essence_deserialize(byte_t buf[], size_t buf_len) {
   if (buf == NULL || buf_len < 2) {
-    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -403,7 +403,8 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
 
   byte_t* offset = buf;
   // write payload type
-  memset(offset, CORE_MESSAGE_PAYLOAD_TRANSACTION, sizeof(uint32_t));
+  uint32_t payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  memcpy(offset, &payload_type, sizeof(uint32_t));
   offset += sizeof(uint32_t);
   // write essence
   size_t essence_len = tx_essence_serialize_length(tx->essence);
@@ -416,7 +417,7 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
 
 transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
   if (buf == NULL || buf_len < 2) {
-    printf("[%s:%d] invalid paramters\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -439,6 +440,44 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
   offset += unlock_blocks_serialize_length(tx_payload->unlock_blocks);
 
   return tx_payload;
+}
+
+int tx_payload_calculate_id(transaction_payload_t* tx, byte_t id[], uint8_t id_len) {
+  if (tx == NULL || id == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (id_len < CRYPTO_BLAKE2B_256_HASH_BYTES) {
+    printf("[%s:%d] transaction payload ID array length is too small\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // serialize transaction payload
+  size_t payload_buf_len = tx_payload_serialize_length(tx);
+  byte_t* payload_buf = malloc(payload_buf_len);
+  if (!payload_buf) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (tx_payload_serialize(tx, payload_buf, payload_buf_len) != payload_buf_len) {
+    printf("[%s:%d] can not serialize transaction payload\n", __func__, __LINE__);
+    free(payload_buf);
+    return -1;
+  }
+
+  // calculate transaction payload ID
+  if (iota_blake2b_sum(payload_buf, payload_buf_len, id, CRYPTO_BLAKE2B_256_HASH_BYTES) != 0) {
+    printf("[%s:%d] calculating transaction payload ID failed\n", __func__, __LINE__);
+    free(payload_buf);
+    return -1;
+  }
+
+  // Clean up
+  free(payload_buf);
+
+  return 0;
 }
 
 void tx_payload_print(transaction_payload_t* tx, uint8_t indentation) {

@@ -48,7 +48,7 @@ static cJSON *json_feat_blk_sender_serialize(feat_block_t *block) {
     // add address to sender
     cJSON *addr = json_parser_common_address_serialize((address_t *)block->block);
     if (addr) {
-      cJSON_AddObjectToObject(addr, JSON_KEY_ADDR);
+      cJSON_AddItemToObject(sender_obj, JSON_KEY_ADDR, addr);
     } else {
       printf("[%s:%d] adding address into block error\n", __func__, __LINE__);
       cJSON_Delete(sender_obj);
@@ -100,7 +100,7 @@ static cJSON *json_feat_blk_issuer_serialize(feat_block_t *block) {
     // add address
     cJSON *addr = json_parser_common_address_serialize((address_t *)block->block);
     if (addr) {
-      cJSON_AddObjectToObject(addr, JSON_KEY_ADDR);
+      cJSON_AddItemToObject(issuer_obj, JSON_KEY_ADDR, addr);
     } else {
       printf("[%s:%d] adding address into block error\n", __func__, __LINE__);
       cJSON_Delete(issuer_obj);
