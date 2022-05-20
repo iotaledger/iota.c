@@ -1,4 +1,4 @@
-# Arduino IDE Integration
+# Arduino-ESP32 Integration
 
 Developers are able to write IOTA client and wallet applications with [arduino-esp32](https://github.com/espressif/arduino-esp32) framework via the [Arduino Desktop IDE](https://www.arduino.cc/en/software)
 
@@ -9,7 +9,6 @@ Please follow the installation document to setup the IDE on your system
 
 
 Once the desktop IDE and arduino-esp32 support are installed, you are ready to add IOTA Client library into the Arduino Libraries. 
-
 
 There are two packages are required:
 

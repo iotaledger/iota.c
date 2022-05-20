@@ -12,9 +12,9 @@ This C Client is still a highly development project for POSIX systems and embedd
 maxdepth: 2
 caption: IOTA C Client
 ---
-client_intro.md
-client_arduino.md
-client_examples.md
+introduction.md
+examples.md
+arduino_esp32.md
 ```
 
 ```{toctree}
