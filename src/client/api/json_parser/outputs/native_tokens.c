@@ -74,11 +74,12 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
         cJSON_AddStringToObject(item, JSON_KEY_ID, token_id);
 
         // add amount
-        char *amount = uint256_to_str(&elm->token->amount);
+        char *amount = uint256_to_hex_str(&elm->token->amount);
         if (!amount) {
           goto item_err;
         }
-        char *amount_with_prefix = malloc(strlen(amount) + JSON_HEX_ENCODED_STR_PREFIX_LEN);
+        char *amount_with_prefix =
+            calloc(1, strlen(amount) + JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);  // Zero terminated string
         if (!amount_with_prefix) {
           free(amount);
           goto item_err;

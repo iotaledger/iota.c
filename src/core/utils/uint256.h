@@ -75,6 +75,14 @@ int uint256_equal(uint256_t const *a, uint256_t const *b);
 char *uint256_to_str(uint256_t *num);
 
 /**
+ * @brief Converts uint256 number to a hex string
+ *
+ * @param[in] num A pointer to uint256 object
+ * @return Pointer to string object, NULL on failed.
+ */
+char *uint256_to_hex_str(uint256_t *num);
+
+/**
  * @brief Clone uint256 object, it should be freed after use.
  *
  * @param[in] num A pointer to uint256 object for clone

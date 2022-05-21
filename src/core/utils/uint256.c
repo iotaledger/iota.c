@@ -248,6 +248,36 @@ char *uint256_to_str(uint256_t *num) {
   return str;
 }
 
+char *uint256_to_hex_str(uint256_t *num) {
+  if (num == NULL) {
+    // invalid parameters
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  char str_temp[STRING_NUMBER_MAX_CHARACTERS] = {0};
+  uint8_t str_length = 0;
+
+  // convert uint256_t to hex string
+  for (int8_t i = 3; i >= 0; i--) {
+    if (num->bits[i] > 0) {
+      sprintf(&str_temp[str_length], "%" PRIx64 "", num->bits[i]);
+      str_length = strlen(str_temp);
+    }
+  }
+
+  // create a string with appropriate length
+  char *str = malloc(str_length + 1);
+  if (!str) {
+    printf("[%s:%d] allocation memory space for string failed\n", __func__, __LINE__);
+    return NULL;
+  }
+  memcpy(str, str_temp, str_length);
+  str[str_length] = '\0';
+
+  return str;
+}
+
 uint256_t *uint256_clone(uint256_t const *const num) {
   if (num == NULL) {
     return NULL;

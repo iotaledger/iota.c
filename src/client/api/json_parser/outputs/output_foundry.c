@@ -108,7 +108,7 @@ cJSON *json_token_scheme_serialize(token_scheme_t *scheme) {
       char *tmp_supply = NULL;
 
       // minted tokens
-      tmp_supply = uint256_to_str(&simple_scheme->minted_tokens);
+      tmp_supply = uint256_to_hex_str(&simple_scheme->minted_tokens);
       if (!tmp_supply) {
         goto err;
       }
@@ -129,7 +129,7 @@ cJSON *json_token_scheme_serialize(token_scheme_t *scheme) {
       free(tmp_supply_with_prefix);
 
       // melted tokens
-      tmp_supply = uint256_to_str(&simple_scheme->melted_tokens);
+      tmp_supply = uint256_to_hex_str(&simple_scheme->melted_tokens);
       if (!tmp_supply) {
         goto err;
       }
@@ -150,7 +150,7 @@ cJSON *json_token_scheme_serialize(token_scheme_t *scheme) {
       free(tmp_supply_with_prefix);
 
       // maximum supply
-      tmp_supply = uint256_to_str(&simple_scheme->max_supply);
+      tmp_supply = uint256_to_hex_str(&simple_scheme->max_supply);
       if (!tmp_supply) {
         goto err;
       }
