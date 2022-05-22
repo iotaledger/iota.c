@@ -17,11 +17,11 @@
  *
  */
 typedef struct {
-  uint64_t amount;                      ///< The amount of IOTA tokens held by this output
-  native_tokens_list_t* native_tokens;  ///< The native tokens held by the output
-  byte_t nft_id[NFT_ID_BYTES];          ///< The identifier of this NFT
-  cond_blk_list_t* unlock_conditions;   ///< Define how the output can be unlocked and spent
-  feature_list_t* features;             ///< The features which modulate the constraints on the output
+  uint64_t amount;                        ///< The amount of IOTA tokens held by this output
+  native_tokens_list_t* native_tokens;    ///< The native tokens held by the output
+  byte_t nft_id[NFT_ID_BYTES];            ///< The identifier of this NFT
+  unlock_cond_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
+  feature_list_t* features;               ///< The features which modulate the constraints on the output
   feature_list_t* immutable_features;  ///< Immutable features are defined upon deployment of the UTXO state machine and
                                        ///< are not allowed to change in any future state transition
 } output_nft_t;
@@ -36,14 +36,14 @@ extern "C" {
  * @param[in] amount The amount of IOTA tokens to held by the output
  * @param[in] tokens Set of native tokens held by the output
  * @param[in] nft_id The identifier of this NFT
- * @param[in] cond_blocks Set of unlock condition blocks
+ * @param[in] cond_list Set of unlock conditions
  * @param[in] features List of features
  * @param[in] immut_features List of immutable features
  *
  * @return output_nft_t* or NULL on failure
  */
 output_nft_t* output_nft_new(uint64_t amount, native_tokens_list_t* tokens, byte_t nft_id[],
-                             cond_blk_list_t* cond_blocks, feature_list_t* features, feature_list_t* immut_features);
+                             unlock_cond_list_t* cond_list, feature_list_t* features, feature_list_t* immut_features);
 
 /**
  * @brief Free NFT Output object.

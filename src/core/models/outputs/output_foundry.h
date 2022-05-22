@@ -43,12 +43,12 @@ typedef struct {
  *
  */
 typedef struct {
-  uint64_t amount;                      ///< The amount of IOTA tokens held by this output
-  native_tokens_list_t* native_tokens;  ///< The native tokens held by this output
-  uint32_t serial;                      ///< The serial number of the foundry
-  token_scheme_t* token_scheme;         ///< The token scheme used by this foundry
-  cond_blk_list_t* unlock_conditions;   ///< Define how the output can be unlocked and spent
-  feature_list_t* features;             ///< The features which modulate the constraints on this output
+  uint64_t amount;                        ///< The amount of IOTA tokens held by this output
+  native_tokens_list_t* native_tokens;    ///< The native tokens held by this output
+  uint32_t serial;                        ///< The serial number of the foundry
+  token_scheme_t* token_scheme;           ///< The token scheme used by this foundry
+  unlock_cond_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
+  feature_list_t* features;               ///< The features which modulate the constraints on this output
   feature_list_t* immutable_features;  ///< Immutable Features are defined upon deployment of the UTXO state machine and
                                        ///< are not allowed to change in any future state transition
 } output_foundry_t;

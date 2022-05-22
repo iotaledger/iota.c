@@ -25,8 +25,8 @@ typedef struct {
   uint32_t state_index;        ///< A counter that must increase by 1 every time the alias is state transitioned
   byte_buf_t* state_metadata;  ///< Metadata that can only be changed by the state controller
   uint32_t foundry_counter;    ///< The counter that denotes the number of foundries created by this alias account
-  cond_blk_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
-  feature_list_t* features;            ///< Define functionality of this output
+  unlock_cond_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
+  feature_list_t* features;               ///< Define functionality of this output
   feature_list_t* immutable_features;  ///< Immutable Features are defined upon deployment of the UTXO state machine and
                                        ///< are not allowed to change in any future state transition
 } output_alias_t;
@@ -45,7 +45,7 @@ extern "C" {
  * @param[in] metadata Arbitrary immutable binary data attached to this alias account
  * @param[in] metadata_len Length of metadata byte array
  * @param[in] foundry_counter The counter that denotes the number of foundries created by this alias account
- * @param[in] cond_blocks Set of unlock condition blocks
+ * @param[in] cond_list Set of unlock conditions
  * @param[in] features Set of features
  * @param[in] immut_features List of immutable features
  *
@@ -53,7 +53,7 @@ extern "C" {
  */
 output_alias_t* output_alias_new(uint64_t amount, native_tokens_list_t* tokens, byte_t alias_id[], uint32_t state_index,
                                  byte_t* metadata, uint32_t metadata_len, uint32_t foundry_counter,
-                                 cond_blk_list_t* cond_blocks, feature_list_t* features,
+                                 unlock_cond_list_t* cond_list, feature_list_t* features,
                                  feature_list_t* immut_features);
 
 /**

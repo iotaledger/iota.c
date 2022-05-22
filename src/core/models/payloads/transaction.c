@@ -5,9 +5,14 @@
 #include <string.h>
 
 #include "core/models/message.h"
+#include "core/models/outputs/output_alias.h"
+#include "core/models/outputs/output_basic.h"
+#include "core/models/outputs/output_foundry.h"
+#include "core/models/outputs/output_nft.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "core/utils/macros.h"
+#include "utlist.h"
 
 transaction_essence_t* tx_essence_new(uint64_t network_id) {
   transaction_essence_t* es = malloc(sizeof(transaction_essence_t));

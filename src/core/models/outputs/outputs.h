@@ -7,10 +7,7 @@
 #include <stdint.h>
 
 #include "core/models/outputs/byte_cost_config.h"
-#include "core/models/outputs/output_alias.h"
-#include "core/models/outputs/output_basic.h"
-#include "core/models/outputs/output_foundry.h"
-#include "core/models/outputs/output_nft.h"
+#include "core/utils/byte_buffer.h"
 
 /**
  * @brief UTXO output types

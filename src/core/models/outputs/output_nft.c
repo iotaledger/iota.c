@@ -9,17 +9,17 @@
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
 
-#define MIN_NFT_CONDITION_BLOCKS_COUNT 1
-// maximum number of unlock condition blocks
-#define MAX_NFT_CONDITION_BLOCKS_COUNT 4
+#define MIN_NFT_UNLOCK_CONDITION_COUNT 1
+// maximum number of unlock conditions
+#define MAX_NFT_UNLOCK_CONDITION_COUNT 4
 // maximum number of features
 #define MAX_NFT_FEATURES_COUNT 3
 // maximum number of immutable features
 #define MAX_NFT_IMMUTABLE_FEATURES_COUNT 2
 
 output_nft_t* output_nft_new(uint64_t amount, native_tokens_list_t* tokens, byte_t nft_id[],
-                             cond_blk_list_t* cond_blocks, feature_list_t* features, feature_list_t* immut_features) {
-  if (nft_id == NULL || cond_blocks == NULL) {
+                             unlock_cond_list_t* cond_list, feature_list_t* features, feature_list_t* immut_features) {
+  if (nft_id == NULL || cond_list == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
@@ -52,8 +52,8 @@ output_nft_t* output_nft_new(uint64_t amount, native_tokens_list_t* tokens, byte
   // add nft id
   memcpy(output->nft_id, nft_id, NFT_ID_BYTES);
 
-  // add condition blocks
-  output->unlock_conditions = cond_blk_list_clone(cond_blocks);
+  // add unlock conditions
+  output->unlock_conditions = condition_list_clone(cond_list);
   if (!output->unlock_conditions) {
     printf("[%s:%d] can not add unlock conditions to NFT output\n", __func__, __LINE__);
     output_nft_free(output);
@@ -74,7 +74,7 @@ void output_nft_free(output_nft_t* output) {
     if (output->native_tokens) {
       native_tokens_free(output->native_tokens);
     }
-    cond_blk_list_free(output->unlock_conditions);
+    condition_list_free(output->unlock_conditions);
     feature_list_free(output->features);
     feature_list_free(output->immutable_features);
     free(output);
@@ -98,7 +98,7 @@ size_t output_nft_serialize_len(output_nft_t* output) {
   // NFT ID
   length += NFT_ID_BYTES;
   // unlock conditions
-  length += cond_blk_list_serialize_len(output->unlock_conditions);
+  length += condition_list_serialize_len(output->unlock_conditions);
   // features
   length += feature_list_serialize_len(output->features);
   // immutable features
@@ -137,7 +137,7 @@ size_t output_nft_serialize(output_nft_t* output, byte_t buf[], size_t buf_len) 
   offset += NFT_ID_BYTES;
 
   // unlock conditions
-  offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
+  offset += condition_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
 
   // features
   if (output->features) {
@@ -212,21 +212,21 @@ output_nft_t* output_nft_deserialize(byte_t buf[], size_t buf_len) {
   memcpy(&output->nft_id, &buf[offset], NFT_ID_BYTES);
   offset += NFT_ID_BYTES;
 
-  // unlock condition blocks
+  // unlock conditions
   uint8_t unlock_count = 0;
   memcpy(&unlock_count, &buf[offset], sizeof(uint8_t));
-  if (unlock_count > MAX_NFT_CONDITION_BLOCKS_COUNT) {
-    printf("[%s:%d] invalid unlock block count\n", __func__, __LINE__);
+  if (unlock_count > MAX_NFT_UNLOCK_CONDITION_COUNT) {
+    printf("[%s:%d] invalid unlock condition count\n", __func__, __LINE__);
     output_nft_free(output);
     return NULL;
   } else {
-    output->unlock_conditions = cond_blk_list_deserialize(buf + offset, buf_len - offset);
+    output->unlock_conditions = condition_list_deserialize(buf + offset, buf_len - offset);
     if (!output->unlock_conditions) {
       printf("[%s:%d] can not deserialize unlock conditions\n", __func__, __LINE__);
       output_nft_free(output);
       return NULL;
     }
-    offset += cond_blk_list_serialize_len(output->unlock_conditions);
+    offset += condition_list_serialize_len(output->unlock_conditions);
   }
 
   // features
@@ -290,7 +290,7 @@ output_nft_t* output_nft_clone(output_nft_t const* const output) {
     new_output->amount = output->amount;
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
     memcpy(new_output->nft_id, output->nft_id, NFT_ID_BYTES);
-    new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
+    new_output->unlock_conditions = condition_list_clone(output->unlock_conditions);
     new_output->features = feature_list_clone(output->features);
     new_output->immutable_features = feature_list_clone(output->immutable_features);
   }
@@ -314,8 +314,8 @@ void output_nft_print(output_nft_t* output, uint8_t indentation) {
   printf("%s\tNFT ID: ", PRINT_INDENTATION(indentation));
   dump_hex_str(output->nft_id, NFT_ID_BYTES);
 
-  // print unlock condition blocks
-  cond_blk_list_print(output->unlock_conditions, indentation + 1);
+  // print unlock conditions
+  condition_list_print(output->unlock_conditions, indentation + 1);
   // print features
   feature_list_print(output->features, false, indentation + 1);
   // print immutable features
@@ -341,9 +341,9 @@ bool output_nft_syntactic(output_nft_t* output) {
 
   // == Unlock condition validation ===
   // 1 <= unlock conditions count <= 4
-  if ((cond_blk_list_len(output->unlock_conditions) < MIN_NFT_CONDITION_BLOCKS_COUNT) ||
-      (cond_blk_list_len(output->unlock_conditions) > MAX_NFT_CONDITION_BLOCKS_COUNT)) {
-    printf("[%s:%d] Unlock condition count must be %d\n", __func__, __LINE__, MAX_NFT_CONDITION_BLOCKS_COUNT);
+  if ((condition_list_len(output->unlock_conditions) < MIN_NFT_UNLOCK_CONDITION_COUNT) ||
+      (condition_list_len(output->unlock_conditions) > MAX_NFT_UNLOCK_CONDITION_COUNT)) {
+    printf("[%s:%d] Unlock condition count must be %d\n", __func__, __LINE__, MAX_NFT_UNLOCK_CONDITION_COUNT);
     return false;
   }
   // Unlock Condition types:
@@ -351,19 +351,19 @@ bool output_nft_syntactic(output_nft_t* output) {
   // - Storage Deposit Unlock
   // - Timelock Unlock
   // - Expiration Unlock
-  unlock_cond_blk_t* addr_unlock = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  unlock_cond_t* addr_unlock = condition_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS);
   if (addr_unlock == NULL) {
     printf("[%s:%d] Address Unlock must be present\n", __func__, __LINE__);
     return false;
   }
-  if (cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE) ||
-      cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_GOVERNOR) ||
-      cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS)) {
+  if (condition_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE) ||
+      condition_list_get_type(output->unlock_conditions, UNLOCK_COND_GOVERNOR) ||
+      condition_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS)) {
     printf("[%s:%d] invalid unlock condition\n", __func__, __LINE__);
     return false;
   }
   // Unlock Condition must be sorted in ascending order based on their type
-  cond_blk_list_sort(&output->unlock_conditions);
+  condition_list_sort(&output->unlock_conditions);
 
   // == Feature Blocks validation ===
   // 0<= feature count <= 3
@@ -407,8 +407,8 @@ bool output_nft_syntactic(output_nft_t* output) {
   feature_list_sort(&output->immutable_features);
 
   // Address field of the Address Unlock Condition must not be the same as the NFT address derived from NFT ID
-  if (((address_t*)addr_unlock->block)->type != ADDRESS_TYPE_ED25519) {
-    if (memcmp(((address_t*)addr_unlock->block)->address, output->nft_id, NFT_ID_BYTES) == 0) {
+  if (((address_t*)addr_unlock->obj)->type != ADDRESS_TYPE_ED25519) {
+    if (memcmp(((address_t*)addr_unlock->obj)->address, output->nft_id, NFT_ID_BYTES) == 0) {
       printf("[%s:%d] Address field must not be the same as the NFT address derived from NFT ID\n", __func__, __LINE__);
       return false;
     }

@@ -4,11 +4,12 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
 
-// maximum number of unlock condition blocks
-#define MAX_FOUNDRY_CONDITION_BLOCKS_COUNT 1
+// maximum number of unlock conditions
+#define MAX_FOUNDRY_UNLOCK_CONDITION_COUNT 1
 // maximum number of features
 #define MAX_FOUNDRY_FEATURES_COUNT 1
 // maximum number of immutable features
@@ -298,20 +299,20 @@ output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_t
   output->token_scheme = token_scheme_clone(token_scheme);
 
   // create immutable alias address unlock
-  unlock_cond_blk_t* immut_unlock = cond_blk_immut_alias_new(alias);
+  unlock_cond_t* immut_unlock = condition_immut_alias_new(alias);
   if (!immut_unlock) {
     printf("[%s:%d] create an address unlock condition error\n", __func__, __LINE__);
     output_foundry_free(output);
     return NULL;
   }
   // add unlock condition to list
-  if (cond_blk_list_add(&output->unlock_conditions, immut_unlock) != 0) {
+  if (condition_list_add(&output->unlock_conditions, immut_unlock) != 0) {
     printf("[%s:%d] can not add unlock conditions to foundry output\n", __func__, __LINE__);
-    cond_blk_free(immut_unlock);
+    condition_free(immut_unlock);
     output_foundry_free(output);
     return NULL;
   }
-  cond_blk_free(immut_unlock);
+  condition_free(immut_unlock);
 
   if (meta && meta_len > 0) {
     // create metadata feature
@@ -339,7 +340,7 @@ void output_foundry_free(output_foundry_t* output) {
       native_tokens_free(output->native_tokens);
     }
     token_scheme_free(output->token_scheme);
-    cond_blk_list_free(output->unlock_conditions);
+    condition_list_free(output->unlock_conditions);
     feature_list_free(output->features);
     feature_list_free(output->immutable_features);
     free(output);
@@ -365,7 +366,7 @@ size_t output_foundry_serialize_len(output_foundry_t* output) {
   // token_scheme
   length += token_scheme_serialize_len(output->token_scheme);
   // unlock conditions
-  length += cond_blk_list_serialize_len(output->unlock_conditions);
+  length += condition_list_serialize_len(output->unlock_conditions);
   // features
   length += feature_list_serialize_len(output->features);
   // immutable features
@@ -402,8 +403,8 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
   offset += sizeof(output->serial);
   // token scheme
   offset += token_scheme_serialize(output->token_scheme, buf + offset, buf_len - offset);
-  // condition blocks
-  offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
+  // unlock conditions
+  offset += condition_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
   // features
   if (output->features) {
     offset += feature_list_serialize(&output->features, buf + offset, buf_len - offset);
@@ -483,21 +484,21 @@ output_foundry_t* output_foundry_deserialize(byte_t buf[], size_t buf_len) {
   }
   offset += token_scheme_serialize_len(output->token_scheme);
 
-  // unlock condition blocks
+  // unlock conditions
   uint8_t unlock_count = 0;
   memcpy(&unlock_count, &buf[offset], sizeof(uint8_t));
   if (unlock_count != 1) {
-    printf("[%s:%d] invalid unlock block count\n", __func__, __LINE__);
+    printf("[%s:%d] invalid unlock condition count\n", __func__, __LINE__);
     output_foundry_free(output);
     return NULL;
   } else {
-    output->unlock_conditions = cond_blk_list_deserialize(buf + offset, buf_len - offset);
+    output->unlock_conditions = condition_list_deserialize(buf + offset, buf_len - offset);
     if (!output->unlock_conditions) {
       printf("[%s:%d] can not deserialize unlock conditions\n", __func__, __LINE__);
       output_foundry_free(output);
       return NULL;
     }
-    offset += cond_blk_list_serialize_len(output->unlock_conditions);
+    offset += condition_list_serialize_len(output->unlock_conditions);
   }
 
   // features
@@ -562,7 +563,7 @@ output_foundry_t* output_foundry_clone(output_foundry_t const* const output) {
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
     new_output->serial = output->serial;
     new_output->token_scheme = token_scheme_clone(output->token_scheme);
-    new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
+    new_output->unlock_conditions = condition_list_clone(output->unlock_conditions);
     new_output->features = feature_list_clone(output->features);
     new_output->immutable_features = feature_list_clone(output->immutable_features);
   }
@@ -589,7 +590,7 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
   token_scheme_print(output->token_scheme, indentation + 1);
 
   // print unlock conditions
-  cond_blk_list_print(output->unlock_conditions, indentation + 1);
+  condition_list_print(output->unlock_conditions, indentation + 1);
   // print features
   feature_list_print(output->features, false, indentation + 1);
   // print immutable features
@@ -623,25 +624,25 @@ bool output_foundry_syntactic(output_foundry_t* output) {
 
   // == Unlock condition validation ===
   // unlock conditions count == 1
-  if (cond_blk_list_len(output->unlock_conditions) != MAX_FOUNDRY_CONDITION_BLOCKS_COUNT) {
-    printf("[%s:%d] Unlock condition count must be %d\n", __func__, __LINE__, MAX_FOUNDRY_CONDITION_BLOCKS_COUNT);
+  if (condition_list_len(output->unlock_conditions) != MAX_FOUNDRY_UNLOCK_CONDITION_COUNT) {
+    printf("[%s:%d] Unlock condition count must be %d\n", __func__, __LINE__, MAX_FOUNDRY_UNLOCK_CONDITION_COUNT);
     return false;
   }
   // Unlock Condition types:
   // - Immutable Alias Address (mandatory)
-  if (cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS) == NULL) {
+  if (condition_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS) == NULL) {
     printf("[%s:%d] Immutable Alias Address must be present\n", __func__, __LINE__);
     return false;
   }
   // Unlock Condition must be sorted in ascending order based on their type
   // must be only 1 condition, therefore we don't do sorting
-  // cond_blk_list_sort(&output->unlock_conditions);
+  // condition_list_sort(&output->unlock_conditions);
 
   // == Feature Blocks validation ===
   // 0<= feature count <= 1
   if (feature_list_len(output->features) > MAX_FOUNDRY_FEATURES_COUNT) {
     printf("[%s:%d] invalid feature count must smaller than %d\n", __func__, __LINE__,
-           MAX_FOUNDRY_CONDITION_BLOCKS_COUNT);
+           MAX_FOUNDRY_UNLOCK_CONDITION_COUNT);
     return false;
   }
   if (feature_list_len(output->features) > 0) {
@@ -660,7 +661,7 @@ bool output_foundry_syntactic(output_foundry_t* output) {
   // 0<= immutable feature count <= 1
   if (feature_list_len(output->immutable_features) > MAX_FOUNDRY_IMMUTABLE_FEATURES_COUNT) {
     printf("[%s:%d] invalid immutable feature count must smaller than %d\n", __func__, __LINE__,
-           MAX_FOUNDRY_CONDITION_BLOCKS_COUNT);
+           MAX_FOUNDRY_UNLOCK_CONDITION_COUNT);
     return false;
   }
   if (feature_list_len(output->immutable_features) > 0) {

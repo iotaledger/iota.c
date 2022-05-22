@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "core/models/outputs/output_alias.h"
+#include "core/models/outputs/output_basic.h"
+#include "core/models/outputs/output_foundry.h"
+#include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/outputs.h"
 #include "core/models/outputs/storage_deposit.h"
 #include "core/utils/macros.h"

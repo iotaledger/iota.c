@@ -4,17 +4,18 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
 
-// maximum number of unlock condition blocks
-#define MAX_BASIC_CONDITION_BLOCKS_COUNT 4
+// maximum number of unlock conditions
+#define MAX_BASIC_UNLOCK_CONDITION_COUNT 4
 // maximum number of features
 #define MAX_BASIC_FEATURES_COUNT 3
 
-output_basic_t* output_basic_new(uint64_t amount, native_tokens_list_t* tokens, cond_blk_list_t* cond_blocks,
+output_basic_t* output_basic_new(uint64_t amount, native_tokens_list_t* tokens, unlock_cond_list_t* cond_list,
                                  feature_list_t* features) {
-  if (cond_blocks == NULL) {
+  if (cond_list == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
@@ -45,8 +46,8 @@ output_basic_t* output_basic_new(uint64_t amount, native_tokens_list_t* tokens, 
     }
   }
 
-  // add condition blocks
-  output->unlock_conditions = cond_blk_list_clone(cond_blocks);
+  // add unlock conditions
+  output->unlock_conditions = condition_list_clone(cond_list);
   if (!output->unlock_conditions) {
     printf("[%s:%d] can not add unlock conditions to Basic output\n", __func__, __LINE__);
     output_basic_free(output);
@@ -64,7 +65,7 @@ void output_basic_free(output_basic_t* output) {
     if (output->native_tokens) {
       native_tokens_free(output->native_tokens);
     }
-    cond_blk_list_free(output->unlock_conditions);
+    condition_list_free(output->unlock_conditions);
     feature_list_free(output->features);
     free(output);
   }
@@ -84,7 +85,7 @@ size_t output_basic_serialize_len(output_basic_t* output) {
   // native tokens
   length += native_tokens_serialize_len(output->native_tokens);
   // unlock conditions
-  length += cond_blk_list_serialize_len(output->unlock_conditions);
+  length += condition_list_serialize_len(output->unlock_conditions);
   // features
   length += feature_list_serialize_len(output->features);
 
@@ -117,7 +118,7 @@ size_t output_basic_serialize(output_basic_t* output, byte_t buf[], size_t buf_l
   offset += native_tokens_serialize(&output->native_tokens, buf + offset, buf_len - offset);
 
   // unlock conditions
-  offset += cond_blk_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
+  offset += condition_list_serialize(&output->unlock_conditions, buf + offset, buf_len - offset);
 
   // features
   if (output->features) {
@@ -174,21 +175,21 @@ output_basic_t* output_basic_deserialize(byte_t buf[], size_t buf_len) {
   }
   offset += native_tokens_serialize_len(output->native_tokens);
 
-  // unlock condition blocks
+  // unlock unlock conditions
   uint8_t unlock_count = 0;
   memcpy(&unlock_count, &buf[offset], sizeof(uint8_t));
-  if (unlock_count == 0 || unlock_count > MAX_BASIC_CONDITION_BLOCKS_COUNT) {
-    printf("[%s:%d] invalid unlock block count\n", __func__, __LINE__);
+  if (unlock_count == 0 || unlock_count > MAX_BASIC_UNLOCK_CONDITION_COUNT) {
+    printf("[%s:%d] invalid unlock condition count\n", __func__, __LINE__);
     output_basic_free(output);
     return NULL;
   } else {
-    output->unlock_conditions = cond_blk_list_deserialize(buf + offset, buf_len - offset);
+    output->unlock_conditions = condition_list_deserialize(buf + offset, buf_len - offset);
     if (!output->unlock_conditions) {
       printf("[%s:%d] can not deserialize unlock conditions\n", __func__, __LINE__);
       output_basic_free(output);
       return NULL;
     }
-    offset += cond_blk_list_serialize_len(output->unlock_conditions);
+    offset += condition_list_serialize_len(output->unlock_conditions);
   }
 
   // features
@@ -227,7 +228,7 @@ output_basic_t* output_basic_clone(output_basic_t const* const output) {
   if (new_output) {
     new_output->amount = output->amount;
     new_output->native_tokens = native_tokens_clone(output->native_tokens);
-    new_output->unlock_conditions = cond_blk_list_clone(output->unlock_conditions);
+    new_output->unlock_conditions = condition_list_clone(output->unlock_conditions);
     new_output->features = feature_list_clone(output->features);
   }
 
@@ -245,8 +246,8 @@ void output_basic_print(output_basic_t* output, uint8_t indentation) {
 
   // print native tokens
   native_tokens_print(output->native_tokens, indentation + 1);
-  // print unlock condition blocks
-  cond_blk_list_print(output->unlock_conditions, indentation + 1);
+  // print unlock conditions
+  condition_list_print(output->unlock_conditions, indentation + 1);
   // print features
   feature_list_print(output->features, false, indentation + 1);
 
@@ -269,8 +270,8 @@ bool output_basic_syntactic(output_basic_t* output) {
   }
 
   // 1<= unlock conditions count <=4
-  if (cond_blk_list_len(output->unlock_conditions) == 0 ||
-      cond_blk_list_len(output->unlock_conditions) > MAX_BASIC_CONDITION_BLOCKS_COUNT) {
+  if (condition_list_len(output->unlock_conditions) == 0 ||
+      condition_list_len(output->unlock_conditions) > MAX_BASIC_UNLOCK_CONDITION_COUNT) {
     printf("[%s:%d] invalid unlock condition count\n", __func__, __LINE__);
     return false;
   }
@@ -280,23 +281,23 @@ bool output_basic_syntactic(output_basic_t* output) {
   // - Storage Deposit Return Unlock
   // - Timelock Unlock
   // - Expiration Unlock
-  if (cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS) == NULL) {
+  if (condition_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS) == NULL) {
     printf("[%s:%d] Address unlock condition must be present\n", __func__, __LINE__);
     return false;
   }
-  if (cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE) ||
-      cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_GOVERNOR) ||
-      cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS)) {
+  if (condition_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE) ||
+      condition_list_get_type(output->unlock_conditions, UNLOCK_COND_GOVERNOR) ||
+      condition_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS)) {
     printf("[%s:%d] invalid unlock condition type\n", __func__, __LINE__);
     return false;
   }
 
   // Unlock Condition must be sorted in ascending order based on their type
-  cond_blk_list_sort(&output->unlock_conditions);
+  condition_list_sort(&output->unlock_conditions);
 
   // 0<= feature count <= 3
   if (feature_list_len(output->features) > MAX_BASIC_FEATURES_COUNT) {
-    printf("[%s:%d] feature count must smaller than %d\n", __func__, __LINE__, MAX_BASIC_CONDITION_BLOCKS_COUNT);
+    printf("[%s:%d] feature count must smaller than %d\n", __func__, __LINE__, MAX_BASIC_UNLOCK_CONDITION_COUNT);
     return false;
   }
 
