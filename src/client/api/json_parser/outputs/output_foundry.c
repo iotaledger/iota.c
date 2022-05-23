@@ -42,7 +42,7 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MINTED_TOKENS);
       return -1;
     }
-    mintedt_tokens = uint256_from_str(temp_str);
+    mintedt_tokens = uint256_from_hex_str(temp_str);
 
     // melted tokens
     memset(temp_str, 0, STRING_NUMBER_MAX_CHARACTERS);
@@ -52,7 +52,7 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
       uint256_free(mintedt_tokens);
       return -1;
     }
-    melted_tokens = uint256_from_str(temp_str);
+    melted_tokens = uint256_from_hex_str(temp_str);
 
     // maximum supply
     memset(temp_str, 0, STRING_NUMBER_MAX_CHARACTERS);
@@ -63,7 +63,7 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
       uint256_free(melted_tokens);
       return -1;
     }
-    max_supply = uint256_from_str(temp_str);
+    max_supply = uint256_from_hex_str(temp_str);
 
     *token_scheme = token_scheme_simple_new(mintedt_tokens, melted_tokens, max_supply);
     if (!*token_scheme) {

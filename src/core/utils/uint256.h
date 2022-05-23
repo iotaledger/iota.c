@@ -34,6 +34,14 @@ extern "C" {
 uint256_t *uint256_from_str(char const *str);
 
 /**
+ * @brief New uint256 object from hex c_string representing a 256 bit number.
+ *
+ * @param[in] str A hex c_string representing a 256 bit number.
+ * @return uint256_t* Pointer to uint256 object, NULL on failed.
+ */
+uint256_t *uint256_from_hex_str(char const *str);
+
+/**
  * @brief Perform addition on two uint256 numbers.
  *
  * @param[out] sum The sum of two numbers.

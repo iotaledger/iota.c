@@ -225,27 +225,27 @@ void token_scheme_print(token_scheme_t* scheme, uint8_t indentation) {
 
   // Currently only simple token scheme is supported
   if (scheme->type == SIMPLE_TOKEN_SCHEME) {
-    printf("%s\tType: [%d]\n", PRINT_INDENTATION(indentation), SIMPLE_TOKEN_SCHEME);
+    printf("%s\tType: %d\n", PRINT_INDENTATION(indentation), SIMPLE_TOKEN_SCHEME);
     token_scheme_simple_t* simple_scheme = scheme->token_scheme;
     // print minted tokens
     char* minted_token_str;
     minted_token_str = uint256_to_str(&simple_scheme->minted_tokens);
     if (minted_token_str != NULL) {
-      printf("%s\tMinted Tokens: [%s]\n", PRINT_INDENTATION(indentation), minted_token_str);
+      printf("%s\tMinted Tokens: %s\n", PRINT_INDENTATION(indentation), minted_token_str);
       free(minted_token_str);
     }
     // print melted tokens
     char* melted_token_str;
     melted_token_str = uint256_to_str(&simple_scheme->melted_tokens);
     if (melted_token_str != NULL) {
-      printf("%s\tMelted Tokens: [%s]\n", PRINT_INDENTATION(indentation), melted_token_str);
+      printf("%s\tMelted Tokens: %s\n", PRINT_INDENTATION(indentation), melted_token_str);
       free(melted_token_str);
     }
     // print maximum supply
     char* max_supply_str;
     max_supply_str = uint256_to_str(&simple_scheme->max_supply);
     if (max_supply_str != NULL) {
-      printf("%s\tMaximum Supply: [%s]\n", PRINT_INDENTATION(indentation), max_supply_str);
+      printf("%s\tMaximum Supply: %s\n", PRINT_INDENTATION(indentation), max_supply_str);
       free(max_supply_str);
     }
   }
@@ -586,7 +586,9 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
   printf("%s\tSerial Number: %" PRIu32 "\n", PRINT_INDENTATION(indentation), output->serial);
 
   // print token scheme
+  printf("%s\tToken Scheme: [\n", PRINT_INDENTATION(indentation));
   token_scheme_print(output->token_scheme, indentation + 1);
+  printf("%s\t]\n", PRINT_INDENTATION(indentation));
 
   // print unlock conditions
   cond_blk_list_print(output->unlock_conditions, indentation + 1);
