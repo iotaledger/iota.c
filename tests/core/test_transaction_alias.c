@@ -109,15 +109,15 @@ void test_tx_alias_unlock_funds() {
 
   // sign transaction (generate unlock blocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data_list,
-                                       &tx->unlock_blocks) == 0);
+                                       &tx->unlocks) == 0);
 
   // validate unlock blocks
-  TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(tx->unlock_blocks));
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(tx->unlocks));
 
-  unlock_t* unlock = unlock_list_get(tx->unlock_blocks, 0);
+  unlock_t* unlock = unlock_list_get(tx->unlocks, 0);
   TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
-  unlock = unlock_list_get(tx->unlock_blocks, 1);
+  unlock = unlock_list_get(tx->unlocks, 1);
   TEST_ASSERT(unlock->type == UNLOCK_ALIAS_TYPE);
 
   // print core message transaction

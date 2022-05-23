@@ -37,7 +37,7 @@ typedef struct {
 /**
  * @brief A Transaction payload is made up of two parts:
  * 1. The The Transaction Essence part which contains the inputs, outputs and an optional embedded payload.
- * 2. The Unlock Blocks which unlock the Transaction Essence's inputs. In case the unlock block contains a signature, it
+ * 2. The Unlock Blocks which unlock the Transaction Essence's inputs. In case the unlock contains a signature, it
  * signs the entire Transaction Essence part.
  *
  */
@@ -45,7 +45,7 @@ typedef struct {
   uint32_t type;                   ///< Set to value 6 to denote a Transaction payload.
   transaction_essence_t* essence;  ///< Describes the essence data making up a transaction by defining its inputs and
                                    ///< outputs and an optional payload.
-  unlock_list_t* unlock_blocks;    ///< Defines a list of unlock blocks (signature, reference, alias, NFT) which unlock
+  unlock_list_t* unlocks;          ///< Defines a list of unlocks (signature, reference, alias, NFT) which unlock
                                    ///< the inputs of the transaction essence.
 } transaction_payload_t;
 

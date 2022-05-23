@@ -127,12 +127,12 @@ void test_sign_nft_tx_with_basic_input() {
 
   // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx_payload->essence->inputs, sign_data_list,
-                                       &tx_payload->unlock_blocks) == 0);
+                                       &tx_payload->unlocks) == 0);
 
   // validate unlocks
-  TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx_payload->unlock_blocks));
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx_payload->unlocks));
 
-  unlock_t* unlock = unlock_list_get(tx_payload->unlock_blocks, 0);
+  unlock_t* unlock = unlock_list_get(tx_payload->unlocks, 0);
   TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
   core_message_print(msg, 0);
@@ -240,12 +240,12 @@ void test_sign_nft_tx_with_nft_input() {
 
   // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx_payload->essence->inputs, sign_data_list,
-                                       &tx_payload->unlock_blocks) == 0);
+                                       &tx_payload->unlocks) == 0);
 
   // validate unlocks
-  TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx_payload->unlock_blocks));
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx_payload->unlocks));
 
-  unlock_t* unlock = unlock_list_get(tx_payload->unlock_blocks, 0);
+  unlock_t* unlock = unlock_list_get(tx_payload->unlocks, 0);
   TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
   core_message_print(msg, 0);
@@ -362,15 +362,15 @@ void test_sign_nft_tx_with_nft_and_basic_input() {
 
   // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx_payload->essence->inputs, sign_data_list,
-                                       &tx_payload->unlock_blocks) == 0);
+                                       &tx_payload->unlocks) == 0);
 
   // validate unlocks
-  TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(tx_payload->unlock_blocks));
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(tx_payload->unlocks));
 
-  unlock_t* unlock = unlock_list_get(tx_payload->unlock_blocks, 0);
+  unlock_t* unlock = unlock_list_get(tx_payload->unlocks, 0);
   TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
-  unlock = unlock_list_get(tx_payload->unlock_blocks, 1);
+  unlock = unlock_list_get(tx_payload->unlocks, 1);
   TEST_ASSERT(unlock->type == UNLOCK_NFT_TYPE);
 
   core_message_print(msg, 0);

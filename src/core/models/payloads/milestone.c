@@ -4,7 +4,6 @@
 #include "core/models/payloads/milestone.h"
 #include "core/constants.h"
 #include "core/models/message.h"
-#include "core/models/unlock_block.h"
 #include "core/utils/macros.h"
 #include "utlist.h"
 

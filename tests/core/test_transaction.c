@@ -524,20 +524,20 @@ void test_tx_payload() {
   sig[0] = 0;  // denotes ed25519 signature
   memcpy(sig + 1, test_pub_key, ED_PUBLIC_KEY_BYTES);
   memcpy(sig + (1 + ED_PUBLIC_KEY_BYTES), test_sig, ED_SIGNATURE_BYTES);
-  unlock_list_add_signature(&tx_payload->unlock_blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);
-  TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx_payload->unlock_blocks));
+  unlock_list_add_signature(&tx_payload->unlocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx_payload->unlocks));
 
   // add a reference unlock that reference to the 0 index of unlock list.
-  unlock_list_add_reference(&tx_payload->unlock_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(tx_payload->unlock_blocks));
+  unlock_list_add_reference(&tx_payload->unlocks, 0);
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(tx_payload->unlocks));
 
   // add an alias unlock that reference to the 0 index of unlock list.
-  unlock_list_add_alias(&tx_payload->unlock_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT16(3, unlock_list_count(tx_payload->unlock_blocks));
+  unlock_list_add_alias(&tx_payload->unlocks, 0);
+  TEST_ASSERT_EQUAL_UINT16(3, unlock_list_count(tx_payload->unlocks));
 
   // add a NFT unlock that reference to the 0 index of unlock list.
-  unlock_list_add_nft(&tx_payload->unlock_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT16(4, unlock_list_count(tx_payload->unlock_blocks));
+  unlock_list_add_nft(&tx_payload->unlocks, 0);
+  TEST_ASSERT_EQUAL_UINT16(4, unlock_list_count(tx_payload->unlocks));
 
   // Syntactic validation
   byte_cost_config_t* cost = byte_cost_config_default_new();
