@@ -2,17 +2,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <stdio.h>
+#include <string.h>
 #include <unity/unity.h>
 
 #include "core/models/inputs/utxo_input.h"
+#include "core/models/message.h"
 #include "core/models/outputs/output_alias.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/output_nft.h"
-#include "core/models/outputs/outputs.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
-#include "core/models/unlock_block.h"
 
 #define DATA_LEN 128
 char const* const tag_str = "HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD, HELLO WORLD";
@@ -75,13 +75,13 @@ static output_basic_t* create_output_basic() {
   native_tokens_add(&native_tokens, token_id3, amount3);
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = feat_blk_list_new();
-  feat_blk_list_add_sender(&feat_blocks, &addr);
+  feature_list_t* feat_blocks = feature_list_new();
+  feature_list_add_sender(&feat_blocks, &addr);
 
   // create Unlock Conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&addr);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
+  unlock_cond_list_t* unlock_conds = condition_list_new();
+  unlock_cond_t* unlock_addr = condition_addr_new(&addr);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_addr) == 0);
 
   // create Basic Output
   output_basic_t* output = output_basic_new(123456789, native_tokens, unlock_conds, feat_blocks);
@@ -91,9 +91,9 @@ static output_basic_t* create_output_basic() {
   uint256_free(amount2);
   uint256_free(amount3);
   native_tokens_free(native_tokens);
-  feat_blk_list_free(feat_blocks);
-  cond_blk_free(unlock_addr);
-  cond_blk_list_free(unlock_conds);
+  feature_list_free(feat_blocks);
+  condition_free(unlock_addr);
+  condition_list_free(unlock_conds);
 
   return output;
 }
@@ -112,24 +112,24 @@ static output_alias_t* create_output_alias() {
   iota_crypto_randombytes(alias_id, ALIAS_ID_BYTES);
 
   // create unlock conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
+  unlock_cond_list_t* unlock_conds = condition_list_new();
   // random state controller address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
   iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
-  unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
+  unlock_cond_t* state_block = condition_state_new(&test_addr);
   TEST_ASSERT_NOT_NULL(state_block);
   // random governor address
   iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
-  unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
+  unlock_cond_t* gov_block = condition_governor_new(&test_addr);
   TEST_ASSERT_NOT_NULL(gov_block);
 
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, gov_block) == 0);
+  TEST_ASSERT(condition_list_add(&unlock_conds, state_block) == 0);
+  TEST_ASSERT(condition_list_add(&unlock_conds, gov_block) == 0);
 
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = feat_blk_list_new();
-  TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
+  feature_list_t* feat_blocks = feature_list_new();
+  TEST_ASSERT(feature_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
 
   // create random issuer address
   address_t issuer_addr = {};
@@ -137,9 +137,9 @@ static output_alias_t* create_output_alias() {
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
-  feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
-  TEST_ASSERT(feat_blk_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
-  TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
+  feature_list_t* immut_feat_blocks = feature_list_new();
+  TEST_ASSERT(feature_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
+  TEST_ASSERT(feature_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
 
   // create alias Output
   output_alias_t* output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta),
@@ -150,12 +150,12 @@ static output_alias_t* create_output_alias() {
   uint256_free(amount1);
   uint256_free(amount2);
   uint256_free(amount3);
-  cond_blk_free(state_block);
-  cond_blk_free(gov_block);
+  condition_free(state_block);
+  condition_free(gov_block);
   native_tokens_free(native_tokens);
-  cond_blk_list_free(unlock_conds);
-  feat_blk_list_free(feat_blocks);
-  feat_blk_list_free(immut_feat_blocks);
+  condition_list_free(unlock_conds);
+  feature_list_free(feat_blocks);
+  feature_list_free(immut_feat_blocks);
 
   return output;
 }
@@ -220,10 +220,10 @@ static output_nft_t* create_output_nft() {
   iota_crypto_randombytes(nft_id, NFT_ID_BYTES);
 
   // create Unlock Conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&addr);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  cond_blk_free(unlock_addr);
+  unlock_cond_list_t* unlock_conds = condition_list_new();
+  unlock_cond_t* unlock_addr = condition_addr_new(&addr);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_addr) == 0);
+  condition_free(unlock_addr);
 
   // create random sender address
   address_t sender_addr = {};
@@ -234,13 +234,13 @@ static output_nft_t* create_output_nft() {
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
   // create Feature Blocks
-  feat_blk_list_t* feat_blocks = feat_blk_list_new();
-  TEST_ASSERT(feat_blk_list_add_sender(&feat_blocks, &sender_addr) == 0);
-  TEST_ASSERT(feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
+  feature_list_t* feat_blocks = feature_list_new();
+  TEST_ASSERT(feature_list_add_sender(&feat_blocks, &sender_addr) == 0);
+  TEST_ASSERT(feature_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
   // create Immutable Feature Blocks
-  feat_blk_list_t* immut_feat_blocks = feat_blk_list_new();
-  TEST_ASSERT(feat_blk_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
-  TEST_ASSERT(feat_blk_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
+  feature_list_t* immut_feat_blocks = feature_list_new();
+  TEST_ASSERT(feature_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
+  TEST_ASSERT(feature_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
 
   // create NFT Output
   output_nft_t* output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
@@ -250,9 +250,9 @@ static output_nft_t* create_output_nft() {
   uint256_free(amount2);
   uint256_free(amount3);
   native_tokens_free(native_tokens);
-  cond_blk_list_free(unlock_conds);
-  feat_blk_list_free(feat_blocks);
-  feat_blk_list_free(immut_feat_blocks);
+  condition_list_free(unlock_conds);
+  feature_list_free(feat_blocks);
+  feature_list_free(immut_feat_blocks);
 
   return output;
 }
@@ -382,10 +382,9 @@ void test_tx_essence() {
   TEST_ASSERT_EQUAL_UINT64(basic_output->amount, basic_from_deser->amount);
   TEST_ASSERT_EQUAL_UINT8(native_tokens_count(basic_output->native_tokens),
                           native_tokens_count(basic_from_deser->native_tokens));
-  TEST_ASSERT_EQUAL_UINT8(cond_blk_list_len(basic_output->unlock_conditions),
-                          cond_blk_list_len(basic_from_deser->unlock_conditions));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(basic_output->feature_blocks),
-                          feat_blk_list_len(basic_from_deser->feature_blocks));
+  TEST_ASSERT_EQUAL_UINT8(condition_list_len(basic_output->unlock_conditions),
+                          condition_list_len(basic_from_deser->unlock_conditions));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(basic_output->features), feature_list_len(basic_from_deser->features));
 
   // check deserialized Alias output
   output_from_deser = utxo_outputs_get(deser_es->outputs, 1);
@@ -400,12 +399,11 @@ void test_tx_essence() {
   TEST_ASSERT_EQUAL_MEMORY(alias_output->state_metadata->data, alias_from_deser->state_metadata->data,
                            alias_output->state_metadata->len);
   TEST_ASSERT_EQUAL_UINT32(alias_output->foundry_counter, alias_from_deser->foundry_counter);
-  TEST_ASSERT_EQUAL_UINT8(cond_blk_list_len(alias_output->unlock_conditions),
-                          cond_blk_list_len(alias_from_deser->unlock_conditions));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(alias_output->feature_blocks),
-                          feat_blk_list_len(alias_from_deser->feature_blocks));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(alias_output->immutable_blocks),
-                          feat_blk_list_len(alias_from_deser->immutable_blocks));
+  TEST_ASSERT_EQUAL_UINT8(condition_list_len(alias_output->unlock_conditions),
+                          condition_list_len(alias_from_deser->unlock_conditions));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(alias_output->features), feature_list_len(alias_from_deser->features));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(alias_output->immutable_features),
+                          feature_list_len(alias_from_deser->immutable_features));
 
   // check deserialized Foundry output
   output_from_deser = utxo_outputs_get(deser_es->outputs, 2);
@@ -423,12 +421,11 @@ void test_tx_essence() {
   TEST_ASSERT_EQUAL_MEMORY(&simple_scheme->minted_tokens, &simple_scheme_deser->minted_tokens, sizeof(uint256_t));
   TEST_ASSERT_EQUAL_MEMORY(&simple_scheme->melted_tokens, &simple_scheme_deser->melted_tokens, sizeof(uint256_t));
   TEST_ASSERT_EQUAL_MEMORY(&simple_scheme->max_supply, &simple_scheme_deser->max_supply, sizeof(uint256_t));
-  TEST_ASSERT_EQUAL_UINT8(cond_blk_list_len(foundry_output->unlock_conditions),
-                          cond_blk_list_len(foundry_from_deser->unlock_conditions));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(foundry_output->feature_blocks),
-                          feat_blk_list_len(foundry_from_deser->feature_blocks));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(foundry_output->immutable_blocks),
-                          feat_blk_list_len(foundry_from_deser->immutable_blocks));
+  TEST_ASSERT_EQUAL_UINT8(condition_list_len(foundry_output->unlock_conditions),
+                          condition_list_len(foundry_from_deser->unlock_conditions));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(foundry_output->features), feature_list_len(foundry_from_deser->features));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(foundry_output->immutable_features),
+                          feature_list_len(foundry_from_deser->immutable_features));
 
   // check deserialized NFT output
   output_from_deser = utxo_outputs_get(deser_es->outputs, 3);
@@ -438,12 +435,11 @@ void test_tx_essence() {
   TEST_ASSERT_EQUAL_UINT8(native_tokens_count(nft_output->native_tokens),
                           native_tokens_count(nft_from_deser->native_tokens));
   TEST_ASSERT_EQUAL_MEMORY(nft_output->nft_id, nft_from_deser->nft_id, NFT_ID_BYTES);
-  TEST_ASSERT_EQUAL_UINT8(cond_blk_list_len(nft_output->unlock_conditions),
-                          cond_blk_list_len(nft_from_deser->unlock_conditions));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(nft_output->feature_blocks),
-                          feat_blk_list_len(nft_from_deser->feature_blocks));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(nft_output->immutable_blocks),
-                          feat_blk_list_len(nft_from_deser->immutable_blocks));
+  TEST_ASSERT_EQUAL_UINT8(condition_list_len(nft_output->unlock_conditions),
+                          condition_list_len(nft_from_deser->unlock_conditions));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(nft_output->features), feature_list_len(nft_from_deser->features));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(nft_output->immutable_features),
+                          feature_list_len(nft_from_deser->immutable_features));
 
   // Syntactic validation
   cost = byte_cost_config_default_new();
@@ -607,10 +603,9 @@ void test_tx_payload() {
   TEST_ASSERT_EQUAL_UINT64(basic_output->amount, basic_from_deser->amount);
   TEST_ASSERT_EQUAL_UINT8(native_tokens_count(basic_output->native_tokens),
                           native_tokens_count(basic_from_deser->native_tokens));
-  TEST_ASSERT_EQUAL_UINT8(cond_blk_list_len(basic_output->unlock_conditions),
-                          cond_blk_list_len(basic_from_deser->unlock_conditions));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(basic_output->feature_blocks),
-                          feat_blk_list_len(basic_from_deser->feature_blocks));
+  TEST_ASSERT_EQUAL_UINT8(condition_list_len(basic_output->unlock_conditions),
+                          condition_list_len(basic_from_deser->unlock_conditions));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(basic_output->features), feature_list_len(basic_from_deser->features));
 
   // check deserialized Alias output
   output_from_deser = utxo_outputs_get(deser_tx_payload->essence->outputs, 1);
@@ -625,12 +620,11 @@ void test_tx_payload() {
   TEST_ASSERT_EQUAL_MEMORY(alias_output->state_metadata->data, alias_from_deser->state_metadata->data,
                            alias_output->state_metadata->len);
   TEST_ASSERT_EQUAL_UINT32(alias_output->foundry_counter, alias_from_deser->foundry_counter);
-  TEST_ASSERT_EQUAL_UINT8(cond_blk_list_len(alias_output->unlock_conditions),
-                          cond_blk_list_len(alias_from_deser->unlock_conditions));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(alias_output->feature_blocks),
-                          feat_blk_list_len(alias_from_deser->feature_blocks));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(alias_output->immutable_blocks),
-                          feat_blk_list_len(alias_from_deser->immutable_blocks));
+  TEST_ASSERT_EQUAL_UINT8(condition_list_len(alias_output->unlock_conditions),
+                          condition_list_len(alias_from_deser->unlock_conditions));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(alias_output->features), feature_list_len(alias_from_deser->features));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(alias_output->immutable_features),
+                          feature_list_len(alias_from_deser->immutable_features));
 
   // check deserialized Foundry output
   output_from_deser = utxo_outputs_get(deser_tx_payload->essence->outputs, 2);
@@ -648,12 +642,11 @@ void test_tx_payload() {
   TEST_ASSERT_EQUAL_MEMORY(&simple_scheme->minted_tokens, &simple_scheme_deser->minted_tokens, sizeof(uint256_t));
   TEST_ASSERT_EQUAL_MEMORY(&simple_scheme->melted_tokens, &simple_scheme_deser->melted_tokens, sizeof(uint256_t));
   TEST_ASSERT_EQUAL_MEMORY(&simple_scheme->max_supply, &simple_scheme_deser->max_supply, sizeof(uint256_t));
-  TEST_ASSERT_EQUAL_UINT8(cond_blk_list_len(foundry_output->unlock_conditions),
-                          cond_blk_list_len(foundry_from_deser->unlock_conditions));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(foundry_output->feature_blocks),
-                          feat_blk_list_len(foundry_from_deser->feature_blocks));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(foundry_output->immutable_blocks),
-                          feat_blk_list_len(foundry_from_deser->immutable_blocks));
+  TEST_ASSERT_EQUAL_UINT8(condition_list_len(foundry_output->unlock_conditions),
+                          condition_list_len(foundry_from_deser->unlock_conditions));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(foundry_output->features), feature_list_len(foundry_from_deser->features));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(foundry_output->immutable_features),
+                          feature_list_len(foundry_from_deser->immutable_features));
 
   // check deserialized NFT output
   output_from_deser = utxo_outputs_get(deser_tx_payload->essence->outputs, 3);
@@ -663,12 +656,11 @@ void test_tx_payload() {
   TEST_ASSERT_EQUAL_UINT8(native_tokens_count(nft_output->native_tokens),
                           native_tokens_count(nft_from_deser->native_tokens));
   TEST_ASSERT_EQUAL_MEMORY(nft_output->nft_id, nft_from_deser->nft_id, NFT_ID_BYTES);
-  TEST_ASSERT_EQUAL_UINT8(cond_blk_list_len(nft_output->unlock_conditions),
-                          cond_blk_list_len(nft_from_deser->unlock_conditions));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(nft_output->feature_blocks),
-                          feat_blk_list_len(nft_from_deser->feature_blocks));
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(nft_output->immutable_blocks),
-                          feat_blk_list_len(nft_from_deser->immutable_blocks));
+  TEST_ASSERT_EQUAL_UINT8(condition_list_len(nft_output->unlock_conditions),
+                          condition_list_len(nft_from_deser->unlock_conditions));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(nft_output->features), feature_list_len(nft_from_deser->features));
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(nft_output->immutable_features),
+                          feature_list_len(nft_from_deser->immutable_features));
 
   cost = byte_cost_config_default_new();
   TEST_ASSERT_TRUE(tx_payload_syntactic(deser_tx_payload, cost));

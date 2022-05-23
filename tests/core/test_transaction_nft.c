@@ -4,6 +4,9 @@
 #include <stdio.h>
 
 #include "core/models/message.h"
+#include "core/models/outputs/output_basic.h"
+#include "core/models/outputs/output_nft.h"
+#include "core/models/outputs/unlock_conditions.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"
 #include "unity/unity.h"
@@ -61,9 +64,9 @@ void test_sign_nft_tx_with_basic_input() {
 
   // create a basic output. This data is in real scenario is fetched from a node.
   // create ED25519 address unlock condition for basic output
-  cond_blk_list_t* basic_unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* basic_unlock_addr = cond_blk_addr_new(&addr_send);
-  TEST_ASSERT(cond_blk_list_add(&basic_unlock_conds, basic_unlock_addr) == 0);
+  unlock_cond_list_t* basic_unlock_conds = condition_list_new();
+  unlock_cond_t* basic_unlock_addr = condition_addr_new(&addr_send);
+  TEST_ASSERT(condition_list_add(&basic_unlock_conds, basic_unlock_addr) == 0);
   // create output (Will be used for inputs commitment calculation)
   output_basic_t* unspent_basic_output = output_basic_new(3000000, NULL, basic_unlock_conds, NULL);
   TEST_ASSERT_NOT_NULL(unspent_basic_output);
@@ -86,9 +89,9 @@ void test_sign_nft_tx_with_basic_input() {
   byte_t nft_id[NFT_ID_BYTES] = {0};
 
   // create ED25519 address unlock condition for nft output
-  cond_blk_list_t* nft_unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* nft_unlock_addr = cond_blk_addr_new(&addr_recv);
-  TEST_ASSERT(cond_blk_list_add(&nft_unlock_conds, nft_unlock_addr) == 0);
+  unlock_cond_list_t* nft_unlock_conds = condition_list_new();
+  unlock_cond_t* nft_unlock_addr = condition_addr_new(&addr_recv);
+  TEST_ASSERT(condition_list_add(&nft_unlock_conds, nft_unlock_addr) == 0);
 
   // create NFT Output with amount 1000000
   output_nft_t* nft_output = output_nft_new(1000000, NULL, nft_id, nft_unlock_conds, NULL, NULL);
@@ -135,10 +138,10 @@ void test_sign_nft_tx_with_basic_input() {
   core_message_print(msg, 0);
 
   signing_free(sign_data_list);
-  cond_blk_free(nft_unlock_addr);
-  cond_blk_list_free(nft_unlock_conds);
-  cond_blk_free(basic_unlock_addr);
-  cond_blk_list_free(basic_unlock_conds);
+  condition_free(nft_unlock_addr);
+  condition_list_free(nft_unlock_conds);
+  condition_free(basic_unlock_addr);
+  condition_list_free(basic_unlock_conds);
   utxo_outputs_free(unspent_outputs);
   output_nft_free(nft_output);
   output_basic_free(unspent_basic_output);
@@ -176,9 +179,9 @@ void test_sign_nft_tx_with_nft_input() {
 
   // create an NFT output. This data is in real scenario is fetched from a node.
   // create ED25519 address unlock condition for NFT output
-  cond_blk_list_t* nft_unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* nft_unlock_addr = cond_blk_addr_new(&addr_send);
-  TEST_ASSERT(cond_blk_list_add(&nft_unlock_conds, nft_unlock_addr) == 0);
+  unlock_cond_list_t* nft_unlock_conds = condition_list_new();
+  unlock_cond_t* nft_unlock_addr = condition_addr_new(&addr_send);
+  TEST_ASSERT(condition_list_add(&nft_unlock_conds, nft_unlock_addr) == 0);
   // create output (Will be used for inputs commitment calculation)
   output_nft_t* unspent_nft_output =
       output_nft_new(1000000, NULL, input_nft_addr.address, nft_unlock_conds, NULL, NULL);
@@ -206,9 +209,9 @@ void test_sign_nft_tx_with_nft_input() {
   memcpy(nft_addr.address, nft_id, NFT_ID_BYTES);
 
   // create ed25519 address unlock condition for nft output
-  cond_blk_list_t* nft_output_unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* nft_output_unlock_addr = cond_blk_addr_new(&addr_recv);
-  TEST_ASSERT(cond_blk_list_add(&nft_output_unlock_conds, nft_output_unlock_addr) == 0);
+  unlock_cond_list_t* nft_output_unlock_conds = condition_list_new();
+  unlock_cond_t* nft_output_unlock_addr = condition_addr_new(&addr_recv);
+  TEST_ASSERT(condition_list_add(&nft_output_unlock_conds, nft_output_unlock_addr) == 0);
 
   // create NFT Output with amount 1000000
   output_nft_t* nft_output = output_nft_new(1000000, NULL, nft_addr.address, nft_output_unlock_conds, NULL, NULL);
@@ -248,10 +251,10 @@ void test_sign_nft_tx_with_nft_input() {
   core_message_print(msg, 0);
 
   signing_free(sign_data_list);
-  cond_blk_free(nft_unlock_addr);
-  cond_blk_list_free(nft_unlock_conds);
-  cond_blk_free(nft_output_unlock_addr);
-  cond_blk_list_free(nft_output_unlock_conds);
+  condition_free(nft_unlock_addr);
+  condition_list_free(nft_unlock_conds);
+  condition_free(nft_output_unlock_addr);
+  condition_list_free(nft_output_unlock_conds);
   utxo_outputs_free(unspent_outputs);
   output_nft_free(unspent_nft_output);
   output_nft_free(nft_output);
@@ -289,18 +292,18 @@ void test_sign_nft_tx_with_nft_and_basic_input() {
 
   // create an NFT output. This data is in real scenario is fetched from a node.
   // create ED25519 address unlock condition for basic output
-  cond_blk_list_t* nft_unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* nft_unlock_addr = cond_blk_addr_new(&addr_send);
-  TEST_ASSERT(cond_blk_list_add(&nft_unlock_conds, nft_unlock_addr) == 0);
+  unlock_cond_list_t* nft_unlock_conds = condition_list_new();
+  unlock_cond_t* nft_unlock_addr = condition_addr_new(&addr_send);
+  TEST_ASSERT(condition_list_add(&nft_unlock_conds, nft_unlock_addr) == 0);
   // create output (Will be used for inputs commitment calculation)
   output_nft_t* unspent_nft_output = output_nft_new(1000000, NULL, nft_addr.address, nft_unlock_conds, NULL, NULL);
   TEST_ASSERT_NOT_NULL(unspent_nft_output);
 
   // create a basic output. This data is in real scenario is fetched from a node.
   // create NFT address unlock condition for basic output
-  cond_blk_list_t* basic_unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* basic_unlock_addr = cond_blk_addr_new(&nft_addr);
-  TEST_ASSERT(cond_blk_list_add(&basic_unlock_conds, basic_unlock_addr) == 0);
+  unlock_cond_list_t* basic_unlock_conds = condition_list_new();
+  unlock_cond_t* basic_unlock_addr = condition_addr_new(&nft_addr);
+  TEST_ASSERT(condition_list_add(&basic_unlock_conds, basic_unlock_addr) == 0);
   // create output (Will be used for inputs commitment calculation)
   output_basic_t* unspent_basic_output = output_basic_new(1000000, NULL, basic_unlock_conds, NULL);
   TEST_ASSERT_NOT_NULL(unspent_basic_output);
@@ -328,9 +331,9 @@ void test_sign_nft_tx_with_nft_and_basic_input() {
 
   // create nft output
   // create ED25519 address unlock condition for nft output
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&addr_recv);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
+  unlock_cond_list_t* unlock_conds = condition_list_new();
+  unlock_cond_t* unlock_addr = condition_addr_new(&addr_recv);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_addr) == 0);
 
   // create NFT Output with amount 2000000
   output_nft_t* nft_output = output_nft_new(2000000, NULL, nft_addr.address, unlock_conds, NULL, NULL);
@@ -373,12 +376,12 @@ void test_sign_nft_tx_with_nft_and_basic_input() {
   core_message_print(msg, 0);
 
   signing_free(sign_data_list);
-  cond_blk_free(nft_unlock_addr);
-  cond_blk_list_free(nft_unlock_conds);
-  cond_blk_free(basic_unlock_addr);
-  cond_blk_list_free(basic_unlock_conds);
-  cond_blk_free(unlock_addr);
-  cond_blk_list_free(unlock_conds);
+  condition_free(nft_unlock_addr);
+  condition_list_free(nft_unlock_conds);
+  condition_free(basic_unlock_addr);
+  condition_list_free(basic_unlock_conds);
+  condition_free(unlock_addr);
+  condition_list_free(unlock_conds);
   utxo_outputs_free(unspent_outputs);
   output_nft_free(unspent_nft_output);
   output_basic_free(unspent_basic_output);

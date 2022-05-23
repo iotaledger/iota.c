@@ -3,12 +3,8 @@
 
 #include <stdio.h>
 
-#include "core/models/inputs/utxo_input.h"
 #include "core/models/message.h"
 #include "core/models/outputs/output_alias.h"
-#include "core/models/outputs/output_basic.h"
-#include "core/models/outputs/outputs.h"
-#include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"
 #include "core/models/unlock_block.h"
@@ -33,22 +29,22 @@ void tearDown(void) {}
 
 static output_alias_t* create_output_alias(address_t* address) {
   // create unlock conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
+  unlock_cond_list_t* unlock_conds = condition_list_new();
 
   // random state controller address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
   iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
-  unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
-  TEST_ASSERT_NOT_NULL(state_block);
+  unlock_cond_t* state_cond = condition_state_new(&test_addr);
+  TEST_ASSERT_NOT_NULL(state_cond);
 
   // random governor address
   iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
-  unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
-  TEST_ASSERT_NOT_NULL(gov_block);
+  unlock_cond_t* gov_cond = condition_governor_new(&test_addr);
+  TEST_ASSERT_NOT_NULL(gov_cond);
 
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, gov_block) == 0);
+  TEST_ASSERT(condition_list_add(&unlock_conds, state_cond) == 0);
+  TEST_ASSERT(condition_list_add(&unlock_conds, gov_cond) == 0);
 
   // create alias Output
   output_alias_t* output =
@@ -56,9 +52,9 @@ static output_alias_t* create_output_alias(address_t* address) {
   TEST_ASSERT_NOT_NULL(output);
 
   // clean up
-  cond_blk_free(state_block);
-  cond_blk_free(gov_block);
-  cond_blk_list_free(unlock_conds);
+  condition_free(state_cond);
+  condition_free(gov_cond);
+  condition_list_free(unlock_conds);
 
   return output;
 }
