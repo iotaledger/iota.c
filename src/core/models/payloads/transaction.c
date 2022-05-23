@@ -81,8 +81,8 @@ int tx_essence_inputs_commitment_calculate(transaction_essence_t* es, utxo_outpu
     return -1;
   }
 
-  byte_t* buf;
-  size_t buf_len;
+  byte_t* buf = NULL;
+  size_t buf_len = 0;
   utxo_outputs_list_t* elm;
   LL_FOREACH(unspent_outputs, elm) {
     switch (elm->output->output_type) {
