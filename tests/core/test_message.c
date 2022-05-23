@@ -10,6 +10,7 @@
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"
+#include "core/models/unlock_block.h"
 #include "core/utils/macros.h"
 #include "unity/unity.h"
 
@@ -25,20 +26,20 @@ static output_basic_t* create_output_basic_one() {
                         BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES), NULL, addr.address, ED25519_PUBKEY_BYTES) == 0);
 
   // create address unlock condition
-  unlock_cond_blk_t* addr_unlock_cond = cond_blk_addr_new(&addr);
+  unlock_cond_t* addr_unlock_cond = condition_addr_new(&addr);
   TEST_ASSERT_NOT_NULL(addr_unlock_cond);
 
   // crete unlock conditions list
-  cond_blk_list_t* unlock_conditions = cond_blk_list_new();
-  TEST_ASSERT(cond_blk_list_add(&unlock_conditions, addr_unlock_cond) == 0);
+  unlock_cond_list_t* unlock_conditions = condition_list_new();
+  TEST_ASSERT(condition_list_add(&unlock_conditions, addr_unlock_cond) == 0);
 
   // create Basic Output
   output_basic_t* output = output_basic_new(10000000, NULL, unlock_conditions, NULL);
   TEST_ASSERT_NOT_NULL(output);
 
   // clean up
-  cond_blk_free(addr_unlock_cond);
-  cond_blk_list_free(unlock_conditions);
+  condition_free(addr_unlock_cond);
+  condition_list_free(unlock_conditions);
 
   return output;
 }
@@ -51,20 +52,20 @@ static output_basic_t* create_output_basic_two() {
                         BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES), NULL, addr.address, ED25519_PUBKEY_BYTES) == 0);
 
   // create address unlock condition
-  unlock_cond_blk_t* addr_unlock_cond = cond_blk_addr_new(&addr);
+  unlock_cond_t* addr_unlock_cond = condition_addr_new(&addr);
   TEST_ASSERT_NOT_NULL(addr_unlock_cond);
 
   // crete unlock conditions list
-  cond_blk_list_t* unlock_conditions = cond_blk_list_new();
-  TEST_ASSERT(cond_blk_list_add(&unlock_conditions, addr_unlock_cond) == 0);
+  unlock_cond_list_t* unlock_conditions = condition_list_new();
+  TEST_ASSERT(condition_list_add(&unlock_conditions, addr_unlock_cond) == 0);
 
   // create Basic Output
   output_basic_t* output = output_basic_new(2779530273277761, NULL, unlock_conditions, NULL);
   TEST_ASSERT_NOT_NULL(output);
 
   // clean up
-  cond_blk_free(addr_unlock_cond);
-  cond_blk_list_free(unlock_conditions);
+  condition_free(addr_unlock_cond);
+  condition_list_free(unlock_conditions);
 
   return output;
 }
@@ -146,13 +147,13 @@ void test_message_with_tx() {
 
   // sign transaction (generate unlock blocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data_list,
-                                       &tx->unlock_blocks) == 0);
+                                       &tx->unlocks) == 0);
 
   // validate unlock blocks
-  TEST_ASSERT_EQUAL_UINT16(1, unlock_blocks_count(tx->unlock_blocks));
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx->unlocks));
 
-  unlock_block_t* unlock_block = unlock_blocks_get(tx->unlock_blocks, 0);
-  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_SIGNATURE);
+  unlock_t* unlock = unlock_list_get(tx->unlocks, 0);
+  TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
   core_message_print(msg, 0);
 
@@ -232,8 +233,8 @@ void test_message_with_tx_serialize() {
 
   // add signature unlock block
   byte_t* signature = create_signature_unlock_block();
-  TEST_ASSERT(unlock_blocks_add_signature(&((transaction_payload_t*)msg->payload)->unlock_blocks, signature,
-                                          ED25519_SIGNATURE_BLOCK_BYTES) == 0);
+  TEST_ASSERT(unlock_list_add_signature(&((transaction_payload_t*)msg->payload)->unlocks, signature,
+                                        ED25519_SIGNATURE_BLOCK_BYTES) == 0);
 
   // serialize core message
   size_t core_message_expected_len = core_message_serialize_len(msg);
