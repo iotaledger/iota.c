@@ -112,13 +112,13 @@ void test_tx_alias_unlock_funds() {
                                        &tx->unlock_blocks) == 0);
 
   // validate unlock blocks
-  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(tx->unlock_blocks));
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(tx->unlock_blocks));
 
-  unlock_block_t* unlock_block = unlock_blocks_get(tx->unlock_blocks, 0);
-  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_SIGNATURE);
+  unlock_t* unlock = unlock_list_get(tx->unlock_blocks, 0);
+  TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
-  unlock_block = unlock_blocks_get(tx->unlock_blocks, 1);
-  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_ALIAS);
+  unlock = unlock_list_get(tx->unlock_blocks, 1);
+  TEST_ASSERT(unlock->type == UNLOCK_ALIAS_TYPE);
 
   // print core message transaction
   core_message_print(msg, 0);

@@ -74,9 +74,9 @@ static output_basic_t* create_output_basic() {
   uint256_t* amount3 = uint256_from_str("333333333");
   native_tokens_add(&native_tokens, token_id3, amount3);
 
-  // create Feature Blocks
-  feature_list_t* feat_blocks = feature_list_new();
-  feature_list_add_sender(&feat_blocks, &addr);
+  // create Features
+  feature_list_t* feat_list = feature_list_new();
+  feature_list_add_sender(&feat_list, &addr);
 
   // create Unlock Conditions
   unlock_cond_list_t* unlock_conds = condition_list_new();
@@ -84,14 +84,14 @@ static output_basic_t* create_output_basic() {
   TEST_ASSERT(condition_list_add(&unlock_conds, unlock_addr) == 0);
 
   // create Basic Output
-  output_basic_t* output = output_basic_new(123456789, native_tokens, unlock_conds, feat_blocks);
+  output_basic_t* output = output_basic_new(123456789, native_tokens, unlock_conds, feat_list);
   TEST_ASSERT_NOT_NULL(output);
 
   uint256_free(amount1);
   uint256_free(amount2);
   uint256_free(amount3);
   native_tokens_free(native_tokens);
-  feature_list_free(feat_blocks);
+  feature_list_free(feat_list);
   condition_free(unlock_addr);
   condition_list_free(unlock_conds);
 
@@ -117,19 +117,19 @@ static output_alias_t* create_output_alias() {
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
   iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
-  unlock_cond_t* state_block = condition_state_new(&test_addr);
-  TEST_ASSERT_NOT_NULL(state_block);
+  unlock_cond_t* state_cond = condition_state_new(&test_addr);
+  TEST_ASSERT_NOT_NULL(state_cond);
   // random governor address
   iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
-  unlock_cond_t* gov_block = condition_governor_new(&test_addr);
-  TEST_ASSERT_NOT_NULL(gov_block);
+  unlock_cond_t* gov_cond = condition_governor_new(&test_addr);
+  TEST_ASSERT_NOT_NULL(gov_cond);
 
-  TEST_ASSERT(condition_list_add(&unlock_conds, state_block) == 0);
-  TEST_ASSERT(condition_list_add(&unlock_conds, gov_block) == 0);
+  TEST_ASSERT(condition_list_add(&unlock_conds, state_cond) == 0);
+  TEST_ASSERT(condition_list_add(&unlock_conds, gov_cond) == 0);
 
   // create Feature Blocks
-  feature_list_t* feat_blocks = feature_list_new();
-  TEST_ASSERT(feature_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
+  feature_list_t* feat_list = feature_list_new();
+  TEST_ASSERT(feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta)) == 0);
 
   // create random issuer address
   address_t issuer_addr = {};
@@ -137,25 +137,25 @@ static output_alias_t* create_output_alias() {
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
   // create Immutable Feature Blocks
-  feature_list_t* immut_feat_blocks = feature_list_new();
-  TEST_ASSERT(feature_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
-  TEST_ASSERT(feature_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
+  feature_list_t* immut_feat_list = feature_list_new();
+  TEST_ASSERT(feature_list_add_metadata(&immut_feat_list, test_immut_meta, sizeof(test_immut_meta)) == 0);
+  TEST_ASSERT(feature_list_add_issuer(&immut_feat_list, &issuer_addr) == 0);
 
   // create alias Output
   output_alias_t* output = output_alias_new(123456789, native_tokens, alias_id, 123456, test_meta, sizeof(test_meta),
-                                            654321, unlock_conds, feat_blocks, immut_feat_blocks);
+                                            654321, unlock_conds, feat_list, immut_feat_list);
   TEST_ASSERT_NOT_NULL(output);
 
   // clean up
   uint256_free(amount1);
   uint256_free(amount2);
   uint256_free(amount3);
-  condition_free(state_block);
-  condition_free(gov_block);
+  condition_free(state_cond);
+  condition_free(gov_cond);
   native_tokens_free(native_tokens);
   condition_list_free(unlock_conds);
-  feature_list_free(feat_blocks);
-  feature_list_free(immut_feat_blocks);
+  feature_list_free(feat_list);
+  feature_list_free(immut_feat_list);
 
   return output;
 }
@@ -234,16 +234,16 @@ static output_nft_t* create_output_nft() {
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
   // create Feature Blocks
-  feature_list_t* feat_blocks = feature_list_new();
-  TEST_ASSERT(feature_list_add_sender(&feat_blocks, &sender_addr) == 0);
-  TEST_ASSERT(feature_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta)) == 0);
+  feature_list_t* feat_list = feature_list_new();
+  TEST_ASSERT(feature_list_add_sender(&feat_list, &sender_addr) == 0);
+  TEST_ASSERT(feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta)) == 0);
   // create Immutable Feature Blocks
-  feature_list_t* immut_feat_blocks = feature_list_new();
-  TEST_ASSERT(feature_list_add_metadata(&immut_feat_blocks, test_immut_meta, sizeof(test_immut_meta)) == 0);
-  TEST_ASSERT(feature_list_add_issuer(&immut_feat_blocks, &issuer_addr) == 0);
+  feature_list_t* immut_feat_list = feature_list_new();
+  TEST_ASSERT(feature_list_add_metadata(&immut_feat_list, test_immut_meta, sizeof(test_immut_meta)) == 0);
+  TEST_ASSERT(feature_list_add_issuer(&immut_feat_list, &issuer_addr) == 0);
 
   // create NFT Output
-  output_nft_t* output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_blocks, immut_feat_blocks);
+  output_nft_t* output = output_nft_new(123456789, native_tokens, nft_id, unlock_conds, feat_list, immut_feat_list);
 
   // clean up
   uint256_free(amount1);
@@ -251,8 +251,8 @@ static output_nft_t* create_output_nft() {
   uint256_free(amount3);
   native_tokens_free(native_tokens);
   condition_list_free(unlock_conds);
-  feature_list_free(feat_blocks);
-  feature_list_free(immut_feat_blocks);
+  feature_list_free(feat_list);
+  feature_list_free(immut_feat_list);
 
   return output;
 }
@@ -519,25 +519,25 @@ void test_tx_payload() {
 
   TEST_ASSERT_EQUAL_INT(0, tx_essence_add_payload(tx_payload->essence, CORE_MESSAGE_PAYLOAD_TAGGED, tagged_data));
 
-  // add a signature block
+  // add a signature unlock
   byte_t sig[ED25519_SIGNATURE_BLOCK_BYTES] = {};
   sig[0] = 0;  // denotes ed25519 signature
   memcpy(sig + 1, test_pub_key, ED_PUBLIC_KEY_BYTES);
   memcpy(sig + (1 + ED_PUBLIC_KEY_BYTES), test_sig, ED_SIGNATURE_BYTES);
-  unlock_blocks_add_signature(&tx_payload->unlock_blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);
-  TEST_ASSERT_EQUAL_UINT16(1, unlock_blocks_count(tx_payload->unlock_blocks));
+  unlock_list_add_signature(&tx_payload->unlock_blocks, sig, ED25519_SIGNATURE_BLOCK_BYTES);
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx_payload->unlock_blocks));
 
-  // add a reference block that reference to the 0 index of blocks.
-  unlock_blocks_add_reference(&tx_payload->unlock_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(tx_payload->unlock_blocks));
+  // add a reference unlock that reference to the 0 index of unlock list.
+  unlock_list_add_reference(&tx_payload->unlock_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(tx_payload->unlock_blocks));
 
-  // add an alias block that reference to the 0 index of blocks.
-  unlock_blocks_add_alias(&tx_payload->unlock_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT16(3, unlock_blocks_count(tx_payload->unlock_blocks));
+  // add an alias unlock that reference to the 0 index of unlock list.
+  unlock_list_add_alias(&tx_payload->unlock_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT16(3, unlock_list_count(tx_payload->unlock_blocks));
 
-  // add a NFT block that reference to the 0 index of blocks.
-  unlock_blocks_add_nft(&tx_payload->unlock_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT16(4, unlock_blocks_count(tx_payload->unlock_blocks));
+  // add a NFT unlock that reference to the 0 index of unlock list.
+  unlock_list_add_nft(&tx_payload->unlock_blocks, 0);
+  TEST_ASSERT_EQUAL_UINT16(4, unlock_list_count(tx_payload->unlock_blocks));
 
   // Syntactic validation
   byte_cost_config_t* cost = byte_cost_config_default_new();

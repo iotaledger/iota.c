@@ -10,33 +10,32 @@
 #include "crypto/iota_crypto.h"
 
 /**
- * @brief Unlock block types that are supported by the protocol
+ * @brief Unlock types that are supported by the protocol
  *
  */
 typedef enum {
-  UNLOCK_BLOCK_TYPE_SIGNATURE = 0,  ///< Denotes a signature unlock block
-  UNLOCK_BLOCK_TYPE_REFERENCE = 1,  ///< Denotes a reference unlock block
-  UNLOCK_BLOCK_TYPE_ALIAS = 2,      ///< Denotes a alias unlock block
-  UNLOCK_BLOCK_TYPE_NFT = 3         ///< Denotes a NFT unlock block
+  UNLOCK_SIGNATURE_TYPE = 0,  ///< Denotes a signature unlock
+  UNLOCK_REFERENCE_TYPE = 1,  ///< Denotes a reference unlock
+  UNLOCK_ALIAS_TYPE = 2,      ///< Denotes a alias unlock
+  UNLOCK_NFT_TYPE = 3         ///< Denotes a NFT unlock
 } unlock_type_t;
 
 /**
- * @brief An unlock block object which points to a consumed output
+ * @brief An unlock object which points to a consumed output
  *
  */
 typedef struct {
-  unlock_type_t type;  ///< 0 denotes a Signature Unlock Block, 1 denotes a Reference Unlock Block, 2 denotes an Alias
-                       ///< Unlock Block, 3 denotes a NFT Unlock Block.
-  void* block_data;    ///< A pointer to index or signature data
-} unlock_block_t;
+  unlock_type_t type;  ///< The type of the unlock object
+  void* obj;           ///< A pointer to an unlock object
+} unlock_t;
 
 /**
- * @brief A list of unlock blocks
+ * @brief A list of unlocks
  *
  */
 typedef struct unlock_list {
-  unlock_block_t block;      ///< Represents an unlock block
-  struct unlock_list* next;  ///< Points to next unlock block
+  unlock_t current;          ///< Represents a current unlock
+  struct unlock_list* next;  ///< Points to next unlock
 } unlock_list_t;
 
 #ifdef __cplusplus
@@ -44,124 +43,124 @@ extern "C" {
 #endif
 
 /**
- * @brief Initialize a unlock block list object
+ * @brief Initialize an unlock list object
  *
  * @return A NULL pointer
  */
-unlock_list_t* unlock_blocks_new();
+unlock_list_t* unlock_list_new();
 
 /**
- * @brief Add unlock block to the list
+ * @brief Add an unlock to the list
  *
- * @param[in] blocks The head of list
- * @param[in] block An unlock block to be added to the list
+ * @param[in] list The head of the unlock list
+ * @param[in] block An unlock to be added to the list
  * @return int 0 on success
  */
-int unlock_blocks_add(unlock_list_t** blocks, unlock_block_t* block);
+int unlock_list_add(unlock_list_t** list, unlock_t* unlock);
 
 /**
- * @brief Add an ed25519 signature unlock block
+ * @brief Add an ed25519 signature unlock
  *
- * @param[in] blocks The head of list
- * @param[in] sig An ed25519 signature unlock block
- * @param[in] sig_len The length of signature unlock block
+ * @param[in] list The head of list
+ * @param[in] sig An ed25519 signature unlock
+ * @param[in] sig_len The length of signature unlock
  * @return int 0 on success
  */
-int unlock_blocks_add_signature(unlock_list_t** blocks, byte_t* sig, size_t sig_len);
+int unlock_list_add_signature(unlock_list_t** list, byte_t* sig, size_t sig_len);
 
 /**
- * @brief Add a reference unlock block
+ * @brief Add a reference unlock
  *
- * @param[in] blocks The head of list
- * @param[in] index The index of reference unlock block
+ * @param[in] list The head of list
+ * @param[in] index The index of reference unlock
  * @return int 0 on success.
  */
-int unlock_blocks_add_reference(unlock_list_t** blocks, uint16_t index);
+int unlock_list_add_reference(unlock_list_t** list, uint16_t index);
 
 /**
- * @brief Add an alias unlock block
+ * @brief Add an alias unlock
  *
- * @param[in] blocks The head of list
- * @param[in] index The index of alias unlock block
+ * @param[in] list The head of list
+ * @param[in] index The index of alias unlock
  * @return int 0 on success.
  */
-int unlock_blocks_add_alias(unlock_list_t** blocks, uint16_t index);
+int unlock_list_add_alias(unlock_list_t** list, uint16_t index);
 
 /**
- * @brief Add a NFT unlock block
+ * @brief Add a NFT unlock
  *
- * @param[in] blocks The head of list
- * @param[in] index The index of NFT unlock block
+ * @param[in] list The head of list
+ * @param[in] index The index of NFT unlock
  * @return int 0 on success.
  */
-int unlock_blocks_add_nft(unlock_list_t** blocks, uint16_t index);
+int unlock_list_add_nft(unlock_list_t** list, uint16_t index);
 
 /**
- * @brief Get the length of unlock blocks
+ * @brief Get the length of unlock list
  *
- * @param[in] blocks The head of list
+ * @param[in] list The head of list
  * @return uint16_t
  */
-uint16_t unlock_blocks_count(unlock_list_t* blocks);
+uint16_t unlock_list_count(unlock_list_t* list);
 
 /**
- * @brief Get the pointer of block in the list
+ * @brief Get the pointer of an unlock in the list
  *
- * @param[in] blocks A unlock block list
- * @param[in] index The index of block
- * @return unlock_block_t* A pointer to a block
+ * @param[in] list An unlock list
+ * @param[in] index The index of the unlock object
+ * @return unlock_t* A pointer to an unlock
  */
-unlock_block_t* unlock_blocks_get(unlock_list_t* blocks, uint16_t index);
+unlock_t* unlock_list_get(unlock_list_t* list, uint16_t index);
 
 /**
- * @brief Get the unlock block index of a given public key
+ * @brief Get the unlock index of a given public key
  *
- * @param[in] blocks The head of list
+ * @param[in] list The head of list
  * @param[in] pub_key A ed25519 public key
  * @return int32_t if not found return -1 else return the index
  */
-int32_t unlock_blocks_find_pub(unlock_list_t* blocks, byte_t const* const pub_key);
+int32_t unlock_list_find_pub(unlock_list_t* list, byte_t const* const pub_key);
 
 /**
- * @brief Get the serialized length of unlocked blocks
+ * @brief Get the serialized length of an unlock list
  *
- * @param[in] blocks The head of list
+ * @param[in] list The head of list
  * @return size_t 0 on failed
  */
-size_t unlock_blocks_serialize_length(unlock_list_t* blocks);
+size_t unlock_list_serialize_length(unlock_list_t* list);
 
 /**
- * @brief Serialize unlock blocks
+ * @brief Serialize an unlock list
  *
- * @param[in] blocks The head of list
+ * @param[in] list The head of list
  * @param[out] buf A buffer holds serialized data
  * @return size_t number of bytes written to the buffer
  */
-size_t unlock_blocks_serialize(unlock_list_t* blocks, byte_t buf[]);
+size_t unlock_list_serialize(unlock_list_t* list, byte_t buf[]);
 
 /**
- * @brief Deserialize a binary data to an unlock blocks object
+ * @brief Deserialize a binary data to an unlock list object
  *
- * @param[in] buf The block data in binary
+ * @param[in] buf The unlock list data in binary
  * @param[in] buf_len The length of the data
  * @return unlock_list_t* or NULL on failure
  */
-unlock_list_t* unlock_blocks_deserialize(byte_t buf[], size_t buf_len);
+unlock_list_t* unlock_list_deserialize(byte_t buf[], size_t buf_len);
 
 /**
- * @brief Free an unlock block list
+ * @brief Free an unlock list
  *
- * @param[in] blocks An unlock block object
+ * @param[in] list An unlock list object
  */
-void unlock_blocks_free(unlock_list_t* blocks);
+void unlock_list_free(unlock_list_t* list);
 
 /**
- * @brief Print out an unlock blocks list
+ * @brief Print out an unlock list list
  *
- * @param[in] blocks An unlock block list
- * @param[in] indentation Tab indentation when printing unlock blocks
+ * @param[in] list An unlock list
+ * @param[in] indentation Tab indentation when printing unlock list
  */
-void unlock_blocks_print(unlock_list_t* blocks, uint8_t indentation);
+void unlock_list_print(unlock_list_t* list, uint8_t indentation);
 
 #ifdef __cplusplus
 }

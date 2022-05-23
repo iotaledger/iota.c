@@ -5,35 +5,34 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "core/address.h"
 #include "core/models/signing.h"
 #include "utlist.h"
 
-static int create_unlock_block_ed25519(byte_t essence_hash[], signing_data_t* sign_data,
-                                       unlock_list_t** unlock_blocks) {
-  int32_t pub_index = unlock_blocks_find_pub(*unlock_blocks, sign_data->keypair->pub);
+static int create_signature_ed25519_unlock(byte_t essence_hash[], signing_data_t* sign_data,
+                                           unlock_list_t** unlock_list) {
+  int32_t pub_index = unlock_list_find_pub(*unlock_list, sign_data->keypair->pub);
   if (pub_index == -1) {
-    // public key is not found in the unlocked block
-    byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
-    sig_block[0] = ADDRESS_TYPE_ED25519;
-    memcpy(sig_block + 1, sign_data->keypair->pub, ED_PUBLIC_KEY_BYTES);
+    // public key is not found in the unlock list
+    byte_t sig_unlock[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+    sig_unlock[0] = ADDRESS_TYPE_ED25519;
+    memcpy(sig_unlock + 1, sign_data->keypair->pub, ED_PUBLIC_KEY_BYTES);
 
     // sign transaction
     if (iota_crypto_sign(sign_data->keypair->priv, essence_hash, CRYPTO_BLAKE2B_256_HASH_BYTES,
-                         sig_block + (1 + ED_PUBLIC_KEY_BYTES)) != 0) {
+                         sig_unlock + (1 + ED_PUBLIC_KEY_BYTES)) != 0) {
       printf("[%s:%d] signing signature failed\n", __func__, __LINE__);
       return -1;
     }
 
-    // create a signature unlock block
-    if (unlock_blocks_add_signature(unlock_blocks, sig_block, ED25519_SIGNATURE_BLOCK_BYTES) != 0) {
-      printf("[%s:%d] add signature block failed\n", __func__, __LINE__);
+    // create a signature unlock
+    if (unlock_list_add_signature(unlock_list, sig_unlock, ED25519_SIGNATURE_BLOCK_BYTES) != 0) {
+      printf("[%s:%d] add signature unlock failed\n", __func__, __LINE__);
       return -1;
     }
   } else {
-    // public key is found in the unlocked block, just add a reference
-    if (unlock_blocks_add_reference(unlock_blocks, (uint16_t)pub_index) != 0) {
-      printf("[%s:%d] add reference block failed\n", __func__, __LINE__);
+    // public key is found in the unlock list, just add a reference
+    if (unlock_list_add_reference(unlock_list, (uint16_t)pub_index) != 0) {
+      printf("[%s:%d] add reference unlock failed\n", __func__, __LINE__);
       return -1;
     }
   }
@@ -41,27 +40,27 @@ static int create_unlock_block_ed25519(byte_t essence_hash[], signing_data_t* si
   return 0;
 }
 
-static int create_unlock_block_alias_or_nft(signing_data_t* sign_data, signing_data_list_t* signing_data_list,
-                                            unlock_list_t** unlock_blocks) {
+static int create_alias_or_nft_unlock(signing_data_t* sign_data, signing_data_list_t* signing_data_list,
+                                      unlock_list_t** unlock_list) {
   signing_data_list_t* elm;
   uint8_t index = 0;
   if (signing_data_list) {
     LL_FOREACH(signing_data_list, elm) {
       if (memcmp(elm->sign_data->hash, sign_data->unlock_address.address, CRYPTO_BLAKE2B_256_HASH_BYTES) == 0) {
         if (sign_data->unlock_address.type == ADDRESS_TYPE_ALIAS) {
-          if (unlock_blocks_add_alias(unlock_blocks, index) != 0) {
-            printf("[%s:%d] adding Alias unlock block failed\n", __func__, __LINE__);
+          if (unlock_list_add_alias(unlock_list, index) != 0) {
+            printf("[%s:%d] adding Alias unlock failed\n", __func__, __LINE__);
             return -1;
           }
           return 0;
         } else if (sign_data->unlock_address.type == ADDRESS_TYPE_NFT) {
-          if (unlock_blocks_add_nft(unlock_blocks, index) != 0) {
-            printf("[%s:%d] adding NFT unlock block failed\n", __func__, __LINE__);
+          if (unlock_list_add_nft(unlock_list, index) != 0) {
+            printf("[%s:%d] adding NFT unlock failed\n", __func__, __LINE__);
             return -1;
           }
           return 0;
         } else {
-          printf("[%s:%d] address in unlock condition block must be Alias or NFT\n", __func__, __LINE__);
+          printf("[%s:%d] address in unlock must be Alias or NFT\n", __func__, __LINE__);
           return -1;
         }
       }
@@ -166,8 +165,8 @@ signing_data_t* signing_get_data_by_index(signing_data_list_t* signing_data_list
 }
 
 int signing_transaction_sign(byte_t essence_hash[], uint8_t essence_hash_len, utxo_inputs_list_t* inputs,
-                             signing_data_list_t* sign_data_list, unlock_list_t** unlock_blocks) {
-  if (essence_hash == NULL || inputs == NULL || sign_data_list == NULL || *unlock_blocks != NULL) {
+                             signing_data_list_t* sign_data_list, unlock_list_t** unlock_list) {
+  if (essence_hash == NULL || inputs == NULL || sign_data_list == NULL || *unlock_list != NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -188,13 +187,13 @@ int signing_transaction_sign(byte_t essence_hash[], uint8_t essence_hash_len, ut
     signing_data_t* sign_data = signing_get_data_by_index(sign_data_list, index);
 
     if (sign_data->keypair) {
-      if (create_unlock_block_ed25519(essence_hash, sign_data, unlock_blocks) != 0) {
-        printf("[%s:%d] creating unlock block for ed25519 address failed.\n", __func__, __LINE__);
+      if (create_signature_ed25519_unlock(essence_hash, sign_data, unlock_list) != 0) {
+        printf("[%s:%d] creating unlock for ed25519 address failed.\n", __func__, __LINE__);
         return -1;
       }
     } else {
-      if (create_unlock_block_alias_or_nft(sign_data, sign_data_list, unlock_blocks) != 0) {
-        printf("[%s:%d] creating unlock block for Alias or NFT address failed.\n", __func__, __LINE__);
+      if (create_alias_or_nft_unlock(sign_data, sign_data_list, unlock_list) != 0) {
+        printf("[%s:%d] creating unlock for Alias or NFT address failed.\n", __func__, __LINE__);
         return -1;
       }
     }

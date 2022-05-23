@@ -125,15 +125,15 @@ void test_sign_nft_tx_with_basic_input() {
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
 
-  // sign transaction (generate unlock blocks)
+  // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx_payload->essence->inputs, sign_data_list,
                                        &tx_payload->unlock_blocks) == 0);
 
-  // validate unlock blocks
-  TEST_ASSERT_EQUAL_UINT16(1, unlock_blocks_count(tx_payload->unlock_blocks));
+  // validate unlocks
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx_payload->unlock_blocks));
 
-  unlock_block_t* unlock_block = unlock_blocks_get(tx_payload->unlock_blocks, 0);
-  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_SIGNATURE);
+  unlock_t* unlock = unlock_list_get(tx_payload->unlock_blocks, 0);
+  TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
   core_message_print(msg, 0);
 
@@ -238,15 +238,15 @@ void test_sign_nft_tx_with_nft_input() {
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
 
-  // sign transaction (generate unlock blocks)
+  // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx_payload->essence->inputs, sign_data_list,
                                        &tx_payload->unlock_blocks) == 0);
 
-  // validate unlock blocks
-  TEST_ASSERT_EQUAL_UINT16(1, unlock_blocks_count(tx_payload->unlock_blocks));
+  // validate unlocks
+  TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx_payload->unlock_blocks));
 
-  unlock_block_t* unlock_block = unlock_blocks_get(tx_payload->unlock_blocks, 0);
-  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_SIGNATURE);
+  unlock_t* unlock = unlock_list_get(tx_payload->unlock_blocks, 0);
+  TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
   core_message_print(msg, 0);
 
@@ -360,18 +360,18 @@ void test_sign_nft_tx_with_nft_and_basic_input() {
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
 
-  // sign transaction (generate unlock blocks)
+  // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx_payload->essence->inputs, sign_data_list,
                                        &tx_payload->unlock_blocks) == 0);
 
-  // validate unlock blocks
-  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(tx_payload->unlock_blocks));
+  // validate unlocks
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(tx_payload->unlock_blocks));
 
-  unlock_block_t* unlock_block = unlock_blocks_get(tx_payload->unlock_blocks, 0);
-  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_SIGNATURE);
+  unlock_t* unlock = unlock_list_get(tx_payload->unlock_blocks, 0);
+  TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
-  unlock_block = unlock_blocks_get(tx_payload->unlock_blocks, 1);
-  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_NFT);
+  unlock = unlock_list_get(tx_payload->unlock_blocks, 1);
+  TEST_ASSERT(unlock->type == UNLOCK_NFT_TYPE);
 
   core_message_print(msg, 0);
 
