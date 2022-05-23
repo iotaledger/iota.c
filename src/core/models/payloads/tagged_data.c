@@ -101,7 +101,7 @@ size_t tagged_data_serialize(tagged_data_payload_t *tagged_data, byte_t buf[], s
   size_t offset = 0;
 
   // fill-in Tagged Data type
-  uint32_t payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
+  uint32_t payload_type = CORE_BLOCK_PAYLOAD_TAGGED;
   memcpy(buf, &payload_type, sizeof(uint32_t));
   offset += sizeof(uint32_t);
 
@@ -163,7 +163,7 @@ tagged_data_payload_t *tagged_data_deserialize(byte_t buf[], size_t buf_len) {
     tagged_data_free(tagged_data);
     return NULL;
   }
-  if ((uint32_t)buf[offset] != CORE_MESSAGE_PAYLOAD_TAGGED) {
+  if ((uint32_t)buf[offset] != CORE_BLOCK_PAYLOAD_TAGGED) {
     printf("[%s:%d] buffer does not contain tagged data object\n", __func__, __LINE__);
     tagged_data_free(tagged_data);
     return NULL;

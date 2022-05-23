@@ -114,16 +114,16 @@ void test_sign_nft_tx_with_basic_input() {
   // calculate inputs commitment
   TEST_ASSERT(tx_essence_inputs_commitment_calculate(tx_payload->essence, unspent_outputs) == 0);
 
-  // add transaction payload to message
+  // add transaction payload to a block
   uint8_t protocol_version = 2;
-  core_message_t* msg = core_message_new(protocol_version);
-  TEST_ASSERT_NOT_NULL(msg);
-  msg->payload = tx_payload;
-  msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  core_block_t* blk = core_block_new(protocol_version);
+  TEST_ASSERT_NOT_NULL(blk);
+  blk->payload = tx_payload;
+  blk->payload_type = CORE_BLOCK_PAYLOAD_TRANSACTION;
 
   // calculate transaction essence hash
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
-  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
+  TEST_ASSERT(core_block_essence_hash_calc(blk, essence_hash, sizeof(essence_hash)) == 0);
 
   // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx_payload->essence->inputs, sign_data_list,
@@ -135,7 +135,7 @@ void test_sign_nft_tx_with_basic_input() {
   unlock_t* unlock = unlock_list_get(tx_payload->unlocks, 0);
   TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
-  core_message_print(msg, 0);
+  core_block_print(blk, 0);
 
   signing_free(sign_data_list);
   condition_free(nft_unlock_addr);
@@ -146,7 +146,7 @@ void test_sign_nft_tx_with_basic_input() {
   output_nft_free(nft_output);
   output_basic_free(unspent_basic_output);
   output_basic_free(basic_output);
-  core_message_free(msg);
+  core_block_free(blk);
 }
 
 // Transaction input : NFT OUTPUT with amount x and with NFT ID "0000000000000000000000000000000000000000" and ED25519
@@ -227,16 +227,16 @@ void test_sign_nft_tx_with_nft_input() {
   // calculate inputs commitment
   TEST_ASSERT(tx_essence_inputs_commitment_calculate(tx_payload->essence, unspent_outputs) == 0);
 
-  // add transaction payload to message
+  // add transaction payload to a block
   uint8_t protocol_version = 2;
-  core_message_t* msg = core_message_new(protocol_version);
-  TEST_ASSERT_NOT_NULL(msg);
-  msg->payload = tx_payload;
-  msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  core_block_t* blk = core_block_new(protocol_version);
+  TEST_ASSERT_NOT_NULL(blk);
+  blk->payload = tx_payload;
+  blk->payload_type = CORE_BLOCK_PAYLOAD_TRANSACTION;
 
   // calculate transaction essence hash
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
-  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
+  TEST_ASSERT(core_block_essence_hash_calc(blk, essence_hash, sizeof(essence_hash)) == 0);
 
   // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx_payload->essence->inputs, sign_data_list,
@@ -248,7 +248,7 @@ void test_sign_nft_tx_with_nft_input() {
   unlock_t* unlock = unlock_list_get(tx_payload->unlocks, 0);
   TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
-  core_message_print(msg, 0);
+  core_block_print(blk, 0);
 
   signing_free(sign_data_list);
   condition_free(nft_unlock_addr);
@@ -258,7 +258,7 @@ void test_sign_nft_tx_with_nft_input() {
   utxo_outputs_free(unspent_outputs);
   output_nft_free(unspent_nft_output);
   output_nft_free(nft_output);
-  core_message_free(msg);
+  core_block_free(blk);
 }
 
 // Transaction input 1 : NFT OUTPUT with amount x, non zero NFT ID and ED25519 Address Unlock Condition
@@ -349,16 +349,16 @@ void test_sign_nft_tx_with_nft_and_basic_input() {
   // calculate inputs commitment
   TEST_ASSERT(tx_essence_inputs_commitment_calculate(tx_payload->essence, unspent_outputs) == 0);
 
-  // add transaction payload to message
+  // add transaction payload to a block
   uint8_t protocol_version = 2;
-  core_message_t* msg = core_message_new(protocol_version);
-  TEST_ASSERT_NOT_NULL(msg);
-  msg->payload = tx_payload;
-  msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  core_block_t* blk = core_block_new(protocol_version);
+  TEST_ASSERT_NOT_NULL(blk);
+  blk->payload = tx_payload;
+  blk->payload_type = CORE_BLOCK_PAYLOAD_TRANSACTION;
 
   // calculate transaction essence hash
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
-  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
+  TEST_ASSERT(core_block_essence_hash_calc(blk, essence_hash, sizeof(essence_hash)) == 0);
 
   // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx_payload->essence->inputs, sign_data_list,
@@ -373,7 +373,7 @@ void test_sign_nft_tx_with_nft_and_basic_input() {
   unlock = unlock_list_get(tx_payload->unlocks, 1);
   TEST_ASSERT(unlock->type == UNLOCK_NFT_TYPE);
 
-  core_message_print(msg, 0);
+  core_block_print(blk, 0);
 
   signing_free(sign_data_list);
   condition_free(nft_unlock_addr);
@@ -386,7 +386,7 @@ void test_sign_nft_tx_with_nft_and_basic_input() {
   output_nft_free(unspent_nft_output);
   output_basic_free(unspent_basic_output);
   output_nft_free(nft_output);
-  core_message_free(msg);
+  core_block_free(blk);
 }
 
 int main() {

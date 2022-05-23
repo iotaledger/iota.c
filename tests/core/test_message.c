@@ -90,7 +90,7 @@ static byte_t* create_signature_unlock_block() {
   return signature;
 }
 
-void test_message_with_tx() {
+void test_block_with_tx() {
   byte_t expected_essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {
       0x66, 0xbc, 0xeb, 0x49, 0x14, 0x49, 0x6f, 0xf1, 0xb2, 0x21, 0x9a, 0xb5, 0xb3, 0x31, 0x1e, 0xc7,
       0x67, 0x57, 0x89, 0x93, 0x6c, 0x99, 0x84, 0x69, 0xe4, 0xad, 0x1c, 0x3a, 0x85, 0xb0, 0x40, 0xa8};
@@ -131,16 +131,16 @@ void test_message_with_tx() {
   output_basic_t* basic_output_two = create_output_basic_two();
   TEST_ASSERT(tx_essence_add_output(tx->essence, OUTPUT_BASIC, basic_output_two) == 0);
 
-  // create message
+  // createa block
   uint8_t protocol_ver = 2;
-  core_message_t* msg = core_message_new(protocol_ver);
-  TEST_ASSERT_NOT_NULL(msg);
-  msg->payload = tx;
-  msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  core_block_t* blk = core_block_new(protocol_ver);
+  TEST_ASSERT_NOT_NULL(blk);
+  blk->payload = tx;
+  blk->payload_type = CORE_BLOCK_PAYLOAD_TRANSACTION;
 
   // calculate transaction essence hash
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
-  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
+  TEST_ASSERT(core_block_essence_hash_calc(blk, essence_hash, sizeof(essence_hash)) == 0);
 
   // check if essence hash is matching
   TEST_ASSERT_EQUAL_MEMORY(expected_essence_hash, essence_hash, CRYPTO_BLAKE2B_256_HASH_BYTES);
@@ -155,16 +155,16 @@ void test_message_with_tx() {
   unlock_t* unlock = unlock_list_get(tx->unlocks, 0);
   TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
-  core_message_print(msg, 0);
+  core_block_print(blk, 0);
 
-  // free message and sub entities
+  // free block and sub entities
   signing_free(sign_data_list);
   output_basic_free(basic_output_one);
   output_basic_free(basic_output_two);
-  core_message_free(msg);
+  core_block_free(blk);
 }
 
-void test_message_with_tx_serialize() {
+void test_block_with_tx_serialize() {
   char test_serialized_data_str[] =
       "020432cb4c7602013ba16231fd9bf1bdd9c1b9a403c07dd155ff9979a72684dafdb364463ce32fb6ef011cfff38b736b466f974a92429767"
       "650777cd9b77cf7f26bfe1a518eccfa39a03aeb4b425a51db030eeec1c32654c1c943bc008eb4dc8d862ef8728a24dc0864a94b4f629d8ed"
@@ -175,37 +175,37 @@ void test_message_with_tx_serialize() {
       "000100000031f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb1b51aab768dd145de99fc3710c7b05963803f2"
       "8c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f810ad0cc4b0210adaafd0a15af000000000000";
 
-  core_message_t* msg = core_message_new(2);
-  TEST_ASSERT_NOT_NULL(msg);
+  core_block_t* blk = core_block_new(2);
+  TEST_ASSERT_NOT_NULL(blk);
 
-  // add message parents
-  byte_t parent_id_1[IOTA_MESSAGE_ID_BYTES];
-  hex_2_bin("32cb4c7602013ba16231fd9bf1bdd9c1b9a403c07dd155ff9979a72684dafdb3", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
+  // add block parents
+  byte_t parent_id_1[IOTA_BLOCK_ID_BYTES];
+  hex_2_bin("32cb4c7602013ba16231fd9bf1bdd9c1b9a403c07dd155ff9979a72684dafdb3", BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES),
             NULL, parent_id_1, sizeof(parent_id_1));
-  byte_t parent_id_2[IOTA_MESSAGE_ID_BYTES];
-  hex_2_bin("64463ce32fb6ef011cfff38b736b466f974a92429767650777cd9b77cf7f26bf", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
+  byte_t parent_id_2[IOTA_BLOCK_ID_BYTES];
+  hex_2_bin("64463ce32fb6ef011cfff38b736b466f974a92429767650777cd9b77cf7f26bf", BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES),
             NULL, parent_id_2, sizeof(parent_id_2));
-  byte_t parent_id_3[IOTA_MESSAGE_ID_BYTES];
-  hex_2_bin("e1a518eccfa39a03aeb4b425a51db030eeec1c32654c1c943bc008eb4dc8d862", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
+  byte_t parent_id_3[IOTA_BLOCK_ID_BYTES];
+  hex_2_bin("e1a518eccfa39a03aeb4b425a51db030eeec1c32654c1c943bc008eb4dc8d862", BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES),
             NULL, parent_id_3, sizeof(parent_id_3));
-  byte_t parent_id_4[IOTA_MESSAGE_ID_BYTES];
-  hex_2_bin("ef8728a24dc0864a94b4f629d8ed7f56003cf84483700bac919d02622f20dc70", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
+  byte_t parent_id_4[IOTA_BLOCK_ID_BYTES];
+  hex_2_bin("ef8728a24dc0864a94b4f629d8ed7f56003cf84483700bac919d02622f20dc70", BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES),
             NULL, parent_id_4, sizeof(parent_id_4));
-  core_message_add_parent(msg, parent_id_1);
-  core_message_add_parent(msg, parent_id_2);
-  core_message_add_parent(msg, parent_id_3);
-  core_message_add_parent(msg, parent_id_4);
-  TEST_ASSERT_EQUAL_UINT8(4, core_message_parent_len(msg));
+  core_block_add_parent(blk, parent_id_1);
+  core_block_add_parent(blk, parent_id_2);
+  core_block_add_parent(blk, parent_id_3);
+  core_block_add_parent(blk, parent_id_4);
+  TEST_ASSERT_EQUAL_UINT8(4, core_block_parent_len(blk));
 
-  // add message payload
-  msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
-  msg->payload = tx_payload_new(2229185342034412800);
+  // add block payload
+  blk->payload_type = CORE_BLOCK_PAYLOAD_TRANSACTION;
+  blk->payload = tx_payload_new(2229185342034412800);
 
-  // add message nonce
-  msg->nonce = 44821;
+  // add block nonce
+  blk->nonce = 44821;
 
   // add transaction essence
-  transaction_essence_t* essence = ((transaction_payload_t*)msg->payload)->essence;
+  transaction_essence_t* essence = ((transaction_payload_t*)blk->payload)->essence;
   TEST_ASSERT_NOT_NULL(essence);
 
   // add type
@@ -229,121 +229,121 @@ void test_message_with_tx_serialize() {
   char const* const hornet_faucet = "HORNET FAUCET";
   tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)hornet_faucet, strlen(hornet_faucet) + 1, NULL, 0);
   TEST_ASSERT_NOT_NULL(tagged_data);
-  TEST_ASSERT(tx_essence_add_payload(essence, CORE_MESSAGE_PAYLOAD_TAGGED, tagged_data) == 0);
+  TEST_ASSERT(tx_essence_add_payload(essence, CORE_BLOCK_PAYLOAD_TAGGED, tagged_data) == 0);
 
   // add signature unlock block
   byte_t* signature = create_signature_unlock_block();
-  TEST_ASSERT(unlock_list_add_signature(&((transaction_payload_t*)msg->payload)->unlocks, signature,
+  TEST_ASSERT(unlock_list_add_signature(&((transaction_payload_t*)blk->payload)->unlocks, signature,
                                         ED25519_SIGNATURE_BLOCK_BYTES) == 0);
 
-  // serialize core message
-  size_t core_message_expected_len = core_message_serialize_len(msg);
-  TEST_ASSERT(core_message_expected_len != 0);
-  byte_t* core_message_buf = malloc(core_message_expected_len);
-  TEST_ASSERT_NOT_NULL(core_message_buf);
-  TEST_ASSERT(core_message_serialize(msg, core_message_buf, 1) == 0);  // expect serialization fails
-  TEST_ASSERT(core_message_serialize(msg, core_message_buf, core_message_expected_len) == core_message_expected_len);
+  // serialize a block object
+  size_t core_block_expected_len = core_block_serialize_len(blk);
+  TEST_ASSERT(core_block_expected_len != 0);
+  byte_t* core_block_buf = malloc(core_block_expected_len);
+  TEST_ASSERT_NOT_NULL(core_block_buf);
+  TEST_ASSERT(core_block_serialize(blk, core_block_buf, 1) == 0);  // expect serialization fails
+  TEST_ASSERT(core_block_serialize(blk, core_block_buf, core_block_expected_len) == core_block_expected_len);
 
-  // validate core message
-  size_t serialized_data_hex_str_len = BIN_TO_HEX_STR_BYTES(core_message_expected_len);
+  // validate the block
+  size_t serialized_data_hex_str_len = BIN_TO_HEX_STR_BYTES(core_block_expected_len);
   TEST_ASSERT_EQUAL_INT(sizeof(test_serialized_data_str), serialized_data_hex_str_len);
   char* serialized_data_hex_str = malloc(serialized_data_hex_str_len);
   TEST_ASSERT_NOT_NULL(serialized_data_hex_str);
-  bin_2_hex(core_message_buf, core_message_expected_len, NULL, serialized_data_hex_str, serialized_data_hex_str_len);
+  bin_2_hex(core_block_buf, core_block_expected_len, NULL, serialized_data_hex_str, serialized_data_hex_str_len);
   TEST_ASSERT_EQUAL_MEMORY(test_serialized_data_str, serialized_data_hex_str, serialized_data_hex_str_len);
 
-  // print serialized core message
-  printf("Serialized messages: ");
-  dump_hex_str(core_message_buf, core_message_expected_len);
+  // print serialized the block
+  printf("Serialized blocks: ");
+  dump_hex_str(core_block_buf, core_block_expected_len);
 
-  // print core message
-  core_message_print(msg, 0);
+  // print a block
+  core_block_print(blk, 0);
 
   // clean up
   free(serialized_data_hex_str);
   free(signature);
-  free(core_message_buf);
+  free(core_block_buf);
   output_basic_free(basic_output_one);
   output_basic_free(basic_output_two);
   tagged_data_free(tagged_data);
-  core_message_free(msg);
+  core_block_free(blk);
 }
 
-void test_message_with_tagged_data_serialize() {
+void test_block_with_tagged_data_serialize() {
   char test_serialized_data_str[] =
       "0204177fc9af60009e4e4e835baf7fe9f5f05aaf9b4e391e605d67cb722bf556266960f767d157c2cfb12533082abb3085a22665ef19f7bf"
       "77a3e39a2b223f33108a6af00016d7fbe8e5aa55c6688db5d5eb4241a562c4bd89ce8e6c0bc3fc3f6458fe53e33c0b95699172a9537f116e"
       "e6a61c2cc153e4f857071bde2f72e23132881f000000050000000b696f74612e63206c6962000b00000048656c6c6f20576f726c6460e600"
       "0000000000";
 
-  core_message_t* msg = core_message_new(2);
-  TEST_ASSERT_NOT_NULL(msg);
+  core_block_t* blk = core_block_new(2);
+  TEST_ASSERT_NOT_NULL(blk);
 
-  // add message parents
-  byte_t parent_id_1[IOTA_MESSAGE_ID_BYTES];
-  hex_2_bin("177fc9af60009e4e4e835baf7fe9f5f05aaf9b4e391e605d67cb722bf5562669", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
+  // add block parents
+  byte_t parent_id_1[IOTA_BLOCK_ID_BYTES];
+  hex_2_bin("177fc9af60009e4e4e835baf7fe9f5f05aaf9b4e391e605d67cb722bf5562669", BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES),
             NULL, parent_id_1, sizeof(parent_id_1));
-  byte_t parent_id_2[IOTA_MESSAGE_ID_BYTES];
-  hex_2_bin("60f767d157c2cfb12533082abb3085a22665ef19f7bf77a3e39a2b223f33108a", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
+  byte_t parent_id_2[IOTA_BLOCK_ID_BYTES];
+  hex_2_bin("60f767d157c2cfb12533082abb3085a22665ef19f7bf77a3e39a2b223f33108a", BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES),
             NULL, parent_id_2, sizeof(parent_id_2));
-  byte_t parent_id_3[IOTA_MESSAGE_ID_BYTES];
-  hex_2_bin("6af00016d7fbe8e5aa55c6688db5d5eb4241a562c4bd89ce8e6c0bc3fc3f6458", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
+  byte_t parent_id_3[IOTA_BLOCK_ID_BYTES];
+  hex_2_bin("6af00016d7fbe8e5aa55c6688db5d5eb4241a562c4bd89ce8e6c0bc3fc3f6458", BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES),
             NULL, parent_id_3, sizeof(parent_id_3));
-  byte_t parent_id_4[IOTA_MESSAGE_ID_BYTES];
-  hex_2_bin("fe53e33c0b95699172a9537f116ee6a61c2cc153e4f857071bde2f72e2313288", BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES),
+  byte_t parent_id_4[IOTA_BLOCK_ID_BYTES];
+  hex_2_bin("fe53e33c0b95699172a9537f116ee6a61c2cc153e4f857071bde2f72e2313288", BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES),
             NULL, parent_id_4, sizeof(parent_id_4));
-  core_message_add_parent(msg, parent_id_1);
-  core_message_add_parent(msg, parent_id_2);
-  core_message_add_parent(msg, parent_id_3);
-  core_message_add_parent(msg, parent_id_4);
-  TEST_ASSERT_EQUAL_UINT8(4, core_message_parent_len(msg));
+  core_block_add_parent(blk, parent_id_1);
+  core_block_add_parent(blk, parent_id_2);
+  core_block_add_parent(blk, parent_id_3);
+  core_block_add_parent(blk, parent_id_4);
+  TEST_ASSERT_EQUAL_UINT8(4, core_block_parent_len(blk));
 
-  // add message payload
-  msg->payload_type = CORE_MESSAGE_PAYLOAD_TAGGED;
+  // add block payload
+  blk->payload_type = CORE_BLOCK_PAYLOAD_TAGGED;
 
   // create tagged data
   byte_t data[] = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64};
   char const* const iotac_lib = "iota.c lib";
-  msg->payload = tagged_data_new((byte_t*)iotac_lib, strlen(iotac_lib) + 1, data, sizeof(data));
+  blk->payload = tagged_data_new((byte_t*)iotac_lib, strlen(iotac_lib) + 1, data, sizeof(data));
 
-  // add message nonce
-  msg->nonce = 58976;
+  // add block nonce
+  blk->nonce = 58976;
 
   // serialize core message
-  size_t core_message_expected_len = core_message_serialize_len(msg);
-  TEST_ASSERT(core_message_expected_len != 0);
-  byte_t* core_message_buf = malloc(core_message_expected_len);
-  TEST_ASSERT_NOT_NULL(core_message_buf);
-  TEST_ASSERT(core_message_serialize(msg, core_message_buf, 1) == 0);  // expect serialization fails
-  TEST_ASSERT(core_message_serialize(msg, core_message_buf, core_message_expected_len) == core_message_expected_len);
+  size_t core_block_expected_len = core_block_serialize_len(blk);
+  TEST_ASSERT(core_block_expected_len != 0);
+  byte_t* core_block_buf = malloc(core_block_expected_len);
+  TEST_ASSERT_NOT_NULL(core_block_buf);
+  TEST_ASSERT(core_block_serialize(blk, core_block_buf, 1) == 0);  // expect serialization fails
+  TEST_ASSERT(core_block_serialize(blk, core_block_buf, core_block_expected_len) == core_block_expected_len);
 
   // validate core message
-  size_t serialized_data_hex_str_len = BIN_TO_HEX_STR_BYTES(core_message_expected_len);
+  size_t serialized_data_hex_str_len = BIN_TO_HEX_STR_BYTES(core_block_expected_len);
   TEST_ASSERT_EQUAL_INT(sizeof(test_serialized_data_str), serialized_data_hex_str_len);
   char* serialized_data_hex_str = malloc(serialized_data_hex_str_len);
   TEST_ASSERT_NOT_NULL(serialized_data_hex_str);
-  bin_2_hex(core_message_buf, core_message_expected_len, NULL, serialized_data_hex_str, serialized_data_hex_str_len);
+  bin_2_hex(core_block_buf, core_block_expected_len, NULL, serialized_data_hex_str, serialized_data_hex_str_len);
   TEST_ASSERT_EQUAL_MEMORY(test_serialized_data_str, serialized_data_hex_str, serialized_data_hex_str_len);
 
   // print serialized core message
   printf("Serialized messages: ");
-  dump_hex_str(core_message_buf, core_message_expected_len);
+  dump_hex_str(core_block_buf, core_block_expected_len);
 
   // print core message
-  core_message_print(msg, 0);
+  core_block_print(blk, 0);
 
   // clean up
   free(serialized_data_hex_str);
-  free(core_message_buf);
-  core_message_free(msg);
+  free(core_block_buf);
+  core_block_free(blk);
 }
 
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_message_with_tx);
-  RUN_TEST(test_message_with_tx_serialize);
-  RUN_TEST(test_message_with_tagged_data_serialize);
+  RUN_TEST(test_block_with_tx);
+  RUN_TEST(test_block_with_tx_serialize);
+  RUN_TEST(test_block_with_tagged_data_serialize);
 
   return UNITY_END();
 }

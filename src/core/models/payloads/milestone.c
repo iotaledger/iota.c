@@ -7,18 +7,18 @@
 #include "core/utils/macros.h"
 #include "utlist.h"
 
-static const UT_icd ut_msg_id_icd = {sizeof(uint8_t) * IOTA_MESSAGE_ID_BYTES, NULL, NULL, NULL};
+static const UT_icd ut_blk_id_icd = {sizeof(uint8_t) * IOTA_BLOCK_ID_BYTES, NULL, NULL, NULL};
 static const UT_icd ut_sign_icd = {sizeof(uint8_t) * ED25519_SIGNATURE_BLOCK_BYTES, NULL, NULL, NULL};
 
 milestone_payload_t *milestone_payload_new() {
   milestone_payload_t *ms = malloc(sizeof(milestone_payload_t));
   if (ms) {
-    ms->type = CORE_MESSAGE_PAYLOAD_MILESTONE;
+    ms->type = CORE_BLOCK_PAYLOAD_MILESTONE;
     ms->index = 0;
     ms->timestamp = 0;
     ms->protocol_version = 0;
     memset(ms->previous_milestone_id, 0, sizeof(ms->previous_milestone_id));
-    utarray_new(ms->parents, &ut_msg_id_icd);
+    utarray_new(ms->parents, &ut_blk_id_icd);
     memset(ms->confirmed_merkle_root, 0, sizeof(ms->confirmed_merkle_root));
     memset(ms->applied_merkle_root, 0, sizeof(ms->applied_merkle_root));
     ms->metadata = NULL;
@@ -102,12 +102,12 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
     printf("%s\tPrevious Milestone Id: ", PRINT_INDENTATION(indentation));
     dump_hex_str(ms->previous_milestone_id, sizeof(ms->previous_milestone_id));
 
-    printf("%s\tParent Message Ids:\n", PRINT_INDENTATION(indentation));
-    size_t parent_message_len = milestone_payload_get_parents_count(ms);
-    printf("%s\tParent Message Count: %lu\n", PRINT_INDENTATION(indentation + 1), parent_message_len);
-    for (size_t index = 0; index < parent_message_len; index++) {
+    printf("%s\tParent Block Ids:\n", PRINT_INDENTATION(indentation));
+    size_t parent_block_len = milestone_payload_get_parents_count(ms);
+    printf("%s\tParent Block Count: %lu\n", PRINT_INDENTATION(indentation + 1), parent_block_len);
+    for (size_t index = 0; index < parent_block_len; index++) {
       printf("%s\t#%lu ", PRINT_INDENTATION(indentation + 1), index);
-      dump_hex_str(milestone_payload_get_parent(ms, index), IOTA_MESSAGE_ID_BYTES);
+      dump_hex_str(milestone_payload_get_parent(ms, index), IOTA_BLOCK_ID_BYTES);
     }
 
     printf("%s\tConfirmed Merkle Root: ", PRINT_INDENTATION(indentation));

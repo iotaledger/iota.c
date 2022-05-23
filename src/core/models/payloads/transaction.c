@@ -61,7 +61,7 @@ int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* paylo
   if (!es || !payload) {
     return -1;
   }
-  if (type == CORE_MESSAGE_PAYLOAD_TAGGED) {
+  if (type == CORE_BLOCK_PAYLOAD_TAGGED) {
     es->payload = tagged_data_clone((tagged_data_payload_t const* const)payload);
     es->payload_len = tagged_data_serialize_len(payload);
   } else {
@@ -356,7 +356,7 @@ void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
 transaction_payload_t* tx_payload_new(uint64_t network_id) {
   transaction_payload_t* tx = malloc(sizeof(transaction_payload_t));
   if (tx) {
-    tx->type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+    tx->type = CORE_BLOCK_PAYLOAD_TRANSACTION;
     tx->essence = tx_essence_new(network_id);
     tx->unlocks = unlock_list_new();
     if (tx->essence == NULL) {
@@ -409,7 +409,7 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
 
   byte_t* offset = buf;
   // write payload type
-  uint32_t payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  uint32_t payload_type = CORE_BLOCK_PAYLOAD_TRANSACTION;
   memcpy(offset, &payload_type, sizeof(uint32_t));
   offset += sizeof(uint32_t);
   // write essence

@@ -15,8 +15,7 @@
  *
  */
 typedef struct {
-  uint32_t
-      next_pow_score;  // The new PoW score all messages should adhere to. If 0 then the PoW score should not change.
+  uint32_t next_pow_score;  // The new PoW score all blocks should adhere to. If 0 then the PoW score should not change.
   uint32_t next_pow_score_milestone_index;  // The index of the first milestone that will require a new minimal pow
                                             // score for applying transactions. This field comes into effect only if the
                                             // Next PoW Score field is not 0.
@@ -53,15 +52,15 @@ typedef struct {
   uint32_t type;             // payload type, set to 7 denotes a milestone payload
   uint32_t index;            // The index number of the milestone.
   uint32_t timestamp;        // The Unix time (seconds since Unix epoch) at which the milestone was issued.
-  uint8_t protocol_version;  ///< Protocol version number of message.
+  uint8_t protocol_version;  ///< Protocol version number of the network.
   byte_t
       previous_milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES];  // The milestone ID of the milestone with index number - 1
-  UT_array *parents;                                         // Parents of milestone message.
-  byte_t confirmed_merkle_root[CRYPTO_BLAKE2B_256_HASH_BYTES];  // The Merkle tree hash (BLAKE2b-256) of the message
-                                                                // IDs of all messages confirmed by this milestone.
-  byte_t applied_merkle_root[CRYPTO_BLAKE2B_256_HASH_BYTES];    // The Merkle tree hash (BLAKE2b-256) of the message IDs
-                                                              // of all messages applied by this milestone that contain
-                                                              // a state-mutating transaction.
+  UT_array *parents;                                         // Parents Blocks of this milestone.
+  byte_t confirmed_merkle_root[CRYPTO_BLAKE2B_256_HASH_BYTES];  // The Merkle tree hash (BLAKE2b-256) of the Block
+                                                                // IDs of all blocks confirmed by this milestone.
+  byte_t applied_merkle_root[CRYPTO_BLAKE2B_256_HASH_BYTES];    // The Merkle tree hash (BLAKE2b-256) of the Block IDs
+                                                                // of all blocks applied by this milestone that contain
+                                                                // a state-mutating transaction.
   byte_buf_t *metadata;               // Binary data only relevant to milestone issuer, e.g. internal state.
   milestone_options_list_t *options;  // Milestone options: PoW milestone option or Receipts milestone option
   UT_array *signatures;  // The Ed25519 signature signing the BLAKE2b-256 hash of the serialized Milestone Essence. The

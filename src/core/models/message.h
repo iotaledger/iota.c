@@ -1,8 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CORE_MODELS_MESSAGE_H__
-#define __CORE_MODELS_MESSAGE_H__
+#ifndef __CORE_MODELS_BLOCK_H__
+#define __CORE_MODELS_BLOCK_H__
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -10,116 +10,116 @@
 #include "core/models/payloads/milestone.h"
 
 typedef enum {
-  CORE_MESSAGE_PAYLOAD_DEPRECATED_0 = 0,
-  CORE_MESSAGE_PAYLOAD_DEPRECATED_1,
-  CORE_MESSAGE_PAYLOAD_INDEXATION,
-  CORE_MESSAGE_PAYLOAD_RECEIPT,
-  CORE_MESSAGE_PAYLOAD_TREASURY,
-  CORE_MESSAGE_PAYLOAD_TAGGED,
-  CORE_MESSAGE_PAYLOAD_TRANSACTION,
-  CORE_MESSAGE_PAYLOAD_MILESTONE,
-  CORE_MESSAGE_PAYLOAD_UNKNOWN = UINT32_MAX - 1,
-} core_message_payload_type_t;
+  CORE_BLOCK_PAYLOAD_DEPRECATED_0 = 0,
+  CORE_BLOCK_PAYLOAD_DEPRECATED_1,
+  CORE_BLOCK_PAYLOAD_INDEXATION,
+  CORE_BLOCK_PAYLOAD_RECEIPT,
+  CORE_BLOCK_PAYLOAD_TREASURY,
+  CORE_BLOCK_PAYLOAD_TAGGED,
+  CORE_BLOCK_PAYLOAD_TRANSACTION,
+  CORE_BLOCK_PAYLOAD_MILESTONE,
+  CORE_BLOCK_PAYLOAD_UNKNOWN = UINT32_MAX - 1,
+} core_block_payload_type_t;
 
 /**
- * @brief A message object
+ * @brief A block object
  *
  */
 typedef struct {
-  uint8_t protocol_version;  ///< Protocol version number of message.
-  UT_array* parents;         ///< Parents of this message.
-  uint32_t payload_type;     ///< Payload type, one of core_message_payload_type_t
+  uint8_t protocol_version;  ///< Protocol version number of block.
+  UT_array* parents;         ///< Parents of this block.
+  uint32_t payload_type;     ///< Payload type, one of core_block_payload_type_t
   void* payload;             ///< Payload object, NULL is no payload.
-  uint64_t nonce;            ///< The nonce which lets this message fulfill the Proof-of-Work requirement.
-} core_message_t;
+  uint64_t nonce;            ///< The nonce which lets this block fulfill the Proof-of-Work requirement.
+} core_block_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @brief Allocate a core message object
+ * @brief Allocate a core block object
  *
  * @param[in] ver A protocol version
- * @return core_message_t*
+ * @return core_block_t*
  */
-core_message_t* core_message_new(uint8_t ver);
+core_block_t* core_block_new(uint8_t ver);
 
 /**
  * @brief Calculate a transaction essence hash
  *
- * @param[in] msg A message with transaction payload
+ * @param[in] blk A block with transaction payload
  * @param[out] essence_hash Calculated essence hash
  * @param[in] essence_hash_len Length of an essence hash array
  * @return int 0 on success
  */
-int core_message_essence_hash_calc(core_message_t* msg, byte_t essence_hash[], uint8_t essence_hash_len);
+int core_block_essence_hash_calc(core_block_t* blk, byte_t essence_hash[], uint8_t essence_hash_len);
 
 /**
- * @brief Free a core message object
+ * @brief Free a core block object
  *
- * @param[in] msg message object
+ * @param[in] blk block object
  */
-void core_message_free(core_message_t* msg);
+void core_block_free(core_block_t* blk);
 
 /**
- * @brief Add a parent to the message
+ * @brief Add a parent to the block
  *
- * @param[in] msg A message object
- * @param[in] msg_id A message ID
+ * @param[in] blk A block object
+ * @param[in] blk_id A block ID
  */
-void core_message_add_parent(core_message_t* msg, byte_t const msg_id[]);
+void core_block_add_parent(core_block_t* blk, byte_t const blk_id[]);
 
 /**
  * @brief Get the number of parent
  *
- * @param[in] msg A message object
+ * @param[in] blk A block object
  * @return size_t
  */
-size_t core_message_parent_len(core_message_t* msg);
+size_t core_block_parent_len(core_block_t* blk);
 
 /**
  * @brief Gets a parent ID by a given index
  *
- * @param[in] msg A message object
- * @param[in] index A index of a message ID
+ * @param[in] blk A block object
+ * @param[in] index A index of a block ID
  * @return byte_t* a pointer to the binary ID
  */
-byte_t* core_message_get_parent_id(core_message_t* msg, size_t index);
+byte_t* core_block_get_parent_id(core_block_t* blk, size_t index);
 
 /**
- * @brief Get the message payload type
+ * @brief Get the block payload type
  *
- * @param[in] msg The message object
- * @return core_message_payload_type_t
+ * @param[in] blk The block object
+ * @return core_block_payload_type_t
  */
-core_message_payload_type_t core_message_get_payload_type(core_message_t* msg);
+core_block_payload_type_t core_block_get_payload_type(core_block_t* blk);
 
 /**
- * @brief Get the length of a serialized core message
+ * @brief Get the length of a serialized core block
  *
- * @param[in] msg The message object
+ * @param[in] blk The block object
  * @return size_t The number of bytes of serialized data
  */
-size_t core_message_serialize_len(core_message_t* msg);
+size_t core_block_serialize_len(core_block_t* blk);
 
 /**
- * @brief Serialize core message to a buffer
+ * @brief Serialize core block to a buffer
  *
- * @param[in] msg The message object
+ * @param[in] blk The block object
  * @param[out] buf A buffer holds the serialized data
  * @param[in] buf_len The length of buffer
  * @return size_t The bytes written is returned, 0 on errors
  */
-size_t core_message_serialize(core_message_t* msg, byte_t buf[], size_t buf_len);
+size_t core_block_serialize(core_block_t* blk, byte_t buf[], size_t buf_len);
 
 /**
- * @brief Print out a core message
+ * @brief Print out a core block
  *
- * @param[in] msg The message object
- * @param[in] indentation Tab indentation when printing core message
+ * @param[in] blk The block object
+ * @param[in] indentation Tab indentation when printing core block
  */
-void core_message_print(core_message_t* msg, uint8_t indentation);
+void core_block_print(core_block_t* blk, uint8_t indentation);
 
 #ifdef __cplusplus
 }

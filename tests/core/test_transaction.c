@@ -314,7 +314,7 @@ void test_tx_essence() {
   tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)tag_str, strlen(tag_str), tag_data, DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
-  TEST_ASSERT_EQUAL_INT(0, tx_essence_add_payload(es, CORE_MESSAGE_PAYLOAD_TAGGED, tagged_data));
+  TEST_ASSERT_EQUAL_INT(0, tx_essence_add_payload(es, CORE_BLOCK_PAYLOAD_TAGGED, tagged_data));
 
   // get count of input list
   TEST_ASSERT_EQUAL_UINT16(3, utxo_inputs_count(es->inputs));
@@ -517,7 +517,7 @@ void test_tx_payload() {
   tagged_data_payload_t* tagged_data = tagged_data_new((byte_t*)tag_str, strlen(tag_str), tag_data, DATA_LEN);
   TEST_ASSERT_NOT_NULL(tagged_data);
 
-  TEST_ASSERT_EQUAL_INT(0, tx_essence_add_payload(tx_payload->essence, CORE_MESSAGE_PAYLOAD_TAGGED, tagged_data));
+  TEST_ASSERT_EQUAL_INT(0, tx_essence_add_payload(tx_payload->essence, CORE_BLOCK_PAYLOAD_TAGGED, tagged_data));
 
   // add a signature unlock
   byte_t sig[ED25519_SIGNATURE_BLOCK_BYTES] = {};

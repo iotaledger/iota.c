@@ -97,15 +97,15 @@ void test_tx_alias_unlock_funds() {
   TEST_ASSERT_TRUE(tx_essence_syntactic(tx->essence, cost));
   byte_cost_config_free(cost);
 
-  // add transaction payload to message
+  // add transaction payload to a block
   uint8_t protocol_ver = 1;
-  core_message_t* msg = core_message_new(protocol_ver);
-  msg->payload = tx;
-  msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  core_block_t* blk = core_block_new(protocol_ver);
+  blk->payload = tx;
+  blk->payload_type = CORE_BLOCK_PAYLOAD_TRANSACTION;
 
   // calculate transaction essence hash
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
-  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
+  TEST_ASSERT(core_block_essence_hash_calc(blk, essence_hash, sizeof(essence_hash)) == 0);
 
   // sign transaction (generate unlock blocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data_list,
@@ -120,13 +120,13 @@ void test_tx_alias_unlock_funds() {
   unlock = unlock_list_get(tx->unlocks, 1);
   TEST_ASSERT(unlock->type == UNLOCK_ALIAS_TYPE);
 
-  // print core message transaction
-  core_message_print(msg, 0);
+  // print a block
+  core_block_print(blk, 0);
 
   // clean up
   signing_free(sign_data_list);
   output_alias_free(alias_output);
-  core_message_free(msg);
+  core_block_free(blk);
 }
 
 int main() {
