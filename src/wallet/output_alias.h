@@ -36,12 +36,16 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
  * @param[in] state_ctrl_change The state controller change index which is {0, 1}, also known as wallet chain
  * @param[in] state_ctrl_index The state controller address index
  * @param[in] govern_addr The governor address
+ * @param[in] foundry_counter The foundry counter number
+ * @param[in] send_amount The amount to transfer
+ * @param[in] outputs The outputs which will be created in a transaction
  * @param[out] msg_res The response of the transfer
  *
  * @return int 0 on success
  */
 int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bool state_ctrl_change,
-                                         uint32_t state_ctrl_index, address_t* govern_addr,
+                                         uint32_t state_ctrl_index, address_t* govern_addr, uint32_t foundry_counter,
+                                         uint64_t send_amount, utxo_outputs_list_t* outputs,
                                          res_send_message_t* msg_res);
 
 /**

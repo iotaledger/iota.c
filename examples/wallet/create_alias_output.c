@@ -50,15 +50,15 @@ int main(void) {
 
   address_t sender_addr, state_ctrl_addr, govern_addr;
   if (wallet_ed25519_address_from_index(w, false, sender_addr_index, &sender_addr) != 0) {
-    printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
+    printf("Get sender address failed!\n");
     return -1;
   }
   if (wallet_ed25519_address_from_index(w, false, state_ctrl_addr_index, &state_ctrl_addr) != 0) {
-    printf("[%s:%d] get state controller address failed\n", __func__, __LINE__);
+    printf("Get state controller address failed!\n");
     return -1;
   }
   if (wallet_ed25519_address_from_index(w, false, govern_addr_index, &govern_addr) != 0) {
-    printf("[%s:%d] get governor address failed\n", __func__, __LINE__);
+    printf("Get governor address failed!\n");
     return -1;
   }
 
@@ -130,8 +130,8 @@ int main(void) {
   printf("Sending alias state transition transaction message to the Tangle...\n");
 
   // create a second transaction with an actual alias ID
-  if (wallet_alias_output_state_transition(w, alias_addr.address, false, state_ctrl_addr_index, &govern_addr,
-                                           &msg_res) != 0) {
+  if (wallet_alias_output_state_transition(w, alias_addr.address, false, state_ctrl_addr_index, &govern_addr, 0, 0,
+                                           NULL, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
