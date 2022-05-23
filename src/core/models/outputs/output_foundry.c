@@ -346,6 +346,29 @@ void output_foundry_free(output_foundry_t* output) {
   }
 }
 
+int output_foundry_calculate_id(output_foundry_t* output, address_t* addr, byte_t id[], uint8_t id_len) {
+  if (output == NULL || addr == NULL || id == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (id_len < FOUNDRY_ID_BYTES) {
+    printf("[%s:%d] Foundry Output ID array length is too small\n", __func__, __LINE__);
+    return -1;
+  }
+
+  size_t addr_ser_len = address_serialized_len(addr);
+  if (address_serialize(addr, id, id_len) != addr_ser_len) {
+    printf("[%s:%d] can not serialize address\n", __func__, __LINE__);
+    return -1;
+  }
+
+  memcpy(id + ADDRESS_SERIALIZED_MAX_BYTES, &output->serial, sizeof(output->serial));
+  memset(id + addr_ser_len + sizeof(output->serial), (uint8_t)output->token_scheme->type, sizeof(uint8_t));
+
+  return 0;
+}
+
 size_t output_foundry_serialize_len(output_foundry_t* output) {
   if (output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);

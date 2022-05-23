@@ -152,6 +152,17 @@ output_foundry_t* output_foundry_new(address_t* alias, uint64_t amount, native_t
 void output_foundry_free(output_foundry_t* output);
 
 /**
+ * @brief Calculate and return Foundry Output ID
+ *
+ * @param[in] output Foundry Output object
+ * @param[in] addr An alias address
+ * @param[out] id Calculated Foundry Output ID
+ * @param[in] id_len Length of Foundry Output ID array
+ * @return int 0 on success
+ */
+int output_foundry_calculate_id(output_foundry_t* output, address_t* addr, byte_t id[], uint8_t id_len);
+
+/**
  * @brief Get the length of a serialized Foundry Output
  *
  * @param[in] output Foundry Output object.

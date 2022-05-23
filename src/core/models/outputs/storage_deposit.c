@@ -6,7 +6,23 @@
 
 #include "core/models/outputs/storage_deposit.h"
 
-static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_output_type_t output_type, void *output) {
+// Notice, this solution is a trade-off for memory optimization that we don't create the basic output and calculate byte
+// cost from it.
+static uint64_t basic_address_storage_deposit(byte_cost_config_t *config, address_t *addr) {
+  if (config == NULL || addr == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return UINT64_MAX;
+  }
+
+  // output serialized length = output type + amount + native tokens + unlock count + block count
+  uint64_t output_serialized_len = 12;  // 1 + 8 + 1 + 1 + 1
+  // address unlock condition = unlock type + address serialized length
+  output_serialized_len += 1 + address_serialized_len(addr);
+
+  return config->v_byte_cost * ((output_serialized_len * config->v_byte_factor_data) + config->v_byte_offset);
+}
+
+uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_output_type_t output_type, void *output) {
   if (config == NULL || output == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return UINT64_MAX;
@@ -38,22 +54,6 @@ static uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_out
   }
 
   return config->v_byte_cost * (weighted_bytes + config->v_byte_offset);
-}
-
-// Notice, this solution is a trade-off for memory optimization that we don't create the basic output and calculate byte
-// cost from it.
-static uint64_t basic_address_storage_deposit(byte_cost_config_t *config, address_t *addr) {
-  if (config == NULL || addr == NULL) {
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return UINT64_MAX;
-  }
-
-  // output serialized length = output type + amount + native tokens + unlock count + block count
-  uint64_t output_serialized_len = 12;  // 1 + 8 + 1 + 1 + 1
-  // address unlock condition = unlock type + address serialized length
-  output_serialized_len += 1 + address_serialized_len(addr);
-
-  return config->v_byte_cost * ((output_serialized_len * config->v_byte_factor_data) + config->v_byte_offset);
 }
 
 bool storage_deposit_check(byte_cost_config_t *config, utxo_output_type_t output_type, void *output) {
