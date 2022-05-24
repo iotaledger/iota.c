@@ -119,6 +119,14 @@ uint256_t *uint256_from_hex_str(char const *str) {
     return NULL;
   }
 
+  uint8_t str_max_len = 4 * BIN_TO_HEX_BYTES(sizeof(uint64_t));
+  uint8_t str_len = strlen(str);
+
+  if (str_len > str_max_len) {
+    printf("[%s:%d] given string number is too big for uint256 object\n", __func__, __LINE__);
+    return NULL;
+  }
+
   uint256_t *num = malloc(sizeof(uint256_t));
   if (!num) {
     printf("[%s:%d] creating uint256 object failed\n", __func__, __LINE__);
@@ -126,12 +134,10 @@ uint256_t *uint256_from_hex_str(char const *str) {
   }
 
   // create temporary string with maximum 256 bit hex length (4 * uint64_t)
-  uint8_t str_max_len = 4 * BIN_TO_HEX_BYTES(sizeof(uint64_t));
   char str_max_temp[str_max_len];
   memset(str_max_temp, '0', str_max_len);
 
   // copy str to appropriate place in temporary string with a maximum length
-  uint8_t str_len = strlen(str);
   memcpy(str_max_temp + (str_max_len - str_len), str, str_len);
 
   // scan all four uint64_t numbers
@@ -293,10 +299,12 @@ char *uint256_to_hex_str(uint256_t *num) {
   uint8_t str_length = 0;
 
   // convert uint256_t to hex string
+  bool append_zeros = false;
   for (int8_t i = 3; i >= 0; i--) {
-    if (num->bits[i] > 0) {
+    if (num->bits[i] > 0 || append_zeros) {
       sprintf(&str_temp[str_length], "%016" PRIx64 "", num->bits[i]);
       str_length = strlen(str_temp);
+      append_zeros = true;
     }
   }
 
