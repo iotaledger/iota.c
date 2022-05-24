@@ -304,6 +304,7 @@ end:
 }
 
 // TODO: the alias output should be able to send tokens and set state metadata
+// TODO: alias address could have more than one unspent output and they need to be collected to satisfy send_amount
 int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bool state_ctrl_change,
                                          uint32_t state_ctrl_index, address_t* govern_addr, uint32_t foundry_counter,
                                          uint64_t send_amount, utxo_outputs_list_t* outputs,

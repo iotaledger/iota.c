@@ -8,11 +8,12 @@
 #include "wallet/output_foundry.h"
 
 int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_addr, bool state_ctrl_change,
-                                             uint32_t state_ctrl_index, address_t* govern_addr, uint256_t* max_supply,
-                                             uint256_t* minted_tokens, uint32_t serial_number, uint32_t foundry_counter,
-                                             address_t* receiver_addr, res_send_message_t* msg_res) {
+                                             uint32_t state_ctrl_index, address_t* govern_addr,
+                                             address_t* receiver_addr, uint256_t* max_supply, uint256_t* minted_tokens,
+                                             uint32_t serial_number, uint32_t foundry_counter,
+                                             res_send_message_t* msg_res) {
   if (w == NULL || alias_addr == NULL || govern_addr == NULL || max_supply == NULL || minted_tokens == NULL ||
-      msg_res == NULL) {
+      receiver_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }

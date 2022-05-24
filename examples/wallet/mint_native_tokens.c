@@ -152,8 +152,8 @@ int main(void) {
   // mint native tokens
   printf("Sending mint native tokens transaction message to the Tangle...\n");
 
-  if (wallet_foundry_output_mint_native_tokens(w, &alias_addr, false, state_ctrl_addr_index, &govern_addr, max_supply,
-                                               minted_tokens, 1, 1, &receiver_addr, &msg_res) != 0) {
+  if (wallet_foundry_output_mint_native_tokens(w, &alias_addr, false, state_ctrl_addr_index, &govern_addr,
+                                               &receiver_addr, max_supply, minted_tokens, 1, 1, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     uint256_free(max_supply);
     uint256_free(minted_tokens);
