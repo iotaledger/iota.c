@@ -14,17 +14,34 @@
  *
  */
 typedef enum {
-  QUERY_PARAM_ADDRESS = 0,       ///< The Bech32-encoded address that should be used to query outputs
-  QUERY_PARAM_ALIAS_ADDRESS,     ///< The alias address that should be used to query some outputs
-  QUERY_PARAM_HAS_STORAGE_RET,   ///< The presence of storage return unlock condition
-  QUERY_PARAM_STORAGE_RET_ADDR,  ///< The specific return address in the storage deposit return unlock condition
-  QUERY_PARAM_SENDER,            ///< To query outputs based on bech32-encoded sender address.
-  QUERY_PARAM_TAG,               ///< A tag block to search for outputs matching it
-  QUERY_PARAM_PAGE_SIZE,         ///< The maximum amount of items returned in one api call
-  QUERY_PARAM_CURSOR,            ///<  A cursor to start the query (confirmationMS+outputId.pageSize)
-  QUERY_PARAM_STATE_CTRL,        ///< To query outputs based on bech32-encoded state controller address
-  QUERY_PARAM_GOV,               ///< To query outputs based on bech32-encoded governor (governance controller) address
-  QUERY_PARAM_ISSUER             ///< To query outputs based on bech32-encoded issuer address
+  QUERY_PARAM_ADDRESS = 0,        ///< The Bech32-encoded address that should be used to query outputs
+  QUERY_PARAM_ALIAS_ADDRESS,      ///< The alias address that should be used to query some outputs
+  QUERY_PARAM_HAS_NATIVE_TOKENS,  ///< To filter outputs based on the presence of native tokens
+  QUERY_PARAM_MIN_NATIVE_TOKENS,  ///< To filter outputs that have at least a certain number of distinct native tokens
+  QUERY_PARAM_MAX_NATIVE_TOKENS,  ///< To filter outputs that have at most a certain number of distinct native tokens
+  QUERY_PARAM_HAS_STORAGE_RET,    ///< The presence of storage return unlock condition
+  QUERY_PARAM_STORAGE_RET_ADDR,   ///< The specific return address in the storage deposit return unlock condition
+  QUERY_PARAM_HAS_TIMELOCK,       ///< To filter outputs based on the presence of timelock unlock condition
+  QUERY_PARAM_TIMELOCKED_BEFORE,  ///< To return outputs that are timelocked before a certain Unix timestamp
+  QUERY_PARAM_TIMELOCKED_AFTER,   ///< To return outputs that are timelocked after a certain Unix timestamp
+  QUERY_PARAM_TIMELOCKED_BEFORE_MS,  ///< To return outputs that are timelocked before a certain milestone index
+  QUERY_PARAM_TIMELOCKED_AFTER_MS,   ///< To return outputs that are timelocked after a certain milestone index
+  QUERY_PARAM_HAS_EXP_COND,          ///< To filters outputs based on the presence of expiration unlock condition
+  QUERY_PARAM_EXPIRES_BEFORE,        ///< To return outputs that expire before a certain Unix timestamp
+  QUERY_PARAM_EXPIRES_AFTER,         ///< To return outputs that expire after a certain Unix timestamp
+  QUERY_PARAM_EXPIRES_BEFORE_MS,     ///< To return outputs that expire before a certain milestone index
+  QUERY_PARAM_EXPIRES_AFTER_MS,      ///< To return outputs that expire after a certain milestone index
+  QUERY_PARAM_EXP_RETURN_ADDR,       ///< To filter outputs based on the presence of a specific return address in the
+                                     ///< expiration unlock condition
+  QUERY_PARAM_SENDER,                ///< To query outputs based on bech32-encoded sender address
+  QUERY_PARAM_TAG,                   ///< A tag block to search for outputs matching it
+  QUERY_PARAM_CREATED_BEFORE,        ///< To return outputs that were created before a certain Unix timestamp
+  QUERY_PARAM_CREATED_AFTER,         ///< To return outputs that were created after a certain Unix timestamp
+  QUERY_PARAM_PAGE_SIZE,             ///< The maximum amount of items returned in one api call
+  QUERY_PARAM_CURSOR,                ///< A cursor to start the query (confirmationMS+outputId.pageSize)
+  QUERY_PARAM_STATE_CTRL,            ///< To query outputs based on bech32-encoded state controller address
+  QUERY_PARAM_GOV,    ///< To query outputs based on bech32-encoded governor (governance controller) address
+  QUERY_PARAM_ISSUER  ///< To query outputs based on bech32-encoded issuer address
 } outputs_query_params_e;
 
 /**
@@ -159,71 +176,85 @@ int deser_outputs(char const *const j_str, res_outputs_id_t *res);
  * @brief Gets output IDs from a given address
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] list A list of optional query parameters
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
+int get_basic_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                      res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given NFT address
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] addr An NFT address in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_nft_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
+int get_nft_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                    res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Alias address
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] list A list of optional query parameters
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_alias_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
+int get_alias_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                      res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Foundry address
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] list A list of optional query parameters
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_foundry_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res);
+int get_foundry_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                        res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given NFT ID
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] nft_id An NFT ID in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[], res_outputs_id_t *res);
+int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const *const indexer_path, char const nft_id[],
+                            res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Alias ID
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] alias_id An Alias ID in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_id[], res_outputs_id_t *res);
+int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const *const indexer_path, char const alias_id[],
+                              res_outputs_id_t *res);
 
 /**
  * @brief Gets output IDs from a given Foundry ID
  *
  * @param[in] conf The client endpoint configuration
+ * @param[in] indexer_path The api end-point indexer path
  * @param[in] foundry_id A Foundry ID in hex string format
  * @param[out] res A response object
  * @return int 0 on successful
  */
-int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const foundry_id[], res_outputs_id_t *res);
+int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const *const indexer_path, char const foundry_id[],
+                                res_outputs_id_t *res);
 
 #ifdef __cplusplus
 }

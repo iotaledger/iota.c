@@ -114,6 +114,15 @@ int get_output_meta(iota_client_conf_t const *conf, char const output_id[], res_
 int parse_get_output(char const *const j_str, get_output_t *res);
 
 /**
+ * @brief Parse an output metadata response JSON Object
+ *
+ * @param[in] json_obj A JSON response object
+ * @param[out] res The output of parsed object
+ * @return int 0 on success
+ */
+int parse_get_output_meta(cJSON *json_obj, get_output_t *res);
+
+/**
  * @brief The JSON deserialization of the get output response
  *
  * @param[in] j_str A string of the JSON object
@@ -121,6 +130,15 @@ int parse_get_output(char const *const j_str, get_output_t *res);
  * @return int 0 on success
  */
 int deser_get_output(char const *const j_str, res_output_t *res);
+
+/**
+ * @brief The JSON deserialization of the get output metadata response
+ *
+ * @param[in] j_str A string of the JSON object
+ * @param[out] res The output of deserialized response
+ * @return int 0 on success
+ */
+int deser_get_output_meta(char const *const j_str, res_output_t *res);
 
 /**
  * @brief Print get output object

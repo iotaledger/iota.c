@@ -46,9 +46,6 @@ void test_send_tagged_data() {
   // Valid data and tag
   TEST_ASSERT(send_tagged_data_message(&ctx, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
 
-  // Valid data and tag
-  TEST_ASSERT(send_tagged_data_message(&ctx, 2, binary_tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
-
   iota_str_t* cmd = NULL;
   char const* const cmd_str = "/messages/0x";
 
@@ -95,6 +92,7 @@ void test_send_tagged_data() {
   TEST_ASSERT_EQUAL_MEMORY(data_hex, json_data->valuestring + JSON_HEX_ENCODED_STR_PREFIX_LEN, TAG_DATA_LEN);
 
   free(tag_hex);
+  iota_str_destroy(cmd);
   cJSON_Delete(json_obj);
   byte_buf_free(http_res);
 }

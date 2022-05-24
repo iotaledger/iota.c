@@ -1,6 +1,8 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#if defined(__XTENSA__) || defined(ESP32) || defined(ESP_PLATFORM)
+
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -138,3 +140,4 @@ int http_client_get(http_client_config_t const* const config, byte_buf_t* const 
   }
   return ret;
 }
+#endif

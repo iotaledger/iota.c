@@ -6,16 +6,14 @@
 #include <string.h>
 
 #include "client/api/restful/get_node_info.h"
-#include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
 #include "core/models/message.h"
-#include "core/models/payloads/transaction.h"
-#include "core/models/signing.h"
 #include "wallet/bip39.h"
 #include "wallet/wallet.h"
 
-// max length of m/44'/4218'/Account'/Change' or m/44'/4219'/Account'/Change'
-#define IOTA_ACCOUNT_PATH_MAX 128
+#define NODE_DEFAULT_HRP "iota"
+#define NODE_DEFAULT_HOST "chrysalis-nodes.iota.org"
+#define NODE_DEFAULT_PORT 443
 
 // TODO: unused function at the moment
 #if 0
@@ -76,173 +74,8 @@ static int validate_pib44_path(char const path[]) {
 }
 #endif
 
-/**
- * @brief Get the address path
- *
- * @param[in] wallet A wallet object
- * @param[in] change change index which is {0, 1}, also known as wallet chain.
- * @param[in] index Address index
- * @param[out] buf The buffer holds BIP44 path
- * @param[in] buf_len the length of the buffer
- */
-static int get_address_path(iota_wallet_t* wallet, bool change, uint32_t index, char* buf, size_t buf_len) {
-  int ret_size = snprintf(buf, buf_len, "m/44'/%" PRIu32 "'/%" PRIu32 "'/%d'/%" PRIu32 "'", wallet->coin_type,
-                          wallet->account_index, change, index);
-  if ((size_t)ret_size >= buf_len) {
-    buf[buf_len - 1] = '\0';
-    printf("[%s:%d] path is truncated\n", __func__, __LINE__);
-  }
-
-  return 0;
-}
-
-// create basic unspent outputs
-static utxo_outputs_list_t* basic_outputs_from_address(iota_wallet_t* w, transaction_essence_t* essence,
-                                                       ed25519_keypair_t* sender_key, address_t* send_addr,
-                                                       uint64_t send_amount, signing_data_list_t** sign_data,
-                                                       uint64_t* output_amount) {
-  int ret = 0;
-  char bech32_addr[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
-  // query output IDs from Indexer by bech32 address
-  res_outputs_id_t* res_id = res_outputs_new();
-  if (res_id == NULL) {
-    printf("[%s:%d] allocate outputs response failed\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  if (address_to_bech32(send_addr, w->bech32HRP, bech32_addr, sizeof(bech32_addr)) == 0) {
-    outputs_query_list_t* query_param = outputs_query_list_new();
-    ret = outputs_query_list_add(&query_param, QUERY_PARAM_ADDRESS, bech32_addr);
-    if (ret != 0) {
-      printf("[%s:%d] add query params failed\n", __func__, __LINE__);
-      outputs_query_list_free(query_param);
-      res_outputs_free(res_id);
-      return NULL;
-    }
-
-    ret = get_outputs_id(&w->endpoint, query_param, res_id);
-    if (ret != 0) {
-      printf("[%s:%d] get output ID failed\n", __func__, __LINE__);
-      outputs_query_list_free(query_param);
-      res_outputs_free(res_id);
-      return NULL;
-    }
-
-    if (res_id->is_error) {
-      printf("[%s:%d] Err: %s\n", __func__, __LINE__, res_id->u.error->msg);
-      outputs_query_list_free(query_param);
-      res_outputs_free(res_id);
-      return NULL;
-    }
-    outputs_query_list_free(query_param);
-  }
-
-  // dump outputs for debugging
-  // for (size_t i = 0; i < res_outputs_output_id_count(res); i++) {
-  //   printf("output[%zu]: %s\n", i, res_outputs_output_id(res, i));
-  // }
-
-  // fetch output data from output IDs
-  *output_amount = 0;
-  utxo_outputs_list_t* unspent_outputs = utxo_outputs_new();
-  for (size_t i = 0; i < res_outputs_output_id_count(res_id); i++) {
-    res_output_t* output_res = get_output_response_new();
-    if (output_res) {
-      ret = get_output(&w->endpoint, res_outputs_output_id(res_id, i), output_res);
-      if (ret == 0) {
-        if (!output_res->is_error) {
-          // create inputs and unlock conditions based on the basic output
-          if (output_res->u.data->output->output_type == OUTPUT_BASIC) {
-            output_basic_t* o = (output_basic_t*)output_res->u.data->output->output;
-            *output_amount += o->amount;
-            // add the output as a tx input into the tx payload
-            ret =
-                tx_essence_add_input(essence, 0, output_res->u.data->meta.tx_id, output_res->u.data->meta.output_index);
-            if (ret != 0) {
-              get_output_response_free(output_res);
-              break;
-            }
-            // add the output in unspent outputs list to be able to calculate inputs commitment hash
-            ret = utxo_outputs_add(&unspent_outputs, output_res->u.data->output->output_type, o);
-            if (ret != 0) {
-              get_output_response_free(output_res);
-              break;
-            }
-
-            // add signing data (Basic output must have the address unlock condition)
-            // get address unlock condition from the basic output
-            unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(o->unlock_conditions, UNLOCK_COND_ADDRESS);
-            if (!unlock_cond) {
-              get_output_response_free(output_res);
-              break;
-            }
-            // add address unlock condition into the signing data list
-            ret = signing_data_add(unlock_cond->block, NULL, 0, sender_key, sign_data);
-            if (ret != 0) {
-              get_output_response_free(output_res);
-              break;
-            }
-
-            // check balance
-            if (*output_amount >= send_amount) {
-              // have got sufficient amount
-              get_output_response_free(output_res);
-              break;
-            }
-          }
-        } else {
-          printf("[%s:%d] %s\n", __func__, __LINE__, output_res->u.error->msg);
-        }
-      }
-      get_output_response_free(output_res);
-    } else {
-      break;
-    }
-  }
-
-  res_outputs_free(res_id);
-  return unspent_outputs;
-}
-
-// create a recever for a basic output
-static int basic_receiver_output(transaction_essence_t* essence, address_t* recv_addr, uint64_t amount) {
-  int ret = 0;
-  unlock_cond_blk_t* b = cond_blk_addr_new(recv_addr);
-  if (!b) {
-    printf("[%s:%d] unable to create address unlock condition\n", __func__, __LINE__);
-    return -1;
-  }
-
-  cond_blk_list_t* recv_cond = cond_blk_list_new();
-  if (cond_blk_list_add(&recv_cond, b) != 0) {
-    cond_blk_free(b);
-    cond_blk_list_free(recv_cond);
-    printf("[%s:%d] add unlock condition failed\n", __func__, __LINE__);
-    return -1;
-  }
-
-  output_basic_t* recv_output = output_basic_new(amount, NULL, recv_cond, NULL);
-  if (!recv_output) {
-    cond_blk_free(b);
-    cond_blk_list_free(recv_cond);
-    printf("[%s:%d] create basic output failed\n", __func__, __LINE__);
-    return -1;
-  }
-
-  // add receiver output to tx payload
-  if (tx_essence_add_output(essence, OUTPUT_BASIC, recv_output) != 0) {
-    ret = -1;
-  }
-  cond_blk_free(b);
-  cond_blk_list_free(recv_cond);
-  output_basic_free(recv_output);
-  return ret;
-}
-
 iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t coin_type, uint32_t account_index) {
-  char mnemonic_tmp[512] = {};  // buffer for random mnemonic
-
-  if (!pwd) {
+  if (pwd == NULL) {
     printf("[%s:%d] passphrase is needed\n", __func__, __LINE__);
     return NULL;
   }
@@ -256,7 +89,7 @@ iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t coin_ty
     w->account_index = account_index;
     w->coin_type = coin_type;
 
-    // drive mnemonic seed from the given sentence and password
+    // derive mnemonic seed from a given sentence and password
     if (ms) {
       // validating mnemonic sentence
       if (mnemonic_validation(ms, MS_LAN_EN)) {
@@ -270,9 +103,11 @@ iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t coin_ty
         printf("[%s:%d] invalid mnemonic sentence\n", __func__, __LINE__);
       }
     } else {
+      char mnemonic_tmp[512] = {0};  // buffer for random mnemonic
+
       // generator random ms
       if (mnemonic_generator(MS_ENTROPY_256, MS_LAN_EN, mnemonic_tmp, sizeof(mnemonic_tmp)) != 0) {
-        printf("[%s:%d] genrating mnemonic failed\n", __func__, __LINE__);
+        printf("[%s:%d] generating mnemonic failed\n", __func__, __LINE__);
       }
       if (mnemonic_to_seed(mnemonic_tmp, pwd, w->seed, sizeof(w->seed)) != 0) {
         printf("[%s:%d] derive mnemonic seed failed\n", __func__, __LINE__);
@@ -285,42 +120,145 @@ iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t coin_ty
   if (w) {
     free(w);
   }
+
   printf("allocate wallet object failed\n");
   return NULL;
 }
 
+void wallet_destroy(iota_wallet_t* w) {
+  if (w) {
+    free(w);
+  }
+}
+
 int wallet_set_endpoint(iota_wallet_t* w, char const host[], uint16_t port, bool use_tls) {
-  if (!w || !host) {
-    printf("[%s:%d] Err: invalid parameters\n", __func__, __LINE__);
+  if (w == NULL || host == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
   if (strlen(host) >= sizeof(w->endpoint.host)) {
-    printf("[%s:%d] Err: The length of hostname is too long\n", __func__, __LINE__);
+    printf("[%s:%d] a length of a hostname is too long\n", __func__, __LINE__);
     return -1;
   }
 
   snprintf(w->endpoint.host, sizeof(w->endpoint.host), "%s", host);
   w->endpoint.port = port;
   w->endpoint.use_tls = use_tls;
+
   return 0;
 }
 
-int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* out) {
-  char bip_path_buf[IOTA_ACCOUNT_PATH_MAX] = {};
-
-  if (!w || !out) {
-    printf("[%s:%d] Err: invalid paramters\n", __func__, __LINE__);
+int wallet_update_node_config(iota_wallet_t* w) {
+  if (w == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
+
+  res_node_info_t* info = res_node_info_new();
+  if (!info) {
+    printf("[%s:%d] allocate info response failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  int ret = get_node_info(&w->endpoint, info);
+  if (ret == 0) {
+    if (info->is_error == false) {
+      uint8_t network_id_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
+      // update bech32 HRP
+      strncpy(w->bech32HRP, info->u.output_node_info->bech32hrp, sizeof(w->bech32HRP));
+      // update network protocol version
+      w->protocol_version = info->u.output_node_info->protocol_version;
+      // update network ID
+      ret = iota_blake2b_sum((const uint8_t*)info->u.output_node_info->network_name,
+                             strlen(info->u.output_node_info->network_name), network_id_hash, sizeof(network_id_hash));
+
+      if (ret == 0) {
+        memcpy(&w->network_id, network_id_hash, sizeof(w->network_id));
+      } else {
+        printf("[%s:%d] update network ID failed\n", __func__, __LINE__);
+      }
+
+      // update byte cost
+      byte_cost_config_set(&w->byte_cost, info->u.output_node_info->rent_structure.v_byte_cost,
+                           info->u.output_node_info->rent_structure.v_byte_factor_data,
+                           info->u.output_node_info->rent_structure.v_byte_factor_key);
+
+      // update indexer path
+      size_t len = utarray_len(info->u.output_node_info->plugins);
+      for (size_t i = 0; i < len; i++) {
+        char** p = (char**)utarray_eltptr(info->u.output_node_info->plugins, i);
+        // indexer path contains "indexer" string
+        if (strstr(*p, "indexer")) {
+          w->indexer_path[0] = '/';
+          memcpy(&w->indexer_path[1], *p, strlen(*p) + 1);
+        }
+      }
+
+    } else {
+      ret = -2;
+      printf("[%s:%d] Error response: %s\n", __func__, __LINE__, info->u.error->msg);
+    }
+  }
+
+  res_node_info_free(info);
+
+  return ret;
+}
+
+int wallet_get_address_path(iota_wallet_t* w, bool change, uint32_t index, char* buf, size_t buf_len) {
+  if (w == NULL || buf == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  int ret_size = snprintf(buf, buf_len, "m/44'/%" PRIu32 "'/%" PRIu32 "'/%d'/%" PRIu32 "'", w->coin_type,
+                          w->account_index, change, index);
+  if ((size_t)ret_size >= buf_len) {
+    buf[buf_len - 1] = '\0';
+    printf("[%s:%d] path is truncated\n", __func__, __LINE__);
+  }
+
+  return 0;
+}
+
+int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* addr) {
+  if (w == NULL || addr == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  char bip_path_buf[IOTA_ACCOUNT_PATH_MAX] = {0};
 
   // derive ed25519 address from seed and path
-  if (get_address_path(w, change, index, bip_path_buf, sizeof(bip_path_buf)) != 0) {
-    printf("[%s:%d] Can not derive ed25519 address from seed and path\n", __func__, __LINE__);
+  if (wallet_get_address_path(w, change, index, bip_path_buf, sizeof(bip_path_buf)) != 0) {
+    printf("[%s:%d] can not derive ed25519 address from seed and path\n", __func__, __LINE__);
     return -1;
   }
 
-  return ed25519_address_from_path(w->seed, sizeof(w->seed), bip_path_buf, out);
+  return ed25519_address_from_path(w->seed, sizeof(w->seed), bip_path_buf, addr);
+}
+
+int wallet_get_address_and_keypair_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* addr,
+                                              ed25519_keypair_t* keypair) {
+  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
+
+  if (wallet_ed25519_address_from_index(w, change, index, addr) != 0) {
+    printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (wallet_get_address_path(w, change, index, addr_path, sizeof(addr_path)) != 0) {
+    printf("[%s:%d] can not derive address path from seed and path\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, keypair) != 0) {
+    printf("[%s:%d] get address keypair failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  return 0;
 }
 
 int wallet_balance_by_address(iota_wallet_t* w, address_t* addr, uint64_t* balance) {
@@ -368,182 +306,66 @@ int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* ba
   return -1;
 }
 
-int wallet_unlock_outputs(iota_wallet_t* w, bool change, uint32_t index) {
-  // TODO
-  (void)w;
-  (void)change;
-  (void)index;
-  return -1;
-}
-
-void wallet_destroy(iota_wallet_t* w) {
-  if (w) {
-    free(w);
-  }
-}
-
-int wallet_update_node_config(iota_wallet_t* w) {
-  if (!w) {
-    printf("[%s:%d] access NULL pointer\n", __func__, __LINE__);
-    return -1;
+core_message_t* wallet_create_core_message(iota_wallet_t* w, transaction_payload_t* tx,
+                                           utxo_outputs_list_t* unspent_outputs, signing_data_list_t* sign_data) {
+  if (w == NULL || tx == NULL || unspent_outputs == NULL || sign_data == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return NULL;
   }
 
-  res_node_info_t* info = res_node_info_new();
-  if (!info) {
-    printf("[%s:%d] allocate info response failed\n", __func__, __LINE__);
-    return -1;
+  // create a core message
+  core_message_t* core_msg = core_message_new(w->protocol_version);
+  if (!core_msg) {
+    printf("[%s:%d] create core message failed\n", __func__, __LINE__);
+    return NULL;
   }
-
-  int ret = get_node_info(&w->endpoint, info);
-  if (ret == 0) {
-    if (info->is_error == false) {
-      uint8_t network_id_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
-      // update bech32 HRP
-      strncpy(w->bech32HRP, info->u.output_node_info->bech32hrp, sizeof(w->bech32HRP));
-      // update network protocol version
-      w->protocol_version = info->u.output_node_info->protocol_version;
-      // update network ID
-      ret = iota_blake2b_sum((const uint8_t*)info->u.output_node_info->network_name,
-                             strlen(info->u.output_node_info->network_name), network_id_hash, sizeof(network_id_hash));
-
-      if (ret == 0) {
-        memcpy(&w->network_id, network_id_hash, sizeof(w->network_id));
-      } else {
-        printf("[%s:%d] Error: update netowrk ID failed\n", __func__, __LINE__);
-      }
-
-      // update byte cost
-      byte_cost_config_set(&w->byte_cost, info->u.output_node_info->rent_structure.v_byte_cost,
-                           info->u.output_node_info->rent_structure.v_byte_factor_data,
-                           info->u.output_node_info->rent_structure.v_byte_factor_key);
-
-    } else {
-      ret = -2;
-      printf("[%s:%d] Error response: %s\n", __func__, __LINE__, info->u.error->msg);
-    }
-  }
-  res_node_info_free(info);
-  return ret;
-}
-
-int wallet_send_basic_outputs(iota_wallet_t* w, bool change, uint32_t index, address_t* recv_addr, uint64_t send_amount,
-                              res_send_message_t* msg_res) {
-  int ret = 0;
-  signing_data_list_t* sign_data = signing_new();
-  utxo_outputs_list_t* outputs = NULL;
-
-  if (!w || !recv_addr) {
-    printf("[%s:%d] access NULL pointer\n", __func__, __LINE__);
-    return -1;
-  }
-
-  // create message
-  core_message_t* basic_msg = core_message_new(w->protocol_version);
-  if (!basic_msg) {
-    printf("[%s:%d] create message object failed\n", __func__, __LINE__);
-    return -1;
-  }
-
-  address_t sender_addr;
-  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
-  ed25519_keypair_t sender_key = {};
-
-  ret = wallet_ed25519_address_from_index(w, change, index, &sender_addr);
-  if (ret != 0) {
-    printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
-    goto end;
-  }
-
-  ret = get_address_path(w, change, index, addr_path, sizeof(addr_path));
-  if (ret != 0) {
-    printf("[%s:%d] Can not derive ed25519 address from seed and path\n", __func__, __LINE__);
-    goto end;
-  }
-
-  ret = address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &sender_key);
-  if (ret != 0) {
-    printf("[%s:%d] get address keypair failed\n", __func__, __LINE__);
-    goto end;
-  }
-
-  // create a tx
-  transaction_payload_t* tx = tx_payload_new(w->network_id);
-  if (tx == NULL) {
-    printf("[%s:%d] create tx payload failed\n", __func__, __LINE__);
-    goto end;
-  } else {
-    basic_msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
-    basic_msg->payload = tx;
-  }
-
-  // get outputs from the sender address
-  uint64_t output_amount = 0;
-  outputs =
-      basic_outputs_from_address(w, tx->essence, &sender_key, &sender_addr, send_amount, &sign_data, &output_amount);
-  if (!outputs) {
-    printf("[%s:%d] get empty outputs from the address\n", __func__, __LINE__);
-    ret = -1;
-    goto end;
-  }
-
-  // check balance of sender outputs
-  if (output_amount < send_amount) {
-    printf("[%s:%d] insufficent balance\n", __func__, __LINE__);
-    ret = -1;
-    goto end;
-  }
-
-  // create the receiver output
-  ret = basic_receiver_output(tx->essence, recv_addr, send_amount);
-  if (ret != 0) {
-    printf("[%s:%d] create the receiver output failed\n", __func__, __LINE__);
-    goto end;
-  }
-
-  // check if reminder is needed
-  if (output_amount > send_amount) {
-    ret = basic_receiver_output(tx->essence, &sender_addr, output_amount - send_amount);
-    if (ret != 0) {
-      printf("[%s:%d] create the reminder output failed\n", __func__, __LINE__);
-      goto end;
-    }
-  }
+  core_msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  core_msg->payload = tx;
 
   // calculate inputs commitment
-  ret = tx_essence_inputs_commitment_calculate(tx->essence, outputs);
-  if (ret != 0) {
-    printf("[%s:%d] calculate inputs commitment error\n", __func__, __LINE__);
-    goto end;
+  if (tx_essence_inputs_commitment_calculate(tx->essence, unspent_outputs) != 0) {
+    printf("[%s:%d] calculate inputs commitment failed\n", __func__, __LINE__);
+    core_message_free(core_msg);
+    return NULL;
   }
 
   // calculate transaction essence hash
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
-  ret = core_message_essence_hash_calc(basic_msg, essence_hash, sizeof(essence_hash));
-  if (ret != 0) {
-    printf("[%s:%d] calculate essence hash error\n", __func__, __LINE__);
-    goto end;
+  if (core_message_essence_hash_calc(core_msg, essence_hash, sizeof(essence_hash)) != 0) {
+    printf("[%s:%d] calculate essence hash failed\n", __func__, __LINE__);
+    core_message_free(core_msg);
+    return NULL;
   }
 
   // sign transaction
-  ret =
-      signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data, &tx->unlock_blocks);
-  if (ret != 0) {
-    printf("[%s:%d] sign transaction error\n", __func__, __LINE__);
-    goto end;
+  if (signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data,
+                               &tx->unlock_blocks) != 0) {
+    printf("[%s:%d] sign transaction failed\n", __func__, __LINE__);
+    core_message_free(core_msg);
+    return NULL;
   }
 
   // syntactic validation
-  if (tx_payload_syntactic(tx, &w->byte_cost)) {
-    // send out message
-    ret = send_core_message(&w->endpoint, basic_msg, msg_res);
-  } else {
-    ret = -1;
+  if (tx_payload_syntactic(tx, &w->byte_cost) != true) {
     printf("[%s:%d] invalid transaction payload\n", __func__, __LINE__);
+    core_message_free(core_msg);
+    return NULL;
   }
 
-end:
-  signing_free(sign_data);
-  core_message_free(basic_msg);
-  utxo_outputs_free(outputs);
-  return ret;
+  return core_msg;
+}
+
+int wallet_send_message(iota_wallet_t* w, core_message_t* core_msg, res_send_message_t* msg_res) {
+  if (w == NULL || core_msg == NULL || msg_res == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // send message to a network
+  if (send_core_message(&w->endpoint, core_msg, msg_res) != 0) {
+    printf("[%s:%d] failed to send a message to a network\n", __func__, __LINE__);
+    return -1;
+  }
+
+  return 0;
 }

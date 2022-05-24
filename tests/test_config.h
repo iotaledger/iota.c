@@ -7,6 +7,7 @@
 // enable or disable test cases use the Tangle network.
 // We don't enable it by default but enable it for a local test is recommended.
 #define TEST_TANGLE_ENABLE 0
+
 #define USE_HTTPS
 
 #ifdef USE_HTTPS

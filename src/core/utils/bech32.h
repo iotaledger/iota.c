@@ -7,6 +7,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// A Bech32[2] string is at most 90 characters long and consists of: [HRP, "1", data]
+#define BECH32_MAX_STRING_LEN 90
+
 #ifdef __cplusplus
 extern "C" {
 #endif

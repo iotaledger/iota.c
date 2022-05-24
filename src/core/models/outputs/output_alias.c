@@ -118,7 +118,7 @@ size_t output_alias_serialize_len(output_alias_t* output) {
   // state index
   length += sizeof(uint32_t);
   // metadata length
-  length += sizeof(uint32_t);
+  length += sizeof(uint16_t);
   // metadata
   if (output->state_metadata) {
     length += output->state_metadata->len;
@@ -170,14 +170,14 @@ size_t output_alias_serialize(output_alias_t* output, byte_t buf[], size_t buf_l
 
   // immutable metadata
   if (output->state_metadata) {
-    uint32_t metadata_len = output->state_metadata->len;
-    memcpy(buf + offset, &metadata_len, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
+    uint16_t metadata_len = output->state_metadata->len;
+    memcpy(buf + offset, &metadata_len, sizeof(uint16_t));
+    offset += sizeof(uint16_t);
     memcpy(buf + offset, output->state_metadata->data, metadata_len);
     offset += metadata_len;
   } else {
-    memset(buf + offset, 0, sizeof(uint32_t));
-    offset += sizeof(uint32_t);
+    memset(buf + offset, 0, sizeof(uint16_t));
+    offset += sizeof(uint16_t);
   }
 
   // foundry counter
@@ -276,9 +276,9 @@ output_alias_t* output_alias_deserialize(byte_t buf[], size_t buf_len) {
     output_alias_free(output);
     return NULL;
   }
-  uint32_t metadata_len;
-  memcpy(&metadata_len, &buf[offset], sizeof(uint32_t));
-  offset += sizeof(uint32_t);
+  uint16_t metadata_len;
+  memcpy(&metadata_len, &buf[offset], sizeof(uint16_t));
+  offset += sizeof(uint16_t);
 
   // metadata
   if (metadata_len > 0) {

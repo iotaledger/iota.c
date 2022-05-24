@@ -2,44 +2,54 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * @brief A simple example of sending a transaction to the Tangle using wallet APIs.
+ * @brief A simple example of transfer IOTA tokens.
  *
  */
+#include <WiFi.h>
+#include <string.h>
 
-#include <inttypes.h>
-#include <stdio.h>
-
-#include "wallet/output_basic.h"
-#include "wallet/wallet.h"
+#include <iota_client.h>
 
 #define Mi 1000000
 
-#define NODE_HOST "localhost"
-#define NODE_PORT 14265
-#define NODE_USE_TLS false
-#define TEST_COIN_TYPE SLIP44_COIN_TYPE_IOTA
+// please set your WiFi SSID and Password
+char const* const ssid = "xxxxx";
+char const* const passwd = "sssss";
 
-// replace this with your mnemonic string
+// please set the API endpoint of the IOTA node
+char const* const node_host = "localhost";
+uint16_t const node_port = 14265;
+bool const node_use_tls = false;
+
+uint32_t chipId = 0;
+
+// this sentence is for testing only, DO NOT USE IN PRODUCTION
 static char const* const test_mnemonic =
     "acoustic trophy damage hint search taste love bicycle foster cradle brown govern endless depend situate athlete "
     "pudding blame question genius transfer van random vast";
-uint32_t const sender_addr_index = 0;    // address index of a sender
-uint32_t const receiver_addr_index = 1;  // address index of a receiver
-uint64_t const amount = 1;               // transfer 1Mi from a sender to a receiver address
+// set the index of sender address
+uint32_t const sender_addr_index = 0;
+// set the index of receiver address
+uint32_t const receiver_addr_index = 1;
+// set the amount for token transfer
+uint64_t const amount = 1;
 
-int main(void) {
-  iota_wallet_t* w = wallet_create(test_mnemonic, "", TEST_COIN_TYPE, 0);
+int token_transfer() {
+  // create a wallet instance
+  iota_wallet_t* w = wallet_create(test_mnemonic, "", SLIP44_COIN_TYPE_SHIMMER, 0);
   if (!w) {
     printf("Failed to create a wallet object!\n");
     return -1;
   }
 
-  if (wallet_set_endpoint(w, NODE_HOST, NODE_PORT, NODE_USE_TLS) != 0) {
+  // set the connected node
+  if (wallet_set_endpoint(w, node_host, node_port, node_use_tls) != 0) {
     printf("Failed to set a wallet endpoint!\n");
     wallet_destroy(w);
     return -1;
   }
 
+  // update node configuration for this wallet
   if (wallet_update_node_config(w) != 0) {
     printf("Failed to update a node configuration!\n");
     wallet_destroy(w);
@@ -48,12 +58,13 @@ int main(void) {
 
   address_t sender, receiver;
   if (wallet_ed25519_address_from_index(w, false, sender_addr_index, &sender) != 0) {
-    printf("Failed to generate a sender address from an index!\n");
+    printf("Failed to generate the sender address from the index!\n");
     wallet_destroy(w);
     return -1;
   }
+
   if (wallet_ed25519_address_from_index(w, false, receiver_addr_index, &receiver) != 0) {
-    printf("Failed to generate a receiver address from an index!\n");
+    printf("Failed to generate the receiver address from the index!\n");
     wallet_destroy(w);
     return -1;
   }
@@ -61,15 +72,14 @@ int main(void) {
   // convert sender address to bech32 format
   char bech32_sender[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
   if (address_to_bech32(&sender, w->bech32HRP, bech32_sender, sizeof(bech32_sender)) != 0) {
-    printf("Failed converting sender address to bech32 format!\n");
+    printf("Failed encoding sender address to bech32 format!\n");
     wallet_destroy(w);
     return -1;
   }
-
-  // convert receiver address to bech32 format
+  // convert sender address to bech32 format
   char bech32_receiver[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
   if (address_to_bech32(&receiver, w->bech32HRP, bech32_receiver, sizeof(bech32_receiver)) != 0) {
-    printf("Failed converting receiver address to bech32 format!\n");
+    printf("Failed encoding receiver address to bech32 format!\n");
     wallet_destroy(w);
     return -1;
   }
@@ -81,7 +91,7 @@ int main(void) {
   // transfer tokens
   printf("Sending transaction message to the Tangle...\n");
   res_send_message_t msg_res = {};
-  if (wallet_basic_output_send(w, false, sender_addr_index, amount * Mi, &receiver, &msg_res) != 0) {
+  if (wallet_send_basic_outputs(w, 0, 0, &receiver, amount * Mi, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
@@ -100,4 +110,34 @@ int main(void) {
   wallet_destroy(w);
 
   return 0;
+}
+
+void setup() {
+  Serial.begin(115200);
+  delay(10);
+
+  // connecting to WiFi
+  WiFi.begin(ssid, passwd);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void loop() {
+  for (int i = 0; i < 17; i = i + 8) {
+    chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
+  }
+
+  Serial.printf("ESP32 Chip model = %s Rev %d\n", ESP.getChipModel(), ESP.getChipRevision());
+  Serial.printf("This chip has %d cores\n", ESP.getChipCores());
+  Serial.print("Chip ID: ");
+  Serial.println(chipId);
+  delay(10000);
+  token_transfer();
 }

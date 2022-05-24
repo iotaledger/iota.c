@@ -12,20 +12,36 @@
 
 #define OUTPUTS_QUERY_ADDRESS_KEY "address"
 #define OUTPUTS_QUERY_ALIAS_ADDRESS_KEY "aliasAddress"
+#define OUTPUTS_QUERY_HAS_NATIVE_TOKENS_KEY "hasNativeTokens"
+#define OUTPUTS_QUERY_MIN_NATIVE_TOKENS_KEY "minNativeTokenCount"
+#define OUTPUTS_QUERY_MAX_NATIVE_TOKENS_KEY "maxNativeTokenCount"
 #define OUTPUTS_QUERY_STORAGE_RET_KEY "hasStorageReturnCondition"
 #define OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY "storageReturnAddress"
+#define OUTPUTS_QUERY_HAS_TIMELOCK_KEY "hasTimelockCondition"
+#define OUTPUTS_QUERY_TIMELOCKED_BEFORE_KEY "timelockedBefore"
+#define OUTPUTS_QUERY_TIMELOCKED_AFTER_KEY "timelockedAfter"
+#define OUTPUTS_QUERY_TIMELOCKED_BEFORE_MS_KEY "timelockedBeforeMilestone"
+#define OUTPUTS_QUERY_TIMELOCKED_AFTER_MS_KEY "timelockedAfterMilestone"
+#define OUTPUTS_QUERY_HAS_EXP_COND_KEY "hasExpirationCondition"
+#define OUTPUTS_QUERY_EXPIRES_BEFORE_KEY "expiresBefore"
+#define OUTPUTS_QUERY_EXPIRES_AFTER_KEY "expiresAfter"
+#define OUTPUTS_QUERY_EXPIRES_BEFORE_MS_KEY "expiresBeforeMilestone"
+#define OUTPUTS_QUERY_EXPIRES_AFTER_MS_KEY "expiresAfterMilestone"
+#define OUTPUTS_QUERY_EXP_RETURN_ADDR_KEY "expirationReturnAddress"
 #define OUTPUTS_QUERY_SENDER_KEY "sender"
 #define OUTPUTS_QUERY_TAG_KEY "tag"
+#define OUTPUTS_QUERY_CREATED_BEFORE_KEY "createdBefore"
+#define OUTPUTS_QUERY_CREATED_AFTER_KEY "createdAfter"
 #define OUTPUTS_QUERY_PAGE_SIZE_KEY "pageSize"
 #define OUTPUTS_QUERY_CURSOR_KEY "cursor"
 #define OUTPUTS_QUERY_STATE_CTRL_KEY "stateController"
 #define OUTPUTS_QUERY_GOV_KEY "governor"
 #define OUTPUTS_QUERY_ISSUER_KEY "issuer"
 
-#define INDEXER_OUTPUTS_API_PATH "/api/plugins/indexer/v1/basic-outputs"
-#define INDEXER_ALIASES_API_PATH "/api/plugins/indexer/v1/aliases"
-#define INDEXER_NFT_API_PATH "/api/plugins/indexer/v1/nfts"
-#define INDEXER_FOUNDRY_API_PATH "/api/plugins/indexer/v1/foundries"
+#define OUTPUTS_BASIC_PATH "/outputs/basic"
+#define OUTPUTS_ALIAS_PATH "/outputs/alias"
+#define OUTPUTS_NFT_PATH "/outputs/nft"
+#define OUTPUTS_FOUNDRY_PATH "/outputs/foundry"
 
 outputs_query_list_t *outputs_query_list_new() { return NULL; }
 
@@ -62,63 +78,144 @@ int outputs_query_list_add(outputs_query_list_t **list, outputs_query_params_e t
 
 size_t get_outputs_query_str_len(outputs_query_list_t *list) {
   size_t query_str_len = 0;
+  uint8_t params_seperator_len = 2;  // For "&" params seperator and "=" params assignment
   outputs_query_list_t *elm;
   LL_FOREACH(list, elm) {
     switch (elm->query_item->type) {
       case QUERY_PARAM_ADDRESS:
         query_str_len += strlen(OUTPUTS_QUERY_ADDRESS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_ALIAS_ADDRESS:
         query_str_len += strlen(OUTPUTS_QUERY_ALIAS_ADDRESS_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_HAS_NATIVE_TOKENS:
+        query_str_len += strlen(OUTPUTS_QUERY_HAS_NATIVE_TOKENS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_MIN_NATIVE_TOKENS:
+        query_str_len += strlen(OUTPUTS_QUERY_MIN_NATIVE_TOKENS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_MAX_NATIVE_TOKENS:
+        query_str_len += strlen(OUTPUTS_QUERY_MAX_NATIVE_TOKENS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_HAS_STORAGE_RET:
         query_str_len += strlen(OUTPUTS_QUERY_STORAGE_RET_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_STORAGE_RET_ADDR:
         query_str_len += strlen(OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_HAS_TIMELOCK:
+        query_str_len += strlen(OUTPUTS_QUERY_HAS_TIMELOCK_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_TIMELOCKED_BEFORE:
+        query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_BEFORE_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_TIMELOCKED_AFTER:
+        query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_AFTER_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_TIMELOCKED_BEFORE_MS:
+        query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_BEFORE_MS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_TIMELOCKED_AFTER_MS:
+        query_str_len += strlen(OUTPUTS_QUERY_TIMELOCKED_AFTER_MS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_HAS_EXP_COND:
+        query_str_len += strlen(OUTPUTS_QUERY_HAS_EXP_COND_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_EXPIRES_BEFORE:
+        query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_BEFORE_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_EXPIRES_AFTER:
+        query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_AFTER_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_EXPIRES_BEFORE_MS:
+        query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_BEFORE_MS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_EXPIRES_AFTER_MS:
+        query_str_len += strlen(OUTPUTS_QUERY_EXPIRES_AFTER_MS_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_EXP_RETURN_ADDR:
+        query_str_len += strlen(OUTPUTS_QUERY_EXP_RETURN_ADDR_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_SENDER:
         query_str_len += strlen(OUTPUTS_QUERY_SENDER_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_TAG:
         query_str_len += strlen(OUTPUTS_QUERY_TAG_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_CREATED_BEFORE:
+        query_str_len += strlen(OUTPUTS_QUERY_CREATED_BEFORE_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
+        break;
+      case QUERY_PARAM_CREATED_AFTER:
+        query_str_len += strlen(OUTPUTS_QUERY_CREATED_AFTER_KEY);
+        query_str_len += strlen(elm->query_item->param);
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_PAGE_SIZE:
         query_str_len += strlen(OUTPUTS_QUERY_PAGE_SIZE_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_CURSOR:
         query_str_len += strlen(OUTPUTS_QUERY_CURSOR_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_STATE_CTRL:
         query_str_len += strlen(OUTPUTS_QUERY_STATE_CTRL_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_GOV:
         query_str_len += strlen(OUTPUTS_QUERY_GOV_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_ISSUER:
         query_str_len += strlen(OUTPUTS_QUERY_ISSUER_KEY);
         query_str_len += strlen(elm->query_item->param);
-        query_str_len += 2;  // For "&" params seperator and "=" params assignment
+        query_str_len += params_seperator_len;
         break;
       default:
         break;
@@ -164,17 +261,65 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
       case QUERY_PARAM_ALIAS_ADDRESS:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_ALIAS_ADDRESS_KEY, elm);
         break;
+      case QUERY_PARAM_HAS_NATIVE_TOKENS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_HAS_NATIVE_TOKENS_KEY, elm);
+        break;
+      case QUERY_PARAM_MIN_NATIVE_TOKENS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_MIN_NATIVE_TOKENS_KEY, elm);
+        break;
+      case QUERY_PARAM_MAX_NATIVE_TOKENS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_MAX_NATIVE_TOKENS_KEY, elm);
+        break;
       case QUERY_PARAM_HAS_STORAGE_RET:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_STORAGE_RET_KEY, elm);
         break;
       case QUERY_PARAM_STORAGE_RET_ADDR:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY, elm);
         break;
+      case QUERY_PARAM_HAS_TIMELOCK:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_HAS_TIMELOCK_KEY, elm);
+        break;
+      case QUERY_PARAM_TIMELOCKED_BEFORE:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TIMELOCKED_BEFORE_KEY, elm);
+        break;
+      case QUERY_PARAM_TIMELOCKED_AFTER:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TIMELOCKED_AFTER_KEY, elm);
+        break;
+      case QUERY_PARAM_TIMELOCKED_BEFORE_MS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TIMELOCKED_BEFORE_MS_KEY, elm);
+        break;
+      case QUERY_PARAM_TIMELOCKED_AFTER_MS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TIMELOCKED_AFTER_MS_KEY, elm);
+        break;
+      case QUERY_PARAM_HAS_EXP_COND:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_HAS_EXP_COND_KEY, elm);
+        break;
+      case QUERY_PARAM_EXPIRES_BEFORE:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_EXPIRES_BEFORE_KEY, elm);
+        break;
+      case QUERY_PARAM_EXPIRES_AFTER:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_EXPIRES_AFTER_KEY, elm);
+        break;
+      case QUERY_PARAM_EXPIRES_BEFORE_MS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_EXPIRES_BEFORE_MS_KEY, elm);
+        break;
+      case QUERY_PARAM_EXPIRES_AFTER_MS:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_EXPIRES_AFTER_MS_KEY, elm);
+        break;
+      case QUERY_PARAM_EXP_RETURN_ADDR:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_EXP_RETURN_ADDR_KEY, elm);
+        break;
       case QUERY_PARAM_SENDER:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_SENDER_KEY, elm);
         break;
       case QUERY_PARAM_TAG:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TAG_KEY, elm);
+        break;
+      case QUERY_PARAM_CREATED_BEFORE:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_CREATED_BEFORE_KEY, elm);
+        break;
+      case QUERY_PARAM_CREATED_AFTER:
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_CREATED_AFTER_KEY, elm);
         break;
       case QUERY_PARAM_PAGE_SIZE:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_PAGE_SIZE_KEY, elm);
@@ -407,76 +552,153 @@ static char *compose_api_command(outputs_query_list_t *list, char const *const a
   return cmd_buffer;
 }
 
-int get_outputs_id(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res) {
-  if (conf == NULL || res == NULL) {
+int get_basic_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                      res_outputs_id_t *res) {
+  if (conf == NULL || indexer_path == NULL || res == NULL) {
     // invalid parameters
     return -1;
   }
 
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
+    printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
+    return -1;
+  }
+
+  iota_str_t *api_path = NULL;
+  api_path = iota_str_reserve(strlen(PLUGIN_API_PATH) + strlen(indexer_path) + strlen(OUTPUTS_BASIC_PATH) + 1);
+  if (api_path == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API path
+  snprintf(api_path->buf, api_path->cap, "%s%s%s", PLUGIN_API_PATH, indexer_path, OUTPUTS_BASIC_PATH);
+  api_path->len = strlen(api_path->buf);
+
   // compose restful api command
-  char *cmd_buffer = compose_api_command(list, INDEXER_OUTPUTS_API_PATH);
+  char *cmd_buffer = compose_api_command(list, api_path->buf);
   if (cmd_buffer == NULL) {
+    iota_str_destroy(api_path);
     return -1;
   }
 
   int ret = get_outputs_api_call(conf, cmd_buffer, res);
+  iota_str_destroy(api_path);
   free(cmd_buffer);
   return ret;
 }
 
-int get_nft_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res) {
-  if (conf == NULL || res == NULL) {
+int get_nft_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                    res_outputs_id_t *res) {
+  if (conf == NULL || indexer_path == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
 
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
+    printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
+    return -1;
+  }
+
+  iota_str_t *api_path = NULL;
+  api_path = iota_str_reserve(strlen(PLUGIN_API_PATH) + strlen(indexer_path) + strlen(OUTPUTS_NFT_PATH) + 1);
+  if (api_path == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API path
+  snprintf(api_path->buf, api_path->cap, "%s%s%s", PLUGIN_API_PATH, indexer_path, OUTPUTS_NFT_PATH);
+  api_path->len = strlen(api_path->buf);
+
   // compose restful api command
-  char *cmd_buffer = compose_api_command(list, INDEXER_NFT_API_PATH);
+  char *cmd_buffer = compose_api_command(list, api_path->buf);
   if (cmd_buffer == NULL) {
+    iota_str_destroy(api_path);
     return -1;
   }
 
   int ret = get_outputs_api_call(conf, cmd_buffer, res);
+  iota_str_destroy(api_path);
   free(cmd_buffer);
   return ret;
 }
 
-int get_alias_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res) {
-  if (conf == NULL || res == NULL) {
+int get_alias_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                      res_outputs_id_t *res) {
+  if (conf == NULL || indexer_path == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
 
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
+    printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
+    return -1;
+  }
+
+  iota_str_t *api_path = NULL;
+  api_path = iota_str_reserve(strlen(PLUGIN_API_PATH) + strlen(indexer_path) + strlen(OUTPUTS_ALIAS_PATH) + 1);
+  if (api_path == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API path
+  snprintf(api_path->buf, api_path->cap, "%s%s%s", PLUGIN_API_PATH, indexer_path, OUTPUTS_ALIAS_PATH);
+  api_path->len = strlen(api_path->buf);
+
   // compose restful api command
-  char *cmd_buffer = compose_api_command(list, INDEXER_ALIASES_API_PATH);
+  char *cmd_buffer = compose_api_command(list, api_path->buf);
   if (cmd_buffer == NULL) {
+    iota_str_destroy(api_path);
     return -1;
   }
 
   int ret = get_outputs_api_call(conf, cmd_buffer, res);
+  iota_str_destroy(api_path);
   free(cmd_buffer);
   return ret;
 }
 
-int get_foundry_outputs(iota_client_conf_t const *conf, outputs_query_list_t *list, res_outputs_id_t *res) {
-  if (conf == NULL || res == NULL) {
+int get_foundry_outputs(iota_client_conf_t const *conf, char const *const indexer_path, outputs_query_list_t *list,
+                        res_outputs_id_t *res) {
+  if (conf == NULL || indexer_path == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
 
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
+    printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
+    return -1;
+  }
+
+  iota_str_t *api_path = NULL;
+  api_path = iota_str_reserve(strlen(PLUGIN_API_PATH) + strlen(indexer_path) + strlen(OUTPUTS_FOUNDRY_PATH) + 1);
+  if (api_path == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API path
+  snprintf(api_path->buf, api_path->cap, "%s%s%s", PLUGIN_API_PATH, indexer_path, OUTPUTS_FOUNDRY_PATH);
+  api_path->len = strlen(api_path->buf);
+
   // compose restful api command
-  char *cmd_buffer = compose_api_command(list, INDEXER_FOUNDRY_API_PATH);
+  char *cmd_buffer = compose_api_command(list, api_path->buf);
   if (cmd_buffer == NULL) {
+    iota_str_destroy(api_path);
     return -1;
   }
 
   int ret = get_outputs_api_call(conf, cmd_buffer, res);
+  iota_str_destroy(api_path);
   free(cmd_buffer);
   return ret;
 }
 
-int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[], res_outputs_id_t *res) {
-  if (conf == NULL || nft_id == NULL || res == NULL) {
+int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const *const indexer_path, char const nft_id[],
+                            res_outputs_id_t *res) {
+  if (conf == NULL || indexer_path == NULL || nft_id == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
@@ -487,21 +709,32 @@ int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const nft_id[],
     return -1;
   }
 
-  // compose restful api command
-  char cmd_buffer[70] = {0};  // 70 = max size of api path(29) + BIN_TO_HEX_BYTES(NFT_ID_BYTES)(40) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/nfts/%s", nft_id);
-
-  // check if data stored is not more than buffer length
-  if (snprintf_ret > ((int)sizeof(cmd_buffer) - 1)) {
-    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
+    printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
 
-  return get_outputs_api_call(conf, cmd_buffer, res);
+  iota_str_t *api_path = NULL;
+  // api_path = PLUGIN_API_PATH + indexer_path + OUTPUTS_NFT_PATH + '/0x' + nft_id + '\0'
+  api_path = iota_str_reserve(strlen(PLUGIN_API_PATH) + strlen(indexer_path) + strlen(OUTPUTS_NFT_PATH) + 3 +
+                              BIN_TO_HEX_BYTES(NFT_ID_BYTES) + 1);
+  if (api_path == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API path
+  snprintf(api_path->buf, api_path->cap, "%s%s%s/0x%s", PLUGIN_API_PATH, indexer_path, OUTPUTS_NFT_PATH, nft_id);
+  api_path->len = strlen(api_path->buf);
+
+  int ret = get_outputs_api_call(conf, api_path->buf, res);
+  iota_str_destroy(api_path);
+  return ret;
 }
 
-int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_id[], res_outputs_id_t *res) {
-  if (conf == NULL || alias_id == NULL || res == NULL) {
+int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const *const indexer_path, char const alias_id[],
+                              res_outputs_id_t *res) {
+  if (conf == NULL || indexer_path == NULL || alias_id == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
@@ -512,21 +745,32 @@ int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const alias_i
     return -1;
   }
 
-  // compose restful api command
-  char cmd_buffer[73] = {0};  // 73 = max size of api path(32) + BIN_TO_HEX_BYTES(ALIAS_ID_BYTES)(40) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/aliases/%s", alias_id);
-
-  // check if data stored is not more than buffer length
-  if (snprintf_ret > ((int)sizeof(cmd_buffer) - 1)) {
-    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
+    printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
 
-  return get_outputs_api_call(conf, cmd_buffer, res);
+  iota_str_t *api_path = NULL;
+  // api_path = PLUGIN_API_PATH + indexer_path + OUTPUTS_ALIAS_PATH + '/0x' + alias_id + '\0'
+  api_path = iota_str_reserve(strlen(PLUGIN_API_PATH) + strlen(indexer_path) + strlen(OUTPUTS_ALIAS_PATH) + 3 +
+                              BIN_TO_HEX_BYTES(ALIAS_ID_BYTES) + 1);
+  if (api_path == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API path
+  snprintf(api_path->buf, api_path->cap, "%s%s%s/0x%s", PLUGIN_API_PATH, indexer_path, OUTPUTS_ALIAS_PATH, alias_id);
+  api_path->len = strlen(api_path->buf);
+
+  int ret = get_outputs_api_call(conf, api_path->buf, res);
+  iota_str_destroy(api_path);
+  return ret;
 }
 
-int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const foundry_id[], res_outputs_id_t *res) {
-  if (conf == NULL || foundry_id == NULL || res == NULL) {
+int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const *const indexer_path, char const foundry_id[],
+                                res_outputs_id_t *res) {
+  if (conf == NULL || indexer_path == NULL || foundry_id == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
@@ -537,15 +781,26 @@ int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const found
     return -1;
   }
 
-  // compose restful api command
-  char cmd_buffer[87] = {0};  // 87 = max size of api path(34) + BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES)(52) + 1
-  int snprintf_ret = snprintf(cmd_buffer, sizeof(cmd_buffer), "/api/plugins/indexer/v1/foundries/%s", foundry_id);
-
-  // check if data stored is not more than buffer length
-  if (snprintf_ret > ((int)sizeof(cmd_buffer) - 1)) {
-    printf("[%s:%d]: http cmd buffer overflow\n", __func__, __LINE__);
+  if (strcmp(indexer_path, INDEXER_API_PATH) != 0) {
+    printf("[%s:%d]: unsupported indexer path\n", __func__, __LINE__);
     return -1;
   }
 
-  return get_outputs_api_call(conf, cmd_buffer, res);
+  iota_str_t *api_path = NULL;
+  // api_path = PLUGIN_API_PATH + indexer_path + OUTPUTS_FOUNDRY_PATH + '/0x' + foundry_id + '\0'
+  api_path = iota_str_reserve(strlen(PLUGIN_API_PATH) + strlen(indexer_path) + strlen(OUTPUTS_FOUNDRY_PATH) + 3 +
+                              BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES) + 1);
+  if (api_path == NULL) {
+    printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
+    return -1;
+  }
+
+  // composing API path
+  snprintf(api_path->buf, api_path->cap, "%s%s%s/0x%s", PLUGIN_API_PATH, indexer_path, OUTPUTS_FOUNDRY_PATH,
+           foundry_id);
+  api_path->len = strlen(api_path->buf);
+
+  int ret = get_outputs_api_call(conf, api_path->buf, res);
+  iota_str_destroy(api_path);
+  return ret;
 }

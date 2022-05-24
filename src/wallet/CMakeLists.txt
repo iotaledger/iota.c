@@ -10,15 +10,15 @@ set_target_properties(iota_wallet PROPERTIES C_STANDARD_REQUIRED NO C_STANDARD 9
 
 target_sources(
   iota_wallet
-  PRIVATE "wallet.c" "bip39.c"
-  PUBLIC "wallet.h")
+  PRIVATE "wallet.c" "output_basic.c" "output_alias.c" "bip39.c"
+  PUBLIC "wallet.h" "output_basic.h" "output_alias.h")
 
 target_include_directories(
   iota_wallet PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CURL_INCLUDE_DIRS}"
                      "${CMAKE_INSTALL_PREFIX}/include/cjson" # for esp32 compatibility
 )
 
-add_dependencies(iota_wallet iota_client ext_utf8proc)
+add_dependencies(iota_wallet iota_client)
 
 target_compile_options(iota_wallet PRIVATE -Wall -Wextra)
 
@@ -27,7 +27,6 @@ if(BIP39_ENGLISH_ONLY)
 endif()
 
 target_link_libraries(iota_wallet PUBLIC iota_client)
-target_link_libraries(iota_wallet PRIVATE utf8proc)
 
 # install client lib and headers
 install(TARGETS iota_wallet DESTINATION "${CMAKE_INSTALL_PREFIX}/lib")
