@@ -226,27 +226,27 @@ void token_scheme_print(token_scheme_t* scheme, uint8_t indentation) {
 
   // Currently only simple token scheme is supported
   if (scheme->type == SIMPLE_TOKEN_SCHEME) {
-    printf("%s\tType: [%d]\n", PRINT_INDENTATION(indentation), SIMPLE_TOKEN_SCHEME);
+    printf("%s\tType: %d\n", PRINT_INDENTATION(indentation), SIMPLE_TOKEN_SCHEME);
     token_scheme_simple_t* simple_scheme = scheme->token_scheme;
     // print minted tokens
     char* minted_token_str;
     minted_token_str = uint256_to_str(&simple_scheme->minted_tokens);
     if (minted_token_str != NULL) {
-      printf("%s\tMinted Tokens: [%s]\n", PRINT_INDENTATION(indentation), minted_token_str);
+      printf("%s\tMinted Tokens: %s\n", PRINT_INDENTATION(indentation), minted_token_str);
       free(minted_token_str);
     }
     // print melted tokens
     char* melted_token_str;
     melted_token_str = uint256_to_str(&simple_scheme->melted_tokens);
     if (melted_token_str != NULL) {
-      printf("%s\tMelted Tokens: [%s]\n", PRINT_INDENTATION(indentation), melted_token_str);
+      printf("%s\tMelted Tokens: %s\n", PRINT_INDENTATION(indentation), melted_token_str);
       free(melted_token_str);
     }
     // print maximum supply
     char* max_supply_str;
     max_supply_str = uint256_to_str(&simple_scheme->max_supply);
     if (max_supply_str != NULL) {
-      printf("%s\tMaximum Supply: [%s]\n", PRINT_INDENTATION(indentation), max_supply_str);
+      printf("%s\tMaximum Supply: %s\n", PRINT_INDENTATION(indentation), max_supply_str);
       free(max_supply_str);
     }
   }
@@ -345,6 +345,29 @@ void output_foundry_free(output_foundry_t* output) {
     feature_list_free(output->immutable_features);
     free(output);
   }
+}
+
+int output_foundry_calculate_id(output_foundry_t* output, address_t* addr, byte_t id[], uint8_t id_len) {
+  if (output == NULL || addr == NULL || id == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  if (id_len < FOUNDRY_ID_BYTES) {
+    printf("[%s:%d] Foundry Output ID array length is too small\n", __func__, __LINE__);
+    return -1;
+  }
+
+  size_t addr_ser_len = address_serialized_len(addr);
+  if (address_serialize(addr, id, id_len) != addr_ser_len) {
+    printf("[%s:%d] can not serialize address\n", __func__, __LINE__);
+    return -1;
+  }
+
+  memcpy(id + ADDRESS_SERIALIZED_MAX_BYTES, &output->serial, sizeof(output->serial));
+  memset(id + addr_ser_len + sizeof(output->serial), (uint8_t)output->token_scheme->type, sizeof(uint8_t));
+
+  return 0;
 }
 
 size_t output_foundry_serialize_len(output_foundry_t* output) {
@@ -587,7 +610,9 @@ void output_foundry_print(output_foundry_t* output, uint8_t indentation) {
   printf("%s\tSerial Number: %" PRIu32 "\n", PRINT_INDENTATION(indentation), output->serial);
 
   // print token scheme
+  printf("%s\tToken Scheme: [\n", PRINT_INDENTATION(indentation));
   token_scheme_print(output->token_scheme, indentation + 1);
+  printf("%s\t]\n", PRINT_INDENTATION(indentation));
 
   // print unlock conditions
   condition_list_print(output->unlock_conditions, indentation + 1);

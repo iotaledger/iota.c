@@ -16,10 +16,10 @@ void tearDown(void) {}
 void test_parse_foundry_output_basic() {
   char const *const json_res =
       "{\"type\":5,\"amount\":\"1000000\",\"nativeTokens\":[],\"serialNumber\":123456,\"tokenScheme\":{\"type\":0,"
-      "\"mintedTokens\":\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
-      "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
-      "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":8,"
-      "\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"featureBlocks\":[],"
+      "\"mintedTokens\":\"0x3ac653e386b9497f5773eac20000000000\",\"meltedTokens\":"
+      "\"0x1d6329f1c35ca4bfabb9f5610000000000\",\"maximumSupply\":\"0x58297dd54a15ee3f032de0230000000000\"},"
+      "\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":8,\"aliasId\":"
+      "\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"featureBlocks\":[],"
       "\"immutableFeatureBlocks\":[]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
@@ -76,9 +76,8 @@ void test_parse_foundry_output_full() {
       "\"0x93847598347598347598347598\"},{\"id\":"
       "\"0x09e731c2e4503d9e25207e21b2bddfd39995bdd0c40000000000000000070000000000000000\",\"amount\":"
       "\"0x7598347598347598\"}],\"serialNumber\":123456,\"tokenScheme\":{\"type\":0,\"mintedTokens\":"
-      "\"0x20000000000000000000000000000000000000000\", "
-      "\"meltedTokens\":\"0x10000000000000000000000000000000000000000\", \"maximumSupply\":"
-      "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,"
+      "\"0x3ac653e386b9497f5773eac20000000000\",\"meltedTokens\":\"0x1d6329f1c35ca4bfabb9f5610000000000\", "
+      "\"maximumSupply\":\"0x58297dd54a15ee3f032de0230000000000\"},\"unlockConditions\":[{\"type\":6,"
       "\"address\":{\"type\":8,\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],"
       "\"featureBlocks\":[{\"type\":2,\"data\":"
       "\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}],\"immutableFeatureBlocks\":[{"

@@ -12,6 +12,16 @@ extern "C" {
 #endif
 
 /**
+ * @brief Calculate minimum storage deposit for the given output
+ *
+ * @param[in] config A byte cost configuration
+ * @param[in] output_type UTXO output type
+ * @param[in] output Pointer to an output
+ * @return true if output has enough storage deposit amount
+ */
+uint64_t calc_minimum_output_deposit(byte_cost_config_t *config, utxo_output_type_t output_type, void *output);
+
+/**
  * @brief Check if a sufficient storage deposit was made for the given output
  *
  * @param[in] config A byte cost configuration
