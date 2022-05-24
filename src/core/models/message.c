@@ -246,9 +246,9 @@ void core_block_print(core_block_t* blk, uint8_t indentation) {
 
     printf("%sParent Block Ids:\n", PRINT_INDENTATION(indentation + 1));
     size_t parent_block_len = core_block_parent_len(blk);
-    printf("%s\tParent Block Count: %lu\n", PRINT_INDENTATION(indentation + 1), parent_block_len);
+    printf("%s\tParent Block Count: %zu\n", PRINT_INDENTATION(indentation + 1), parent_block_len);
     for (size_t index = 0; index < parent_block_len; index++) {
-      printf("%s\t#%lu ", PRINT_INDENTATION(indentation + 1), index);
+      printf("%s\t#%zu ", PRINT_INDENTATION(indentation + 1), index);
       dump_hex_str(core_block_get_parent_id(blk, index), IOTA_BLOCK_ID_BYTES);
     }
 

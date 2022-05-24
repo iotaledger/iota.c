@@ -651,7 +651,7 @@ feature_list_t* feature_list_clone(feature_list_t const* const list) {
 
   feature_list_t* new_list = feature_list_new();
 
-  int res;
+  int res = -1;
   feature_list_t* elm;
   LL_FOREACH((feature_list_t*)list, elm) {
     switch (elm->current->type) {

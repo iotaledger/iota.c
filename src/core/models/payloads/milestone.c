@@ -104,9 +104,9 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
 
     printf("%s\tParent Block Ids:\n", PRINT_INDENTATION(indentation));
     size_t parent_block_len = milestone_payload_get_parents_count(ms);
-    printf("%s\tParent Block Count: %lu\n", PRINT_INDENTATION(indentation + 1), parent_block_len);
+    printf("%s\tParent Block Count: %zu\n", PRINT_INDENTATION(indentation + 1), parent_block_len);
     for (size_t index = 0; index < parent_block_len; index++) {
-      printf("%s\t#%lu ", PRINT_INDENTATION(indentation + 1), index);
+      printf("%s\t#%zu ", PRINT_INDENTATION(indentation + 1), index);
       dump_hex_str(milestone_payload_get_parent(ms, index), IOTA_BLOCK_ID_BYTES);
     }
 
@@ -148,9 +148,9 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
 
     printf("%s\tSignatures: [\n", PRINT_INDENTATION(indentation));
     size_t signatures_len = milestone_payload_get_signatures_count(ms);
-    printf("%s\tSignatures Count: %lu\n", PRINT_INDENTATION(indentation + 1), signatures_len);
+    printf("%s\tSignatures Count: %zu\n", PRINT_INDENTATION(indentation + 1), signatures_len);
     for (size_t index = 0; index < signatures_len; index++) {
-      printf("%s\t#%lu\n", PRINT_INDENTATION(indentation + 1), index);
+      printf("%s\t#%zu\n", PRINT_INDENTATION(indentation + 1), index);
       byte_t *signature = milestone_payload_get_signature(ms, index);
       printf("%s\t\t\tType: %s\n", PRINT_INDENTATION(indentation), signature[0] ? "UNKNOWN" : "ED25519");
       printf("%s\t\t\tPub key: ", PRINT_INDENTATION(indentation));
