@@ -56,18 +56,22 @@ int main(void) {
   address_t sender_addr, state_ctrl_addr, govern_addr, receiver_addr;
   if (wallet_ed25519_address_from_index(w, false, sender_addr_index, &sender_addr) != 0) {
     printf("Get sender address failed\n");
+    wallet_destroy(w);
     return -1;
   }
   if (wallet_ed25519_address_from_index(w, false, state_ctrl_addr_index, &state_ctrl_addr) != 0) {
     printf("Get state controller address failed\n");
+    wallet_destroy(w);
     return -1;
   }
   if (wallet_ed25519_address_from_index(w, false, govern_addr_index, &govern_addr) != 0) {
     printf("Get governor address failed!\n");
+    wallet_destroy(w);
     return -1;
   }
   if (wallet_ed25519_address_from_index(w, false, receiver_addr_index, &receiver_addr) != 0) {
     printf("Get receiver address failed\n");
+    wallet_destroy(w);
     return -1;
   }
 
