@@ -651,7 +651,7 @@ feat_blk_list_t* feat_blk_list_clone(feat_blk_list_t const* const list) {
 
   feat_blk_list_t* new_list = feat_blk_list_new();
 
-  int res;
+  int res = -1;
   feat_blk_list_t* elm;
   LL_FOREACH((feat_blk_list_t*)list, elm) {
     switch (elm->blk->type) {

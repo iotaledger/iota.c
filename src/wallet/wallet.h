@@ -145,7 +145,7 @@ int wallet_balance_by_address(iota_wallet_t* w, address_t* addr, uint64_t* balan
  *
  * @param[in] w A wallet instance
  * @param[in] bech32 A string of bech32 address
- * @param[in] balance The balance of the address
+ * @param[out] balance The balance of the address
  * @return int 0 on success
  */
 int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* balance);

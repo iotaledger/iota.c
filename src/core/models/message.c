@@ -246,9 +246,9 @@ void core_message_print(core_message_t* msg, uint8_t indentation) {
 
     printf("%sParent Message Ids:\n", PRINT_INDENTATION(indentation + 1));
     size_t parent_message_len = core_message_parent_len(msg);
-    printf("%s\tParent Message Count: %lu\n", PRINT_INDENTATION(indentation + 1), parent_message_len);
+    printf("%s\tParent Message Count: %zu\n", PRINT_INDENTATION(indentation + 1), parent_message_len);
     for (size_t index = 0; index < parent_message_len; index++) {
-      printf("%s\t#%lu ", PRINT_INDENTATION(indentation + 1), index);
+      printf("%s\t#%zu ", PRINT_INDENTATION(indentation + 1), index);
       dump_hex_str(core_message_get_parent_id(msg, index), IOTA_MESSAGE_ID_BYTES);
     }
 
