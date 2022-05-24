@@ -30,8 +30,9 @@ uint32_t const state_ctrl_addr_index = 1;  // address index of a state controlle
 uint32_t const govern_addr_index = 2;      // address index of a governor
 uint32_t const receiver_addr_index = 3;    // address index of a receiver of native tokens
 uint64_t const amount = 1;                 // transfer 1Mi from a sender to an alias output (address)
-static char const* const max_supply_str = "1000000000000000000000000000000";
-static char const* const minted_tokens_str = "1000000000000";
+static char const* const max_supply_str =
+    "1000000000000000000000000000000";                         // maximum supply of newly minted native tokens
+static char const* const minted_tokens_str = "1000000000000";  // number of newly minted native tokens
 
 int main(void) {
   iota_wallet_t* w = wallet_create(test_mnemonic, "", TEST_COIN_TYPE, 0);
