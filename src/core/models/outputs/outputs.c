@@ -145,7 +145,7 @@ size_t utxo_outputs_serialize_len(utxo_outputs_list_t *outputs) {
   len += sizeof(uint16_t);
 
   utxo_outputs_list_t *elm;
-  size_t output_len;
+  size_t output_len = 0;
   LL_FOREACH(outputs, elm) {
     switch (elm->output->output_type) {
       case OUTPUT_SINGLE_OUTPUT:
