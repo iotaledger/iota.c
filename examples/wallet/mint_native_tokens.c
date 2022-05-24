@@ -112,8 +112,8 @@ int main(void) {
 
   res_send_message_t msg_res = {};
   address_t alias_addr = {0};
-  if (wallet_alias_output_create(w, false, sender_addr_index, amount * Mi, &state_ctrl_addr, &govern_addr, &alias_addr,
-                                 &msg_res) != 0) {
+  if (wallet_alias_output_create(w, false, sender_addr_index, amount * Mi, &state_ctrl_addr, &govern_addr, 0,
+                                 &alias_addr, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
@@ -153,7 +153,7 @@ int main(void) {
   printf("Sending mint native tokens transaction message to the Tangle...\n");
 
   if (wallet_foundry_output_mint_native_tokens(w, &alias_addr, false, state_ctrl_addr_index, &govern_addr, max_supply,
-                                               minted_tokens, &receiver_addr, &msg_res) != 0) {
+                                               minted_tokens, 1, 1, &receiver_addr, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     uint256_free(max_supply);
     uint256_free(minted_tokens);

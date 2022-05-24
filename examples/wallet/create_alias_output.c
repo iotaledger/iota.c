@@ -96,8 +96,8 @@ int main(void) {
 
   res_send_message_t msg_res = {};
   address_t alias_addr = {0};
-  if (wallet_alias_output_create(w, false, sender_addr_index, amount * Mi, &state_ctrl_addr, &govern_addr, &alias_addr,
-                                 &msg_res) != 0) {
+  if (wallet_alias_output_create(w, false, sender_addr_index, amount * Mi, &state_ctrl_addr, &govern_addr, 0,
+                                 &alias_addr, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;

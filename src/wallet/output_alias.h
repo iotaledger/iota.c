@@ -19,14 +19,15 @@ extern "C" {
  * @param[in] send_amount The amount to transfer
  * @param[in] state_ctrl_addr The receiver address
  * @param[in] govern_addr The receiver address
+ * @param[in] foundry_counter The foundry counter
  * @param[out] alias_addr The response of the transfer
  * @param[out] msg_res The response of the transfer
  *
  * @return int 0 on success
  */
 int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t const send_amount,
-                               address_t* state_ctrl_addr, address_t* govern_addr, address_t* alias_addr,
-                               res_send_message_t* msg_res);
+                               address_t* state_ctrl_addr, address_t* govern_addr, uint32_t foundry_counter,
+                               address_t* alias_addr, res_send_message_t* msg_res);
 
 /**
  * @brief Send alias state transition transaction

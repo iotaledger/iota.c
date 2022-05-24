@@ -196,8 +196,8 @@ static int wallet_output_alias_create(transaction_essence_t* essence, byte_t ali
 
 // TODO: the alias output should be able to set optional feature blocks such as Sender/Metadata
 int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t const send_amount,
-                               address_t* state_ctrl_addr, address_t* govern_addr, address_t* alias_addr,
-                               res_send_message_t* msg_res) {
+                               address_t* state_ctrl_addr, address_t* govern_addr, uint32_t foundry_counter,
+                               address_t* alias_addr, res_send_message_t* msg_res) {
   if (w == NULL || state_ctrl_addr == NULL || govern_addr == NULL || alias_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -243,7 +243,8 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
 
   // create alias output
   byte_t alias_id[ALIAS_ID_BYTES] = {0};
-  ret = wallet_output_alias_create(tx->essence, alias_id, 0, state_ctrl_addr, govern_addr, 0, send_amount);
+  ret =
+      wallet_output_alias_create(tx->essence, alias_id, 0, state_ctrl_addr, govern_addr, foundry_counter, send_amount);
   if (ret != 0) {
     printf("[%s:%d] create alias output failed\n", __func__, __LINE__);
     goto end;
