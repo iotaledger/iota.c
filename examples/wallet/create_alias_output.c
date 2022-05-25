@@ -131,7 +131,7 @@ int main(void) {
 
   // create a second transaction with an actual alias ID
   if (wallet_alias_output_state_transition(w, alias_addr.address, false, state_ctrl_addr_index, &govern_addr, 0, 0,
-                                           NULL, &msg_res) != 0) {
+                                           NULL, NULL, &msg_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
