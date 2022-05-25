@@ -3,6 +3,8 @@
 
 #include <stdio.h>
 
+#include "core/models/outputs/output_basic.h"
+#include "core/models/outputs/output_foundry.h"
 #include "core/models/outputs/storage_deposit.h"
 #include "wallet/output_alias.h"
 #include "wallet/output_foundry.h"
@@ -11,7 +13,7 @@ int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_
                                              uint32_t state_ctrl_index, address_t* govern_addr,
                                              address_t* receiver_addr, uint256_t* max_supply, uint256_t* minted_tokens,
                                              uint32_t serial_number, uint32_t foundry_counter,
-                                             res_send_message_t* msg_res) {
+                                             res_send_block_t* msg_res) {
   if (w == NULL || alias_addr == NULL || govern_addr == NULL || max_supply == NULL || minted_tokens == NULL ||
       receiver_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -25,8 +27,8 @@ int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_
   output_foundry_t* output_foundry = NULL;
   output_basic_t* output_basic = NULL;
   native_tokens_list_t* native_tokens = NULL;
-  cond_blk_list_t* unlock_conds = NULL;
-  unlock_cond_blk_t* unlock_addr = NULL;
+  unlock_cond_list_t* unlock_conds = NULL;
+  unlock_cond_t* unlock_addr = NULL;
 
   // there is no melted native tokens
   melted_tokens = uint256_from_str("0");
@@ -77,13 +79,13 @@ int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_
   }
 
   // create Basic Output with address unlock condition
-  unlock_conds = cond_blk_list_new();
-  unlock_addr = cond_blk_addr_new(receiver_addr);
+  unlock_conds = condition_list_new();
+  unlock_addr = condition_addr_new(receiver_addr);
   if (!unlock_addr) {
     printf("[%s:%d] can not create address unlock condition object\n", __func__, __LINE__);
     goto end;
   }
-  if ((ret = cond_blk_list_add(&unlock_conds, unlock_addr)) != 0) {
+  if ((ret = condition_list_add(&unlock_conds, unlock_addr)) != 0) {
     printf("[%s:%d] can not add address unlock condition to a list\n", __func__, __LINE__);
     goto end;
   }
@@ -109,7 +111,7 @@ int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_
   uint64_t amount = output_foundry->amount + output_basic->amount;
   if ((ret = wallet_alias_output_state_transition(w, alias_addr->address, state_ctrl_change, state_ctrl_index,
                                                   govern_addr, foundry_counter, amount, outputs, msg_res)) != 0) {
-    printf("Sending message to the Tangle failed!\n");
+    printf("Sending block to the Tangle failed!\n");
     goto end;
   }
 
@@ -120,7 +122,7 @@ end:
   output_foundry_free(output_foundry);
   output_basic_free(output_basic);
   native_tokens_free(native_tokens);
-  cond_blk_list_free(unlock_conds);
-  cond_blk_free(unlock_addr);
+  condition_list_free(unlock_conds);
+  condition_free(unlock_addr);
   return ret;
 }

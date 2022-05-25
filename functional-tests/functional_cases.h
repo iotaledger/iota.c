@@ -21,7 +21,7 @@ typedef struct {
   uint32_t coin_type;                ///< SLIP44 coin type
   iota_client_conf_t node_config;    ///< node config
   iota_client_conf_t faucet_config;  ///< faucet config
-  bool show_payload;                 ///< True for showing message payloads
+  bool show_payload;                 ///< True for showing block payloads
   uint16_t delay;                    ///< delay time for checking transaction in secondes
 } test_config_t;
 
@@ -30,13 +30,13 @@ typedef struct {
  *
  */
 typedef struct {
-  address_t sender;                                                ///< A sender address derived from sender_index
-  address_t recv;                                                  ///< A receiver address derived from receiver_index
-  char basic_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< A message ID of a basic value transaction
-  char milestone_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< A message ID of a milestone message
-  char tagged_msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];     ///< A message ID of a tagged data message
-  char output_id[BIN_TO_HEX_STR_BYTES(IOTA_OUTPUT_ID_BYTES)];          ///< An output ID of the sender address
-  char tx_id[BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES)];         ///< A transaction ID of an output
+  address_t sender;                                                  ///< A sender address derived from sender_index
+  address_t recv;                                                    ///< A receiver address derived from receiver_index
+  char basic_blk_id[BIN_TO_HEX_STR_BYTES(IOTA_BLOCK_ID_BYTES)];      ///< A block ID of a basic value transaction
+  char milestone_blk_id[BIN_TO_HEX_STR_BYTES(IOTA_BLOCK_ID_BYTES)];  ///< A block ID of a milestone block
+  char tagged_blk_id[BIN_TO_HEX_STR_BYTES(IOTA_BLOCK_ID_BYTES)];     ///< A block ID of a tagged data block
+  char output_id[BIN_TO_HEX_STR_BYTES(IOTA_OUTPUT_ID_BYTES)];        ///< An output ID of the sender address
+  char tx_id[BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES)];       ///< A transaction ID of an output
   iota_wallet_t* w;
 } test_data_t;
 
@@ -58,7 +58,7 @@ typedef enum {
 typedef enum {
   CORE_GET_NODE_INFO = 0,
   CORE_GET_TIPS,
-  // messages
+  // Blocks
   CORE_POST_BASIC_MSG,
   CORE_POST_TAGGED_MSG,
   CORE_GET_MSG_MILESTONE,

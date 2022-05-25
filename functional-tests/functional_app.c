@@ -14,7 +14,7 @@ test_item_t test_cases[MAX_TEST_CASE] = {
     // node
     {CORE_GET_NODE_INFO, "GET /api/v2/info", STATE_NA},
     {CORE_GET_TIPS, "GET /api/v2/tips", STATE_NA},
-    // messages
+    // Blocks
     {CORE_POST_BASIC_MSG, "POST /api/v2/messages Basic", STATE_NA},
     {CORE_POST_TAGGED_MSG, "POST /api/v2/messages Tagged", STATE_NA},
     {CORE_GET_MSG_MILESTONE, "GET /api/v2/messages/{messageId} Milestone", STATE_NA},
@@ -128,14 +128,14 @@ static void dump_test_params(test_data_t* params) {
       }
     }
 
-    if (!buf_all_zeros((uint8_t*)params->basic_msg_id, sizeof(params->basic_msg_id))) {
-      printf("Basic message ID: 0x%s\n", params->basic_msg_id);
+    if (!buf_all_zeros((uint8_t*)params->basic_blk_id, sizeof(params->basic_blk_id))) {
+      printf("Basic Block ID: 0x%s\n", params->basic_blk_id);
     }
-    if (!buf_all_zeros((uint8_t*)params->milestone_msg_id, sizeof(params->milestone_msg_id))) {
-      printf("Milestone ID: 0x%s\n", params->milestone_msg_id);
+    if (!buf_all_zeros((uint8_t*)params->milestone_blk_id, sizeof(params->milestone_blk_id))) {
+      printf("Milestone ID: 0x%s\n", params->milestone_blk_id);
     }
-    if (!buf_all_zeros((uint8_t*)params->tagged_msg_id, sizeof(params->tagged_msg_id))) {
-      printf("Tagged message ID: 0x%s\n", params->tagged_msg_id);
+    if (!buf_all_zeros((uint8_t*)params->tagged_blk_id, sizeof(params->tagged_blk_id))) {
+      printf("Tagged Block ID: 0x%s\n", params->tagged_blk_id);
     }
     if (!buf_all_zeros((uint8_t*)params->output_id, sizeof(params->output_id))) {
       printf("Output ID: 0x%s\n", params->output_id);

@@ -167,7 +167,7 @@ static int send_basic_tx(test_config_t* conf, test_data_t* params, test_item_t* 
   }
 
   int ret = 0;
-  res_send_message_t msg_res = {};
+  res_send_block_t block_res = {};
 
   ret = wallet_ed25519_address_from_index(params->w, false, conf->receiver_index, &params->recv);
   if (ret != 0) {
@@ -187,23 +187,23 @@ static int send_basic_tx(test_config_t* conf, test_data_t* params, test_item_t* 
   address_print(&params->sender);
   printf("Basic receiver: ");
   address_print(&params->recv);
-  ret = wallet_basic_output_send(params->w, false, conf->sender_index, 1000000, &params->recv, &msg_res);
+  ret = wallet_basic_output_send(params->w, false, conf->sender_index, 1000000, &params->recv, &block_res);
   if (ret == 0) {
-    if (msg_res.is_error) {
-      printf("[%s:%d] Error: %s\n", __func__, __LINE__, msg_res.u.error->msg);
-      res_err_free(msg_res.u.error);
+    if (block_res.is_error) {
+      printf("[%s:%d] Error: %s\n", __func__, __LINE__, block_res.u.error->msg);
+      res_err_free(block_res.u.error);
       items[CORE_POST_BASIC_MSG].st = STATE_NG;
       return -1;
     } else {
-      strncpy(params->basic_msg_id, msg_res.u.msg_id, BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES));
-      printf("[%s:%d] Basic Message ID: %s\n", __func__, __LINE__, msg_res.u.msg_id);
+      strncpy(params->basic_blk_id, block_res.u.blk_id, BIN_TO_HEX_STR_BYTES(IOTA_BLOCK_ID_BYTES));
+      printf("[%s:%d] Basic Message ID: %s\n", __func__, __LINE__, block_res.u.blk_id);
       printf("[%s:%d] GET /api/v2/tips: PASS\n", __func__, __LINE__);
       printf("[%s:%d] POST /api/v2/message: PASS\n", __func__, __LINE__);
       items[CORE_GET_TIPS].st = STATE_PASS;
       items[CORE_POST_BASIC_MSG].st = STATE_PASS;
     }
   } else {
-    printf("[%s:%d] send message failed\n", __func__, __LINE__);
+    printf("[%s:%d] send block failed\n", __func__, __LINE__);
     items[CORE_POST_BASIC_MSG].st = STATE_NG;
     return -1;
   }
@@ -217,14 +217,14 @@ static int send_tagged_payload(test_config_t* conf, test_data_t* params, test_it
   }
 
   int ret = 0;
-  res_send_message_t res = {};
+  res_send_block_t res = {};
   byte_t tag[8];
   iota_crypto_randombytes(tag, 8);
   byte_t tag_data[64];
   iota_crypto_randombytes(tag_data, 64);
 
-  ret = send_tagged_data_message(&params->w->endpoint, params->w->protocol_version, tag, sizeof(tag), tag_data,
-                                 sizeof(tag_data), &res);
+  ret = send_tagged_data_block(&params->w->endpoint, params->w->protocol_version, tag, sizeof(tag), tag_data,
+                               sizeof(tag_data), &res);
   if (ret == 0) {
     if (res.is_error) {
       printf("[%s:%d]Err: %s\n", __func__, __LINE__, res.u.error->msg);
@@ -232,12 +232,12 @@ static int send_tagged_payload(test_config_t* conf, test_data_t* params, test_it
       items[CORE_POST_TAGGED_MSG].st = STATE_NG;
       return -1;
     } else {
-      strncpy(params->tagged_msg_id, res.u.msg_id, BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES));
-      printf("[%s:%d] Tagged Message ID: %s\n", __func__, __LINE__, res.u.msg_id);
+      strncpy(params->tagged_blk_id, res.u.blk_id, BIN_TO_HEX_STR_BYTES(IOTA_BLOCK_ID_BYTES));
+      printf("[%s:%d] Tagged Message ID: %s\n", __func__, __LINE__, res.u.blk_id);
       items[CORE_POST_TAGGED_MSG].st = STATE_PASS;
     }
   } else {
-    printf("[%s:%d] performed send_tagged_data_message failed\n", __func__, __LINE__);
+    printf("[%s:%d] performed send_tagged_data_block failed\n", __func__, __LINE__);
     items[CORE_POST_TAGGED_MSG].st = STATE_NG;
   }
   return ret;
@@ -267,13 +267,13 @@ static int fetch_milestone(test_config_t* conf, test_data_t* params, test_item_t
           milestone_payload_print(res_ml->u.ms, 0);
         }
         bin_2_hex(res_ml->u.ms->previous_milestone_id, sizeof(res_ml->u.ms->previous_milestone_id), NULL,
-                  params->milestone_msg_id, sizeof(params->milestone_msg_id));
-        printf("[%s:%d] Milestone ID: %s\n", __func__, __LINE__, params->milestone_msg_id);
+                  params->milestone_blk_id, sizeof(params->milestone_blk_id));
+        printf("[%s:%d] Milestone ID: %s\n", __func__, __LINE__, params->milestone_blk_id);
         printf("[%s:%d] GET /api/v2/milestones/by-index/{index}: PASS\n", __func__, __LINE__);
         items[CORE_GET_MILESTONES_INDEX].st = STATE_PASS;
       }
     } else {
-      printf("[%s:%d] performed send_tagged_data_message failed\n", __func__, __LINE__);
+      printf("[%s:%d] performed send_tagged_data_block failed\n", __func__, __LINE__);
       items[CORE_GET_MILESTONES_INDEX].st = STATE_NG;
       res_milestone_free(res_ml);
       return -1;
@@ -286,11 +286,11 @@ static int fetch_milestone(test_config_t* conf, test_data_t* params, test_item_t
   res_ml = NULL;
 
   // validatin /api/v2/milestones/{milestoneId}
-  byte_t empty_milstone_id[IOTA_MESSAGE_ID_BYTES] = {};
+  byte_t empty_milstone_id[IOTA_BLOCK_ID_BYTES] = {};
   res_ml = res_milestone_new();
   if (res_ml) {
     // get milestone by ID
-    ret = get_milestone_by_id(&params->w->endpoint, params->milestone_msg_id, res_ml);
+    ret = get_milestone_by_id(&params->w->endpoint, params->milestone_blk_id, res_ml);
     if (ret == 0) {
       if (res_ml->is_error) {
         printf("[%s:%d] Err: %s\n", __func__, __LINE__, res_ml->u.error->msg);
@@ -357,7 +357,7 @@ static int fetch_milestone(test_config_t* conf, test_data_t* params, test_item_t
   // validatin /api/v2/milestones/{milestoneId}/utxo_changes
   res_ml_utxo = res_utxo_changes_new();
   if (res_ml_utxo) {
-    ret = get_utxo_changes_by_ms_id(&params->w->endpoint, params->milestone_msg_id, res_ml_utxo);
+    ret = get_utxo_changes_by_ms_id(&params->w->endpoint, params->milestone_blk_id, res_ml_utxo);
     if (ret == 0) {
       if (res_ml_utxo->is_error) {
         printf("[%s:%d] Err: %s\n", __func__, __LINE__, res_ml_utxo->u.error->msg);
@@ -385,7 +385,7 @@ static int fetch_milestone(test_config_t* conf, test_data_t* params, test_item_t
   return 0;
 }
 
-static int validating_messages(test_config_t* conf, test_data_t* params, test_item_t* items) {
+static int validating_blocks(test_config_t* conf, test_data_t* params, test_item_t* items) {
   if (!conf || !params || !items) {
     printf("[%s:%d] invalid params\n", __func__, __LINE__);
     return -1;
@@ -393,219 +393,219 @@ static int validating_messages(test_config_t* conf, test_data_t* params, test_it
 
   int ret = 0;
   printf("Test Message IDs:\n");
-  printf("Basic: 0x%s\n", params->basic_msg_id);
-  printf("Milestone: 0x%s\n", params->milestone_msg_id);
-  printf("Tagged Data: 0x%s\n", params->tagged_msg_id);
+  printf("Basic: 0x%s\n", params->basic_blk_id);
+  printf("Milestone: 0x%s\n", params->milestone_blk_id);
+  printf("Tagged Data: 0x%s\n", params->tagged_blk_id);
 
   // validating /api/v2/messages/{messageId}
   // Basic outputs
-  res_message_t* msg_from_id = res_message_new();
-  if (msg_from_id) {
-    ret = get_message_by_id(&params->w->endpoint, params->basic_msg_id, msg_from_id);
+  res_block_t* block_from_id = res_block_new();
+  if (block_from_id) {
+    ret = get_block_by_id(&params->w->endpoint, params->basic_blk_id, block_from_id);
     if (ret == 0) {
-      if (msg_from_id->is_error) {
-        printf("[%s:%d] Err: %s\n", __func__, __LINE__, msg_from_id->u.error->msg);
-        res_message_free(msg_from_id);
+      if (block_from_id->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, block_from_id->u.error->msg);
+        res_block_free(block_from_id);
         items[CORE_GET_MSG_BASIC].st = STATE_NG;
         return -1;
       } else {
         if (conf->show_payload) {
-          core_message_print(msg_from_id->u.msg, 0);
+          core_block_print(block_from_id->u.blk, 0);
         }
         items[CORE_GET_MSG_BASIC].st = STATE_PASS;
         printf("[%s:%d] GET /api/v2/messages/{messageId}: Basic Outputs PASS\n", __func__, __LINE__);
       }
     } else {
-      printf("[%s:%d] performed get_message_by_id failed\n", __func__, __LINE__);
+      printf("[%s:%d] performed get_block_by_id failed\n", __func__, __LINE__);
       items[CORE_GET_MSG_BASIC].st = STATE_NG;
-      res_message_free(msg_from_id);
+      res_block_free(block_from_id);
       return ret;
     }
   } else {
-    printf("[%s:%d] allocate message response failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocate block response failed\n", __func__, __LINE__);
     return -1;
   }
-  res_message_free(msg_from_id);
-  msg_from_id = NULL;
+  res_block_free(block_from_id);
+  block_from_id = NULL;
 
   // Milestone
-  msg_from_id = res_message_new();
-  if (msg_from_id) {
-    ret = get_message_by_id(&params->w->endpoint, params->milestone_msg_id, msg_from_id);
+  block_from_id = res_block_new();
+  if (block_from_id) {
+    ret = get_block_by_id(&params->w->endpoint, params->milestone_blk_id, block_from_id);
     if (ret == 0) {
-      // milestone ID is not a message
-      if (msg_from_id->is_error) {
+      // milestone ID is not a block
+      if (block_from_id->is_error) {
         printf("[%s:%d] GET /api/v2/messages/{messageId}: Milestone PASS\n", __func__, __LINE__);
         items[CORE_GET_MSG_MILESTONE].st = STATE_PASS;
       } else {
         printf("[%s:%d] GET /api/v2/messages/{messageId}: Milestone NG\n", __func__, __LINE__);
-        res_message_free(msg_from_id);
+        res_block_free(block_from_id);
         items[CORE_GET_MSG_MILESTONE].st = STATE_NG;
         return -1;
       }
     } else {
-      printf("[%s:%d] performed get_message_by_id failed\n", __func__, __LINE__);
+      printf("[%s:%d] performed get_block_by_id failed\n", __func__, __LINE__);
       items[CORE_GET_MSG_MILESTONE].st = STATE_NG;
-      res_message_free(msg_from_id);
+      res_block_free(block_from_id);
       return ret;
     }
   } else {
-    printf("[%s:%d] allocate message response failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocate block response failed\n", __func__, __LINE__);
     return -1;
   }
-  res_message_free(msg_from_id);
-  msg_from_id = NULL;
+  res_block_free(block_from_id);
+  block_from_id = NULL;
 
-  // Tagged message
-  msg_from_id = res_message_new();
-  if (msg_from_id) {
-    ret = get_message_by_id(&params->w->endpoint, params->tagged_msg_id, msg_from_id);
+  // Tagged block
+  block_from_id = res_block_new();
+  if (block_from_id) {
+    ret = get_block_by_id(&params->w->endpoint, params->tagged_blk_id, block_from_id);
     if (ret == 0) {
-      if (msg_from_id->is_error) {
-        printf("[%s:%d] Err: %s\n", __func__, __LINE__, msg_from_id->u.error->msg);
-        res_message_free(msg_from_id);
+      if (block_from_id->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, block_from_id->u.error->msg);
+        res_block_free(block_from_id);
         items[CORE_GET_MSG_TAGGED].st = STATE_NG;
         return -1;
       } else {
         if (conf->show_payload) {
-          core_message_print(msg_from_id->u.msg, 0);
+          core_block_print(block_from_id->u.blk, 0);
         }
         printf("[%s:%d] GET /api/v2/messages/{messageId}: Tagged Data PASS\n", __func__, __LINE__);
         items[CORE_GET_MSG_TAGGED].st = STATE_PASS;
       }
     } else {
       printf("[%s:%d] performed get_message_by_id failed\n", __func__, __LINE__);
-      res_message_free(msg_from_id);
+      res_block_free(block_from_id);
       items[CORE_GET_MSG_TAGGED].st = STATE_NG;
       return ret;
     }
   } else {
-    printf("[%s:%d] allocate message response failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocate block response failed\n", __func__, __LINE__);
     return -1;
   }
-  res_message_free(msg_from_id);
+  res_block_free(block_from_id);
 
   // validating /api/v2/messages/{messageId}/metadata
-  res_msg_meta_t* meta = msg_meta_new();
+  res_block_meta_t* meta = block_meta_new();
   if (meta) {
-    ret = get_message_metadata(&params->w->endpoint, params->basic_msg_id, meta);
+    ret = get_block_metadata(&params->w->endpoint, params->basic_blk_id, meta);
     if (ret == 0) {
       if (meta->is_error) {
         printf("[%s:%d] Err: %s\n", __func__, __LINE__, meta->u.error->msg);
         items[CORE_GET_MSG_META_BASIC].st = STATE_NG;
-        msg_meta_free(meta);
+        block_meta_free(meta);
         return -1;
       } else {
         if (conf->show_payload) {
-          print_message_metadata(meta, 0);
+          print_block_metadata(meta, 0);
         }
         printf("[%s:%d] GET /api/v2/messages/{messageId}/metadata: Basic Outputs PASS\n", __func__, __LINE__);
         items[CORE_GET_MSG_META_BASIC].st = STATE_PASS;
       }
     } else {
-      printf("[%s:%d] performed get_message_metadata failed\n", __func__, __LINE__);
+      printf("[%s:%d] performed get_block_metadata failed\n", __func__, __LINE__);
       items[CORE_GET_MSG_META_BASIC].st = STATE_NG;
-      msg_meta_free(meta);
+      block_meta_free(meta);
       return ret;
     }
   } else {
-    printf("[%s:%d] allocate message metadata response failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocate block metadata response failed\n", __func__, __LINE__);
     return -1;
   }
-  msg_meta_free(meta);
+  block_meta_free(meta);
   meta = NULL;
   // Milestone
-  meta = msg_meta_new();
+  meta = block_meta_new();
   if (meta) {
-    ret = get_message_metadata(&params->w->endpoint, params->milestone_msg_id, meta);
+    ret = get_block_metadata(&params->w->endpoint, params->milestone_blk_id, meta);
     if (ret == 0) {
-      // milestone ID is not a message
+      // milestone ID is not a block
       if (meta->is_error) {
         printf("[%s:%d] GET /api/v2/messages/{messageId}/metadata: Milestone PASS\n", __func__, __LINE__);
         items[CORE_GET_MSG_META_MILESTONE].st = STATE_PASS;
       } else {
         printf("[%s:%d] GET /api/v2/messages/{messageId}/metadata: Milestone NG\n", __func__, __LINE__);
         items[CORE_GET_MSG_META_MILESTONE].st = STATE_NG;
-        msg_meta_free(meta);
+        block_meta_free(meta);
         return -1;
       }
     } else {
-      printf("[%s:%d] performed get_message_metadata failed\n", __func__, __LINE__);
+      printf("[%s:%d] performed get_block_metadata failed\n", __func__, __LINE__);
       items[CORE_GET_MSG_META_MILESTONE].st = STATE_NG;
-      msg_meta_free(meta);
+      block_meta_free(meta);
       return ret;
     }
   } else {
-    printf("[%s:%d] allocate message metadata response failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocate block metadata response failed\n", __func__, __LINE__);
     return -1;
   }
-  msg_meta_free(meta);
+  block_meta_free(meta);
   meta = NULL;
   // Tagged data
-  meta = msg_meta_new();
+  meta = block_meta_new();
   if (meta) {
-    ret = get_message_metadata(&params->w->endpoint, params->tagged_msg_id, meta);
+    ret = get_block_metadata(&params->w->endpoint, params->tagged_blk_id, meta);
     if (ret == 0) {
       if (meta->is_error) {
         printf("[%s:%d] Err: %s\n", __func__, __LINE__, meta->u.error->msg);
         items[CORE_GET_MSG_META_TAGGED].st = STATE_NG;
-        msg_meta_free(meta);
+        block_meta_free(meta);
         return -1;
       } else {
         if (conf->show_payload) {
-          print_message_metadata(meta, 0);
+          print_block_metadata(meta, 0);
         }
         printf("[%s:%d] GET /api/v2/messages/{messageId}/metadata: Tagged Data PASS\n", __func__, __LINE__);
         items[CORE_GET_MSG_META_TAGGED].st = STATE_PASS;
       }
     } else {
-      printf("[%s:%d] performed get_message_metadata failed\n", __func__, __LINE__);
+      printf("[%s:%d] performed get_block_metadata failed\n", __func__, __LINE__);
       items[CORE_GET_MSG_META_TAGGED].st = STATE_NG;
-      msg_meta_free(meta);
+      block_meta_free(meta);
       return ret;
     }
   } else {
-    printf("[%s:%d] allocate message metadata response failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocate block metadata response failed\n", __func__, __LINE__);
     return -1;
   }
-  msg_meta_free(meta);
+  block_meta_free(meta);
 
   // validating /api/v2/messages/{messageId}/children
-  res_msg_children_t* msg_child = res_msg_children_new();
-  if (msg_child) {
-    ret = get_message_children(&params->w->endpoint, params->basic_msg_id, msg_child);
+  res_block_children_t* block_child = res_block_children_new();
+  if (block_child) {
+    ret = get_block_children(&params->w->endpoint, params->basic_blk_id, block_child);
     if (ret == 0) {
-      if (msg_child->is_error) {
-        printf("[%s:%d] Err: %s\n", __func__, __LINE__, msg_child->u.error->msg);
-        res_msg_children_free(msg_child);
+      if (block_child->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, block_child->u.error->msg);
+        res_block_children_free(block_child);
         items[CORE_GET_MSG_CHILD_BASIC].st = STATE_NG;
         return -1;
       } else {
         if (conf->show_payload) {
-          print_message_children(msg_child, 0);
+          print_block_children(block_child, 0);
         }
         printf("[%s:%d] GET /api/v2/messages/{messageId}/children: Basic Outputs PASS\n", __func__, __LINE__);
         items[CORE_GET_MSG_CHILD_BASIC].st = STATE_PASS;
       }
     } else {
-      printf("[%s:%d] performed get_message_children failed\n", __func__, __LINE__);
+      printf("[%s:%d] performed get_block_children failed\n", __func__, __LINE__);
       items[CORE_GET_MSG_CHILD_BASIC].st = STATE_NG;
-      res_msg_children_free(msg_child);
+      res_block_children_free(block_child);
       return ret;
     }
   } else {
-    printf("[%s:%d] allocate message children response failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocate block children response failed\n", __func__, __LINE__);
     return -1;
   }
-  res_msg_children_free(msg_child);
-  msg_child = NULL;
+  res_block_children_free(block_child);
+  block_child = NULL;
   // Milestone
-  msg_child = res_msg_children_new();
-  if (msg_child) {
-    ret = get_message_children(&params->w->endpoint, params->milestone_msg_id, msg_child);
+  block_child = res_block_children_new();
+  if (block_child) {
+    ret = get_block_children(&params->w->endpoint, params->milestone_blk_id, block_child);
     if (ret == 0) {
-      // milestone is not a message
-      if (msg_child->is_error) {
+      // milestone is not a block
+      if (block_child->is_error) {
         printf("[%s:%d] GET /api/v2/messages/{messageId}/children: Milestone PASS\n", __func__, __LINE__);
         items[CORE_GET_MSG_CHILD_MILESTONE].st = STATE_PASS;
       } else {
@@ -613,34 +613,34 @@ static int validating_messages(test_config_t* conf, test_data_t* params, test_it
         printf("[%s:%d] GET /api/v2/messages/{messageId}/children: Milestone NG\n", __func__, __LINE__);
         printf("[%s:%d] https://github.com/gohornet/hornet/issues/1488\n", __func__, __LINE__);
         items[CORE_GET_MSG_CHILD_MILESTONE].st = STATE_NG;
-        // res_msg_children_free(msg_child);
+        // res_block_children_free(block_child);
         // return -1;
       }
     } else {
-      printf("[%s:%d] performed get_message_children failed\n", __func__, __LINE__);
+      printf("[%s:%d] performed get_block_children failed\n", __func__, __LINE__);
       items[CORE_GET_MSG_CHILD_MILESTONE].st = STATE_NG;
-      res_msg_children_free(msg_child);
+      res_block_children_free(block_child);
       return ret;
     }
   } else {
-    printf("[%s:%d] allocate message children response failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocate block children response failed\n", __func__, __LINE__);
     return -1;
   }
-  res_msg_children_free(msg_child);
-  msg_child = NULL;
+  res_block_children_free(block_child);
+  block_child = NULL;
   // Tagged Data
-  msg_child = res_msg_children_new();
-  if (msg_child) {
-    ret = get_message_children(&params->w->endpoint, params->tagged_msg_id, msg_child);
+  block_child = res_block_children_new();
+  if (block_child) {
+    ret = get_block_children(&params->w->endpoint, params->tagged_blk_id, block_child);
     if (ret == 0) {
-      if (msg_child->is_error) {
-        printf("[%s:%d] Err: %s\n", __func__, __LINE__, msg_child->u.error->msg);
+      if (block_child->is_error) {
+        printf("[%s:%d] Err: %s\n", __func__, __LINE__, block_child->u.error->msg);
         items[CORE_GET_MSG_CHILD_TAGGED].st = STATE_NG;
-        res_msg_children_free(msg_child);
+        res_block_children_free(block_child);
         return -1;
       } else {
         if (conf->show_payload) {
-          print_message_children(msg_child, 0);
+          print_block_children(block_child, 0);
         }
         printf("[%s:%d] GET /api/v2/messages/{messageId}/children: Tagged Data PASS\n", __func__, __LINE__);
         items[CORE_GET_MSG_CHILD_TAGGED].st = STATE_PASS;
@@ -648,14 +648,14 @@ static int validating_messages(test_config_t* conf, test_data_t* params, test_it
     } else {
       printf("[%s:%d] performed get_message_children failed\n", __func__, __LINE__);
       items[CORE_GET_MSG_CHILD_TAGGED].st = STATE_NG;
-      res_msg_children_free(msg_child);
+      res_block_children_free(block_child);
       return ret;
     }
   } else {
-    printf("[%s:%d] allocate message children response failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocate block children response failed\n", __func__, __LINE__);
     return -1;
   }
-  res_msg_children_free(msg_child);
+  res_block_children_free(block_child);
 
   return 0;
 }
@@ -735,7 +735,7 @@ static int validating_utxo(test_config_t* conf, test_data_t* params, test_item_t
   }
 
   int ret = 0;
-  printf("Testing output ID: 0x%s\n", params->basic_msg_id);
+  printf("Testing output ID: 0x%s\n", params->basic_blk_id);
 
   // find an output by its ID
   res_output_t* res_output = get_output_response_new();
@@ -805,33 +805,33 @@ static int validating_utxo(test_config_t* conf, test_data_t* params, test_item_t
   printf("Testing transaction ID: 0x%s\n", params->tx_id);
   // TODO: should be tested in Hornet alpha11
 #if 0
-  // transaction included message
-  res_message_t* msg = res_message_new();
+  // transaction included block
+  res_block_t* msg = res_block_new();
   if(msg){
-    if(get_transaction_included_message_by_id(&params->w->endpoint, params->tx_id, msg) != 0){
-      printf("[%s:%d] performed get_transaction_included_message_by_id failed\n", __func__, __LINE__);
+    if(get_transaction_included_block_by_id(&params->w->endpoint, params->tx_id, msg) != 0){
+      printf("[%s:%d] performed get_transaction_included_block_by_id failed\n", __func__, __LINE__);
       items[CORE_GET_TX_INC_MSG].st = STATE_NG;
-      res_message_free(msg);
+      res_block_free(msg);
       return -1;
     }else{
       if(msg->is_error){
         printf("[%s:%d] Err: %s\n", __func__, __LINE__, msg->u.error->msg);
-        res_message_free(msg);
+        res_block_free(msg);
         return -1;
       }else{
-        if(core_message_get_payload_type(msg->u.msg) == CORE_MESSAGE_PAYLOAD_TRANSACTION){
+        if(core_block_get_payload_type(msg->u.msg) == CORE_BLOCK_PAYLOAD_TRANSACTION){
           printf("[%s:%d] GET /api/v2/transactions/{transactionId}/included-message: PASS\n", __func__, __LINE__);
       items[CORE_GET_TX_INC_MSG].st = STATE_PASS;
         }else{
           printf("[%s:%d] it's not a transaction payload\n", __func__, __LINE__);
       items[CORE_GET_TX_INC_MSG].st = STATE_NG;
-          res_message_free(msg);
+          res_block_free(msg);
           return -1;
         }
       }
     }
   }else{
-    printf("[%s:%d] allocate message response failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocate block response failed\n", __func__, __LINE__);
     return -1;
   }
 #endif
@@ -872,20 +872,20 @@ int restful_api_tests(test_config_t* conf, test_data_t* params, test_item_t* ite
   sleep(conf->delay + 10);
 
   // send basic tx
-  // get an valid message ID for messages endpoints test
+  // get an valid block ID for blocks endpoints test
   if ((ret = send_basic_tx(conf, params, items)) != 0) {
     printf("[%s:%d] send basic tx failed\n", __func__, __LINE__);
     goto done;
   }
 
-  // wait a little bit for message get confirmed
-  printf("[%s:%d] waiting for message confirmation...\n", __func__, __LINE__);
+  // wait a little bit for block get confirmed
+  printf("[%s:%d] waiting for block confirmation...\n", __func__, __LINE__);
   sleep(conf->delay);
 
-  // send tagged message
-  // get an valid message ID for messages endpoints test
+  // send tagged block
+  // get an valid block ID for blocks endpoints test
   if ((ret = send_tagged_payload(conf, params, items)) != 0) {
-    printf("[%s:%d] send tagged message failed\n", __func__, __LINE__);
+    printf("[%s:%d] send tagged block failed\n", __func__, __LINE__);
   }
 
   // wait a little bit for ledger status update
@@ -897,9 +897,9 @@ int restful_api_tests(test_config_t* conf, test_data_t* params, test_item_t* ite
     printf("[%s:%d] fetch milestone failed\n", __func__, __LINE__);
   }
 
-  // validate messages endpoints
-  if ((ret = validating_messages(conf, params, items)) != 0) {
-    printf("[%s:%d] validate message endpoints failed\n", __func__, __LINE__);
+  // validate blocks endpoints
+  if ((ret = validating_blocks(conf, params, items)) != 0) {
+    printf("[%s:%d] validate block endpoints failed\n", __func__, __LINE__);
   }
 
   // validate Indexer endpoints
