@@ -89,6 +89,35 @@ static int add_unspent_basic_outputs_to_essence(transaction_essence_t* essence, 
   return 0;
 }
 
+static bool is_unspent_basic_output_useful(output_basic_t* output, uint64_t send_amount, uint64_t collected_amount,
+                                           native_tokens_list_t* send_native_tokens,
+                                           native_tokens_list_t* collected_native_tokens) {
+  if (output == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (collected_amount < send_amount && output->amount > 0) {
+    return true;
+  }
+
+  native_tokens_list_t* elm;
+  LL_FOREACH(output->native_tokens, elm) {
+    native_token_t* send_native_token = native_tokens_find_by_id(send_native_tokens, elm->token->token_id);
+    native_token_t* collected_native_token = native_tokens_find_by_id(collected_native_tokens, elm->token->token_id);
+
+    if (send_native_token && !collected_native_token) {
+      return true;
+    }
+
+    if (uint256_equal(&send_native_token->amount, &collected_native_token->amount) > 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_t* send_addr,
                                                       ed25519_keypair_t* sender_keypair, uint64_t send_amount,
                                                       native_tokens_list_t* send_native_tokens,
@@ -136,6 +165,11 @@ utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_
     }
 
     if (output_res->u.data->output->output_type == OUTPUT_BASIC) {
+      if (!is_unspent_basic_output_useful(output_res->u.data->output->output, send_amount, *collected_amount,
+                                          send_native_tokens, *collected_native_tokens)) {
+        get_output_response_free(output_res);
+        continue;
+      }
       uint64_t output_amount = 0;
       if (add_unspent_basic_outputs_to_essence(essence, output_res->u.data, sender_keypair, sign_data, &unspent_outputs,
                                                &output_amount) != 0) {

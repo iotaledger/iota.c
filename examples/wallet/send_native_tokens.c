@@ -25,7 +25,7 @@ uint32_t const sender_addr_index = 3;     // address index of a sender
 uint32_t const receiver_addr_index = 4;   // address index of a receiver
 char const* const token_amount = "1000";  // transfer 1000 native tokens from a sender to a receiver address
 char const* const token_id_str =
-    "0860585c0a04a8a4a99c660ba1bf21794936997bed29ba8e054080037fb9017fd20100000000";  // token ID which will be sent
+    "086f3ab0653b3471c52104f70e60563a2bd2e0a207b92b77d490a8ba91853af3e60100000000";  // token ID which will be sent
 
 int main(void) {
   iota_wallet_t* w = wallet_create(test_mnemonic, "", TEST_COIN_TYPE, 0);
