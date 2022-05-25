@@ -8,11 +8,12 @@
 #include "wallet/output_foundry.h"
 
 int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_addr, bool state_ctrl_change,
-                                             uint32_t state_ctrl_index, address_t* govern_addr, uint256_t* max_supply,
-                                             uint256_t* minted_tokens, uint32_t serial_number, uint32_t foundry_counter,
-                                             address_t* receiver_addr, res_send_message_t* msg_res) {
+                                             uint32_t state_ctrl_index, address_t* govern_addr,
+                                             address_t* receiver_addr, uint256_t* max_supply, uint256_t* minted_tokens,
+                                             uint32_t serial_number, uint32_t foundry_counter,
+                                             res_send_message_t* msg_res) {
   if (w == NULL || alias_addr == NULL || govern_addr == NULL || max_supply == NULL || minted_tokens == NULL ||
-      msg_res == NULL) {
+      receiver_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -54,7 +55,7 @@ int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_
   // calculate minimum storage deposit for Foundry Output and update output's amount
   uint64_t min_storage_deposit = calc_minimum_output_deposit(&w->byte_cost, OUTPUT_FOUNDRY, output_foundry);
   output_foundry->amount = min_storage_deposit;
-  printf("Storage deposit for foundry output: %" PRIu64 "\n", output_foundry->amount);
+  // printf("Storage deposit for foundry output: %" PRIu64 "\n", output_foundry->amount);
 
   outputs = utxo_outputs_new();
   if ((ret = utxo_outputs_add(&outputs, OUTPUT_FOUNDRY, output_foundry)) != 0) {
@@ -97,16 +98,14 @@ int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_
   // calculate minimum storage deposit for Basic Output and update output's amount
   min_storage_deposit = calc_minimum_output_deposit(&w->byte_cost, OUTPUT_BASIC, output_basic);
   output_basic->amount = min_storage_deposit;
-  printf("Storage deposit for basic output: %" PRIu64 "\n", output_basic->amount);
+  // printf("Storage deposit for basic output: %" PRIu64 "\n", output_basic->amount);
 
   if ((ret = utxo_outputs_add(&outputs, OUTPUT_BASIC, output_basic)) != 0) {
     printf("[%s:%d] can not add foundry output to a list\n", __func__, __LINE__);
     goto end;
   }
 
-  // create foundry output
-  printf("Sending create foundry transaction message to the Tangle...\n");
-
+  // send alias state transition transaction to mint new native tokens
   uint64_t amount = output_foundry->amount + output_basic->amount;
   if ((ret = wallet_alias_output_state_transition(w, alias_addr->address, state_ctrl_change, state_ctrl_index,
                                                   govern_addr, foundry_counter, amount, outputs, msg_res)) != 0) {
