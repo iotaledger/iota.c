@@ -18,7 +18,11 @@ static uint64_t basic_address_storage_deposit(byte_cost_config_t *config, addres
     return UINT64_MAX;
   }
 
+  // output serialized length = output type + amount + native tokens + unlock condition count + unlocks count
   uint64_t output_serialized_len = 12;  // 1 + 8 + 1 + 1 + 1
+  // address unlock condition = unlock type + address serialized length
+  output_serialized_len += 1 + address_serialized_len(addr);
+
   return config->v_byte_cost * ((output_serialized_len * config->v_byte_factor_data) + config->v_byte_offset);
 }
 

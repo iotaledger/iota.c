@@ -452,14 +452,14 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
       }
     }
   } else {
-    printf("[%s:%d]: %s not found in the message\n", __func__, __LINE__, JSON_KEY_ESSENCE);
+    printf("[%s:%d]: %s not found in the block\n", __func__, __LINE__, JSON_KEY_ESSENCE);
     return -1;
   }
 
-  // unlock blocks
-  cJSON* blocks_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_UNLOCK_BLOCKS);
-  if (cJSON_IsArray(blocks_obj)) {
-    if (json_unlock_blocks_deserialize(blocks_obj, &tx->unlocks)) {
+  // unlocks
+  cJSON* unlocks_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_UNLOCK_BLOCKS);
+  if (cJSON_IsArray(unlocks_obj)) {
+    if (json_unlocks_deserialize(unlocks_obj, &tx->unlocks)) {
       return -1;
     }
   } else {
@@ -480,7 +480,7 @@ cJSON* json_transaction_serialize(transaction_payload_t* tx) {
   */
   cJSON* tx_payload = NULL;
   cJSON* essence = NULL;
-  cJSON* blocks = NULL;
+  cJSON* unlocks = NULL;
 
   if (!tx) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
@@ -508,13 +508,13 @@ cJSON* json_transaction_serialize(transaction_payload_t* tx) {
   }
   cJSON_AddItemToObject(tx_payload, JSON_KEY_ESSENCE, essence);
 
-  // unlocked blocks
-  if ((blocks = json_unlock_blocks_serialize(tx->unlocks)) == NULL) {
-    printf("[%s:%d] create unlocked blocks object failed\n", __func__, __LINE__);
+  // unlocks
+  if ((unlocks = json_unlocks_serialize(tx->unlocks)) == NULL) {
+    printf("[%s:%d] create unlocks object failed\n", __func__, __LINE__);
     cJSON_Delete(tx_payload);
     return NULL;
   }
-  cJSON_AddItemToObject(tx_payload, JSON_KEY_UNLOCK_BLOCKS, blocks);
+  cJSON_AddItemToObject(tx_payload, JSON_KEY_UNLOCK_BLOCKS, unlocks);
 
   return tx_payload;
 }

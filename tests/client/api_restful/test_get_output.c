@@ -7,6 +7,7 @@
 #include "test_config.h"
 
 #include "client/api/restful/get_output.h"
+#include "core/models/outputs/output_basic.h"
 #include "core/utils/macros.h"
 
 static char const* const test_output_id = "a4679847ebafe542ab27988be47235d1ed8acc38b8874cb440344ebb5bcf653e0000";
@@ -82,11 +83,11 @@ void test_output_response_deserialization() {
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_FALSE(out->is_error);
 
-  byte_t tmp_id[IOTA_MESSAGE_ID_BYTES] = {};
-  // validate message id
+  byte_t tmp_id[IOTA_BLOCK_ID_BYTES] = {};
+  // validate block id
   TEST_ASSERT(hex_2_bin("1b8a036d9decfec2e053fe69bc456a22c7a039590ae5a3c9e51dddadf19f83a5", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
-  TEST_ASSERT_EQUAL_MEMORY(tmp_id, out->u.data->meta.msg_id, IOTA_MESSAGE_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, out->u.data->meta.blk_id, IOTA_BLOCK_ID_BYTES);
   // validate transaction id
   TEST_ASSERT(hex_2_bin("6c1249abb6fc07a3a8730db62564b10d8703a60d34debc6df545357cc11a9bfc", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
@@ -108,7 +109,7 @@ void test_output_response_deserialization() {
   TEST_ASSERT(o->amount == 10000000);
   TEST_ASSERT_NULL(o->native_tokens);
   TEST_ASSERT_NOT_NULL(o->unlock_conditions);
-  TEST_ASSERT_NULL(o->feature_blocks);
+  TEST_ASSERT_NULL(o->features);
 
   dump_get_output_response(out, 0);
   get_output_response_free(out);
@@ -130,11 +131,11 @@ void test_spent_output_response_deserialization() {
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_FALSE(out->is_error);
 
-  byte_t tmp_id[IOTA_MESSAGE_ID_BYTES] = {};
-  // validate message id
+  byte_t tmp_id[IOTA_BLOCK_ID_BYTES] = {};
+  // validate block id
   TEST_ASSERT(hex_2_bin("9cd745ef6800c8e8c80b09174ee4b250b3c43dfa62d7c6a4e61f848febf731a0", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
-  TEST_ASSERT_EQUAL_MEMORY(tmp_id, out->u.data->meta.msg_id, IOTA_MESSAGE_ID_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, out->u.data->meta.blk_id, IOTA_BLOCK_ID_BYTES);
   // validate transaction id
   TEST_ASSERT(hex_2_bin("fa0de75d225cca2799395e5fc340702fc7eac821d2bdd79911126f131ae097a2", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
@@ -164,7 +165,7 @@ void test_spent_output_response_deserialization() {
   TEST_ASSERT(o->amount == 1000);
   TEST_ASSERT_NULL(o->native_tokens);
   TEST_ASSERT_NOT_NULL(o->unlock_conditions);
-  TEST_ASSERT_NULL(o->feature_blocks);
+  TEST_ASSERT_NULL(o->features);
 
   dump_get_output_response(out, 0);
   get_output_response_free(out);
@@ -182,11 +183,11 @@ void test_output_metadata_response_deserialization() {
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_FALSE(out->is_error);
 
-  byte_t tmp_id[IOTA_MESSAGE_ID_BYTES] = {};
-  // validate message id
+  byte_t tmp_id[IOTA_BLOCK_ID_BYTES] = {};
+  // validate block id
   TEST_ASSERT(hex_2_bin("00a9b3ab3fb1c43c24f2af74d18f216af6a9f6e60d56c9a57e07b2d6f953d019",
-                        BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES), NULL, tmp_id, sizeof(tmp_id)) == 0);
-  TEST_ASSERT_EQUAL_MEMORY(tmp_id, out->u.data->meta.msg_id, IOTA_MESSAGE_ID_BYTES);
+                        BIN_TO_HEX_STR_BYTES(IOTA_BLOCK_ID_BYTES), NULL, tmp_id, sizeof(tmp_id)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(tmp_id, out->u.data->meta.blk_id, IOTA_BLOCK_ID_BYTES);
   // validate transaction id
   TEST_ASSERT(hex_2_bin("a4679847ebafe542ab27988be47235d1ed8acc38b8874cb440344ebb5bcf653e",
                         BIN_TO_HEX_STR_BYTES(IOTA_TRANSACTION_ID_BYTES), NULL, tmp_id, sizeof(tmp_id)) == 0);

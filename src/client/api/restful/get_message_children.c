@@ -74,7 +74,7 @@ char *res_block_children_get(res_block_children_t *res, size_t index) {
   return NULL;
 }
 
-int deser_blk_children(char const *const j_str, res_block_children_t *res) {
+int deser_block_children(char const *const j_str, res_block_children_t *res) {
   int ret = -1;
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
@@ -172,7 +172,7 @@ int get_block_children(iota_client_conf_t const *ctx, char const blk_id[], res_b
   if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
-    ret = deser_blk_children((char const *const)http_res->data, res);
+    ret = deser_block_children((char const *const)http_res->data, res);
   }
 
 done:
