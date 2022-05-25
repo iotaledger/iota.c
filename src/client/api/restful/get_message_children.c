@@ -103,9 +103,9 @@ int deser_block_children(char const *const j_str, res_block_children_t *res) {
   }
 
   // block ID
-  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->u.data->blk_id,
+  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_BLOCK_ID, res->u.data->blk_id,
                                          sizeof(res->u.data->blk_id))) != 0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_BLOCK_ID);
     goto end;
   }
 
@@ -122,9 +122,8 @@ int deser_block_children(char const *const j_str, res_block_children_t *res) {
   }
 
   // children
-  if ((ret = json_string_with_prefix_array_to_utarray(json_obj, JSON_KEY_CHILDREN_MSG_IDS, res->u.data->children)) !=
-      0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_CHILDREN_MSG_IDS);
+  if ((ret = json_string_with_prefix_array_to_utarray(json_obj, JSON_KEY_CHILDREN_IDS, res->u.data->children)) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_CHILDREN_IDS);
   }
 
 end:
@@ -137,7 +136,7 @@ int get_block_children(iota_client_conf_t const *ctx, char const blk_id[], res_b
   iota_str_t *cmd = NULL;
   byte_buf_t *http_res = NULL;
   long st = 0;
-  char const *const cmd_prefix = "/messages/0x";
+  char const *const cmd_prefix = "/blocks/0x";
   char const *const cmd_suffix = "/children";
 
   if (ctx == NULL || blk_id == NULL || res == NULL) {

@@ -29,8 +29,8 @@ int deser_send_block_response(char const* json_str, res_send_block_t* res) {
   }
 
   // block ID
-  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->u.blk_id, sizeof(res->u.blk_id))) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
+  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_BLOCK_ID, res->u.blk_id, sizeof(res->u.blk_id))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_BLOCK_ID);
     ret = -1;
   }
 
@@ -39,17 +39,17 @@ end:
   return ret;
 }
 
-int send_core_block(iota_client_conf_t const* const conf, core_block_t* msg, res_send_block_t* res) {
+int send_core_block(iota_client_conf_t const* const conf, core_block_t* blk, res_send_block_t* res) {
   int ret = -1;
   long http_st_code = 0;
-  if (conf == NULL || msg == NULL || res == NULL) {
+  if (conf == NULL || blk == NULL || res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
   byte_buf_t* json_data = byte_buf_new();
   byte_buf_t* node_res = byte_buf_new();
   res_tips_t* tips = NULL;
-  byte_t tmp_msg_parent[IOTA_BLOCK_ID_BYTES] = {};
+  byte_t tmp_blk_parent[IOTA_BLOCK_ID_BYTES] = {};
 
   if (!json_data || !node_res) {
     printf("[%s:%d] allocate http buffer failed\n", __func__, __LINE__);
@@ -75,35 +75,35 @@ int send_core_block(iota_client_conf_t const* const conf, core_block_t* msg, res
 
   char** p = NULL;
   while ((p = (char**)utarray_next(tips->u.tips, p))) {
-    if (hex_2_bin(*p, BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES), NULL, tmp_msg_parent, sizeof(tmp_msg_parent)) != 0) {
+    if (hex_2_bin(*p, BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES), NULL, tmp_blk_parent, sizeof(tmp_blk_parent)) != 0) {
       printf("[%s:%d] converting hex to binary failed\n", __func__, __LINE__);
       ret = -1;
       goto end;
     }
-    utarray_push_back(msg->parents, tmp_msg_parent);
+    utarray_push_back(blk->parents, tmp_blk_parent);
   }
 
-  // Serialize block object to json messsage
-  cJSON* msg_json = json_block_serialize(msg);
-  if (msg_json == NULL) {
+  // Serialize block object to json data
+  cJSON* blk_json = json_block_serialize(blk);
+  if (blk_json == NULL) {
     printf("[%s:%d] block json serialization failed\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }
 
   // json object to json string
-  char* msg_str = cJSON_PrintUnformatted(msg_json);
-  if (msg_str == NULL) {
+  char* blk_str = cJSON_PrintUnformatted(blk_json);
+  if (blk_str == NULL) {
     printf("[%s:%d] convert to string failed\n", __func__, __LINE__);
-    cJSON_Delete(msg_json);
+    cJSON_Delete(blk_json);
     ret = -1;
     goto end;
   }
-  cJSON_Delete(msg_json);
+  cJSON_Delete(blk_json);
 
   // put json string into byte_buf_t
-  json_data->data = (byte_t*)msg_str;
-  json_data->cap = json_data->len = strlen(msg_str) + 1;
+  json_data->data = (byte_t*)blk_str;
+  json_data->cap = json_data->len = strlen(blk_str) + 1;
 
   iota_str_t* cmd = NULL;
   char const* const cmd_str = "/messages";

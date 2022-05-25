@@ -20,7 +20,7 @@ void test_parse_empty_unlocks() {
   TEST_ASSERT_NOT_NULL(json_obj);
 
   // fetch unlock array
-  cJSON *unlock_data = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_UNLOCK_BLOCKS);
+  cJSON *unlock_data = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_UNLOCKS);
   TEST_ASSERT_TRUE(cJSON_IsArray(unlock_data));
 
   unlock_list_t *unlock_list = unlock_list_new();
@@ -35,7 +35,7 @@ void test_parse_empty_unlocks() {
   cJSON *unlock_items = json_unlocks_serialize(unlock_list);
   TEST_ASSERT_NOT_NULL(unlock_items);
   // add array items to unlock object
-  TEST_ASSERT_TRUE(cJSON_AddItemToObject(json_unlocks, JSON_KEY_UNLOCK_BLOCKS, unlock_items));
+  TEST_ASSERT_TRUE(cJSON_AddItemToObject(json_unlocks, JSON_KEY_UNLOCKS, unlock_items));
   // validate json string
   char *json_str = cJSON_PrintUnformatted(json_unlocks);
   TEST_ASSERT_EQUAL_STRING(json_res, json_str);
@@ -61,7 +61,7 @@ void test_parse_simple_unlocks() {
   TEST_ASSERT_NOT_NULL(json_obj);
 
   // fetch unlock array
-  cJSON *unlock_data = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_UNLOCK_BLOCKS);
+  cJSON *unlock_data = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_UNLOCKS);
   TEST_ASSERT_TRUE(cJSON_IsArray(unlock_data));
 
   unlock_list_t *unlock_list = unlock_list_new();
@@ -97,7 +97,7 @@ void test_parse_simple_unlocks() {
   cJSON *unlock_items = json_unlocks_serialize(unlock_list);
   TEST_ASSERT_NOT_NULL(unlock_items);
   // add array items to unlock object
-  TEST_ASSERT_TRUE(cJSON_AddItemToObject(json_unlocks, JSON_KEY_UNLOCK_BLOCKS, unlock_items));
+  TEST_ASSERT_TRUE(cJSON_AddItemToObject(json_unlocks, JSON_KEY_UNLOCKS, unlock_items));
   // validate json string
   char *json_str = cJSON_PrintUnformatted(json_unlocks);
   TEST_ASSERT_EQUAL_STRING(json_res, json_str);

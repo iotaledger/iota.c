@@ -289,8 +289,8 @@ int parse_get_output_meta(cJSON *json_obj, get_output_t *res) {
   }
 
   // block ID
-  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_MSG_ID, res->meta.blk_id, sizeof(res->meta.blk_id))) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
+  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_BLOCK_ID, res->meta.blk_id, sizeof(res->meta.blk_id))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_BLOCK_ID);
     goto end;
   }
 

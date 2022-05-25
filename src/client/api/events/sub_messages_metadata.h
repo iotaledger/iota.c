@@ -1,8 +1,8 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __SUB_MESSAGES_METADATA_H__
-#define __SUB_MESSAGES_METADATA_H__
+#ifndef __SUB_BLOCKS_METADATA_H__
+#define __SUB_BLOCKS_METADATA_H__
 
 #include <stdbool.h>
 #include <stdint.h>

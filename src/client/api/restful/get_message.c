@@ -87,7 +87,7 @@ int get_block_by_id(iota_client_conf_t const *conf, char const blk_id[], res_blo
   }
 
   iota_str_t *cmd = NULL;
-  char const *const cmd_str = "/messages/0x";
+  char const *const cmd_str = "/blocks/0x";
 
   cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
   if (cmd == NULL) {

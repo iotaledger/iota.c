@@ -1,8 +1,8 @@
 // Copyright 2020 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef __CLIENT_API_RESTFUL_TRANSACTION_INCLUDED_MESSAGE_H__
-#define __CLIENT_API_RESTFUL_TRANSACTION_INCLUDED_MESSAGE_H__
+#ifndef __CLIENT_API_RESTFUL_TRANSACTION_INCLUDED_BLOCK_H__
+#define __CLIENT_API_RESTFUL_TRANSACTION_INCLUDED_BLOCK_H__
 
 #include "client/api/restful/get_message.h"
 
@@ -33,4 +33,4 @@ int deser_get_transaction_included_block(char const *const j_str, res_block_t *r
 }
 #endif
 
-#endif  // __CLIENT_API_V1_TRANSACTION_INCLUDED_MESSAGE_H__
+#endif  // __CLIENT_API_V1_TRANSACTION_INCLUDED_BLOCK_H__

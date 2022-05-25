@@ -62,7 +62,7 @@ void test_get_blk_by_id() {
 
 void test_deser_milestone() {
   char const* const ms_res =
-      "{\"protocolVersion\":2,\"parentMessageIds\":["
+      "{\"protocolVersion\":2,\"parents\":["
       "\"0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3\","
       "\"0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a\","
       "\"0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893\","
@@ -190,24 +190,21 @@ void test_deser_milestone() {
 
 void test_deser_simple_tx() {
   char const* const simple_tx =
-      "{\"protocolVersion\":2,\"parentMessageIds\":["
-      "\"0x0875901a61c4b9f2adb37121fc7946d286dae581d1a5f9cd720cb4c1f8d8f552\","
-      "\"0x410653be41fde06bdf25aaeb764cd880f872e33e7ce1759801d75964e9dc75c7\","
-      "\"0xb9130e8d2b928921c220bef325eb9bcad114bdbce80945565e54e8cf9664173a\","
-      "\"0xcf94502e06fab8dcc4ef9fc94721de2e2fcaf727e0998b6489a0a5b5eead6625\"],\"payload\":{\"type\":6,\"essence\":{"
-      "\"type\":1,\"networkId\":\"8453507715857476362\",\"inputs\":[{\"type\":0,\"transactionId\":"
-      "\"0x0000000000000000000000000000000000000000000000000000000000000000\",\"transactionOutputIndex\":0}],"
-      "\"inputsCommitment\":\"0x9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9\",\"outputs\":"
-      "[{\"type\":3,\"amount\":\"10000000\",\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{"
-      "\"type\":0,\"pubKeyHash\":\"0x21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942\"}}],"
-      "\"featureBlocks\":[]},{\"type\":3,\"amount\":\"2779530273277761\",\"nativeTokens\":[],\"unlockConditions\":[{"
-      "\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
-      "\"0x60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe\"}}],\"featureBlocks\":[]}],\"payload\":{"
-      "\"type\":5,\"tag\":\"0x484f524e455420464155434554\",\"data\":\"0x\"}},\"unlockBlocks\":[{\"type\":0,"
-      "\"signature\":{\"type\":0,\"publicKey\":\"0x31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\","
-      "\"signature\":"
-      "\"0x1b51aab768dd145de99fc3710c7b05963803f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f81"
-      "0ad0cc4b0210adaafd0a\"}}]},\"nonce\":\"62900\"}";
+      "{\"protocolVersion\":2,\"parents\":[\"0x224d380a1c6f637864fa46f30c60cb93bf687e80c2d40631d5808fbfae5348a3\","
+      "\"0x3ad75671be78f14e58b517bd26871ee347495656a6f7ba4638bac63f4c87b443\","
+      "\"0x666952384036118152569a51197af7eaaaccf22760676475602a934fc172e3ed\","
+      "\"0xc1e9c2c09169eb8eb862a7cc3836d0472af46eeb57e8f4de1c4c88747fbc3bae\"],\"payload\":{\"type\":6,\"essence\":{"
+      "\"type\":1,\"networkId\":\"6983037938332331227\",\"inputs\":[{\"type\":0,\"transactionId\":"
+      "\"0x041ce399a476b30d18efefb793e9bc8a8e20e401e13b0ba3ffa8999069e95d25\",\"transactionOutputIndex\":1}],"
+      "\"inputsCommitment\":\"0x0dcff67c0531c53863c50bf2242c7187713dc55411df8a1bf12aadf73be1c7e4\",\"outputs\":[{"
+      "\"type\":3,\"amount\":\"1000000000\",\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
+      "\"0xbd3a9957b8c5a2959915cb432a467bc2f898ec1ede48dbca033940962a8823fa\"}}]},{\"type\":3,\"amount\":"
+      "\"2779502483277761\",\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
+      "\"0x3845105b59429361a75b3203a6e24e16d19540aad6bd1936449b62f1c4bbe5da\"}}]}],\"payload\":{\"type\":5,\"tag\":"
+      "\"0x484f524e455420464155434554\",\"data\":\"\"}},\"unlocks\":[{\"type\":0,\"signature\":{\"type\":0,"
+      "\"publicKey\":\"0x1c51195a9cdc981c3d558707183518a3773bafe6a59857bcba74463e14cb9094\",\"signature\":"
+      "\"0x8e04847fa0cfab6737a9ae4460b82370477b8b493a86e1995e9f6cf3898b71cba993bf3110a562e6548b4b8ca83ca671031b2ab3a7bc"
+      "f06dd51fef2a884cd90e\"}}]},\"nonce\":\"625872\"}";
 
   res_block_t* res = res_block_new();
   TEST_ASSERT_NOT_NULL(res);
@@ -221,16 +218,16 @@ void test_deser_simple_tx() {
   byte_t tmp_id[IOTA_BLOCK_ID_BYTES] = {};
   TEST_ASSERT_EQUAL_INT(4, core_block_parent_len(res->u.blk));
   // compare block ids in binary
-  TEST_ASSERT(hex_2_bin("0875901a61c4b9f2adb37121fc7946d286dae581d1a5f9cd720cb4c1f8d8f552", 65, NULL, tmp_id,
+  TEST_ASSERT(hex_2_bin("224d380a1c6f637864fa46f30c60cb93bf687e80c2d40631d5808fbfae5348a3", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, core_block_get_parent_id(res->u.blk, 0), sizeof(tmp_id));
-  TEST_ASSERT(hex_2_bin("410653be41fde06bdf25aaeb764cd880f872e33e7ce1759801d75964e9dc75c7", 65, NULL, tmp_id,
+  TEST_ASSERT(hex_2_bin("3ad75671be78f14e58b517bd26871ee347495656a6f7ba4638bac63f4c87b443", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, core_block_get_parent_id(res->u.blk, 1), sizeof(tmp_id));
-  TEST_ASSERT(hex_2_bin("b9130e8d2b928921c220bef325eb9bcad114bdbce80945565e54e8cf9664173a", 65, NULL, tmp_id,
+  TEST_ASSERT(hex_2_bin("666952384036118152569a51197af7eaaaccf22760676475602a934fc172e3ed", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, core_block_get_parent_id(res->u.blk, 2), sizeof(tmp_id));
-  TEST_ASSERT(hex_2_bin("cf94502e06fab8dcc4ef9fc94721de2e2fcaf727e0998b6489a0a5b5eead6625", 65, NULL, tmp_id,
+  TEST_ASSERT(hex_2_bin("c1e9c2c09169eb8eb862a7cc3836d0472af46eeb57e8f4de1c4c88747fbc3bae", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, core_block_get_parent_id(res->u.blk, 3), sizeof(tmp_id));
 
@@ -242,26 +239,26 @@ void test_deser_simple_tx() {
   // validate network ID
   char str_buff[65] = {};
   sprintf(str_buff, "%" PRIu64 "", tx->essence->network_id);
-  TEST_ASSERT_EQUAL_STRING("8453507715857476362", str_buff);
+  TEST_ASSERT_EQUAL_STRING("6983037938332331227", str_buff);
   // validate essence inputs
   TEST_ASSERT_EQUAL_UINT16(1, utxo_inputs_count(tx->essence->inputs));
-  utxo_input_t* inputs = utxo_inputs_find_by_index(tx->essence->inputs, 0);
+  utxo_input_t* inputs = utxo_inputs_find_by_index(tx->essence->inputs, 1);
   TEST_ASSERT(inputs->input_type == 0);
-  TEST_ASSERT(inputs->output_index == 0);
-  TEST_ASSERT(hex_2_bin("0000000000000000000000000000000000000000000000000000000000000000", 65, NULL, tmp_id,
+  TEST_ASSERT(inputs->output_index == 1);
+  TEST_ASSERT(hex_2_bin("041ce399a476b30d18efefb793e9bc8a8e20e401e13b0ba3ffa8999069e95d25", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, inputs->tx_id, sizeof(tmp_id));
   // validate essence inputs commitment
-  TEST_ASSERT(hex_2_bin("9f0a1533b91ad7551645dd07d1c21833fff81e74af492af0ca6d99ab7f63b5c9", 65, NULL, tmp_id,
+  TEST_ASSERT(hex_2_bin("0dcff67c0531c53863c50bf2242c7187713dc55411df8a1bf12aadf73be1c7e4", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, tx->essence->inputs_commitment, sizeof(tmp_id));
   // validate essence outputs
   TEST_ASSERT_EQUAL_UINT16(2, utxo_outputs_count(tx->essence->outputs));
-  // validate output block: 0
+  // validate output: 0
   utxo_output_t* outputs = utxo_outputs_get(tx->essence->outputs, 0);
   TEST_ASSERT(outputs->output_type == OUTPUT_BASIC);
   output_basic_t* ext_output = (output_basic_t*)outputs->output;
-  TEST_ASSERT(ext_output->amount == 10000000);
+  TEST_ASSERT(ext_output->amount == 1000000000);
   TEST_ASSERT_NULL(ext_output->native_tokens);
   TEST_ASSERT_NULL(ext_output->features);
   TEST_ASSERT_NOT_NULL(ext_output->unlock_conditions);
@@ -269,18 +266,18 @@ void test_deser_simple_tx() {
   TEST_ASSERT(condition_list_len(ext_output->unlock_conditions) == 1);
   TEST_ASSERT_NOT_NULL(ext_output->unlock_conditions->current);
   // validate address condition block
-  unlock_cond_t* cond_block = (unlock_cond_t*)ext_output->unlock_conditions->current;
-  TEST_ASSERT(cond_block->type == UNLOCK_COND_ADDRESS);
-  address_t* addr = (address_t*)cond_block->obj;
+  unlock_cond_t* cond = (unlock_cond_t*)ext_output->unlock_conditions->current;
+  TEST_ASSERT(cond->type == UNLOCK_COND_ADDRESS);
+  address_t* addr = (address_t*)cond->obj;
   TEST_ASSERT(addr->type == ADDRESS_TYPE_ED25519);
-  TEST_ASSERT(hex_2_bin("21e26b38a3308d6262ae9921f46ac871457ef6813a38f6a2e77c947b1d79c942", 65, NULL, tmp_id,
+  TEST_ASSERT(hex_2_bin("bd3a9957b8c5a2959915cb432a467bc2f898ec1ede48dbca033940962a8823fa", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, addr->address, sizeof(tmp_id));
   // validate output block: 1
   outputs = utxo_outputs_get(tx->essence->outputs, 1);
   TEST_ASSERT(outputs->output_type == OUTPUT_BASIC);
   ext_output = (output_basic_t*)outputs->output;
-  TEST_ASSERT(ext_output->amount == 2779530273277761);
+  TEST_ASSERT(ext_output->amount == 2779502483277761);
   TEST_ASSERT_NULL(ext_output->native_tokens);
   TEST_ASSERT_NULL(ext_output->features);
   TEST_ASSERT_NOT_NULL(ext_output->unlock_conditions);
@@ -288,15 +285,22 @@ void test_deser_simple_tx() {
   TEST_ASSERT(condition_list_len(ext_output->unlock_conditions) == 1);
   TEST_ASSERT_NOT_NULL(ext_output->unlock_conditions->current);
   // validate address condition block
-  cond_block = (unlock_cond_t*)ext_output->unlock_conditions->current;
-  TEST_ASSERT(cond_block->type == UNLOCK_COND_ADDRESS);
-  addr = (address_t*)cond_block->obj;
+  cond = (unlock_cond_t*)ext_output->unlock_conditions->current;
+  TEST_ASSERT(cond->type == UNLOCK_COND_ADDRESS);
+  addr = (address_t*)cond->obj;
   TEST_ASSERT(addr->type == ADDRESS_TYPE_ED25519);
-  TEST_ASSERT(hex_2_bin("60200bad8137a704216e84f8f9acfe65b972d9f4155becb4815282b03cef99fe", 65, NULL, tmp_id,
+  TEST_ASSERT(hex_2_bin("3845105b59429361a75b3203a6e24e16d19540aad6bd1936449b62f1c4bbe5da", 65, NULL, tmp_id,
                         sizeof(tmp_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_id, addr->address, sizeof(tmp_id));
 
-  // TODO: validate essence payload
+  // validate essence payload
+  TEST_ASSERT_NOT_NULL(tx->essence->payload);
+  // if the essence payload not NULL, it must be a tagged data payload
+  tagged_data_payload_t* tag_data = (tagged_data_payload_t*)tx->essence->payload;
+  byte_t bin_tag[64] = {};
+  TEST_ASSERT(hex_2_bin("484f524e455420464155434554", 27, NULL, bin_tag, sizeof(bin_tag)) == 0);
+  TEST_ASSERT_EQUAL_MEMORY(bin_tag, tag_data->tag->data, tag_data->tag->len);
+  TEST_ASSERT_NULL(tag_data->data);
 
   // validate transaction unlock blocks
   TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx->unlocks));
@@ -308,15 +312,15 @@ void test_deser_simple_tx() {
   byte_t exp_sig_block[ED25519_SIGNATURE_BLOCK_BYTES];
   // signature block is "00 + public key + signature" in a hex string
   TEST_ASSERT(
-      hex_2_bin("0031f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb1b51aab768dd145de99fc3710c7b05963803"
-                "f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f810ad0cc4b0210adaafd0a",
+      hex_2_bin("001c51195a9cdc981c3d558707183518a3773bafe6a59857bcba74463e14cb90948e04847fa0cfab6737a9ae4460b82370477b"
+                "8b493a86e1995e9f6cf3898b71cba993bf3110a562e6548b4b8ca83ca671031b2ab3a7bcf06dd51fef2a884cd90e",
                 195, NULL, exp_sig_block, sizeof(exp_sig_block)) == 0);
   // dump_hex_str(b->block_data, ED25519_SIGNATURE_BLOCK_BYTES);
   TEST_ASSERT_EQUAL_MEMORY(exp_sig_block, b->obj, ED25519_SIGNATURE_BLOCK_BYTES);
 
   // validate nonce
   sprintf(str_buff, "%" PRIu64 "", res->u.blk->nonce);
-  TEST_ASSERT_EQUAL_STRING("62900", str_buff);
+  TEST_ASSERT_EQUAL_STRING("625872", str_buff);
 
   // print a block object
   core_block_print(res->u.blk, 0);
@@ -328,7 +332,7 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_deser_simple_tx);
-  RUN_TEST(test_deser_milestone);
+  // RUN_TEST(test_deser_milestone);
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_get_blk_by_id);
 #endif

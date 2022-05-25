@@ -457,13 +457,13 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
   }
 
   // unlocks
-  cJSON* unlocks_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_UNLOCK_BLOCKS);
+  cJSON* unlocks_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_UNLOCKS);
   if (cJSON_IsArray(unlocks_obj)) {
     if (json_unlocks_deserialize(unlocks_obj, &tx->unlocks)) {
       return -1;
     }
   } else {
-    printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_UNLOCK_BLOCKS);
+    printf("[%s:%d]: %s is not an array object\n", __func__, __LINE__, JSON_KEY_UNLOCKS);
     return -1;
   }
 
@@ -514,7 +514,7 @@ cJSON* json_transaction_serialize(transaction_payload_t* tx) {
     cJSON_Delete(tx_payload);
     return NULL;
   }
-  cJSON_AddItemToObject(tx_payload, JSON_KEY_UNLOCK_BLOCKS, unlocks);
+  cJSON_AddItemToObject(tx_payload, JSON_KEY_UNLOCKS, unlocks);
 
   return tx_payload;
 }

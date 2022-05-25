@@ -10,7 +10,8 @@
 #include "core/utils/macros.h"
 
 tagged_data_payload_t *tagged_data_new(byte_t tag[], uint8_t tag_len, byte_t data[], uint32_t data_len) {
-  if ((tag_len > 0 && tag == NULL) || (data_len > 0 && data == NULL)) {
+  // data in the tagged payload could be an empty string
+  if ((tag_len > 0 && tag == NULL)) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }

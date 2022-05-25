@@ -90,8 +90,8 @@ int parse_blocks_metadata(char const *const j_str, block_meta_t *res) {
   }
 
   // block ID
-  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->blk_id, sizeof(res->blk_id))) != 0) {
-    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
+  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_BLOCK_ID, res->blk_id, sizeof(res->blk_id))) != 0) {
+    printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_BLOCK_ID);
     goto end;
   }
 
@@ -183,7 +183,7 @@ int get_block_metadata(iota_client_conf_t const *ctx, char const blk_id[], res_b
     return -1;
   }
 
-  char const *const cmd_prefix = "/messages/0x";
+  char const *const cmd_prefix = "/blocks/0x";
   char const *const cmd_suffix = "/metadata";
 
   iota_str_t *cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_prefix) + blk_str_len + strlen(cmd_suffix) + 1);
