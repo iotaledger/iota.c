@@ -8,7 +8,7 @@
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 
-int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char const tx_id[], res_message_t *res) {
+int get_transaction_included_block_by_id(iota_client_conf_t const *conf, char const tx_id[], res_block_t *res) {
   if (conf == NULL || tx_id == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
@@ -50,7 +50,7 @@ int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char 
   if ((ret = http_client_get(&http_conf, http_res, &status)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
-    ret = deser_get_message((char const *const)http_res->data, res);
+    ret = deser_get_block((char const *const)http_res->data, res);
   }
 
 done:
@@ -60,18 +60,18 @@ done:
   return ret;
 }
 
-int deser_get_transaction_included_message(char const *const j_str, res_message_t *res) {
+int deser_get_transaction_included_block(char const *const j_str, res_block_t *res) {
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
 
-  if (deser_get_message(j_str, res) != 0) {
+  if (deser_get_block(j_str, res) != 0) {
     return -1;
   }
 
-  // only transaction payload is a valid payload for a deserialized message
-  if (!res->is_error && res->u.msg->payload_type != CORE_MESSAGE_PAYLOAD_TRANSACTION) {
+  // only transaction payload is a valid payload for a deserialized block
+  if (!res->is_error && res->u.blk->payload_type != CORE_BLOCK_PAYLOAD_TRANSACTION) {
     return -1;
   }
 

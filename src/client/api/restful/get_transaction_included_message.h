@@ -11,23 +11,23 @@ extern "C" {
 #endif
 
 /**
- * @brief Get included message data from a given transaction ID
+ * @brief Get included block data from a given transaction ID
  *
  * @param[in] conf The client endpoint configuration
  * @param[in] tx_id A transaction ID to query
- * @param[out] res The message body of the given ID
+ * @param[out] res The block body of the given ID
  * @return int 0 on success
  */
-int get_transaction_included_message_by_id(iota_client_conf_t const *conf, char const tx_id[], res_message_t *res);
+int get_transaction_included_block_by_id(iota_client_conf_t const *conf, char const tx_id[], res_block_t *res);
 
 /**
- * @brief The message response deserialization
+ * @brief The block response deserialization
  *
  * @param[in] j_str A string of the JSON object
- * @param[out] res the message object
+ * @param[out] res the block object
  * @return int 0 on success
  */
-int deser_get_transaction_included_message(char const *const j_str, res_message_t *res);
+int deser_get_transaction_included_block(char const *const j_str, res_block_t *res);
 
 #ifdef __cplusplus
 }

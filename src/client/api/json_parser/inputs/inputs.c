@@ -5,6 +5,7 @@
 #include "client/constants.h"
 #include "core/models/message.h"
 #include "core/utils/macros.h"
+#include "utlist.h"
 
 /*
   [

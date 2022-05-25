@@ -5,47 +5,48 @@
 
 #include "client/api/json_parser/unlock_blocks.h"
 #include "client/constants.h"
+#include "core/models/unlock_block.h"
 #include "unity/unity.h"
 
 void setUp(void) {}
 
 void tearDown(void) {}
 
-void test_parse_blocks_empty() {
+void test_parse_empty_unlocks() {
   char const *const json_res = "{\"unlockBlocks\":[]}";
 
   // deserialization
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  // fetch unlock block array
-  cJSON *block_data = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_UNLOCK_BLOCKS);
-  TEST_ASSERT_TRUE(cJSON_IsArray(block_data));
+  // fetch unlock array
+  cJSON *unlock_data = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_UNLOCK_BLOCKS);
+  TEST_ASSERT_TRUE(cJSON_IsArray(unlock_data));
 
-  unlock_list_t *block_list = unlock_blocks_new();
-  int result = json_unlock_blocks_deserialize(block_data, &block_list);
+  unlock_list_t *unlock_list = unlock_list_new();
+  int result = json_unlocks_deserialize(unlock_data, &unlock_list);
   TEST_ASSERT_EQUAL_INT(0, result);
-  TEST_ASSERT_EQUAL_UINT16(0, unlock_blocks_count(block_list));
+  TEST_ASSERT_EQUAL_UINT16(0, unlock_list_count(unlock_list));
   cJSON_Delete(json_obj);
 
   // serialization
-  cJSON *json_blocks = cJSON_CreateObject();
-  TEST_ASSERT_NOT_NULL(json_blocks);
-  cJSON *block_items = json_unlock_blocks_serialize(block_list);
-  TEST_ASSERT_NOT_NULL(block_items);
-  // add array items to unlock block object
-  TEST_ASSERT_TRUE(cJSON_AddItemToObject(json_blocks, JSON_KEY_UNLOCK_BLOCKS, block_items));
+  cJSON *json_unlocks = cJSON_CreateObject();
+  TEST_ASSERT_NOT_NULL(json_unlocks);
+  cJSON *unlock_items = json_unlocks_serialize(unlock_list);
+  TEST_ASSERT_NOT_NULL(unlock_items);
+  // add array items to unlock object
+  TEST_ASSERT_TRUE(cJSON_AddItemToObject(json_unlocks, JSON_KEY_UNLOCK_BLOCKS, unlock_items));
   // validate json string
-  char *json_str = cJSON_PrintUnformatted(json_blocks);
+  char *json_str = cJSON_PrintUnformatted(json_unlocks);
   TEST_ASSERT_EQUAL_STRING(json_res, json_str);
   // clean up
   free(json_str);
-  cJSON_Delete(json_blocks);
+  cJSON_Delete(json_unlocks);
 
-  unlock_blocks_free(block_list);
+  unlock_list_free(unlock_list);
 }
 
-void test_parse_block_simple() {
+void test_parse_simple_unlocks() {
   char const *const json_res =
       "{\"unlockBlocks\":[{\"type\":0,\"signature\":{\"type\":0,\"publicKey\":"
       "\"0x31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\",\"signature\":"
@@ -59,59 +60,59 @@ void test_parse_block_simple() {
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  // fetch unlock block array
-  cJSON *block_data = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_UNLOCK_BLOCKS);
-  TEST_ASSERT_TRUE(cJSON_IsArray(block_data));
+  // fetch unlock array
+  cJSON *unlock_data = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_UNLOCK_BLOCKS);
+  TEST_ASSERT_TRUE(cJSON_IsArray(unlock_data));
 
-  unlock_list_t *block_list = unlock_blocks_new();
-  int result = json_unlock_blocks_deserialize(block_data, &block_list);
+  unlock_list_t *unlock_list = unlock_list_new();
+  int result = json_unlocks_deserialize(unlock_data, &unlock_list);
   TEST_ASSERT_EQUAL_INT(0, result);
 
-  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(block_list));
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(unlock_list));
 
-  // validate signature block
-  unlock_block_t *b = unlock_blocks_get(block_list, 0);
+  // validate signature unlock
+  unlock_t *b = unlock_list_get(unlock_list, 0);
   TEST_ASSERT_NOT_NULL(b);
-  // check block type
-  TEST_ASSERT(b->type == UNLOCK_BLOCK_TYPE_SIGNATURE);
-  // check signature block
+  // check unlock type
+  TEST_ASSERT(b->type == UNLOCK_SIGNATURE_TYPE);
+  // check signature
   byte_t exp_sig_block[ED25519_SIGNATURE_BLOCK_BYTES];
   TEST_ASSERT(hex_2_bin(sig_block_str, strlen(sig_block_str), NULL, exp_sig_block, sizeof(exp_sig_block)) == 0);
-  // dump_hex_str(b->block_data, ED25519_SIGNATURE_BLOCK_BYTES);
-  TEST_ASSERT_EQUAL_MEMORY(exp_sig_block, b->block_data, ED25519_SIGNATURE_BLOCK_BYTES);
+  // dump_hex_str(b->unlock_data, ED25519_SIGNATURE_BLOCK_BYTES);
+  TEST_ASSERT_EQUAL_MEMORY(exp_sig_block, b->obj, ED25519_SIGNATURE_BLOCK_BYTES);
 
-  // validate reference block
-  b = unlock_blocks_get(block_list, 1);
+  // validate reference unlock
+  b = unlock_list_get(unlock_list, 1);
   TEST_ASSERT_NOT_NULL(b);
-  // check block type
-  TEST_ASSERT(b->type == UNLOCK_BLOCK_TYPE_REFERENCE);
+  // check unlock type
+  TEST_ASSERT(b->type == UNLOCK_REFERENCE_TYPE);
   // check reference index
-  TEST_ASSERT(0 == *((uint16_t *)b->block_data));
+  TEST_ASSERT(0 == *((uint16_t *)b->obj));
 
   cJSON_Delete(json_obj);
 
   // serialization
-  cJSON *json_blocks = cJSON_CreateObject();
-  TEST_ASSERT_NOT_NULL(json_blocks);
-  cJSON *block_items = json_unlock_blocks_serialize(block_list);
-  TEST_ASSERT_NOT_NULL(block_items);
-  // add array items to unlock block object
-  TEST_ASSERT_TRUE(cJSON_AddItemToObject(json_blocks, JSON_KEY_UNLOCK_BLOCKS, block_items));
+  cJSON *json_unlocks = cJSON_CreateObject();
+  TEST_ASSERT_NOT_NULL(json_unlocks);
+  cJSON *unlock_items = json_unlocks_serialize(unlock_list);
+  TEST_ASSERT_NOT_NULL(unlock_items);
+  // add array items to unlock object
+  TEST_ASSERT_TRUE(cJSON_AddItemToObject(json_unlocks, JSON_KEY_UNLOCK_BLOCKS, unlock_items));
   // validate json string
-  char *json_str = cJSON_PrintUnformatted(json_blocks);
+  char *json_str = cJSON_PrintUnformatted(json_unlocks);
   TEST_ASSERT_EQUAL_STRING(json_res, json_str);
   // clean up
   free(json_str);
-  cJSON_Delete(json_blocks);
+  cJSON_Delete(json_unlocks);
 
-  unlock_blocks_free(block_list);
+  unlock_list_free(unlock_list);
 }
 
 int main() {
   UNITY_BEGIN();
 
-  RUN_TEST(test_parse_blocks_empty);
-  RUN_TEST(test_parse_block_simple);
+  RUN_TEST(test_parse_empty_unlocks);
+  RUN_TEST(test_parse_simple_unlocks);
 
   return UNITY_END();
 }

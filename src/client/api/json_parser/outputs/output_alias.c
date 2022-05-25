@@ -35,9 +35,9 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
 
   native_tokens_list_t *tokens = native_tokens_new();
   byte_buf_t *state_metadata = byte_buf_new();
-  cond_blk_list_t *cond_blocks = cond_blk_list_new();
-  feat_blk_list_t *feat_blocks = feat_blk_list_new();
-  feat_blk_list_t *immut_feat_blocks = feat_blk_list_new();
+  unlock_cond_list_t *cond_list = condition_list_new();
+  feature_list_t *features = feature_list_new();
+  feature_list_t *immut_features = feature_list_new();
 
   // amount
   uint64_t amount;
@@ -85,22 +85,22 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
   }
 
   // unlock conditions array
-  if (json_cond_blk_list_deserialize(output_obj, &cond_blocks) != 0) {
+  if (json_condition_list_deserialize(output_obj, &cond_list) != 0) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_UNLOCK_CONDITIONS);
     goto end;
   }
 
-  // feature blocks array
+  // features array
   if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS) != NULL) {
-    if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
+    if (json_features_deserialize(output_obj, false, &features) != 0) {
       printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
       goto end;
     }
   }
 
-  // immutable feature blocks array
+  // immutable features array
   if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_BLOCKS) != NULL) {
-    if (json_feat_blocks_deserialize(output_obj, true, &immut_feat_blocks) != 0) {
+    if (json_features_deserialize(output_obj, true, &immut_features) != 0) {
       printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_IMMUTABLE_BLOCKS);
       goto end;
     }
@@ -108,7 +108,7 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
 
   // create alias output
   *alias = output_alias_new(amount, tokens, alias_id, state_index, state_metadata->data, state_metadata->len,
-                            foundry_counter, cond_blocks, feat_blocks, immut_feat_blocks);
+                            foundry_counter, cond_list, features, immut_features);
   if (!*alias) {
     printf("[%s:%d]: creating alias output object failed \n", __func__, __LINE__);
     goto end;
@@ -120,9 +120,9 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
 end:
   native_tokens_free(tokens);
   byte_buf_free(state_metadata);
-  cond_blk_list_free(cond_blocks);
-  feat_blk_list_free(feat_blocks);
-  feat_blk_list_free(immut_feat_blocks);
+  condition_list_free(cond_list);
+  feature_list_free(features);
+  feature_list_free(immut_features);
 
   return result;
 }
@@ -200,25 +200,25 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
     }
 
     // unlock conditions
-    tmp = json_cond_blk_list_serialize(alias->unlock_conditions);
+    tmp = json_condition_list_serialize(alias->unlock_conditions);
     if (!cJSON_AddItemToObject(alias_obj, JSON_KEY_UNLOCK_CONDITIONS, tmp)) {
       printf("[%s:%d] add unlock conditions into alias error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
     }
 
-    // feature blocks
-    tmp = json_feat_blocks_serialize(alias->feature_blocks);
+    // features
+    tmp = json_features_serialize(alias->features);
     if (!cJSON_AddItemToObject(alias_obj, JSON_KEY_FEAT_BLOCKS, tmp)) {
-      printf("[%s:%d] add feature blocks into alias error\n", __func__, __LINE__);
+      printf("[%s:%d] add features into alias error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
     }
 
-    // immutable feature blocks
-    tmp = json_feat_blocks_serialize(alias->immutable_blocks);
+    // immutable features
+    tmp = json_features_serialize(alias->immutable_features);
     if (!cJSON_AddItemToObject(alias_obj, JSON_KEY_IMMUTABLE_BLOCKS, tmp)) {
-      printf("[%s:%d] add immutable feature blocks to Alias error\n", __func__, __LINE__);
+      printf("[%s:%d] add immutable features to Alias error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
     }

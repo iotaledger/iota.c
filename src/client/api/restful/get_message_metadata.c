@@ -10,8 +10,8 @@
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 
-msg_meta_t *metadata_new() {
-  msg_meta_t *meta = malloc(sizeof(msg_meta_t));
+block_meta_t *metadata_new() {
+  block_meta_t *meta = malloc(sizeof(block_meta_t));
   if (meta) {
     utarray_new(meta->parents, &ut_str_icd);
     meta->is_solid = false;
@@ -26,7 +26,7 @@ msg_meta_t *metadata_new() {
   return NULL;
 }
 
-void metadata_free(msg_meta_t *meta) {
+void metadata_free(block_meta_t *meta) {
   if (meta) {
     if (meta->parents) {
       utarray_free(meta->parents);
@@ -35,8 +35,8 @@ void metadata_free(msg_meta_t *meta) {
   }
 }
 
-res_msg_meta_t *msg_meta_new() {
-  res_msg_meta_t *res = malloc(sizeof(res_msg_meta_t));
+res_block_meta_t *block_meta_new() {
+  res_block_meta_t *res = malloc(sizeof(res_block_meta_t));
   if (res) {
     res->is_error = false;
     res->u.meta = NULL;
@@ -45,7 +45,7 @@ res_msg_meta_t *msg_meta_new() {
   return NULL;
 }
 
-void msg_meta_free(res_msg_meta_t *res) {
+void block_meta_free(res_block_meta_t *res) {
   if (res) {
     if (res->is_error) {
       res_err_free(res->u.error);
@@ -58,16 +58,16 @@ void msg_meta_free(res_msg_meta_t *res) {
   }
 }
 
-size_t msg_meta_parents_count(msg_meta_t *msg) {
+size_t block_meta_parents_count(block_meta_t *msg) {
   if (msg) {
     return utarray_len(msg->parents);
   }
   return 0;
 }
 
-char *msg_meta_parent_get(msg_meta_t *msg, size_t index) {
+char *block_meta_parent_get(block_meta_t *msg, size_t index) {
   if (msg) {
-    if (index < msg_meta_parents_count(msg)) {
+    if (index < block_meta_parents_count(msg)) {
       char **p = (char **)utarray_eltptr(msg->parents, index);
       return *p;
     }
@@ -75,7 +75,7 @@ char *msg_meta_parent_get(msg_meta_t *msg, size_t index) {
   return NULL;
 }
 
-int parse_messages_metadata(char const *const j_str, msg_meta_t *res) {
+int parse_blocks_metadata(char const *const j_str, block_meta_t *res) {
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -89,8 +89,8 @@ int parse_messages_metadata(char const *const j_str, msg_meta_t *res) {
     return -1;
   }
 
-  // message ID
-  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->msg_id, sizeof(res->msg_id))) != 0) {
+  // block ID
+  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->blk_id, sizeof(res->blk_id))) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
     goto end;
   }
@@ -137,7 +137,7 @@ end:
   return ret;
 }
 
-int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res) {
+int block_meta_deserialize(char const *const j_str, res_block_meta_t *res) {
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -159,41 +159,41 @@ int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res) {
   }
   cJSON_Delete(json_obj);
 
-  // allocate message metadata object after parsing json object.
+  // allocate block metadata object after parsing json object.
   res->u.meta = metadata_new();
   if (!res->u.meta) {
-    printf("[%s:%d]: msg_meta_t object allocation failed\n", __func__, __LINE__);
+    printf("[%s:%d]: block_meta_t object allocation failed\n", __func__, __LINE__);
     return -1;
   }
 
-  return parse_messages_metadata(j_str, res->u.meta);
+  return parse_blocks_metadata(j_str, res->u.meta);
 }
 
-int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res_msg_meta_t *res) {
-  if (ctx == NULL || msg_id == NULL || res == NULL) {
+int get_block_metadata(iota_client_conf_t const *ctx, char const blk_id[], res_block_meta_t *res) {
+  if (ctx == NULL || blk_id == NULL || res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
   int ret = -1;
 
-  size_t msg_str_len = strlen(msg_id);
-  if (msg_str_len != BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES)) {
-    printf("[%s:%d] incorrect length of the message ID\n", __func__, __LINE__);
+  size_t blk_str_len = strlen(blk_id);
+  if (blk_str_len != BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES)) {
+    printf("[%s:%d] incorrect length of the block ID\n", __func__, __LINE__);
     return -1;
   }
 
   char const *const cmd_prefix = "/messages/0x";
   char const *const cmd_suffix = "/metadata";
 
-  iota_str_t *cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_prefix) + msg_str_len + strlen(cmd_suffix) + 1);
+  iota_str_t *cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_prefix) + blk_str_len + strlen(cmd_suffix) + 1);
   if (!cmd) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_prefix, msg_id, cmd_suffix);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_prefix, blk_id, cmd_suffix);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
@@ -210,7 +210,7 @@ int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res
   if ((ret = http_client_get(&http_conf, http_res, &st)) == 0) {
     byte_buf2str(http_res);
     // json deserialization
-    ret = msg_meta_deserialize((char const *const)http_res->data, res);
+    ret = block_meta_deserialize((char const *const)http_res->data, res);
   }
 
 done:
@@ -220,7 +220,7 @@ done:
   return ret;
 }
 
-void print_message_metadata(res_msg_meta_t *res, uint8_t indentation) {
+void print_block_metadata(res_block_meta_t *res, uint8_t indentation) {
   if (res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return;
@@ -228,9 +228,9 @@ void print_message_metadata(res_msg_meta_t *res, uint8_t indentation) {
   if (res->is_error) {
     printf("Error: %s\n", res->u.error->msg);
   } else {
-    msg_meta_t *meta = res->u.meta;
+    block_meta_t *meta = res->u.meta;
     printf("%s{\n", PRINT_INDENTATION(indentation));
-    printf("%s\tmessageId: %s\n", PRINT_INDENTATION(indentation), meta->msg_id);
+    printf("%s\tblockId: %s\n", PRINT_INDENTATION(indentation), meta->blk_id);
     int len = utarray_len(meta->parents);
     if (len > 0) {
       printf("%s\tparentMessageIds: [\n", PRINT_INDENTATION(indentation));

@@ -43,11 +43,11 @@ void test_parse_alias_output_basic() {
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(alias_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(2, cond_blk_list_len(alias_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_STATE));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_GOVERNOR));
+  TEST_ASSERT_EQUAL_UINT8(2, condition_list_len(alias_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_STATE));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_GOVERNOR));
 
-  TEST_ASSERT_NULL(alias_output->feature_blocks);
+  TEST_ASSERT_NULL(alias_output->features);
 
   cJSON_Delete(json_obj);
   output_alias_free(alias_output);
@@ -103,21 +103,21 @@ void test_parse_alias_output_full() {
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(alias_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(2, cond_blk_list_len(alias_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_STATE));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_GOVERNOR));
+  TEST_ASSERT_EQUAL_UINT8(2, condition_list_len(alias_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_STATE));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_GOVERNOR));
 
-  // check feature blocks
-  TEST_ASSERT_NOT_NULL(alias_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(alias_output->feature_blocks));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->feature_blocks, FEAT_SENDER_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->feature_blocks, FEAT_METADATA_BLOCK));
+  // check features
+  TEST_ASSERT_NOT_NULL(alias_output->features);
+  TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(alias_output->features));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(alias_output->features, FEAT_SENDER_TYPE));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(alias_output->features, FEAT_METADATA_TYPE));
 
-  // check immutable feature blocks
-  TEST_ASSERT_NOT_NULL(alias_output->immutable_blocks);
-  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(alias_output->immutable_blocks));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->immutable_blocks, FEAT_ISSUER_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->immutable_blocks, FEAT_METADATA_BLOCK));
+  // check immutable features
+  TEST_ASSERT_NOT_NULL(alias_output->immutable_features);
+  TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(alias_output->immutable_features));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(alias_output->immutable_features, FEAT_ISSUER_TYPE));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(alias_output->immutable_features, FEAT_METADATA_TYPE));
 
   // print alias output
   output_alias_print(alias_output, 0);

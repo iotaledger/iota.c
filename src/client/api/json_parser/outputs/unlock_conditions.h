@@ -15,81 +15,81 @@ extern "C" {
  * @brief Deserialize JSON address unlock condition to unlock condition object
  *
  * @param[in] unlock_cond_obj Unlock conditions JSON object
- * @param[out] blk_list Unlock conditions list object
+ * @param[out] cond_list Unlock conditions list object
  * @return int 0 on success
  */
-int json_cond_blk_addr_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list);
+int json_condition_addr_deserialize(cJSON *unlock_cond_obj, unlock_cond_list_t **cond_list);
 
 /**
  * @brief Deserialize JSON storage deposit return unlock condition to unlock condition object
  *
  * @param[in] unlock_cond_obj Unlock conditions JSON object
- * @param[out] blk_list Unlock conditions list object
+ * @param[out] cond_list Unlock conditions list object
  * @return int 0 on success
  */
-int json_cond_blk_storage_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list);
+int json_condition_storage_deserialize(cJSON *unlock_cond_obj, unlock_cond_list_t **cond_list);
 
 /**
  * @brief Deserialize JSON timelock unlock condition to unlock condition object
  *
  * @param[in] unlock_cond_obj Unlock conditions JSON object
- * @param[out] blk_list Unlock conditions list object
+ * @param[out] cond_list Unlock conditions list object
  * @return int 0 on success
  */
-int json_cond_blk_timelock_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list);
+int json_condition_timelock_deserialize(cJSON *unlock_cond_obj, unlock_cond_list_t **cond_list);
 
 /**
  * @brief Deserialize JSON expiration unlock condition to unlock condition object
  *
  * @param[in] unlock_cond_obj Unlock conditions JSON object
- * @param[out] blk_list Unlock conditions list object
+ * @param[out] cond_list Unlock conditions list object
  * @return int 0 on success
  */
-int json_cond_blk_expir_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list);
+int json_condition_expir_deserialize(cJSON *unlock_cond_obj, unlock_cond_list_t **cond_list);
 
 /**
  * @brief Deserialize JSON state controller address unlock condition to unlock condition object
  *
  * @param[in] unlock_cond_obj Unlock conditions JSON object
- * @param[out] blk_list Unlock conditions list object
+ * @param[out] cond_list Unlock conditions list object
  * @return int 0 on success
  */
-int json_cond_blk_state_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list);
+int json_condition_state_deserialize(cJSON *unlock_cond_obj, unlock_cond_list_t **cond_list);
 
 /**
  * @brief Deserialize JSON governor address unlock condition to unlock condition object
  *
  * @param[in] unlock_cond_obj Unlock conditions JSON object
- * @param[out] blk_list Unlock conditions list object
+ * @param[out] cond_list Unlock conditions list object
  * @return int 0 on success
  */
-int json_cond_blk_governor_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list);
+int json_condition_governor_deserialize(cJSON *unlock_cond_obj, unlock_cond_list_t **cond_list);
 
 /**
  * @brief Deserialize JSON immutable alias address unlock condition to unlock condition object
  *
  * @param[in] unlock_cond_obj Unlock conditions JSON object
- * @param[out] blk_list Unlock conditions list object
+ * @param[out] cond_list Unlock conditions list object
  * @return int 0 on success
  */
-int json_cond_blk_immut_alias_deserialize(cJSON *unlock_cond_obj, cond_blk_list_t **blk_list);
+int json_condition_immut_alias_deserialize(cJSON *unlock_cond_obj, unlock_cond_list_t **cond_list);
 
 /**
  * @brief Deserialize JSON unlock conditions list to unlock conditions list object
  *
  * @param[in] output_obj Output JSON object
- * @param[out] blk_list Unlock conditions list object
+ * @param[out] cond_list Unlock conditions list object
  * @return int 0 on success
  */
-int json_cond_blk_list_deserialize(cJSON *output_obj, cond_blk_list_t **blk_list);
+int json_condition_list_deserialize(cJSON *output_obj, unlock_cond_list_t **cond_list);
 
 /**
- * @brief Serialize unlock condition blocks
+ * @brief Serialize unlock conditions
  *
- * @param[in] blk_list An unlock condition blocks object
+ * @param[in] cond_list An unlock conditions object
  * @return cJSON* NULL on errors
  */
-cJSON *json_cond_blk_list_serialize(cond_blk_list_t *blk_list);
+cJSON *json_condition_list_serialize(unlock_cond_list_t *cond_list);
 
 #ifdef __cplusplus
 }

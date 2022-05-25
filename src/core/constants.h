@@ -34,8 +34,8 @@
 // Maximum number of bytes a serialized address can hold.
 #define ADDRESS_SERIALIZED_MAX_BYTES (1 + ED25519_PUBKEY_BYTES)
 
-/****** Constants related to unlock blocks ******/
-// ed25519 signature block  = signature type + public key + signature
+/****** Constants related to unlocks ******/
+// ed25519 signature object = signature type + public key + signature
 #define ED25519_SIGNATURE_BLOCK_BYTES (1 + ED_PUBLIC_KEY_BYTES + ED_SIGNATURE_BYTES)  // 97 bytes
 // unlock_type_t + reference = 1 + 2
 #define UNLOCK_REFERENCE_SERIALIZE_BYTES (1 + sizeof(uint16_t))

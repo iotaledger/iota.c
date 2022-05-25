@@ -3,11 +3,12 @@
 
 #include "client/api/json_parser/unlock_blocks.h"
 #include "core/address.h"
+#include "core/models/unlock_block.h"
 #include "core/utils/macros.h"
 #include "utlist.h"
 
-static int unlock_block_signature_deserialize(cJSON *elm, unlock_list_t **unlock_blocks) {
-  if (elm == NULL || unlock_blocks == NULL) {
+static int unlock_signature_deserialize(cJSON *elm, unlock_list_t **unlock_list) {
+  if (elm == NULL || unlock_list == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -42,9 +43,9 @@ static int unlock_block_signature_deserialize(cJSON *elm, unlock_list_t **unlock
         return -1;
       }
 
-      // add signature block into a list
-      if (unlock_blocks_add_signature(unlock_blocks, sig_block, ED25519_SIGNATURE_BLOCK_BYTES) != 0) {
-        printf("[%s:%d] can not add signature unlock block into a list\n", __func__, __LINE__);
+      // add signature unlock into a list
+      if (unlock_list_add_signature(unlock_list, sig_block, ED25519_SIGNATURE_BLOCK_BYTES) != 0) {
+        printf("[%s:%d] can not add signature unlock into a list\n", __func__, __LINE__);
         return -1;
       }
     }
@@ -62,12 +63,12 @@ static int unlock_block_signature_deserialize(cJSON *elm, unlock_list_t **unlock
   return 0;
 }
 
-static cJSON *unlock_block_signature_serialize(unlock_block_t const *block) {
+static cJSON *unlock_signature_serialize(unlock_t const *sig_unlock) {
   cJSON *blk_obj = cJSON_CreateObject();
   cJSON *sig = NULL;
   if (blk_obj) {
-    // add block type
-    if (cJSON_AddNumberToObject(blk_obj, JSON_KEY_TYPE, block->type) == NULL) {
+    // add unlock type
+    if (cJSON_AddNumberToObject(blk_obj, JSON_KEY_TYPE, sig_unlock->type) == NULL) {
       printf("[%s:%d]: add type to json failed\n", __func__, __LINE__);
       goto err;
     }
@@ -75,14 +76,14 @@ static cJSON *unlock_block_signature_serialize(unlock_block_t const *block) {
     // create signature object
     sig = cJSON_CreateObject();
     if (sig) {
-      // add signature object to block
+      // add signature object to unlock
       if (!cJSON_AddItemToObject(blk_obj, JSON_KEY_SIG, sig)) {
         cJSON_Delete(sig);
         goto err;
       }
 
-      // block data: sig type + public key + signature
-      uint8_t sig_type = ((uint8_t *)block->block_data)[0];
+      // signature data: sig type + public key + signature
+      uint8_t sig_type = ((uint8_t *)sig_unlock->obj)[0];
       if (sig_type != 0) {
         printf("[%s:%d]: unsupported signature type\n", __func__, __LINE__);
         goto err;
@@ -98,7 +99,7 @@ static cJSON *unlock_block_signature_serialize(unlock_block_t const *block) {
       char str_tmp[JSON_STR_WITH_PREFIX_BYTES(ED_PRIVATE_KEY_BYTES)] = {};
 
       // add public key
-      if (bin_2_hex(block->block_data + 1, ED_PUBLIC_KEY_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, str_tmp,
+      if (bin_2_hex(sig_unlock->obj + 1, ED_PUBLIC_KEY_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, str_tmp,
                     sizeof(str_tmp)) == 0) {
         if (cJSON_AddStringToObject(sig, JSON_KEY_PUB_KEY, str_tmp) == NULL) {
           printf("[%s:%d]: add public key to json failed\n", __func__, __LINE__);
@@ -110,7 +111,7 @@ static cJSON *unlock_block_signature_serialize(unlock_block_t const *block) {
       }
 
       // add signature
-      if (bin_2_hex(block->block_data + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES, JSON_HEX_ENCODED_STRING_PREFIX,
+      if (bin_2_hex(sig_unlock->obj + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES, JSON_HEX_ENCODED_STRING_PREFIX,
                     str_tmp, sizeof(str_tmp)) == 0) {
         if (cJSON_AddStringToObject(sig, JSON_KEY_SIG, str_tmp) == NULL) {
           printf("[%s:%d]: add signature to json failed\n", __func__, __LINE__);
@@ -129,8 +130,8 @@ err:
   return NULL;
 }
 
-static int unlock_block_reference_deserialize(cJSON *elm, unlock_list_t **unlock_blocks) {
-  if (elm == NULL || unlock_blocks == NULL) {
+static int unlock_reference_deserialize(cJSON *elm, unlock_list_t **unlock_list) {
+  if (elm == NULL || unlock_list == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -142,27 +143,27 @@ static int unlock_block_reference_deserialize(cJSON *elm, unlock_list_t **unlock
     return -1;
   }
 
-  // add new unlock block into a list
-  if (unlock_blocks_add_reference(unlock_blocks, reference) != 0) {
-    printf("[%s:%d] can not add reference unlock block into a list\n", __func__, __LINE__);
+  // add new unlock into a list
+  if (unlock_list_add_reference(unlock_list, reference) != 0) {
+    printf("[%s:%d] can not add reference unlock into a list\n", __func__, __LINE__);
     return -1;
   }
 
   return 0;
 }
 
-static cJSON *unlock_block_reference_serialize(unlock_block_t const *const block) {
+static cJSON *unlock_reference_serialize(unlock_t const *const ref_unlock) {
   cJSON *blk_obj = cJSON_CreateObject();
 
   if (blk_obj) {
-    // add block type
-    if (cJSON_AddNumberToObject(blk_obj, JSON_KEY_TYPE, block->type) == NULL) {
+    // add unlock type
+    if (cJSON_AddNumberToObject(blk_obj, JSON_KEY_TYPE, ref_unlock->type) == NULL) {
       printf("[%s:%d]: add type to json failed\n", __func__, __LINE__);
       goto err;
     }
 
     // add reference
-    if (cJSON_AddNumberToObject(blk_obj, JSON_KEY_REFERENCE, *(uint16_t *)block->block_data) == NULL) {
+    if (cJSON_AddNumberToObject(blk_obj, JSON_KEY_REFERENCE, *(uint16_t *)ref_unlock->obj) == NULL) {
       printf("[%s:%d]: add type to json failed\n", __func__, __LINE__);
       goto err;
     }
@@ -174,8 +175,8 @@ err:
   return NULL;
 }
 
-static int unlock_block_alias_deserialize(cJSON *elm, unlock_list_t **unlock_blocks) {
-  if (elm == NULL || unlock_blocks == NULL) {
+static int unlock_alias_deserialize(cJSON *elm, unlock_list_t **unlock_list) {
+  if (elm == NULL || unlock_list == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -187,17 +188,17 @@ static int unlock_block_alias_deserialize(cJSON *elm, unlock_list_t **unlock_blo
     return -1;
   }
 
-  // add new unlock block into a list
-  if (unlock_blocks_add_alias(unlock_blocks, reference) != 0) {
-    printf("[%s:%d] can not add alias unlock block into a list\n", __func__, __LINE__);
+  // add new unlock into a list
+  if (unlock_list_add_alias(unlock_list, reference) != 0) {
+    printf("[%s:%d] can not add alias unlock into a list\n", __func__, __LINE__);
     return -1;
   }
 
   return 0;
 }
 
-static int unlock_block_nft_deserialize(cJSON *elm, unlock_list_t **unlock_blocks) {
-  if (elm == NULL || unlock_blocks == NULL) {
+static int unlock_nft_deserialize(cJSON *elm, unlock_list_t **unlock_list) {
+  if (elm == NULL || unlock_list == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -209,9 +210,9 @@ static int unlock_block_nft_deserialize(cJSON *elm, unlock_list_t **unlock_block
     return -1;
   }
 
-  // add new unlock block into a list
-  if (unlock_blocks_add_nft(unlock_blocks, reference) != 0) {
-    printf("[%s:%d] can not add NFT unlock block into a list\n", __func__, __LINE__);
+  // add new unlock into a list
+  if (unlock_list_add_nft(unlock_list, reference) != 0) {
+    printf("[%s:%d] can not add NFT unlock into a list\n", __func__, __LINE__);
     return -1;
   }
 
@@ -230,45 +231,45 @@ static int unlock_block_nft_deserialize(cJSON *elm, unlock_list_t **unlock_block
     },
   ]
 */
-int json_unlock_blocks_deserialize(cJSON *blocks_obj, unlock_list_t **unlock_blocks) {
-  if (blocks_obj == NULL || unlock_blocks == NULL) {
+int json_unlocks_deserialize(cJSON *unlocks_obj, unlock_list_t **unlock_list) {
+  if (unlocks_obj == NULL || unlock_list == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
   cJSON *elm = NULL;
-  cJSON_ArrayForEach(elm, blocks_obj) {
+  cJSON_ArrayForEach(elm, unlocks_obj) {
     // type
-    uint8_t block_type;
-    if (json_get_uint8(elm, JSON_KEY_TYPE, &block_type) != JSON_OK) {
+    uint8_t unlock_type;
+    if (json_get_uint8(elm, JSON_KEY_TYPE, &unlock_type) != JSON_OK) {
       printf("[%s:%d]: getting %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_TYPE);
       return -1;
     }
 
-    // unlock block
-    switch (block_type) {
-      case UNLOCK_BLOCK_TYPE_SIGNATURE:
-        if (unlock_block_signature_deserialize(elm, unlock_blocks) != 0) {
+    // unlock
+    switch (unlock_type) {
+      case UNLOCK_SIGNATURE_TYPE:
+        if (unlock_signature_deserialize(elm, unlock_list) != 0) {
           return -1;
         }
         break;
-      case UNLOCK_BLOCK_TYPE_REFERENCE:
-        if (unlock_block_reference_deserialize(elm, unlock_blocks) != 0) {
+      case UNLOCK_REFERENCE_TYPE:
+        if (unlock_reference_deserialize(elm, unlock_list) != 0) {
           return -1;
         }
         break;
-      case UNLOCK_BLOCK_TYPE_ALIAS:
-        if (unlock_block_alias_deserialize(elm, unlock_blocks) != 0) {
+      case UNLOCK_ALIAS_TYPE:
+        if (unlock_alias_deserialize(elm, unlock_list) != 0) {
           return -1;
         }
         break;
-      case UNLOCK_BLOCK_TYPE_NFT:
-        if (unlock_block_nft_deserialize(elm, unlock_blocks) != 0) {
+      case UNLOCK_NFT_TYPE:
+        if (unlock_nft_deserialize(elm, unlock_list) != 0) {
           return -1;
         }
         break;
       default:
-        printf("[%s:%d] unsupported unlock block type\n", __func__, __LINE__);
+        printf("[%s:%d] unsupported unlock type\n", __func__, __LINE__);
         return -1;
     }
   }
@@ -276,26 +277,26 @@ int json_unlock_blocks_deserialize(cJSON *blocks_obj, unlock_list_t **unlock_blo
   return 0;
 }
 
-cJSON *json_unlock_blocks_serialize(unlock_list_t *blocks) {
+cJSON *json_unlocks_serialize(unlock_list_t *unlock_list) {
   cJSON *unlock_arr = cJSON_CreateArray();
   if (unlock_arr) {
     // empty list
-    if (!blocks) {
+    if (!unlock_list) {
       return unlock_arr;
     }
 
     cJSON *item = NULL;
     unlock_list_t *elm;
-    LL_FOREACH(blocks, elm) {
-      switch (elm->block.type) {
-        case UNLOCK_BLOCK_TYPE_SIGNATURE:
-          item = unlock_block_signature_serialize(&elm->block);
+    LL_FOREACH(unlock_list, elm) {
+      switch (elm->current.type) {
+        case UNLOCK_SIGNATURE_TYPE:
+          item = unlock_signature_serialize(&elm->current);
           break;
-        case UNLOCK_BLOCK_TYPE_REFERENCE:
-          item = unlock_block_reference_serialize(&elm->block);
+        case UNLOCK_REFERENCE_TYPE:
+          item = unlock_reference_serialize(&elm->current);
           break;
-        case UNLOCK_BLOCK_TYPE_ALIAS:
-        case UNLOCK_BLOCK_TYPE_NFT:
+        case UNLOCK_ALIAS_TYPE:
+        case UNLOCK_NFT_TYPE:
           printf("[%s:%d] TODO \n", __func__, __LINE__);
           break;
         default:
@@ -305,13 +306,13 @@ cJSON *json_unlock_blocks_serialize(unlock_list_t *blocks) {
       if (item) {
         // add item to array
         if (!cJSON_AddItemToArray(unlock_arr, item)) {
-          printf("[%s:%d] add block to array error\n", __func__, __LINE__);
+          printf("[%s:%d] add unlock to array error\n", __func__, __LINE__);
           cJSON_Delete(item);
           cJSON_Delete(unlock_arr);
           return NULL;
         }
       } else {
-        printf("[%s:%d] serialize feature block error\n", __func__, __LINE__);
+        printf("[%s:%d] serialize unlock error\n", __func__, __LINE__);
         cJSON_Delete(unlock_arr);
         return NULL;
       }

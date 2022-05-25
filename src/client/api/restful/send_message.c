@@ -10,7 +10,7 @@
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 
-int deser_send_message_response(char const* json_str, res_send_message_t* res) {
+int deser_send_block_response(char const* json_str, res_send_block_t* res) {
   int ret = -1;
 
   // {"messageId":"0x322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5"}
@@ -28,8 +28,8 @@ int deser_send_message_response(char const* json_str, res_send_message_t* res) {
     goto end;
   }
 
-  // message ID
-  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->u.msg_id, sizeof(res->u.msg_id))) != 0) {
+  // block ID
+  if ((ret = json_get_string_with_prefix(json_obj, JSON_KEY_MSG_ID, res->u.blk_id, sizeof(res->u.blk_id))) != 0) {
     printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
     ret = -1;
   }
@@ -39,7 +39,7 @@ end:
   return ret;
 }
 
-int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg, res_send_message_t* res) {
+int send_core_block(iota_client_conf_t const* const conf, core_block_t* msg, res_send_block_t* res) {
   int ret = -1;
   long http_st_code = 0;
   if (conf == NULL || msg == NULL || res == NULL) {
@@ -49,7 +49,7 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
   byte_buf_t* json_data = byte_buf_new();
   byte_buf_t* node_res = byte_buf_new();
   res_tips_t* tips = NULL;
-  byte_t tmp_msg_parent[IOTA_MESSAGE_ID_BYTES] = {};
+  byte_t tmp_msg_parent[IOTA_BLOCK_ID_BYTES] = {};
 
   if (!json_data || !node_res) {
     printf("[%s:%d] allocate http buffer failed\n", __func__, __LINE__);
@@ -75,7 +75,7 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
 
   char** p = NULL;
   while ((p = (char**)utarray_next(tips->u.tips, p))) {
-    if (hex_2_bin(*p, BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES), NULL, tmp_msg_parent, sizeof(tmp_msg_parent)) != 0) {
+    if (hex_2_bin(*p, BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES), NULL, tmp_msg_parent, sizeof(tmp_msg_parent)) != 0) {
       printf("[%s:%d] converting hex to binary failed\n", __func__, __LINE__);
       ret = -1;
       goto end;
@@ -83,10 +83,10 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
     utarray_push_back(msg->parents, tmp_msg_parent);
   }
 
-  // Serialize message object to json messsage
-  cJSON* msg_json = json_message_serialize(msg);
+  // Serialize block object to json messsage
+  cJSON* msg_json = json_block_serialize(msg);
   if (msg_json == NULL) {
-    printf("[%s:%d] message json serialization failed\n", __func__, __LINE__);
+    printf("[%s:%d] block json serialization failed\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }
@@ -124,7 +124,7 @@ int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg,
   if ((ret = http_client_post(&http_conf, json_data, node_res, &http_st_code)) == 0) {
     // deserialize node response
     byte_buf2str(node_res);
-    ret = deser_send_message_response((char const*)node_res->data, res);
+    ret = deser_send_block_response((char const*)node_res->data, res);
   } else {
     printf("[%s:%d]: http client post failed\n", __func__, __LINE__);
   }

@@ -14,39 +14,39 @@
 #include "core/utils/macros.h"
 
 /**
- * @brief The response of send message
+ * @brief The response of send block
  *
  */
 typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t* error;                                          ///< Error message if is_error is True
-    char msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< a message IDs string if is_error is False
+    res_err_t* error;                                        ///< Error message if is_error is True
+    char blk_id[BIN_TO_HEX_STR_BYTES(IOTA_BLOCK_ID_BYTES)];  ///< a block IDs string if is_error is False
   } u;
-} res_send_message_t;
+} res_send_block_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @brief Deserialize the response of send_message
+ * @brief Deserialize the response of send_block
  *
  * @param[in] json_str The response string
  * @param[out] res The response object
  * @return int 0 on success
  */
-int deser_send_message_response(char const* json_str, res_send_message_t* res);
+int deser_send_block_response(char const* json_str, res_send_block_t* res);
 
 /**
- * @brief Send message thought core message object
+ * @brief Send block thought core block object
  *
  * @param[in] conf The client endpoint configuration
- * @param[in] msg A core message
- * @param[out] res An error or message ID
+ * @param[in] blk A Block object
+ * @param[out] res An error or block ID
  * @return int 0 on success
  */
-int send_core_message(iota_client_conf_t const* const conf, core_message_t* msg, res_send_message_t* res);
+int send_core_block(iota_client_conf_t const* const conf, core_block_t* blk, res_send_block_t* res);
 
 #ifdef __cplusplus
 }

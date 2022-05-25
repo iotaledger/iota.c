@@ -12,7 +12,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Send tagged data message
+ * @brief Send tagged data block
  *
  * @param[in] conf The client endpoint configuration
  * @param[in] ver The protocol version
@@ -20,11 +20,11 @@ extern "C" {
  * @param[in] tag_len The length of the binary tag
  * @param[in] data The binary data of the tagged data payload
  * @param[in] data_len The length of the tagged data payload binary data
- * @param[out] res An error or message ID
+ * @param[out] res An error or block ID
  * @return int 0 on success
  */
-int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t tag[], uint8_t tag_len, byte_t data[],
-                             uint32_t data_len, res_send_message_t* res);
+int send_tagged_data_block(iota_client_conf_t const* conf, uint8_t ver, byte_t tag[], uint8_t tag_len, byte_t data[],
+                           uint32_t data_len, res_send_block_t* res);
 
 #ifdef __cplusplus
 }

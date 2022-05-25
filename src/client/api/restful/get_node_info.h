@@ -57,9 +57,9 @@ typedef struct {
   milestone_info_t latest_milestone;     ///< The latest known milestone
   milestone_info_t confirmed_milestone;  ///< The current confirmed milestone
   uint32_t pruning_milestone_index;      ///< The milestone index at which the last pruning commenced
-  float msg_per_sec;                     ///< The current rate of new messages per second
-  float referenced_msg_per_sec;          ///< The current rate of referenced messages per second
-  float referenced_rate;     ///< The ratio of referenced messages in relation to new messages of the last confirmed
+  float msg_per_sec;                     ///< The current rate of new blocks per second
+  float referenced_msg_per_sec;          ///< The current rate of referenced blocks per second
+  float referenced_rate;     ///< The ratio of referenced blocks in relation to new blocks of the last confirmed
                              ///< milestone
   char network_name[32];     ///< The network name of this node
   uint8_t protocol_version;  ///< The protocol version currently used by the network

@@ -13,86 +13,86 @@
 #include "utarray.h"
 
 /**
- * @brief The message children object.
+ * @brief The block children object.
  *
  */
 typedef struct {
   uint32_t max_results;  ///< The maximum count of results that are returned by the node.
   uint32_t count;        ///< The actual count of results that are returned.
-  char msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< the hex encoded message ID string
-  UT_array *children;  ///< the hex encoded message IDs of the children of this message.
-} msg_children_t;
+  char blk_id[BIN_TO_HEX_STR_BYTES(IOTA_BLOCK_ID_BYTES)];  ///< the hex encoded block ID string
+  UT_array *children;                                      ///< the hex encoded block IDs of the children of this block.
+} block_children_t;
 
 /**
- * @brief The response of get message children API call
+ * @brief The response of get block children API call
  *
  */
 typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;      ///< Error message if is_error is True
-    msg_children_t *data;  ///< a response object if is_error is False
+    res_err_t *error;        ///< Error message if is_error is True
+    block_children_t *data;  ///< a response object if is_error is False
   } u;
-} res_msg_children_t;
+} res_block_children_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /**
- * @brief Allocates message children response
- * @return res_msg_children_t*
+ * @brief Allocates block children response
+ * @return res_block_children_t*
  */
-res_msg_children_t *res_msg_children_new();
+res_block_children_t *res_block_children_new();
 
 /**
- * @brief Frees a message children response object
+ * @brief Frees a block children response object
  * @param[in] res A response object
  */
-void res_msg_children_free(res_msg_children_t *res);
+void res_block_children_free(res_block_children_t *res);
 
 /**
- * @brief message children JSON deserialization
+ * @brief block children JSON deserialization
  *
  * @param[in] j_str A string of the JSON object
- * @param[out] res A response object of message children
+ * @param[out] res A response object of block children
  * @return int 0 on success
  */
-int deser_msg_children(char const *const j_str, res_msg_children_t *res);
+int deser_block_children(char const *const j_str, res_block_children_t *res);
 
 /**
  * @brief Gets the number of children IDs
  *
- * @param res The message children response
+ * @param res The block children response
  * @return size_t The number of children IDs
  */
-size_t res_msg_children_len(res_msg_children_t *res);
+size_t res_block_children_len(res_block_children_t *res);
 
 /**
- * @brief Gets the children message ID by a given index
+ * @brief Gets the children block ID by a given index
  *
  * @param res The children response
  * @param index A index
- * @return char* The hex string of children message ID
+ * @return char* The hex string of children block ID
  */
-char *res_msg_children_get(res_msg_children_t *res, size_t index);
+char *res_block_children_get(res_block_children_t *res, size_t index);
 
 /**
- * @brief Gets message children from a given message ID
+ * @brief Gets block children from a given block ID
  *
  * @param[in] ctx The client configuration
- * @param[in] msg_id A message ID string for query
- * @param[out] res A message children response
+ * @param[in] blk_id A block ID string for query
+ * @param[out] res A block children response
  * @return int 0 on success
  */
-int get_message_children(iota_client_conf_t const *ctx, char const msg_id[], res_msg_children_t *res);
+int get_block_children(iota_client_conf_t const *ctx, char const blk_id[], res_block_children_t *res);
 
 /**
  * @brief Print Message Children
  *
- * @param[in] res res_msg_children_t*
- * @param[in] indentation Tab indentation when printing message children
+ * @param[in] res res_block_children_t*
+ * @param[in] indentation Tab indentation when printing block children
  */
-void print_message_children(res_msg_children_t *res, uint8_t indentation);
+void print_block_children(res_block_children_t *res, uint8_t indentation);
 
 #ifdef __cplusplus
 }

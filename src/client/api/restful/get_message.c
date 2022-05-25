@@ -11,30 +11,30 @@
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 
-res_message_t *res_message_new() {
-  res_message_t *msg = malloc(sizeof(res_message_t));
-  if (msg) {
-    msg->is_error = false;
-    msg->u.msg = NULL;
-    return msg;
+res_block_t *res_block_new() {
+  res_block_t *blk = malloc(sizeof(res_block_t));
+  if (blk) {
+    blk->is_error = false;
+    blk->u.blk = NULL;
+    return blk;
   }
   return NULL;
 }
 
-void res_message_free(res_message_t *msg) {
-  if (msg) {
-    if (msg->is_error) {
-      res_err_free(msg->u.error);
+void res_block_free(res_block_t *blk) {
+  if (blk) {
+    if (blk->is_error) {
+      res_err_free(blk->u.error);
     } else {
-      if (msg->u.msg) {
-        core_message_free(msg->u.msg);
+      if (blk->u.blk) {
+        core_block_free(blk->u.blk);
       }
     }
-    free(msg);
+    free(blk);
   }
 }
 
-int deser_get_message(char const *const j_str, res_message_t *res) {
+int deser_get_block(char const *const j_str, res_block_t *res) {
   if (j_str == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
@@ -42,7 +42,7 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
 
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
-    printf("[%s:%d]: parsing JSON message failed\n", __func__, __LINE__);
+    printf("[%s:%d]: parsing JSON block failed\n", __func__, __LINE__);
     return -1;
   }
 
@@ -56,16 +56,16 @@ int deser_get_message(char const *const j_str, res_message_t *res) {
     goto end;
   }
 
-  // allocate message object
-  res->u.msg = core_message_new(0);
-  if (!res->u.msg) {
+  // allocate block object
+  res->u.blk = core_block_new(0);
+  if (!res->u.blk) {
     printf("[%s:%d]: OOM\n", __func__, __LINE__);
     goto end;
   }
 
-  // deserialize message object
-  if ((ret = json_message_deserialize(json_obj, res->u.msg)) != 0) {
-    printf("[%s:%d]: deserialize message error\n", __func__, __LINE__);
+  // deserialize a block object
+  if ((ret = json_block_deserialize(json_obj, res->u.blk)) != 0) {
+    printf("[%s:%d]: deserialize block error\n", __func__, __LINE__);
   }
 
 end:
@@ -74,29 +74,29 @@ end:
   return ret;
 }
 
-int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_message_t *res) {
-  if (conf == NULL || msg_id == NULL || res == NULL) {
+int get_block_by_id(iota_client_conf_t const *conf, char const blk_id[], res_block_t *res) {
+  if (conf == NULL || blk_id == NULL || res == NULL) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return -1;
   }
 
-  if (strlen(msg_id) != BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES)) {
-    // invalid message id length
-    printf("[%s:%d]: invalid message id length: %zu\n", __func__, __LINE__, strlen(msg_id));
+  if (strlen(blk_id) != BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES)) {
+    // invalid block id length
+    printf("[%s:%d]: invalid block id length: %zu\n", __func__, __LINE__, strlen(blk_id));
     return -1;
   }
 
   iota_str_t *cmd = NULL;
   char const *const cmd_str = "/messages/0x";
 
-  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + 1);
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, msg_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, blk_id);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
@@ -116,7 +116,7 @@ int get_message_by_id(iota_client_conf_t const *conf, char const msg_id[], res_m
   if (ret == 0) {
     byte_buf2str(http_res);
     // json deserialization
-    ret = deser_get_message((char const *const)http_res->data, res);
+    ret = deser_get_block((char const *const)http_res->data, res);
   }
 
 done:

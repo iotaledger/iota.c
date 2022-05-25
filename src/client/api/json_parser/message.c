@@ -8,9 +8,9 @@
 #include "client/api/json_parser/payloads/payloads.h"
 #include "core/utils/macros.h"
 
-// json object to message object
-int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
-  if (!msg || !json_obj) {
+// json object to block object
+int json_block_deserialize(cJSON* json_obj, core_block_t* blk) {
+  if (!blk || !json_obj) {
     printf("[%s:%d]: invalid parameter\n", __func__, __LINE__);
     return -1;
   }
@@ -18,16 +18,16 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
   int ret = -1;
 
   // protocol version
-  if ((ret = json_get_uint8(json_obj, JSON_KEY_PROTOCOL_VERSION, &msg->protocol_version)) != 0) {
+  if ((ret = json_get_uint8(json_obj, JSON_KEY_PROTOCOL_VERSION, &blk->protocol_version)) != 0) {
     printf("[%s:%d]: gets %s json uint8 failed\n", __func__, __LINE__, JSON_KEY_PROTOCOL_VERSION);
     goto end;
   }
 
-  // parentMessageIds
-  if ((ret = json_string_array_to_bin_array(json_obj, JSON_KEY_PARENT_IDS, msg->parents, IOTA_MESSAGE_ID_BYTES)) != 0) {
+  // parentBlockIds
+  if ((ret = json_string_array_to_bin_array(json_obj, JSON_KEY_PARENT_IDS, blk->parents, IOTA_BLOCK_ID_BYTES)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
-    utarray_free(msg->parents);
-    msg->parents = NULL;
+    utarray_free(blk->parents);
+    blk->parents = NULL;
     goto end;
   }
 
@@ -37,33 +37,33 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
     printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_NONCE);
     goto end;
   }
-  sscanf(str_buff, "%" SCNu64, &msg->nonce);
+  sscanf(str_buff, "%" SCNu64, &blk->nonce);
 
   // payload
   cJSON* payload = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_PAYLOAD);
   if (payload) {
-    if (json_get_uint32(payload, JSON_KEY_TYPE, &msg->payload_type) != 0) {
+    if (json_get_uint32(payload, JSON_KEY_TYPE, &blk->payload_type) != 0) {
       printf("[%s:%d]: gets payload %s failed\n", __func__, __LINE__, JSON_KEY_TYPE);
       goto end;
     }
 
-    switch (msg->payload_type) {
-      case CORE_MESSAGE_PAYLOAD_TRANSACTION:
-        msg->payload = tx_payload_new(0);
-        ret = json_transaction_deserialize(payload, (transaction_payload_t*)msg->payload);
+    switch (blk->payload_type) {
+      case CORE_BLOCK_PAYLOAD_TRANSACTION:
+        blk->payload = tx_payload_new(0);
+        ret = json_transaction_deserialize(payload, (transaction_payload_t*)blk->payload);
         break;
-      case CORE_MESSAGE_PAYLOAD_MILESTONE:
-        msg->payload = milestone_payload_new();
-        ret = milestone_deserialize(payload, (milestone_payload_t*)msg->payload);
+      case CORE_BLOCK_PAYLOAD_MILESTONE:
+        blk->payload = milestone_payload_new();
+        ret = milestone_deserialize(payload, (milestone_payload_t*)blk->payload);
         break;
-      case CORE_MESSAGE_PAYLOAD_TAGGED:
-        ret = json_tagged_deserialize(payload, (tagged_data_payload_t**)(&msg->payload));
+      case CORE_BLOCK_PAYLOAD_TAGGED:
+        ret = json_tagged_deserialize(payload, (tagged_data_payload_t**)(&blk->payload));
         break;
-      case CORE_MESSAGE_PAYLOAD_INDEXATION:
-      case CORE_MESSAGE_PAYLOAD_RECEIPT:
-      case CORE_MESSAGE_PAYLOAD_TREASURY:
-      case CORE_MESSAGE_PAYLOAD_DEPRECATED_0:
-      case CORE_MESSAGE_PAYLOAD_DEPRECATED_1:
+      case CORE_BLOCK_PAYLOAD_INDEXATION:
+      case CORE_BLOCK_PAYLOAD_RECEIPT:
+      case CORE_BLOCK_PAYLOAD_TREASURY:
+      case CORE_BLOCK_PAYLOAD_DEPRECATED_0:
+      case CORE_BLOCK_PAYLOAD_DEPRECATED_1:
       default:
         printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
         ret = -1;
@@ -71,7 +71,7 @@ int json_message_deserialize(cJSON* json_obj, core_message_t* msg) {
     }
 
   } else {
-    printf("[%s:%d]: invalid message: payload not found\n", __func__, __LINE__);
+    printf("[%s:%d]: invalid block: payload not found\n", __func__, __LINE__);
     ret = -1;
   }
 
@@ -80,8 +80,8 @@ end:
   return ret;
 }
 
-// message object to JSON object
-cJSON* json_message_serialize(core_message_t* msg) {
+// block object to JSON object
+cJSON* json_block_serialize(core_block_t* blk) {
   /*
   {
   "protocolVersion": 2,
@@ -95,90 +95,90 @@ cJSON* json_message_serialize(core_message_t* msg) {
   "nonce": "2695978"
   }
   */
-  cJSON* msg_obj = NULL;
+  cJSON* blk_obj = NULL;
   cJSON* payload = NULL;
   cJSON* parents = NULL;
-  char tmp_id_str[JSON_STR_WITH_PREFIX_BYTES(IOTA_MESSAGE_ID_BYTES)] = {};
+  char tmp_id_str[JSON_STR_WITH_PREFIX_BYTES(IOTA_BLOCK_ID_BYTES)] = {};
 
-  if (!msg) {
+  if (!blk) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
-  // create message object
-  if ((msg_obj = cJSON_CreateObject()) == NULL) {
-    printf("[%s:%d] creating message object failed\n", __func__, __LINE__);
+  // create block object
+  if ((blk_obj = cJSON_CreateObject()) == NULL) {
+    printf("[%s:%d] creating block object failed\n", __func__, __LINE__);
     return NULL;
   }
 
   // add protocol version
-  if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_PROTOCOL_VERSION, msg->protocol_version)) {
+  if (!cJSON_AddNumberToObject(blk_obj, JSON_KEY_PROTOCOL_VERSION, blk->protocol_version)) {
     printf("[%s:%d] creating protocol version failed\n", __func__, __LINE__);
-    cJSON_Delete(msg_obj);
+    cJSON_Delete(blk_obj);
     return NULL;
   }
 
   // add parents
   if ((parents = cJSON_CreateArray()) == NULL) {
     printf("[%s:%d] creating parent array failed\n", __func__, __LINE__);
-    cJSON_Delete(msg_obj);
+    cJSON_Delete(blk_obj);
     return NULL;
   }
 
-  cJSON_AddItemToObject(msg_obj, JSON_KEY_PARENT_IDS, parents);
+  cJSON_AddItemToObject(blk_obj, JSON_KEY_PARENT_IDS, parents);
   byte_t* p = NULL;
-  while ((p = (byte_t*)utarray_next(msg->parents, p))) {
-    if (bin_2_hex(p, IOTA_MESSAGE_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, tmp_id_str, sizeof(tmp_id_str)) != 0) {
+  while ((p = (byte_t*)utarray_next(blk->parents, p))) {
+    if (bin_2_hex(p, IOTA_BLOCK_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, tmp_id_str, sizeof(tmp_id_str)) != 0) {
       printf("[%s:%d] converting binary to hex failed\n", __func__, __LINE__);
-      cJSON_Delete(msg_obj);
+      cJSON_Delete(blk_obj);
       return NULL;
     }
     cJSON_AddItemToArray(parents, cJSON_CreateString(tmp_id_str));
   }
 
   // add payload
-  switch (msg->payload_type) {
-    case CORE_MESSAGE_PAYLOAD_TRANSACTION:
-      payload = json_transaction_serialize((transaction_payload_t*)msg->payload);
+  switch (blk->payload_type) {
+    case CORE_BLOCK_PAYLOAD_TRANSACTION:
+      payload = json_transaction_serialize((transaction_payload_t*)blk->payload);
       break;
-    case CORE_MESSAGE_PAYLOAD_TAGGED:
-      payload = json_tagged_serialize((void*)msg->payload);
+    case CORE_BLOCK_PAYLOAD_TAGGED:
+      payload = json_tagged_serialize((void*)blk->payload);
       break;
-    case CORE_MESSAGE_PAYLOAD_MILESTONE:
-    case CORE_MESSAGE_PAYLOAD_INDEXATION:
-    case CORE_MESSAGE_PAYLOAD_RECEIPT:
-    case CORE_MESSAGE_PAYLOAD_TREASURY:
-    case CORE_MESSAGE_PAYLOAD_DEPRECATED_0:
-    case CORE_MESSAGE_PAYLOAD_DEPRECATED_1:
+    case CORE_BLOCK_PAYLOAD_MILESTONE:
+    case CORE_BLOCK_PAYLOAD_INDEXATION:
+    case CORE_BLOCK_PAYLOAD_RECEIPT:
+    case CORE_BLOCK_PAYLOAD_TREASURY:
+    case CORE_BLOCK_PAYLOAD_DEPRECATED_0:
+    case CORE_BLOCK_PAYLOAD_DEPRECATED_1:
     default:
       printf("[%s:%d] unsupported payload type\n", __func__, __LINE__);
-      cJSON_Delete(msg_obj);
+      cJSON_Delete(blk_obj);
       return NULL;
   }
 
   if (payload == NULL) {
     printf("[%s:%d] creating payload failed\n", __func__, __LINE__);
-    cJSON_Delete(msg_obj);
+    cJSON_Delete(blk_obj);
     return NULL;
   }
-  cJSON_AddItemToObject(msg_obj, JSON_KEY_PAYLOAD, payload);
+  cJSON_AddItemToObject(blk_obj, JSON_KEY_PAYLOAD, payload);
 
   // add nonce
-  if (msg->nonce > 0) {
+  if (blk->nonce > 0) {
     char nonce_buff[65] = {};
-    sprintf(nonce_buff, "%" PRIu64 "", msg->nonce);
-    if (!cJSON_AddStringToObject(msg_obj, JSON_KEY_NONCE, nonce_buff)) {
+    sprintf(nonce_buff, "%" PRIu64 "", blk->nonce);
+    if (!cJSON_AddStringToObject(blk_obj, JSON_KEY_NONCE, nonce_buff)) {
       printf("[%s:%d] creating nonce failed\n", __func__, __LINE__);
-      cJSON_Delete(msg_obj);
+      cJSON_Delete(blk_obj);
       return NULL;
     }
   } else {
-    if (!cJSON_AddStringToObject(msg_obj, JSON_KEY_NONCE, "")) {
+    if (!cJSON_AddStringToObject(blk_obj, JSON_KEY_NONCE, "")) {
       printf("[%s:%d] creating nonce failed\n", __func__, __LINE__);
-      cJSON_Delete(msg_obj);
+      cJSON_Delete(blk_obj);
       return NULL;
     }
   }
 
-  return msg_obj;
+  return blk_obj;
 }

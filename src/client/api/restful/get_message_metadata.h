@@ -13,113 +13,113 @@
 #include "utarray.h"
 
 /**
- * @brief Stores the message metadata object
+ * @brief Stores the block metadata object
  *
  */
 typedef struct {
-  char msg_id[BIN_TO_HEX_STR_BYTES(IOTA_MESSAGE_ID_BYTES)];  ///< the hex encoded message ID string
-  UT_array *parents;                                         ///< the parent message IDs
+  char blk_id[BIN_TO_HEX_STR_BYTES(IOTA_BLOCK_ID_BYTES)];  ///< the hex encoded block ID string
+  UT_array *parents;                                       ///< the parent block IDs
   char inclusion_state[32];       ///< the ledger inclusion state of the transaction payload, one of `noTransaction`,
                                   ///< `conflicting`, `included`
-  bool is_solid;                  ///< whether the message is solid
-  int8_t should_promote;          ///< whether the message should be promoted, optional
-  int8_t should_reattach;         ///< whether the message should be reattached, optional
-  uint32_t referenced_milestone;  ///< The milestone index that references this message, optional
-  uint32_t milestone_idx;         ///< If this message represents a milestone this is the milestone index, optional
-  uint8_t conflict_reason;        ///< a reason why the message has conflict, optional
-} msg_meta_t;
+  bool is_solid;                  ///< whether the block is solid
+  int8_t should_promote;          ///< whether the block should be promoted, optional
+  int8_t should_reattach;         ///< whether the block should be reattached, optional
+  uint32_t referenced_milestone;  ///< The milestone index that references this block, optional
+  uint32_t milestone_idx;         ///< If this block represents a milestone this is the milestone index, optional
+  uint8_t conflict_reason;        ///< a reason why the block has conflict, optional
+} block_meta_t;
 
 /**
- * @brief The response of get message metadata API call
+ * @brief The response of get block metadata API call
  *
  */
 typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;  ///< Error message if is_error is True
-    msg_meta_t *meta;  ///< a response object if is_error is False
+    res_err_t *error;    ///< Error message if is_error is True
+    block_meta_t *meta;  ///< a response object if is_error is False
   } u;
-} res_msg_meta_t;
+} res_block_meta_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
- * @brief Allocates message metadata object
- * @return msg_meta_t*
+ * @brief Allocates block metadata object
+ * @return block_meta_t*
  */
-msg_meta_t *metadata_new();
+block_meta_t *metadata_new();
 
 /**
- * @brief Frees a message metadata object
- * @param[in] meta A msg_meta_t* object
+ * @brief Frees a block metadata object
+ * @param[in] meta A block_meta_t* object
  */
-void metadata_free(msg_meta_t *meta);
+void metadata_free(block_meta_t *meta);
 
 /**
- * @brief Allocates message metadata response
- * @return res_msg_meta_t*
+ * @brief Allocates block metadata response
+ * @return res_block_meta_t*
  */
-res_msg_meta_t *msg_meta_new();
+res_block_meta_t *block_meta_new();
 
 /**
- * @brief Frees a message metadata response object
+ * @brief Frees a block metadata response object
  * @param[in] res A response object
  */
-void msg_meta_free(res_msg_meta_t *res);
+void block_meta_free(res_block_meta_t *res);
 
 /**
- * @brief Parse a message metadata response
+ * @brief Parse a block metadata response
  * @param[in] data The response data to be parsed
- * @param[out] res The message metadata object
+ * @param[out] res The block metadata object
  * @return int 0 If success
  */
-int parse_messages_metadata(char const *const j_str, msg_meta_t *res);
+int parse_blocks_metadata(char const *const j_str, block_meta_t *res);
 
 /**
  * @brief Message metadata JSON deserialization
  *
  * @param[in] j_str A string of the JSON object
- * @param[out] res A response object of message metadata
+ * @param[out] res A response object of block metadata
  * @return int 0 on success
  */
-int msg_meta_deserialize(char const *const j_str, res_msg_meta_t *res);
+int block_meta_deserialize(char const *const j_str, res_block_meta_t *res);
 
 /**
- * @brief Gets the number of parent messages
+ * @brief Gets the number of parent blocks
  *
  * @param[in] res A metadata response
  * @return size_t A number of parent
  */
-size_t msg_meta_parents_count(msg_meta_t *msg);
+size_t block_meta_parents_count(block_meta_t *msg);
 
 /**
- * @brief Gets the parent message ID by a given index
+ * @brief Gets the parent block ID by a given index
  *
  * @param[in] res A metadata response
  * @param[in] index An index
- * @return char* The string of parent message ID
+ * @return char* The string of parent block ID
  */
-char *msg_meta_parent_get(msg_meta_t *msg, size_t index);
+char *block_meta_parent_get(block_meta_t *msg, size_t index);
 
 /**
- * @brief Gets message metadata from a given message ID
+ * @brief Gets block metadata from a given block ID
  *
  * @param[in] ctx The client configuration
- * @param[in] msg_id A message ID string for query
- * @param[out] res A message metadata response
+ * @param[in] blk_id A block ID string for query
+ * @param[out] res A block metadata response
  * @return int 0 on success
  */
-int get_message_metadata(iota_client_conf_t const *ctx, char const msg_id[], res_msg_meta_t *res);
+int get_block_metadata(iota_client_conf_t const *ctx, char const blk_id[], res_block_meta_t *res);
 
 /**
- * @brief Print a message metadata object
+ * @brief Print a block metadata object
  *
- * @param[in] res res_msg_meta_t*
- * @param[in] indentation Tab indentation when printing message children
+ * @param[in] res res_block_meta_t*
+ * @param[in] indentation Tab indentation when printing block children
  */
-void print_message_metadata(res_msg_meta_t *res, uint8_t indentation);
+void print_block_metadata(res_block_meta_t *res, uint8_t indentation);
 
 #ifdef __cplusplus
 }

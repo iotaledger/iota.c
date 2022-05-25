@@ -8,8 +8,10 @@
 #include "client/api/json_parser/outputs/outputs.h"
 #include "client/api/json_parser/payloads/payloads.h"
 #include "client/api/json_parser/unlock_blocks.h"
+#include "core/models/message.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/utils/macros.h"
+#include "utlist.h"
 
 static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   /*
@@ -125,7 +127,7 @@ static int json_essence_payload_deserialize(cJSON* essence_payload, tagged_data_
   }
 
   switch (type) {
-    case CORE_MESSAGE_PAYLOAD_TAGGED:
+    case CORE_BLOCK_PAYLOAD_TAGGED:
       if (json_tagged_deserialize(essence_payload, tagged_data) != 0) {
         printf("[%s:%d] Can not deserialize tagged data\n", __func__, __LINE__);
         return -1;
@@ -350,7 +352,7 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   }
 
   // parsing parents
-  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PARENT_IDS, ms->parents, IOTA_MESSAGE_ID_BYTES)) != 0) {
+  if ((ret = json_string_array_to_bin_array(payload, JSON_KEY_PARENT_IDS, ms->parents, IOTA_BLOCK_ID_BYTES)) != 0) {
     printf("[%s:%d]: parsing %s failed\n", __func__, __LINE__, JSON_KEY_PARENT_IDS);
     return ret;
   }
@@ -457,7 +459,7 @@ int json_transaction_deserialize(cJSON* payload, transaction_payload_t* tx) {
   // unlock blocks
   cJSON* blocks_obj = cJSON_GetObjectItemCaseSensitive(payload, JSON_KEY_UNLOCK_BLOCKS);
   if (cJSON_IsArray(blocks_obj)) {
-    if (json_unlock_blocks_deserialize(blocks_obj, &tx->unlock_blocks)) {
+    if (json_unlock_blocks_deserialize(blocks_obj, &tx->unlocks)) {
       return -1;
     }
   } else {
@@ -492,7 +494,7 @@ cJSON* json_transaction_serialize(transaction_payload_t* tx) {
   }
 
   // "type": 6,
-  if (!cJSON_AddNumberToObject(tx_payload, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TRANSACTION)) {
+  if (!cJSON_AddNumberToObject(tx_payload, JSON_KEY_TYPE, CORE_BLOCK_PAYLOAD_TRANSACTION)) {
     printf("[%s:%d] add payload type failed\n", __func__, __LINE__);
     cJSON_Delete(tx_payload);
     return NULL;
@@ -507,7 +509,7 @@ cJSON* json_transaction_serialize(transaction_payload_t* tx) {
   cJSON_AddItemToObject(tx_payload, JSON_KEY_ESSENCE, essence);
 
   // unlocked blocks
-  if ((blocks = json_unlock_blocks_serialize(tx->unlock_blocks)) == NULL) {
+  if ((blocks = json_unlock_blocks_serialize(tx->unlocks)) == NULL) {
     printf("[%s:%d] create unlocked blocks object failed\n", __func__, __LINE__);
     cJSON_Delete(tx_payload);
     return NULL;
@@ -539,7 +541,7 @@ cJSON* json_tagged_serialize(tagged_data_payload_t* tagged_data) {
   }
 
   // "type": 5,
-  if (!cJSON_AddNumberToObject(tagged_data_payload, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TAGGED)) {
+  if (!cJSON_AddNumberToObject(tagged_data_payload, JSON_KEY_TYPE, CORE_BLOCK_PAYLOAD_TAGGED)) {
     printf("[%s:%d] add payload type failed\n", __func__, __LINE__);
     cJSON_Delete(tagged_data_payload);
     return NULL;
