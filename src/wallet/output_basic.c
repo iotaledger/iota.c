@@ -4,6 +4,7 @@
 #include "wallet/output_basic.h"
 #include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
+#include "core/models/outputs/storage_deposit.h"
 
 static res_outputs_id_t* get_unspent_basic_output_ids(iota_wallet_t* w, address_t* send_addr) {
   if (w == NULL || send_addr == NULL) {
@@ -90,9 +91,11 @@ static int add_unspent_basic_outputs_to_essence(transaction_essence_t* essence, 
 
 utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_t* send_addr,
                                                       ed25519_keypair_t* sender_keypair, uint64_t send_amount,
+                                                      native_tokens_list_t* send_native_tokens,
                                                       transaction_essence_t* essence, signing_data_list_t** sign_data,
-                                                      uint64_t* total_output_amount) {
-  if (w == NULL || send_addr == NULL || sender_keypair == NULL || essence == NULL || total_output_amount == NULL) {
+                                                      uint64_t* collected_amount,
+                                                      native_tokens_list_t** collected_native_tokens) {
+  if (w == NULL || send_addr == NULL || sender_keypair == NULL || essence == NULL || collected_amount == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
@@ -104,7 +107,8 @@ utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_
   }
 
   // fetch output data from output IDs
-  *total_output_amount = 0;
+  *collected_amount = 0;
+  *collected_native_tokens = native_tokens_new();
   utxo_outputs_list_t* unspent_outputs = utxo_outputs_new();
   for (size_t i = 0; i < res_outputs_output_id_count(res_id); i++) {
     res_output_t* output_res = get_output_response_new();
@@ -141,9 +145,39 @@ utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_
         res_outputs_free(res_id);
         return NULL;
       }
-      *total_output_amount += output_amount;
+
+      // add base token to total_output_amount
+      *collected_amount += output_amount;
+
+      // add native tokens to total_output_native_tokens
+      output_basic_t* output_basic = output_res->u.data->output->output;
+      native_tokens_list_t* elm;
+      LL_FOREACH(output_basic->native_tokens, elm) {
+        native_token_t* token = native_tokens_find_by_id(*collected_native_tokens, elm->token->token_id);
+        if (token) {
+          if (uint256_add(&token->amount, &token->amount, &elm->token->amount) != true) {
+            printf("[%s:%d] can not add amount of two native tokens\n", __func__, __LINE__);
+            get_output_response_free(output_res);
+            utxo_outputs_free(unspent_outputs);
+            native_tokens_free(*collected_native_tokens);
+            res_outputs_free(res_id);
+            return NULL;
+          }
+        } else {
+          if (native_tokens_add(collected_native_tokens, elm->token->token_id, &elm->token->amount) != 0) {
+            printf("[%s:%d] can not add native token to a list\n", __func__, __LINE__);
+            get_output_response_free(output_res);
+            utxo_outputs_free(unspent_outputs);
+            native_tokens_free(*collected_native_tokens);
+            res_outputs_free(res_id);
+            return NULL;
+          }
+        }
+      }
+
       // check balance
-      if (*total_output_amount >= send_amount) {
+      if (wallet_is_collected_balance_sufficient(send_amount, *collected_amount, send_native_tokens,
+                                                 *collected_native_tokens)) {
         // have got sufficient amount
         get_output_response_free(output_res);
         break;
@@ -159,7 +193,8 @@ utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_
   return unspent_outputs;
 }
 
-int wallet_output_basic_create(address_t* recv_addr, uint64_t amount, transaction_essence_t* essence) {
+int wallet_output_basic_create(address_t* recv_addr, uint64_t amount, native_tokens_list_t* native_tokens,
+                               transaction_essence_t* essence) {
   if (recv_addr == NULL || essence == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -179,7 +214,7 @@ int wallet_output_basic_create(address_t* recv_addr, uint64_t amount, transactio
     return -1;
   }
 
-  output_basic_t* output_basic = output_basic_new(amount, NULL, unlock_cond_blk, NULL);
+  output_basic_t* output_basic = output_basic_new(amount, native_tokens, unlock_cond_blk, NULL);
   if (!output_basic) {
     printf("[%s:%d] failed to create basic output\n", __func__, __LINE__);
     cond_blk_free(unlock_cond_addr);
@@ -202,8 +237,9 @@ int wallet_output_basic_create(address_t* recv_addr, uint64_t amount, transactio
   return 0;
 }
 
-int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t const send_amount,
-                             address_t* recv_addr, res_send_message_t* msg_res) {
+int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t send_amount,
+                             native_tokens_list_t* send_native_tokens, address_t* recv_addr,
+                             res_send_message_t* msg_res) {
   if (w == NULL || recv_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -219,6 +255,8 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
   int ret = 0;
   signing_data_list_t* sign_data = signing_new();
   utxo_outputs_list_t* unspent_outputs = NULL;
+  native_tokens_list_t* collected_native_tokens = NULL;
+  native_tokens_list_t* reminder_native_tokens = NULL;
   transaction_payload_t* tx = NULL;
   core_message_t* message = NULL;
 
@@ -230,10 +268,25 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
     goto end;
   }
 
+  // create the receiver output
+  ret = wallet_output_basic_create(recv_addr, send_amount, send_native_tokens, tx->essence);
+  if (ret != 0) {
+    printf("[%s:%d] create a receiver basic output failed\n", __func__, __LINE__);
+    goto end;
+  }
+
+  // if no base tokens are sent, send only output minimum storage protection amount
+  if (send_amount == 0) {
+    send_amount = calc_minimum_output_deposit(&w->byte_cost, OUTPUT_BASIC, tx->essence->outputs->output->output);
+    ((output_basic_t*)(tx->essence->outputs->output->output))->amount = send_amount;
+  }
+
   // get unspent basic outputs from a sender address
-  uint64_t total_unspent_amount = 0;
-  unspent_outputs = wallet_get_unspent_basic_outputs(w, &sender_addr, &sender_keypair, send_amount, tx->essence,
-                                                     &sign_data, &total_unspent_amount);
+  uint64_t collected_amount = 0;
+  collected_native_tokens = native_tokens_new();
+  unspent_outputs =
+      wallet_get_unspent_basic_outputs(w, &sender_addr, &sender_keypair, send_amount, send_native_tokens, tx->essence,
+                                       &sign_data, &collected_amount, &collected_native_tokens);
   if (!unspent_outputs) {
     printf("[%s:%d] address does not have any unspent basic outputs\n", __func__, __LINE__);
     ret = -1;
@@ -241,22 +294,26 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
   }
 
   // check balance of sender outputs
-  if (total_unspent_amount < send_amount) {
+  if (!wallet_is_collected_balance_sufficient(send_amount, collected_amount, send_native_tokens,
+                                              collected_native_tokens)) {
     printf("[%s:%d] insufficient address balance\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }
 
-  // create the receiver output
-  ret = wallet_output_basic_create(recv_addr, send_amount, tx->essence);
-  if (ret != 0) {
-    printf("[%s:%d] create a receiver basic output failed\n", __func__, __LINE__);
+  // calculate a reminder amount if needed
+  uint64_t reminder_amount = 0;
+  reminder_native_tokens = native_tokens_new();
+  if (wallet_calculate_reminder_amount(send_amount, collected_amount, send_native_tokens, collected_native_tokens,
+                                       &reminder_amount, &reminder_native_tokens) != 0) {
+    printf("[%s:%d] can not calculate a reminder amount\n", __func__, __LINE__);
+    ret = -1;
     goto end;
   }
 
-  // check if reminder is needed
-  if (total_unspent_amount > send_amount) {
-    ret = wallet_output_basic_create(&sender_addr, total_unspent_amount - send_amount, tx->essence);
+  // create a reminder if needed
+  if (reminder_amount > 0 || native_tokens_count(reminder_native_tokens) > 0) {
+    ret = wallet_output_basic_create(&sender_addr, reminder_amount, reminder_native_tokens, tx->essence);
     if (ret != 0) {
       printf("[%s:%d] create a reminder basic output failed\n", __func__, __LINE__);
       goto end;
@@ -282,5 +339,7 @@ end:
   }
   signing_free(sign_data);
   utxo_outputs_free(unspent_outputs);
+  native_tokens_free(collected_native_tokens);
+  native_tokens_free(reminder_native_tokens);
   return ret;
 }

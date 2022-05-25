@@ -151,6 +151,35 @@ int wallet_balance_by_address(iota_wallet_t* w, address_t* addr, uint64_t* balan
 int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* balance);
 
 /**
+ * @brief Check if collected balance is sufficient for newly created outputs
+ *
+ * @param[in] send_amount Wanted amount to send
+ * @param[in] collected_amount A collected amount to be sent
+ * @param[in] send_native_tokens A list of wanted native tokens to be sent
+ * @param[in] collected_native_tokens A list of collected native tokens to be sent
+ * @return true if balance is sufficient otherwise false
+ */
+bool wallet_is_collected_balance_sufficient(uint64_t send_amount, uint64_t collected_amount,
+                                            native_tokens_list_t* send_native_tokens,
+                                            native_tokens_list_t* collected_native_tokens);
+
+/**
+ * @brief Calculate a reminder amount
+ *
+ * @param[in] send_amount Wanted amount to send
+ * @param[in] collected_amount A collected amount to be sent
+ * @param[in] send_native_tokens A list of wanted native tokens to be sent
+ * @param[in] collected_native_tokens A list of collected native tokens to be sent
+ * @param[out] reminder_amount A reminder amount of base tokens
+ * @param[out] reminder_native_tokens A reminder amount of native tokens
+ * @return true if balance is sufficient otherwise false
+ */
+int wallet_calculate_reminder_amount(uint64_t send_amount, uint64_t collected_amount,
+                                     native_tokens_list_t* send_native_tokens,
+                                     native_tokens_list_t* collected_native_tokens, uint64_t* reminder_amount,
+                                     native_tokens_list_t** reminder_native_tokens);
+
+/**
  * @brief Create and prepare core message
  *
  * @param[in] w A wallet instance

@@ -306,6 +306,70 @@ int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* ba
   return -1;
 }
 
+bool wallet_is_collected_balance_sufficient(uint64_t send_amount, uint64_t collected_amount,
+                                            native_tokens_list_t* send_native_tokens,
+                                            native_tokens_list_t* collected_native_tokens) {
+  if (collected_amount < send_amount) {
+    return false;
+  }
+
+  native_tokens_list_t* elm;
+  LL_FOREACH(send_native_tokens, elm) {
+    native_token_t* token = native_tokens_find_by_id(collected_native_tokens, elm->token->token_id);
+    if (token) {
+      if (uint256_equal(&token->amount, &elm->token->amount) < 0) {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+int wallet_calculate_reminder_amount(uint64_t send_amount, uint64_t collected_amount,
+                                     native_tokens_list_t* send_native_tokens,
+                                     native_tokens_list_t* collected_native_tokens, uint64_t* reminder_amount,
+                                     native_tokens_list_t** reminder_native_tokens) {
+  if (reminder_amount == NULL || *reminder_native_tokens != NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+  // calculate reminder for base token
+  *reminder_amount = collected_amount - send_amount;
+
+  // calculate reminder for native tokens
+  *reminder_native_tokens = native_tokens_new();
+  native_tokens_list_t* elm;
+  LL_FOREACH(collected_native_tokens, elm) {
+    native_token_t* token = native_tokens_find_by_id(send_native_tokens, elm->token->token_id);
+    if (token) {
+      uint256_t* reminder = malloc(sizeof(uint256_t));
+      if (!reminder) {
+        printf("[%s:%d] OOM\n", __func__, __LINE__);
+        native_tokens_free(*reminder_native_tokens);
+        return -1;
+      }
+      if (uint256_sub(reminder, &elm->token->amount, &token->amount) != true) {
+        printf("[%s:%d] can not substitute amount of two native tokens\n", __func__, __LINE__);
+        native_tokens_free(*reminder_native_tokens);
+        uint256_free(reminder);
+        return -1;
+      }
+      if (native_tokens_add(reminder_native_tokens, elm->token->token_id, reminder) != 0) {
+        printf("[%s:%d] can not add native token to a list\n", __func__, __LINE__);
+        native_tokens_free(*reminder_native_tokens);
+        uint256_free(reminder);
+        return -1;
+      }
+      uint256_free(reminder);
+    }
+  }
+
+  return 0;
+}
+
 core_message_t* wallet_create_core_message(iota_wallet_t* w, transaction_payload_t* tx,
                                            utxo_outputs_list_t* unspent_outputs, signing_data_list_t* sign_data) {
   if (w == NULL || tx == NULL || unspent_outputs == NULL || sign_data == NULL) {

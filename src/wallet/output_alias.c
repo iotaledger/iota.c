@@ -214,29 +214,14 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
   utxo_outputs_list_t* unspent_outputs = NULL;
   signing_data_list_t* sign_data = signing_new();
   transaction_payload_t* tx = NULL;
+  native_tokens_list_t* collected_native_tokens = NULL;
+  native_tokens_list_t* reminder_native_tokens = NULL;
   core_message_t* message = NULL;
 
   // create a tx
   tx = tx_payload_new(w->network_id);
   if (!tx) {
     printf("[%s:%d] create tx payload failed\n", __func__, __LINE__);
-    ret = -1;
-    goto end;
-  }
-
-  // get outputs from the sender address
-  uint64_t total_unspent_amount = 0;
-  unspent_outputs = wallet_get_unspent_basic_outputs(w, &sender_addr, &sender_keypair, send_amount, tx->essence,
-                                                     &sign_data, &total_unspent_amount);
-  if (!unspent_outputs) {
-    printf("[%s:%d] address does not have any unspent basic outputs\n", __func__, __LINE__);
-    ret = -1;
-    goto end;
-  }
-
-  // check balance of sender outputs
-  if (total_unspent_amount < send_amount) {
-    printf("[%s:%d] insufficient address balance\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }
@@ -250,9 +235,37 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
     goto end;
   }
 
-  // check if reminder is needed
-  if (total_unspent_amount > send_amount) {
-    ret = wallet_output_basic_create(&sender_addr, total_unspent_amount - send_amount, tx->essence);
+  // get outputs from the sender address
+  uint64_t collected_amount = 0;
+  collected_native_tokens = native_tokens_new();
+  unspent_outputs = wallet_get_unspent_basic_outputs(w, &sender_addr, &sender_keypair, send_amount, NULL, tx->essence,
+                                                     &sign_data, &collected_amount, &collected_native_tokens);
+  if (!unspent_outputs) {
+    printf("[%s:%d] address does not have any unspent basic outputs\n", __func__, __LINE__);
+    ret = -1;
+    goto end;
+  }
+
+  // check balance of sender outputs
+  if (!wallet_is_collected_balance_sufficient(send_amount, collected_amount, NULL, NULL)) {
+    printf("[%s:%d] insufficient address balance\n", __func__, __LINE__);
+    ret = -1;
+    goto end;
+  }
+
+  // calculate a reminder amount if needed
+  uint64_t reminder_amount = 0;
+  reminder_native_tokens = native_tokens_new();
+  if (wallet_calculate_reminder_amount(send_amount, collected_amount, NULL, collected_native_tokens, &reminder_amount,
+                                       &reminder_native_tokens) != 0) {
+    printf("[%s:%d] can not calculate a reminder amount\n", __func__, __LINE__);
+    ret = -1;
+    goto end;
+  }
+
+  // create a reminder if needed
+  if (reminder_amount > 0 || native_tokens_count(reminder_native_tokens) > 0) {
+    ret = wallet_output_basic_create(&sender_addr, reminder_amount, reminder_native_tokens, tx->essence);
     if (ret != 0) {
       printf("[%s:%d] create a reminder basic output failed\n", __func__, __LINE__);
       goto end;
@@ -300,6 +313,8 @@ end:
   }
   signing_free(sign_data);
   utxo_outputs_free(unspent_outputs);
+  native_tokens_free(collected_native_tokens);
+  native_tokens_free(reminder_native_tokens);
   return ret;
 }
 
@@ -452,7 +467,8 @@ int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern
   }
 
   // create basic output
-  ret = wallet_output_basic_create(recv_addr, output_amount, tx->essence);
+  // TODO unspent outputs may have some native tokens which needs to be returned as reminder
+  ret = wallet_output_basic_create(recv_addr, output_amount, NULL, tx->essence);
   if (ret != 0) {
     printf("[%s:%d] create basic output failed\n", __func__, __LINE__);
     goto end;
