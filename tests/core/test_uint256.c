@@ -93,6 +93,88 @@ void test_uint256_from_str() {
   uint256_free(num);
 }
 
+void test_uint256_from_hex_str() {
+  uint256_t *num;
+  char *str;
+
+  //=====Test 0 unsigned 256-bit number=====
+  num = uint256_from_hex_str("0");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_hex_str(num);
+  TEST_ASSERT_EQUAL_STRING("0", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  uint256_free(num);
+
+  //=====Test maximum unsigned 256-bit number=====
+  num = uint256_from_hex_str("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_hex_str(num);
+  TEST_ASSERT_EQUAL_STRING("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  uint256_free(num);
+
+  //=====Test overflow of unsigned 256-bit number=====
+  num = uint256_from_hex_str("10000000000000000000000000000000000000000000000000000000000000000");
+  TEST_ASSERT_NULL(num);
+  uint256_free(num);
+
+  //=====Test maximum - 1 unsigned 256-bit number=====
+  num = uint256_from_hex_str("fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_hex_str(num);
+  TEST_ASSERT_EQUAL_STRING("fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  uint256_free(num);
+
+  //=====Test maximum unsigned 64-bit number=====
+  num = uint256_from_hex_str("ffffffffffffffff");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_hex_str(num);
+  TEST_ASSERT_EQUAL_STRING("ffffffffffffffff", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  uint256_free(num);
+
+  //=====Test carry when multiplying unsigned 64-bit number=====
+  num = uint256_from_hex_str("20000000000000000");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_hex_str(num);
+  TEST_ASSERT_EQUAL_STRING("20000000000000000", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  uint256_free(num);
+
+  //=====Additional test carry when multiplying unsigned 64-bit number=====
+  num = uint256_from_hex_str("20000000000000003");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_hex_str(num);
+  TEST_ASSERT_EQUAL_STRING("20000000000000003", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  uint256_free(num);
+
+  //=====Test "random" unsigned 256-bit number=====
+  num = uint256_from_hex_str("110d9316ebfffffff653cf444ae7a");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_hex_str(num);
+  TEST_ASSERT_EQUAL_STRING("110d9316ebfffffff653cf444ae7a", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  uint256_free(num);
+
+  //=====Additional test "random" unsigned 256-bit number=====
+  num = uint256_from_hex_str("1486de86ad217180d9c7559131ec18341bc053a177256630ae5c44ae7a");
+  TEST_ASSERT_NOT_NULL(num);
+  str = uint256_to_hex_str(num);
+  TEST_ASSERT_EQUAL_STRING("1486de86ad217180d9c7559131ec18341bc053a177256630ae5c44ae7a", str);
+  printf("Created number :%s\n", str);
+  free(str);
+  uint256_free(num);
+}
+
 void test_uint256_add() {
   uint256_t num1, num2, num3;
   bool res;
@@ -453,6 +535,59 @@ void test_uint256_to_str() {
   free(str);
 }
 
+void test_uint256_to_hex_str() {
+  uint256_t num;
+  char *str;
+
+  //=====Maximum value of an unsigned 256-bit number=====
+  num.bits[0] = 0xFFFFFFFFFFFFFFFF;
+  num.bits[1] = 0xFFFFFFFFFFFFFFFF;
+  num.bits[2] = 0xFFFFFFFFFFFFFFFF;
+  num.bits[3] = 0xFFFFFFFFFFFFFFFF;
+
+  str = uint256_to_hex_str(&num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", str);
+  printf("Max 256-bit number: %s\n", str);
+  free(str);
+
+  //=====Zero unsigned 256-bit number=====
+  num.bits[0] = 0x0000000000000000;
+  num.bits[1] = 0x0000000000000000;
+  num.bits[2] = 0x0000000000000000;
+  num.bits[3] = 0x0000000000000000;
+
+  str = uint256_to_hex_str(&num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("0", str);
+  printf("Zero 256-bit number: %s\n", str);
+  free(str);
+
+  //=====Small unsigned 256-bit number=====
+  num.bits[0] = 0xE36CF8C718CD2CED;
+  num.bits[1] = 0x0000000000000000;
+  num.bits[2] = 0x6DBAA3BB90F8B53F;
+  num.bits[3] = 0x0000000000000000;
+
+  str = uint256_to_hex_str(&num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("6dbaa3bb90f8b53f0000000000000000e36cf8c718cd2ced", str);
+  printf("Small 256-bit number: %s\n", str);
+  free(str);
+
+  //====="Random" unsigned 256-bit number=====
+  num.bits[0] = 0xE36CF8C718CD2CED;
+  num.bits[1] = 0x6DBAA3BB90F8B53F;
+  num.bits[2] = 0xAF9F3AC14DF900CD;
+  num.bits[3] = 0x7538DCFB7617FFFF;
+
+  str = uint256_to_hex_str(&num);
+  TEST_ASSERT_NOT_NULL(str);
+  TEST_ASSERT_EQUAL_STRING("7538dcfb7617ffffaf9f3ac14df900cd6dbaa3bb90f8b53fe36cf8c718cd2ced", str);
+  printf("\"Random\" 256-bit number: %s\n", str);
+  free(str);
+}
+
 void test_uint256_clone() {
   //=====NULL unsigned 256-bit number=====
   uint256_t *new_num = uint256_clone(NULL);
@@ -476,10 +611,12 @@ int main() {
   UNITY_BEGIN();
 
   RUN_TEST(test_uint256_from_str);
+  RUN_TEST(test_uint256_from_hex_str);
   RUN_TEST(test_uint256_add);
   RUN_TEST(test_uint256_sub);
   RUN_TEST(test_uint256_equal);
   RUN_TEST(test_uint256_to_str);
+  RUN_TEST(test_uint256_to_hex_str);
   RUN_TEST(test_uint256_clone);
 
   return UNITY_END();

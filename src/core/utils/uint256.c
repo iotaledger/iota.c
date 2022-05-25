@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "core/utils/macros.h"
 #include "core/utils/uint256.h"
 
 // Helper functions to get higher and lower part of an uint64_t number
@@ -106,6 +107,45 @@ uint256_from_str(char const *str) {
         }
       }
     }
+  }
+
+  return num;
+}
+
+uint256_t *uint256_from_hex_str(char const *str) {
+  if (str == NULL) {
+    // invalid parameters
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  uint8_t str_max_len = 4 * BIN_TO_HEX_BYTES(sizeof(uint64_t));
+  uint8_t str_len = strlen(str);
+
+  if (str_len > str_max_len) {
+    printf("[%s:%d] given string number is too big for uint256 object\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  uint256_t *num = malloc(sizeof(uint256_t));
+  if (!num) {
+    printf("[%s:%d] creating uint256 object failed\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  // create temporary string with maximum 256 bit hex length (4 * uint64_t)
+  char str_max_temp[str_max_len];
+  memset(str_max_temp, '0', str_max_len);
+
+  // copy str to appropriate place in temporary string with a maximum length
+  memcpy(str_max_temp + (str_max_len - str_len), str, str_len);
+
+  // scan all four uint64_t numbers
+  for (uint8_t i = 0; i <= 3; i++) {
+    char str_temp[BIN_TO_HEX_BYTES(sizeof(uint64_t)) + 1];  // zero terminated string
+    str_temp[BIN_TO_HEX_BYTES(sizeof(uint64_t))] = 0;
+    memcpy(str_temp, str_max_temp + i * BIN_TO_HEX_BYTES(sizeof(uint64_t)), BIN_TO_HEX_BYTES(sizeof(uint64_t)));
+    sscanf(str_temp, "%" PRIx64 "", &num->bits[3 - i]);
   }
 
   return num;
@@ -244,6 +284,55 @@ char *uint256_to_str(uint256_t *num) {
     return NULL;
   }
   memcpy(str, str_temp + count_zeros, STRING_NUMBER_MAX_CHARACTERS - count_zeros);
+
+  return str;
+}
+
+char *uint256_to_hex_str(uint256_t *num) {
+  if (num == NULL) {
+    // invalid parameters
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  char str_temp[STRING_NUMBER_MAX_CHARACTERS] = {0};
+  uint8_t str_length = 0;
+
+  // convert uint256_t to hex string
+  bool append_zeros = false;
+  for (int8_t i = 3; i >= 0; i--) {
+    if (num->bits[i] > 0 || append_zeros) {
+      sprintf(&str_temp[str_length], "%016" PRIx64 "", num->bits[i]);
+      str_length = strlen(str_temp);
+      append_zeros = true;
+    }
+  }
+
+  // count leading zeros
+  uint8_t leading_zeros_len = 0;
+  for (uint8_t i = 0; i < strlen(str_temp); i++) {
+    if (str_temp[i] == '0') {
+      leading_zeros_len += 1;
+    } else {
+      break;
+    }
+  }
+  str_length -= leading_zeros_len;
+
+  // is num zero number?
+  if (str_length == 0) {
+    str_length = 1;
+    str_temp[0] = '0';
+  }
+
+  // create a string with appropriate length
+  char *str = malloc(str_length + 1);
+  if (!str) {
+    printf("[%s:%d] allocation memory space for string failed\n", __func__, __LINE__);
+    return NULL;
+  }
+  memcpy(str, &str_temp[leading_zeros_len], str_length);
+  str[str_length] = '\0';
 
   return str;
 }
