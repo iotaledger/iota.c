@@ -12,8 +12,8 @@
 #include "client/api/restful/get_message_metadata.h"
 #include "client/api/restful/get_output.h"
 
-// Update message id for testing
-char const *const test_message_id = "4a0c386d0587a6fda9defb85103e975714e6baeb7cd4d0ab673531057c8ae16e";
+// Update block id for testing
+char const *const test_block_id = "4a0c386d0587a6fda9defb85103e975714e6baeb7cd4d0ab673531057c8ae16e";
 char const *const test_transaction_id = "5e753f69b44870aa6a90adf2c366dccac00097c41d5c884dd81ef7cf29eefdd7";
 char const *const test_bech32 = "atoi1qqs7y6ec5vcg6cnz46vjrar2epc52lhksyar3a4zua7fg7ca08y5ymep8aa";
 char const *const test_output_id = "5e753f69b44870aa6a90adf2c366dccac00097c41d5c884dd81ef7cf29eefdd70000";
@@ -43,38 +43,38 @@ void callback(event_client_event_t *event) {
       if (event_subscribe(event->client, NULL, TOPIC_MILESTONE_CONFIRMED, 1) != 0) {
         printf("Subscription to %s topic failed\n", TOPIC_MILESTONE_CONFIRMED);
       }
-      if (event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1) != 0) {
-        printf("Subscription to %s topic failed\n", TOPIC_MS_REFERENCED);
+      if (event_subscribe(event->client, NULL, TOPIC_BLOCK_REFERENCED, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_BLOCK_REFERENCED);
       }
       if (event_subscribe(event->client, NULL, TOPIC_MILESTONES, 1) != 0) {
         printf("Subscription to %s topic failed\n", TOPIC_MILESTONES);
       }
-      if (event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1) != 0) {
-        printf("Subscription to %s topic failed\n", TOPIC_MESSAGES);
+      if (event_subscribe(event->client, NULL, TOPIC_BLOCKS, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_BLOCKS);
       }
-      if (event_subscribe(event->client, NULL, TOPIC_MS_MILESTONE, 1) != 0) {
-        printf("Subscription to %s topic failed\n", TOPIC_MS_MILESTONE);
+      if (event_subscribe(event->client, NULL, TOPIC_BLK_MILESTONE, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_BLK_MILESTONE);
       }
-      if (event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1) != 0) {
-        printf("Subscription to %s topic failed\n", TOPIC_MS_TRANSACTION);
+      if (event_subscribe(event->client, NULL, TOPIC_BLK_TRANSACTION, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_BLK_TRANSACTION);
       }
-      if (event_subscribe(event->client, NULL, TOPIC_MS_TXN_TAGGED_DATA, 1) != 0) {
-        printf("Subscription to %s topic failed\n", TOPIC_MS_TXN_TAGGED_DATA);
+      if (event_subscribe(event->client, NULL, TOPIC_BLK_TXN_TAGGED_DATA, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_BLK_TXN_TAGGED_DATA);
       }
-      if (event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1) != 0) {
-        printf("Subscription to %s topic failed\n", TOPIC_MS_TAGGED_DATA);
+      if (event_subscribe(event->client, NULL, TOPIC_BLK_TAGGED_DATA, 1) != 0) {
+        printf("Subscription to %s topic failed\n", TOPIC_BLK_TAGGED_DATA);
       }
-      if (event_sub_tx_msg_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1) != 0) {
-        printf("Subscription to %s topic failed\n", "messages/transaction/tagged-data/{tag}");
+      if (event_sub_tx_blk_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1) != 0) {
+        printf("Subscription to %s topic failed\n", "blocks/transaction/tagged-data/{tag}");
       }
-      if (event_sub_msg_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1) != 0) {
-        printf("Subscription to %s topic failed\n", "messages/tagged-data/{tag}");
+      if (event_sub_blk_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1) != 0) {
+        printf("Subscription to %s topic failed\n", "blocks/tagged-data/{tag}");
       }
-      if (event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1) != 0) {
-        printf("Subscription to %s topic failed\n", "transactions/{transactionId}/included_message");
+      if (event_sub_txn_included_blk(event->client, NULL, test_transaction_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "transactions/{transactionId}/included_block");
       }
-      if (event_subscribe_msg_metadata(event->client, NULL, test_message_id, 1) != 0) {
-        printf("Subscription to %s topic failed\n", "message-metadata/{messageid}");
+      if (event_subscribe_blk_metadata(event->client, NULL, test_block_id, 1) != 0) {
+        printf("Subscription to %s topic failed\n", "block-metadata/{blockid}");
       }
       if (event_sub_outputs_id(event->client, NULL, test_output_id, 1) != 0) {
         printf("Subscription to %s topic failed\n", "outputs/{outputId}");
@@ -116,18 +116,18 @@ void callback(event_client_event_t *event) {
   }
 }
 
-static void parse_and_print_message_metadata(event_client_event_t *event) {
+static void parse_and_print_block_metadata(event_client_event_t *event) {
   // Create and allocate memory for response object
-  msg_meta_t *res = metadata_new();
+  block_meta_t *res = metadata_new();
   if (res) {
-    parse_messages_metadata((char *)event->data, res);
+    parse_blocks_metadata((char *)event->data, res);
 
     // Print received data
-    printf("Msg Id :%s\n", res->msg_id);
+    printf("Msg Id :%s\n", res->blk_id);
     // Get parent id count
-    size_t parents_count = msg_meta_parents_count(res);
+    size_t parents_count = block_meta_parents_count(res);
     for (size_t i = 0; i < parents_count; i++) {
-      printf("Parent Id %zu : %s\n", i + 1, msg_meta_parent_get(res, i));
+      printf("Parent Id %zu : %s\n", i + 1, block_meta_parent_get(res, i));
     }
     printf("Inclusion State : %s\n", res->inclusion_state);
     printf("Is Solid : %s\n", res->is_solid ? "true" : "false");
@@ -169,37 +169,37 @@ void process_event_data(event_client_event_t *event) {
   else if (!strcmp(event->topic, TOPIC_MILESTONES)) {
     print_serialized_data(event->data, event->data_len);
   }
-  // check for topic messages
-  else if (!strcmp(event->topic, TOPIC_MESSAGES)) {
+  // check for topic blocks
+  else if (!strcmp(event->topic, TOPIC_BLOCKS)) {
     print_serialized_data(event->data, event->data_len);
   }
-  // check for topic messages/milestone
-  else if (!strcmp(event->topic, TOPIC_MS_MILESTONE)) {
+  // check for topic blocks/milestone
+  else if (!strcmp(event->topic, TOPIC_BLK_MILESTONE)) {
     print_serialized_data(event->data, event->data_len);
   }
-  // check for topic messages/transaction
-  else if (!strcmp(event->topic, TOPIC_MS_TRANSACTION)) {
+  // check for topic blocks/transaction
+  else if (!strcmp(event->topic, TOPIC_BLK_TRANSACTION)) {
     print_serialized_data(event->data, event->data_len);
   }
-  // check for topic messages/transaction/tagged-data
-  else if (!strcmp(event->topic, TOPIC_MS_TXN_TAGGED_DATA)) {
+  // check for topic blocks/transaction/tagged-data
+  else if (!strcmp(event->topic, TOPIC_BLK_TXN_TAGGED_DATA)) {
     print_serialized_data(event->data, event->data_len);
   }
-  // check for topic messages/tagged-data
-  else if (!strcmp(event->topic, TOPIC_MS_TAGGED_DATA)) {
+  // check for topic blocks/tagged-data
+  else if (!strcmp(event->topic, TOPIC_BLK_TAGGED_DATA)) {
     print_serialized_data(event->data, event->data_len);
   }
-  // check for topics messages/transaction/tagged-data/{tag} and messages/tagged-data/{tag}
-  else if (strstr(event->topic, "messages/transaction/tagged-data/") != NULL ||
-           strstr(event->topic, "messages/tagged-data/") != NULL) {
+  // check for topics blocks/transaction/tagged-data/{tag} and blocks/tagged-data/{tag}
+  else if (strstr(event->topic, "blocks/transaction/tagged-data/") != NULL ||
+           strstr(event->topic, "blocks/tagged-data/") != NULL) {
     print_serialized_data(event->data, event->data_len);
   }
-  // check for topic message-metadata/{messageId} and message-metadata/referenced
-  else if (!strcmp(event->topic, "message-metadata/")) {
-    parse_and_print_message_metadata(event);
+  // check for topic block-metadata/{blockId} and block-metadata/referenced
+  else if (!strcmp(event->topic, "block-metadata/")) {
+    parse_and_print_block_metadata(event);
   }
-  // check for topic transactions/{transactionId}/included-message
-  else if ((strstr(event->topic, "transactions/") != NULL) && (strstr(event->topic, "/included-message") != NULL)) {
+  // check for topic transactions/{transactionId}/included-block
+  else if ((strstr(event->topic, "transactions/") != NULL) && (strstr(event->topic, "/included-block") != NULL)) {
     print_serialized_data(event->data, event->data_len);
   }
   /* check for topics :
@@ -221,7 +221,7 @@ int main(void) {
   event_register_cb(client, &callback);
   // Runs event client in a non blocking call.
   event_start(client);
-  // Blocking main loop, callbacks will be processed on event message arrival
+  // Blocking main loop, callbacks will be processed on event arrival
   while (!is_error) {
   };
   // Stop event client instance

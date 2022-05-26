@@ -113,29 +113,29 @@ int main(void) {
   printf("Receiver address: %s\n", bech32_receiver);
 
   // create alias output
-  printf("Sending create alias transaction message to the Tangle...\n");
+  printf("Sending create alias transaction block to the Tangle...\n");
 
-  res_send_message_t msg_res = {};
+  res_send_block_t blk_res = {};
   address_t alias_addr = {0};
   if (wallet_alias_output_create(w, false, sender_addr_index, amount * Mi, &state_ctrl_addr, &govern_addr, 0,
-                                 &alias_addr, &msg_res) != 0) {
-    printf("Sending message to the Tangle failed!\n");
+                                 &alias_addr, &blk_res) != 0) {
+    printf("Sending block to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
   }
 
-  if (msg_res.is_error) {
-    printf("Error: %s\n", msg_res.u.error->msg);
-    res_err_free(msg_res.u.error);
+  if (blk_res.is_error) {
+    printf("Error: %s\n", blk_res.u.error->msg);
+    res_err_free(blk_res.u.error);
     wallet_destroy(w);
     return -1;
   }
 
-  printf("Message successfully sent.\n");
-  printf("Message ID: %s\n", msg_res.u.msg_id);
+  printf("Block successfully sent.\n");
+  printf("Block ID: %s\n", blk_res.u.blk_id);
 
-  // wait for a message to be included into a tangle
-  printf("Waiting for message confirmation...\n");
+  // wait for a block to be included into a tangle
+  printf("Waiting for block confirmation...\n");
   sleep(15);
 
   // convert alias address to bech32 format
@@ -155,11 +155,11 @@ int main(void) {
   printf("Minted tokens: %s\n", minted_tokens_str);
 
   // mint native tokens
-  printf("Sending mint native tokens transaction message to the Tangle...\n");
+  printf("Sending mint native tokens transaction block to the Tangle...\n");
 
   if (wallet_foundry_output_mint_native_tokens(w, &alias_addr, false, state_ctrl_addr_index, &govern_addr,
-                                               &receiver_addr, max_supply, minted_tokens, 1, 1, &msg_res) != 0) {
-    printf("Sending message to the Tangle failed!\n");
+                                               &receiver_addr, max_supply, minted_tokens, 1, 1, &blk_res) != 0) {
+    printf("Sending block to the Tangle failed!\n");
     uint256_free(max_supply);
     uint256_free(minted_tokens);
     wallet_destroy(w);
@@ -169,15 +169,15 @@ int main(void) {
   uint256_free(max_supply);
   uint256_free(minted_tokens);
 
-  if (msg_res.is_error) {
-    printf("Error: %s\n", msg_res.u.error->msg);
-    res_err_free(msg_res.u.error);
+  if (blk_res.is_error) {
+    printf("Error: %s\n", blk_res.u.error->msg);
+    res_err_free(blk_res.u.error);
     wallet_destroy(w);
     return -1;
   }
 
-  printf("Message successfully sent.\n");
-  printf("Message ID: %s\n", msg_res.u.msg_id);
+  printf("Block successfully sent.\n");
+  printf("Block ID: %s\n", blk_res.u.blk_id);
 
   wallet_destroy(w);
 

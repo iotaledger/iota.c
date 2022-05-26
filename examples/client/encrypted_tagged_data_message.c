@@ -53,8 +53,8 @@ int main(void) {
 
   // send encrypted data
   printf("Sending encrypted data message to the Tangle...\n");
-  res_send_message_t res = {};
-  if (send_tagged_data_message(&ctx, 2, (byte_t *)TAG, strlen(TAG), encrypted, strlen((char *)encrypted), &res) == 0) {
+  res_send_block_t res = {};
+  if (send_tagged_data_block(&ctx, 2, (byte_t *)TAG, strlen(TAG), encrypted, strlen((char *)encrypted), &res) == 0) {
     if (res.is_error) {
       printf("API response: %s\n", res.u.error->msg);
       return -1;
@@ -64,45 +64,45 @@ int main(void) {
     return -1;
   }
 
-  printf("Message successfully sent.\n");
-  printf("Message ID: %s\nEncrypted data: %s\n", res.u.msg_id, encrypted);
+  printf("Block successfully sent.\n");
+  printf("Block ID: %s\nEncrypted data: %s\n", res.u.blk_id, encrypted);
 
-  res_message_t *msg = res_message_new();
-  if (!msg) {
-    printf("Failed to create a response message object!\n");
+  res_block_t *blk = res_block_new();
+  if (!blk) {
+    printf("Failed to create a response block object!\n");
     return -1;
   }
 
-  // fetch message from the Tangle
+  // fetch the message from the Tangle
   printf("Fetching message from the Tangle...\n");
-  if (get_message_by_id(&ctx, res.u.msg_id, msg) == 0) {
-    if (msg->is_error) {
-      printf("API response: %s\n", msg->u.error->msg);
-      res_message_free(msg);
+  if (get_block_by_id(&ctx, res.u.blk_id, blk) == 0) {
+    if (blk->is_error) {
+      printf("API response: %s\n", blk->u.error->msg);
+      res_block_free(blk);
       return -1;
     }
   } else {
     printf("Fetching message from a node failed!\n");
-    res_message_free(msg);
+    res_block_free(blk);
     return -1;
   }
 
-  printf("Message successfully fetched.\n");
+  printf("Block successfully fetched.\n");
 
   // check if fetched message is Tagged Data message
-  if (msg->u.msg->payload_type != CORE_MESSAGE_PAYLOAD_TAGGED) {
+  if (blk->u.blk->payload_type != CORE_BLOCK_PAYLOAD_TAGGED) {
     printf("Fetched message is not a Tagged Data message!\n");
-    res_message_free(msg);
+    res_block_free(blk);
     return -1;
   }
 
-  // get data from a retrieved message
+  // get data from a retrieved block
   byte_t message_data[100] = {};
-  uint8_t message_data_size = ((tagged_data_payload_t *)msg->u.msg->payload)->data->len;
-  memcpy(message_data, ((tagged_data_payload_t *)msg->u.msg->payload)->data->data, message_data_size);
+  uint8_t message_data_size = ((tagged_data_payload_t *)blk->u.blk->payload)->data->len;
+  memcpy(message_data, ((tagged_data_payload_t *)blk->u.blk->payload)->data->data, message_data_size);
 
-  // free response message object
-  res_message_free(msg);
+  // free response block object
+  res_block_free(blk);
 
   // data decryption
   if (xor_encrypt_decrypt(message_data, message_data_size, decrypted, sizeof(decrypted)) != 0) {
