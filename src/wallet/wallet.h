@@ -15,11 +15,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "client/api/restful/send_message.h"
+#include "client/api/restful/send_block.h"
 #include "client/client_service.h"
 #include "core/address.h"
-#include "core/models/message.h"
+#include "core/models/block.h"
 #include "core/models/outputs/byte_cost_config.h"
+#include "core/models/outputs/native_tokens.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"
 
@@ -180,26 +181,26 @@ int wallet_calculate_reminder_amount(uint64_t send_amount, uint64_t collected_am
                                      native_tokens_list_t** reminder_native_tokens);
 
 /**
- * @brief Create and prepare core message
+ * @brief Create and prepare core block
  *
  * @param[in] w A wallet instance
  * @param[in] tx A transaction payload
  * @param[in] unspent_outputs A list of unspent outputs
  * @param[in] sign_data A list of signing data
- * @return core_message_t*
+ * @return core_block_t*
  */
-core_message_t* wallet_create_core_message(iota_wallet_t* w, transaction_payload_t* tx,
-                                           utxo_outputs_list_t* unspent_outputs, signing_data_list_t* sign_data);
+core_block_t* wallet_create_core_block(iota_wallet_t* w, transaction_payload_t* tx,
+                                       utxo_outputs_list_t* unspent_outputs, signing_data_list_t* sign_data);
 
 /**
- * @brief Send core message to a network
+ * @brief Send core block to a network
  *
  * @param[in] w A wallet instance
- * @param[in] core_msg A core message which will be sent
+ * @param[in] core_msg A core block which will be sent
  * @param[out] msg_res A response of the transfer
  * @return int 0 on success
  */
-int wallet_send_message(iota_wallet_t* w, core_message_t* core_msg, res_send_message_t* msg_res);
+int wallet_send_block(iota_wallet_t* w, core_block_t* core_msg, res_send_block_t* msg_res);
 
 #ifdef __cplusplus
 }

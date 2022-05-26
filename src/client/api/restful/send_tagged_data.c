@@ -10,8 +10,8 @@
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 
-int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t tag[], uint8_t tag_len, byte_t data[],
-                             uint32_t data_len, res_send_message_t* res) {
+int send_tagged_data_block(iota_client_conf_t const* conf, uint8_t ver, byte_t tag[], uint8_t tag_len, byte_t data[],
+                           uint32_t data_len, res_send_block_t* res) {
   int ret = -1;
   if (conf == NULL || res == NULL) {
     // invalid parameters
@@ -53,7 +53,7 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
     return -1;
   }
 
-  // compose json message
+  // compose json block
   /*
   {
   "protocolVersion": 2,
@@ -72,27 +72,27 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
   }
   */
 
-  // create message object
-  cJSON* msg_obj = cJSON_CreateObject();
-  if (msg_obj == NULL) {
-    printf("[%s:%d] creating message object failed\n", __func__, __LINE__);
+  // create block object
+  cJSON* blk_obj = cJSON_CreateObject();
+  if (blk_obj == NULL) {
+    printf("[%s:%d] creating block object failed\n", __func__, __LINE__);
     goto end;
   }
 
   // add protocol version
-  if (!cJSON_AddNumberToObject(msg_obj, JSON_KEY_PROTOCOL_VERSION, ver)) {
+  if (!cJSON_AddNumberToObject(blk_obj, JSON_KEY_PROTOCOL_VERSION, ver)) {
     printf("[%s:%d] adding protocol version failed\n", __func__, __LINE__);
     goto end;
   }
 
   // add parents
-  if (utarray_to_json_string_array(tips->u.tips, msg_obj, JSON_KEY_PARENT_IDS) != JSON_OK) {
-    printf("[%s:%d] adding tips array to message object failed\n", __func__, __LINE__);
+  if (utarray_to_json_string_array(tips->u.tips, blk_obj, JSON_KEY_PARENT_IDS) != JSON_OK) {
+    printf("[%s:%d] adding tips array to block object failed\n", __func__, __LINE__);
     goto end;
   }
 
   // add nonce
-  if (!cJSON_AddStringToObject(msg_obj, JSON_KEY_NONCE, "")) {
+  if (!cJSON_AddStringToObject(blk_obj, JSON_KEY_NONCE, "")) {
     printf("[%s:%d] creating nonce failed\n", __func__, __LINE__);
     goto end;
   }
@@ -104,15 +104,15 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
     goto end;
   }
 
-  // add payload to message
-  if (!cJSON_AddItemToObject(msg_obj, JSON_KEY_PAYLOAD, payload)) {
+  // add payload to block
+  if (!cJSON_AddItemToObject(blk_obj, JSON_KEY_PAYLOAD, payload)) {
     printf("[%s:%d] adding payload failed\n", __func__, __LINE__);
     cJSON_Delete(payload);
     goto end;
   }
 
   // add type to payload
-  if (!cJSON_AddNumberToObject(payload, JSON_KEY_TYPE, CORE_MESSAGE_PAYLOAD_TAGGED)) {
+  if (!cJSON_AddNumberToObject(payload, JSON_KEY_TYPE, CORE_BLOCK_PAYLOAD_TAGGED)) {
     printf("[%s:%d] adding type to payload failed\n", __func__, __LINE__);
     goto end;
   }
@@ -160,23 +160,23 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
   }
 
   // json object to json string
-  char* msg_str = cJSON_PrintUnformatted(msg_obj);
-  if (msg_str == NULL) {
+  char* blk_str = cJSON_PrintUnformatted(blk_obj);
+  if (blk_str == NULL) {
     printf("[%s:%d] converting json to string failed\n", __func__, __LINE__);
     goto end;
   }
 
   // put json string into byte_buf_t
-  byte_buf_t* json_data = byte_buf_new_with_data((byte_t*)msg_str, strlen(msg_str) + 1);
+  byte_buf_t* json_data = byte_buf_new_with_data((byte_t*)blk_str, strlen(blk_str) + 1);
   if (!json_data) {
-    printf("[%s:%d] allocating buffer with message data failed\n", __func__, __LINE__);
+    printf("[%s:%d] allocating buffer with block data failed\n", __func__, __LINE__);
     goto end;
   }
   // not needed anymore
-  free(msg_str);
+  free(blk_str);
 
   iota_str_t* cmd = NULL;
-  char const* const cmd_str = "/messages";
+  char const* const cmd_str = "/blocks";
   // reserver buffer enough for NODE_API_PATH + cmd_str
   cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + 1);
   if (cmd == NULL) {
@@ -206,7 +206,7 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
       iota_str_destroy(cmd);
       goto end;
     }
-    ret = deser_send_message_response((char const*)http_res->data, res);
+    ret = deser_send_block_response((char const*)http_res->data, res);
   } else {
     printf("[%s:%d]: http client post failed\n", __func__, __LINE__);
   }
@@ -215,7 +215,7 @@ int send_tagged_data_message(iota_client_conf_t const* conf, uint8_t ver, byte_t
   byte_buf_free(http_res);
 
 end:
-  cJSON_Delete(msg_obj);
+  cJSON_Delete(blk_obj);
   res_tips_free(tips);
   return ret;
 }

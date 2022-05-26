@@ -19,12 +19,12 @@ void test_unlock_condition_address() {
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  cond_blk_list_t* blk_list = cond_blk_list_new();
-  int result = json_cond_blk_addr_deserialize(json_obj, &blk_list);
+  unlock_cond_list_t* cond_list = condition_list_new();
+  int result = json_condition_addr_deserialize(json_obj, &cond_list);
   TEST_ASSERT_EQUAL_INT(0, result);
-  TEST_ASSERT_EQUAL_INT(1, cond_blk_list_len(blk_list));
+  TEST_ASSERT_EQUAL_INT(1, condition_list_len(cond_list));
 
-  unlock_cond_blk_t* cond_unlock = cond_blk_list_get_type(blk_list, UNLOCK_COND_ADDRESS);
+  unlock_cond_t* cond_unlock = condition_list_get_type(cond_list, UNLOCK_COND_ADDRESS);
   TEST_ASSERT_NOT_NULL(cond_unlock);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_ADDRESS, cond_unlock->type);
 
@@ -32,10 +32,10 @@ void test_unlock_condition_address() {
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
             NULL, test_addr.address, ED25519_PUBKEY_BYTES);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
+  TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->obj)));
 
   cJSON_Delete(json_obj);
-  cond_blk_list_free(blk_list);
+  condition_list_free(cond_list);
 }
 
 void test_unlock_condition_storage_deposit_return() {
@@ -45,16 +45,16 @@ void test_unlock_condition_storage_deposit_return() {
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  cond_blk_list_t* blk_list = cond_blk_list_new();
-  int result = json_cond_blk_storage_deserialize(json_obj, &blk_list);
+  unlock_cond_list_t* cond_list = condition_list_new();
+  int result = json_condition_storage_deserialize(json_obj, &cond_list);
   TEST_ASSERT_EQUAL_INT(0, result);
-  TEST_ASSERT_EQUAL_INT(1, cond_blk_list_len(blk_list));
+  TEST_ASSERT_EQUAL_INT(1, condition_list_len(cond_list));
 
-  unlock_cond_blk_t* cond_unlock = cond_blk_list_get_type(blk_list, UNLOCK_COND_STORAGE);
+  unlock_cond_t* cond_unlock = condition_list_get_type(cond_list, UNLOCK_COND_STORAGE);
   TEST_ASSERT_NOT_NULL(cond_unlock);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_STORAGE, cond_unlock->type);
 
-  unlock_cond_storage_t* cond_storage = (unlock_cond_storage_t*)cond_unlock->block;
+  unlock_cond_storage_t* cond_storage = (unlock_cond_storage_t*)cond_unlock->obj;
   address_t test_addr;
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
@@ -63,7 +63,7 @@ void test_unlock_condition_storage_deposit_return() {
   TEST_ASSERT_EQUAL_UINT64(1337, cond_storage->amount);
 
   cJSON_Delete(json_obj);
-  cond_blk_list_free(blk_list);
+  condition_list_free(cond_list);
 }
 
 void test_unlock_condition_timelock() {
@@ -71,21 +71,21 @@ void test_unlock_condition_timelock() {
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  cond_blk_list_t* blk_list = cond_blk_list_new();
-  int result = json_cond_blk_timelock_deserialize(json_obj, &blk_list);
+  unlock_cond_list_t* cond_list = condition_list_new();
+  int result = json_condition_timelock_deserialize(json_obj, &cond_list);
   TEST_ASSERT_EQUAL_INT(0, result);
-  TEST_ASSERT_EQUAL_INT(1, cond_blk_list_len(blk_list));
+  TEST_ASSERT_EQUAL_INT(1, condition_list_len(cond_list));
 
-  unlock_cond_blk_t* cond_unlock = cond_blk_list_get_type(blk_list, UNLOCK_COND_TIMELOCK);
+  unlock_cond_t* cond_unlock = condition_list_get_type(cond_list, UNLOCK_COND_TIMELOCK);
   TEST_ASSERT_NOT_NULL(cond_unlock);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_TIMELOCK, cond_unlock->type);
 
-  unlock_cond_timelock_t* cond_timelock = (unlock_cond_timelock_t*)cond_unlock->block;
+  unlock_cond_timelock_t* cond_timelock = (unlock_cond_timelock_t*)cond_unlock->obj;
   TEST_ASSERT_EQUAL_UINT32(123456789, cond_timelock->milestone);
   TEST_ASSERT_EQUAL_UINT32(987654321, cond_timelock->time);
 
   cJSON_Delete(json_obj);
-  cond_blk_list_free(blk_list);
+  condition_list_free(cond_list);
 }
 
 void test_unlock_condition_expiration() {
@@ -97,16 +97,16 @@ void test_unlock_condition_expiration() {
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  cond_blk_list_t* blk_list = cond_blk_list_new();
-  int result = json_cond_blk_expir_deserialize(json_obj, &blk_list);
+  unlock_cond_list_t* cond_list = condition_list_new();
+  int result = json_condition_expir_deserialize(json_obj, &cond_list);
   TEST_ASSERT_EQUAL_INT(0, result);
-  TEST_ASSERT_EQUAL_INT(1, cond_blk_list_len(blk_list));
+  TEST_ASSERT_EQUAL_INT(1, condition_list_len(cond_list));
 
-  unlock_cond_blk_t* cond_unlock = cond_blk_list_get_type(blk_list, UNLOCK_COND_EXPIRATION);
+  unlock_cond_t* cond_unlock = condition_list_get_type(cond_list, UNLOCK_COND_EXPIRATION);
   TEST_ASSERT_NOT_NULL(cond_unlock);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_EXPIRATION, cond_unlock->type);
 
-  unlock_cond_expir_t* cond_expiration = (unlock_cond_expir_t*)cond_unlock->block;
+  unlock_cond_expir_t* cond_expiration = (unlock_cond_expir_t*)cond_unlock->obj;
   address_t test_addr;
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
@@ -116,7 +116,7 @@ void test_unlock_condition_expiration() {
   TEST_ASSERT_EQUAL_UINT32(987654321, cond_expiration->time);
 
   cJSON_Delete(json_obj);
-  cond_blk_list_free(blk_list);
+  condition_list_free(cond_list);
 }
 
 void test_unlock_condition_state() {
@@ -126,12 +126,12 @@ void test_unlock_condition_state() {
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  cond_blk_list_t* blk_list = cond_blk_list_new();
-  int result = json_cond_blk_state_deserialize(json_obj, &blk_list);
+  unlock_cond_list_t* cond_list = condition_list_new();
+  int result = json_condition_state_deserialize(json_obj, &cond_list);
   TEST_ASSERT_EQUAL_INT(0, result);
-  TEST_ASSERT_EQUAL_INT(1, cond_blk_list_len(blk_list));
+  TEST_ASSERT_EQUAL_INT(1, condition_list_len(cond_list));
 
-  unlock_cond_blk_t* cond_unlock = cond_blk_list_get_type(blk_list, UNLOCK_COND_STATE);
+  unlock_cond_t* cond_unlock = condition_list_get_type(cond_list, UNLOCK_COND_STATE);
   TEST_ASSERT_NOT_NULL(cond_unlock);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_STATE, cond_unlock->type);
 
@@ -139,10 +139,10 @@ void test_unlock_condition_state() {
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
             NULL, test_addr.address, ED25519_PUBKEY_BYTES);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
+  TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->obj)));
 
   cJSON_Delete(json_obj);
-  cond_blk_list_free(blk_list);
+  condition_list_free(cond_list);
 }
 
 void test_unlock_condition_governor() {
@@ -152,12 +152,12 @@ void test_unlock_condition_governor() {
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  cond_blk_list_t* blk_list = cond_blk_list_new();
-  int result = json_cond_blk_governor_deserialize(json_obj, &blk_list);
+  unlock_cond_list_t* cond_list = condition_list_new();
+  int result = json_condition_governor_deserialize(json_obj, &cond_list);
   TEST_ASSERT_EQUAL_INT(0, result);
-  TEST_ASSERT_EQUAL_INT(1, cond_blk_list_len(blk_list));
+  TEST_ASSERT_EQUAL_INT(1, condition_list_len(cond_list));
 
-  unlock_cond_blk_t* cond_unlock = cond_blk_list_get_type(blk_list, UNLOCK_COND_GOVERNOR);
+  unlock_cond_t* cond_unlock = condition_list_get_type(cond_list, UNLOCK_COND_GOVERNOR);
   TEST_ASSERT_NOT_NULL(cond_unlock);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_GOVERNOR, cond_unlock->type);
 
@@ -165,10 +165,10 @@ void test_unlock_condition_governor() {
   test_addr.type = 0;
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
             NULL, test_addr.address, ED25519_PUBKEY_BYTES);
-  TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->block)));
+  TEST_ASSERT_TRUE(address_equal(&test_addr, ((address_t*)cond_unlock->obj)));
 
   cJSON_Delete(json_obj);
-  cond_blk_list_free(blk_list);
+  condition_list_free(cond_list);
 }
 
 void test_unlock_conditions() {
@@ -190,30 +190,30 @@ void test_unlock_conditions() {
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  cond_blk_list_t* blk_list = cond_blk_list_new();
-  int result = json_cond_blk_list_deserialize(json_obj, &blk_list);
+  unlock_cond_list_t* cond_list = condition_list_new();
+  int result = json_condition_list_deserialize(json_obj, &cond_list);
   TEST_ASSERT_EQUAL_INT(0, result);
-  TEST_ASSERT_EQUAL_INT(7, cond_blk_list_len(blk_list));
-  unlock_cond_blk_t* cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_ADDRESS);
-  TEST_ASSERT_NOT_NULL(cond_block);
-  cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_STORAGE);
-  TEST_ASSERT_NOT_NULL(cond_block);
-  cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_TIMELOCK);
-  TEST_ASSERT_NOT_NULL(cond_block);
-  cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_EXPIRATION);
-  TEST_ASSERT_NOT_NULL(cond_block);
-  cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_STATE);
-  TEST_ASSERT_NOT_NULL(cond_block);
-  cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_GOVERNOR);
-  TEST_ASSERT_NOT_NULL(cond_block);
-  cond_block = cond_blk_list_get_type(blk_list, UNLOCK_COND_IMMUT_ALIAS);
-  TEST_ASSERT_NOT_NULL(cond_block);
+  TEST_ASSERT_EQUAL_INT(7, condition_list_len(cond_list));
+  unlock_cond_t* cond = condition_list_get_type(cond_list, UNLOCK_COND_ADDRESS);
+  TEST_ASSERT_NOT_NULL(cond);
+  cond = condition_list_get_type(cond_list, UNLOCK_COND_STORAGE);
+  TEST_ASSERT_NOT_NULL(cond);
+  cond = condition_list_get_type(cond_list, UNLOCK_COND_TIMELOCK);
+  TEST_ASSERT_NOT_NULL(cond);
+  cond = condition_list_get_type(cond_list, UNLOCK_COND_EXPIRATION);
+  TEST_ASSERT_NOT_NULL(cond);
+  cond = condition_list_get_type(cond_list, UNLOCK_COND_STATE);
+  TEST_ASSERT_NOT_NULL(cond);
+  cond = condition_list_get_type(cond_list, UNLOCK_COND_GOVERNOR);
+  TEST_ASSERT_NOT_NULL(cond);
+  cond = condition_list_get_type(cond_list, UNLOCK_COND_IMMUT_ALIAS);
+  TEST_ASSERT_NOT_NULL(cond);
 
   // print unlock conditions
-  cond_blk_list_print(blk_list, 0);
+  condition_list_print(cond_list, 0);
 
   cJSON_Delete(json_obj);
-  cond_blk_list_free(blk_list);
+  condition_list_free(cond_list);
 }
 
 void test_unlock_conditions_unsupported_type() {
@@ -223,13 +223,13 @@ void test_unlock_conditions_unsupported_type() {
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
-  cond_blk_list_t* blk_list = cond_blk_list_new();
-  int result = json_cond_blk_list_deserialize(json_obj, &blk_list);
+  unlock_cond_list_t* cond_list = condition_list_new();
+  int result = json_condition_list_deserialize(json_obj, &cond_list);
   TEST_ASSERT_EQUAL_INT(-1, result);
-  TEST_ASSERT_EQUAL_INT(0, cond_blk_list_len(blk_list));
+  TEST_ASSERT_EQUAL_INT(0, condition_list_len(cond_list));
 
   cJSON_Delete(json_obj);
-  cond_blk_list_free(blk_list);
+  condition_list_free(cond_list);
 }
 
 int main() {

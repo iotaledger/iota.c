@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-#include "core/models/outputs/feat_blocks.h"
+#include "core/models/outputs/features.h"
 #include "core/models/outputs/native_tokens.h"
 #include "core/models/outputs/unlock_conditions.h"
 #include "core/utils/uint256.h"
@@ -43,14 +43,14 @@ typedef struct {
  *
  */
 typedef struct {
-  uint64_t amount;                      ///< The amount of IOTA tokens held by this output
-  native_tokens_list_t* native_tokens;  ///< The native tokens held by this output
-  uint32_t serial;                      ///< The serial number of the foundry
-  token_scheme_t* token_scheme;         ///< The token scheme used by this foundry
-  cond_blk_list_t* unlock_conditions;   ///< Define how the output can be unlocked and spent
-  feat_blk_list_t* feature_blocks;      ///< The feature blocks which modulate the constraints on this output
-  feat_blk_list_t* immutable_blocks;    ///< Immutable blocks are defined upon deployment of the UTXO state machine and
-                                        ///< are not allowed to change in any future state transition
+  uint64_t amount;                        ///< The amount of IOTA tokens held by this output
+  native_tokens_list_t* native_tokens;    ///< The native tokens held by this output
+  uint32_t serial;                        ///< The serial number of the foundry
+  token_scheme_t* token_scheme;           ///< The token scheme used by this foundry
+  unlock_cond_list_t* unlock_conditions;  ///< Define how the output can be unlocked and spent
+  feature_list_t* features;               ///< The features which modulate the constraints on this output
+  feature_list_t* immutable_features;  ///< Immutable Features are defined upon deployment of the UTXO state machine and
+                                       ///< are not allowed to change in any future state transition
 } output_foundry_t;
 
 #ifdef __cplusplus
@@ -183,7 +183,7 @@ size_t output_foundry_serialize(output_foundry_t* output, byte_t buf[], size_t b
 /**
  * @brief Deserialize a binary data to a Foundry Output object
  *
- * @param[in] buf The block data in binary
+ * @param[in] buf The foundry data in binary
  * @param[in] buf_len The length of the data
  * @return output_foundry_t* or NULL on failure
  */

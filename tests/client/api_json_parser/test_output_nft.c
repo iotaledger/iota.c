@@ -38,10 +38,10 @@ void test_parse_nft_output_basic() {
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(nft_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(nft_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_ADDRESS));
+  TEST_ASSERT_EQUAL_UINT8(1, condition_list_len(nft_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_ADDRESS));
 
-  TEST_ASSERT_NULL(nft_output->feature_blocks);
+  TEST_ASSERT_NULL(nft_output->features);
 
   cJSON_Delete(json_obj);
   output_nft_free(nft_output);
@@ -95,24 +95,24 @@ void test_parse_nft_output_full() {
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(nft_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(4, cond_blk_list_len(nft_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_ADDRESS));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_STORAGE));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_TIMELOCK));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_EXPIRATION));
+  TEST_ASSERT_EQUAL_UINT8(4, condition_list_len(nft_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_ADDRESS));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_STORAGE));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_TIMELOCK));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(nft_output->unlock_conditions, UNLOCK_COND_EXPIRATION));
 
-  // check feature blocks
-  TEST_ASSERT_NOT_NULL(nft_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(3, feat_blk_list_len(nft_output->feature_blocks));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(nft_output->feature_blocks, FEAT_SENDER_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(nft_output->feature_blocks, FEAT_METADATA_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(nft_output->feature_blocks, FEAT_TAG_BLOCK));
+  // check features
+  TEST_ASSERT_NOT_NULL(nft_output->features);
+  TEST_ASSERT_EQUAL_UINT8(3, feature_list_len(nft_output->features));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(nft_output->features, FEAT_SENDER_TYPE));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(nft_output->features, FEAT_METADATA_TYPE));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(nft_output->features, FEAT_TAG_TYPE));
 
-  // check immutable feature blocks
-  TEST_ASSERT_NOT_NULL(nft_output->immutable_blocks);
-  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(nft_output->immutable_blocks));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(nft_output->immutable_blocks, FEAT_ISSUER_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(nft_output->immutable_blocks, FEAT_METADATA_BLOCK));
+  // check immutable features
+  TEST_ASSERT_NOT_NULL(nft_output->immutable_features);
+  TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(nft_output->immutable_features));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(nft_output->immutable_features, FEAT_ISSUER_TYPE));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(nft_output->immutable_features, FEAT_METADATA_TYPE));
 
   // print NFT output
   output_nft_print(nft_output, 0);

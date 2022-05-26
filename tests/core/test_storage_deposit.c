@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "core/models/inputs/utxo_input.h"
+#include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/storage_deposit.h"
 #include "unity/unity.h"
 
@@ -48,11 +49,11 @@ void test_storage_deposit_check_sufficient_output_deposit() {
   uint64_t storage_deposit = 233980;
 
   // create unlock conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&test_addr);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  unlock_cond_blk_t* unlock_storage = cond_blk_storage_new(&test_addr, storage_deposit);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
+  unlock_cond_list_t* unlock_conds = condition_list_new();
+  unlock_cond_t* unlock_addr = condition_addr_new(&test_addr);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_addr) == 0);
+  unlock_cond_t* unlock_storage = condition_storage_new(&test_addr, storage_deposit);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_storage) == 0);
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
@@ -60,9 +61,9 @@ void test_storage_deposit_check_sufficient_output_deposit() {
   TEST_ASSERT_TRUE(result);
 
   byte_cost_config_free(config);
-  cond_blk_free(unlock_addr);
-  cond_blk_free(unlock_storage);
-  cond_blk_list_free(unlock_conds);
+  condition_free(unlock_addr);
+  condition_free(unlock_storage);
+  condition_list_free(unlock_conds);
   output_basic_free(output);
 }
 
@@ -79,11 +80,11 @@ void test_storage_deposit_check_sufficient_output_deposit_native_tokens_sent() {
   uint64_t storage_deposit = 234000;
 
   // create unlock conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&test_addr);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  unlock_cond_blk_t* unlock_storage = cond_blk_storage_new(&test_addr, storage_deposit);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
+  unlock_cond_list_t* unlock_conds = condition_list_new();
+  unlock_cond_t* unlock_addr = condition_addr_new(&test_addr);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_addr) == 0);
+  unlock_cond_t* unlock_storage = condition_storage_new(&test_addr, storage_deposit);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_storage) == 0);
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
@@ -91,9 +92,9 @@ void test_storage_deposit_check_sufficient_output_deposit_native_tokens_sent() {
   TEST_ASSERT_TRUE(result);
 
   byte_cost_config_free(config);
-  cond_blk_free(unlock_addr);
-  cond_blk_free(unlock_storage);
-  cond_blk_list_free(unlock_conds);
+  condition_free(unlock_addr);
+  condition_free(unlock_storage);
+  condition_list_free(unlock_conds);
   output_basic_free(output);
 }
 
@@ -106,9 +107,9 @@ void test_storage_deposit_check_sufficient_output_amount_too_low() {
   byte_cost_config_t* config = byte_cost_config_default_new();
 
   // create unlock conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&test_addr);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
+  unlock_cond_list_t* unlock_conds = condition_list_new();
+  unlock_cond_t* unlock_addr = condition_addr_new(&test_addr);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_addr) == 0);
 
   output_basic_t* output = output_basic_new(212999, NULL, unlock_conds, NULL);
 
@@ -116,8 +117,8 @@ void test_storage_deposit_check_sufficient_output_amount_too_low() {
   TEST_ASSERT_FALSE(result);
 
   byte_cost_config_free(config);
-  cond_blk_free(unlock_addr);
-  cond_blk_list_free(unlock_conds);
+  condition_free(unlock_addr);
+  condition_list_free(unlock_conds);
   output_basic_free(output);
 }
 
@@ -133,11 +134,11 @@ void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_low
   uint64_t storage_deposit = 212999;  // to low return storage deposit which is 213000
 
   // create unlock conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&test_addr);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  unlock_cond_blk_t* unlock_storage = cond_blk_storage_new(&test_addr, storage_deposit);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
+  unlock_cond_list_t* unlock_conds = condition_list_new();
+  unlock_cond_t* unlock_addr = condition_addr_new(&test_addr);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_addr) == 0);
+  unlock_cond_t* unlock_storage = condition_storage_new(&test_addr, storage_deposit);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_storage) == 0);
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
@@ -145,9 +146,9 @@ void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_low
   TEST_ASSERT_FALSE(result);
 
   byte_cost_config_free(config);
-  cond_blk_free(unlock_addr);
-  cond_blk_free(unlock_storage);
-  cond_blk_list_free(unlock_conds);
+  condition_free(unlock_addr);
+  condition_free(unlock_storage);
+  condition_list_free(unlock_conds);
   output_basic_free(output);
 }
 
@@ -164,11 +165,11 @@ void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_hig
   uint64_t storage_deposit = 234001;
 
   // create unlock conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&test_addr);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_addr) == 0);
-  unlock_cond_blk_t* unlock_storage = cond_blk_storage_new(&test_addr, storage_deposit);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, unlock_storage) == 0);
+  unlock_cond_list_t* unlock_conds = condition_list_new();
+  unlock_cond_t* unlock_addr = condition_addr_new(&test_addr);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_addr) == 0);
+  unlock_cond_t* unlock_storage = condition_storage_new(&test_addr, storage_deposit);
+  TEST_ASSERT(condition_list_add(&unlock_conds, unlock_storage) == 0);
 
   output_basic_t* output = output_basic_new(amount, NULL, unlock_conds, NULL);
 
@@ -176,9 +177,9 @@ void test_storage_deposit_check_sufficient_output_return_storage_deposit_too_hig
   TEST_ASSERT_FALSE(result);
 
   byte_cost_config_free(config);
-  cond_blk_free(unlock_addr);
-  cond_blk_free(unlock_storage);
-  cond_blk_list_free(unlock_conds);
+  condition_free(unlock_addr);
+  condition_free(unlock_storage);
+  condition_list_free(unlock_conds);
   output_basic_free(output);
 }
 

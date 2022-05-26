@@ -95,8 +95,8 @@ int main(void) {
 
   // transfer tokens
   printf("Sending transaction message to the Tangle...\n");
-  res_send_message_t msg_res = {};
-  if (wallet_basic_output_send(w, false, sender_addr_index, 0, native_tokens, &receiver, &msg_res) != 0) {
+  res_send_block_t blk_res = {};
+  if (wallet_basic_output_send(w, false, sender_addr_index, 0, native_tokens, &receiver, &blk_res) != 0) {
     printf("Sending message to the Tangle failed!\n");
     native_tokens_free(native_tokens);
     wallet_destroy(w);
@@ -104,15 +104,15 @@ int main(void) {
   }
   native_tokens_free(native_tokens);
 
-  if (msg_res.is_error) {
-    printf("Error: %s\n", msg_res.u.error->msg);
-    res_err_free(msg_res.u.error);
+  if (blk_res.is_error) {
+    printf("Error: %s\n", blk_res.u.error->msg);
+    res_err_free(blk_res.u.error);
     wallet_destroy(w);
     return -1;
   }
 
-  printf("Message successfully sent.\n");
-  printf("Message ID: %s\n", msg_res.u.msg_id);
+  printf("Block successfully sent.\n");
+  printf("Block ID: %s\n", blk_res.u.blk_id);
 
   wallet_destroy(w);
 

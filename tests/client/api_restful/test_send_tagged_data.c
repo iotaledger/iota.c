@@ -32,28 +32,28 @@ void test_send_tagged_data() {
 
   byte_t tag_data[TAG_DATA_LEN];
   iota_crypto_randombytes(tag_data, TAG_DATA_LEN);
-  res_send_message_t res = {};
+  res_send_block_t res = {};
   res.is_error = false;
 
   // invalid parameters
-  TEST_ASSERT(send_tagged_data_message(NULL, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == -1);
-  TEST_ASSERT(send_tagged_data_message(&ctx, 2, NULL, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == -1);
-  TEST_ASSERT(send_tagged_data_message(&ctx, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, NULL) == -1);
-  TEST_ASSERT(send_tagged_data_message(&ctx, 2, (byte_t*)tag, TAG_LEN, NULL, TAG_DATA_LEN, &res) == -1);
-  TEST_ASSERT(send_tagged_data_message(&ctx, 2, (byte_t*)tag_invalid_len, TAG_INVALID_LEN, NULL, TAG_DATA_LEN, &res) ==
+  TEST_ASSERT(send_tagged_data_block(NULL, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == -1);
+  TEST_ASSERT(send_tagged_data_block(&ctx, 2, NULL, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == -1);
+  TEST_ASSERT(send_tagged_data_block(&ctx, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, NULL) == -1);
+  TEST_ASSERT(send_tagged_data_block(&ctx, 2, (byte_t*)tag, TAG_LEN, NULL, TAG_DATA_LEN, &res) == -1);
+  TEST_ASSERT(send_tagged_data_block(&ctx, 2, (byte_t*)tag_invalid_len, TAG_INVALID_LEN, NULL, TAG_DATA_LEN, &res) ==
               -1);
 
   // Valid data and tag
-  TEST_ASSERT(send_tagged_data_message(&ctx, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
+  TEST_ASSERT(send_tagged_data_block(&ctx, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
 
   iota_str_t* cmd = NULL;
   char const* const cmd_str = "/messages/0x";
 
-  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + 1);
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
   TEST_ASSERT_NOT_NULL(cmd);
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, res.u.msg_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, res.u.blk_id);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
@@ -102,20 +102,20 @@ void test_send_binary_tagged_data() {
 
   byte_t tag_data[TAG_DATA_LEN];
   iota_crypto_randombytes(tag_data, TAG_DATA_LEN);
-  res_send_message_t res = {};
+  res_send_block_t res = {};
   res.is_error = false;
 
   // Valid data and tag
-  TEST_ASSERT(send_tagged_data_message(&ctx, 2, binary_tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
+  TEST_ASSERT(send_tagged_data_block(&ctx, 2, binary_tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
 
   iota_str_t* cmd = NULL;
   char const* const cmd_str = "/messages/0x";
 
-  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_MESSAGE_ID_BYTES) + 1);
+  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
   TEST_ASSERT_NOT_NULL(cmd);
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, res.u.msg_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, res.u.blk_id);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration

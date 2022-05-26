@@ -5,6 +5,7 @@
 
 #include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
+#include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/storage_deposit.h"
 #include "wallet/output_basic.h"
 
@@ -78,13 +79,13 @@ static int add_unspent_basic_outputs_to_essence(transaction_essence_t* essence, 
 
   // add signing data (Basic output must have the address unlock condition)
   // get address unlock condition from the basic output
-  unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS);
+  unlock_cond_t* unlock_cond = condition_list_get_type(output->unlock_conditions, UNLOCK_COND_ADDRESS);
   if (!unlock_cond) {
     return -1;
   }
 
   // add address unlock condition into the signing data list
-  if (signing_data_add(unlock_cond->block, NULL, 0, sender_key, sign_data) != 0) {
+  if (signing_data_add(unlock_cond->obj, NULL, 0, sender_key, sign_data) != 0) {
     return -1;
   }
 
@@ -236,38 +237,38 @@ int wallet_output_basic_create(address_t* recv_addr, uint64_t amount, native_tok
     return -1;
   }
 
-  unlock_cond_blk_t* unlock_cond_addr = cond_blk_addr_new(recv_addr);
+  unlock_cond_t* unlock_cond_addr = condition_addr_new(recv_addr);
   if (!unlock_cond_addr) {
     printf("[%s:%d] unable to create address unlock condition\n", __func__, __LINE__);
     return -1;
   }
 
-  cond_blk_list_t* unlock_cond_blk = cond_blk_list_new();
-  if (cond_blk_list_add(&unlock_cond_blk, unlock_cond_addr) != 0) {
+  unlock_cond_list_t* unlock_cond_blk = condition_list_new();
+  if (condition_list_add(&unlock_cond_blk, unlock_cond_addr) != 0) {
     printf("[%s:%d] failed to add address unlock condition\n", __func__, __LINE__);
-    cond_blk_free(unlock_cond_addr);
-    cond_blk_list_free(unlock_cond_blk);
+    condition_free(unlock_cond_addr);
+    condition_list_free(unlock_cond_blk);
     return -1;
   }
 
   output_basic_t* output_basic = output_basic_new(amount, native_tokens, unlock_cond_blk, NULL);
   if (!output_basic) {
     printf("[%s:%d] failed to create basic output\n", __func__, __LINE__);
-    cond_blk_free(unlock_cond_addr);
-    cond_blk_list_free(unlock_cond_blk);
+    condition_free(unlock_cond_addr);
+    condition_list_free(unlock_cond_blk);
     return -1;
   }
 
   if (tx_essence_add_output(essence, OUTPUT_BASIC, output_basic) != 0) {
     printf("[%s:%d] can not add output to transaction essence\n", __func__, __LINE__);
-    cond_blk_free(unlock_cond_addr);
-    cond_blk_list_free(unlock_cond_blk);
+    condition_free(unlock_cond_addr);
+    condition_list_free(unlock_cond_blk);
     output_basic_free(output_basic);
     return -1;
   }
 
-  cond_blk_free(unlock_cond_addr);
-  cond_blk_list_free(unlock_cond_blk);
+  condition_free(unlock_cond_addr);
+  condition_list_free(unlock_cond_blk);
   output_basic_free(output_basic);
 
   return 0;
@@ -275,8 +276,8 @@ int wallet_output_basic_create(address_t* recv_addr, uint64_t amount, native_tok
 
 int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t send_amount,
                              native_tokens_list_t* send_native_tokens, address_t* recv_addr,
-                             res_send_message_t* msg_res) {
-  if (w == NULL || recv_addr == NULL || msg_res == NULL) {
+                             res_send_block_t* blk_res) {
+  if (w == NULL || recv_addr == NULL || blk_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -294,7 +295,7 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
   native_tokens_list_t* collected_native_tokens = NULL;
   native_tokens_list_t* reminder_native_tokens = NULL;
   transaction_payload_t* tx = NULL;
-  core_message_t* message = NULL;
+  core_block_t* block = NULL;
 
   // create a tx
   tx = tx_payload_new(w->network_id);
@@ -356,20 +357,20 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
     }
   }
 
-  // create a core message
-  message = wallet_create_core_message(w, tx, unspent_outputs, sign_data);
-  if (!message) {
-    printf("[%s:%d] can not create a core message\n", __func__, __LINE__);
+  // create a core block
+  block = wallet_create_core_block(w, tx, unspent_outputs, sign_data);
+  if (!block) {
+    printf("[%s:%d] can not create a core block\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }
 
-  // send a message to a network
-  ret = wallet_send_message(w, message, msg_res);
+  // send a block to a network
+  ret = wallet_send_block(w, block, blk_res);
 
 end:
-  if (message) {
-    core_message_free(message);
+  if (block) {
+    core_block_free(block);
   } else {
     tx_payload_free(tx);
   }

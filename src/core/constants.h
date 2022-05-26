@@ -8,9 +8,9 @@
 
 #include "crypto/constants.h"
 
-/****** Constants related to messages ******/
-// Message ID length in binary form
-#define IOTA_MESSAGE_ID_BYTES 32
+/****** Constants related to Block******/
+// Block ID length in binary form
+#define IOTA_BLOCK_ID_BYTES 32
 
 /****** Constants related to transactions ******/
 // Transaction ID bytes
@@ -34,8 +34,8 @@
 // Maximum number of bytes a serialized address can hold.
 #define ADDRESS_SERIALIZED_MAX_BYTES (1 + ED25519_PUBKEY_BYTES)
 
-/****** Constants related to unlock blocks ******/
-// ed25519 signature block  = signature type + public key + signature
+/****** Constants related to unlocks ******/
+// ed25519 signature object = signature type + public key + signature
 #define ED25519_SIGNATURE_BLOCK_BYTES (1 + ED_PUBLIC_KEY_BYTES + ED_SIGNATURE_BYTES)  // 97 bytes
 // unlock_type_t + reference = 1 + 2
 #define UNLOCK_REFERENCE_SERIALIZE_BYTES (1 + sizeof(uint16_t))
@@ -50,12 +50,12 @@
 // Maximum length of tag in bytes
 #define TAGGED_DATA_TAG_MAX_LENGTH_BYTES 64
 
-/****** Constants related to feature blocks ******/
+/****** Constants related to features ******/
 // Maximum possible length in bytes of a Tag
 #define MAX_INDEX_TAG_BYTES 64
 // Maximun possible length in bytes of Metadata
 #define MAX_METADATA_LENGTH_BYTES 8192
-// Maximun Feature Blocks in a list
+// Maximun Features in a list
 #define MAX_FEATURE_BLOCK_COUNT 4
 
 /****** Constants related to native tokens ******/
@@ -77,7 +77,7 @@
 static const uint64_t MAX_IOTA_SUPPLY = 2779530283277761;
 
 /****** Constants related to unlock conditions ******/
-// Maximun Unlock Condition Blocks in a list
+// Maximun Unlock Conditions in a list
 #define MAX_UNLOCK_CONDITION_BLOCK_COUNT 4
 
 /****** Constants related to UTXO inputs ******/

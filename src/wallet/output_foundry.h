@@ -4,6 +4,7 @@
 #ifndef __WALLET_OUTPUT_FOUNDRY_H__
 #define __WALLET_OUTPUT_FOUNDRY_H__
 
+#include "core/utils/uint256.h"
 #include "wallet/wallet.h"
 
 #ifdef __cplusplus
@@ -31,7 +32,7 @@ int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_
                                              uint32_t state_ctrl_index, address_t* govern_addr,
                                              address_t* receiver_addr, uint256_t* max_supply, uint256_t* minted_tokens,
                                              uint32_t serial_number, uint32_t foundry_counter,
-                                             res_send_message_t* msg_res);
+                                             res_send_block_t* msg_res);
 
 #ifdef __cplusplus
 }

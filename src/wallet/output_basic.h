@@ -21,13 +21,12 @@ extern "C" {
  * @param[in] send_amount The amount to transfer
  * @param[in] send_native_tokens The native tokens to transfer
  * @param[in] recv_addr The receiver address
- * @param[out] msg_res The response of the transfer
+ * @param[out] blk_res The response of the transfer
  *
  * @return int 0 on success
  */
 int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t send_amount,
-                             native_tokens_list_t* send_native_tokens, address_t* recv_addr,
-                             res_send_message_t* msg_res);
+                             native_tokens_list_t* send_native_tokens, address_t* recv_addr, res_send_block_t* blk_res);
 
 /**
  * @brief Get unspent basic outputs from a network and add them into a transaction essence

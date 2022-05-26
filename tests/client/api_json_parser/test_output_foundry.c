@@ -49,11 +49,11 @@ void test_parse_foundry_output_basic() {
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(foundry_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(foundry_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(foundry_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS));
+  TEST_ASSERT_EQUAL_UINT8(1, condition_list_len(foundry_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(foundry_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS));
 
-  TEST_ASSERT_NULL(foundry_output->feature_blocks);
-  TEST_ASSERT_NULL(foundry_output->immutable_blocks);
+  TEST_ASSERT_NULL(foundry_output->features);
+  TEST_ASSERT_NULL(foundry_output->immutable_features);
 
   // check serialization
   cJSON *foundry_json = json_output_foundry_serialize(foundry_output);
@@ -122,18 +122,18 @@ void test_parse_foundry_output_full() {
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(foundry_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(foundry_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(foundry_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS));
+  TEST_ASSERT_EQUAL_UINT8(1, condition_list_len(foundry_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(foundry_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS));
 
-  // check feature blocks
-  TEST_ASSERT_NOT_NULL(foundry_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(foundry_output->feature_blocks));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(foundry_output->feature_blocks, FEAT_METADATA_BLOCK));
+  // check features
+  TEST_ASSERT_NOT_NULL(foundry_output->features);
+  TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(foundry_output->features));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(foundry_output->features, FEAT_METADATA_TYPE));
 
-  // check immutable feature blocks
-  TEST_ASSERT_NOT_NULL(foundry_output->immutable_blocks);
-  TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(foundry_output->immutable_blocks));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(foundry_output->immutable_blocks, FEAT_METADATA_BLOCK));
+  // check immutable features
+  TEST_ASSERT_NOT_NULL(foundry_output->immutable_features);
+  TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(foundry_output->immutable_features));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(foundry_output->immutable_features, FEAT_METADATA_TYPE));
 
   // print foundry output
   output_foundry_print(foundry_output, 0);
@@ -167,7 +167,7 @@ void test_parse_foundry_output_wrong_unlock_condition() {
   output_foundry_free(foundry_output);
 }
 
-void test_parse_foundry_output_wrong_feature_block() {
+void test_parse_foundry_output_wrong_features() {
   char const *const json_res =
       "{\"type\":5,\"amount\":\"1000000\",\"nativeTokens\":[{\"id\":"
       "\"0x08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\",\"amount\":"
@@ -191,7 +191,7 @@ void test_parse_foundry_output_wrong_feature_block() {
   output_foundry_free(foundry_output);
 }
 
-void test_parse_foundry_output_wrong_immutable_feature_block() {
+void test_parse_foundry_output_wrong_immutable_features() {
   char const *const json_res =
       "{\"type\":5,\"amount\":\"1000000\",\"nativeTokens\":[{\"id\":"
       "\"0x08e781c2e4503f9e25207e21b2bddfd39995bdd0c40000000000000030000000000000000000\",\"amount\":"
@@ -221,8 +221,8 @@ int main() {
   RUN_TEST(test_parse_foundry_output_basic);
   RUN_TEST(test_parse_foundry_output_full);
   RUN_TEST(test_parse_foundry_output_wrong_unlock_condition);
-  RUN_TEST(test_parse_foundry_output_wrong_feature_block);
-  RUN_TEST(test_parse_foundry_output_wrong_immutable_feature_block);
+  RUN_TEST(test_parse_foundry_output_wrong_features);
+  RUN_TEST(test_parse_foundry_output_wrong_immutable_features);
 
   return UNITY_END();
 }

@@ -4,7 +4,7 @@
 #include <inttypes.h>
 
 #include "client/api/json_parser/json_utils.h"
-#include "client/api/json_parser/outputs/feat_blocks.h"
+#include "client/api/json_parser/outputs/features.h"
 #include "client/api/json_parser/outputs/native_tokens.h"
 #include "client/api/json_parser/outputs/output_alias.h"
 #include "client/api/json_parser/outputs/output_basic.h"
@@ -288,9 +288,9 @@ int parse_get_output_meta(cJSON *json_obj, get_output_t *res) {
     return -1;
   }
 
-  // message ID
-  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_MSG_ID, res->meta.msg_id, sizeof(res->meta.msg_id))) != 0) {
-    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_MSG_ID);
+  // block ID
+  if ((ret = json_get_hex_str_to_bin(json_obj, JSON_KEY_BLOCK_ID, res->meta.blk_id, sizeof(res->meta.blk_id))) != 0) {
+    printf("[%s:%d]: gets %s json string failed\n", __func__, __LINE__, JSON_KEY_BLOCK_ID);
     goto end;
   }
 
@@ -419,7 +419,7 @@ void print_get_output(get_output_t *res, uint8_t indentation) {
   printf("%s{\n", PRINT_INDENTATION(indentation));
   printf("%s\tMetadata: {\n", PRINT_INDENTATION(indentation));
   printf("%s\t\tMessage ID: ", PRINT_INDENTATION(indentation));
-  dump_hex_str(res->meta.msg_id, IOTA_MESSAGE_ID_BYTES);
+  dump_hex_str(res->meta.blk_id, IOTA_BLOCK_ID_BYTES);
   printf("%s\t\tTransaction ID: ", PRINT_INDENTATION(indentation));
   dump_hex_str(res->meta.tx_id, IOTA_TRANSACTION_ID_BYTES);
   printf("%s\t\tOutput Index: %" PRIu16 "\n", PRINT_INDENTATION(indentation), res->meta.output_index);
