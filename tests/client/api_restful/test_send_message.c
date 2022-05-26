@@ -36,7 +36,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_deser_send_blk_response() {
-  char const* const str_res = "{\"messageId\":\"0x322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5\"}";
+  char const* const str_res = "{\"blockId\":\"0x322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5\"}";
   char const* const blk_id = "322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5";
   res_send_block_t res = {};
 

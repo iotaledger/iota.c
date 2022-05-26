@@ -358,9 +358,9 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   }
 
   // parsing confirmed Merkle root
-  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_CONFIRMED_MERKLE_ROOT, ms->confirmed_merkle_root,
-                                     sizeof(ms->confirmed_merkle_root))) != 0) {
-    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_CONFIRMED_MERKLE_ROOT);
+  if ((ret = json_get_hex_str_to_bin(payload, JSON_KEY_INCLUSION_MERKLE_ROOT, ms->inclusion_merkle_root,
+                                     sizeof(ms->inclusion_merkle_root))) != 0) {
+    printf("[%s:%d]: parsing %s hex string failed\n", __func__, __LINE__, JSON_KEY_INCLUSION_MERKLE_ROOT);
     return ret;
   }
 

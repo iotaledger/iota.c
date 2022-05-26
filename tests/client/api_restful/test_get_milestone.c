@@ -19,10 +19,10 @@ void tearDown(void) {}
 void test_deser_get_milestone() {
   char const* const simple_ms =
       "{\"type\": 7,\"index\": 15465,\"timestamp\": 1602227215,\"protocolVersion\":2,\"previousMilestoneId\": "
-      "\"0x7ad3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006\",\"parentMessageIds\": "
+      "\"0x7ad3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006\",\"parents\": "
       "[\"0x7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006\","
       "\"0x7a09324557e9200f39bf493fc8fd6ac43e9ca750c6f6d884cc72386ddcb7d695\","
-      "\"0xde9e9d780ba7ebeebc38da16cb53b2a8991d38eee94bcdc3f3ef99aa8c345652\"],\"confirmedMerkleRoot\": "
+      "\"0xde9e9d780ba7ebeebc38da16cb53b2a8991d38eee94bcdc3f3ef99aa8c345652\"],\"inclusionMerkleRoot\": "
       "\"0xa18996d96163405e3c0eb13fa3459a07f68a89e8cf7cc239c89e7192344daa5b\",\"appliedMerkleRoot\": "
       "\"0xee26ac07834c603c22130fced361ca58552b0dbfc63e4b73ba24b3b59d9f4050\",\"options\": [{\"type\": "
       "1,\"nextPoWScore\": 2000,\"nextPoWScoreMilestoneIndex\": 15475}],\"metadata\": "
@@ -60,12 +60,12 @@ void test_deser_get_milestone() {
                         sizeof(tmp_parent_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_parent_id, milestone_payload_get_parent(ms, 2), sizeof(tmp_parent_id));
 
-  // check appliedMerkleRoot
+  // check confirmedMerkleRoot
   TEST_ASSERT(hex_2_bin("a18996d96163405e3c0eb13fa3459a07f68a89e8cf7cc239c89e7192344daa5b", 65, NULL, tmp_ms_id,
                         sizeof(tmp_ms_id)) == 0);
-  TEST_ASSERT_EQUAL_MEMORY(tmp_ms_id, ms->confirmed_merkle_root, sizeof(tmp_ms_id));
+  TEST_ASSERT_EQUAL_MEMORY(tmp_ms_id, ms->inclusion_merkle_root, sizeof(tmp_ms_id));
 
-  // check confirmedMerkleRoot
+  // check appliedMerkleRoot
   TEST_ASSERT(hex_2_bin("ee26ac07834c603c22130fced361ca58552b0dbfc63e4b73ba24b3b59d9f4050", 65, NULL, tmp_ms_id,
                         sizeof(tmp_ms_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_ms_id, ms->applied_merkle_root, sizeof(tmp_ms_id));

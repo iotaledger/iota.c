@@ -13,7 +13,7 @@ void setUp(void) {}
 void tearDown(void) {}
 
 void test_parse_empty_unlocks() {
-  char const *const json_res = "{\"unlockBlocks\":[]}";
+  char const *const json_res = "{\"unlocks\":[]}";
 
   // deserialization
   cJSON *json_obj = cJSON_Parse(json_res);
@@ -48,7 +48,7 @@ void test_parse_empty_unlocks() {
 
 void test_parse_simple_unlocks() {
   char const *const json_res =
-      "{\"unlockBlocks\":[{\"type\":0,\"signature\":{\"type\":0,\"publicKey\":"
+      "{\"unlocks\":[{\"type\":0,\"signature\":{\"type\":0,\"publicKey\":"
       "\"0x31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb\",\"signature\":"
       "\"0x1b51aab768dd145de99fc3710c7b05963803f28c0a93532341385ad52cbeb879142cc708cb3a44269e0e27785fb3e160efc9fe034f81"
       "0ad0cc4b0210adaafd0a\"}},{\"type\":1,\"reference\":0}]}";

@@ -56,11 +56,11 @@ typedef struct {
   byte_t
       previous_milestone_id[CRYPTO_BLAKE2B_256_HASH_BYTES];  // The milestone ID of the milestone with index number - 1
   UT_array *parents;                                         // Parents Blocks of this milestone.
-  byte_t confirmed_merkle_root[CRYPTO_BLAKE2B_256_HASH_BYTES];  // The Merkle tree hash (BLAKE2b-256) of the Block
-                                                                // IDs of all blocks confirmed by this milestone.
-  byte_t applied_merkle_root[CRYPTO_BLAKE2B_256_HASH_BYTES];    // The Merkle tree hash (BLAKE2b-256) of the Block IDs
-                                                                // of all blocks applied by this milestone that contain
-                                                                // a state-mutating transaction.
+  byte_t inclusion_merkle_root[CRYPTO_BLAKE2B_256_HASH_BYTES];  // The merkle root of all directly/indirectly referenced
+                                                                // blocks (their IDs) which are newly confirmed by this
+                                                                // milestone.
+  byte_t applied_merkle_root[CRYPTO_BLAKE2B_256_HASH_BYTES];    // The merkle root of all blocks (their IDs) carrying
+                                                                // ledger state mutating transactions.
   byte_buf_t *metadata;               // Binary data only relevant to milestone issuer, e.g. internal state.
   milestone_options_list_t *options;  // Milestone options: PoW milestone option or Receipts milestone option
   UT_array *signatures;  // The Ed25519 signature signing the BLAKE2b-256 hash of the serialized Milestone Essence. The

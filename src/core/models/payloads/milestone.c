@@ -19,7 +19,7 @@ milestone_payload_t *milestone_payload_new() {
     ms->protocol_version = 0;
     memset(ms->previous_milestone_id, 0, sizeof(ms->previous_milestone_id));
     utarray_new(ms->parents, &ut_blk_id_icd);
-    memset(ms->confirmed_merkle_root, 0, sizeof(ms->confirmed_merkle_root));
+    memset(ms->inclusion_merkle_root, 0, sizeof(ms->inclusion_merkle_root));
     memset(ms->applied_merkle_root, 0, sizeof(ms->applied_merkle_root));
     ms->metadata = NULL;
     ms->options = NULL;
@@ -111,7 +111,7 @@ void milestone_payload_print(milestone_payload_t *ms, uint8_t indentation) {
     }
 
     printf("%s\tConfirmed Merkle Root: ", PRINT_INDENTATION(indentation));
-    dump_hex_str(ms->confirmed_merkle_root, sizeof(ms->confirmed_merkle_root));
+    dump_hex_str(ms->inclusion_merkle_root, sizeof(ms->inclusion_merkle_root));
 
     printf("%s\tApplied Merkle Root: ", PRINT_INDENTATION(indentation));
     dump_hex_str(ms->applied_merkle_root, sizeof(ms->applied_merkle_root));
