@@ -1,7 +1,8 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "wallet/output_alias.h"
+#include <stdio.h>
+
 #include "client/api/json_parser/json_utils.h"
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_output.h"
@@ -10,6 +11,7 @@
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"
 #include "wallet/bip39.h"
+#include "wallet/output_alias.h"
 #include "wallet/output_basic.h"
 #include "wallet/wallet.h"
 
@@ -321,8 +323,8 @@ end:
 // TODO: alias address could have more than one unspent output and they need to be collected to satisfy send_amount
 int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bool state_ctrl_change,
                                          uint32_t state_ctrl_index, address_t* govern_addr, uint32_t foundry_counter,
-                                         uint64_t send_amount, native_tokens_list_t* send_native_tokens,
-                                         utxo_outputs_list_t* outputs, res_send_message_t* msg_res) {
+                                         uint64_t send_amount, utxo_outputs_list_t* outputs,
+                                         res_send_message_t* msg_res) {
   if (w == NULL || alias_id == NULL || govern_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -383,7 +385,7 @@ int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bo
 
   // create alias output
   ret = wallet_output_alias_create(tx->essence, alias_id, state_index, &state_ctrl_addr, govern_addr, foundry_counter,
-                                   output_amount, send_native_tokens);
+                                   output_amount, output_native_tokens);
   if (ret != 0) {
     printf("[%s:%d] create alias output failed\n", __func__, __LINE__);
     goto end;

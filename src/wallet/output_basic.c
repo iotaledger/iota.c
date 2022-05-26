@@ -1,10 +1,12 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
-#include "wallet/output_basic.h"
+#include <stdio.h>
+
 #include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
 #include "core/models/outputs/storage_deposit.h"
+#include "wallet/output_basic.h"
 
 static res_outputs_id_t* get_unspent_basic_output_ids(iota_wallet_t* w, address_t* send_addr) {
   if (w == NULL || send_addr == NULL) {
