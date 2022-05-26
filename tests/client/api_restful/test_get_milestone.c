@@ -5,7 +5,7 @@
 
 #include "client/api/restful/get_milestone.h"
 #include "client/constants.h"
-#include "core/models/unlock_block.h"
+#include "core/models/unlocks.h"
 #include "test_config.h"
 #include "unity/unity.h"
 

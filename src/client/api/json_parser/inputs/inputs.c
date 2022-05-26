@@ -3,7 +3,7 @@
 
 #include "client/api/json_parser/inputs/inputs.h"
 #include "client/constants.h"
-#include "core/models/message.h"
+#include "core/models/block.h"
 #include "core/utils/macros.h"
 #include "utlist.h"
 

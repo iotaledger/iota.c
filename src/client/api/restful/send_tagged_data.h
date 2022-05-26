@@ -4,7 +4,7 @@
 #ifndef __CLIENT_API_RESTFUL_SEND_TAGGED_DATA_H__
 #define __CLIENT_API_RESTFUL_SEND_TAGGED_DATA_H__
 
-#include "client/api/restful/send_message.h"
+#include "client/api/restful/send_block.h"
 #include "core/utils/byte_buffer.h"
 
 #ifdef __cplusplus

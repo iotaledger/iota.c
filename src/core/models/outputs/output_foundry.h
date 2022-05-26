@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-#include "core/models/outputs/feat_blocks.h"
+#include "core/models/outputs/features.h"
 #include "core/models/outputs/native_tokens.h"
 #include "core/models/outputs/unlock_conditions.h"
 #include "core/utils/uint256.h"

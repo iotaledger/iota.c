@@ -8,7 +8,7 @@
 
 #include "core/address.h"
 #include "core/models/inputs/utxo_input.h"
-#include "core/models/unlock_block.h"
+#include "core/models/unlocks.h"
 
 /**
  * @brief A signing data structure. This data is needed when unlocks are creating and transaction gets signed.

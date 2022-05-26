@@ -3,11 +3,11 @@
 
 #include <stdio.h>
 
-#include "core/models/message.h"
+#include "core/models/block.h"
 #include "core/models/outputs/output_alias.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"
-#include "core/models/unlock_block.h"
+#include "core/models/unlocks.h"
 #include "unity/unity.h"
 
 static byte_t mnemonic_seed[64] = {0x83, 0x7D, 0x69, 0x91, 0x14, 0x64, 0x8E, 0xB,  0x36, 0x78, 0x58, 0xF0, 0xE9,

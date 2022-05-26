@@ -3,7 +3,7 @@
 
 #include "core/models/payloads/milestone.h"
 #include "core/constants.h"
-#include "core/models/message.h"
+#include "core/models/block.h"
 #include "core/utils/macros.h"
 #include "utlist.h"
 

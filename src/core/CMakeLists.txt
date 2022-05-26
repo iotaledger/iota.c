@@ -18,7 +18,7 @@ target_sources(
           "utils/macros.h"
           "models/inputs/utxo_input.c"
           "models/outputs/byte_cost_config.c"
-          "models/outputs/feat_blocks.c"
+          "models/outputs/features.c"
           "models/outputs/output_alias.c"
           "models/outputs/output_basic.c"
           "models/outputs/output_foundry.c"
@@ -30,9 +30,9 @@ target_sources(
           "models/payloads/transaction.c"
           "models/payloads/tagged_data.c"
           "models/payloads/milestone.c"
-          "models/message.c"
+          "models/block.c"
           "models/signing.c"
-          "models/unlock_block.c"
+          "models/unlocks.c"
   PUBLIC "address.h"
          "constants.h"
          "utils/iota_str.h"
@@ -43,7 +43,7 @@ target_sources(
          "utils/macros.h"
          "models/inputs/utxo_input.h"
          "models/outputs/byte_cost_config.h"
-         "models/outputs/feat_blocks.h"
+         "models/outputs/features.h"
          "models/outputs/output_alias.h"
          "models/outputs/output_basic.h"
          "models/outputs/output_foundry.h"
@@ -55,9 +55,9 @@ target_sources(
          "models/payloads/transaction.h"
          "models/payloads/tagged_data.h"
          "models/payloads/milestone.h"
-         "models/message.h"
+         "models/block.h"
          "models/signing.h"
-         "models/unlock_block.h")
+         "models/unlocks.h")
 
 target_include_directories(iota_core PUBLIC "${PROJECT_SOURCE_DIR}/src" "${CMAKE_INSTALL_PREFIX}/include")
 

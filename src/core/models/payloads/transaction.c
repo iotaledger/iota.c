@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include <string.h>
 
-#include "core/models/message.h"
+#include "core/models/block.h"
 #include "core/models/outputs/output_alias.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/output_foundry.h"

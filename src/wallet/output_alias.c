@@ -6,7 +6,6 @@
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
-#include "core/models/message.h"
 #include "core/models/outputs/output_alias.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"

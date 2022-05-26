@@ -4,15 +4,15 @@
 #ifndef __IOTA_CLIENT_H__
 #define __IOTA_CLIENT_H__
 
-#include "client/api/restful/get_message.h"
-#include "client/api/restful/get_message_children.h"
-#include "client/api/restful/get_message_metadata.h"
+#include "client/api/restful/get_block.h"
+#include "client/api/restful/get_block_children.h"
+#include "client/api/restful/get_block_metadata.h"
 #include "client/api/restful/get_milestone.h"
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
 #include "client/api/restful/get_tips.h"
-#include "client/api/restful/get_transaction_included_message.h"
+#include "client/api/restful/get_transaction_included_block.h"
 #include "client/api/restful/response_error.h"
 #include "client/api/restful/send_tagged_data.h"
 #include "core/address.h"

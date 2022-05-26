@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "core/constants.h"
-#include "core/models/message.h"
+#include "core/models/block.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/utils/macros.h"
 

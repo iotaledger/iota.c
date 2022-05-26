@@ -10,7 +10,7 @@
 #include "core/address.h"
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/outputs/outputs.h"
-#include "core/models/unlock_block.h"
+#include "core/models/unlocks.h"
 
 /**
  * @brief Transaction Essence, the essence data making up a transaction by defining its inputs and outputs and an

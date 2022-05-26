@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "core/models/message.h"
+#include "core/models/block.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/unlock_conditions.h"

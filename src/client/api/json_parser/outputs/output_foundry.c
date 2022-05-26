@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#include "client/api/json_parser/outputs/feat_blocks.h"
+#include "client/api/json_parser/outputs/features.h"
 #include "client/api/json_parser/outputs/native_tokens.h"
 #include "client/api/json_parser/outputs/output_foundry.h"
 #include "client/api/json_parser/outputs/unlock_conditions.h"

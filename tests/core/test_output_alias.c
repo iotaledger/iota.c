@@ -4,7 +4,6 @@
 #include <stdio.h>
 
 #include "core/address.h"
-#include "core/models/outputs/feat_blocks.h"
 #include "core/models/outputs/output_alias.h"
 #include "crypto/iota_crypto.h"
 #include "unity/unity.h"

@@ -15,10 +15,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "client/api/restful/send_message.h"
+#include "client/api/restful/send_block.h"
 #include "client/client_service.h"
 #include "core/address.h"
-#include "core/models/message.h"
+#include "core/models/block.h"
 #include "core/models/outputs/byte_cost_config.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"

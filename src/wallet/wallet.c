@@ -7,7 +7,6 @@
 
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_outputs_id.h"
-#include "core/models/message.h"
 #include "wallet/bip39.h"
 #include "wallet/wallet.h"
 
