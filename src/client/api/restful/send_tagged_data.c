@@ -176,7 +176,7 @@ int send_tagged_data_block(iota_client_conf_t const* conf, uint8_t ver, byte_t t
   free(blk_str);
 
   iota_str_t* cmd = NULL;
-  char const* const cmd_str = "/messages";
+  char const* const cmd_str = "/blocks";
   // reserver buffer enough for NODE_API_PATH + cmd_str
   cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + 1);
   if (cmd == NULL) {

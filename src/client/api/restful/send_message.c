@@ -13,7 +13,7 @@
 int deser_send_block_response(char const* json_str, res_send_block_t* res) {
   int ret = -1;
 
-  // {"messageId":"0x322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5"}
+  // {"blockId":"0x322a02c8b4e7b5090b45f967f29a773dfa1dbd0302f7b9bfa253db55316581e5"}
   cJSON* json_obj = cJSON_Parse(json_str);
   if (json_obj == NULL) {
     return -1;
@@ -106,7 +106,7 @@ int send_core_block(iota_client_conf_t const* const conf, core_block_t* blk, res
   json_data->cap = json_data->len = strlen(blk_str) + 1;
 
   iota_str_t* cmd = NULL;
-  char const* const cmd_str = "/messages";
+  char const* const cmd_str = "/blocks";
   // reserver buffer enough for NODE_API_PATH + cmd_str
   cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + 1);
   if (cmd == NULL) {
