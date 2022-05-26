@@ -45,7 +45,7 @@ int main() {
   }
   res_node_info_free(info);
 
-  printf("[%s:%d]: Message successfully send! URL: http://%s:%d%s/blocks/0x%s\n", __func__, __LINE__, NODE_HOST,
+  printf("[%s:%d]: Tagged Data successfully send! URL: http://%s:%d%s/blocks/0x%s\n", __func__, __LINE__, NODE_HOST,
          NODE_PORT, NODE_API_PATH, res.u.blk_id);
 
   return 0;

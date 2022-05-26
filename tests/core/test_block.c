@@ -70,7 +70,7 @@ static output_basic_t* create_output_basic_two() {
   return output;
 }
 
-static byte_t* create_signature_unlock_block() {
+static byte_t* create_signature_unlock() {
   byte_t pub_key[ED_PUBLIC_KEY_BYTES] = {};
   TEST_ASSERT(hex_2_bin("31f176dadf38cdec0eadd1d571394be78f0bbee3ed594316678dffc162a095cb",
                         BIN_TO_HEX_BYTES(ED_PUBLIC_KEY_BYTES), NULL, pub_key, sizeof(pub_key)) == 0);
@@ -232,7 +232,7 @@ void test_block_with_tx_serialize() {
   TEST_ASSERT(tx_essence_add_payload(essence, CORE_BLOCK_PAYLOAD_TAGGED, tagged_data) == 0);
 
   // add signature unlock block
-  byte_t* signature = create_signature_unlock_block();
+  byte_t* signature = create_signature_unlock();
   TEST_ASSERT(unlock_list_add_signature(&((transaction_payload_t*)blk->payload)->unlocks, signature,
                                         ED25519_SIGNATURE_BLOCK_BYTES) == 0);
 
