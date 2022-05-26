@@ -364,6 +364,14 @@ int wallet_calculate_reminder_amount(uint64_t send_amount, uint64_t collected_am
         return -1;
       }
       uint256_free(reminder);
+    } else {
+      // native token is not in send_native_tokens, but it's in one of collected unspent outputs, so it must be sent
+      // back to sender
+      if (native_tokens_add(reminder_native_tokens, elm->token->token_id, &elm->token->amount) != 0) {
+        printf("[%s:%d] can not add native token to a list\n", __func__, __LINE__);
+        native_tokens_free(*reminder_native_tokens);
+        return -1;
+      }
     }
   }
 

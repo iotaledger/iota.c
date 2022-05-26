@@ -241,7 +241,7 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
   // create alias output
   byte_t alias_id[ALIAS_ID_BYTES] = {0};
   ret = wallet_output_alias_create(tx->essence, alias_id, 0, state_ctrl_addr, govern_addr, foundry_counter, send_amount,
-                                   collected_native_tokens);
+                                   NULL);
   if (ret != 0) {
     printf("[%s:%d] create alias output failed\n", __func__, __LINE__);
     goto end;
