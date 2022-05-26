@@ -87,6 +87,7 @@ int tx_essence_inputs_commitment_calculate(transaction_essence_t* es, utxo_outpu
     return -1;
   }
 
+  byte_t output_hash[CRYPTO_SHA256_HASH_BYTES] = {0};
   byte_t* buf = NULL;
   size_t buf_len = 0;
   utxo_outputs_list_t* elm;
@@ -159,7 +160,15 @@ int tx_essence_inputs_commitment_calculate(transaction_essence_t* es, utxo_outpu
         break;
       }
     }
-    if (iota_blake2b_update(blake_state, buf, buf_len) != 0) {
+
+    // calculate BLAKE2b-256 hash for output
+    if (iota_blake2b_sum(buf, buf_len, output_hash, sizeof(output_hash)) != 0) {
+      iota_blake2b_free_state(blake_state);
+      free(buf);
+      return -1;
+    }
+
+    if (iota_blake2b_update(blake_state, output_hash, sizeof(output_hash)) != 0) {
       iota_blake2b_free_state(blake_state);
       free(buf);
       return -1;
