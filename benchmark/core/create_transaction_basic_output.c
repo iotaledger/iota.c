@@ -8,7 +8,7 @@
 
 #include "core/models/outputs/output_basic.h"
 #include "core/models/payloads/transaction.h"
-#include "core/models/unlock_block.h"
+#include "core/models/unlocks.h"
 
 static output_basic_t* create_output_basic() {
   // create random ED25519 address
@@ -17,16 +17,16 @@ static output_basic_t* create_output_basic() {
   iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
 
   // create Unlock Conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&addr);
-  cond_blk_list_add(&unlock_conds, unlock_addr);
-  cond_blk_free(unlock_addr);
+  unlock_cond_list_t* unlock_conds = condition_list_new();
+  unlock_cond_t* unlock_addr = condition_addr_new(&addr);
+  condition_list_add(&unlock_conds, unlock_addr);
+  condition_free(unlock_addr);
 
   // create Basic Output
   output_basic_t* output = output_basic_new(123456789, NULL, unlock_conds, NULL);
 
   // clean up memory
-  cond_blk_list_free(unlock_conds);
+  condition_list_free(unlock_conds);
 
   return output;
 }

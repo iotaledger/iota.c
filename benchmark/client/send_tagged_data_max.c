@@ -10,7 +10,7 @@
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/send_tagged_data.h"
 #include "client/constants.h"
-#include "core/models/outputs/feat_blocks.h"
+#include "core/models/outputs/features.h"
 
 int main() {
 #ifdef MTRACE_ENABLED
@@ -40,12 +40,12 @@ int main() {
     res_node_info_free(info);
     return -1;
   }
-  res_send_message_t res = {};
+  res_send_block_t res = {};
 
-  result = send_tagged_data_message(&ctx, info->u.output_node_info->protocol_version, tag, sizeof(tag), tag_data,
-                                    MAX_METADATA_LENGTH_BYTES, &res);
+  result = send_tagged_data_block(&ctx, info->u.output_node_info->protocol_version, tag, sizeof(tag), tag_data,
+                                  MAX_METADATA_LENGTH_BYTES, &res);
   if (result != 0 || res.is_error) {
-    printf("[%s:%d]: Can not send tagged data message!\n", __func__, __LINE__);
+    printf("[%s:%d]: Can not send tagged data block!\n", __func__, __LINE__);
     free(tag_data);
     res_node_info_free(info);
     return -1;
@@ -53,8 +53,8 @@ int main() {
   free(tag_data);
   res_node_info_free(info);
 
-  printf("[%s:%d]: Message successfully send! URL: http://%s:%d%s/messages/0x%s\n", __func__, __LINE__, NODE_HOST,
-         NODE_PORT, NODE_API_PATH, res.u.msg_id);
+  printf("[%s:%d]: Message successfully send! URL: http://%s:%d%s/blocks/0x%s\n", __func__, __LINE__, NODE_HOST,
+         NODE_PORT, NODE_API_PATH, res.u.blk_id);
 
   return 0;
 }
