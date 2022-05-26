@@ -24,7 +24,7 @@ int get_transaction_included_block_by_id(iota_client_conf_t const *conf, char co
 
   iota_str_t *cmd = NULL;
   char const *const cmd_pre = "/transactions/0x";
-  char const *const cmd_post = "/included-message";
+  char const *const cmd_post = "/included-block";
 
   cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_pre) + strlen(cmd_post) +
                          BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES) + 1);

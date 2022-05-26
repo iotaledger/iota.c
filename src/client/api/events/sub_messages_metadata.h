@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 /**
- * @brief Subscribes message-metadata/{messageid} event
+ * @brief Subscribes block-metadata/{blockid} event
  *
  * @param[in] client The event client instance
  * @param[out] mid If not NULL, mid will return the message id of the topic subscription
@@ -24,7 +24,7 @@ extern "C" {
  * @param[in] qos A QoS level for the topic
  * @return int 0 If Success
  */
-int event_subscribe_msg_metadata(event_client_handle_t client, int *mid, char const msg_id[], int qos);
+int event_subscribe_blk_metadata(event_client_handle_t client, int *mid, char const msg_id[], int qos);
 
 #ifdef __cplusplus
 }
