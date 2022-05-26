@@ -1,6 +1,7 @@
 // Copyright 2022 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include "core/models/outputs/features.h"
 #ifdef MTRACE_ENABLED
 #include <mcheck.h>
 #endif
@@ -9,7 +10,7 @@
 #include "core/models/outputs/native_tokens.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/payloads/transaction.h"
-#include "core/models/unlock_block.h"
+#include "core/models/unlocks.h"
 
 static output_basic_t* create_output_basic(bool create_native_tokens) {
   // create random ED25519 address
@@ -18,27 +19,27 @@ static output_basic_t* create_output_basic(bool create_native_tokens) {
   iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
 
   // create unlock conditions
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&addr);
-  unlock_cond_blk_t* unlock_storage = cond_blk_storage_new(&addr, 7000000);
-  unlock_cond_blk_t* unlock_timelock = cond_blk_timelock_new(1200, 164330008);
-  unlock_cond_blk_t* unlock_expir = cond_blk_expir_new(&addr, 1200, 164330008);
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  cond_blk_list_add(&unlock_conds, unlock_storage);
-  cond_blk_list_add(&unlock_conds, unlock_addr);
-  cond_blk_list_add(&unlock_conds, unlock_expir);
-  cond_blk_list_add(&unlock_conds, unlock_timelock);
-  cond_blk_free(unlock_addr);
-  cond_blk_free(unlock_storage);
-  cond_blk_free(unlock_timelock);
-  cond_blk_free(unlock_expir);
+  unlock_cond_t* unlock_addr = condition_addr_new(&addr);
+  unlock_cond_t* unlock_storage = condition_storage_new(&addr, 7000000);
+  unlock_cond_t* unlock_timelock = condition_timelock_new(1200, 164330008);
+  unlock_cond_t* unlock_expir = condition_expir_new(&addr, 1200, 164330008);
+  unlock_cond_list_t* unlock_conds = condition_list_new();
+  condition_list_add(&unlock_conds, unlock_storage);
+  condition_list_add(&unlock_conds, unlock_addr);
+  condition_list_add(&unlock_conds, unlock_expir);
+  condition_list_add(&unlock_conds, unlock_timelock);
+  condition_free(unlock_addr);
+  condition_free(unlock_storage);
+  condition_free(unlock_timelock);
+  condition_free(unlock_expir);
 
   // create feature blocks
-  feat_blk_list_t* feat_blocks = feat_blk_list_new();
-  feat_blk_list_add_sender(&feat_blocks, &addr);
+  feature_list_t* feat_blocks = feature_list_new();
+  feature_list_add_sender(&feat_blocks, &addr);
   byte_t test_tag[MAX_INDEX_TAG_BYTES] = "Test tagged data from a benchmark application. Test tagged dat";
-  feat_blk_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag));
+  feature_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag));
   byte_t* test_meta = malloc(MAX_METADATA_LENGTH_BYTES);
-  feat_blk_list_add_metadata(&feat_blocks, test_meta, MAX_METADATA_LENGTH_BYTES);
+  feature_list_add_metadata(&feat_blocks, test_meta, MAX_METADATA_LENGTH_BYTES);
   free(test_meta);
 
   // create native tokens
@@ -57,8 +58,8 @@ static output_basic_t* create_output_basic(bool create_native_tokens) {
   output_basic_t* output = output_basic_new(7300000, native_tokens, unlock_conds, feat_blocks);
 
   // clean up memory
-  cond_blk_list_free(unlock_conds);
-  feat_blk_list_free(feat_blocks);
+  condition_list_free(unlock_conds);
+  feature_list_free(feat_blocks);
   native_tokens_free(native_tokens);
 
   return output;
@@ -170,12 +171,11 @@ int main() {
   }
   printf("Number of native tokens in a transaction: %d\n", num_of_native_tokens);
 
-  feat_block_t* feat_blk =
-      feat_blk_list_get_type(((output_basic_t*)es->outputs->output->output)->feature_blocks, FEAT_TAG_BLOCK);
-  printf("Length of TAG in each output: %d\n", ((feat_tag_blk_t*)(feat_blk->block))->tag_len);
-  feat_blk =
-      feat_blk_list_get_type(((output_basic_t*)es->outputs->output->output)->feature_blocks, FEAT_METADATA_BLOCK);
-  printf("Length of Metadata in each output: %d\n", ((feat_metadata_blk_t*)(feat_blk->block))->data_len);
+  output_feature_t* feat =
+      feature_list_get_type(((output_basic_t*)es->outputs->output->output)->features, FEAT_TAG_TYPE);
+  printf("Length of TAG in each output: %d\n", ((feature_tag_t*)(feat->obj))->tag_len);
+  feat = feature_list_get_type(((output_basic_t*)es->outputs->output->output)->features, FEAT_METADATA_TYPE);
+  printf("Length of Metadata in each output: %d\n", ((feature_metadata_t*)(feat->obj))->data_len);
 
   // clean up
   tx_essence_free(es);

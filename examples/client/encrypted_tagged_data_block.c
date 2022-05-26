@@ -52,7 +52,7 @@ int main(void) {
   }
 
   // send encrypted data
-  printf("Sending encrypted data message to the Tangle...\n");
+  printf("Sending encrypted data to the Tangle...\n");
   res_send_block_t res = {};
   if (send_tagged_data_block(&ctx, 2, (byte_t *)TAG, strlen(TAG), encrypted, strlen((char *)encrypted), &res) == 0) {
     if (res.is_error) {
@@ -60,7 +60,7 @@ int main(void) {
       return -1;
     }
   } else {
-    printf("Sending message failed!\n");
+    printf("Sending block failed!\n");
     return -1;
   }
 
@@ -73,8 +73,8 @@ int main(void) {
     return -1;
   }
 
-  // fetch the message from the Tangle
-  printf("Fetching message from the Tangle...\n");
+  // fetch the block from the Tangle
+  printf("Fetching block from the Tangle...\n");
   if (get_block_by_id(&ctx, res.u.blk_id, blk) == 0) {
     if (blk->is_error) {
       printf("API response: %s\n", blk->u.error->msg);
@@ -82,16 +82,16 @@ int main(void) {
       return -1;
     }
   } else {
-    printf("Fetching message from a node failed!\n");
+    printf("Fetching block from a node failed!\n");
     res_block_free(blk);
     return -1;
   }
 
   printf("Block successfully fetched.\n");
 
-  // check if fetched message is Tagged Data message
+  // check if fetched block is Tagged Data block
   if (blk->u.blk->payload_type != CORE_BLOCK_PAYLOAD_TAGGED) {
-    printf("Fetched message is not a Tagged Data message!\n");
+    printf("Fetched block is not a Tagged Data block!\n");
     res_block_free(blk);
     return -1;
   }

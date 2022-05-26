@@ -34,19 +34,19 @@ int main() {
 
   byte_t tag[] = "Test tag from a benchmark application.";
   byte_t tag_data[] = "Test tagged data from a benchmark application";
-  res_send_message_t res = {};
+  res_send_block_t res = {};
 
-  result = send_tagged_data_message(&ctx, info->u.output_node_info->protocol_version, tag, sizeof(tag), tag_data,
-                                    sizeof(tag_data), &res);
+  result = send_tagged_data_block(&ctx, info->u.output_node_info->protocol_version, tag, sizeof(tag), tag_data,
+                                  sizeof(tag_data), &res);
   if (result != 0 || res.is_error) {
-    printf("[%s:%d]: Can not send tagged data message!\n", __func__, __LINE__);
+    printf("[%s:%d]: Can not send tagged data block!\n", __func__, __LINE__);
     res_node_info_free(info);
     return -1;
   }
   res_node_info_free(info);
 
-  printf("[%s:%d]: Message successfully send! URL: http://%s:%d%s/messages/0x%s\n", __func__, __LINE__, NODE_HOST,
-         NODE_PORT, NODE_API_PATH, res.u.msg_id);
+  printf("[%s:%d]: Tagged Data successfully send! URL: http://%s:%d%s/blocks/0x%s\n", __func__, __LINE__, NODE_HOST,
+         NODE_PORT, NODE_API_PATH, res.u.blk_id);
 
   return 0;
 }
