@@ -57,7 +57,7 @@ int send_tagged_data_block(iota_client_conf_t const* conf, uint8_t ver, byte_t t
   /*
   {
   "protocolVersion": 2,
-  "parentMessageIds": [
+  "parents": [
       "0x7dabd008324378d65e607975e9f1740aa8b2f624b9e25248370454dcd07027f3",
       "0x9f5066de0e3225f062e9ac8c285306f56815677fe5d1db0bbccecfc8f7f1e82c",
       "0xccf9bf6b76a2659f332e17bfdc20f278ce25bc45e807e89cc2ab526cd2101c52",

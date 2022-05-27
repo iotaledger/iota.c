@@ -78,7 +78,7 @@ void block_meta_free(res_block_meta_t *res);
 int parse_blocks_metadata(char const *const j_str, block_meta_t *res);
 
 /**
- * @brief Message metadata JSON deserialization
+ * @brief Block metadata JSON deserialization
  *
  * @param[in] j_str A string of the JSON object
  * @param[out] res A response object of block metadata

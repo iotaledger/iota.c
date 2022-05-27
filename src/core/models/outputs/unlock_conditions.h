@@ -94,7 +94,7 @@ extern "C" {
 /**
  * @brief Create an Address Unlock Condition
  *
- * The Address that owns this output, that is, it can unlock it with the proper Unlock Block in a transaction.
+ * The Address that owns this output, that is, it can unlock it with the proper Unlock in a transaction.
  *
  * @param[in] addr An address object
  * @return unlock_cond_t*
@@ -155,7 +155,7 @@ unlock_cond_t* condition_governor_new(address_t const* const addr);
 /**
  * @brief Create an Immutable Aliass Address Unlock Condition
  *
- * The Address that owns this output, that is, it can unlock it with the proper Unlock Block in a transaction.
+ * The Address that owns this output, that is, it can unlock it with the proper Unlock in a transaction.
  *
  * @param[in] addr An alias address object
  * @return unlock_cond_t*

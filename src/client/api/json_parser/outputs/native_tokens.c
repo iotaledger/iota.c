@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/json_parser/outputs/native_tokens.h"
+#include "core/models/outputs/native_tokens.h"
 #include "core/utils/macros.h"
 
 /*
@@ -54,6 +55,11 @@ int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_list_t **nat
 }
 
 cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
+  // omit the empty list
+  if (native_tokens_count(native_tokens) == 0) {
+    return NULL;
+  }
+
   cJSON *tokens = cJSON_CreateArray();
   if (tokens) {
     if (!native_tokens) {

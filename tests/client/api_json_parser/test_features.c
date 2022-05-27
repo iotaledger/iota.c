@@ -108,7 +108,7 @@ void test_output_feature_tag() {
 
 void test_features() {
   char const* const json_res =
-      "{\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
+      "{\"features\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
       "{\"type\":1,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
@@ -139,7 +139,7 @@ void test_features() {
 
 void test_immut_features() {
   char const* const json_res =
-      "{\"immutableFeatureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
+      "{\"immutableFeatures\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
       "{\"type\":1,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
@@ -170,7 +170,7 @@ void test_immut_features() {
 
 void test_features_unsupported_type() {
   char const* const json_res =
-      "{\"featureBlocks\":[{\"type\":4,\"address\":{\"type\":0,\"pubKeyHash\":"
+      "{\"features\":[{\"type\":4,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}}]}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);

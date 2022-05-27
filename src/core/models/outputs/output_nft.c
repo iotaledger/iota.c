@@ -365,7 +365,7 @@ bool output_nft_syntactic(output_nft_t* output) {
   // Unlock Condition must be sorted in ascending order based on their type
   condition_list_sort(&output->unlock_conditions);
 
-  // == Feature Blocks validation ===
+  // == Features validation ===
   // 0<= feature count <= 3
   if (feature_list_len(output->features) > MAX_NFT_FEATURES_COUNT) {
     printf("[%s:%d] invalid feature count must smaller than %d\n", __func__, __LINE__, MAX_NFT_FEATURES_COUNT);
@@ -384,7 +384,7 @@ bool output_nft_syntactic(output_nft_t* output) {
   // Blocks must stored in ascending order based on their Block Type
   feature_list_sort(&output->features);
 
-  // == Immutable Feature Blocks validation ===
+  // == Immutable Features validation ===
   // 0<= immutable feature count <= 2
   if (feature_list_len(output->immutable_features) > MAX_NFT_IMMUTABLE_FEATURES_COUNT) {
     printf("[%s:%d] immutable feature count must smaller than %d\n", __func__, __LINE__,

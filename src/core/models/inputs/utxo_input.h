@@ -7,7 +7,6 @@
 #include <stdint.h>
 
 #include "core/constants.h"
-// #include "core/models/message.h"
 #include "core/utils/byte_buffer.h"
 #include "crypto/iota_crypto.h"
 

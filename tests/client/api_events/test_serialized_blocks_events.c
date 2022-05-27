@@ -4,6 +4,7 @@
 #include <inttypes.h>
 #include <time.h>
 
+#include "client/api/events/node_event.h"
 #include "client/api/events/sub_serialized_output.h"
 #include "test_config.h"
 #include "unity/unity.h"
@@ -35,14 +36,14 @@ static void event_cb(event_client_event_t *event) {
       /* Making subscriptions in the on_connect()*/
       // Uncomment for subscribing to respective topics
       ret = event_subscribe(event->client, NULL, TOPIC_MILESTONES, 1);
-      // ret = event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
-      // ret = event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1);
-      // ret = event_subscribe(event->client, NULL, TOPIC_MS_TXN_TAGGED_DATA, 1);
-      // ret = event_sub_tx_msg_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1);
-      // ret = event_subscribe(event->client, NULL, TOPIC_MS_MILESTONE, 1);
-      // ret = event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1);
-      // ret = event_sub_msg_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1);
-      // ret = event_sub_txn_included_msg(event->client, NULL, test_transaction_id, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_BLOCKS, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_BLK_TRANSACTION, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_BLK_TXN_TAGGED_DATA, 1);
+      // ret = event_sub_tx_blk_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_BLK_MILESTONE, 1);
+      // ret = event_subscribe(event->client, NULL, TOPIC_BLK_TAGGED_DATA, 1);
+      // ret = event_sub_blk_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1);
+      // ret = event_sub_txn_included_blk(event->client, NULL, test_transaction_id, 1);
       if (ret != 0) {
         printf("Subscription failed\n");
         test_completed = true;

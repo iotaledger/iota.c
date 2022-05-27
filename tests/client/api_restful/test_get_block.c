@@ -176,7 +176,7 @@ void test_deser_simple_tx() {
   TEST_ASSERT_EQUAL_MEMORY(bin_tag, tag_data->tag->data, tag_data->tag->len);
   TEST_ASSERT_NULL(tag_data->data);
 
-  // validate transaction unlock blocks
+  // validate transaction unlocks
   TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx->unlocks));
   unlock_t* b = unlock_list_get(tx->unlocks, 0);
   TEST_ASSERT_NOT_NULL(b);

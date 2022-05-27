@@ -74,7 +74,7 @@ void test_send_core_block_tagged_data() {
   TEST_ASSERT_EQUAL_INT(0, send_core_block(&ctx, blk, &res));
   TEST_ASSERT(res.is_error == false);
 
-  printf("Message ID: %s\n", res.u.blk_id);
+  printf("Block ID: %s\n", res.u.blk_id);
   core_block_free(blk);
 
   // Get block by block id
@@ -117,7 +117,7 @@ void test_send_core_block_tagged_data_binary_tag() {
   TEST_ASSERT_EQUAL_INT(0, send_core_block(&ctx, blk, &res));
   TEST_ASSERT(res.is_error == false);
 
-  printf("Message ID: %s\n", res.u.blk_id);
+  printf("Block ID: %s\n", res.u.blk_id);
   core_block_free(blk);
 
   // Get block by block id
@@ -161,7 +161,7 @@ void test_send_core_block_tagged_data_tag_max_len() {
   TEST_ASSERT_EQUAL_INT(0, send_core_block(&ctx, blk, &res));
   TEST_ASSERT(res.is_error == false);
 
-  printf("Message ID: %s\n", res.u.blk_id);
+  printf("Block ID: %s\n", res.u.blk_id);
   core_block_free(blk);
 
   // Get block by block id
@@ -321,7 +321,7 @@ void test_send_blk_tx_basic() {
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(core_block_essence_hash_calc(blk, essence_hash, sizeof(essence_hash)) == 0);
 
-  // sign transaction (generate unlock blocks)
+  // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data_list,
                                        &tx->unlocks) == 0);
   utxo_outputs_free(unspent_outputs);

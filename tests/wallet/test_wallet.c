@@ -110,7 +110,7 @@ void test_wallet_basic_transfer() {
       printf("[%s:%d] Error: %s\n", __func__, __LINE__, msg_res.u.error->msg);
       res_err_free(msg_res.u.error);
     } else {
-      printf("[%s:%d] Message ID: %s\n", __func__, __LINE__, msg_res.u.blk_id);
+      printf("[%s:%d] Block ID: %s\n", __func__, __LINE__, msg_res.u.blk_id);
     }
   } else {
     printf("[%s:%d] send block failed\n", __func__, __LINE__);
@@ -124,7 +124,7 @@ void test_wallet_basic_transfer() {
       printf("[%s:%d] Error: %s\n", __func__, __LINE__, msg_res.u.error->msg);
       res_err_free(msg_res.u.error);
     } else {
-      printf("[%s:%d] Message ID: %s\n", __func__, __LINE__, msg_res.u.blk_id);
+      printf("[%s:%d] Block ID: %s\n", __func__, __LINE__, msg_res.u.blk_id);
     }
   } else {
     printf("[%s:%d] send block failed\n", __func__, __LINE__);

@@ -47,7 +47,7 @@ void test_send_tagged_data() {
   TEST_ASSERT(send_tagged_data_block(&ctx, 2, (byte_t*)tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
 
   iota_str_t* cmd = NULL;
-  char const* const cmd_str = "/messages/0x";
+  char const* const cmd_str = "/blocks/0x";
 
   cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
   TEST_ASSERT_NOT_NULL(cmd);
@@ -109,7 +109,7 @@ void test_send_binary_tagged_data() {
   TEST_ASSERT(send_tagged_data_block(&ctx, 2, binary_tag, TAG_LEN, tag_data, TAG_DATA_LEN, &res) == 0);
 
   iota_str_t* cmd = NULL;
-  char const* const cmd_str = "/messages/0x";
+  char const* const cmd_str = "/blocks/0x";
 
   cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
   TEST_ASSERT_NOT_NULL(cmd);

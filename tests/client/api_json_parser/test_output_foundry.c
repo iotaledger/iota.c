@@ -15,12 +15,11 @@ void tearDown(void) {}
 
 void test_parse_foundry_output_basic() {
   char const *const json_res =
-      "{\"type\":5,\"amount\":\"1000000\",\"nativeTokens\":[],\"serialNumber\":123456,\"tokenScheme\":{\"type\":0,"
+      "{\"type\":5,\"amount\":\"1000000\",\"serialNumber\":123456,\"tokenScheme\":{\"type\":0,"
       "\"mintedTokens\":\"0x3ac653e386b9497f5773eac20000000000\",\"meltedTokens\":"
       "\"0x1d6329f1c35ca4bfabb9f5610000000000\",\"maximumSupply\":\"0x58297dd54a15ee3f032de0230000000000\"},"
       "\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":8,\"aliasId\":"
-      "\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"featureBlocks\":[],"
-      "\"immutableFeatureBlocks\":[]}";
+      "\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -79,8 +78,8 @@ void test_parse_foundry_output_full() {
       "\"0x3ac653e386b9497f5773eac20000000000\",\"meltedTokens\":\"0x1d6329f1c35ca4bfabb9f5610000000000\", "
       "\"maximumSupply\":\"0x58297dd54a15ee3f032de0230000000000\"},\"unlockConditions\":[{\"type\":6,"
       "\"address\":{\"type\":8,\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],"
-      "\"featureBlocks\":[{\"type\":2,\"data\":"
-      "\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}],\"immutableFeatureBlocks\":[{"
+      "\"features\":[{\"type\":2,\"data\":"
+      "\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}],\"immutableFeatures\":[{"
       "\"type\":2,\"data\":"
       "\"0x696d6d757461626c654d65746164617461546573745f696d6d757461626c654d65746164617461546573745f\"}]}";
 
@@ -152,9 +151,8 @@ void test_parse_foundry_output_wrong_unlock_condition() {
       "\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":8,"
-      "\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"featureBlocks\":[{"
-      "\"type\":2,\"data\":\"0xmetadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}],"
-      "\"immutableFeatureBlocks\":[]}";
+      "\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"features\":[{"
+      "\"type\":2,\"data\":\"0xmetadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata_metadata\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -177,8 +175,8 @@ void test_parse_foundry_output_wrong_features() {
       "\"mintedTokens\":\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":8,"
-      "\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"featureBlocks\":[{"
-      "\"type\":3,\"tag\":\"0xtagDemo_tagDemo_tagDemo\"}],\"immutableFeatureBlocks\":[]}";
+      "\"aliasId\":\"0x01aa8d202a51b575eb9248b2d580dc6149508ff094fc0ed79c25486935597248\"}}],\"features\":[{"
+      "\"type\":3,\"tag\":\"0xtagDemo_tagDemo_tagDemo\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -201,8 +199,8 @@ void test_parse_foundry_output_wrong_immutable_features() {
       "\"0x20000000000000000000000000000000000000000\",\"meltedTokens\":"
       "\"0x10000000000000000000000000000000000000000\",\"maximumSupply\":"
       "\"0x30000000000000000000000000000000000000000\"},\"unlockConditions\":[{\"type\":6,\"address\":{\"type\":8,"
-      "\"address\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"featureBlocks\":[],\"immutableFeatureBlocks\":[{"
-      "\"type\":3,\"tag\":\"0xtagDemo_tagDemo_tagDemo\"}]}";
+      "\"address\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c\"}}],\"immutableFeatures\":[{\"type\":3,\"tag\":"
+      "\"0xtagDemo_tagDemo_tagDemo\"}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);

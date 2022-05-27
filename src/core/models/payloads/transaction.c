@@ -512,7 +512,7 @@ bool tx_payload_syntactic(transaction_payload_t* tx, byte_cost_config_t* byte_co
     return false;
   }
 
-  // Unlock Block Count must match Input Count
+  // Unlocks Count must match Input Count
   if (utxo_inputs_count(tx->essence->inputs) != unlock_list_count(tx->unlocks)) {
     return false;
   }

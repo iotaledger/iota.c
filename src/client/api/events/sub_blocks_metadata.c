@@ -10,7 +10,7 @@
 
 int event_subscribe_blk_metadata(event_client_handle_t client, int *mid, char const blk_id[], int qos) {
   if (strlen(blk_id) != BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES)) {
-    printf("[%s:%d]: Message Id length is invalid\n", __func__, __LINE__);
+    printf("[%s:%d]: Block ID length is invalid\n", __func__, __LINE__);
     return -1;
   }
   // Buffer to store topic string : block-metadata/0x{blockid}

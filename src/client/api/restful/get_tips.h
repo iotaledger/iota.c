@@ -45,10 +45,10 @@ res_tips_t *res_tips_new();
 void res_tips_free(res_tips_t *tips);
 
 /**
- * @brief Gets tips for attaching to a message
+ * @brief Gets tips for attaching to a block
  *
- * Returns tips that are ideal for attaching to a message. The tips can be considered as `non-lazy` and are therefore
- * ideal for attaching a message.
+ * Returns tips that are ideal for attaching to a block. The tips can be considered as `non-lazy` and are therefore
+ * ideal for attaching a block.
  *
  * @param[in] conf The client endpoint configuration
  * @param[out] res A response object of tips object
@@ -66,7 +66,7 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res);
 int get_tips_deserialize(char const *const j_str, res_tips_t *res);
 
 /**
- * @brief Gets the number of message IDs
+ * @brief Gets the number of block IDs
  *
  * @param[in] tips A response object
  * @return size_t
@@ -74,10 +74,10 @@ int get_tips_deserialize(char const *const j_str, res_tips_t *res);
 size_t get_tips_id_count(res_tips_t *tips);
 
 /**
- * @brief Gets a message ID by a given index
+ * @brief Gets a block ID by a given index
  *
  * @param[in] tips A response object
- * @param[in] index A index of a message ID
+ * @param[in] index A index of a block ID
  * @return char*
  */
 char *get_tips_id(res_tips_t *tips, size_t index);
