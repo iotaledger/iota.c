@@ -312,6 +312,11 @@ bool wallet_is_collected_balance_sufficient(iota_wallet_t* w, uint64_t send_amou
                                             uint64_t remainder_amount, native_tokens_list_t* send_native_tokens,
                                             native_tokens_list_t* collected_native_tokens,
                                             native_tokens_list_t* remainder_native_tokens) {
+  if (w == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return false;
+  }
+
   if (collected_amount < send_amount) {
     return false;
   }
@@ -332,20 +337,20 @@ bool wallet_is_collected_balance_sufficient(iota_wallet_t* w, uint64_t send_amou
   if (remainder_amount > 0 || native_tokens_count(remainder_native_tokens) > 0) {
     // create Basic Output with address unlock condition
     address_t remainder_addr = {0};
-    output_basic_t* output_basic =
+    output_basic_t* remainder_output =
         wallet_output_basic_create(&remainder_addr, remainder_amount, remainder_native_tokens);
-    if (!output_basic) {
+    if (!remainder_output) {
       printf("[%s:%d] can not create a reminder basic output\n", __func__, __LINE__);
       return false;
     }
 
     // calculate minimum storage deposit for remainder output
-    uint64_t min_storage_deposit = calc_minimum_output_deposit(&w->byte_cost, OUTPUT_BASIC, output_basic);
+    uint64_t min_storage_deposit = calc_minimum_output_deposit(&w->byte_cost, OUTPUT_BASIC, remainder_output);
     if (remainder_amount < min_storage_deposit) {
-      output_basic_free(output_basic);
+      output_basic_free(remainder_output);
       return false;
     }
-    output_basic_free(output_basic);
+    output_basic_free(remainder_output);
   }
 
   return true;

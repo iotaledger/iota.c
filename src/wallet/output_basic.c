@@ -65,42 +65,46 @@ static bool is_unspent_basic_output_useful(iota_wallet_t* w, output_basic_t* out
     return NULL;
   }
 
-  if (collected_amount < send_amount && output->amount > 0) {
-    return true;
-  }
-
+  // is there any useful native tokens inside unspent output
   native_tokens_list_t* elm;
   LL_FOREACH(output->native_tokens, elm) {
     native_token_t* send_native_token = native_tokens_find_by_id(send_native_tokens, elm->token->token_id);
     native_token_t* collected_native_token = native_tokens_find_by_id(collected_native_tokens, elm->token->token_id);
 
-    if (send_native_token && !collected_native_token) {
-      return true;
+    if (send_native_token) {
+      if (!collected_native_token) {
+        return true;
+      }
+      if (collected_native_token && uint256_equal(&send_native_token->amount, &collected_native_token->amount) > 0) {
+        return true;
+      }
     }
+  }
 
-    if (uint256_equal(&send_native_token->amount, &collected_native_token->amount) > 0) {
-      return true;
-    }
+  // only use unspent output if it has more than minimum storage deposit inside
+  if (collected_amount < send_amount &&
+      output->amount > calc_minimum_output_deposit(&w->byte_cost, OUTPUT_BASIC, output)) {
+    return true;
   }
 
   // if remainder is needed, check if there is enough base tokens for its minimum storage protection
   if (remainder_amount > 0 || native_tokens_count(remainder_native_tokens) > 0) {
     // create Basic Output with address unlock condition
     address_t remainder_addr = {0};
-    output_basic_t* output_basic =
+    output_basic_t* remainder_output =
         wallet_output_basic_create(&remainder_addr, remainder_amount, remainder_native_tokens);
-    if (!output_basic) {
+    if (!remainder_output) {
       printf("[%s:%d] can not create a reminder basic output\n", __func__, __LINE__);
       return false;
     }
 
     // calculate minimum storage deposit for remainder output
-    uint64_t min_storage_deposit = calc_minimum_output_deposit(&w->byte_cost, OUTPUT_BASIC, output_basic);
+    uint64_t min_storage_deposit = calc_minimum_output_deposit(&w->byte_cost, OUTPUT_BASIC, remainder_output);
     if (remainder_amount < min_storage_deposit) {
-      output_basic_free(output_basic);
+      output_basic_free(remainder_output);
       return true;
     }
-    output_basic_free(output_basic);
+    output_basic_free(remainder_output);
   }
 
   return false;
@@ -189,7 +193,7 @@ int wallet_get_inputs_and_create_remainder(iota_wallet_t* w, transaction_essence
     if (output_res->u.data->output->output_type == OUTPUT_BASIC) {
       output_basic_t* output_basic = output_res->u.data->output->output;
 
-      // check if input has any useful base tokens or native tokens
+      // check if input has any useful amount of base token or native tokens
       if (!is_unspent_basic_output_useful(w, output_basic, send_amount, collected_amount, remainder_amount,
                                           send_native_tokens, collected_native_tokens, remainder_native_tokens)) {
         get_output_response_free(output_res);
@@ -226,10 +230,9 @@ int wallet_get_inputs_and_create_remainder(iota_wallet_t* w, transaction_essence
             goto end;
           }
         } else {
-          if (native_tokens_add(&collected_native_tokens, elm->token->token_id, &elm->token->amount) != 0) {
+          if ((ret = native_tokens_add(&collected_native_tokens, elm->token->token_id, &elm->token->amount)) != 0) {
             printf("[%s:%d] can not add native token to a list\n", __func__, __LINE__);
             get_output_response_free(output_res);
-            ret = -1;
             goto end;
           }
         }
@@ -344,19 +347,19 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
   }
 
   // create the receiver output
-  output_basic_t* output_basic = wallet_output_basic_create(recv_addr, send_amount, send_native_tokens);
-  if (!output_basic) {
+  output_basic_t* receiver_output = wallet_output_basic_create(recv_addr, send_amount, send_native_tokens);
+  if (!receiver_output) {
     printf("[%s:%d] create a receiver basic output failed\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }
-  if (tx_essence_add_output(tx->essence, OUTPUT_BASIC, output_basic) != 0) {
+  if (tx_essence_add_output(tx->essence, OUTPUT_BASIC, receiver_output) != 0) {
     printf("[%s:%d] can not add receiver basic output to transaction essence\n", __func__, __LINE__);
-    output_basic_free(output_basic);
+    output_basic_free(receiver_output);
     ret = -1;
     goto end;
   }
-  output_basic_free(output_basic);
+  output_basic_free(receiver_output);
 
   // if no base tokens are sent, send only output minimum storage protection amount
   if (send_amount == 0) {
@@ -379,14 +382,15 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
     goto end;
   }
 
+  // if remainder is needed, create remainder output
   if (remainder) {
-    if (tx_essence_add_output(tx->essence, OUTPUT_BASIC, remainder) != 0) {
+    if ((ret = tx_essence_add_output(tx->essence, OUTPUT_BASIC, remainder)) != 0) {
       printf("[%s:%d] can not add remainder output to transaction essence\n", __func__, __LINE__);
-      ret = -1;
       goto end;
     }
   }
 
+  // create signature for all collected inputs
   if ((ret = create_signatures_for_inputs(inputs, &sender_keypair, &sign_data)) != 0) {
     printf("[%s:%d] can not create signatures for inputs\n", __func__, __LINE__);
     goto end;

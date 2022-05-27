@@ -250,6 +250,7 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
     goto end;
   }
 
+  // if remainder is needed, create remainder output
   if (remainder) {
     if (tx_essence_add_output(tx->essence, OUTPUT_BASIC, remainder) != 0) {
       printf("[%s:%d] can not add remainder output to transaction essence\n", __func__, __LINE__);
@@ -258,6 +259,7 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
     }
   }
 
+  // create signature for all collected inputs
   if ((ret = create_signatures_for_inputs(inputs, &sender_keypair, &sign_data)) != 0) {
     printf("[%s:%d] can not create signatures for inputs\n", __func__, __LINE__);
     goto end;
