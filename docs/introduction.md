@@ -12,11 +12,11 @@ It has integrated with Software Development Kits(SDK) and a STM32Cube expansion:
 
 The C Client library consists 4 abstraction layers:
 * Crypto - provides cryptographic functions
-* Core - implements components include address/message/UTXO...
+* Core - implements components include address/block/UTXO...
 * Client - implements node REST APIs and Event APIs. (optional)
 * Wallet - implements simple wallet functions. (optional)
 
-As a client application, Client and Wallet modules could be an option as needed. For instance, the application can implement its own wallet logic or it uses the Core module to compose messages then send messages through another interface without the Client module.
+As a client application, Client and Wallet modules could be an option as needed. For instance, the application can implement its own wallet logic or it uses the Core module to compose blocks then send blocks through another interface without the Client module.
 
 ![](img/client_block_diagram.jpg)
 
@@ -33,9 +33,9 @@ The real world application could be vary, here shows an example of an IOTA clien
 ![](img/client_application_architecture.jpg)
 
 With this design, the application can interact with IOTA Tangle in order to:
-* Create data and transaction messages
-* Send data and transaction messages
-* Query messages
+* Create data and transaction blocks
+* Send data and transaction blocks
+* Query blocks
 * Query the node status
 * Generate addresses
 * Subscribe to node events

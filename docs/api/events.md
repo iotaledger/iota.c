@@ -61,7 +61,7 @@ The Event API is event subscribers based on [TIP-28 Node Event API](https://gith
 
 ### milestone-info/latest
 
-Use `TOPIC_MS_LATEST`
+Use `TOPIC_MILESTONE_LATEST`
 
 ```
 event_subscribe(event_client_handle_t client, int *mid, TOPIC_MS_LATEST, int qos);
@@ -70,52 +70,52 @@ event_subscribe(event_client_handle_t client, int *mid, TOPIC_MS_LATEST, int qos
 ### milestone-info/confirmed
 
 ```
-event_subscribe(event->client, NULL, TOPIC_MS_CONGIRMED, 1);
+event_subscribe(event->client, NULL, TOPIC_MILESTONE_CONGIRMED, 1);
 ```
 
 ### milestones
 
 TODO
 
-### messages
+### blocks
 
 ```
-event_subscribe(event->client, NULL, TOPIC_MESSAGES, 1);
+event_subscribe(event->client, NULL, TOPIC_BLOCKS, 1);
 ```
 
-### messages/transaction
+### blocks/transaction
 
 ```
-event_subscribe(event->client, NULL, TOPIC_MS_TRANSACTION, 1);
+event_subscribe(event->client, NULL, TOPIC_BLK_TRANSACTION, 1);
 ```
 
-### messages/transaction/tagged-data
+### blocks/transaction/tagged-data
 
 TODO
 
-### messages/transaction/tagged-data/{tag}
+### blocks/transaction/tagged-data/{tag}
 
 TODO
 
-### messages/tagged-data
+### blocks/tagged-data
 
 ```
-event_subscribe(event->client, NULL, TOPIC_MS_TAGGED_DATA, 1);
+event_subscribe(event->client, NULL, TOPIC_BLK_TAGGED_DATA, 1);
 ```
 
-### messages/tagged-data/{tag}
+### blocks/tagged-data/{tag}
 
 TODO
 
-### transactions/{transaction ID}/included-message
+### transactions/{transaction ID}/included-block
 
 TODO
 
-### message-metadata/{message ID}
+### block-metadata/{block ID}
 
 TODO
 
-### message-metadata/referenced
+### block-metadata/referenced
 
 TODO
 

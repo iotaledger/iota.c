@@ -51,7 +51,7 @@ Returns general information about the node.
 
 ### `/api/v2/tips`
 
-Returns tips that are ideal for attaching a message. The tips can be considered as `non-lazy` and are therefore ideal for attaching a message.
+Returns tips that are ideal for attaching a block. The tips can be considered as `non-lazy` and are therefore ideal for attaching a block.
 
 ```{eval-rst}
 .. doxygenstruct:: res_tips_t
@@ -61,63 +61,63 @@ Returns tips that are ideal for attaching a message. The tips can be considered 
 .. doxygenfunction:: get_tips
 ```
 
-## Messages
+## Blocks
 
-### `/api/v2/messages`
+### `/api/v2/blocks`
 
-Submit a message. The node takes care of missing fields and tries to build the message. On success, the message will be stored in the Tangle. This endpoint will return the identifier of the built message. The node will try to auto-fill the following fields in case they are missing: `protocolVersion`, `parentMessageIds`, `nonce`. If `payload` is missing, the message will be built without a payload.
+Submit a block. The node takes care of missing fields and tries to build the block. On success, the block will be stored in the Tangle. This endpoint will return the identifier of the built block. The node will try to auto-fill the following fields in case they are missing: `protocolVersion`, `parents`, `nonce`. If `payload` is missing, the block will be built without a payload.
 
 
 ```{eval-rst}
-.. doxygenstruct:: res_send_message_t
+.. doxygenstruct:: res_send_block_t
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: send_core_message
+.. doxygenfunction:: send_core_block
 ```
 
-### `/api/v2/messages/{messageId}`
+### `/api/v2/blocks/{blockId}`
 
-Find a message by its identifier.
-
-```{eval-rst}
-.. doxygenstruct:: res_message_t
-```
+Find a block by its identifier.
 
 ```{eval-rst}
-.. doxygenfunction:: get_message_by_id
-```
-
-### `/api/v2/messages/{messageId}/metadata`
-
-Find the metadata of a given message ID.
-
-```{eval-rst}
-.. doxygenstruct:: msg_meta_t
+.. doxygenstruct:: res_block_t
 ```
 
 ```{eval-rst}
-.. doxygenstruct:: res_msg_meta_t
+.. doxygenfunction:: get_block_by_id
+```
+
+### `/api/v2/blocks/{blockId}/metadata`
+
+Find the metadata of a given block ID.
+
+```{eval-rst}
+.. doxygenstruct:: block_meta_t
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: get_message_metadata
-```
-
-### `/api/v2/messages/{messageId}/children`
-
-Returns the children of a message.
-
-```{eval-rst}
-.. doxygenstruct:: msg_children_t
+.. doxygenstruct:: res_block_meta_t
 ```
 
 ```{eval-rst}
-.. doxygenstruct:: res_msg_children_t
+.. doxygenfunction:: get_block_metadata
+```
+
+### `/api/v2/blocks/{blockId}/children`
+
+Returns the children of a block.
+
+```{eval-rst}
+.. doxygenstruct:: block_children_t
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: get_message_children
+.. doxygenstruct:: res_block_children_t
+```
+
+```{eval-rst}
+.. doxygenfunction:: get_block_children
 ```
 
 ## UTXO
@@ -138,12 +138,12 @@ Find an output data by its identifier.
 .. doxygenfunction:: get_output
 ```
 
-### `/api/v2/transaction/{transactionId}/included-message`
+### `/api/v2/transaction/{transactionId}/included-block`
 
-Returns the included message of a transaction.
+Returns the included block of a transaction.
 
 ```{eval-rst}
-.. doxygenfunction:: get_transaction_included_message_by_id
+.. doxygenfunction:: get_transaction_included_block_by_id
 ```
 
 ## UTXO Indexer
@@ -192,15 +192,15 @@ Returns the included message of a transaction.
 .. doxygenstruct:: res_outputs_id_t
 ```
 
-### `/api/plugins/indexer/v1/outputs`
+### `/api/plugins/indexer/v1/outputs/basic`
 
 Returns Basic outputs filtered based on parameters.
 
 ```{eval-rst}
-.. doxygenfunction:: get_outputs_id
+.. doxygenfunction:: get_basic_outputs
 ```
 
-### `/api/plugins/indexer/v1/aliases`
+### `/api/plugins/indexer/v1/outputs/alias`
 
 Returns Alias outputs filtered based on parameters.
 
@@ -208,7 +208,7 @@ Returns Alias outputs filtered based on parameters.
 .. doxygenfunction:: get_alias_outputs
 ```
 
-### `/api/plugins/indexer/v1/aliases/{aliasId}`
+### `/api/plugins/indexer/v1/outputs/alias/{aliasId}`
 
 Returns the output ID of the current unspent Alias output for Alias ID.
 
@@ -216,7 +216,7 @@ Returns the output ID of the current unspent Alias output for Alias ID.
 .. doxygenfunction:: get_outputs_from_alias_id
 ```
 
-### `/api/plugins/indexer/v1/foundries`
+### `/api/plugins/indexer/v1/outputs/foundry`
 
 Returns Foundry outputs filtered based on parameters.
 
@@ -224,7 +224,7 @@ Returns Foundry outputs filtered based on parameters.
 .. doxygenfunction:: get_foundry_outputs
 ```
 
-### `/api/plugins/indexer/v1/foundries/{foundryId}`
+### `/api/plugins/indexer/v1/outputs/foundry/{foundryId}`
 
 Returns the output ID of the current unspent foundry output for Foundry Id
 
@@ -232,7 +232,7 @@ Returns the output ID of the current unspent foundry output for Foundry Id
 .. doxygenfunction:: get_outputs_from_foundry_id
 ```
 
-### `/api/plugins/indexer/v1/nfts`
+### `/api/plugins/indexer/v1/outputs/nft`
 
 Returns NFT outputs filtered based on parameters
 
@@ -240,7 +240,7 @@ Returns NFT outputs filtered based on parameters
 .. doxygenfunction:: get_nft_outputs
 ```
 
-### `/api/plugins/indexer/v1/nfts/{nftId}`
+### `/api/plugins/indexer/v1/outputs/nft/{nftId}`
 
 Returns the output ID of the current unspent NFT output for NFT ID.
 
