@@ -3,6 +3,7 @@
 
 #include "client/api/json_parser/outputs/features.h"
 #include "client/api/json_parser/common.h"
+#include "core/models/outputs/features.h"
 #include "core/utils/macros.h"
 #include "utlist.h"
 
@@ -361,6 +362,11 @@ int json_features_deserialize(cJSON *output_obj, bool immutable, feature_list_t 
 }
 
 cJSON *json_features_serialize(feature_list_t *feat_list) {
+  // omit an empty array
+  if (feature_list_len(feat_list) == 0) {
+    return NULL;
+  }
+
   // create feature array
   cJSON *feats = cJSON_CreateArray();
   if (feats) {

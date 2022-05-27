@@ -100,10 +100,12 @@ cJSON *json_output_basic_serialize(output_basic_t *basic) {
 
     // native tokens
     tmp = json_native_tokens_serialize(basic->native_tokens);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_NATIVE_TOKENS, tmp)) {
-      printf("[%s:%d] add native tokens to basic error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_NATIVE_TOKENS, tmp)) {
+        printf("[%s:%d] add native tokens to basic error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
 
     // unlock conditions
@@ -116,10 +118,12 @@ cJSON *json_output_basic_serialize(output_basic_t *basic) {
 
     // features
     tmp = json_features_serialize(basic->features);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEATURES, tmp)) {
-      printf("[%s:%d] add features to basic error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEATURES, tmp)) {
+        printf("[%s:%d] add features to basic error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
   }
   return output_obj;

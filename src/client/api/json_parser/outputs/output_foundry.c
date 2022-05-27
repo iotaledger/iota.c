@@ -368,10 +368,12 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
 
     // native tokens
     tmp = json_native_tokens_serialize(foundry->native_tokens);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_NATIVE_TOKENS, tmp)) {
-      printf("[%s:%d] add native tokens to foundry error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_NATIVE_TOKENS, tmp)) {
+        printf("[%s:%d] add native tokens to foundry error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
 
     // serialNumber
@@ -398,18 +400,22 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
 
     // features
     tmp = json_features_serialize(foundry->features);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEATURES, tmp)) {
-      printf("[%s:%d] add features to foundry error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEATURES, tmp)) {
+        printf("[%s:%d] add features to foundry error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
 
     // immutable features
     tmp = json_features_serialize(foundry->immutable_features);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_IMMUTABLE_FEATS, tmp)) {
-      printf("[%s:%d] add immutable features to foundry error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_IMMUTABLE_FEATS, tmp)) {
+        printf("[%s:%d] add immutable features to foundry error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
   }
   return output_obj;
