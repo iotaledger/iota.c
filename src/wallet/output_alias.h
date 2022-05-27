@@ -14,7 +14,7 @@ extern "C" {
  * @brief Send transaction which creates a new alias output
  *
  * @param[in] w A wallet instance
-BLOCK * @param[in] sender_change The sender change index which is {0, 1}, also known as wallet chain
+ * @param[in] sender_change The sender change index which is {0, 1}, also known as wallet chain
  * @param[in] sender_index The sender address index
  * @param[in] send_amount The amount to transfer
  * @param[in] state_ctrl_addr The receiver address

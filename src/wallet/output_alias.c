@@ -152,29 +152,29 @@ static int wallet_output_alias_create(transaction_essence_t* essence, byte_t ali
     return -1;
   }
 
-  unlock_cond_list_t* cond_blocks = condition_list_new();
-  if (condition_list_add(&cond_blocks, state) != 0) {
+  unlock_cond_list_t* conds = condition_list_new();
+  if (condition_list_add(&conds, state) != 0) {
     printf("[%s:%d] add unlock condition failed\n", __func__, __LINE__);
     condition_free(state);
     condition_free(governor);
-    condition_list_free(cond_blocks);
+    condition_list_free(conds);
     return -1;
   }
-  if (condition_list_add(&cond_blocks, governor) != 0) {
+  if (condition_list_add(&conds, governor) != 0) {
     printf("[%s:%d] add unlock condition failed\n", __func__, __LINE__);
     condition_free(state);
     condition_free(governor);
-    condition_list_free(cond_blocks);
+    condition_list_free(conds);
     return -1;
   }
 
   output_alias_t* alias_output =
-      output_alias_new(amount, native_tokens, alias_id, state_index, NULL, 0, foundry_counter, cond_blocks, NULL, NULL);
+      output_alias_new(amount, native_tokens, alias_id, state_index, NULL, 0, foundry_counter, conds, NULL, NULL);
   if (!alias_output) {
     printf("[%s:%d] creating alias output failed\n", __func__, __LINE__);
     condition_free(state);
     condition_free(governor);
-    condition_list_free(cond_blocks);
+    condition_list_free(conds);
     return -1;
   }
 
@@ -182,14 +182,14 @@ static int wallet_output_alias_create(transaction_essence_t* essence, byte_t ali
     printf("[%s:%d] can not add output to transaction essence\n", __func__, __LINE__);
     condition_free(state);
     condition_free(governor);
-    condition_list_free(cond_blocks);
+    condition_list_free(conds);
     output_alias_free(alias_output);
     return -1;
   }
 
   condition_free(state);
   condition_free(governor);
-  condition_list_free(cond_blocks);
+  condition_list_free(conds);
   output_alias_free(alias_output);
 
   return 0;
@@ -198,8 +198,8 @@ static int wallet_output_alias_create(transaction_essence_t* essence, byte_t ali
 // TODO: the alias output should be able to set optional features such as Sender/Metadata
 int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t const send_amount,
                                address_t* state_ctrl_addr, address_t* govern_addr, uint32_t foundry_counter,
-                               address_t* alias_addr, res_send_block_t* msg_res) {
-  if (w == NULL || state_ctrl_addr == NULL || govern_addr == NULL || alias_addr == NULL || msg_res == NULL) {
+                               address_t* alias_addr, res_send_block_t* blk_res) {
+  if (w == NULL || state_ctrl_addr == NULL || govern_addr == NULL || alias_addr == NULL || blk_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -259,7 +259,7 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
   }
 
   if ((ret = create_signatures_for_inputs(inputs, &sender_keypair, &sign_data)) != 0) {
-    printf("[%s:%d] can not create signature blocks for inputs\n", __func__, __LINE__);
+    printf("[%s:%d] can not create signatures for inputs\n", __func__, __LINE__);
     goto end;
   }
 
@@ -294,7 +294,7 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
   }
 
   // send a block to a network
-  ret = wallet_send_block(w, block, msg_res);
+  ret = wallet_send_block(w, block, blk_res);
 
 end:
   if (block) {
@@ -313,8 +313,8 @@ end:
 int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bool state_ctrl_change,
                                          uint32_t state_ctrl_index, address_t* govern_addr, uint32_t foundry_counter,
                                          uint64_t send_amount, utxo_outputs_list_t* outputs,
-                                         res_send_block_t* msg_res) {
-  if (w == NULL || alias_id == NULL || govern_addr == NULL || msg_res == NULL) {
+                                         res_send_block_t* blk_res) {
+  if (w == NULL || alias_id == NULL || govern_addr == NULL || blk_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -398,7 +398,7 @@ int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bo
   }
 
   // send a block to a network
-  ret = wallet_send_block(w, block, msg_res);
+  ret = wallet_send_block(w, block, blk_res);
 
 end:
   if (block) {
@@ -413,8 +413,8 @@ end:
 }
 
 int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern_change, uint32_t govern_index,
-                                address_t* recv_addr, res_send_block_t* msg_res) {
-  if (w == NULL || alias_id == NULL || recv_addr == NULL || msg_res == NULL) {
+                                address_t* recv_addr, res_send_block_t* blk_res) {
+  if (w == NULL || alias_id == NULL || recv_addr == NULL || blk_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
@@ -483,7 +483,7 @@ int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern
   }
 
   // send a block to a network
-  ret = wallet_send_block(w, block, msg_res);
+  ret = wallet_send_block(w, block, blk_res);
 
 end:
   if (block) {

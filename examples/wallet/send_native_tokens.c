@@ -94,10 +94,10 @@ int main(void) {
   uint256_free(native_tokens_amount);
 
   // transfer tokens
-  printf("Sending transaction message to the Tangle...\n");
+  printf("Sending transaction block to the Tangle...\n");
   res_send_block_t blk_res = {};
   if (wallet_basic_output_send(w, false, sender_addr_index, 0, native_tokens, &receiver, &blk_res) != 0) {
-    printf("Sending message to the Tangle failed!\n");
+    printf("Sending block to the Tangle failed!\n");
     native_tokens_free(native_tokens);
     wallet_destroy(w);
     return -1;

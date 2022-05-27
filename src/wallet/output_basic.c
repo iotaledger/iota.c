@@ -55,32 +55,6 @@ static res_outputs_id_t* get_unspent_basic_output_ids(iota_wallet_t* w, address_
   return res_id;
 }
 
-int create_signatures_for_inputs(utxo_outputs_list_t* inputs, ed25519_keypair_t* sender_key,
-                                 signing_data_list_t** sign_data) {
-  if (inputs == NULL || sender_key == NULL || *sign_data != NULL) {
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
-  utxo_outputs_list_t* elm;
-  LL_FOREACH(inputs, elm) {
-    // add signing data (Basic output must have the address unlock condition)
-    // get address unlock condition from the basic output
-    unlock_cond_t* unlock_cond =
-        condition_list_get_type(((output_basic_t*)elm->output->output)->unlock_conditions, UNLOCK_COND_ADDRESS);
-    if (!unlock_cond) {
-      return -1;
-    }
-
-    // add address unlock condition into the signing data list
-    if (signing_data_add(unlock_cond->obj, NULL, 0, sender_key, sign_data) != 0) {
-      return -1;
-    }
-  }
-
-  return 0;
-}
-
 static bool is_unspent_basic_output_useful(iota_wallet_t* w, output_basic_t* output, uint64_t send_amount,
                                            uint64_t collected_amount, uint64_t remainder_amount,
                                            native_tokens_list_t* send_native_tokens,
@@ -132,14 +106,6 @@ static bool is_unspent_basic_output_useful(iota_wallet_t* w, output_basic_t* out
   return false;
 }
 
-// TODO add to essence was removed and it must be called outside of this function after function call
-/*if (tx_essence_add_output(essence, OUTPUT_BASIC, output_basic) != 0) {
-  printf("[%s:%d] can not add output to transaction essence\n", __func__, __LINE__);
-  condition_free(unlock_cond_addr);
-  condition_list_free(unlock_cond_blk);
-  output_basic_free(output_basic);
-  return -1;
-}*/
 output_basic_t* wallet_output_basic_create(address_t* recv_addr, uint64_t amount, native_tokens_list_t* native_tokens) {
   if (recv_addr == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -321,6 +287,32 @@ end:
   return ret;
 }
 
+int create_signatures_for_inputs(utxo_outputs_list_t* inputs, ed25519_keypair_t* sender_key,
+                                 signing_data_list_t** sign_data) {
+  if (inputs == NULL || sender_key == NULL || *sign_data != NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return -1;
+  }
+
+  utxo_outputs_list_t* elm;
+  LL_FOREACH(inputs, elm) {
+    // add signing data (Basic output must have the address unlock condition)
+    // get address unlock condition from the basic output
+    unlock_cond_t* unlock_cond =
+        condition_list_get_type(((output_basic_t*)elm->output->output)->unlock_conditions, UNLOCK_COND_ADDRESS);
+    if (!unlock_cond) {
+      return -1;
+    }
+
+    // add address unlock condition into the signing data list
+    if (signing_data_add(unlock_cond->obj, NULL, 0, sender_key, sign_data) != 0) {
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
 int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t send_amount,
                              native_tokens_list_t* send_native_tokens, address_t* recv_addr,
                              res_send_block_t* blk_res) {
@@ -396,7 +388,7 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
   }
 
   if ((ret = create_signatures_for_inputs(inputs, &sender_keypair, &sign_data)) != 0) {
-    printf("[%s:%d] can not create signature blocks for inputs\n", __func__, __LINE__);
+    printf("[%s:%d] can not create signatures for inputs\n", __func__, __LINE__);
     goto end;
   }
 

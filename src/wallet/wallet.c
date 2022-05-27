@@ -410,54 +410,54 @@ core_block_t* wallet_create_core_block(iota_wallet_t* w, transaction_payload_t* 
   }
 
   // create a core block
-  core_block_t* core_msg = core_block_new(w->protocol_version);
-  if (!core_msg) {
+  core_block_t* core_block = core_block_new(w->protocol_version);
+  if (!core_block) {
     printf("[%s:%d] create core block failed\n", __func__, __LINE__);
     return NULL;
   }
-  core_msg->payload_type = CORE_BLOCK_PAYLOAD_TRANSACTION;
-  core_msg->payload = tx;
+  core_block->payload_type = CORE_BLOCK_PAYLOAD_TRANSACTION;
+  core_block->payload = tx;
 
   // calculate inputs commitment
   if (tx_essence_inputs_commitment_calculate(tx->essence, unspent_outputs) != 0) {
     printf("[%s:%d] calculate inputs commitment failed\n", __func__, __LINE__);
-    core_block_free(core_msg);
+    core_block_free(core_block);
     return NULL;
   }
 
   // calculate transaction essence hash
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
-  if (core_block_essence_hash_calc(core_msg, essence_hash, sizeof(essence_hash)) != 0) {
+  if (core_block_essence_hash_calc(core_block, essence_hash, sizeof(essence_hash)) != 0) {
     printf("[%s:%d] calculate essence hash failed\n", __func__, __LINE__);
-    core_block_free(core_msg);
+    core_block_free(core_block);
     return NULL;
   }
 
   // sign transaction
   if (signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data, &tx->unlocks) != 0) {
     printf("[%s:%d] sign transaction failed\n", __func__, __LINE__);
-    core_block_free(core_msg);
+    core_block_free(core_block);
     return NULL;
   }
 
   // syntactic validation
   if (tx_payload_syntactic(tx, &w->byte_cost) != true) {
     printf("[%s:%d] invalid transaction payload\n", __func__, __LINE__);
-    core_block_free(core_msg);
+    core_block_free(core_block);
     return NULL;
   }
 
-  return core_msg;
+  return core_block;
 }
 
-int wallet_send_block(iota_wallet_t* w, core_block_t* core_msg, res_send_block_t* msg_res) {
-  if (w == NULL || core_msg == NULL || msg_res == NULL) {
+int wallet_send_block(iota_wallet_t* w, core_block_t* core_block, res_send_block_t* blk_res) {
+  if (w == NULL || core_block == NULL || blk_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
 
   // send block to a network
-  if (send_core_block(&w->endpoint, core_msg, msg_res) != 0) {
+  if (send_core_block(&w->endpoint, core_block, blk_res) != 0) {
     printf("[%s:%d] failed to send a block to a network\n", __func__, __LINE__);
     return -1;
   }

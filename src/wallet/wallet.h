@@ -199,11 +199,11 @@ core_block_t* wallet_create_core_block(iota_wallet_t* w, transaction_payload_t* 
  * @brief Send core block to a network
  *
  * @param[in] w A wallet instance
- * @param[in] core_msg A core block which will be sent
- * @param[out] msg_res A response of the transfer
+ * @param[in] core_block A core block which will be sent
+ * @param[out] blk_res A response of the transfer
  * @return int 0 on success
  */
-int wallet_send_block(iota_wallet_t* w, core_block_t* core_msg, res_send_block_t* msg_res);
+int wallet_send_block(iota_wallet_t* w, core_block_t* core_block, res_send_block_t* blk_res);
 
 #ifdef __cplusplus
 }
