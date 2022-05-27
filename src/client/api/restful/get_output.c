@@ -418,7 +418,7 @@ int deser_get_output_meta(char const *const j_str, res_output_t *res) {
 void print_get_output(get_output_t *res, uint8_t indentation) {
   printf("%s{\n", PRINT_INDENTATION(indentation));
   printf("%s\tMetadata: {\n", PRINT_INDENTATION(indentation));
-  printf("%s\t\tMessage ID: ", PRINT_INDENTATION(indentation));
+  printf("%s\t\tBlock ID: ", PRINT_INDENTATION(indentation));
   dump_hex_str(res->meta.blk_id, IOTA_BLOCK_ID_BYTES);
   printf("%s\t\tTransaction ID: ", PRINT_INDENTATION(indentation));
   dump_hex_str(res->meta.tx_id, IOTA_TRANSACTION_ID_BYTES);

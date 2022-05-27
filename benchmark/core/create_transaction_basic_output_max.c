@@ -33,7 +33,7 @@ static output_basic_t* create_output_basic(bool create_native_tokens) {
   condition_free(unlock_timelock);
   condition_free(unlock_expir);
 
-  // create feature blocks
+  // create features
   feature_list_t* feat_blocks = feature_list_new();
   feature_list_add_sender(&feat_blocks, &addr);
   byte_t test_tag[MAX_INDEX_TAG_BYTES] = "Test tagged data from a benchmark application. Test tagged dat";

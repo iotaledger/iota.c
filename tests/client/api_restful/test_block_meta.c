@@ -98,7 +98,7 @@ void test_get_block_meta() {
     printf("Error response: %s\n", meta->u.error->msg);
   } else {
     TEST_ASSERT_NOT_NULL(meta->u.meta);
-    printf("Message ID: %s\nisSolid: %s\n", meta->u.meta->blk_id, meta->u.meta->is_solid ? "True" : "False");
+    printf("Block ID: %s\nisSolid: %s\n", meta->u.meta->blk_id, meta->u.meta->is_solid ? "True" : "False");
     size_t parents = block_meta_parents_count(meta->u.meta);
     printf("%zu parents:\n", parents);
     for (size_t i = 0; i < parents; i++) {

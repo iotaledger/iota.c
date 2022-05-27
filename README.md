@@ -32,8 +32,8 @@
 ## About
 
 This is the **official** C client library, which allows you to do the following:
-* Create messages
-* Read messages
+* Create blocks
+* Read blocks
 * Sign transactions
 * Generate addresses
 * Implement a wallet application

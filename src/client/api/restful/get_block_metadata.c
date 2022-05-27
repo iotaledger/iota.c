@@ -233,7 +233,7 @@ void print_block_metadata(res_block_meta_t *res, uint8_t indentation) {
     printf("%s\tblockId: %s\n", PRINT_INDENTATION(indentation), meta->blk_id);
     int len = utarray_len(meta->parents);
     if (len > 0) {
-      printf("%s\tparentMessageIds: [\n", PRINT_INDENTATION(indentation));
+      printf("%s\tparents: [\n", PRINT_INDENTATION(indentation));
       for (int i = 0; i < len; i++) {
         printf(i > 0 ? ",\n" : "");
         printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(meta->parents, (unsigned int)i));
@@ -241,7 +241,7 @@ void print_block_metadata(res_block_meta_t *res, uint8_t indentation) {
       printf("\n");
       printf("%s\t]\n", PRINT_INDENTATION(indentation));
     } else {
-      printf("%s\tparentMessageIds: []\n", PRINT_INDENTATION(indentation));
+      printf("%s\tparents: []\n", PRINT_INDENTATION(indentation));
     }
     printf("%s\tisSolid: %s\n", PRINT_INDENTATION(indentation), meta->is_solid ? "true" : "false");
     printf("%s\treferencedByMilestoneIndex: %u\n", PRINT_INDENTATION(indentation), meta->referenced_milestone);

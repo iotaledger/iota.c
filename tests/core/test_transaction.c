@@ -127,7 +127,7 @@ static output_alias_t* create_output_alias() {
   TEST_ASSERT(condition_list_add(&unlock_conds, state_cond) == 0);
   TEST_ASSERT(condition_list_add(&unlock_conds, gov_cond) == 0);
 
-  // create Feature Blocks
+  // create Features
   feature_list_t* feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta)) == 0);
 
@@ -136,7 +136,7 @@ static output_alias_t* create_output_alias() {
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
-  // create Immutable Feature Blocks
+  // create Immutable Features
   feature_list_t* immut_feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_metadata(&immut_feat_list, test_immut_meta, sizeof(test_immut_meta)) == 0);
   TEST_ASSERT(feature_list_add_issuer(&immut_feat_list, &issuer_addr) == 0);
@@ -233,11 +233,11 @@ static output_nft_t* create_output_nft() {
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
-  // create Feature Blocks
+  // create Features
   feature_list_t* feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_sender(&feat_list, &sender_addr) == 0);
   TEST_ASSERT(feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta)) == 0);
-  // create Immutable Feature Blocks
+  // create Immutable Features
   feature_list_t* immut_feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_metadata(&immut_feat_list, test_immut_meta, sizeof(test_immut_meta)) == 0);
   TEST_ASSERT(feature_list_add_issuer(&immut_feat_list, &issuer_addr) == 0);

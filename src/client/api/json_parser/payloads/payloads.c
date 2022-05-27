@@ -274,7 +274,7 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
   /*
   {
     "protocolVersion": 2,
-    "parentMessageIds": [
+    "parents": [
       "0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
       "0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
       "0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893",
@@ -286,7 +286,7 @@ int milestone_deserialize(cJSON* payload, milestone_payload_t* ms) {
       "timestamp": 1644478549,
       "protocolVersion": 2,
       "previousMilestoneId": "0xb1ddd8775e898f15829ad885f0c2cabdbfc08610adf703019edef6f0c24f5eea"
-      "parentMessageIds": [
+      "parents": [
         "0x596a369aa0de9c1987b28b945375ac8faa8c420c57d17befc6292be70aaea9f3",
         "0x8377782f43faa38ef0a223c870137378e9ec2db57b4d68e0bb9bdeb5d1c4bc3a",
         "0xa3bcf33be3e816c28b295996a31204f64a48aa58adc6f905359e1ffb9ed1b893",
@@ -475,7 +475,7 @@ cJSON* json_transaction_serialize(transaction_payload_t* tx) {
   {
     "type": 6,
     "essence": essence object
-    "unlockBlocks": unlock blocks object
+    "unlocks": unlocks object
   }
   */
   cJSON* tx_payload = NULL;

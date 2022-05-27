@@ -663,7 +663,7 @@ bool output_foundry_syntactic(output_foundry_t* output) {
   // must be only 1 condition, therefore we don't do sorting
   // condition_list_sort(&output->unlock_conditions);
 
-  // == Feature Blocks validation ===
+  // == Features validation ===
   // 0<= feature count <= 1
   if (feature_list_len(output->features) > MAX_FOUNDRY_FEATURES_COUNT) {
     printf("[%s:%d] invalid feature count must smaller than %d\n", __func__, __LINE__,
@@ -682,7 +682,7 @@ bool output_foundry_syntactic(output_foundry_t* output) {
   // must be only 1 feature, therefore we don't do sorting
   // feature_list_sort(&output->featurs);
 
-  // == Immutable Feature Blocks validation ===
+  // == Immutable Features validation ===
   // 0<= immutable feature count <= 1
   if (feature_list_len(output->immutable_features) > MAX_FOUNDRY_IMMUTABLE_FEATURES_COUNT) {
     printf("[%s:%d] invalid immutable feature count must smaller than %d\n", __func__, __LINE__,

@@ -20,8 +20,8 @@
       "stateMetadata": "0x010203040506070809",
       "foundryCounter": 54321,
       "unlockConditions": [],
-      "featureBlocks": [],
-      "immutableFeatureBlocks" : []
+      "features": [],
+      "immutableFeatures" : []
     }
   ]
 */
@@ -91,17 +91,17 @@ int json_output_alias_deserialize(cJSON *output_obj, output_alias_t **alias) {
   }
 
   // features array
-  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS) != NULL) {
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEATURES) != NULL) {
     if (json_features_deserialize(output_obj, false, &features) != 0) {
-      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEATURES);
       goto end;
     }
   }
 
   // immutable features array
-  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_BLOCKS) != NULL) {
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_FEATS) != NULL) {
     if (json_features_deserialize(output_obj, true, &immut_features) != 0) {
-      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_IMMUTABLE_BLOCKS);
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_IMMUTABLE_FEATS);
       goto end;
     }
   }
@@ -209,7 +209,7 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
 
     // features
     tmp = json_features_serialize(alias->features);
-    if (!cJSON_AddItemToObject(alias_obj, JSON_KEY_FEAT_BLOCKS, tmp)) {
+    if (!cJSON_AddItemToObject(alias_obj, JSON_KEY_FEATURES, tmp)) {
       printf("[%s:%d] add features into alias error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
@@ -217,7 +217,7 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
 
     // immutable features
     tmp = json_features_serialize(alias->immutable_features);
-    if (!cJSON_AddItemToObject(alias_obj, JSON_KEY_IMMUTABLE_BLOCKS, tmp)) {
+    if (!cJSON_AddItemToObject(alias_obj, JSON_KEY_IMMUTABLE_FEATS, tmp)) {
       printf("[%s:%d] add immutable features to Alias error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;

@@ -47,7 +47,7 @@ void test_deser_get_milestone() {
                         sizeof(tmp_ms_id)) == 0);
   TEST_ASSERT_EQUAL_MEMORY(tmp_ms_id, ms->previous_milestone_id, sizeof(tmp_ms_id));
 
-  // check parentMessageIds
+  // check parents
   TEST_ASSERT_EQUAL_INT(3, milestone_payload_get_parents_count(ms));
   byte_t tmp_parent_id[IOTA_BLOCK_ID_BYTES] = {};
   TEST_ASSERT(hex_2_bin("7ed3d67fc7b619e72e588f51fef2379e43e6e9a856635843b3f29aa3a3f1f006", 65, NULL, tmp_parent_id,

@@ -14,9 +14,9 @@ Memory benchmark can be done for a following library modules:
 - Wallet
 
 and some demo applications:
-- `create_transaction_basic_output` (Transaction with one input and one basic output without native tokens or feature blocks.)
-- `create_transaction_basic_output_full` (Transaction with one input and one basic output with one native token and all possible feature blocks.)
-- `create_transaction_basic_output_max` (Transaction with maximum number of inputs, outputs and number of native tokens. Each basic output has all possible feature blocks.)
+- `create_transaction_basic_output` (Transaction with one input and one basic output without native tokens or features.)
+- `create_transaction_basic_output_full` (Transaction with one input and one basic output with one native token and all possible features.)
+- `create_transaction_basic_output_max` (Transaction with maximum number of inputs, outputs and number of native tokens. Each basic output has all possible features.)
 - `send_tagged_data` (With Client module a tagged data is sent to a tangle.)
 - `send_tagged_data_max` (With Client module a tagged data with maximum length of tag and data is sent to a tangle.)
 

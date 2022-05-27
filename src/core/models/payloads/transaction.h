@@ -37,7 +37,7 @@ typedef struct {
 /**
  * @brief A Transaction payload is made up of two parts:
  * 1. The The Transaction Essence part which contains the inputs, outputs and an optional embedded payload.
- * 2. The Unlock Blocks which unlock the Transaction Essence's inputs. In case the unlock contains a signature, it
+ * 2. The Unlocks which unlock the Transaction Essence's inputs. In case the unlock contains a signature, it
  * signs the entire Transaction Essence part.
  *
  */

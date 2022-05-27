@@ -196,7 +196,7 @@ static int send_basic_tx(test_config_t* conf, test_data_t* params, test_item_t* 
       return -1;
     } else {
       strncpy(params->basic_blk_id, block_res.u.blk_id, BIN_TO_HEX_STR_BYTES(IOTA_BLOCK_ID_BYTES));
-      printf("[%s:%d] Basic Message ID: %s\n", __func__, __LINE__, block_res.u.blk_id);
+      printf("[%s:%d] Basic Block ID: %s\n", __func__, __LINE__, block_res.u.blk_id);
       printf("[%s:%d] GET /api/v2/tips: PASS\n", __func__, __LINE__);
       printf("[%s:%d] POST /api/v2/block: PASS\n", __func__, __LINE__);
       items[CORE_GET_TIPS].st = STATE_PASS;
@@ -233,7 +233,7 @@ static int send_tagged_payload(test_config_t* conf, test_data_t* params, test_it
       return -1;
     } else {
       strncpy(params->tagged_blk_id, res.u.blk_id, BIN_TO_HEX_STR_BYTES(IOTA_BLOCK_ID_BYTES));
-      printf("[%s:%d] Tagged Message ID: %s\n", __func__, __LINE__, res.u.blk_id);
+      printf("[%s:%d] Tagged Data Block ID: %s\n", __func__, __LINE__, res.u.blk_id);
       items[CORE_POST_TAGGED_MSG].st = STATE_PASS;
     }
   } else {
@@ -392,7 +392,7 @@ static int validating_blocks(test_config_t* conf, test_data_t* params, test_item
   }
 
   int ret = 0;
-  printf("Test Message IDs:\n");
+  printf("Tested Block IDs:\n");
   printf("Basic: 0x%s\n", params->basic_blk_id);
   printf("Milestone: 0x%s\n", params->milestone_blk_id);
   printf("Tagged Data: 0x%s\n", params->tagged_blk_id);

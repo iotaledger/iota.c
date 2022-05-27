@@ -194,7 +194,7 @@ static int wallet_output_alias_create(transaction_essence_t* essence, byte_t ali
   return 0;
 }
 
-// TODO: the alias output should be able to set optional feature blocks such as Sender/Metadata
+// TODO: the alias output should be able to set optional features such as Sender/Metadata
 int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t const send_amount,
                                address_t* state_ctrl_addr, address_t* govern_addr, uint32_t foundry_counter,
                                address_t* alias_addr, res_send_block_t* msg_res) {

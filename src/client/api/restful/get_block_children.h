@@ -87,7 +87,7 @@ char *res_block_children_get(res_block_children_t *res, size_t index);
 int get_block_children(iota_client_conf_t const *ctx, char const blk_id[], res_block_children_t *res);
 
 /**
- * @brief Print Message Children
+ * @brief Print the children of a Block
  *
  * @param[in] res res_block_children_t*
  * @param[in] indentation Tab indentation when printing block children

@@ -79,7 +79,7 @@ static byte_t* create_signature_unlock() {
                         "60efc9fe034f810ad0cc4b0210adaafd0a",
                         BIN_TO_HEX_BYTES(ED_SIGNATURE_BYTES), NULL, sig, sizeof(sig)) == 0);
 
-  // create a signature unlock block
+  // create a signature unlock
   byte_t* signature = malloc(ED25519_SIGNATURE_BLOCK_BYTES);
   TEST_ASSERT_NOT_NULL(signature);
 
@@ -145,11 +145,11 @@ void test_block_with_tx() {
   // check if essence hash is matching
   TEST_ASSERT_EQUAL_MEMORY(expected_essence_hash, essence_hash, CRYPTO_BLAKE2B_256_HASH_BYTES);
 
-  // sign transaction (generate unlock blocks)
+  // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data_list,
                                        &tx->unlocks) == 0);
 
-  // validate unlock blocks
+  // validate unlocks
   TEST_ASSERT_EQUAL_UINT16(1, unlock_list_count(tx->unlocks));
 
   unlock_t* unlock = unlock_list_get(tx->unlocks, 0);
@@ -231,7 +231,7 @@ void test_block_with_tx_serialize() {
   TEST_ASSERT_NOT_NULL(tagged_data);
   TEST_ASSERT(tx_essence_add_payload(essence, CORE_BLOCK_PAYLOAD_TAGGED, tagged_data) == 0);
 
-  // add signature unlock block
+  // add signature unlock
   byte_t* signature = create_signature_unlock();
   TEST_ASSERT(unlock_list_add_signature(&((transaction_payload_t*)blk->payload)->unlocks, signature,
                                         ED25519_SIGNATURE_BLOCK_BYTES) == 0);
@@ -309,7 +309,7 @@ void test_block_with_tagged_data_serialize() {
   // add block nonce
   blk->nonce = 58976;
 
-  // serialize core message
+  // serialize core block
   size_t core_block_expected_len = core_block_serialize_len(blk);
   TEST_ASSERT(core_block_expected_len != 0);
   byte_t* core_block_buf = malloc(core_block_expected_len);
@@ -317,7 +317,7 @@ void test_block_with_tagged_data_serialize() {
   TEST_ASSERT(core_block_serialize(blk, core_block_buf, 1) == 0);  // expect serialization fails
   TEST_ASSERT(core_block_serialize(blk, core_block_buf, core_block_expected_len) == core_block_expected_len);
 
-  // validate core message
+  // validate core block
   size_t serialized_data_hex_str_len = BIN_TO_HEX_STR_BYTES(core_block_expected_len);
   TEST_ASSERT_EQUAL_INT(sizeof(test_serialized_data_str), serialized_data_hex_str_len);
   char* serialized_data_hex_str = malloc(serialized_data_hex_str_len);
@@ -325,11 +325,11 @@ void test_block_with_tagged_data_serialize() {
   bin_2_hex(core_block_buf, core_block_expected_len, NULL, serialized_data_hex_str, serialized_data_hex_str_len);
   TEST_ASSERT_EQUAL_MEMORY(test_serialized_data_str, serialized_data_hex_str, serialized_data_hex_str_len);
 
-  // print serialized core message
-  printf("Serialized messages: ");
+  // print serialized core block
+  printf("Serialized blocks: ");
   dump_hex_str(core_block_buf, core_block_expected_len);
 
-  // print core message
+  // print core block
   core_block_print(blk, 0);
 
   // clean up

@@ -196,7 +196,7 @@ void print_block_children(res_block_children_t *res, uint8_t indentation) {
     printf("%s\tcount: %d\n", PRINT_INDENTATION(indentation), data->count);
     int len = utarray_len(data->children);
     if (len > 0) {
-      printf("%s\tchildrenMessageIds: [\n", PRINT_INDENTATION(indentation));
+      printf("%s\tchildren: [\n", PRINT_INDENTATION(indentation));
       for (int i = 0; i < len; i++) {
         printf(i > 0 ? ",\n" : "");
         printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(data->children, (unsigned int)i));
@@ -204,7 +204,7 @@ void print_block_children(res_block_children_t *res, uint8_t indentation) {
       printf("\n");
       printf("%s\t]\n", PRINT_INDENTATION(indentation));
     } else {
-      printf("%s\tchildrenMessageIds: []\n", PRINT_INDENTATION(indentation));
+      printf("%s\tchildren: []\n", PRINT_INDENTATION(indentation));
     }
     printf("%s}\n", PRINT_INDENTATION(indentation));
   }

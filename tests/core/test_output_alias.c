@@ -53,7 +53,7 @@ void test_output_alias() {
   TEST_ASSERT(condition_list_add(&unlock_conds, state_block) == 0);
   TEST_ASSERT(condition_list_add(&unlock_conds, gov_block) == 0);
 
-  // create Feature Blocks
+  // create Features
   feature_list_t* feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta)) == 0);
 
@@ -62,7 +62,7 @@ void test_output_alias() {
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
-  // create Immutable Feature Blocks
+  // create Immutable Features
   feature_list_t* immut_feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_metadata(&immut_feat_list, test_immut_meta, sizeof(test_immut_meta)) == 0);
   TEST_ASSERT(feature_list_add_issuer(&immut_feat_list, &issuer_addr) == 0);
@@ -110,7 +110,7 @@ void test_output_alias() {
   TEST_ASSERT(gov_block->type == exp_gov->type);
   TEST_ASSERT(address_equal((address_t*)gov_block->obj, (address_t*)exp_gov->obj));
 
-  // validate feature blocks
+  // validate features
   TEST_ASSERT_NOT_NULL(output->features);
   TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(output->features));
   output_feature_t* feat = feature_list_get(output->features, 0);
@@ -119,7 +119,7 @@ void test_output_alias() {
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
                            ((feature_metadata_t*)feat->obj)->data_len);
 
-  // immutable feature blocks should be in adding order
+  // immutable features should be in adding order
   TEST_ASSERT_NOT_NULL(output->immutable_features);
   TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(output->immutable_features));
 
@@ -191,7 +191,7 @@ void test_output_alias() {
   TEST_ASSERT(gov_block->type == exp_gov->type);
   TEST_ASSERT(address_equal((address_t*)gov_block->obj, (address_t*)exp_gov->obj));
 
-  // deserialized feature blocks
+  // deserialized features
   TEST_ASSERT_NOT_NULL(deser_output->features);
   TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(deser_output->features));
   feat = feature_list_get(deser_output->features, 0);
@@ -201,7 +201,7 @@ void test_output_alias() {
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
                            ((feature_metadata_t*)feat->obj)->data_len);
 
-  // deserialized immutable feature blocks
+  // deserialized immutable features
   TEST_ASSERT_NOT_NULL(deser_output->immutable_features);
   // should be sorted based on block type
   TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(deser_output->immutable_features));
@@ -252,7 +252,7 @@ void test_output_alias_without_native_tokens() {
   TEST_ASSERT(condition_list_add(&unlock_conds, state_block) == 0);
   TEST_ASSERT(condition_list_add(&unlock_conds, gov_block) == 0);
 
-  // create Feature Blocks
+  // create Features
   feature_list_t* feat_list = feature_list_new();
   feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta));
 
@@ -261,7 +261,7 @@ void test_output_alias_without_native_tokens() {
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
-  // create Immutable Feature Blocks
+  // create Immutable Features
   feature_list_t* immut_feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_metadata(&immut_feat_list, test_immut_meta, sizeof(test_immut_meta)) == 0);
   TEST_ASSERT(feature_list_add_issuer(&immut_feat_list, &issuer_addr) == 0);
@@ -298,7 +298,7 @@ void test_output_alias_without_native_tokens() {
   TEST_ASSERT(gov_block->type == exp_gov->type);
   TEST_ASSERT(address_equal((address_t*)gov_block->obj, (address_t*)exp_gov->obj));
 
-  // validate feature blocks
+  // validate features
   TEST_ASSERT_NOT_NULL(output->features);
   TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(output->features));
   output_feature_t* feat = feature_list_get(output->features, 0);
@@ -307,7 +307,7 @@ void test_output_alias_without_native_tokens() {
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
                            ((feature_metadata_t*)feat->obj)->data_len);
 
-  // immutable feature blocks should be in adding order
+  // immutable features should be in adding order
   TEST_ASSERT_NOT_NULL(output->immutable_features);
   TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(output->immutable_features));
 
@@ -367,7 +367,7 @@ void test_output_alias_without_native_tokens() {
   TEST_ASSERT(gov_block->type == exp_gov->type);
   TEST_ASSERT(address_equal((address_t*)gov_block->obj, (address_t*)exp_gov->obj));
 
-  // deserialized feature blocks
+  // deserialized features
   TEST_ASSERT_NOT_NULL(deser_output->features);
   TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(deser_output->features));
   feat = feature_list_get(deser_output->features, 0);
@@ -377,7 +377,7 @@ void test_output_alias_without_native_tokens() {
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
                            ((feature_metadata_t*)feat->obj)->data_len);
 
-  // deserialized immutable feature blocks
+  // deserialized immutable features
   TEST_ASSERT_NOT_NULL(deser_output->immutable_features);
   // should be sorted based on block type
   TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(deser_output->immutable_features));
@@ -433,7 +433,7 @@ void test_output_alias_without_metadata() {
   TEST_ASSERT(condition_list_add(&unlock_conds, state_block) == 0);
   TEST_ASSERT(condition_list_add(&unlock_conds, gov_block) == 0);
 
-  // create Feature Blocks
+  // create Features
   feature_list_t* feat_list = feature_list_new();
   feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta));
 
@@ -442,7 +442,7 @@ void test_output_alias_without_metadata() {
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
-  // create Immutable Feature Blocks
+  // create Immutable Features
   feature_list_t* immut_feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_metadata(&immut_feat_list, test_immut_meta, sizeof(test_immut_meta)) == 0);
   TEST_ASSERT(feature_list_add_issuer(&immut_feat_list, &issuer_addr) == 0);
@@ -489,7 +489,7 @@ void test_output_alias_without_metadata() {
   TEST_ASSERT(gov_block->type == exp_gov->type);
   TEST_ASSERT(address_equal((address_t*)gov_block->obj, (address_t*)exp_gov->obj));
 
-  // validate feature blocks
+  // validate features
   TEST_ASSERT_NOT_NULL(output->features);
   TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(output->features));
   output_feature_t* feat = feature_list_get(output->features, 0);
@@ -498,7 +498,7 @@ void test_output_alias_without_metadata() {
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
                            ((feature_metadata_t*)feat->obj)->data_len);
 
-  // immutable feature blocks should be in adding order
+  // immutable features should be in adding order
   TEST_ASSERT_NOT_NULL(output->immutable_features);
   TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(output->immutable_features));
 
@@ -572,7 +572,7 @@ void test_output_alias_without_metadata() {
   TEST_ASSERT(gov_block->type == exp_gov->type);
   TEST_ASSERT(address_equal((address_t*)gov_block->obj, (address_t*)exp_gov->obj));
 
-  // deserialized feature blocks
+  // deserialized features
   TEST_ASSERT_NOT_NULL(deser_output->features);
   TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(deser_output->features));
   feat = feature_list_get(deser_output->features, 0);
@@ -582,7 +582,7 @@ void test_output_alias_without_metadata() {
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
                            ((feature_metadata_t*)feat->obj)->data_len);
 
-  // deserialized immutable feature blocks
+  // deserialized immutable features
   TEST_ASSERT_NOT_NULL(deser_output->immutable_features);
   // should be sorted based on block type
   TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(deser_output->immutable_features));
@@ -646,7 +646,7 @@ void test_output_alias_without_features() {
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
-  // create Immutable Feature Blocks
+  // create Immutable Features
   feature_list_t* immut_feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_metadata(&immut_feat_list, test_immut_meta, sizeof(test_immut_meta)) == 0);
   TEST_ASSERT(feature_list_add_issuer(&immut_feat_list, &issuer_addr) == 0);
@@ -696,10 +696,10 @@ void test_output_alias_without_features() {
   TEST_ASSERT(gov_block->type == exp_gov->type);
   TEST_ASSERT(address_equal((address_t*)gov_block->obj, (address_t*)exp_gov->obj));
 
-  // validate feature blocks
+  // validate features
   TEST_ASSERT_NULL(output->features);
 
-  // immutable feature blocks should be in adding order
+  // immutable features should be in adding order
   TEST_ASSERT_NOT_NULL(output->immutable_features);
   TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(output->immutable_features));
 
@@ -770,10 +770,10 @@ void test_output_alias_without_features() {
   TEST_ASSERT(gov_block->type == exp_gov->type);
   TEST_ASSERT(address_equal((address_t*)gov_block->obj, (address_t*)exp_gov->obj));
 
-  // deserialized feature blocks
+  // deserialized features
   TEST_ASSERT_NULL(deser_output->features);
 
-  // deserialized immutable feature blocks
+  // deserialized immutable features
   TEST_ASSERT_NOT_NULL(deser_output->immutable_features);
   // should be sorted based on block type
   TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(deser_output->immutable_features));
@@ -832,7 +832,7 @@ void test_output_alias_without_immutable_features() {
   TEST_ASSERT(condition_list_add(&unlock_conds, state_block) == 0);
   TEST_ASSERT(condition_list_add(&unlock_conds, gov_block) == 0);
 
-  // create Feature Blocks
+  // create Features
   feature_list_t* feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta)) == 0);
 
@@ -879,7 +879,7 @@ void test_output_alias_without_immutable_features() {
   TEST_ASSERT(gov_block->type == exp_gov->type);
   TEST_ASSERT(address_equal((address_t*)gov_block->obj, (address_t*)exp_gov->obj));
 
-  // validate feature blocks
+  // validate features
   TEST_ASSERT_NOT_NULL(output->features);
   TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(output->features));
   output_feature_t* feat = feature_list_get(output->features, 0);
@@ -888,7 +888,7 @@ void test_output_alias_without_immutable_features() {
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
                            ((feature_metadata_t*)feat->obj)->data_len);
 
-  // immutable feature blocks should be in adding order
+  // immutable features should be in adding order
   TEST_ASSERT_NULL(output->immutable_features);
 
   // syntactic validation
@@ -949,7 +949,7 @@ void test_output_alias_without_immutable_features() {
   TEST_ASSERT(gov_block->type == exp_gov->type);
   TEST_ASSERT(address_equal((address_t*)gov_block->obj, (address_t*)exp_gov->obj));
 
-  // deserialized feature blocks
+  // deserialized features
   TEST_ASSERT_NOT_NULL(deser_output->features);
   TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(deser_output->features));
   feat = feature_list_get(deser_output->features, 0);
@@ -1009,7 +1009,7 @@ void test_output_alias_clone() {
   TEST_ASSERT(condition_list_add(&unlock_conds, state_block) == 0);
   TEST_ASSERT(condition_list_add(&unlock_conds, gov_block) == 0);
 
-  // create Feature Blocks
+  // create Features
   feature_list_t* feat_list = feature_list_new();
   feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta));
 
@@ -1017,7 +1017,7 @@ void test_output_alias_clone() {
   address_t issuer_addr = {};
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
-  // create Immutable Feature Blocks
+  // create Immutable Features
   feature_list_t* immut_feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_issuer(&immut_feat_list, &issuer_addr) == 0);
 
@@ -1070,7 +1070,7 @@ void test_output_alias_clone() {
   TEST_ASSERT(gov_block->type == exp_gov->type);
   TEST_ASSERT(address_equal((address_t*)gov_block->obj, (address_t*)exp_gov->obj));
 
-  // compare feature blocks
+  // compare features
   TEST_ASSERT_NOT_NULL(new_output->features);
   TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(new_output->features));
   output_feature_t* feat = feature_list_get(new_output->features, 0);
@@ -1080,7 +1080,7 @@ void test_output_alias_clone() {
   TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
                            ((feature_metadata_t*)feat->obj)->data_len);
 
-  // compare immutable feature blocks
+  // compare immutable features
   TEST_ASSERT_NOT_NULL(output->immutable_features);
   TEST_ASSERT_NOT_NULL(new_output->immutable_features);
   TEST_ASSERT_EQUAL_UINT8(feature_list_len(output->immutable_features),
@@ -1116,7 +1116,7 @@ void test_output_alias_condition_blocks() {
   byte_t alias_id[ALIAS_ID_BYTES];
   iota_crypto_randombytes(alias_id, ALIAS_ID_BYTES);
 
-  // create Feature Blocks
+  // create Features
   feature_list_t* feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta)) == 0);
 
@@ -1125,7 +1125,7 @@ void test_output_alias_condition_blocks() {
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
-  // create Immutable Feature Blocks
+  // create Immutable Features
   feature_list_t* immut_feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_issuer(&immut_feat_list, &issuer_addr) == 0);
 
@@ -1246,7 +1246,7 @@ void test_output_alias_state_metadata_length() {
   TEST_ASSERT(condition_list_add(&unlock_conds, state_block) == 0);
   TEST_ASSERT(condition_list_add(&unlock_conds, gov_block) == 0);
 
-  // create Feature Blocks
+  // create Features
   feature_list_t* feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta)) == 0);
 
@@ -1255,7 +1255,7 @@ void test_output_alias_state_metadata_length() {
   issuer_addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(issuer_addr.address, ED25519_PUBKEY_BYTES);
 
-  // create Immutable Feature Blocks
+  // create Immutable Features
   feature_list_t* immut_feat_list = feature_list_new();
   TEST_ASSERT(feature_list_add_issuer(&immut_feat_list, &issuer_addr) == 0);
 

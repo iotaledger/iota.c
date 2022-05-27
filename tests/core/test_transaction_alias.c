@@ -107,11 +107,11 @@ void test_tx_alias_unlock_funds() {
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
   TEST_ASSERT(core_block_essence_hash_calc(blk, essence_hash, sizeof(essence_hash)) == 0);
 
-  // sign transaction (generate unlock blocks)
+  // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data_list,
                                        &tx->unlocks) == 0);
 
-  // validate unlock blocks
+  // validate unlocks
   TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(tx->unlocks));
 
   unlock_t* unlock = unlock_list_get(tx->unlocks, 0);

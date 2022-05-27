@@ -197,13 +197,13 @@ err:
             }
         }
       ],
-      "featureBlocks": [
+      "features": [
         {
           "type": 2,
           "data": "0x010203040506070809"
         }
       ],
-      "immutableFeatureBlocks": [
+      "immutableFeatures": [
         {
           "type": 2,
           "data": "0x090807060504030201"
@@ -278,9 +278,9 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
   }
 
   // features array
-  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS) != NULL) {
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEATURES) != NULL) {
     if (json_features_deserialize(output_obj, false, &features) != 0) {
-      printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
+      printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_FEATURES);
       goto end;
     }
   }
@@ -303,9 +303,9 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
   }
 
   // immutable features array
-  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_BLOCKS) != NULL) {
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_FEATS) != NULL) {
     if (json_features_deserialize(output_obj, true, &immut_features) != 0) {
-      printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_IMMUTABLE_BLOCKS);
+      printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_IMMUTABLE_FEATS);
       goto end;
     }
   }
@@ -398,7 +398,7 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
 
     // features
     tmp = json_features_serialize(foundry->features);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEAT_BLOCKS, tmp)) {
+    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEATURES, tmp)) {
       printf("[%s:%d] add features to foundry error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
@@ -406,7 +406,7 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
 
     // immutable features
     tmp = json_features_serialize(foundry->immutable_features);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_IMMUTABLE_BLOCKS, tmp)) {
+    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_IMMUTABLE_FEATS, tmp)) {
       printf("[%s:%d] add immutable features to foundry error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
