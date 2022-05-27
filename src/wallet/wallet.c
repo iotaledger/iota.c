@@ -7,7 +7,10 @@
 
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_outputs_id.h"
+#include "core/models/outputs/output_basic.h"
+#include "core/models/outputs/storage_deposit.h"
 #include "wallet/bip39.h"
+#include "wallet/output_basic.h"
 #include "wallet/wallet.h"
 
 #define NODE_DEFAULT_HRP "iota"
@@ -305,9 +308,10 @@ int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* ba
   return -1;
 }
 
-bool wallet_is_collected_balance_sufficient(uint64_t send_amount, uint64_t collected_amount,
-                                            native_tokens_list_t* send_native_tokens,
-                                            native_tokens_list_t* collected_native_tokens) {
+bool wallet_is_collected_balance_sufficient(iota_wallet_t* w, uint64_t send_amount, uint64_t collected_amount,
+                                            uint64_t remainder_amount, native_tokens_list_t* send_native_tokens,
+                                            native_tokens_list_t* collected_native_tokens,
+                                            native_tokens_list_t* remainder_native_tokens) {
   if (collected_amount < send_amount) {
     return false;
   }
@@ -324,51 +328,72 @@ bool wallet_is_collected_balance_sufficient(uint64_t send_amount, uint64_t colle
     }
   }
 
+  // if remainder is needed, check if there is enough base tokens for its minimum storage protection
+  if (remainder_amount > 0 || native_tokens_count(remainder_native_tokens) > 0) {
+    // create Basic Output with address unlock condition
+    address_t remainder_addr = {0};
+    output_basic_t* output_basic =
+        wallet_output_basic_create(&remainder_addr, remainder_amount, remainder_native_tokens);
+    if (!output_basic) {
+      printf("[%s:%d] can not create a reminder basic output\n", __func__, __LINE__);
+      return false;
+    }
+
+    // calculate minimum storage deposit for remainder output
+    uint64_t min_storage_deposit = calc_minimum_output_deposit(&w->byte_cost, OUTPUT_BASIC, output_basic);
+    if (remainder_amount < min_storage_deposit) {
+      output_basic_free(output_basic);
+      return false;
+    }
+    output_basic_free(output_basic);
+  }
+
   return true;
 }
 
-int wallet_calculate_reminder_amount(uint64_t send_amount, uint64_t collected_amount,
-                                     native_tokens_list_t* send_native_tokens,
-                                     native_tokens_list_t* collected_native_tokens, uint64_t* reminder_amount,
-                                     native_tokens_list_t** reminder_native_tokens) {
-  if (reminder_amount == NULL || *reminder_native_tokens != NULL) {
+int wallet_calculate_remainder_amount(uint64_t send_amount, uint64_t collected_amount,
+                                      native_tokens_list_t* send_native_tokens,
+                                      native_tokens_list_t* collected_native_tokens, uint64_t* remainder_amount,
+                                      native_tokens_list_t** remainder_native_tokens) {
+  if (remainder_amount == NULL || *remainder_native_tokens != NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
   }
-  // calculate reminder for base token
-  *reminder_amount = collected_amount - send_amount;
 
-  // calculate reminder for native tokens
-  *reminder_native_tokens = native_tokens_new();
+  // calculate remainder for base token
+  *remainder_amount = collected_amount - send_amount;
+
+  // calculate remainder for native tokens
+  *remainder_native_tokens = native_tokens_new();
   native_tokens_list_t* elm;
   LL_FOREACH(collected_native_tokens, elm) {
     native_token_t* token = native_tokens_find_by_id(send_native_tokens, elm->token->token_id);
     if (token) {
-      uint256_t* reminder = malloc(sizeof(uint256_t));
-      if (!reminder) {
+      uint256_t* remainder = malloc(sizeof(uint256_t));
+      if (!remainder) {
         printf("[%s:%d] OOM\n", __func__, __LINE__);
-        native_tokens_free(*reminder_native_tokens);
+        native_tokens_free(*remainder_native_tokens);
         return -1;
       }
-      if (uint256_sub(reminder, &elm->token->amount, &token->amount) != true) {
+      if (uint256_sub(remainder, &elm->token->amount, &token->amount) != true) {
         printf("[%s:%d] can not substitute amount of two native tokens\n", __func__, __LINE__);
-        native_tokens_free(*reminder_native_tokens);
-        uint256_free(reminder);
+        native_tokens_free(*remainder_native_tokens);
+        uint256_free(remainder);
         return -1;
       }
-      if (native_tokens_add(reminder_native_tokens, elm->token->token_id, reminder) != 0) {
+      if (native_tokens_add(remainder_native_tokens, elm->token->token_id, remainder) != 0) {
         printf("[%s:%d] can not add native token to a list\n", __func__, __LINE__);
-        native_tokens_free(*reminder_native_tokens);
-        uint256_free(reminder);
+        native_tokens_free(*remainder_native_tokens);
+        uint256_free(remainder);
         return -1;
       }
-      uint256_free(reminder);
+      uint256_free(remainder);
     } else {
       // native token is not in send_native_tokens, but it's in one of collected unspent outputs, so it must be sent
       // back to sender
-      if (native_tokens_add(reminder_native_tokens, elm->token->token_id, &elm->token->amount) != 0) {
+      if (native_tokens_add(remainder_native_tokens, elm->token->token_id, &elm->token->amount) != 0) {
         printf("[%s:%d] can not add native token to a list\n", __func__, __LINE__);
-        native_tokens_free(*reminder_native_tokens);
+        native_tokens_free(*remainder_native_tokens);
         return -1;
       }
     }

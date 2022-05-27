@@ -156,29 +156,32 @@ int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* ba
  *
  * @param[in] send_amount Wanted amount to send
  * @param[in] collected_amount A collected amount to be sent
+ * @param[in] remainder_amount A remainder amount to be sent
  * @param[in] send_native_tokens A list of wanted native tokens to be sent
  * @param[in] collected_native_tokens A list of collected native tokens to be sent
+ * @param[in] remainder_native_tokens A list of remainder native tokens to be sent
  * @return true if balance is sufficient otherwise false
  */
-bool wallet_is_collected_balance_sufficient(uint64_t send_amount, uint64_t collected_amount,
-                                            native_tokens_list_t* send_native_tokens,
-                                            native_tokens_list_t* collected_native_tokens);
+bool wallet_is_collected_balance_sufficient(iota_wallet_t* w, uint64_t send_amount, uint64_t collected_amount,
+                                            uint64_t remainder_amount, native_tokens_list_t* send_native_tokens,
+                                            native_tokens_list_t* collected_native_tokens,
+                                            native_tokens_list_t* remainder_native_tokens);
 
 /**
- * @brief Calculate a reminder amount
+ * @brief Calculate a remainder amount
  *
  * @param[in] send_amount Wanted amount to send
  * @param[in] collected_amount A collected amount to be sent
  * @param[in] send_native_tokens A list of wanted native tokens to be sent
  * @param[in] collected_native_tokens A list of collected native tokens to be sent
- * @param[out] reminder_amount A reminder amount of base tokens
- * @param[out] reminder_native_tokens A reminder amount of native tokens
+ * @param[out] remainder_amount A remainder amount of base tokens
+ * @param[out] remainder_native_tokens A remainder amount of native tokens
  * @return true if balance is sufficient otherwise false
  */
-int wallet_calculate_reminder_amount(uint64_t send_amount, uint64_t collected_amount,
-                                     native_tokens_list_t* send_native_tokens,
-                                     native_tokens_list_t* collected_native_tokens, uint64_t* reminder_amount,
-                                     native_tokens_list_t** reminder_native_tokens);
+int wallet_calculate_remainder_amount(uint64_t send_amount, uint64_t collected_amount,
+                                      native_tokens_list_t* send_native_tokens,
+                                      native_tokens_list_t* collected_native_tokens, uint64_t* remainder_amount,
+                                      native_tokens_list_t** remainder_native_tokens);
 
 /**
  * @brief Create and prepare core block

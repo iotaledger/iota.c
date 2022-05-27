@@ -212,28 +212,16 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
   }
 
   int ret = 0;
-  utxo_outputs_list_t* unspent_outputs = NULL;
+  utxo_outputs_list_t* inputs = NULL;
+  output_basic_t* remainder = NULL;
   signing_data_list_t* sign_data = signing_new();
   transaction_payload_t* tx = NULL;
-  native_tokens_list_t* collected_native_tokens = NULL;
-  native_tokens_list_t* reminder_native_tokens = NULL;
   core_block_t* block = NULL;
 
   // create a tx
   tx = tx_payload_new(w->network_id);
   if (!tx) {
     printf("[%s:%d] create tx payload failed\n", __func__, __LINE__);
-    ret = -1;
-    goto end;
-  }
-
-  // get outputs from the sender address
-  uint64_t collected_amount = 0;
-  collected_native_tokens = native_tokens_new();
-  unspent_outputs = wallet_get_unspent_basic_outputs(w, &sender_addr, &sender_keypair, send_amount, NULL, tx->essence,
-                                                     &sign_data, &collected_amount, &collected_native_tokens);
-  if (!unspent_outputs) {
-    printf("[%s:%d] address does not have any unspent basic outputs\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }
@@ -247,34 +235,36 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
     goto end;
   }
 
+  // get inputs from the sender address
+  bool balance_sufficient = false;
+  if ((ret = wallet_get_inputs_and_create_remainder(w, tx->essence, &sender_addr, send_amount, NULL,
+                                                    &balance_sufficient, &inputs, &remainder)) != 0) {
+    printf("[%s:%d] can not collect inputs or create a reminder output\n", __func__, __LINE__);
+    goto end;
+  }
+
   // check balance of sender outputs
-  if (!wallet_is_collected_balance_sufficient(send_amount, collected_amount, NULL, NULL)) {
+  if (!balance_sufficient) {
     printf("[%s:%d] insufficient address balance\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }
 
-  // calculate a reminder amount if needed
-  uint64_t reminder_amount = 0;
-  reminder_native_tokens = native_tokens_new();
-  if (wallet_calculate_reminder_amount(send_amount, collected_amount, NULL, collected_native_tokens, &reminder_amount,
-                                       &reminder_native_tokens) != 0) {
-    printf("[%s:%d] can not calculate a reminder amount\n", __func__, __LINE__);
-    ret = -1;
-    goto end;
-  }
-
-  // create a reminder if needed
-  if (reminder_amount > 0 || native_tokens_count(reminder_native_tokens) > 0) {
-    ret = wallet_output_basic_create(&sender_addr, reminder_amount, reminder_native_tokens, tx->essence);
-    if (ret != 0) {
-      printf("[%s:%d] create a reminder basic output failed\n", __func__, __LINE__);
+  if (remainder) {
+    if (tx_essence_add_output(tx->essence, OUTPUT_BASIC, remainder) != 0) {
+      printf("[%s:%d] can not add remainder output to transaction essence\n", __func__, __LINE__);
+      ret = -1;
       goto end;
     }
   }
 
+  if ((ret = create_signatures_for_inputs(inputs, &sender_keypair, &sign_data)) != 0) {
+    printf("[%s:%d] can not create signature blocks for inputs\n", __func__, __LINE__);
+    goto end;
+  }
+
   // create a core block
-  block = wallet_create_core_block(w, tx, unspent_outputs, sign_data);
+  block = wallet_create_core_block(w, tx, inputs, sign_data);
   if (!block) {
     printf("[%s:%d] can not create a core block\n", __func__, __LINE__);
     ret = -1;
@@ -302,7 +292,7 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
     ret = -1;
     goto end;
   }
-
+  dump_hex_str(output_id, sizeof(output_id));
   // send a block to a network
   ret = wallet_send_block(w, block, msg_res);
 
@@ -313,9 +303,8 @@ end:
     tx_payload_free(tx);
   }
   signing_free(sign_data);
-  utxo_outputs_free(unspent_outputs);
-  native_tokens_free(collected_native_tokens);
-  native_tokens_free(reminder_native_tokens);
+  utxo_outputs_free(inputs);
+  output_basic_free(remainder);
   return ret;
 }
 
@@ -471,11 +460,19 @@ int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern
   // create basic output
   uint64_t output_amount = ((output_alias_t*)output_res->u.data->output->output)->amount;
   native_tokens_list_t* output_native_tokens = ((output_alias_t*)output_res->u.data->output->output)->native_tokens;
-  ret = wallet_output_basic_create(recv_addr, output_amount, output_native_tokens, tx->essence);
-  if (ret != 0) {
+  output_basic_t* output_basic = wallet_output_basic_create(recv_addr, output_amount, output_native_tokens);
+  if (!output_basic) {
     printf("[%s:%d] create basic output failed\n", __func__, __LINE__);
+    ret = -1;
     goto end;
   }
+  if (tx_essence_add_output(tx->essence, OUTPUT_BASIC, output_basic) != 0) {
+    printf("[%s:%d] can not add basic output to transaction essence\n", __func__, __LINE__);
+    output_basic_free(output_basic);
+    ret = -1;
+    goto end;
+  }
+  output_basic_free(output_basic);
 
   // create a core block
   block = wallet_create_core_block(w, tx, unspent_outputs, sign_data);
