@@ -15,9 +15,8 @@ void tearDown(void) {}
 
 void test_parse_basic_output_basic() {
   char const *const json_res =
-      "{\"type\":3,\"amount\":\"1000000\",\"nativeTokens\":[],\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":"
-      "16,"
-      "\"nftId\":\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}],\"featureBlocks\":[]}";
+      "{\"type\":3,\"amount\":\"1000000\",\"unlockConditions\":[{\"type\":0,\"address\":{\"type\":"
+      "16,\"nftId\":\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -31,10 +30,10 @@ void test_parse_basic_output_basic() {
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(basic_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(1, cond_blk_list_len(basic_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_ADDRESS));
+  TEST_ASSERT_EQUAL_UINT8(1, condition_list_len(basic_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_ADDRESS));
 
-  TEST_ASSERT_NULL(basic_output->feature_blocks);
+  TEST_ASSERT_NULL(basic_output->features);
 
   cJSON_Delete(json_obj);
   output_basic_free(basic_output);
@@ -51,7 +50,7 @@ void test_parse_basic_output_full() {
       "\"type\":0,\"pubKeyHash\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"amount\":"
       "\"123456\"},{\"type\":2,\"milestoneIndex\":45598,\"unixTime\":123123},{\"type\":3,\"returnAddress\":{\"type\":0,"
       "\"pubKeyHash\":\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"},\"milestoneIndex\":45598,"
-      "\"unixTime\":123123}],\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
+      "\"unixTime\":123123}],\"features\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
       "\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"},{\"type\":3,\"tag\":"
       "\"0x7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f7461675f\"}]}";
@@ -78,18 +77,18 @@ void test_parse_basic_output_full() {
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(basic_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(4, cond_blk_list_len(basic_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_ADDRESS));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_STORAGE));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_TIMELOCK));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_EXPIRATION));
+  TEST_ASSERT_EQUAL_UINT8(4, condition_list_len(basic_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_ADDRESS));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_STORAGE));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_TIMELOCK));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(basic_output->unlock_conditions, UNLOCK_COND_EXPIRATION));
 
-  // check feature blocks
-  TEST_ASSERT_NOT_NULL(basic_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(3, feat_blk_list_len(basic_output->feature_blocks));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(basic_output->feature_blocks, FEAT_SENDER_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(basic_output->feature_blocks, FEAT_METADATA_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(basic_output->feature_blocks, FEAT_TAG_BLOCK));
+  // check features
+  TEST_ASSERT_NOT_NULL(basic_output->features);
+  TEST_ASSERT_EQUAL_UINT8(3, feature_list_len(basic_output->features));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(basic_output->features, FEAT_SENDER_TYPE));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(basic_output->features, FEAT_METADATA_TYPE));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(basic_output->features, FEAT_TAG_TYPE));
 
   // print basic output
   output_basic_print(basic_output, 0);
@@ -100,8 +99,8 @@ void test_parse_basic_output_full() {
 
 void test_parse_basic_output_wrong_unlock_condition() {
   char const *const json_res =
-      "{\"type\":3,\"amount\":\"1000000\",\"nativeTokens\":[],\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":"
-      "16,\"nftId\":\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}],\"featureBlocks\":[]}";
+      "{\"type\":3,\"amount\":\"1000000\",\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":"
+      "16,\"nftId\":\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);

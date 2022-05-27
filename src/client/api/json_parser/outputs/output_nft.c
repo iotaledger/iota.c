@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#include "client/api/json_parser/outputs/feat_blocks.h"
+#include "client/api/json_parser/outputs/features.h"
 #include "client/api/json_parser/outputs/native_tokens.h"
 #include "client/api/json_parser/outputs/output_nft.h"
 #include "client/api/json_parser/outputs/unlock_conditions.h"
@@ -17,8 +17,8 @@
       "nativeTokens": [],
       "nftId": "0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f",
       "unlockConditions": [],
-      "featureBlocks": [],
-      "immutableFeatureBlocks": []
+      "features": [],
+      "immutableFeatures": []
     }
   ]
 */
@@ -31,9 +31,9 @@ int json_output_nft_deserialize(cJSON *output_obj, output_nft_t **nft) {
   int result = -1;
 
   native_tokens_list_t *tokens = native_tokens_new();
-  cond_blk_list_t *cond_blocks = cond_blk_list_new();
-  feat_blk_list_t *feat_blocks = feat_blk_list_new();
-  feat_blk_list_t *immut_feat_blocks = feat_blk_list_new();
+  unlock_cond_list_t *cond_list = condition_list_new();
+  feature_list_t *features = feature_list_new();
+  feature_list_t *immut_features = feature_list_new();
 
   // amount
   uint64_t amount;
@@ -60,29 +60,29 @@ int json_output_nft_deserialize(cJSON *output_obj, output_nft_t **nft) {
   }
 
   // unlock conditions array
-  if (json_cond_blk_list_deserialize(output_obj, &cond_blocks) != 0) {
+  if (json_condition_list_deserialize(output_obj, &cond_list) != 0) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_UNLOCK_CONDITIONS);
     goto end;
   }
 
-  // feature blocks array
-  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS) != NULL) {
-    if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
-      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
+  // features array
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEATURES) != NULL) {
+    if (json_features_deserialize(output_obj, false, &features) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEATURES);
       goto end;
     }
   }
 
-  // immutable feature blocks array
-  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_BLOCKS) != NULL) {
-    if (json_feat_blocks_deserialize(output_obj, true, &immut_feat_blocks) != 0) {
-      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_IMMUTABLE_BLOCKS);
+  // immutable features array
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_FEATS) != NULL) {
+    if (json_features_deserialize(output_obj, true, &immut_features) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_IMMUTABLE_FEATS);
       goto end;
     }
   }
 
   // create NFT output
-  *nft = output_nft_new(amount, tokens, nft_id, cond_blocks, feat_blocks, immut_feat_blocks);
+  *nft = output_nft_new(amount, tokens, nft_id, cond_list, features, immut_features);
   if (!*nft) {
     printf("[%s:%d]: creating NFT output object failed \n", __func__, __LINE__);
     goto end;
@@ -93,9 +93,9 @@ int json_output_nft_deserialize(cJSON *output_obj, output_nft_t **nft) {
 
 end:
   native_tokens_free(tokens);
-  cond_blk_list_free(cond_blocks);
-  feat_blk_list_free(feat_blocks);
-  feat_blk_list_free(immut_feat_blocks);
+  condition_list_free(cond_list);
+  feature_list_free(features);
+  feature_list_free(immut_features);
 
   return result;
 }
@@ -120,10 +120,12 @@ cJSON *json_output_nft_serialize(output_nft_t *nft) {
 
     // native tokens
     tmp = json_native_tokens_serialize(nft->native_tokens);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_NATIVE_TOKENS, tmp)) {
-      printf("[%s:%d] add native tokens to NFT error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_NATIVE_TOKENS, tmp)) {
+        printf("[%s:%d] add native tokens to NFT error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
 
     // NFT ID
@@ -138,27 +140,31 @@ cJSON *json_output_nft_serialize(output_nft_t *nft) {
     }
 
     // unlock conditions
-    tmp = json_cond_blk_list_serialize(nft->unlock_conditions);
+    tmp = json_condition_list_serialize(nft->unlock_conditions);
     if (!cJSON_AddItemToObject(output_obj, JSON_KEY_UNLOCK_CONDITIONS, tmp)) {
       printf("[%s:%d] add unlock conditions to NFT error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
     }
 
-    // feature blocks
-    tmp = json_feat_blocks_serialize(nft->feature_blocks);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEAT_BLOCKS, tmp)) {
-      printf("[%s:%d] add feature blocks to NFT error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    // features
+    tmp = json_features_serialize(nft->features);
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEATURES, tmp)) {
+        printf("[%s:%d] add features to NFT error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
 
-    // immutable feature blocks
-    tmp = json_feat_blocks_serialize(nft->immutable_blocks);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_IMMUTABLE_BLOCKS, tmp)) {
-      printf("[%s:%d] add immutable feature blocks to NFT error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    // immutable features
+    tmp = json_features_serialize(nft->immutable_features);
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_IMMUTABLE_FEATS, tmp)) {
+        printf("[%s:%d] add immutable features to NFT error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
   }
   return output_obj;

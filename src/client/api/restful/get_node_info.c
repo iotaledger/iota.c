@@ -351,15 +351,15 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
 
   cJSON *metrics_obj = cJSON_GetObjectItemCaseSensitive(json_obj, JSON_KEY_METRICS);
 
-  // gets message per second
-  if ((ret = json_get_float(metrics_obj, JSON_KEY_MPS, &res->u.output_node_info->msg_per_sec)) != 0) {
-    printf("[%s:%d]: gets %s json float failed\n", __func__, __LINE__, JSON_KEY_MPS);
+  // gets block per second
+  if ((ret = json_get_float(metrics_obj, JSON_KEY_BPS, &res->u.output_node_info->blk_per_sec)) != 0) {
+    printf("[%s:%d]: gets %s json float failed\n", __func__, __LINE__, JSON_KEY_BPS);
     goto end;
   }
 
-  // gets referenced message per second
-  if ((ret = json_get_float(metrics_obj, JSON_KEY_REF_MPS, &res->u.output_node_info->referenced_msg_per_sec)) != 0) {
-    printf("[%s:%d]: gets %s json float failed\n", __func__, __LINE__, JSON_KEY_REF_MPS);
+  // gets referenced block per second
+  if ((ret = json_get_float(metrics_obj, JSON_KEY_REF_BPS, &res->u.output_node_info->referenced_blk_per_sec)) != 0) {
+    printf("[%s:%d]: gets %s json float failed\n", __func__, __LINE__, JSON_KEY_REF_BPS);
     goto end;
   }
 
@@ -447,8 +447,8 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
     printf("%s\t}\n", PRINT_INDENTATION(indentation));
 
     printf("%s\tmetrics:{\n", PRINT_INDENTATION(indentation));
-    printf("%s\t\tmessagesPerSecond: %f\n", PRINT_INDENTATION(indentation), info->msg_per_sec);
-    printf("%s\t\treferencedMessagesPerSecond: %f\n", PRINT_INDENTATION(indentation), info->referenced_msg_per_sec);
+    printf("%s\t\tblocksPerSecond: %f\n", PRINT_INDENTATION(indentation), info->blk_per_sec);
+    printf("%s\t\treferencedBlocksPerSecond: %f\n", PRINT_INDENTATION(indentation), info->referenced_blk_per_sec);
     printf("%s\t\treferencedRate: %f\n", PRINT_INDENTATION(indentation), info->referenced_rate);
     printf("%s\t}\n", PRINT_INDENTATION(indentation));
 

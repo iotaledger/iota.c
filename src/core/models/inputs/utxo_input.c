@@ -8,6 +8,7 @@
 #include "core/models/inputs/utxo_input.h"
 #include "core/models/outputs/outputs.h"
 #include "core/utils/macros.h"
+#include "utlist.h"
 
 utxo_inputs_list_t *utxo_inputs_new() { return NULL; }
 

@@ -6,7 +6,7 @@
 #include "client/api/restful/get_node_info.h"
 #include "client/api/restful/get_output.h"
 #include "client/api/restful/get_outputs_id.h"
-#include "core/models/message.h"
+#include "core/models/outputs/output_alias.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"
 #include "wallet/bip39.h"
@@ -72,13 +72,13 @@ static int add_unspent_alias_output_to_essence(transaction_essence_t* essence, g
 
   // add signing data (Alias output must have the state controller unlock condition)
   // get state controller unlock condition from the alias output
-  unlock_cond_blk_t* unlock_cond = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE);
+  unlock_cond_t* unlock_cond = condition_list_get_type(output->unlock_conditions, UNLOCK_COND_STATE);
   if (!unlock_cond) {
     return -1;
   }
 
   // add state controller unlock condition into the signing data list
-  if (signing_data_add(unlock_cond->block, NULL, 0, state_controller_key, sign_data) != 0) {
+  if (signing_data_add(unlock_cond->obj, NULL, 0, state_controller_key, sign_data) != 0) {
     return -1;
   }
 
@@ -138,32 +138,32 @@ static int wallet_output_alias_create(transaction_essence_t* essence, byte_t ali
     return -1;
   }
 
-  unlock_cond_blk_t* state = cond_blk_state_new(state_ctrl_addr);
+  unlock_cond_t* state = condition_state_new(state_ctrl_addr);
   if (!state) {
     printf("[%s:%d] unable to create state controller address unlock condition\n", __func__, __LINE__);
     return -1;
   }
 
-  unlock_cond_blk_t* governor = cond_blk_governor_new(govern_addr);
+  unlock_cond_t* governor = condition_governor_new(govern_addr);
   if (!governor) {
     printf("[%s:%d] unable to create governor address unlock condition\n", __func__, __LINE__);
-    cond_blk_free(state);
+    condition_free(state);
     return -1;
   }
 
-  cond_blk_list_t* cond_blocks = cond_blk_list_new();
-  if (cond_blk_list_add(&cond_blocks, state) != 0) {
+  unlock_cond_list_t* cond_blocks = condition_list_new();
+  if (condition_list_add(&cond_blocks, state) != 0) {
     printf("[%s:%d] add unlock condition failed\n", __func__, __LINE__);
-    cond_blk_free(state);
-    cond_blk_free(governor);
-    cond_blk_list_free(cond_blocks);
+    condition_free(state);
+    condition_free(governor);
+    condition_list_free(cond_blocks);
     return -1;
   }
-  if (cond_blk_list_add(&cond_blocks, governor) != 0) {
+  if (condition_list_add(&cond_blocks, governor) != 0) {
     printf("[%s:%d] add unlock condition failed\n", __func__, __LINE__);
-    cond_blk_free(state);
-    cond_blk_free(governor);
-    cond_blk_list_free(cond_blocks);
+    condition_free(state);
+    condition_free(governor);
+    condition_list_free(cond_blocks);
     return -1;
   }
 
@@ -171,33 +171,33 @@ static int wallet_output_alias_create(transaction_essence_t* essence, byte_t ali
       output_alias_new(amount, NULL, alias_id, state_index, NULL, 0, foundry_counter, cond_blocks, NULL, NULL);
   if (!alias_output) {
     printf("[%s:%d] creating alias output failed\n", __func__, __LINE__);
-    cond_blk_free(state);
-    cond_blk_free(governor);
-    cond_blk_list_free(cond_blocks);
+    condition_free(state);
+    condition_free(governor);
+    condition_list_free(cond_blocks);
     return -1;
   }
 
   if (tx_essence_add_output(essence, OUTPUT_ALIAS, alias_output) != 0) {
     printf("[%s:%d] can not add output to transaction essence\n", __func__, __LINE__);
-    cond_blk_free(state);
-    cond_blk_free(governor);
-    cond_blk_list_free(cond_blocks);
+    condition_free(state);
+    condition_free(governor);
+    condition_list_free(cond_blocks);
     output_alias_free(alias_output);
     return -1;
   }
 
-  cond_blk_free(state);
-  cond_blk_free(governor);
-  cond_blk_list_free(cond_blocks);
+  condition_free(state);
+  condition_free(governor);
+  condition_list_free(cond_blocks);
   output_alias_free(alias_output);
 
   return 0;
 }
 
-// TODO: the alias output should be able to set optional feature blocks such as Sender/Metadata
+// TODO: the alias output should be able to set optional features such as Sender/Metadata
 int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t const send_amount,
                                address_t* state_ctrl_addr, address_t* govern_addr, uint32_t foundry_counter,
-                               address_t* alias_addr, res_send_message_t* msg_res) {
+                               address_t* alias_addr, res_send_block_t* msg_res) {
   if (w == NULL || state_ctrl_addr == NULL || govern_addr == NULL || alias_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -214,7 +214,7 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
   utxo_outputs_list_t* unspent_outputs = NULL;
   signing_data_list_t* sign_data = signing_new();
   transaction_payload_t* tx = NULL;
-  core_message_t* message = NULL;
+  core_block_t* block = NULL;
 
   // create a tx
   tx = tx_payload_new(w->network_id);
@@ -259,10 +259,10 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
     }
   }
 
-  // create a core message
-  message = wallet_create_core_message(w, tx, unspent_outputs, sign_data);
-  if (!message) {
-    printf("[%s:%d] can not create a core message\n", __func__, __LINE__);
+  // create a core block
+  block = wallet_create_core_block(w, tx, unspent_outputs, sign_data);
+  if (!block) {
+    printf("[%s:%d] can not create a core block\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }
@@ -289,12 +289,12 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
     goto end;
   }
 
-  // send a message to a network
-  ret = wallet_send_message(w, message, msg_res);
+  // send a block to a network
+  ret = wallet_send_block(w, block, msg_res);
 
 end:
-  if (message) {
-    core_message_free(message);
+  if (block) {
+    core_block_free(block);
   } else {
     tx_payload_free(tx);
   }
@@ -308,7 +308,7 @@ end:
 int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bool state_ctrl_change,
                                          uint32_t state_ctrl_index, address_t* govern_addr, uint32_t foundry_counter,
                                          uint64_t send_amount, utxo_outputs_list_t* outputs,
-                                         res_send_message_t* msg_res) {
+                                         res_send_block_t* msg_res) {
   if (w == NULL || alias_id == NULL || govern_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -327,7 +327,7 @@ int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bo
   res_output_t* output_res = NULL;
   signing_data_list_t* sign_data = signing_new();
   transaction_payload_t* tx = NULL;
-  core_message_t* message = NULL;
+  core_block_t* block = NULL;
 
   // create a tx
   tx = tx_payload_new(w->network_id);
@@ -382,20 +382,20 @@ int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bo
     }
   }
 
-  // create a core message
-  message = wallet_create_core_message(w, tx, unspent_outputs, sign_data);
-  if (!message) {
-    printf("[%s:%d] can not create a core message\n", __func__, __LINE__);
+  // create a core block
+  block = wallet_create_core_block(w, tx, unspent_outputs, sign_data);
+  if (!block) {
+    printf("[%s:%d] can not create a core block\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }
 
-  // send a message to a network
-  ret = wallet_send_message(w, message, msg_res);
+  // send a block to a network
+  ret = wallet_send_block(w, block, msg_res);
 
 end:
-  if (message) {
-    core_message_free(message);
+  if (block) {
+    core_block_free(block);
   } else {
     tx_payload_free(tx);
   }
@@ -406,7 +406,7 @@ end:
 }
 
 int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern_change, uint32_t govern_index,
-                                address_t* recv_addr, res_send_message_t* msg_res) {
+                                address_t* recv_addr, res_send_block_t* msg_res) {
   if (w == NULL || alias_id == NULL || recv_addr == NULL || msg_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -424,7 +424,7 @@ int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern
   res_output_t* output_res = NULL;
   signing_data_list_t* sign_data = signing_new();
   transaction_payload_t* tx = NULL;
-  core_message_t* message = NULL;
+  core_block_t* block = NULL;
 
   // create a tx
   tx = tx_payload_new(w->network_id);
@@ -458,20 +458,20 @@ int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern
     goto end;
   }
 
-  // create a core message
-  message = wallet_create_core_message(w, tx, unspent_outputs, sign_data);
-  if (!message) {
-    printf("[%s:%d] can not create a core message\n", __func__, __LINE__);
+  // create a core block
+  block = wallet_create_core_block(w, tx, unspent_outputs, sign_data);
+  if (!block) {
+    printf("[%s:%d] can not create a core block\n", __func__, __LINE__);
     ret = -1;
     goto end;
   }
 
-  // send a message to a network
-  ret = wallet_send_message(w, message, msg_res);
+  // send a block to a network
+  ret = wallet_send_block(w, block, msg_res);
 
 end:
-  if (message) {
-    core_message_free(message);
+  if (block) {
+    core_block_free(block);
   } else {
     tx_payload_free(tx);
   }

@@ -144,28 +144,28 @@ void test_output_foundry() {
 
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
-  TEST_ASSERT(cond_blk_list_len(output->unlock_conditions) == 1);
-  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
+  TEST_ASSERT(condition_list_len(output->unlock_conditions) == 1);
+  unlock_cond_t* expect_unlock_addr = condition_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
-  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
+  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->obj));
 
-  // validate feature blocks
-  TEST_ASSERT_NOT_NULL(output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(output->feature_blocks));
-  feat_block_t* feat_block = feat_blk_list_get(output->feature_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
-  TEST_ASSERT_EQUAL_UINT32(sizeof(test_meta), ((feat_metadata_blk_t*)feat_block->block)->data_len);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
-                           ((feat_metadata_blk_t*)feat_block->block)->data_len);
+  // validate features
+  TEST_ASSERT_NOT_NULL(output->features);
+  TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(output->features));
+  output_feature_t* feat = feature_list_get(output->features, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_TYPE, feat->type);
+  TEST_ASSERT_EQUAL_UINT32(sizeof(test_meta), ((feature_metadata_t*)feat->obj)->data_len);
+  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
+                           ((feature_metadata_t*)feat->obj)->data_len);
 
-  // validate immutable feature blocks
-  TEST_ASSERT_NOT_NULL(output->immutable_blocks);
-  TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(output->immutable_blocks));
-  feat_block_t* immut_feat_block = feat_blk_list_get(output->immutable_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, immut_feat_block->type);
-  TEST_ASSERT_EQUAL_UINT32(sizeof(test_immut_meta), ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
-  TEST_ASSERT_EQUAL_MEMORY(test_immut_meta, ((feat_metadata_blk_t*)immut_feat_block->block)->data,
-                           ((feat_metadata_blk_t*)immut_feat_block->block)->data_len);
+  // validate immutable features
+  TEST_ASSERT_NOT_NULL(output->immutable_features);
+  TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(output->immutable_features));
+  output_feature_t* immut_feat = feature_list_get(output->immutable_features, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_TYPE, immut_feat->type);
+  TEST_ASSERT_EQUAL_UINT32(sizeof(test_immut_meta), ((feature_metadata_t*)immut_feat->obj)->data_len);
+  TEST_ASSERT_EQUAL_MEMORY(test_immut_meta, ((feature_metadata_t*)immut_feat->obj)->data,
+                           ((feature_metadata_t*)immut_feat->obj)->data_len);
 
   // syntactic validation
   TEST_ASSERT_TRUE(output_foundry_syntactic(output));
@@ -215,19 +215,19 @@ void test_output_foundry() {
 
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
-  TEST_ASSERT(cond_blk_list_len(deser_output->unlock_conditions) == 1);
-  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
+  TEST_ASSERT(condition_list_len(deser_output->unlock_conditions) == 1);
+  expect_unlock_addr = condition_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
-  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
+  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->obj));
 
-  // deserialized feature blocks
-  TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(deser_output->feature_blocks));
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
-  TEST_ASSERT_EQUAL_UINT32(sizeof(test_meta), ((feat_metadata_blk_t*)feat_block->block)->data_len);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
-                           ((feat_metadata_blk_t*)feat_block->block)->data_len);
+  // deserialized features
+  TEST_ASSERT_NOT_NULL(deser_output->features);
+  TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(deser_output->features));
+  feat = feature_list_get(deser_output->features, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_TYPE, feat->type);
+  TEST_ASSERT_EQUAL_UINT32(sizeof(test_meta), ((feature_metadata_t*)feat->obj)->data_len);
+  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
+                           ((feature_metadata_t*)feat->obj)->data_len);
 
   // print foundry output
   output_foundry_print(output, 0);
@@ -270,23 +270,23 @@ void test_output_foundry_without_native_tokens() {
 
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
-  TEST_ASSERT(cond_blk_list_len(output->unlock_conditions) == 1);
-  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
+  TEST_ASSERT(condition_list_len(output->unlock_conditions) == 1);
+  unlock_cond_t* expect_unlock_addr = condition_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
-  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
+  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->obj));
 
-  // validate feature blocks
-  TEST_ASSERT_NOT_NULL(output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(output->feature_blocks));
-  feat_block_t* feat_block = feat_blk_list_get(output->feature_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
-  TEST_ASSERT_EQUAL_UINT32(sizeof(test_meta), ((feat_metadata_blk_t*)feat_block->block)->data_len);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
-                           ((feat_metadata_blk_t*)feat_block->block)->data_len);
+  // validate features
+  TEST_ASSERT_NOT_NULL(output->features);
+  TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(output->features));
+  output_feature_t* feat = feature_list_get(output->features, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_TYPE, feat->type);
+  TEST_ASSERT_EQUAL_UINT32(sizeof(test_meta), ((feature_metadata_t*)feat->obj)->data_len);
+  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
+                           ((feature_metadata_t*)feat->obj)->data_len);
 
-  // validate immutable feature blocks
-  TEST_ASSERT_NULL(output->immutable_blocks);
-  TEST_ASSERT_EQUAL_UINT8(0, feat_blk_list_len(output->immutable_blocks));
+  // validate immutable features
+  TEST_ASSERT_NULL(output->immutable_features);
+  TEST_ASSERT_EQUAL_UINT8(0, feature_list_len(output->immutable_features));
 
   // syntactic validation
   TEST_ASSERT_TRUE(output_foundry_syntactic(output));
@@ -326,19 +326,19 @@ void test_output_foundry_without_native_tokens() {
 
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
-  TEST_ASSERT(cond_blk_list_len(deser_output->unlock_conditions) == 1);
-  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
+  TEST_ASSERT(condition_list_len(deser_output->unlock_conditions) == 1);
+  expect_unlock_addr = condition_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
-  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
+  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->obj));
 
-  // deserialized feature blocks
-  TEST_ASSERT_NOT_NULL(deser_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(1, feat_blk_list_len(deser_output->feature_blocks));
-  feat_block = feat_blk_list_get(deser_output->feature_blocks, 0);
-  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_BLOCK, feat_block->type);
-  TEST_ASSERT_EQUAL_UINT32(sizeof(test_meta), ((feat_metadata_blk_t*)feat_block->block)->data_len);
-  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feat_metadata_blk_t*)feat_block->block)->data,
-                           ((feat_metadata_blk_t*)feat_block->block)->data_len);
+  // deserialized features
+  TEST_ASSERT_NOT_NULL(deser_output->features);
+  TEST_ASSERT_EQUAL_UINT8(1, feature_list_len(deser_output->features));
+  feat = feature_list_get(deser_output->features, 0);
+  TEST_ASSERT_EQUAL_UINT8(FEAT_METADATA_TYPE, feat->type);
+  TEST_ASSERT_EQUAL_UINT32(sizeof(test_meta), ((feature_metadata_t*)feat->obj)->data_len);
+  TEST_ASSERT_EQUAL_MEMORY(test_meta, ((feature_metadata_t*)feat->obj)->data,
+                           ((feature_metadata_t*)feat->obj)->data_len);
 
   // print foundry output
   output_foundry_print(output, 0);
@@ -392,18 +392,18 @@ void test_output_foundry_without_metadata() {
 
   // validate unlock condition
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
-  TEST_ASSERT(cond_blk_list_len(output->unlock_conditions) == 1);
-  unlock_cond_blk_t* expect_unlock_addr = cond_blk_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
+  TEST_ASSERT(condition_list_len(output->unlock_conditions) == 1);
+  unlock_cond_t* expect_unlock_addr = condition_list_get_type(output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
-  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
+  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->obj));
 
-  // validate feature blocks
-  TEST_ASSERT_NULL(output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(0, feat_blk_list_len(output->feature_blocks));
+  // validate features
+  TEST_ASSERT_NULL(output->features);
+  TEST_ASSERT_EQUAL_UINT8(0, feature_list_len(output->features));
 
-  // validate immutable feature blocks
-  TEST_ASSERT_NULL(output->immutable_blocks);
-  TEST_ASSERT_EQUAL_UINT8(0, feat_blk_list_len(output->immutable_blocks));
+  // validate immutable features
+  TEST_ASSERT_NULL(output->immutable_features);
+  TEST_ASSERT_EQUAL_UINT8(0, feature_list_len(output->immutable_features));
 
   // syntactic validation
   TEST_ASSERT_TRUE(output_foundry_syntactic(output));
@@ -453,14 +453,14 @@ void test_output_foundry_without_metadata() {
 
   // deserialized unlock condition
   TEST_ASSERT_NOT_NULL(deser_output->unlock_conditions);
-  TEST_ASSERT(cond_blk_list_len(deser_output->unlock_conditions) == 1);
-  expect_unlock_addr = cond_blk_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
+  TEST_ASSERT(condition_list_len(deser_output->unlock_conditions) == 1);
+  expect_unlock_addr = condition_list_get_type(deser_output->unlock_conditions, UNLOCK_COND_IMMUT_ALIAS);
   TEST_ASSERT_NOT_NULL(expect_unlock_addr);
-  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->block));
+  TEST_ASSERT(address_equal(&addr, (address_t*)expect_unlock_addr->obj));
 
-  // deserialized feature blocks
-  TEST_ASSERT_NULL(deser_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(0, feat_blk_list_len(deser_output->feature_blocks));
+  // deserialized features
+  TEST_ASSERT_NULL(deser_output->features);
+  TEST_ASSERT_EQUAL_UINT8(0, feature_list_len(deser_output->features));
 
   // print foundry output
   output_foundry_print(output, 0);
@@ -559,21 +559,22 @@ void test_output_foundry_clone() {
   TEST_ASSERT(uint256_equal(melted_tokens, &simple_scheme->melted_tokens) == 0);
   TEST_ASSERT(uint256_equal(max_supply, &simple_scheme->max_supply) == 0);
 
-  // validate unlock condition blocks
+  // validate unlock conditions
   TEST_ASSERT_NOT_NULL(output->unlock_conditions);
   TEST_ASSERT_NOT_NULL(new_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(cond_blk_list_len(output->unlock_conditions),
-                          cond_blk_list_len(new_output->unlock_conditions));
+  TEST_ASSERT_EQUAL_UINT8(condition_list_len(output->unlock_conditions),
+                          condition_list_len(new_output->unlock_conditions));
 
-  // validate feature blocks
-  TEST_ASSERT_NOT_NULL(output->feature_blocks);
-  TEST_ASSERT_NOT_NULL(new_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(output->feature_blocks), feat_blk_list_len(new_output->feature_blocks));
+  // validate features
+  TEST_ASSERT_NOT_NULL(output->features);
+  TEST_ASSERT_NOT_NULL(new_output->features);
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(output->features), feature_list_len(new_output->features));
 
-  // validate immutable feature blocks
-  TEST_ASSERT_NOT_NULL(output->immutable_blocks);
-  TEST_ASSERT_NOT_NULL(new_output->immutable_blocks);
-  TEST_ASSERT_EQUAL_UINT8(feat_blk_list_len(output->immutable_blocks), feat_blk_list_len(new_output->immutable_blocks));
+  // validate immutable features
+  TEST_ASSERT_NOT_NULL(output->immutable_features);
+  TEST_ASSERT_NOT_NULL(new_output->immutable_features);
+  TEST_ASSERT_EQUAL_UINT8(feature_list_len(output->immutable_features),
+                          feature_list_len(new_output->immutable_features));
 
   // print new foundry output
   output_foundry_print(output, 0);

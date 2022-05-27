@@ -4,6 +4,10 @@
 #include <inttypes.h>
 #include <stdio.h>
 
+#include "core/models/outputs/output_alias.h"
+#include "core/models/outputs/output_basic.h"
+#include "core/models/outputs/output_foundry.h"
+#include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/storage_deposit.h"
 
 // Notice, this solution is a trade-off for memory optimization that we don't create the basic output and calculate byte
@@ -14,7 +18,7 @@ static uint64_t basic_address_storage_deposit(byte_cost_config_t *config, addres
     return UINT64_MAX;
   }
 
-  // output serialized length = output type + amount + native tokens + unlock count + block count
+  // output serialized length = output type + amount + native tokens + unlock condition count + unlocks count
   uint64_t output_serialized_len = 12;  // 1 + 8 + 1 + 1 + 1
   // address unlock condition = unlock type + address serialized length
   output_serialized_len += 1 + address_serialized_len(addr);
@@ -64,7 +68,7 @@ bool storage_deposit_check(byte_cost_config_t *config, utxo_output_type_t output
 
   uint64_t min_storage_deposit = calc_minimum_output_deposit(config, output_type, output);
   uint64_t amount = UINT64_MAX;
-  unlock_cond_blk_t *storage_return_cond = NULL;
+  unlock_cond_t *storage_return_cond = NULL;
 
   switch (output_type) {
     case OUTPUT_SINGLE_OUTPUT:
@@ -74,20 +78,20 @@ bool storage_deposit_check(byte_cost_config_t *config, utxo_output_type_t output
       return false;
     case OUTPUT_BASIC:
       amount = ((output_basic_t *)output)->amount;
-      storage_return_cond = cond_blk_list_get_type(((output_basic_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
+      storage_return_cond = condition_list_get_type(((output_basic_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
       break;
     case OUTPUT_ALIAS:
       amount = ((output_alias_t *)output)->amount;
-      storage_return_cond = cond_blk_list_get_type(((output_alias_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
+      storage_return_cond = condition_list_get_type(((output_alias_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
       break;
     case OUTPUT_FOUNDRY:
       amount = ((output_foundry_t *)output)->amount;
       storage_return_cond =
-          cond_blk_list_get_type(((output_foundry_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
+          condition_list_get_type(((output_foundry_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
       break;
     case OUTPUT_NFT:
       amount = ((output_nft_t *)output)->amount;
-      storage_return_cond = cond_blk_list_get_type(((output_nft_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
+      storage_return_cond = condition_list_get_type(((output_nft_t *)output)->unlock_conditions, UNLOCK_COND_STORAGE);
       break;
     default:
       printf("[%s:%d] unknown output type\n", __func__, __LINE__);
@@ -101,22 +105,22 @@ bool storage_deposit_check(byte_cost_config_t *config, utxo_output_type_t output
   }
 
   if (storage_return_cond) {
-    if (((unlock_cond_storage_t *)(storage_return_cond->block))->amount == 0) {
+    if (((unlock_cond_storage_t *)(storage_return_cond->obj))->amount == 0) {
       printf("[%s:%d] storage deposit return amount must not be 0\n", __func__, __LINE__);
       return false;
     }
 
     uint64_t min_storage_deposit_return =
-        basic_address_storage_deposit(config, ((unlock_cond_storage_t *)(storage_return_cond->block))->addr);
-    if (((unlock_cond_storage_t *)(storage_return_cond->block))->amount < min_storage_deposit_return) {
+        basic_address_storage_deposit(config, ((unlock_cond_storage_t *)(storage_return_cond->obj))->addr);
+    if (((unlock_cond_storage_t *)(storage_return_cond->obj))->amount < min_storage_deposit_return) {
       printf("[%s:%d] storage deposit return amount must be at least %" PRIu64 "i\n", __func__, __LINE__,
              min_storage_deposit_return);
       return false;
     }
 
-    if (((unlock_cond_storage_t *)(storage_return_cond->block))->amount > amount) {
+    if (((unlock_cond_storage_t *)(storage_return_cond->obj))->amount > amount) {
       printf("[%s:%d] storage deposit return amount exceeds output amount:  %" PRIu64 "i > %" PRIu64 "i\n", __func__,
-             __LINE__, ((unlock_cond_storage_t *)(storage_return_cond->block))->amount, amount);
+             __LINE__, ((unlock_cond_storage_t *)(storage_return_cond->obj))->amount, amount);
       return false;
     }
   }

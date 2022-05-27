@@ -6,11 +6,12 @@
 
 #include <inttypes.h>
 
+#include "core/address.h"
 #include "core/models/inputs/utxo_input.h"
-#include "core/models/unlock_block.h"
+#include "core/models/unlocks.h"
 
 /**
- * @brief A signing data structure. This data is needed when unlock blocks are creating and transaction gets signed.
+ * @brief A signing data structure. This data is needed when unlocks are creating and transaction gets signed.
  *
  */
 typedef struct {
@@ -79,17 +80,17 @@ uint8_t signing_data_count(signing_data_list_t* signing_data_list);
 signing_data_t* signing_get_data_by_index(signing_data_list_t* signing_data_list, uint8_t index);
 
 /**
- * @brief Create unlock blocks and sign transaction
+ * @brief Create unlocks and sign transaction
  *
  * @param[in] essence_hash An essence hash
  * @param[in] essence_hash_len Length of an essence hash array
  * @param[in] inputs An UTXO input list
  * @param[in] sign_data_list Signing data list
- * @param[out] unlock_blocks A list of unlock blocks which will be created
+ * @param[out] unlock_list A list of unlocks which will be created
  * @return int 0 on success
  */
 int signing_transaction_sign(byte_t essence_hash[], uint8_t essence_hash_len, utxo_inputs_list_t* inputs,
-                             signing_data_list_t* sign_data_list, unlock_list_t** unlock_blocks);
+                             signing_data_list_t* sign_data_list, unlock_list_t** unlock_list);
 
 #ifdef __cplusplus
 }

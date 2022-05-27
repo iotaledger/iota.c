@@ -19,8 +19,7 @@ void test_parse_alias_output_basic() {
       "\"0xtestMetadataTestMetadataTestMetadata\",\"foundryCounter\":54321,\"unlockConditions\":[{\"type\":4,"
       "\"address\":{\"type\":16,\"nftId\":\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}, "
       "{\"type\":5,\"address\":{\"type\":16,\"nftId\":"
-      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}],\"featureBlocks\":[],"
-      "\"immutableFeatureBlocks\":[]}";
+      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
@@ -43,11 +42,11 @@ void test_parse_alias_output_basic() {
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(alias_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(2, cond_blk_list_len(alias_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_STATE));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_GOVERNOR));
+  TEST_ASSERT_EQUAL_UINT8(2, condition_list_len(alias_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_STATE));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_GOVERNOR));
 
-  TEST_ASSERT_NULL(alias_output->feature_blocks);
+  TEST_ASSERT_NULL(alias_output->features);
 
   cJSON_Delete(json_obj);
   output_alias_free(alias_output);
@@ -65,10 +64,10 @@ void test_parse_alias_output_full() {
       "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}, "
       "{\"type\":5,\"address\":{\"type\":16,\"nftId\":"
       "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}], "
-      "\"featureBlocks\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
+      "\"features\":[{\"type\":0,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,"
       "\"data\":\"0x6d657461646174615f6d657461646174615f6d657461646174615f6d657461646174615f\"}],"
-      "\"immutableFeatureBlocks\":[{\"type\":1,\"address\":{\"type\":0,"
+      "\"immutableFeatures\":[{\"type\":1,\"address\":{\"type\":0,"
       "\"pubKeyHash\":\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},{\"type\":2,\"data\":"
       "\"0x696d6d757461626c654d65746164617461546573745f696d6d757461626c654d65746164617461546573745f\"}]}";
 
@@ -103,21 +102,21 @@ void test_parse_alias_output_full() {
 
   // check unlock conditions
   TEST_ASSERT_NOT_NULL(alias_output->unlock_conditions);
-  TEST_ASSERT_EQUAL_UINT8(2, cond_blk_list_len(alias_output->unlock_conditions));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_STATE));
-  TEST_ASSERT_NOT_NULL(cond_blk_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_GOVERNOR));
+  TEST_ASSERT_EQUAL_UINT8(2, condition_list_len(alias_output->unlock_conditions));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_STATE));
+  TEST_ASSERT_NOT_NULL(condition_list_get_type(alias_output->unlock_conditions, UNLOCK_COND_GOVERNOR));
 
-  // check feature blocks
-  TEST_ASSERT_NOT_NULL(alias_output->feature_blocks);
-  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(alias_output->feature_blocks));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->feature_blocks, FEAT_SENDER_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->feature_blocks, FEAT_METADATA_BLOCK));
+  // check features
+  TEST_ASSERT_NOT_NULL(alias_output->features);
+  TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(alias_output->features));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(alias_output->features, FEAT_SENDER_TYPE));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(alias_output->features, FEAT_METADATA_TYPE));
 
-  // check immutable feature blocks
-  TEST_ASSERT_NOT_NULL(alias_output->immutable_blocks);
-  TEST_ASSERT_EQUAL_UINT8(2, feat_blk_list_len(alias_output->immutable_blocks));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->immutable_blocks, FEAT_ISSUER_BLOCK));
-  TEST_ASSERT_NOT_NULL(feat_blk_list_get_type(alias_output->immutable_blocks, FEAT_METADATA_BLOCK));
+  // check immutable features
+  TEST_ASSERT_NOT_NULL(alias_output->immutable_features);
+  TEST_ASSERT_EQUAL_UINT8(2, feature_list_len(alias_output->immutable_features));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(alias_output->immutable_features, FEAT_ISSUER_TYPE));
+  TEST_ASSERT_NOT_NULL(feature_list_get_type(alias_output->immutable_features, FEAT_METADATA_TYPE));
 
   // print alias output
   output_alias_print(alias_output, 0);
@@ -133,8 +132,7 @@ void test_parse_alias_output_wrong_unlock_condition() {
       "\"unlockConditions\":[{\"type\":4,\"address\":{\"type\":16,\"nftId\":"
       "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}, "
       "{\"type\":0,\"address\":{\"type\":16,\"nfdId\":"
-      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}], "
-      "\"featureBlocks\":[]}";
+      "\"0x19c82b32761fd8729a1a6c77f7c17597e4b9b01759794e52381f6a0050b0c11f\"}}]}";
 
   cJSON *json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
