@@ -59,6 +59,15 @@ int wallet_get_inputs_and_create_remainder(iota_wallet_t* w, transaction_essence
                                            bool* balance_sufficient, utxo_outputs_list_t** inputs,
                                            output_basic_t** remainder);
 
+/**
+ * @brief Create signatures for all collected inputs
+ *
+ * @param[in] inputs A list of all collected inputs
+ * @param[in] sender_key A sender private key
+ * @param[out] sign_data A list of signing data
+ *
+ * @return int 0 on success
+ */
 int create_signatures_for_inputs(utxo_outputs_list_t* inputs, ed25519_keypair_t* sender_key,
                                  signing_data_list_t** sign_data);
 
