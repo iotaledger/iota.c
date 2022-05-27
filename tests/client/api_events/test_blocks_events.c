@@ -32,9 +32,9 @@ void test_blocks_metadata_parser(void) {
 
   // Test for expected events response
   // Create and allocate memory for response object
-  msg_meta_t *res = metadata_new();
+  block_meta_t *res = metadata_new();
   TEST_ASSERT_EQUAL_INT(0, parse_blocks_metadata(json_data, res));
-  TEST_ASSERT_EQUAL_STRING("cf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85", res->msg_id);
+  TEST_ASSERT_EQUAL_STRING("cf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85", res->blk_id);
   TEST_ASSERT((strcmp(res->inclusion_state, "noTransaction") == 0) ||
               (strcmp(res->inclusion_state, "conflicting") == 0) || (strcmp(res->inclusion_state, "included") == 0));
   TEST_ASSERT_TRUE(res->is_solid);
@@ -47,17 +47,17 @@ void test_blocks_metadata_parser(void) {
 
 void process_event_data(event_client_event_t *event) {
   if (((strstr(event->topic, "blocks/") != NULL) && (strstr(event->topic, "/metadata") != NULL)) ||
-      (!strcmp(event->topic, TOPIC_MS_REFERENCED))) {
+      (!strcmp(event->topic, TOPIC_BLOCK_REFERENCED))) {
     // Create and allocate memory for response object
-    msg_meta_t *res = metadata_new();
+    block_meta_t *res = metadata_new();
     TEST_ASSERT_EQUAL_INT(0, parse_blocks_metadata((char *)event->data, res));
 
     // Print received data
-    printf("Msg Id :%s\n", res->msg_id);
+    printf("Msg Id :%s\n", res->blk_id);
     // Get parent id count
-    size_t parents_count = msg_meta_parents_count(res);
+    size_t parents_count = block_meta_parents_count(res);
     for (size_t i = 0; i < parents_count; i++) {
-      printf("Parent Id %zu : %s\n", i + 1, msg_meta_parent_get(res, i));
+      printf("Parent Id %zu : %s\n", i + 1, block_meta_parent_get(res, i));
     }
     printf("Inclusion State : %s\n", res->inclusion_state);
     printf("Is Solid : %s\n", res->is_solid ? "true" : "false");
@@ -80,13 +80,13 @@ void callback(event_client_event_t *event) {
       /* Making subscriptions in the on_connect()*/
       if (!test_metadata) {
         // Subscribe to block referenced topic
-        if (event_subscribe(event->client, NULL, TOPIC_MS_REFERENCED, 1) != 0) {
-          printf("Subscription to %s topic failed\n", TOPIC_MS_REFERENCED);
+        if (event_subscribe(event->client, NULL, TOPIC_BLOCK_REFERENCED, 1) != 0) {
+          printf("Subscription to %s topic failed\n", TOPIC_BLOCK_REFERENCED);
           test_completed = true;
         }
       } else {
         // Subscribe to blocks/{blockId}/metadata topic
-        if (event_subscribe_msg_metadata(event->client, NULL, test_block_id, 1) != 0) {
+        if (event_subscribe_blk_metadata(event->client, NULL, test_block_id, 1) != 0) {
           printf("Subscription to %s topic failed\n", "blocks/{blockId}/metadata");
           test_completed = true;
         }
