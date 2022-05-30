@@ -110,7 +110,8 @@ int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_
   // send alias state transition transaction to mint new native tokens
   uint64_t amount = output_foundry->amount + output_basic->amount;
   if ((ret = wallet_alias_output_state_transition(w, alias_addr->address, state_ctrl_change, state_ctrl_index,
-                                                  govern_addr, foundry_counter, amount, outputs, blk_res)) != 0) {
+                                                  govern_addr, foundry_counter, amount, outputs, native_tokens,
+                                                  blk_res)) != 0) {
     printf("Sending block to the Tangle failed!\n");
     goto end;
   }
@@ -118,7 +119,7 @@ int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_
 end:
   uint256_free(melted_tokens);
   token_scheme_free(token_scheme);
-  utxo_outputs_free(outputs);
+  // utxo_outputs_free(outputs);
   output_foundry_free(output_foundry);
   output_basic_free(output_basic);
   native_tokens_free(native_tokens);

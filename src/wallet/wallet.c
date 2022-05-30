@@ -335,11 +335,13 @@ int wallet_calculate_remainder_amount(uint64_t send_amount, uint64_t collected_a
         uint256_free(remainder);
         return -1;
       }
-      if (native_tokens_add(remainder_native_tokens, elm->token->token_id, remainder) != 0) {
-        printf("[%s:%d] can not add native token to a list\n", __func__, __LINE__);
-        native_tokens_free(*remainder_native_tokens);
-        uint256_free(remainder);
-        return -1;
+      if (remainder->bits[0] > 0 || remainder->bits[1] > 0 || remainder->bits[2] > 0 || remainder->bits[3] > 0) {
+        if (native_tokens_add(remainder_native_tokens, elm->token->token_id, remainder) != 0) {
+          printf("[%s:%d] can not add native token to a list\n", __func__, __LINE__);
+          native_tokens_free(*remainder_native_tokens);
+          uint256_free(remainder);
+          return -1;
+        }
       }
       uint256_free(remainder);
     } else {
@@ -433,8 +435,9 @@ static int update_collected_native_tokens(native_tokens_list_t* native_tokens,
 
 int wallet_get_unspent_outputs_and_create_remainder(iota_wallet_t* w, transaction_essence_t* essence,
                                                     address_t* sender_addr, utxo_inputs_list_t* inputs,
-                                                    utxo_outputs_list_t* outputs, bool* balance_sufficient,
-                                                    utxo_outputs_list_t** unspent_outputs, output_basic_t** remainder) {
+                                                    utxo_outputs_list_t* outputs, native_tokens_list_t* minted_tokens,
+                                                    bool* balance_sufficient, utxo_outputs_list_t** unspent_outputs,
+                                                    output_basic_t** remainder) {
   if (w == NULL || essence == NULL || sender_addr == NULL || outputs == NULL || *unspent_outputs != NULL ||
       *remainder != NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -446,6 +449,13 @@ int wallet_get_unspent_outputs_and_create_remainder(iota_wallet_t* w, transactio
 
   uint64_t collected_amount = 0;
   native_tokens_list_t* collected_native_tokens = native_tokens_new();
+
+  if (minted_tokens) {
+    native_tokens_list_t* elm;
+    LL_FOREACH(minted_tokens, elm) {
+      native_tokens_add(&collected_native_tokens, elm->token->token_id, &elm->token->amount);
+    }
+  }
 
   utxo_inputs_list_t* input_elm;
   if (inputs) {
@@ -618,6 +628,8 @@ int wallet_get_unspent_outputs_and_create_remainder(iota_wallet_t* w, transactio
           printf("[%s:%d] unsupported output type\n", __func__, __LINE__);
           break;
       }
+
+      get_output_response_free(input_res);
     }
   }
 
@@ -650,7 +662,7 @@ int wallet_get_unspent_outputs_and_create_remainder(iota_wallet_t* w, transactio
         send_amount += output_alias->amount;
 
         // update send native tokens
-        if (update_collected_native_tokens(output_alias->native_tokens, &collected_native_tokens) != 0) {
+        if (update_collected_native_tokens(output_alias->native_tokens, &send_native_tokens) != 0) {
           printf("[%s:%d] failed to update send native tokens list\n", __func__, __LINE__);
           native_tokens_free(collected_native_tokens);
           native_tokens_free(send_native_tokens);
@@ -666,7 +678,7 @@ int wallet_get_unspent_outputs_and_create_remainder(iota_wallet_t* w, transactio
         send_amount += output_foundry->amount;
 
         // update send native tokens
-        if (update_collected_native_tokens(output_foundry->native_tokens, &collected_native_tokens) != 0) {
+        if (update_collected_native_tokens(output_foundry->native_tokens, &send_native_tokens) != 0) {
           printf("[%s:%d] failed to update send native tokens list\n", __func__, __LINE__);
           native_tokens_free(collected_native_tokens);
           native_tokens_free(send_native_tokens);
@@ -682,7 +694,7 @@ int wallet_get_unspent_outputs_and_create_remainder(iota_wallet_t* w, transactio
         send_amount += output_nft->amount;
 
         // update send native tokens
-        if (update_collected_native_tokens(output_nft->native_tokens, &collected_native_tokens) != 0) {
+        if (update_collected_native_tokens(output_nft->native_tokens, &send_native_tokens) != 0) {
           printf("[%s:%d] failed to update send native tokens list\n", __func__, __LINE__);
           native_tokens_free(collected_native_tokens);
           native_tokens_free(send_native_tokens);
@@ -730,8 +742,17 @@ int wallet_get_unspent_outputs_and_create_remainder(iota_wallet_t* w, transactio
           native_tokens_free(send_native_tokens);
           return -1;
         }
+
+        native_tokens_free(collected_native_tokens);
+        native_tokens_free(remainder_native_tokens);
+        native_tokens_free(send_native_tokens);
+
         return 0;
       }
+
+      native_tokens_free(collected_native_tokens);
+      native_tokens_free(remainder_native_tokens);
+      native_tokens_free(send_native_tokens);
 
       return 0;
     }
@@ -871,6 +892,7 @@ end:
   // clean up memory
   native_tokens_free(collected_native_tokens);
   native_tokens_free(remainder_native_tokens);
+  native_tokens_free(send_native_tokens);
   res_outputs_free(res_ids);
   if (ret != 0) {
     utxo_outputs_free(*unspent_outputs);
@@ -880,7 +902,8 @@ end:
 }
 
 int wallet_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair, utxo_inputs_list_t* inputs,
-                utxo_outputs_list_t* outputs, byte_t payload_id[], res_send_block_t* blk_res) {
+                utxo_outputs_list_t* outputs, native_tokens_list_t* minted_tokens, byte_t payload_id[],
+                res_send_block_t* blk_res) {
   if (w == NULL || sender_addr == NULL || sender_keypair == NULL || outputs == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -907,8 +930,8 @@ int wallet_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sen
   utxo_outputs_list_t* unspent_outputs = NULL;
   output_basic_t* remainder = NULL;
   bool balance_sufficient = false;
-  if (wallet_get_unspent_outputs_and_create_remainder(w, tx->essence, sender_addr, inputs, outputs, &balance_sufficient,
-                                                      &unspent_outputs, &remainder) != 0) {
+  if (wallet_get_unspent_outputs_and_create_remainder(w, tx->essence, sender_addr, inputs, outputs, minted_tokens,
+                                                      &balance_sufficient, &unspent_outputs, &remainder) != 0) {
     printf("[%s:%d] can not collect unspent outputs or create a reminder output\n", __func__, __LINE__);
     tx_payload_free(tx);
     return -1;

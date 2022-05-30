@@ -122,7 +122,7 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
 
   // send a block to a network
   byte_t payload_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {0};
-  int result = wallet_send(w, &sender_addr, &sender_keypair, NULL, outputs, payload_id, blk_res);
+  int result = wallet_send(w, &sender_addr, &sender_keypair, NULL, outputs, NULL, payload_id, blk_res);
 
   // clean memory
   utxo_outputs_free(outputs);

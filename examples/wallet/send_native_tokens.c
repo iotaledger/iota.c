@@ -131,7 +131,7 @@ int main(void) {
   printf("Receiver 1 address: %s\n", bech32_receiver_1);
 
   // create alias output
-  printf("Sending create alias transaction block to the Tangle...\n");
+  printf("\nSending create alias transaction block to the Tangle...\n");
 
   res_send_block_t blk_res = {};
   address_t alias_addr = {0};
@@ -175,7 +175,7 @@ int main(void) {
   printf("Minted tokens: %s\n", minted_tokens_str);
 
   // mint native tokens
-  printf("Sending mint native tokens transaction block to the Tangle...\n");
+  printf("\nSending mint native tokens transaction block to the Tangle...\n");
 
   if (wallet_foundry_output_mint_native_tokens(w, &alias_addr, false, state_ctrl_addr_index, &govern_addr,
                                                &receiver_1_addr, max_supply, minted_tokens, serial_number,
@@ -233,7 +233,7 @@ int main(void) {
   uint256_free(native_tokens_amount);
 
   // transfer native tokens
-  printf("Sending transaction block to the Tangle...\n");
+  printf("\nSending transaction block to the Tangle...\n");
   if (wallet_basic_output_send(w, false, receiver_1_addr_index, 0, native_tokens, &receiver_2_addr, &blk_res) != 0) {
     printf("Sending block to the Tangle failed!\n");
     native_tokens_free(native_tokens);

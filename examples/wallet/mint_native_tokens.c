@@ -16,10 +16,10 @@
 
 #define Mi 1000000
 
-#define NODE_HOST "localhost"
-#define NODE_PORT 14265
-#define NODE_USE_TLS false
-#define TEST_COIN_TYPE SLIP44_COIN_TYPE_IOTA
+#define NODE_HOST "api.hornet-iot-dev.h.alphanet.iotaledger.net"
+#define NODE_PORT 443
+#define NODE_USE_TLS true
+#define TEST_COIN_TYPE SLIP44_COIN_TYPE_SHIMMER
 
 // replace this with your mnemonic string
 static char const* const test_mnemonic =
@@ -113,7 +113,7 @@ int main(void) {
   printf("Receiver address: %s\n", bech32_receiver);
 
   // create alias output
-  printf("Sending create alias transaction block to the Tangle...\n");
+  printf("\nSending create alias transaction block to the Tangle...\n");
 
   res_send_block_t blk_res = {};
   address_t alias_addr = {0};
@@ -155,7 +155,7 @@ int main(void) {
   printf("Minted tokens: %s\n", minted_tokens_str);
 
   // mint native tokens
-  printf("Sending mint native tokens transaction block to the Tangle...\n");
+  printf("\nSending mint native tokens transaction block to the Tangle...\n");
 
   if (wallet_foundry_output_mint_native_tokens(w, &alias_addr, false, state_ctrl_addr_index, &govern_addr,
                                                &receiver_addr, max_supply, minted_tokens, 1, 1, &blk_res) != 0) {

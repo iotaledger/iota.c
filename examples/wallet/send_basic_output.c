@@ -79,7 +79,7 @@ int main(void) {
   printf("Amount to send: %" PRIu64 "\n", amount * Mi);
 
   // transfer tokens
-  printf("Sending transaction block to the Tangle...\n");
+  printf("\nSending transaction block to the Tangle...\n");
   res_send_block_t blk_res = {};
   if (wallet_basic_output_send(w, false, sender_addr_index, amount * Mi, NULL, &receiver, &blk_res) != 0) {
     printf("Sending block to the Tangle failed!\n");

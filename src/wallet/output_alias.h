@@ -46,7 +46,8 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
  */
 int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bool state_ctrl_change,
                                          uint32_t state_ctrl_index, address_t* govern_addr, uint32_t foundry_counter,
-                                         uint64_t send_amount, utxo_outputs_list_t* outputs, res_send_block_t* blk_res);
+                                         uint64_t send_amount, utxo_outputs_list_t* outputs,
+                                         native_tokens_list_t* minted_tokens, res_send_block_t* blk_res);
 
 /**
  * @brief Send transaction which destroys alias output
