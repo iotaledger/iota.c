@@ -43,7 +43,7 @@ int deser_get_milestone(char const *const j_str, res_milestone_t *res) {
 
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
-    printf("[%s:%d]: parsing JSON message failed\n", __func__, __LINE__);
+    printf("[%s:%d]: parsing JSON data failed\n", __func__, __LINE__);
     return -1;
   }
 
@@ -257,7 +257,7 @@ int deser_get_utxo_changes(char const *const j_str, res_utxo_changes_t *res) {
 
   cJSON *json_obj = cJSON_Parse(j_str);
   if (json_obj == NULL) {
-    printf("[%s:%d]: parsing JSON message failed\n", __func__, __LINE__);
+    printf("[%s:%d]: parsing JSON data failed\n", __func__, __LINE__);
     return -1;
   }
 

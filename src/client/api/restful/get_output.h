@@ -19,7 +19,7 @@
  *
  */
 typedef struct {
-  byte_t msg_id[IOTA_MESSAGE_ID_BYTES];           ///< the message IDs that references the output
+  byte_t blk_id[IOTA_BLOCK_ID_BYTES];             ///< the block IDs that references the output
   byte_t tx_id[IOTA_TRANSACTION_ID_BYTES];        ///< The transaction ID of this output
   uint16_t output_index;                          ///< the index of this output
   bool is_spent;                                  ///< is spent or not
@@ -47,7 +47,7 @@ typedef struct {
 typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;    ///< Error message if is_error is True
+    res_err_t *error;    ///< Error block if is_error is True
     get_output_t *data;  ///< an output object if is_error is False
   } u;
 } res_output_t;

@@ -13,7 +13,7 @@ void test_byte_cost_config_create_new_config() {
   uint16_t byte_cost = (uint16_t)123456;
   uint8_t byte_factor_data = 111;
   uint8_t byte_factor_key = 222;
-  uint16_t byte_offset = (IOTA_OUTPUT_ID_BYTES * byte_factor_key) + (IOTA_MESSAGE_ID_BYTES * byte_factor_data) +
+  uint16_t byte_offset = (IOTA_OUTPUT_ID_BYTES * byte_factor_key) + (IOTA_BLOCK_ID_BYTES * byte_factor_data) +
                          (sizeof(uint32_t) * byte_factor_data) + (sizeof(uint32_t) * byte_factor_data);
 
   byte_cost_config_t* config = byte_cost_config_new(byte_cost, byte_factor_data, byte_factor_key);

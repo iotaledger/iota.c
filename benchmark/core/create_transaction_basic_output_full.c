@@ -9,7 +9,7 @@
 #include "core/models/outputs/native_tokens.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/payloads/transaction.h"
-#include "core/models/unlock_block.h"
+#include "core/models/unlocks.h"
 
 static output_basic_t* create_output_basic() {
   // create random ED25519 address
@@ -18,27 +18,27 @@ static output_basic_t* create_output_basic() {
   iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
 
   // create unlock conditions
-  unlock_cond_blk_t* unlock_addr = cond_blk_addr_new(&addr);
-  unlock_cond_blk_t* unlock_storage = cond_blk_storage_new(&addr, 357500);
-  unlock_cond_blk_t* unlock_timelock = cond_blk_timelock_new(1200, 164330008);
-  unlock_cond_blk_t* unlock_expir = cond_blk_expir_new(&addr, 1200, 164330008);
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
-  cond_blk_list_add(&unlock_conds, unlock_storage);
-  cond_blk_list_add(&unlock_conds, unlock_addr);
-  cond_blk_list_add(&unlock_conds, unlock_expir);
-  cond_blk_list_add(&unlock_conds, unlock_timelock);
-  cond_blk_free(unlock_addr);
-  cond_blk_free(unlock_storage);
-  cond_blk_free(unlock_timelock);
-  cond_blk_free(unlock_expir);
+  unlock_cond_t* unlock_addr = condition_addr_new(&addr);
+  unlock_cond_t* unlock_storage = condition_storage_new(&addr, 357500);
+  unlock_cond_t* unlock_timelock = condition_timelock_new(1200, 164330008);
+  unlock_cond_t* unlock_expir = condition_expir_new(&addr, 1200, 164330008);
+  unlock_cond_list_t* unlock_conds = condition_list_new();
+  condition_list_add(&unlock_conds, unlock_storage);
+  condition_list_add(&unlock_conds, unlock_addr);
+  condition_list_add(&unlock_conds, unlock_expir);
+  condition_list_add(&unlock_conds, unlock_timelock);
+  condition_free(unlock_addr);
+  condition_free(unlock_storage);
+  condition_free(unlock_timelock);
+  condition_free(unlock_expir);
 
-  // create feature blocks
+  // create features
   byte_t test_meta[] = "Test tagged data from a benchmark application";
   byte_t test_tag[] = "Test tag from a benchmark application.";
-  feat_blk_list_t* feat_blocks = feat_blk_list_new();
-  feat_blk_list_add_tag(&feat_blocks, test_tag, sizeof(test_tag));
-  feat_blk_list_add_sender(&feat_blocks, &addr);
-  feat_blk_list_add_metadata(&feat_blocks, test_meta, sizeof(test_meta));
+  feature_list_t* feat_list = feature_list_new();
+  feature_list_add_tag(&feat_list, test_tag, sizeof(test_tag));
+  feature_list_add_sender(&feat_list, &addr);
+  feature_list_add_metadata(&feat_list, test_meta, sizeof(test_meta));
 
   // create native tokens
   uint256_t* amount = uint256_from_str("123456789987654321123456789987654321");
@@ -50,11 +50,11 @@ static output_basic_t* create_output_basic() {
   uint256_free(amount);
 
   // create Basic Output
-  output_basic_t* output = output_basic_new(357800, native_tokens, unlock_conds, feat_blocks);
+  output_basic_t* output = output_basic_new(357800, native_tokens, unlock_conds, feat_list);
 
   // clean up memory
-  cond_blk_list_free(unlock_conds);
-  feat_blk_list_free(feat_blocks);
+  condition_list_free(unlock_conds);
+  feature_list_free(feat_list);
   native_tokens_free(native_tokens);
 
   return output;

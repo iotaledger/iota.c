@@ -50,15 +50,15 @@ int main(void) {
 
   address_t sender_addr, state_ctrl_addr, govern_addr;
   if (wallet_ed25519_address_from_index(w, false, sender_addr_index, &sender_addr) != 0) {
-    printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
+    printf("Get sender address failed!\n");
     return -1;
   }
   if (wallet_ed25519_address_from_index(w, false, state_ctrl_addr_index, &state_ctrl_addr) != 0) {
-    printf("[%s:%d] get state controller address failed\n", __func__, __LINE__);
+    printf("Get state controller address failed!\n");
     return -1;
   }
   if (wallet_ed25519_address_from_index(w, false, govern_addr_index, &govern_addr) != 0) {
-    printf("[%s:%d] get governor address failed\n", __func__, __LINE__);
+    printf("Get governor address failed!\n");
     return -1;
   }
 
@@ -92,29 +92,29 @@ int main(void) {
   printf("Amount to send: %" PRIu64 "\n", amount * Mi);
 
   // create alias output
-  printf("Sending create alias transaction message to the Tangle...\n");
+  printf("Sending create alias transaction block to the Tangle...\n");
 
-  res_send_message_t msg_res = {};
+  res_send_block_t blk_res = {};
   address_t alias_addr = {0};
-  if (wallet_alias_output_create(w, false, sender_addr_index, amount * Mi, &state_ctrl_addr, &govern_addr, &alias_addr,
-                                 &msg_res) != 0) {
-    printf("Sending message to the Tangle failed!\n");
+  if (wallet_alias_output_create(w, false, sender_addr_index, amount * Mi, &state_ctrl_addr, &govern_addr, 0,
+                                 &alias_addr, &blk_res) != 0) {
+    printf("Sending block to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
   }
 
-  if (msg_res.is_error) {
-    printf("Error: %s\n", msg_res.u.error->msg);
-    res_err_free(msg_res.u.error);
+  if (blk_res.is_error) {
+    printf("Error: %s\n", blk_res.u.error->msg);
+    res_err_free(blk_res.u.error);
     wallet_destroy(w);
     return -1;
   }
 
-  printf("Message successfully sent.\n");
-  printf("Message ID: %s\n", msg_res.u.msg_id);
+  printf("Block successfully sent.\n");
+  printf("Block ID: %s\n", blk_res.u.blk_id);
 
-  // wait for a message to be included into a tangle
-  printf("Waiting for message confirmation...\n");
+  // wait for a block to be included into a tangle
+  printf("Waiting for block confirmation...\n");
   sleep(15);
 
   // convert alias address to bech32 format
@@ -127,49 +127,49 @@ int main(void) {
   printf("Alias address: %s\n", bech32_alias);
 
   // send state transition transaction
-  printf("Sending alias state transition transaction message to the Tangle...\n");
+  printf("Sending alias state transition transaction block to the Tangle...\n");
 
   // create a second transaction with an actual alias ID
-  if (wallet_alias_output_state_transition(w, alias_addr.address, false, state_ctrl_addr_index, &govern_addr,
-                                           &msg_res) != 0) {
-    printf("Sending message to the Tangle failed!\n");
+  if (wallet_alias_output_state_transition(w, alias_addr.address, false, state_ctrl_addr_index, &govern_addr, 0, 0,
+                                           NULL, &blk_res) != 0) {
+    printf("Sending block to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
   }
 
-  if (msg_res.is_error) {
-    printf("Error: %s\n", msg_res.u.error->msg);
-    res_err_free(msg_res.u.error);
+  if (blk_res.is_error) {
+    printf("Error: %s\n", blk_res.u.error->msg);
+    res_err_free(blk_res.u.error);
     wallet_destroy(w);
     return -1;
   }
 
-  printf("Message successfully sent.\n");
-  printf("Message ID: %s\n", msg_res.u.msg_id);
+  printf("Block successfully sent.\n");
+  printf("Block ID: %s\n", blk_res.u.blk_id);
 
-  // wait for a message to be included into a tangle
-  printf("Waiting for message confirmation...\n");
+  // wait for a block to be included into a tangle
+  printf("Waiting for block confirmation...\n");
   sleep(15);
 
   // send alias destroy transaction
-  printf("Sending alias destroy transaction message to the Tangle...\n");
+  printf("Sending alias destroy transaction block to the Tangle...\n");
 
   // create a third transaction to destroy alias output
-  if (wallet_alias_output_destroy(w, alias_addr.address, false, govern_addr_index, &sender_addr, &msg_res) != 0) {
-    printf("Sending message to the Tangle failed!\n");
+  if (wallet_alias_output_destroy(w, alias_addr.address, false, govern_addr_index, &sender_addr, &blk_res) != 0) {
+    printf("Sending block to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
   }
 
-  if (msg_res.is_error) {
-    printf("Error: %s\n", msg_res.u.error->msg);
-    res_err_free(msg_res.u.error);
+  if (blk_res.is_error) {
+    printf("Error: %s\n", blk_res.u.error->msg);
+    res_err_free(blk_res.u.error);
     wallet_destroy(w);
     return -1;
   }
 
-  printf("Message successfully sent.\n");
-  printf("Message ID: %s\n", msg_res.u.msg_id);
+  printf("Block successfully sent.\n");
+  printf("Block ID: %s\n", blk_res.u.blk_id);
 
   wallet_destroy(w);
 

@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#include "client/api/json_parser/outputs/feat_blocks.h"
+#include "client/api/json_parser/outputs/features.h"
 #include "client/api/json_parser/outputs/native_tokens.h"
 #include "client/api/json_parser/outputs/output_basic.h"
 #include "client/api/json_parser/outputs/unlock_conditions.h"
@@ -28,8 +28,8 @@ int json_output_basic_deserialize(cJSON *output_obj, output_basic_t **basic) {
   int result = -1;
 
   native_tokens_list_t *tokens = native_tokens_new();
-  cond_blk_list_t *cond_blocks = cond_blk_list_new();
-  feat_blk_list_t *feat_blocks = feat_blk_list_new();
+  unlock_cond_list_t *cond_list = condition_list_new();
+  feature_list_t *features = feature_list_new();
 
   // amount
   uint64_t amount;
@@ -49,21 +49,21 @@ int json_output_basic_deserialize(cJSON *output_obj, output_basic_t **basic) {
   }
 
   // unlock conditions array
-  if (json_cond_blk_list_deserialize(output_obj, &cond_blocks) != 0) {
+  if (json_condition_list_deserialize(output_obj, &cond_list) != 0) {
     printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_UNLOCK_CONDITIONS);
     goto end;
   }
 
-  // feature blocks array
-  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS) != NULL) {
-    if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
-      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
+  // features array
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEATURES) != NULL) {
+    if (json_features_deserialize(output_obj, false, &features) != 0) {
+      printf("[%s:%d]: parsing %s object failed \n", __func__, __LINE__, JSON_KEY_FEATURES);
       goto end;
     }
   }
 
   // create basic output
-  *basic = output_basic_new(amount, tokens, cond_blocks, feat_blocks);
+  *basic = output_basic_new(amount, tokens, cond_list, features);
   if (!*basic) {
     printf("[%s:%d]: creating basic output object failed \n", __func__, __LINE__);
     goto end;
@@ -74,8 +74,8 @@ int json_output_basic_deserialize(cJSON *output_obj, output_basic_t **basic) {
 
 end:
   native_tokens_free(tokens);
-  cond_blk_list_free(cond_blocks);
-  feat_blk_list_free(feat_blocks);
+  condition_list_free(cond_list);
+  feature_list_free(features);
 
   return result;
 }
@@ -100,26 +100,30 @@ cJSON *json_output_basic_serialize(output_basic_t *basic) {
 
     // native tokens
     tmp = json_native_tokens_serialize(basic->native_tokens);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_NATIVE_TOKENS, tmp)) {
-      printf("[%s:%d] add native tokens to basic error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_NATIVE_TOKENS, tmp)) {
+        printf("[%s:%d] add native tokens to basic error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
 
     // unlock conditions
-    tmp = json_cond_blk_list_serialize(basic->unlock_conditions);
+    tmp = json_condition_list_serialize(basic->unlock_conditions);
     if (!cJSON_AddItemToObject(output_obj, JSON_KEY_UNLOCK_CONDITIONS, tmp)) {
       printf("[%s:%d] add unlock conditions to basic error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
     }
 
-    // feature blocks
-    tmp = json_feat_blocks_serialize(basic->feature_blocks);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEAT_BLOCKS, tmp)) {
-      printf("[%s:%d] add feature blocks to basic error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    // features
+    tmp = json_features_serialize(basic->features);
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEATURES, tmp)) {
+        printf("[%s:%d] add features to basic error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
   }
   return output_obj;

@@ -3,14 +3,11 @@
 
 #include <stdio.h>
 
-#include "core/models/inputs/utxo_input.h"
+#include "core/models/block.h"
 #include "core/models/outputs/output_alias.h"
-#include "core/models/outputs/output_basic.h"
-#include "core/models/outputs/outputs.h"
-#include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"
-#include "core/models/unlock_block.h"
+#include "core/models/unlocks.h"
 #include "unity/unity.h"
 
 static byte_t mnemonic_seed[64] = {0x83, 0x7D, 0x69, 0x91, 0x14, 0x64, 0x8E, 0xB,  0x36, 0x78, 0x58, 0xF0, 0xE9,
@@ -32,22 +29,22 @@ void tearDown(void) {}
 
 static output_alias_t* create_output_alias(address_t* address) {
   // create unlock conditions
-  cond_blk_list_t* unlock_conds = cond_blk_list_new();
+  unlock_cond_list_t* unlock_conds = condition_list_new();
 
   // random state controller address
   address_t test_addr = {};
   test_addr.type = ADDRESS_TYPE_ALIAS;
   iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
-  unlock_cond_blk_t* state_block = cond_blk_state_new(&test_addr);
-  TEST_ASSERT_NOT_NULL(state_block);
+  unlock_cond_t* state_cond = condition_state_new(&test_addr);
+  TEST_ASSERT_NOT_NULL(state_cond);
 
   // random governor address
   iota_crypto_randombytes(test_addr.address, ALIAS_ID_BYTES);
-  unlock_cond_blk_t* gov_block = cond_blk_governor_new(&test_addr);
-  TEST_ASSERT_NOT_NULL(gov_block);
+  unlock_cond_t* gov_cond = condition_governor_new(&test_addr);
+  TEST_ASSERT_NOT_NULL(gov_cond);
 
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, state_block) == 0);
-  TEST_ASSERT(cond_blk_list_add(&unlock_conds, gov_block) == 0);
+  TEST_ASSERT(condition_list_add(&unlock_conds, state_cond) == 0);
+  TEST_ASSERT(condition_list_add(&unlock_conds, gov_cond) == 0);
 
   // create alias Output
   output_alias_t* output =
@@ -55,9 +52,9 @@ static output_alias_t* create_output_alias(address_t* address) {
   TEST_ASSERT_NOT_NULL(output);
 
   // clean up
-  cond_blk_free(state_block);
-  cond_blk_free(gov_block);
-  cond_blk_list_free(unlock_conds);
+  condition_free(state_cond);
+  condition_free(gov_cond);
+  condition_list_free(unlock_conds);
 
   return output;
 }
@@ -100,36 +97,36 @@ void test_tx_alias_unlock_funds() {
   TEST_ASSERT_TRUE(tx_essence_syntactic(tx->essence, cost));
   byte_cost_config_free(cost);
 
-  // add transaction payload to message
+  // add transaction payload to a block
   uint8_t protocol_ver = 1;
-  core_message_t* msg = core_message_new(protocol_ver);
-  msg->payload = tx;
-  msg->payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  core_block_t* blk = core_block_new(protocol_ver);
+  blk->payload = tx;
+  blk->payload_type = CORE_BLOCK_PAYLOAD_TRANSACTION;
 
   // calculate transaction essence hash
   byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
-  TEST_ASSERT(core_message_essence_hash_calc(msg, essence_hash, sizeof(essence_hash)) == 0);
+  TEST_ASSERT(core_block_essence_hash_calc(blk, essence_hash, sizeof(essence_hash)) == 0);
 
-  // sign transaction (generate unlock blocks)
+  // sign transaction (generate unlocks)
   TEST_ASSERT(signing_transaction_sign(essence_hash, sizeof(essence_hash), tx->essence->inputs, sign_data_list,
-                                       &tx->unlock_blocks) == 0);
+                                       &tx->unlocks) == 0);
 
-  // validate unlock blocks
-  TEST_ASSERT_EQUAL_UINT16(2, unlock_blocks_count(tx->unlock_blocks));
+  // validate unlocks
+  TEST_ASSERT_EQUAL_UINT16(2, unlock_list_count(tx->unlocks));
 
-  unlock_block_t* unlock_block = unlock_blocks_get(tx->unlock_blocks, 0);
-  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_SIGNATURE);
+  unlock_t* unlock = unlock_list_get(tx->unlocks, 0);
+  TEST_ASSERT(unlock->type == UNLOCK_SIGNATURE_TYPE);
 
-  unlock_block = unlock_blocks_get(tx->unlock_blocks, 1);
-  TEST_ASSERT(unlock_block->type == UNLOCK_BLOCK_TYPE_ALIAS);
+  unlock = unlock_list_get(tx->unlocks, 1);
+  TEST_ASSERT(unlock->type == UNLOCK_ALIAS_TYPE);
 
-  // print core message transaction
-  core_message_print(msg, 0);
+  // print a block
+  core_block_print(blk, 0);
 
   // clean up
   signing_free(sign_data_list);
   output_alias_free(alias_output);
-  core_message_free(msg);
+  core_block_free(blk);
 }
 
 int main() {

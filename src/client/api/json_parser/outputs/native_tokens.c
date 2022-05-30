@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "client/api/json_parser/outputs/native_tokens.h"
+#include "core/models/outputs/native_tokens.h"
 #include "core/utils/macros.h"
 
 /*
@@ -39,7 +40,7 @@ int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_list_t **nat
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_AMOUNT);
       return -1;
     }
-    uint256_t *amount = uint256_from_str(token_amount);
+    uint256_t *amount = uint256_from_hex_str(token_amount);
 
     // add new token into a list
     if (native_tokens_add(native_tokens, (byte_t *)token_id, amount) != 0) {
@@ -54,6 +55,11 @@ int json_native_tokens_deserialize(cJSON *output_obj, native_tokens_list_t **nat
 }
 
 cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
+  // omit the empty list
+  if (native_tokens_count(native_tokens) == 0) {
+    return NULL;
+  }
+
   cJSON *tokens = cJSON_CreateArray();
   if (tokens) {
     if (!native_tokens) {
@@ -74,11 +80,12 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
         cJSON_AddStringToObject(item, JSON_KEY_ID, token_id);
 
         // add amount
-        char *amount = uint256_to_str(&elm->token->amount);
+        char *amount = uint256_to_hex_str(&elm->token->amount);
         if (!amount) {
           goto item_err;
         }
-        char *amount_with_prefix = malloc(strlen(amount) + JSON_HEX_ENCODED_STR_PREFIX_LEN);
+        char *amount_with_prefix =
+            calloc(1, strlen(amount) + JSON_HEX_ENCODED_STR_PREFIX_LEN + 1);  // Zero terminated string
         if (!amount_with_prefix) {
           free(amount);
           goto item_err;

@@ -4,9 +4,15 @@
 #include <inttypes.h>
 #include <string.h>
 
+#include "core/models/block.h"
+#include "core/models/outputs/output_alias.h"
+#include "core/models/outputs/output_basic.h"
+#include "core/models/outputs/output_foundry.h"
+#include "core/models/outputs/output_nft.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 #include "core/utils/macros.h"
+#include "utlist.h"
 
 transaction_essence_t* tx_essence_new(uint64_t network_id) {
   transaction_essence_t* es = malloc(sizeof(transaction_essence_t));
@@ -55,7 +61,7 @@ int tx_essence_add_payload(transaction_essence_t* es, uint32_t type, void* paylo
   if (!es || !payload) {
     return -1;
   }
-  if (type == CORE_MESSAGE_PAYLOAD_TAGGED) {
+  if (type == CORE_BLOCK_PAYLOAD_TAGGED) {
     es->payload = tagged_data_clone((tagged_data_payload_t const* const)payload);
     es->payload_len = tagged_data_serialize_len(payload);
   } else {
@@ -81,8 +87,9 @@ int tx_essence_inputs_commitment_calculate(transaction_essence_t* es, utxo_outpu
     return -1;
   }
 
-  byte_t* buf;
-  size_t buf_len;
+  byte_t output_hash[CRYPTO_SHA256_HASH_BYTES] = {0};
+  byte_t* buf = NULL;
+  size_t buf_len = 0;
   utxo_outputs_list_t* elm;
   LL_FOREACH(unspent_outputs, elm) {
     switch (elm->output->output_type) {
@@ -153,7 +160,15 @@ int tx_essence_inputs_commitment_calculate(transaction_essence_t* es, utxo_outpu
         break;
       }
     }
-    if (iota_blake2b_update(blake_state, buf, buf_len) != 0) {
+
+    // calculate BLAKE2b-256 hash for output
+    if (iota_blake2b_sum(buf, buf_len, output_hash, sizeof(output_hash)) != 0) {
+      iota_blake2b_free_state(blake_state);
+      free(buf);
+      return -1;
+    }
+
+    if (iota_blake2b_update(blake_state, output_hash, sizeof(output_hash)) != 0) {
       iota_blake2b_free_state(blake_state);
       free(buf);
       return -1;
@@ -350,9 +365,9 @@ void tx_essence_print(transaction_essence_t* es, uint8_t indentation) {
 transaction_payload_t* tx_payload_new(uint64_t network_id) {
   transaction_payload_t* tx = malloc(sizeof(transaction_payload_t));
   if (tx) {
-    tx->type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+    tx->type = CORE_BLOCK_PAYLOAD_TRANSACTION;
     tx->essence = tx_essence_new(network_id);
-    tx->unlock_blocks = unlock_blocks_new();
+    tx->unlocks = unlock_list_new();
     if (tx->essence == NULL) {
       tx_payload_free(tx);
       return NULL;
@@ -366,8 +381,8 @@ void tx_payload_free(transaction_payload_t* tx) {
     if (tx->essence) {
       tx_essence_free(tx->essence);
     }
-    if (tx->unlock_blocks) {
-      unlock_blocks_free(tx->unlock_blocks);
+    if (tx->unlocks) {
+      unlock_list_free(tx->unlocks);
     }
     free(tx);
   }
@@ -375,13 +390,13 @@ void tx_payload_free(transaction_payload_t* tx) {
 
 size_t tx_payload_serialize_length(transaction_payload_t* tx) {
   size_t essence_len = tx_essence_serialize_length(tx->essence);
-  size_t blocks_len = unlock_blocks_serialize_length(tx->unlock_blocks);
-  if (essence_len == 0 || blocks_len == 0) {
+  size_t unlocks_len = unlock_list_serialize_length(tx->unlocks);
+  if (essence_len == 0 || unlocks_len == 0) {
     return 0;
   }
 
-  // payload_type + serialized essence length + serialized unlocked blocks
-  return sizeof(uint32_t) + essence_len + blocks_len;
+  // payload_type + serialized essence length + serialized unlock list
+  return sizeof(uint32_t) + essence_len + unlocks_len;
 }
 
 size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_len) {
@@ -403,14 +418,14 @@ size_t tx_payload_serialize(transaction_payload_t* tx, byte_t buf[], size_t buf_
 
   byte_t* offset = buf;
   // write payload type
-  uint32_t payload_type = CORE_MESSAGE_PAYLOAD_TRANSACTION;
+  uint32_t payload_type = CORE_BLOCK_PAYLOAD_TRANSACTION;
   memcpy(offset, &payload_type, sizeof(uint32_t));
   offset += sizeof(uint32_t);
   // write essence
   size_t essence_len = tx_essence_serialize_length(tx->essence);
   offset += tx_essence_serialize(tx->essence, offset, essence_len);
-  // write unlocked blocks
-  offset += unlock_blocks_serialize(tx->unlock_blocks, offset);
+  // write unlockeds
+  offset += unlock_list_serialize(tx->unlocks, offset);
 
   return offset - buf;
 }
@@ -436,8 +451,8 @@ transaction_payload_t* tx_payload_deserialize(byte_t buf[], size_t buf_len) {
   tx_payload->essence = tx_essence_deserialize(&buf[offset], buf_len - offset);
   offset += tx_essence_serialize_length(tx_payload->essence);
 
-  tx_payload->unlock_blocks = unlock_blocks_deserialize(&buf[offset], buf_len - offset);
-  offset += unlock_blocks_serialize_length(tx_payload->unlock_blocks);
+  tx_payload->unlocks = unlock_list_deserialize(&buf[offset], buf_len - offset);
+  offset += unlock_list_serialize_length(tx_payload->unlocks);
 
   return tx_payload;
 }
@@ -483,7 +498,7 @@ int tx_payload_calculate_id(transaction_payload_t* tx, byte_t id[], uint8_t id_l
 void tx_payload_print(transaction_payload_t* tx, uint8_t indentation) {
   if (tx) {
     tx_essence_print(tx->essence, indentation);
-    unlock_blocks_print(tx->unlock_blocks, indentation);
+    unlock_list_print(tx->unlocks, indentation);
   }
 }
 
@@ -497,8 +512,8 @@ bool tx_payload_syntactic(transaction_payload_t* tx, byte_cost_config_t* byte_co
     return false;
   }
 
-  // Unlock Block Count must match Input Count
-  if (utxo_inputs_count(tx->essence->inputs) != unlock_blocks_count(tx->unlock_blocks)) {
+  // Unlocks Count must match Input Count
+  if (utxo_inputs_count(tx->essence->inputs) != unlock_list_count(tx->unlocks)) {
     return false;
   }
 

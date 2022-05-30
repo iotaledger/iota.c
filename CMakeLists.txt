@@ -80,11 +80,6 @@ else()
   message(FATAL_ERROR "Crypto framework is not defined")
 endif()
 
-if(IOTA_WALLET_ENABLE)
-  message("Enable Wallet API")
-  include(cmake/utf8proc.cmake)
-endif()
-
 if(MQTT_CLIENT_ENABLE)
   message("Enable MQTT Client")
   include(cmake/mosquitto.cmake)

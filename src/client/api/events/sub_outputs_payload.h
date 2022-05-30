@@ -8,9 +8,9 @@
 #include <stdint.h>
 
 #include "client/api/events/node_event.h"
-#include "client/api/json_parser/message.h"
+#include "client/api/json_parser/block.h"
 #include "core/address.h"
-#include "core/models/message.h"
+#include "core/models/block.h"
 #include "core/utils/macros.h"
 
 #ifdef __cplusplus

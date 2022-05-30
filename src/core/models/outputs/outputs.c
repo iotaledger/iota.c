@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "core/models/outputs/output_alias.h"
+#include "core/models/outputs/output_basic.h"
+#include "core/models/outputs/output_foundry.h"
+#include "core/models/outputs/output_nft.h"
 #include "core/models/outputs/outputs.h"
 #include "core/models/outputs/storage_deposit.h"
 #include "core/utils/macros.h"
@@ -145,7 +149,7 @@ size_t utxo_outputs_serialize_len(utxo_outputs_list_t *outputs) {
   len += sizeof(uint16_t);
 
   utxo_outputs_list_t *elm;
-  size_t output_len;
+  size_t output_len = 0;
   LL_FOREACH(outputs, elm) {
     switch (elm->output->output_type) {
       case OUTPUT_SINGLE_OUTPUT:

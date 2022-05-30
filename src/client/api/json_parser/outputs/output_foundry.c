@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 
-#include "client/api/json_parser/outputs/feat_blocks.h"
+#include "client/api/json_parser/outputs/features.h"
 #include "client/api/json_parser/outputs/native_tokens.h"
 #include "client/api/json_parser/outputs/output_foundry.h"
 #include "client/api/json_parser/outputs/unlock_conditions.h"
@@ -42,7 +42,7 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
       printf("[%s:%d]: getting %s json string failed\n", __func__, __LINE__, JSON_KEY_MINTED_TOKENS);
       return -1;
     }
-    mintedt_tokens = uint256_from_str(temp_str);
+    mintedt_tokens = uint256_from_hex_str(temp_str);
 
     // melted tokens
     memset(temp_str, 0, STRING_NUMBER_MAX_CHARACTERS);
@@ -52,7 +52,7 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
       uint256_free(mintedt_tokens);
       return -1;
     }
-    melted_tokens = uint256_from_str(temp_str);
+    melted_tokens = uint256_from_hex_str(temp_str);
 
     // maximum supply
     memset(temp_str, 0, STRING_NUMBER_MAX_CHARACTERS);
@@ -63,7 +63,7 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
       uint256_free(melted_tokens);
       return -1;
     }
-    max_supply = uint256_from_str(temp_str);
+    max_supply = uint256_from_hex_str(temp_str);
 
     *token_scheme = token_scheme_simple_new(mintedt_tokens, melted_tokens, max_supply);
     if (!*token_scheme) {
@@ -85,7 +85,7 @@ int json_token_scheme_deserialize(cJSON *output_obj, token_scheme_t **token_sche
 
 cJSON *json_token_scheme_serialize(token_scheme_t *scheme) {
   if (!scheme) {
-    printf("[%s:%d] invalid block\n", __func__, __LINE__);
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
   }
 
@@ -108,7 +108,7 @@ cJSON *json_token_scheme_serialize(token_scheme_t *scheme) {
       char *tmp_supply = NULL;
 
       // minted tokens
-      tmp_supply = uint256_to_str(&simple_scheme->minted_tokens);
+      tmp_supply = uint256_to_hex_str(&simple_scheme->minted_tokens);
       if (!tmp_supply) {
         goto err;
       }
@@ -129,7 +129,7 @@ cJSON *json_token_scheme_serialize(token_scheme_t *scheme) {
       free(tmp_supply_with_prefix);
 
       // melted tokens
-      tmp_supply = uint256_to_str(&simple_scheme->melted_tokens);
+      tmp_supply = uint256_to_hex_str(&simple_scheme->melted_tokens);
       if (!tmp_supply) {
         goto err;
       }
@@ -150,7 +150,7 @@ cJSON *json_token_scheme_serialize(token_scheme_t *scheme) {
       free(tmp_supply_with_prefix);
 
       // maximum supply
-      tmp_supply = uint256_to_str(&simple_scheme->max_supply);
+      tmp_supply = uint256_to_hex_str(&simple_scheme->max_supply);
       if (!tmp_supply) {
         goto err;
       }
@@ -197,13 +197,13 @@ err:
             }
         }
       ],
-      "featureBlocks": [
+      "features": [
         {
           "type": 2,
           "data": "0x010203040506070809"
         }
       ],
-      "immutableFeatureBlocks": [
+      "immutableFeatures": [
         {
           "type": 2,
           "data": "0x090807060504030201"
@@ -222,9 +222,9 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
 
   token_scheme_t *token_scheme = NULL;
   native_tokens_list_t *tokens = native_tokens_new();
-  cond_blk_list_t *cond_blocks = cond_blk_list_new();
-  feat_blk_list_t *feat_blocks = feat_blk_list_new();
-  feat_blk_list_t *immut_feat_blocks = feat_blk_list_new();
+  unlock_cond_list_t *cond_list = condition_list_new();
+  feature_list_t *features = feature_list_new();
+  feature_list_t *immut_features = feature_list_new();
 
   // amount
   uint64_t amount;
@@ -262,73 +262,73 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
   }
 
   // unlock conditions array
-  if (json_cond_blk_list_deserialize(output_obj, &cond_blocks) != 0) {
+  if (json_condition_list_deserialize(output_obj, &cond_list) != 0) {
     printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_UNLOCK_CONDITIONS);
     goto end;
   }
-  if (cond_blk_list_len(cond_blocks) != 1) {
+  if (condition_list_len(cond_list) != 1) {
     printf("[%s:%d]: there must be only one unlock condition in a list\n", __func__, __LINE__);
     goto end;
   }
   // extract alias address from unlock condition
-  unlock_cond_blk_t *unlock_cond_address = cond_blk_list_get_type(cond_blocks, UNLOCK_COND_IMMUT_ALIAS);
+  unlock_cond_t *unlock_cond_address = condition_list_get_type(cond_list, UNLOCK_COND_IMMUT_ALIAS);
   if (!unlock_cond_address) {
     printf("[%s:%d]: there is not a address unlock condition in a list\n", __func__, __LINE__);
     goto end;
   }
 
-  // feature blocks array
-  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEAT_BLOCKS) != NULL) {
-    if (json_feat_blocks_deserialize(output_obj, false, &feat_blocks) != 0) {
-      printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_FEAT_BLOCKS);
+  // features array
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_FEATURES) != NULL) {
+    if (json_features_deserialize(output_obj, false, &features) != 0) {
+      printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_FEATURES);
       goto end;
     }
   }
-  if (feat_blk_list_len(feat_blocks) > 1) {
-    printf("[%s:%d]: there must be at most one feature block in a list\n", __func__, __LINE__);
+  if (feature_list_len(features) > 1) {
+    printf("[%s:%d]: there must be at most one feature in a list\n", __func__, __LINE__);
     goto end;
   }
 
-  // there may be a metadata feature block
+  // there may be a metadata feature
   byte_t *metadata = NULL;
   uint32_t metadata_len = 0;
-  if (feat_blk_list_len(feat_blocks) == 1) {
-    feat_block_t *feat_block_metadata = feat_blk_list_get_type(feat_blocks, FEAT_METADATA_BLOCK);
-    if (!feat_block_metadata) {
-      printf("[%s:%d]: there is not a metadata feature block in a list\n", __func__, __LINE__);
+  if (feature_list_len(features) == 1) {
+    output_feature_t *feat_metadata = feature_list_get_type(features, FEAT_METADATA_TYPE);
+    if (!feat_metadata) {
+      printf("[%s:%d]: there is not a metadata feature in a list\n", __func__, __LINE__);
       goto end;
     }
-    metadata = ((feat_metadata_blk_t *)feat_block_metadata->block)->data;
-    metadata_len = ((feat_metadata_blk_t *)feat_block_metadata->block)->data_len;
+    metadata = ((feature_metadata_t *)feat_metadata->obj)->data;
+    metadata_len = ((feature_metadata_t *)feat_metadata->obj)->data_len;
   }
 
-  // immutable feature blocks array
-  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_BLOCKS) != NULL) {
-    if (json_feat_blocks_deserialize(output_obj, true, &immut_feat_blocks) != 0) {
-      printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_IMMUTABLE_BLOCKS);
+  // immutable features array
+  if (cJSON_GetObjectItemCaseSensitive(output_obj, JSON_KEY_IMMUTABLE_FEATS) != NULL) {
+    if (json_features_deserialize(output_obj, true, &immut_features) != 0) {
+      printf("[%s:%d]: parsing %s object failed\n", __func__, __LINE__, JSON_KEY_IMMUTABLE_FEATS);
       goto end;
     }
   }
-  if (feat_blk_list_len(immut_feat_blocks) > 1) {
-    printf("[%s:%d]: there must be at most one immutable feature block in a list\n", __func__, __LINE__);
+  if (feature_list_len(immut_features) > 1) {
+    printf("[%s:%d]: there must be at most one immutable feature in a list\n", __func__, __LINE__);
     goto end;
   }
 
-  // there may be a metadata immutable feature block
+  // there may be a metadata immutable feature
   byte_t *immut_metadata = NULL;
   uint32_t immut_metadata_len = 0;
-  if (feat_blk_list_len(immut_feat_blocks) == 1) {
-    feat_block_t *immut_feat_block_metadata = feat_blk_list_get_type(immut_feat_blocks, FEAT_METADATA_BLOCK);
-    if (!immut_feat_block_metadata) {
-      printf("[%s:%d]: there is not a metadata immutable feature block in a list\n", __func__, __LINE__);
+  if (feature_list_len(immut_features) == 1) {
+    output_feature_t *immut_feat_metadata = feature_list_get_type(immut_features, FEAT_METADATA_TYPE);
+    if (!immut_feat_metadata) {
+      printf("[%s:%d]: there is not a metadata immutable feature in a list\n", __func__, __LINE__);
       goto end;
     }
-    immut_metadata = ((feat_metadata_blk_t *)immut_feat_block_metadata->block)->data;
-    immut_metadata_len = ((feat_metadata_blk_t *)immut_feat_block_metadata->block)->data_len;
+    immut_metadata = ((feature_metadata_t *)immut_feat_metadata->obj)->data;
+    immut_metadata_len = ((feature_metadata_t *)immut_feat_metadata->obj)->data_len;
   }
 
   // create foundry output
-  *foundry = output_foundry_new((address_t *)unlock_cond_address->block, amount, tokens, serial_number, token_scheme,
+  *foundry = output_foundry_new((address_t *)unlock_cond_address->obj, amount, tokens, serial_number, token_scheme,
                                 metadata, metadata_len, immut_metadata, immut_metadata_len);
   if (!*foundry) {
     printf("[%s:%d]: creating foundry output object failed\n", __func__, __LINE__);
@@ -341,9 +341,9 @@ int json_output_foundry_deserialize(cJSON *output_obj, output_foundry_t **foundr
 end:
   native_tokens_free(tokens);
   token_scheme_free(token_scheme);
-  cond_blk_list_free(cond_blocks);
-  feat_blk_list_free(feat_blocks);
-  feat_blk_list_free(immut_feat_blocks);
+  condition_list_free(cond_list);
+  feature_list_free(features);
+  feature_list_free(immut_features);
 
   return result;
 }
@@ -368,10 +368,12 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
 
     // native tokens
     tmp = json_native_tokens_serialize(foundry->native_tokens);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_NATIVE_TOKENS, tmp)) {
-      printf("[%s:%d] add native tokens to foundry error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_NATIVE_TOKENS, tmp)) {
+        printf("[%s:%d] add native tokens to foundry error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
 
     // serialNumber
@@ -389,27 +391,31 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
     }
 
     // unlock conditions
-    tmp = json_cond_blk_list_serialize(foundry->unlock_conditions);
+    tmp = json_condition_list_serialize(foundry->unlock_conditions);
     if (!cJSON_AddItemToObject(output_obj, JSON_KEY_UNLOCK_CONDITIONS, tmp)) {
       printf("[%s:%d] add unlock conditions to foundry error\n", __func__, __LINE__);
       cJSON_Delete(tmp);
       goto err;
     }
 
-    // feature blocks
-    tmp = json_feat_blocks_serialize(foundry->feature_blocks);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEAT_BLOCKS, tmp)) {
-      printf("[%s:%d] add feature blocks to foundry error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    // features
+    tmp = json_features_serialize(foundry->features);
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_FEATURES, tmp)) {
+        printf("[%s:%d] add features to foundry error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
 
-    // immutable feature blocks
-    tmp = json_feat_blocks_serialize(foundry->immutable_blocks);
-    if (!cJSON_AddItemToObject(output_obj, JSON_KEY_IMMUTABLE_BLOCKS, tmp)) {
-      printf("[%s:%d] add immutable feature blocks to foundry error\n", __func__, __LINE__);
-      cJSON_Delete(tmp);
-      goto err;
+    // immutable features
+    tmp = json_features_serialize(foundry->immutable_features);
+    if (tmp) {
+      if (!cJSON_AddItemToObject(output_obj, JSON_KEY_IMMUTABLE_FEATS, tmp)) {
+        printf("[%s:%d] add immutable features to foundry error\n", __func__, __LINE__);
+        cJSON_Delete(tmp);
+        goto err;
+      }
     }
   }
   return output_obj;

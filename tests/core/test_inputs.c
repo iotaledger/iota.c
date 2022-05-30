@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #include "core/models/inputs/utxo_input.h"
-#include "core/models/message.h"
 #include "unity/unity.h"
 
 static byte_t tx_id0[IOTA_TRANSACTION_ID_BYTES] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

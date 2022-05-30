@@ -5,6 +5,7 @@
 #define __CLIENT_API_JSON_PARSER_PAYLOADS_PAYLOADS_H__
 
 #include "cJSON.h"
+#include "core/models/payloads/milestone.h"
 #include "core/models/payloads/tagged_data.h"
 #include "core/models/payloads/transaction.h"
 
