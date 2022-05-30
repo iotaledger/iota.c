@@ -6,6 +6,7 @@
 
 #include "client/api/restful/faucet_enqueue.h"
 #include "core/address.h"
+#include "core/utils/bech32.h"
 #include "core/utils/macros.h"
 #include "test_config.h"
 #include "unity/unity.h"
@@ -94,7 +95,7 @@ void test_wallet_basic_transfer() {
   TEST_ASSERT(address_keypair_from_path(w->seed, sizeof(w->seed), addr_path, &sender_keypair) == 0);
 
   // request token from the fuacet
-  char sender_bech32[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char sender_bech32[BECH32_MAX_STRING_LEN + 1] = {};
   TEST_ASSERT(address_to_bech32(&sender, w->bech32HRP, sender_bech32, sizeof(sender_bech32)) == 0);
   TEST_ASSERT(request_token(sender_bech32) == 0);
   // wait a little bit for getting tokens from faucet

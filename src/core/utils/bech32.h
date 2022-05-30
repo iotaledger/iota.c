@@ -4,6 +4,7 @@
 #ifndef __CORE_UTILS_BECH32_H__
 #define __CORE_UTILS_BECH32_H__
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -50,6 +51,18 @@ int bech32_decode(char *hrp, uint8_t *data, size_t *data_len, const char *input)
  */
 int bech32_convert_bits(uint8_t *out, size_t *outlen, int outbits, const uint8_t *in, size_t inlen, int inbits,
                         int pad);
+
+/**
+ * @brief Validates Bech32 address length
+ *
+ * https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
+ * the length of Bech32 should be (HRP length) < x <= 90, where the HRP length is 1 to 83 ASCII characters
+ *
+ * @param[in] addr A string of Bech32 address
+ * @return true Valid Bech32 address
+ * @return false Invalid Bech32 address
+ */
+bool is_valid_bech32_len(char const *const addr);
 
 #ifdef __cplusplus
 }

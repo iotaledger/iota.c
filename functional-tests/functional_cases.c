@@ -16,6 +16,7 @@
 #include "client/api/restful/get_tips.h"
 #include "client/api/restful/get_transaction_included_block.h"
 #include "client/api/restful/send_tagged_data.h"
+#include "core/utils/bech32.h"
 #include "functional_cases.h"
 #include "wallet/output_basic.h"
 
@@ -123,7 +124,7 @@ static int request_token(test_config_t* conf, test_data_t* params, test_item_t* 
 
   int ret = 0;
   res_faucet_enqueue_t res = {};
-  char sender_bech32[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char sender_bech32[BECH32_MAX_STRING_LEN + 1] = {};
 
   ret = wallet_ed25519_address_from_index(params->w, false, conf->sender_index, &params->sender);
   if (ret != 0) {
@@ -670,7 +671,7 @@ static int validating_indexers_basic(test_config_t* conf, test_data_t* params, t
   res_outputs_id_t* res_ids = NULL;
 
   // get bech32 address as the query paramter
-  char bech32_addr[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_addr[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&params->sender, params->w->bech32HRP, bech32_addr, sizeof(bech32_addr)) != 0) {
     printf("[%s:%d] convert sender address to bech32 address failed\n", __func__, __LINE__);
     return -1;

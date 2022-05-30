@@ -70,14 +70,14 @@ int token_transfer() {
   }
 
   // convert sender address to bech32 format
-  char bech32_sender[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_sender[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&sender, w->bech32HRP, bech32_sender, sizeof(bech32_sender)) != 0) {
     printf("Failed encoding sender address to bech32 format!\n");
     wallet_destroy(w);
     return -1;
   }
   // convert sender address to bech32 format
-  char bech32_receiver[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_receiver[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&receiver, w->bech32HRP, bech32_receiver, sizeof(bech32_receiver)) != 0) {
     printf("Failed encoding receiver address to bech32 format!\n");
     wallet_destroy(w);

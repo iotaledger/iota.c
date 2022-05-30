@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <unistd.h>  // for Linux sleep()
 
+#include "core/utils/bech32.h"
 #include "wallet/output_alias.h"
 #include "wallet/wallet.h"
 
@@ -63,7 +64,7 @@ int main(void) {
   }
 
   // convert sender address to bech32 format
-  char bech32_sender[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_sender[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&sender_addr, w->bech32HRP, bech32_sender, sizeof(bech32_sender)) != 0) {
     printf("Failed converting sender address to bech32 format!\n");
     wallet_destroy(w);
@@ -71,7 +72,7 @@ int main(void) {
   }
 
   // convert state controller address to bech32 format
-  char bech32_state_ctrl[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_state_ctrl[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&state_ctrl_addr, w->bech32HRP, bech32_state_ctrl, sizeof(bech32_state_ctrl)) != 0) {
     printf("Failed converting state controller address to bech32 format!\n");
     wallet_destroy(w);
@@ -79,7 +80,7 @@ int main(void) {
   }
 
   // convert governor address to bech32 format
-  char bech32_govern[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_govern[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&govern_addr, w->bech32HRP, bech32_govern, sizeof(bech32_govern)) != 0) {
     printf("Failed converting governor address to bech32 format!\n");
     wallet_destroy(w);
@@ -118,7 +119,7 @@ int main(void) {
   sleep(15);
 
   // convert alias address to bech32 format
-  char bech32_alias[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_alias[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&alias_addr, w->bech32HRP, bech32_alias, sizeof(bech32_alias)) != 0) {
     printf("Failed converting alias address to bech32 format!\n");
     wallet_destroy(w);

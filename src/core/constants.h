@@ -27,12 +27,10 @@
 #define ALIAS_ID_BYTES CRYPTO_BLAKE2B_256_HASH_BYTES
 // A NFT address is the Blake2b-256 hash of the OutputID which created it.
 #define NFT_ID_BYTES CRYPTO_BLAKE2B_256_HASH_BYTES
-// Maximum number of bytes an address can hold.
-#define ADDRESS_MAX_BYTES ED25519_PUBKEY_BYTES
-// Minimum number of bytes an address can hold.
-#define ADDRESS_MIN_BYTES ALIAS_ID_BYTES
-// Maximum number of bytes a serialized address can hold.
-#define ADDRESS_SERIALIZED_MAX_BYTES (1 + ED25519_PUBKEY_BYTES)
+// The genral hash lengh of address which is equal to ED25519_PUBKEY_BYTES, ALIAS_ID_BYTES, and NFT_ID_BYTES
+#define ADDRESS_HASH_BYTES 32
+// The number of bytes a serialized address can hold.
+#define ADDRESS_SERIALIZED_BYTES (1 + ADDRESS_HASH_BYTES)
 
 /****** Constants related to unlocks ******/
 // ed25519 signature object = signature type + public key + signature
