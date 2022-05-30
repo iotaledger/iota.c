@@ -9,93 +9,12 @@
 #include "client/api/restful/get_outputs_id.h"
 #include "core/models/outputs/output_alias.h"
 #include "core/models/payloads/transaction.h"
-#include "core/models/signing.h"
 #include "wallet/bip39.h"
 #include "wallet/output_alias.h"
 #include "wallet/output_basic.h"
 #include "wallet/wallet.h"
 
-static res_outputs_id_t* get_alias_output_from_alias_id(iota_wallet_t* w, byte_t alias_id[]) {
-  if (w == NULL || alias_id == NULL) {
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  res_outputs_id_t* res = res_outputs_new();
-  if (!res) {
-    printf("[%s:%d] OOM\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  // covert binary alias id to string alias id
-  char alias_id_hex[BIN_TO_HEX_STR_BYTES(ALIAS_ID_BYTES)] = {0};
-  if (bin_2_hex(alias_id, ALIAS_ID_BYTES, NULL, alias_id_hex, sizeof(alias_id_hex)) != 0) {
-    printf("[%s:%d] can not convert alias id from bin to hex\n", __func__, __LINE__);
-    res_outputs_free(res);
-    return NULL;
-  }
-
-  if (get_outputs_from_alias_id(&w->endpoint, INDEXER_API_PATH, alias_id_hex, res) != 0) {
-    printf("[%s:%d] can not get output by output id\n", __func__, __LINE__);
-    res_outputs_free(res);
-    return NULL;
-  }
-
-  if (res->is_error) {
-    printf("[%s:%d] %s\n", __func__, __LINE__, res->u.error->msg);
-    res_outputs_free(res);
-    return NULL;
-  }
-
-  return res;
-}
-
-static res_output_t* wallet_get_unspent_alias_output(iota_wallet_t* w, byte_t alias_id[]) {
-  if (w == NULL || alias_id == NULL) {
-    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  res_outputs_id_t* res_id = get_alias_output_from_alias_id(w, alias_id);
-  if (!res_id) {
-    printf("[%s:%d] failed to get unspent alias output IDs\n", __func__, __LINE__);
-    return NULL;
-  }
-
-  if (res_outputs_output_id_count(res_id) != 1) {
-    printf("[%s:%d] alias ID should have only one unspent alias output\n", __func__, __LINE__);
-    res_outputs_free(res_id);
-    return NULL;
-  }
-
-  res_output_t* output_res = get_output_response_new();
-  if (!output_res) {
-    printf("[%s:%d] failed to create output response object\n", __func__, __LINE__);
-    res_outputs_free(res_id);
-    return NULL;
-  }
-
-  if (get_output(&w->endpoint, res_outputs_output_id(res_id, 0), output_res) != 0) {
-    printf("[%s:%d] failed to get output from a node\n", __func__, __LINE__);
-    get_output_response_free(output_res);
-    res_outputs_free(res_id);
-    return NULL;
-  }
-
-  if (output_res->is_error) {
-    printf("[%s:%d] %s\n", __func__, __LINE__, output_res->u.error->msg);
-    get_output_response_free(output_res);
-    res_outputs_free(res_id);
-    return NULL;
-  }
-
-  // clean up memory
-  res_outputs_free(res_id);
-
-  return output_res;
-}
-
-output_alias_t* wallet_output_alias_create(byte_t alias_id[], uint32_t state_index, address_t* state_ctrl_addr,
+static output_alias_t* create_alias_output(byte_t alias_id[], uint32_t state_index, address_t* state_ctrl_addr,
                                            address_t* govern_addr, uint32_t foundry_counter, uint64_t amount,
                                            native_tokens_list_t* native_tokens) {
   if (alias_id == NULL || state_ctrl_addr == NULL || govern_addr == NULL) {
@@ -149,6 +68,89 @@ output_alias_t* wallet_output_alias_create(byte_t alias_id[], uint32_t state_ind
   return alias_output;
 }
 
+static res_outputs_id_t* get_alias_output_from_alias_id(iota_wallet_t* w, byte_t alias_id[]) {
+  if (w == NULL || alias_id == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  res_outputs_id_t* res = res_outputs_new();
+  if (!res) {
+    printf("[%s:%d] OOM\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  // covert binary alias id to string alias id
+  char alias_id_str[BIN_TO_HEX_STR_BYTES(ALIAS_ID_BYTES)] = {0};
+  if (bin_2_hex(alias_id, ALIAS_ID_BYTES, NULL, alias_id_str, sizeof(alias_id_str)) != 0) {
+    printf("[%s:%d] can not convert alias id from bin to hex\n", __func__, __LINE__);
+    res_outputs_free(res);
+    return NULL;
+  }
+
+  if (get_outputs_from_alias_id(&w->endpoint, INDEXER_API_PATH, alias_id_str, res) != 0) {
+    printf("[%s:%d] can not get output by output id\n", __func__, __LINE__);
+    res_outputs_free(res);
+    return NULL;
+  }
+
+  if (res->is_error) {
+    printf("[%s:%d] Err: %s\n", __func__, __LINE__, res->u.error->msg);
+    res_outputs_free(res);
+    return NULL;
+  }
+
+  return res;
+}
+
+static res_output_t* get_unspent_alias_output(iota_wallet_t* w, byte_t alias_id[]) {
+  if (w == NULL || alias_id == NULL) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  res_outputs_id_t* res_id = get_alias_output_from_alias_id(w, alias_id);
+  if (!res_id) {
+    printf("[%s:%d] failed to get unspent alias output IDs\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  if (res_id->is_error) {
+    printf("[%s:%d] Err: %s\n", __func__, __LINE__, res_id->u.error->msg);
+    res_outputs_free(res_id);
+    return NULL;
+  }
+
+  if (res_outputs_output_id_count(res_id) != 1) {
+    printf("[%s:%d] alias ID should have only one unspent alias output\n", __func__, __LINE__);
+    res_outputs_free(res_id);
+    return NULL;
+  }
+
+  res_output_t* output_res = get_output_response_new();
+  if (!output_res) {
+    printf("[%s:%d] failed to create output response object\n", __func__, __LINE__);
+    res_outputs_free(res_id);
+    return NULL;
+  }
+
+  if (get_output(&w->endpoint, res_outputs_output_id(res_id, 0), output_res) != 0) {
+    printf("[%s:%d] failed to get output from a node\n", __func__, __LINE__);
+    get_output_response_free(output_res);
+    res_outputs_free(res_id);
+    return NULL;
+  }
+  res_outputs_free(res_id);
+
+  if (output_res->is_error) {
+    printf("[%s:%d] Err: %s\n", __func__, __LINE__, output_res->u.error->msg);
+    get_output_response_free(output_res);
+    return NULL;
+  }
+
+  return output_res;
+}
+
 // TODO: the alias output should be able to set optional features such as Sender/Metadata
 int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t const send_amount,
                                address_t* state_ctrl_addr, address_t* govern_addr, uint32_t foundry_counter,
@@ -161,14 +163,14 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
   address_t sender_addr = {0};
   ed25519_keypair_t sender_keypair = {0};
   if (wallet_get_address_and_keypair_from_index(w, sender_change, sender_index, &sender_addr, &sender_keypair) != 0) {
-    printf("Failed to generate a sender address and private key from an index!\n");
+    printf("[%s:%d] failed to generate a sender address and private key from an index\n", __func__, __LINE__);
     return -1;
   }
 
   // create an alias output
   byte_t alias_id[ALIAS_ID_BYTES] = {0};
   output_alias_t* alias_output =
-      wallet_output_alias_create(alias_id, 0, state_ctrl_addr, govern_addr, foundry_counter, send_amount, NULL);
+      create_alias_output(alias_id, 0, state_ctrl_addr, govern_addr, foundry_counter, send_amount, NULL);
   if (!alias_output) {
     printf("[%s:%d] create an alias output failed\n", __func__, __LINE__);
     return -1;
@@ -177,7 +179,7 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
   // add an alias output to outputs list
   utxo_outputs_list_t* outputs = utxo_outputs_new();
   if (utxo_outputs_add(&outputs, OUTPUT_ALIAS, alias_output) != 0) {
-    printf("[%s:%d]: can not add an alias output to a list!\n", __func__, __LINE__);
+    printf("[%s:%d]: can not add an alias output to a list\n", __func__, __LINE__);
     output_alias_free(alias_output);
     utxo_outputs_free(outputs);
     return -1;
@@ -202,7 +204,7 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
 
   // create alias address from alias output ID
   if (alias_address_from_output(output_id, sizeof(output_id), alias_addr) != 0) {
-    printf("[%s:%d] can not create alias address from output Id!\n", __func__, __LINE__);
+    printf("[%s:%d] can not create alias address from output Id\n", __func__, __LINE__);
     return -1;
   }
 
@@ -214,7 +216,7 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
 int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bool state_ctrl_change,
                                          uint32_t state_ctrl_index, address_t* govern_addr, uint32_t foundry_counter,
                                          uint64_t send_amount, utxo_outputs_list_t* outputs,
-                                         native_tokens_list_t* minted_tokens, res_send_block_t* blk_res) {
+                                         native_tokens_list_t* minted_native_tokens, res_send_block_t* blk_res) {
   if (w == NULL || alias_id == NULL || govern_addr == NULL || blk_res == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return -1;
@@ -224,12 +226,12 @@ int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bo
   ed25519_keypair_t state_ctrl_keypair = {0};
   if (wallet_get_address_and_keypair_from_index(w, state_ctrl_change, state_ctrl_index, &state_ctrl_addr,
                                                 &state_ctrl_keypair) != 0) {
-    printf("Failed to generate a sender address and private key from an index!\n");
+    printf("[%s:%d] failed to generate a state controller address and private key from an index\n", __func__, __LINE__);
     return -1;
   }
 
   // get unspent alias output
-  res_output_t* output_res = wallet_get_unspent_alias_output(w, alias_id);
+  res_output_t* output_res = get_unspent_alias_output(w, alias_id);
   if (!output_res) {
     printf("[%s:%d] alias address does not have any unspent alias outputs\n", __func__, __LINE__);
     return -1;
@@ -243,34 +245,35 @@ int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bo
     return -1;
   }
 
+  // TODO this should be probably rework to support multiple unspent outputs
   uint64_t output_amount = ((output_alias_t*)output_res->u.data->output->output)->amount;
-  native_tokens_list_t* output_native_tokens = ((output_alias_t*)output_res->u.data->output->output)->native_tokens;
-  uint32_t state_index = ((output_alias_t*)output_res->u.data->output->output)->state_index;
-
-  get_output_response_free(output_res);
-
   if (output_amount < send_amount) {
     printf("[%s:%d] not enough balance in alias output\n", __func__, __LINE__);
+    get_output_response_free(output_res);
     utxo_inputs_free(inputs);
     return -1;
   }
   output_amount -= send_amount;
 
   // increment alias state index it
+  uint32_t state_index = ((output_alias_t*)output_res->u.data->output->output)->state_index;
   state_index += 1;
 
   // create an alias output
-  output_alias_t* alias_output = wallet_output_alias_create(alias_id, state_index, &state_ctrl_addr, govern_addr,
-                                                            foundry_counter, output_amount, output_native_tokens);
+  native_tokens_list_t* output_native_tokens = ((output_alias_t*)output_res->u.data->output->output)->native_tokens;
+  output_alias_t* alias_output = create_alias_output(alias_id, state_index, &state_ctrl_addr, govern_addr,
+                                                     foundry_counter, output_amount, output_native_tokens);
   if (!alias_output) {
     printf("[%s:%d] create an alias output failed\n", __func__, __LINE__);
+    get_output_response_free(output_res);
     utxo_inputs_free(inputs);
     return -1;
   }
+  get_output_response_free(output_res);
 
   // add an alias output to outputs list
   if (utxo_outputs_add(&outputs, OUTPUT_ALIAS, alias_output) != 0) {
-    printf("[%s:%d]: can not add an alias output to a list!\n", __func__, __LINE__);
+    printf("[%s:%d]: can not add an alias output to a list\n", __func__, __LINE__);
     output_alias_free(alias_output);
     utxo_outputs_free(outputs);
     utxo_inputs_free(inputs);
@@ -279,7 +282,8 @@ int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bo
   output_alias_free(alias_output);
 
   // send a block to a network
-  if (wallet_send(w, &state_ctrl_addr, &state_ctrl_keypair, inputs, outputs, minted_tokens, NULL, blk_res) != 0) {
+  if (wallet_send(w, &state_ctrl_addr, &state_ctrl_keypair, inputs, outputs, minted_native_tokens, NULL, blk_res) !=
+      0) {
     printf("[%s:%d] can not send alias output create block\n", __func__, __LINE__);
     utxo_outputs_free(outputs);
     utxo_inputs_free(inputs);
@@ -303,12 +307,12 @@ int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern
   address_t govern_addr = {0};
   ed25519_keypair_t govern_keypair = {0};
   if (wallet_get_address_and_keypair_from_index(w, govern_change, govern_index, &govern_addr, &govern_keypair) != 0) {
-    printf("Failed to generate a sender address and private key from an index!\n");
+    printf("[%s:%d] failed to generate a governor address and private key from an index!\n", __func__, __LINE__);
     return -1;
   }
 
   // get unspent alias output
-  res_output_t* output_res = wallet_get_unspent_alias_output(w, alias_id);
+  res_output_t* output_res = get_unspent_alias_output(w, alias_id);
   if (!output_res) {
     printf("[%s:%d] alias address does not have any unspent alias outputs\n", __func__, __LINE__);
     return -1;
@@ -318,6 +322,7 @@ int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern
   if (utxo_inputs_add(&inputs, 0, output_res->u.data->meta.tx_id, output_res->u.data->meta.output_index) != 0) {
     printf("[%s:%d] can not add unspent output to inputs list\n", __func__, __LINE__);
     get_output_response_free(output_res);
+    utxo_inputs_free(inputs);
     return -1;
   }
 
@@ -331,14 +336,14 @@ int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern
     utxo_inputs_free(inputs);
     return -1;
   }
-
   get_output_response_free(output_res);
 
   // add a basic output to outputs list
   utxo_outputs_list_t* outputs = utxo_outputs_new();
   if (utxo_outputs_add(&outputs, OUTPUT_BASIC, output_basic) != 0) {
-    printf("[%s:%d]: can not add an alias output to a list!\n", __func__, __LINE__);
+    printf("[%s:%d]: can not add an alias output to a list\n", __func__, __LINE__);
     output_basic_free(output_basic);
+    utxo_outputs_free(outputs);
     utxo_inputs_free(inputs);
     return -1;
   }
