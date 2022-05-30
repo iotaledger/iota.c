@@ -20,7 +20,6 @@
 #define TOPIC_BLOCKS "blocks"
 #define TOPIC_BLK_TRANSACTION "blocks/transaction"
 #define TOPIC_BLK_TXN_TAGGED_DATA "blocks/transaction/tagged-data"
-#define TOPIC_BLK_MILESTONE "blocks/milestone"
 #define TOPIC_BLK_TAGGED_DATA "blocks/tagged-data"
 
 /**

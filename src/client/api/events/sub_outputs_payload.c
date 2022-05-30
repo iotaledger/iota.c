@@ -101,10 +101,10 @@ int event_sub_outputs_alias_id(event_client_handle_t client, int *mid, char cons
     return -1;
   }
 
-  // Buffer enough for outputs/aliases/0x{aliasId}
-  // 19 = length(outputs/aliases/0x) + 1(NULL terminator)
-  char topic_buff[BIN_TO_HEX_BYTES(ALIAS_ID_BYTES) + 19] = {};
-  sprintf(topic_buff, "outputs/aliases/0x%s", alias_id);
+  // Buffer enough for outputs/alias/0x{aliasId}
+  // 17 = length(outputs/alias/0x) + 1(NULL terminator)
+  char topic_buff[BIN_TO_HEX_BYTES(ALIAS_ID_BYTES) + 17] = {};
+  sprintf(topic_buff, "outputs/alias/0x%s", alias_id);
 
   return event_subscribe(client, mid, topic_buff, qos);
 }
@@ -120,10 +120,10 @@ int event_sub_outputs_nft_id(event_client_handle_t client, int *mid, char const 
     return -1;
   }
 
-  // Buffer enough for outputs/nfts/0x{nftId}
-  // 16 = length(outputs/nfts/0x) + 1(NULL terminator)
-  char topic_buff[BIN_TO_HEX_BYTES(NFT_ID_BYTES) + 16] = {};
-  sprintf(topic_buff, "outputs/nfts/0x%s", nft_id);
+  // Buffer enough for outputs/nft/0x{nftId}
+  // 15 = length(outputs/nft/0x) + 1(NULL terminator)
+  char topic_buff[BIN_TO_HEX_BYTES(NFT_ID_BYTES) + 15] = {};
+  sprintf(topic_buff, "outputs/nft/0x%s", nft_id);
 
   return event_subscribe(client, mid, topic_buff, qos);
 }
@@ -139,10 +139,10 @@ int event_sub_outputs_foundry_id(event_client_handle_t client, int *mid, char co
     return -1;
   }
 
-  // Buffer enough for outputs/foundries/0x{foundryId}
-  // 21 = length(outputs/foundries/0x) + 1(NULL terminator)
-  char topic_buff[BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES) + 21] = {};
-  sprintf(topic_buff, "outputs/foundries/0x%s", foundry_id);
+  // Buffer enough for outputs/foundry/0x{foundryId}
+  // 19 = length(outputs/foundry/0x) + 1(NULL terminator)
+  char topic_buff[BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES) + 19] = {};
+  sprintf(topic_buff, "outputs/foundry/0x%s", foundry_id);
 
   return event_subscribe(client, mid, topic_buff, qos);
 }

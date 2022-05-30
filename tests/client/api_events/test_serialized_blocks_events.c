@@ -40,7 +40,6 @@ static void event_cb(event_client_event_t *event) {
       // ret = event_subscribe(event->client, NULL, TOPIC_BLK_TRANSACTION, 1);
       // ret = event_subscribe(event->client, NULL, TOPIC_BLK_TXN_TAGGED_DATA, 1);
       // ret = event_sub_tx_blk_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1);
-      // ret = event_subscribe(event->client, NULL, TOPIC_BLK_MILESTONE, 1);
       // ret = event_subscribe(event->client, NULL, TOPIC_BLK_TAGGED_DATA, 1);
       // ret = event_sub_blk_tagged_data(event->client, NULL, (byte_t *)test_tag, strlen(test_tag), 1);
       // ret = event_sub_txn_included_blk(event->client, NULL, test_transaction_id, 1);

@@ -52,9 +52,6 @@ void callback(event_client_event_t *event) {
       if (event_subscribe(event->client, NULL, TOPIC_BLOCKS, 1) != 0) {
         printf("Subscription to %s topic failed\n", TOPIC_BLOCKS);
       }
-      if (event_subscribe(event->client, NULL, TOPIC_BLK_MILESTONE, 1) != 0) {
-        printf("Subscription to %s topic failed\n", TOPIC_BLK_MILESTONE);
-      }
       if (event_subscribe(event->client, NULL, TOPIC_BLK_TRANSACTION, 1) != 0) {
         printf("Subscription to %s topic failed\n", TOPIC_BLK_TRANSACTION);
       }
@@ -171,10 +168,6 @@ void process_event_data(event_client_event_t *event) {
   }
   // check for topic blocks
   else if (!strcmp(event->topic, TOPIC_BLOCKS)) {
-    print_serialized_data(event->data, event->data_len);
-  }
-  // check for topic blocks/milestone
-  else if (!strcmp(event->topic, TOPIC_BLK_MILESTONE)) {
     print_serialized_data(event->data, event->data_len);
   }
   // check for topic blocks/transaction
