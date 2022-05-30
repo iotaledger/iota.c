@@ -164,7 +164,7 @@ int wallet_calculate_remainder_amount(uint64_t send_amount, uint64_t collected_a
                                       native_tokens_list_t** remainder_native_tokens);
 
 int wallet_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair, utxo_inputs_list_t* inputs,
-                utxo_outputs_list_t* outputs, native_tokens_list_t* minted_tokens, byte_t payload_id[],
+                utxo_outputs_list_t* outputs, native_tokens_list_t* minted_tokens, byte_t transaction_id[],
                 res_send_block_t* blk_res);
 
 /**

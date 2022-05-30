@@ -287,7 +287,7 @@ bool wallet_is_collected_balance_sufficient(iota_wallet_t* w, uint64_t send_amou
     // create Basic Output with address unlock condition
     address_t remainder_addr = {0};
     output_basic_t* remainder_output =
-        wallet_output_basic_create(&remainder_addr, remainder_amount, remainder_native_tokens);
+        wallet_basic_output_create(&remainder_addr, remainder_amount, remainder_native_tokens);
     if (!remainder_output) {
       printf("[%s:%d] can not create a reminder basic output\n", __func__, __LINE__);
       return false;
@@ -394,7 +394,7 @@ static bool is_unspent_basic_output_useful(iota_wallet_t* w, output_basic_t* out
     // create Basic Output with address unlock condition
     address_t remainder_addr = {0};
     output_basic_t* remainder_output =
-        wallet_output_basic_create(&remainder_addr, remainder_amount, remainder_native_tokens);
+        wallet_basic_output_create(&remainder_addr, remainder_amount, remainder_native_tokens);
     if (!remainder_output) {
       printf("[%s:%d] can not create a reminder basic output\n", __func__, __LINE__);
       return false;
@@ -734,7 +734,7 @@ int wallet_get_unspent_outputs_and_create_remainder(iota_wallet_t* w, transactio
       *balance_sufficient = true;
       // create a remainder output (remainder balance is returned to the sender address) if needed
       if (remainder_amount > 0) {
-        *remainder = wallet_output_basic_create(sender_addr, remainder_amount, remainder_native_tokens);
+        *remainder = wallet_basic_output_create(sender_addr, remainder_amount, remainder_native_tokens);
         if (!*remainder) {
           printf("[%s:%d] can not create a reminder basic output\n", __func__, __LINE__);
           native_tokens_free(collected_native_tokens);
@@ -758,7 +758,7 @@ int wallet_get_unspent_outputs_and_create_remainder(iota_wallet_t* w, transactio
     }
   }
 
-  res_outputs_id_t* res_ids = get_unspent_basic_output_ids(w, sender_addr);
+  res_outputs_id_t* res_ids = wallet_get_unspent_basic_output_ids(w, sender_addr);
   if (!res_ids) {
     printf("[%s:%d] failed to get unspent basic output IDs\n", __func__, __LINE__);
     return -1;
@@ -879,7 +879,7 @@ int wallet_get_unspent_outputs_and_create_remainder(iota_wallet_t* w, transactio
     *balance_sufficient = true;
     // create a remainder output (remainder balance is returned to the sender address) if needed
     if (remainder_amount > 0) {
-      *remainder = wallet_output_basic_create(sender_addr, remainder_amount, remainder_native_tokens);
+      *remainder = wallet_basic_output_create(sender_addr, remainder_amount, remainder_native_tokens);
       if (!*remainder) {
         printf("[%s:%d] can not create a reminder basic output\n", __func__, __LINE__);
         ret = -1;
@@ -902,7 +902,7 @@ end:
 }
 
 int wallet_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair, utxo_inputs_list_t* inputs,
-                utxo_outputs_list_t* outputs, native_tokens_list_t* minted_tokens, byte_t payload_id[],
+                utxo_outputs_list_t* outputs, native_tokens_list_t* minted_tokens, byte_t transaction_id[],
                 res_send_block_t* blk_res) {
   if (w == NULL || sender_addr == NULL || sender_keypair == NULL || outputs == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
@@ -979,13 +979,15 @@ int wallet_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sen
   }
 
   // calculate transaction payload ID
-  if (tx_payload_calculate_id(tx, payload_id, CRYPTO_BLAKE2B_256_HASH_BYTES) != 0) {
-    printf("[%s:%d] can not calculate transaction payload ID\n", __func__, __LINE__);
-    utxo_outputs_free(unspent_outputs);
-    output_basic_free(remainder);
-    signing_free(sign_data);
-    core_block_free(block);
-    return -1;
+  if (transaction_id) {
+    if (tx_payload_calculate_id(tx, transaction_id, CRYPTO_BLAKE2B_256_HASH_BYTES) != 0) {
+      printf("[%s:%d] can not calculate transaction payload ID\n", __func__, __LINE__);
+      utxo_outputs_free(unspent_outputs);
+      output_basic_free(remainder);
+      signing_free(sign_data);
+      core_block_free(block);
+      return -1;
+    }
   }
 
   // send a block to a network

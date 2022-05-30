@@ -9,7 +9,7 @@
 #include "core/utils/bech32.h"
 #include "wallet/output_basic.h"
 
-output_basic_t* wallet_output_basic_create(address_t* recv_addr, uint64_t amount, native_tokens_list_t* native_tokens) {
+output_basic_t* wallet_basic_output_create(address_t* recv_addr, uint64_t amount, native_tokens_list_t* native_tokens) {
   if (recv_addr == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
@@ -43,7 +43,7 @@ output_basic_t* wallet_output_basic_create(address_t* recv_addr, uint64_t amount
   return output_basic;
 }
 
-res_outputs_id_t* get_unspent_basic_output_ids(iota_wallet_t* w, address_t* send_addr) {
+res_outputs_id_t* wallet_get_unspent_basic_output_ids(iota_wallet_t* w, address_t* send_addr) {
   if (w == NULL || send_addr == NULL) {
     printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
     return NULL;
@@ -63,7 +63,7 @@ res_outputs_id_t* get_unspent_basic_output_ids(iota_wallet_t* w, address_t* send
   }
 
   res_outputs_id_t* res_id = res_outputs_new();
-  if (res_id == NULL) {
+  if (!res_id) {
     printf("[%s:%d] allocate outputs response failed\n", __func__, __LINE__);
     outputs_query_list_free(query_param);
     return NULL;
@@ -105,7 +105,7 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
   }
 
   // create a receiver output
-  output_basic_t* receiver_output = wallet_output_basic_create(recv_addr, send_amount, send_native_tokens);
+  output_basic_t* receiver_output = wallet_basic_output_create(recv_addr, send_amount, send_native_tokens);
   if (!receiver_output) {
     printf("[%s:%d] create a receiver basic output failed\n", __func__, __LINE__);
     return -1;
@@ -120,7 +120,7 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
   // add a receiver output to outputs list
   utxo_outputs_list_t* outputs = utxo_outputs_new();
   if (utxo_outputs_add(&outputs, OUTPUT_BASIC, receiver_output) != 0) {
-    printf("[%s:%d]: can not add receiver output to a list!\n", __func__, __LINE__);
+    printf("[%s:%d]: can not add receiver output to a list\n", __func__, __LINE__);
     output_basic_free(receiver_output);
     utxo_outputs_free(outputs);
     return -1;
@@ -128,10 +128,9 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
   output_basic_free(receiver_output);
 
   // send a block to a network
-  byte_t payload_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {0};
-  int result = wallet_send(w, &sender_addr, &sender_keypair, NULL, outputs, NULL, payload_id, blk_res);
+  int result = wallet_send(w, &sender_addr, &sender_keypair, NULL, outputs, NULL, NULL, blk_res);
 
-  // clean memory
+  // clean up memory
   utxo_outputs_free(outputs);
 
   return result;

@@ -185,8 +185,8 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
   output_alias_free(alias_output);
 
   // send a block to a network
-  byte_t payload_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {0};
-  if (wallet_send(w, &sender_addr, &sender_keypair, NULL, outputs, NULL, payload_id, blk_res) != 0) {
+  byte_t transaction_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {0};
+  if (wallet_send(w, &sender_addr, &sender_keypair, NULL, outputs, NULL, transaction_id, blk_res) != 0) {
     printf("[%s:%d] can not send alias output create block\n", __func__, __LINE__);
     utxo_outputs_free(outputs);
     return -1;
@@ -195,8 +195,8 @@ int wallet_alias_output_create(iota_wallet_t* w, bool sender_change, uint32_t se
 
   // create alias output ID
   byte_t output_id[IOTA_OUTPUT_ID_BYTES] = {0};
-  memcpy(output_id, payload_id, sizeof(payload_id));
-  memset(output_id + sizeof(payload_id), 0,
+  memcpy(output_id, transaction_id, sizeof(transaction_id));
+  memset(output_id + sizeof(transaction_id), 0,
          sizeof(uint16_t));  // index is always 0 because in this function alias output is added into a transaction
                              // essence before basic output
 
@@ -279,8 +279,7 @@ int wallet_alias_output_state_transition(iota_wallet_t* w, byte_t alias_id[], bo
   output_alias_free(alias_output);
 
   // send a block to a network
-  byte_t payload_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {0};
-  if (wallet_send(w, &state_ctrl_addr, &state_ctrl_keypair, inputs, outputs, minted_tokens, payload_id, blk_res) != 0) {
+  if (wallet_send(w, &state_ctrl_addr, &state_ctrl_keypair, inputs, outputs, minted_tokens, NULL, blk_res) != 0) {
     printf("[%s:%d] can not send alias output create block\n", __func__, __LINE__);
     utxo_outputs_free(outputs);
     utxo_inputs_free(inputs);
@@ -325,7 +324,7 @@ int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern
   // create a basic output
   uint64_t output_amount = ((output_alias_t*)output_res->u.data->output->output)->amount;
   native_tokens_list_t* output_native_tokens = ((output_alias_t*)output_res->u.data->output->output)->native_tokens;
-  output_basic_t* output_basic = wallet_output_basic_create(recv_addr, output_amount, output_native_tokens);
+  output_basic_t* output_basic = wallet_basic_output_create(recv_addr, output_amount, output_native_tokens);
   if (!output_basic) {
     printf("[%s:%d] create basic output failed\n", __func__, __LINE__);
     get_output_response_free(output_res);
@@ -346,8 +345,7 @@ int wallet_alias_output_destroy(iota_wallet_t* w, byte_t alias_id[], bool govern
   output_basic_free(output_basic);
 
   // send a block to a network
-  byte_t payload_id[CRYPTO_BLAKE2B_256_HASH_BYTES] = {0};
-  if (wallet_send(w, &govern_addr, &govern_keypair, inputs, outputs, NULL, payload_id, blk_res) != 0) {
+  if (wallet_send(w, &govern_addr, &govern_keypair, inputs, outputs, NULL, NULL, blk_res) != 0) {
     printf("[%s:%d] can not send alias output create block\n", __func__, __LINE__);
     utxo_outputs_free(outputs);
     utxo_inputs_free(inputs);
