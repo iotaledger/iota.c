@@ -18,10 +18,10 @@
 
 #define Mi 1000000
 
-#define NODE_HOST "localhost"
-#define NODE_PORT 14265
-#define NODE_USE_TLS false
-#define TEST_COIN_TYPE SLIP44_COIN_TYPE_IOTA
+#define NODE_HOST "api.hornet-iot-dev.h.alphanet.iotaledger.net"
+#define NODE_PORT 443
+#define NODE_USE_TLS true
+#define TEST_COIN_TYPE SLIP44_COIN_TYPE_SHIMMER
 
 // replace this with your mnemonic string
 static char const* const test_mnemonic =

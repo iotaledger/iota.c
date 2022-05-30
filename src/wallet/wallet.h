@@ -132,26 +132,6 @@ int wallet_get_address_and_keypair_from_index(iota_wallet_t* w, bool change, uin
                                               ed25519_keypair_t* keypair);
 
 /**
- * @brief Get balance by a given address
- *
- * @param[in] w A wallet instance
- * @param[in] addr An address for query
- * @param[out] balance The balance of the address
- * @return int 0 on success
- */
-int wallet_balance_by_address(iota_wallet_t* w, address_t* addr, uint64_t* balance);
-
-/**
- * @brief Get balance by a given bech32 address
- *
- * @param[in] w A wallet instance
- * @param[in] bech32 A string of bech32 address
- * @param[out] balance The balance of the address
- * @return int 0 on success
- */
-int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* balance);
-
-/**
  * @brief Check if collected balance is sufficient for newly created outputs
  *
  * @param[in] send_amount Wanted amount to send
@@ -182,6 +162,9 @@ int wallet_calculate_remainder_amount(uint64_t send_amount, uint64_t collected_a
                                       native_tokens_list_t* send_native_tokens,
                                       native_tokens_list_t* collected_native_tokens, uint64_t* remainder_amount,
                                       native_tokens_list_t** remainder_native_tokens);
+
+int wallet_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair, utxo_inputs_list_t* inputs,
+                utxo_outputs_list_t* outputs, byte_t payload_id[], res_send_block_t* blk_res);
 
 /**
  * @brief Create and prepare core block

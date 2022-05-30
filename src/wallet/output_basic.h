@@ -4,6 +4,9 @@
 #ifndef __WALLET_OUTPUT_BASIC_H__
 #define __WALLET_OUTPUT_BASIC_H__
 
+#include <stdint.h>
+
+#include "client/api/restful/get_outputs_id.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/signing.h"
 #include "wallet/wallet.h"
@@ -68,8 +71,10 @@ int wallet_get_inputs_and_create_remainder(iota_wallet_t* w, transaction_essence
  *
  * @return int 0 on success
  */
-int create_signatures_for_inputs(utxo_outputs_list_t* inputs, ed25519_keypair_t* sender_key,
-                                 signing_data_list_t** sign_data);
+// int create_signatures_for_inputs(utxo_outputs_list_t* inputs, ed25519_keypair_t* sender_key,
+//                                  signing_data_list_t** sign_data);
+
+res_outputs_id_t* get_unspent_basic_output_ids(iota_wallet_t* w, address_t* send_addr);
 
 #ifdef __cplusplus
 }
