@@ -24,7 +24,7 @@ void test_blocks_metadata_parser(void) {
   // Sample data for testing
   char *json_data =
       "{\"blockId\":"
-      "\"0xcf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85\",\"parentMessageIds\":["
+      "\"0xcf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85\",\"parents\":["
       "\"0xd026f8b1c856d4e844cc734bbe095429fb880ec4d93f3ccffe3b292a7de17be7\","
       "\"0xcf5f77d62285b9ed8d617729e9232ae346a328c1897f0939837198e93ec13e85\"],\"isSolid\":true,"
       "\"referencedByMilestoneIndex\":242544,\"ledgerInclusionState\":\"noTransaction\",\"shouldPromote\":true,"
@@ -53,7 +53,7 @@ void process_event_data(event_client_event_t *event) {
     TEST_ASSERT_EQUAL_INT(0, parse_blocks_metadata((char *)event->data, res));
 
     // Print received data
-    printf("Msg Id :%s\n", res->blk_id);
+    printf("Block Id :%s\n", res->blk_id);
     // Get parent id count
     size_t parents_count = block_meta_parents_count(res);
     for (size_t i = 0; i < parents_count; i++) {
