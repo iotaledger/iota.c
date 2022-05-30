@@ -500,13 +500,13 @@ void test_nft_gen_shimmer_test_network() {
 }
 
 void test_serializer() {
-  byte_t addr_bin[ADDRESS_SERIALIZED_MAX_BYTES] = {};  // random data
-  byte_t addr_ser[ADDRESS_SERIALIZED_MAX_BYTES] = {};  // serialized address
-  address_t* addr_obj = NULL;                          // deserialized address
-  size_t ser_len = 0;                                  // bytes written to serialized buffer
+  byte_t addr_bin[ADDRESS_SERIALIZED_BYTES] = {};  // random data
+  byte_t addr_ser[ADDRESS_SERIALIZED_BYTES] = {};  // serialized address
+  address_t* addr_obj = NULL;                      // deserialized address
+  size_t ser_len = 0;                              // bytes written to serialized buffer
 
   // random address
-  iota_crypto_randombytes(addr_bin, ADDRESS_SERIALIZED_MAX_BYTES);
+  iota_crypto_randombytes(addr_bin, ADDRESS_SERIALIZED_BYTES);
 
   // ed25519 serializer
   addr_bin[0] = ADDRESS_TYPE_ED25519;
@@ -550,8 +550,8 @@ void test_serializer() {
 }
 
 void test_clone_equal() {
-  byte_t addr_bin[ADDRESS_SERIALIZED_MAX_BYTES] = {};  // random data
-  iota_crypto_randombytes(addr_bin, ADDRESS_SERIALIZED_MAX_BYTES);
+  byte_t addr_bin[ADDRESS_SERIALIZED_BYTES] = {};  // random data
+  iota_crypto_randombytes(addr_bin, ADDRESS_SERIALIZED_BYTES);
   addr_bin[0] = ADDRESS_TYPE_ED25519;
 
   address_t* addr1 = address_deserialize(addr_bin, sizeof(addr_bin));

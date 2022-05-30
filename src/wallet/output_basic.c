@@ -6,6 +6,7 @@
 #include "client/api/restful/get_output.h"
 #include "core/models/outputs/output_basic.h"
 #include "core/models/outputs/storage_deposit.h"
+#include "core/utils/bech32.h"
 #include "wallet/output_basic.h"
 
 output_basic_t* wallet_output_basic_create(address_t* recv_addr, uint64_t amount, native_tokens_list_t* native_tokens) {
@@ -48,7 +49,7 @@ res_outputs_id_t* get_unspent_basic_output_ids(iota_wallet_t* w, address_t* send
     return NULL;
   }
 
-  char send_addr_bech32[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char send_addr_bech32[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(send_addr, w->bech32HRP, send_addr_bech32, sizeof(send_addr_bech32)) != 0) {
     printf("[%s:%d] address to bech32 conversion failed\n", __func__, __LINE__);
     return NULL;

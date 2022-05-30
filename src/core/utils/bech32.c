@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 
-#include "string.h"
+#include <string.h>
 
 #include "core/utils/bech32.h"
 
@@ -157,4 +157,14 @@ int bech32_decode(char *hrp, uint8_t *data, size_t *data_len, const char *input)
     return 0;
   }
   return chk == 1;
+}
+
+bool is_valid_bech32_len(char const *const addr) {
+  size_t len = strlen(addr);
+  // assume the HPR length is bigger than 3.
+  // like, SRM, RMS, IOTA, ATOI.
+  if (len < 4 || len > BECH32_MAX_STRING_LEN) {
+    return false;
+  }
+  return true;
 }

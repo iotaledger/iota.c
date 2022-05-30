@@ -11,6 +11,7 @@
 #include <unistd.h>  // for Linux sleep()
 
 #include "core/models/outputs/output_foundry.h"
+#include "core/utils/bech32.h"
 #include "wallet/output_alias.h"
 #include "wallet/output_basic.h"
 #include "wallet/output_foundry.h"
@@ -85,7 +86,7 @@ int main(void) {
   }
 
   // convert bech32 address to sender address
-  char bech32_sender[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_sender[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&sender_addr, w->bech32HRP, bech32_sender, sizeof(bech32_sender)) != 0) {
     printf("Failed converting sender address to bech32 format!\n");
     wallet_destroy(w);
@@ -93,7 +94,7 @@ int main(void) {
   }
 
   // convert state controller address to bech32 format
-  char bech32_state_ctrl[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_state_ctrl[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&state_ctrl_addr, w->bech32HRP, bech32_state_ctrl, sizeof(bech32_state_ctrl)) != 0) {
     printf("Failed converting state controller address to bech32 format!\n");
     wallet_destroy(w);
@@ -101,7 +102,7 @@ int main(void) {
   }
 
   // convert governor address to bech32 format
-  char bech32_govern[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_govern[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&govern_addr, w->bech32HRP, bech32_govern, sizeof(bech32_govern)) != 0) {
     printf("Failed converting governor address to bech32 format!\n");
     wallet_destroy(w);
@@ -109,7 +110,7 @@ int main(void) {
   }
 
   // convert receiver 1 address to bech32 format
-  char bech32_receiver_1[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_receiver_1[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&receiver_1_addr, w->bech32HRP, bech32_receiver_1, sizeof(bech32_receiver_1)) != 0) {
     printf("Failed converting receiver 1 address to bech32 format!\n");
     wallet_destroy(w);
@@ -117,7 +118,7 @@ int main(void) {
   }
 
   // convert receiver 2 address to bech32 format
-  char bech32_receiver_2[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_receiver_2[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&receiver_1_addr, w->bech32HRP, bech32_receiver_2, sizeof(bech32_receiver_2)) != 0) {
     printf("Failed converting receiver 2 address to bech32 format!\n");
     wallet_destroy(w);
@@ -157,7 +158,7 @@ int main(void) {
   sleep(15);
 
   // convert alias address to bech32 format
-  char bech32_alias[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  char bech32_alias[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&alias_addr, w->bech32HRP, bech32_alias, sizeof(bech32_alias)) != 0) {
     printf("Failed converting alias address to bech32 format!\n");
     wallet_destroy(w);
@@ -212,7 +213,7 @@ int main(void) {
     wallet_destroy(w);
     return -1;
   }
-  memcpy(token_id + ADDRESS_SERIALIZED_MAX_BYTES, &serial_number, sizeof(serial_number));
+  memcpy(token_id + ADDRESS_SERIALIZED_BYTES, &serial_number, sizeof(serial_number));
   memset(token_id + addr_ser_len + sizeof(serial_number), (uint8_t)SIMPLE_TOKEN_SCHEME, sizeof(uint8_t));
 
   printf("\nSending native tokens:\n");

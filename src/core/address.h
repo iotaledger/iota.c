@@ -31,8 +31,8 @@ typedef enum {
  *
  */
 typedef struct {
-  address_type_t type;                ///< one of address types
-  byte_t address[ADDRESS_MAX_BYTES];  ///< address data
+  address_type_t type;                 ///< one of address types
+  byte_t address[ADDRESS_HASH_BYTES];  ///< address data
 } address_t;
 
 #ifdef __cplusplus

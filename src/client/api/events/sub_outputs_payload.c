@@ -1,10 +1,13 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <string.h>
+
 #include "client/api/events/sub_outputs_payload.h"
 #include "client/api/json_parser/json_utils.h"
 #include "core/address.h"
 #include "core/models/outputs/output_foundry.h"
+#include "core/utils/bech32.h"
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
 
@@ -34,17 +37,19 @@ int event_sub_outputs_unlock_address(event_client_handle_t client, int *mid, cha
     printf("[%s:%d]: invalid inputs\n", __func__, __LINE__);
     return -1;
   }
-  // Check if addr_bech32 has minimum required length
-  if (strlen(addr_bech32) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
-    printf("[%s:%d] invalid bech32 address\n", __func__, __LINE__);
+
+  // Check if addr_Bech32 has valid length
+  if (!is_valid_bech32_len(addr_bech32)) {
+    printf("[%s:%d] invalid Bech32 address\n", __func__, __LINE__);
     return -1;
   }
 
   iota_str_t *topic_buff = NULL;
   char const *const topic_str = "outputs/unlock/";
 
-  topic_buff =
-      iota_str_reserve(strlen(topic_str) + strlen(unlock_condition) + BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES) + 2);
+  // {outputs/unlock/}{condition}/{address}
+  // 2 = "/" + null terminator
+  topic_buff = iota_str_reserve(strlen(topic_str) + strlen(unlock_condition) + strlen(addr_bech32) + 2);
   if (topic_buff == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
@@ -65,17 +70,18 @@ int event_sub_outputs_unlock_address_spent(event_client_handle_t client, int *mi
     printf("[%s:%d]: invalid inputs\n", __func__, __LINE__);
     return -1;
   }
-  // Check if addr_bech32 has minimum required length
-  if (strlen(addr_bech32) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
-    printf("[%s:%d] invalid bech32 address\n", __func__, __LINE__);
+
+  // Check if addr_Bech32 has valid length
+  if (!is_valid_bech32_len(addr_bech32)) {
+    printf("[%s:%d] invalid Bech32 address\n", __func__, __LINE__);
     return -1;
   }
 
   iota_str_t *topic_buff = NULL;
   char const *const topic_str = "outputs/unlock/";
-  // outputs/unlock/{condition}/{address}/spent
-  topic_buff =
-      iota_str_reserve(strlen(topic_str) + strlen(unlock_condition) + BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES) + 8);
+  // {outputs/unlock/}{condition}/{address}/spent
+  // 8 = "/" + "/spent" + null terminator
+  topic_buff = iota_str_reserve(strlen(topic_str) + strlen(unlock_condition) + strlen(addr_bech32) + 8);
   if (topic_buff == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
@@ -101,10 +107,10 @@ int event_sub_outputs_alias_id(event_client_handle_t client, int *mid, char cons
     return -1;
   }
 
-  // Buffer enough for outputs/aliases/0x{aliasId}
-  // 19 = length(outputs/aliases/0x) + 1(NULL terminator)
-  char topic_buff[BIN_TO_HEX_BYTES(ALIAS_ID_BYTES) + 19] = {};
-  sprintf(topic_buff, "outputs/aliases/0x%s", alias_id);
+  // Buffer enough for outputs/alias/0x{aliasId}
+  // 17 = length(outputs/alias/0x) + 1(NULL terminator)
+  char topic_buff[BIN_TO_HEX_BYTES(ALIAS_ID_BYTES) + 17] = {};
+  sprintf(topic_buff, "outputs/alias/0x%s", alias_id);
 
   return event_subscribe(client, mid, topic_buff, qos);
 }
@@ -120,10 +126,10 @@ int event_sub_outputs_nft_id(event_client_handle_t client, int *mid, char const 
     return -1;
   }
 
-  // Buffer enough for outputs/nfts/0x{nftId}
-  // 16 = length(outputs/nfts/0x) + 1(NULL terminator)
-  char topic_buff[BIN_TO_HEX_BYTES(NFT_ID_BYTES) + 16] = {};
-  sprintf(topic_buff, "outputs/nfts/0x%s", nft_id);
+  // Buffer enough for outputs/nft/0x{nftId}
+  // 15 = length(outputs/nft/0x) + 1(NULL terminator)
+  char topic_buff[BIN_TO_HEX_BYTES(NFT_ID_BYTES) + 15] = {};
+  sprintf(topic_buff, "outputs/nft/0x%s", nft_id);
 
   return event_subscribe(client, mid, topic_buff, qos);
 }
@@ -139,10 +145,10 @@ int event_sub_outputs_foundry_id(event_client_handle_t client, int *mid, char co
     return -1;
   }
 
-  // Buffer enough for outputs/foundries/0x{foundryId}
-  // 21 = length(outputs/foundries/0x) + 1(NULL terminator)
-  char topic_buff[BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES) + 21] = {};
-  sprintf(topic_buff, "outputs/foundries/0x%s", foundry_id);
+  // Buffer enough for outputs/foundry/0x{foundryId}
+  // 19 = length(outputs/foundry/0x) + 1(NULL terminator)
+  char topic_buff[BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES) + 19] = {};
+  sprintf(topic_buff, "outputs/foundry/0x%s", foundry_id);
 
   return event_subscribe(client, mid, topic_buff, qos);
 }
