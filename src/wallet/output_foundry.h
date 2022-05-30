@@ -24,7 +24,7 @@ extern "C" {
  * @param[in] minted_tokens The number of newly minted native tokens
  * @param[in] serial_number The serial number of new foundry
  * @param[in] foundry_counter The foundry counter number
- * @param[out] msg_res The response of the transfer
+ * @param[out] blk_res The response of the transfer
  *
  * @return int 0 on success
  */
@@ -32,7 +32,7 @@ int wallet_foundry_output_mint_native_tokens(iota_wallet_t* w, address_t* alias_
                                              uint32_t state_ctrl_index, address_t* govern_addr,
                                              address_t* receiver_addr, uint256_t* max_supply, uint256_t* minted_tokens,
                                              uint32_t serial_number, uint32_t foundry_counter,
-                                             res_send_block_t* msg_res);
+                                             res_send_block_t* blk_res);
 
 #ifdef __cplusplus
 }

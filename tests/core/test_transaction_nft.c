@@ -41,7 +41,7 @@ void tearDown(void) {}
 
 // Transaction input : BASIC OUTPUT with amount x and ED25519 Address Unlock Condition.
 // Transaction output 1 : NFT OUTPUT with amount y and NFT ID "0000000000000000000000000000000000000000"
-// Transaction output 2 : BASIC OUTPUT with reminder amount x-y
+// Transaction output 2 : BASIC OUTPUT with remainder amount x-y
 void test_sign_nft_tx_with_basic_input() {
   uint64_t network_id = 2;
   transaction_payload_t* tx_payload = tx_payload_new(network_id);
