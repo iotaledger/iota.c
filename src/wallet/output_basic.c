@@ -65,6 +65,11 @@ static bool is_unspent_basic_output_useful(iota_wallet_t* w, output_basic_t* out
     return NULL;
   }
 
+  // use unspent output if collected amount is lower than amount needed to be sent
+  if (collected_amount < send_amount && output->amount > 0) {
+    return true;
+  }
+
   // is there any useful native tokens inside unspent output
   native_tokens_list_t* elm;
   LL_FOREACH(output->native_tokens, elm) {
@@ -79,12 +84,6 @@ static bool is_unspent_basic_output_useful(iota_wallet_t* w, output_basic_t* out
         return true;
       }
     }
-  }
-
-  // only use unspent output if it has more than minimum storage deposit inside
-  if (collected_amount < send_amount &&
-      output->amount > calc_minimum_output_deposit(&w->byte_cost, OUTPUT_BASIC, output)) {
-    return true;
   }
 
   // if remainder is needed, check if there is enough base tokens for its minimum storage protection
