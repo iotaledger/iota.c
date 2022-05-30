@@ -137,7 +137,7 @@ int main(void) {
 
   // wait for a block to be included into a tangle
   printf("Waiting for block confirmation...\n");
-  sleep(15);
+  sleep(10);
 
   // convert alias address to bech32 format
   char bech32_alias[BECH32_MAX_STRING_LEN + 1] = {};
