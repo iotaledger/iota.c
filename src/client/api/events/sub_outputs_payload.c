@@ -1,12 +1,35 @@
 // Copyright 2021 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+#include <string.h>
+
 #include "client/api/events/sub_outputs_payload.h"
 #include "client/api/json_parser/json_utils.h"
 #include "core/address.h"
 #include "core/models/outputs/output_foundry.h"
+#include "core/utils/bech32.h"
 #include "core/utils/iota_str.h"
 #include "core/utils/macros.h"
+
+/**
+ * @brief Validates Bech32 address length
+ *
+ * https://github.com/bitcoin/bips/blob/master/bip-0173.mediawiki
+ * the length of Bech32 should be (HRP length) < x <= 90, where the HRP length is 1 to 83 ASCII characters
+ *
+ * @param[in] addr A string of Bech32 address
+ * @return true Valid Bech32 address
+ * @return false Invalid Bech32 address
+ */
+static bool is_valid_bech32_len(char const *const addr) {
+  size_t len = strlen(addr);
+  // assume the HPR length is bigger than 3.
+  // like, SRM, RMS, IOTA, ATOI.
+  if (len < 4 || len > BECH32_MAX_STRING_LEN) {
+    return false;
+  }
+  return true;
+}
 
 int event_sub_outputs_id(event_client_handle_t client, int *mid, char const output_id[], int qos) {
   if (output_id == NULL) {
@@ -34,17 +57,19 @@ int event_sub_outputs_unlock_address(event_client_handle_t client, int *mid, cha
     printf("[%s:%d]: invalid inputs\n", __func__, __LINE__);
     return -1;
   }
-  // Check if addr_bech32 has minimum required length
-  if (strlen(addr_bech32) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
-    printf("[%s:%d] invalid bech32 address\n", __func__, __LINE__);
+
+  // Check if addr_Bech32 has valid length
+  if (!is_valid_bech32_len(addr_bech32)) {
+    printf("[%s:%d] invalid Bech32 address\n", __func__, __LINE__);
     return -1;
   }
 
   iota_str_t *topic_buff = NULL;
   char const *const topic_str = "outputs/unlock/";
 
-  topic_buff =
-      iota_str_reserve(strlen(topic_str) + strlen(unlock_condition) + BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES) + 2);
+  // {outputs/unlock/}{condition}/{address}
+  // 2 = "/" + null terminator
+  topic_buff = iota_str_reserve(strlen(topic_str) + strlen(unlock_condition) + strlen(addr_bech32) + 2);
   if (topic_buff == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
@@ -65,17 +90,18 @@ int event_sub_outputs_unlock_address_spent(event_client_handle_t client, int *mi
     printf("[%s:%d]: invalid inputs\n", __func__, __LINE__);
     return -1;
   }
-  // Check if addr_bech32 has minimum required length
-  if (strlen(addr_bech32) < BIN_TO_HEX_STR_BYTES(ADDRESS_MIN_BYTES)) {
-    printf("[%s:%d] invalid bech32 address\n", __func__, __LINE__);
+
+  // Check if addr_Bech32 has valid length
+  if (!is_valid_bech32_len(addr_bech32)) {
+    printf("[%s:%d] invalid Bech32 address\n", __func__, __LINE__);
     return -1;
   }
 
   iota_str_t *topic_buff = NULL;
   char const *const topic_str = "outputs/unlock/";
-  // outputs/unlock/{condition}/{address}/spent
-  topic_buff =
-      iota_str_reserve(strlen(topic_str) + strlen(unlock_condition) + BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES) + 8);
+  // {outputs/unlock/}{condition}/{address}/spent
+  // 8 = "/" + "/spent" + null terminator
+  topic_buff = iota_str_reserve(strlen(topic_str) + strlen(unlock_condition) + strlen(addr_bech32) + 8);
   if (topic_buff == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;

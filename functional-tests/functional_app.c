@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "client/api/json_parser/json_utils.h"
+#include "core/utils/bech32.h"
 #include "functional_cases.h"
 
 /**
@@ -112,7 +113,8 @@ static void dump_test_config(test_config_t* config) {
 }
 
 static void dump_test_params(test_data_t* params) {
-  char bech32_tmp[BIN_TO_HEX_STR_BYTES(ADDRESS_MAX_BYTES)] = {};
+  // MAX length of bech32 address = 90 + null terminator
+  char bech32_tmp[BECH32_MAX_STRING_LEN + 1] = {};
 
   if (params) {
     if (params->w) {

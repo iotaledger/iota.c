@@ -157,7 +157,7 @@ int address_from_bech32(char const hrp[], char const bech32[], address_t *addr) 
   char hrp_actual[84] = {};
   uint8_t data[64] = {};
   size_t data_len = 0;
-  byte_t serialized_addr[ADDRESS_SERIALIZED_MAX_BYTES] = {};
+  byte_t serialized_addr[ADDRESS_SERIALIZED_BYTES] = {};
   size_t serialized_len = 0;
 
   if (!bech32_decode(hrp_actual, data, &data_len, bech32)) {
@@ -218,7 +218,7 @@ address_t *address_clone(address_t const *const addr) {
   address_t *new_addr = malloc(sizeof(address_t));
   if (new_addr) {
     new_addr->type = addr->type;
-    memset(new_addr->address, 0, ADDRESS_MAX_BYTES);
+    memset(new_addr->address, 0, ADDRESS_HASH_BYTES);
     memcpy(new_addr->address, addr->address, address_len(addr));
   }
   return new_addr;
