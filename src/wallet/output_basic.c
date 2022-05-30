@@ -110,6 +110,12 @@ int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t send
     return -1;
   }
 
+  // check if send_amount is lower than minimum storage deposit and adjust send amount if necessary
+  uint64_t min_storage_deposit = calc_minimum_output_deposit(&w->byte_cost, OUTPUT_BASIC, receiver_output);
+  if (receiver_output->amount < min_storage_deposit) {
+    receiver_output->amount = min_storage_deposit;
+  }
+
   // add a receiver output to outputs list
   utxo_outputs_list_t* outputs = utxo_outputs_new();
   if (utxo_outputs_add(&outputs, OUTPUT_BASIC, receiver_output) != 0) {
