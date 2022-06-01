@@ -20,6 +20,7 @@
 #include "core/address.h"
 #include "core/models/block.h"
 #include "core/models/outputs/byte_cost_config.h"
+#include "core/models/outputs/native_tokens.h"
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"
 
@@ -131,24 +132,40 @@ int wallet_get_address_and_keypair_from_index(iota_wallet_t* w, bool change, uin
                                               ed25519_keypair_t* keypair);
 
 /**
- * @brief Get balance by a given address
+ * @brief Check if collected balance is sufficient for newly created outputs
  *
- * @param[in] w A wallet instance
- * @param[in] addr An address for query
- * @param[out] balance The balance of the address
- * @return int 0 on success
+ * @param[in] send_amount Wanted amount to send
+ * @param[in] collected_amount A collected amount to be sent
+ * @param[in] remainder_amount A remainder amount to be sent
+ * @param[in] send_native_tokens A list of wanted native tokens to be sent
+ * @param[in] collected_native_tokens A list of collected native tokens to be sent
+ * @param[in] remainder_native_tokens A list of remainder native tokens to be sent
+ * @return true if balance is sufficient otherwise false
  */
-int wallet_balance_by_address(iota_wallet_t* w, address_t* addr, uint64_t* balance);
+bool wallet_is_collected_balance_sufficient(iota_wallet_t* w, uint64_t send_amount, uint64_t collected_amount,
+                                            uint64_t remainder_amount, native_tokens_list_t* send_native_tokens,
+                                            native_tokens_list_t* collected_native_tokens,
+                                            native_tokens_list_t* remainder_native_tokens);
 
 /**
- * @brief Get balance by a given bech32 address
+ * @brief Calculate a remainder amount
  *
- * @param[in] w A wallet instance
- * @param[in] bech32 A string of bech32 address
- * @param[out] balance The balance of the address
- * @return int 0 on success
+ * @param[in] send_amount Wanted amount to send
+ * @param[in] collected_amount A collected amount to be sent
+ * @param[in] send_native_tokens A list of wanted native tokens to be sent
+ * @param[in] collected_native_tokens A list of collected native tokens to be sent
+ * @param[out] remainder_amount A remainder amount of base tokens
+ * @param[out] remainder_native_tokens A remainder amount of native tokens
+ * @return true if balance is sufficient otherwise false
  */
-int wallet_balance_by_bech32(iota_wallet_t* w, char const bech32[], uint64_t* balance);
+int wallet_calculate_remainder_amount(uint64_t send_amount, uint64_t collected_amount,
+                                      native_tokens_list_t* send_native_tokens,
+                                      native_tokens_list_t* collected_native_tokens, uint64_t* remainder_amount,
+                                      native_tokens_list_t** remainder_native_tokens);
+
+int wallet_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair, utxo_inputs_list_t* inputs,
+                utxo_outputs_list_t* outputs, native_tokens_list_t* minted_tokens, byte_t transaction_id[],
+                res_send_block_t* blk_res);
 
 /**
  * @brief Create and prepare core block
@@ -166,11 +183,11 @@ core_block_t* wallet_create_core_block(iota_wallet_t* w, transaction_payload_t* 
  * @brief Send core block to a network
  *
  * @param[in] w A wallet instance
- * @param[in] core_msg A core block which will be sent
- * @param[out] msg_res A response of the transfer
+ * @param[in] core_block A core block which will be sent
+ * @param[out] blk_res A response of the transfer
  * @return int 0 on success
  */
-int wallet_send_block(iota_wallet_t* w, core_block_t* core_msg, res_send_block_t* msg_res);
+int wallet_send_block(iota_wallet_t* w, core_block_t* core_block, res_send_block_t* blk_res);
 
 #ifdef __cplusplus
 }

@@ -4,7 +4,10 @@
 #ifndef __WALLET_OUTPUT_BASIC_H__
 #define __WALLET_OUTPUT_BASIC_H__
 
-#include "core/models/payloads/transaction.h"
+#include <stdint.h>
+
+#include "client/api/restful/get_outputs_id.h"
+#include "core/models/outputs/output_basic.h"
 #include "core/models/signing.h"
 #include "wallet/wallet.h"
 
@@ -13,48 +16,41 @@ extern "C" {
 #endif
 
 /**
- * @brief Send basic transaction which transfers IOTA tokens to an address
+ * @brief Create and return a basic output
  *
- * @param[in] w A wallet instance
- * @param[in] sender_change The sender change index which is {0, 1}, also known as wallet chain
- * @param[in] sender_index The sender address index
- * @param[in] send_amount The amount to transfer
- * @param[in] recv_addr The receiver address
- * @param[out] blk_res The response of the transfer
+ * @param[in] recv_addr A receiver address
+ * @param[in] amount An amount to sent
+ * @param[in] native_tokens A native tokens to sent
  *
- * @return int 0 on success
+ * @return output_basic_t* or NULL on failure
  */
-int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t const send_amount,
-                             address_t* recv_addr, res_send_block_t* blk_res);
+output_basic_t* wallet_basic_output_create(address_t* recv_addr, uint64_t amount, native_tokens_list_t* native_tokens);
 
 /**
- * @brief Get unspent basic outputs from a network and add them into a transaction essence
+ * @brief Get all senders unspent basic output IDs from a network
  *
  * @param[in] w A wallet instance
  * @param[in] send_addr A sender address
- * @param[in] sender_keypair A sender private key
- * @param[in] send_amount An amount to transfer
- * @param[out] essence Transaction essence to add unspent basic outputs into it.
- * @param[out] sign_data A list of signing data
- * @param[out] total_output_amount A total amount of all unspent basic outputs
  *
- * @return int 0 on success
+ * @return res_outputs_id_t* or NULL on failure
  */
-utxo_outputs_list_t* wallet_get_unspent_basic_outputs(iota_wallet_t* w, address_t* send_addr,
-                                                      ed25519_keypair_t* sender_keypair, uint64_t send_amount,
-                                                      transaction_essence_t* essence, signing_data_list_t** sign_data,
-                                                      uint64_t* total_output_amount);
+res_outputs_id_t* wallet_get_unspent_basic_output_ids(iota_wallet_t* w, address_t* send_addr);
 
 /**
- * @brief Create a basic output and add it into a transaction essence
+ * @brief Send basic transaction which transfers IOTA tokens to an address
  *
+ * @param[in] w A wallet instance
+ * @param[in] sender_change A sender change index which is {0, 1}, also known as a wallet chain
+ * @param[in] sender_index A sender address index
+ * @param[in] send_amount An amount to sent
+ * @param[in] send_native_tokens A native tokens to sent
  * @param[in] recv_addr A receiver address
- * @param[in] amount An amount for basic output
- * @param[out] essence Transaction essence to add unspent basic outputs into it.
+ * @param[out] blk_res A response of a block transfer
  *
  * @return int 0 on success
  */
-int wallet_output_basic_create(address_t* recv_addr, uint64_t amount, transaction_essence_t* essence);
+int wallet_basic_output_send(iota_wallet_t* w, bool sender_change, uint32_t sender_index, uint64_t send_amount,
+                             native_tokens_list_t* send_native_tokens, address_t* recv_addr, res_send_block_t* blk_res);
 
 #ifdef __cplusplus
 }

@@ -188,7 +188,7 @@ static int send_basic_tx(test_config_t* conf, test_data_t* params, test_item_t* 
   address_print(&params->sender);
   printf("Basic receiver: ");
   address_print(&params->recv);
-  ret = wallet_basic_output_send(params->w, false, conf->sender_index, 1000000, &params->recv, &block_res);
+  ret = wallet_basic_output_send(params->w, false, conf->sender_index, 1000000, NULL, &params->recv, &block_res);
   if (ret == 0) {
     if (block_res.is_error) {
       printf("[%s:%d] Error: %s\n", __func__, __LINE__, block_res.u.error->msg);

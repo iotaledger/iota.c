@@ -23,7 +23,7 @@
 
 // replace this with your mnemonic string
 static char const* const test_mnemonic =
-    "acoustic trophy damage hint search taste love bicycle foster cradle brown govern endless depend situate athlete "
+    "vast trophy damage hint search taste love bicycle foster cradle brown govern endless depend situate athlete "
     "pudding blame question genius transfer van random vast";
 uint32_t const sender_addr_index = 0;      // address index of a sender
 uint32_t const state_ctrl_addr_index = 1;  // address index of a state controller
@@ -93,7 +93,7 @@ int main(void) {
   printf("Amount to send: %" PRIu64 "\n", amount * Mi);
 
   // create alias output
-  printf("Sending create alias transaction block to the Tangle...\n");
+  printf("\nSending create alias transaction block to the Tangle...\n");
 
   res_send_block_t blk_res = {};
   address_t alias_addr = {0};
@@ -116,7 +116,7 @@ int main(void) {
 
   // wait for a block to be included into a tangle
   printf("Waiting for block confirmation...\n");
-  sleep(15);
+  sleep(10);
 
   // convert alias address to bech32 format
   char bech32_alias[BECH32_MAX_STRING_LEN + 1] = {};
@@ -128,11 +128,11 @@ int main(void) {
   printf("Alias address: %s\n", bech32_alias);
 
   // send state transition transaction
-  printf("Sending alias state transition transaction block to the Tangle...\n");
+  printf("\nSending alias state transition transaction block to the Tangle...\n");
 
   // create a second transaction with an actual alias ID
   if (wallet_alias_output_state_transition(w, alias_addr.address, false, state_ctrl_addr_index, &govern_addr, 0, 0,
-                                           NULL, &blk_res) != 0) {
+                                           NULL, NULL, &blk_res) != 0) {
     printf("Sending block to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;
@@ -150,10 +150,10 @@ int main(void) {
 
   // wait for a block to be included into a tangle
   printf("Waiting for block confirmation...\n");
-  sleep(15);
+  sleep(10);
 
   // send alias destroy transaction
-  printf("Sending alias destroy transaction block to the Tangle...\n");
+  printf("\nSending alias destroy transaction block to the Tangle...\n");
 
   // create a third transaction to destroy alias output
   if (wallet_alias_output_destroy(w, alias_addr.address, false, govern_addr_index, &sender_addr, &blk_res) != 0) {

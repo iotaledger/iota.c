@@ -27,6 +27,7 @@ if(IOTA_WALLET_ENABLE)
   add_iota_example(send_basic_output "wallet/send_basic_output.c")
   add_iota_example(create_alias_output "wallet/create_alias_output.c")
   add_iota_example(mint_native_tokens "wallet/mint_native_tokens.c")
+  add_iota_example(send_native_tokens "wallet/send_native_tokens.c")
 endif()
 
 if(MQTT_CLIENT_ENABLE)

@@ -104,7 +104,7 @@ void test_wallet_basic_transfer() {
   // transfer IOTA tokens
   res_send_block_t msg_res = {};
   // this transfer should be failed due to storage deposit
-  int ret = wallet_basic_output_send(w, false, sender_addr_index, 212999, &receiver, &msg_res);
+  int ret = wallet_basic_output_send(w, false, sender_addr_index, 212999, NULL, &receiver, &msg_res);
   TEST_ASSERT(ret != 0);
   if (ret == 0) {
     if (msg_res.is_error) {
@@ -118,7 +118,7 @@ void test_wallet_basic_transfer() {
   }
 
   // this transfer should be sent to the Tangle
-  ret = wallet_basic_output_send(w, false, sender_addr_index, 1000000, &receiver, &msg_res);
+  ret = wallet_basic_output_send(w, false, sender_addr_index, 1000000, NULL, &receiver, &msg_res);
   TEST_ASSERT(ret == 0);
   if (ret == 0) {
     if (msg_res.is_error) {
