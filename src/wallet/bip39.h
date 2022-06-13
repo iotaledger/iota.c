@@ -60,7 +60,7 @@ extern "C" {
 int mnemonic_to_seed(char const ms[], char const pwd[], byte_t seed[], size_t seed_len);
 
 /**
- * @brief Generate a randome word list from given entropy length
+ * @brief Generate a random word list from given entropy length
  *
  * @param[in] ent_len the init entropy length
  * @param[in] lang the language of mnemonic

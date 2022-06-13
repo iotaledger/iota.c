@@ -10,6 +10,7 @@
 #include "core/utils/macros.h"
 #include "test_config.h"
 #include "unity/unity.h"
+#include "wallet/bip39.h"
 #include "wallet/output_basic.h"
 #include "wallet/wallet.h"
 
@@ -72,6 +73,40 @@ static int request_token(char const* const addr) {
     printf("request token: %s\n", addr);
   }
   return 0;
+}
+
+void test_wallet_random_ed25519_address() {
+  byte_t seed[64] = {};
+  address_t ed_addr;
+  char mnemonic_str[512] = {};
+  // get a random mnemonic
+  TEST_ASSERT(mnemonic_generator(MS_ENTROPY_256, MS_LAN_EN, mnemonic_str, sizeof(mnemonic_str)) == 0);
+  printf("random mnemonic: \n%s\n", mnemonic_str);
+  // drive the seed from the mnemonic
+  TEST_ASSERT(mnemonic_to_seed(mnemonic_str, "", seed, sizeof(seed)) == 0);
+  printf("seed: ");
+  dump_hex_str(seed, sizeof(seed));
+
+  // drive ed25519 keypair and address from the seed
+  // could be use `address_from_ed25519_pub` instead for real case.
+  // TEST_ASSERT(ed25519_address_from_path(priv, sizeof(priv), "m/44'/4218'/0'/0'/0'", &ed25519) == 0);
+  ed25519_keypair_t ed_keypair = {};
+  TEST_ASSERT(address_keypair_from_path(seed, sizeof(seed), "m/44'/4218'/0'/0'/0'", &ed_keypair) == 0);
+  printf("address priv key: ");
+  dump_hex_str(ed_keypair.priv, sizeof(ed_keypair.priv));
+  printf("address pub key: ");
+  dump_hex_str(ed_keypair.pub, sizeof(ed_keypair.pub));
+  TEST_ASSERT(address_from_ed25519_pub(ed_keypair.pub, &ed_addr) == 0);
+  address_print(&ed_addr);
+
+  // encode address to bech32 address
+  char bech32_addr[BECH32_MAX_STRING_LEN + 1] = {};
+  TEST_ASSERT(address_to_bech32(&ed_addr, "iota", bech32_addr, sizeof(bech32_addr)) == 0);
+  printf("%s\n", bech32_addr);
+  TEST_ASSERT(address_to_bech32(&ed_addr, "smr", bech32_addr, sizeof(bech32_addr)) == 0);
+  printf("%s\n", bech32_addr);
+  TEST_ASSERT(address_to_bech32(&ed_addr, "tst", bech32_addr, sizeof(bech32_addr)) == 0);
+  printf("%s\n", bech32_addr);
 }
 
 void test_wallet_basic_transfer() {
@@ -139,6 +174,7 @@ int main() {
 
   RUN_TEST(test_wallet_creation);
   RUN_TEST(test_wallet_ed25519_address);
+  RUN_TEST(test_wallet_random_ed25519_address);
 #if TEST_TANGLE_ENABLE
   RUN_TEST(test_wallet_basic_transfer);
 #endif
