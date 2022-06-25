@@ -77,7 +77,7 @@ or
 }
 */
 cJSON *json_parser_common_address_serialize(address_t *address) {
-  char addr_str[JSON_STR_WITH_PREFIX_BYTES(ADDRESS_HASH_BYTES)] = {};
+  char addr_str[JSON_STR_WITH_PREFIX_BYTES(ADDRESS_HASH_BYTES)] = {0};
 
   // address data object
   cJSON *addr_data = cJSON_CreateObject();

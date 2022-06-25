@@ -54,7 +54,7 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   }
 
   // network ID
-  char network_id[65] = {};
+  char network_id[65] = {0};
   sprintf(network_id, "%" PRIu64 "", es->network_id);
   if (!cJSON_AddStringToObject(es_obj, JSON_KEY_NET_ID, network_id)) {
     printf("[%s:%d] creating network ID failed\n", __func__, __LINE__);
@@ -71,7 +71,7 @@ static cJSON* json_tx_essence_serialize(transaction_essence_t* es) {
   cJSON_AddItemToObject(es_obj, JSON_KEY_INPUTS, input_arr);
 
   // inputs commitment
-  char inputs_commitment_str[JSON_STR_WITH_PREFIX_BYTES(sizeof(es->inputs_commitment))] = {};
+  char inputs_commitment_str[JSON_STR_WITH_PREFIX_BYTES(sizeof(es->inputs_commitment))] = {0};
   if (bin_2_hex(es->inputs_commitment, sizeof(es->inputs_commitment), JSON_HEX_ENCODED_STRING_PREFIX,
                 inputs_commitment_str, sizeof(inputs_commitment_str)) != 0) {
     printf("[%s:%d] convert inputs commitment to hex string error\n", __func__, __LINE__);
@@ -250,7 +250,7 @@ static int milestone_signatures_deserialize(cJSON* payload, UT_array* signatures
 
   cJSON* elm = NULL;
   cJSON_ArrayForEach(elm, sig_obj) {
-    byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+    byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {0};
     sig_block[0] = 0;  // denote ed25519 signature
     // public key
     if (json_get_hex_str_to_bin(elm, JSON_KEY_PUB_KEY, sig_block + 1, ED_PUBLIC_KEY_BYTES) != JSON_OK) {

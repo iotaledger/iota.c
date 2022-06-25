@@ -98,7 +98,7 @@ cJSON* json_block_serialize(core_block_t* blk) {
   cJSON* blk_obj = NULL;
   cJSON* payload = NULL;
   cJSON* parents = NULL;
-  char tmp_id_str[JSON_STR_WITH_PREFIX_BYTES(IOTA_BLOCK_ID_BYTES)] = {};
+  char tmp_id_str[JSON_STR_WITH_PREFIX_BYTES(IOTA_BLOCK_ID_BYTES)] = {0};
 
   if (!blk) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
@@ -165,7 +165,7 @@ cJSON* json_block_serialize(core_block_t* blk) {
 
   // add nonce
   if (blk->nonce > 0) {
-    char nonce_buff[65] = {};
+    char nonce_buff[65] = {0};
     sprintf(nonce_buff, "%" PRIu64 "", blk->nonce);
     if (!cJSON_AddStringToObject(blk_obj, JSON_KEY_NONCE, nonce_buff)) {
       printf("[%s:%d] creating nonce failed\n", __func__, __LINE__);

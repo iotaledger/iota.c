@@ -20,7 +20,7 @@
 int main(void) {
   iota_client_conf_t ctx = {.host = "localhost", .port = 443, .use_tls = true};
 
-  res_send_block_t res = {};
+  res_send_block_t res = {0};
 
   // send Hello world to the Tangle
   printf("Sending data block to the Tangle...\n");
