@@ -376,11 +376,13 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     goto end;
   }
 
-  // plugins
-  utarray_new(res->u.output_node_info->plugins, &ut_str_icd);
-  if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_PLUGINS, res->u.output_node_info->plugins)) != 0) {
-    printf("[%s:%d]: gets %s json array failed\n", __func__, __LINE__, JSON_KEY_PLUGINS);
-    goto end;
+  if ( res->u.output_node_info->plugins != (UT_array *) 0 ) {
+    // plugins
+    utarray_new(res->u.output_node_info->plugins, &ut_str_icd);
+    if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_PLUGINS, res->u.output_node_info->plugins)) != 0) {
+      printf("[%s:%d]: gets %s json array failed\n", __func__, __LINE__, JSON_KEY_PLUGINS);
+      goto end;
+    }
   }
 
 end:
@@ -459,14 +461,16 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
       printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->features, (unsigned int)i));
     }
     printf("\n");
-    printf("%s\t],\n", PRINT_INDENTATION(indentation));
-    printf("%s\tplugins: [\n", PRINT_INDENTATION(indentation));
-    len = utarray_len(info->plugins);
-    for (int i = 0; i < len; i++) {
-      printf(i > 0 ? ",\n" : "");
-      printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->plugins, (unsigned int)i));
+    if ( info->plugins != (UT_array *) 0 ) {
+      printf("%s\t],\n", PRINT_INDENTATION(indentation));
+      printf("%s\tplugins: [\n", PRINT_INDENTATION(indentation));
+      len = utarray_len(info->plugins);
+      for (int i = 0; i < len; i++) {
+        printf(i > 0 ? ",\n" : "");
+        printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->plugins, (unsigned int)i));
+      }
+      printf("\n");
     }
-    printf("\n");
     printf("%s\t]\n", PRINT_INDENTATION(indentation));
     printf("%s}\n", PRINT_INDENTATION(indentation));
   }

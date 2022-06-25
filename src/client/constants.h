@@ -6,7 +6,7 @@
 
 #include "core/constants.h"
 
-#define NODE_API_PATH "/api/v2"
+#define NODE_API_PATH "/api/core/v2"
 #define PLUGIN_API_PATH "/api/plugins"
 #define INDEXER_API_PATH "/indexer/v1"
 
