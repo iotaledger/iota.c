@@ -130,14 +130,16 @@ int wallet_update_node_config(iota_wallet_t* w) {
                            info->u.output_node_info->rent_structure.v_byte_factor_data,
                            info->u.output_node_info->rent_structure.v_byte_factor_key);
 
-      // update indexer path
-      size_t len = utarray_len(info->u.output_node_info->plugins);
-      for (size_t i = 0; i < len; i++) {
-        char** p = (char**)utarray_eltptr(info->u.output_node_info->plugins, i);
-        // indexer path contains "indexer" string
-        if (strstr(*p, "indexer")) {
-          w->indexer_path[0] = '/';
-          memcpy(&w->indexer_path[1], *p, strlen(*p) + 1);
+      if ( info->u.output_node_info->plugins != (UT_array *) 0 ) {
+        // update indexer path
+        size_t len = utarray_len(info->u.output_node_info->plugins);
+        for (size_t i = 0; i < len; i++) {
+          char** p = (char**)utarray_eltptr(info->u.output_node_info->plugins, i);
+          // indexer path contains "indexer" string
+          if (strstr(*p, "indexer")) {
+            w->indexer_path[0] = '/';
+            memcpy(&w->indexer_path[1], *p, strlen(*p) + 1);
+          }
         }
       }
 
