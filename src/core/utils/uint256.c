@@ -134,25 +134,43 @@ uint256_t *uint256_from_hex_str(char const *str) {
   }
 
   // create temporary string with maximum 256 bit hex length (4 * uint64_t)
+#if defined(_MSC_VER)
+// non-VAL implementation for MS Visual-Studio
   char *str_max_temp_ptr;
   size_t mem_size;
 
-  mem_size = str_max_len * sizeof ( char );
+  mem_size = str_max_len * sizeof (char);
 
-  if ( (str_max_temp_ptr = (char *) malloc ( mem_size )) != (char *) 0 ) {
-     memset(str_max_temp_ptr, '0', mem_size);
+  if ( (str_max_temp_ptr = (char *)malloc(mem_size)) != (char *)0 ) {
+    memset(str_max_temp_ptr, '0', mem_size);
 
-     memcpy(str_max_temp_ptr + (str_max_len - str_len), str, str_len);
+    memcpy(str_max_temp_ptr + (str_max_len - str_len), str, str_len);
 
-     // scan all four uint64_t numbers
-     for (uint8_t i = 0; i <= 3; i++) {
-       char str_temp[BIN_TO_HEX_BYTES(sizeof(uint64_t)) + 1];  // zero terminated string
-       str_temp[BIN_TO_HEX_BYTES(sizeof(uint64_t))] = 0;
-       memcpy(str_temp, str_max_temp_ptr + i * BIN_TO_HEX_BYTES(sizeof(uint64_t)), BIN_TO_HEX_BYTES(sizeof(uint64_t)));
-       sscanf(str_temp, "%" PRIx64 "", &num->bits[3 - i]);
-     }
+    // scan all four uint64_t numbers
+    for (uint8_t i = 0; i <= 3; i++) {
+      char str_temp[BIN_TO_HEX_BYTES(sizeof(uint64_t)) + 1];  // zero terminated string
+      str_temp[BIN_TO_HEX_BYTES(sizeof(uint64_t))] = 0;
+      memcpy(str_temp, str_max_temp_ptr + i * BIN_TO_HEX_BYTES(sizeof(uint64_t)), BIN_TO_HEX_BYTES(sizeof(uint64_t)));
+      sscanf(str_temp, "%" PRIx64 "", &num->bits[3 - i]);
+    }
+    free(str_max_temp_ptr);
+    str_max_temp_ptr = (char *)0;
   }
+#else
+  char str_max_temp[str_max_len];
+  memset(str_max_temp, '0', str_max_len);
 
+  // copy str to appropriate place in temporary string with a maximum length
+  memcpy(str_max_temp + (str_max_len - str_len), str, str_len);
+
+  // scan all four uint64_t numbers
+  for (uint8_t i = 0; i <= 3; i++) {
+    char str_temp[BIN_TO_HEX_BYTES(sizeof(uint64_t)) + 1];  // zero terminated string
+    str_temp[BIN_TO_HEX_BYTES(sizeof(uint64_t))] = 0;
+    memcpy(str_temp, str_max_temp + i * BIN_TO_HEX_BYTES(sizeof(uint64_t)), BIN_TO_HEX_BYTES(sizeof(uint64_t)));
+    sscanf(str_temp, "%" PRIx64 "", &num->bits[3 - i]);
+  }
+#endif
 
   return num;
 }
