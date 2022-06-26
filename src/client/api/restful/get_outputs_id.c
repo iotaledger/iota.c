@@ -565,7 +565,7 @@ int get_basic_outputs(iota_client_conf_t const *conf, char const *const indexer_
   }
 
   iota_str_t *api_path = NULL;
-  api_path = iota_str_reserve( strlen(indexer_path) + strlen(OUTPUTS_BASIC_PATH) + 1);
+  api_path = iota_str_reserve(strlen(indexer_path) + strlen(OUTPUTS_BASIC_PATH) + 1);
   if (api_path == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
@@ -601,7 +601,7 @@ int get_nft_outputs(iota_client_conf_t const *conf, char const *const indexer_pa
   }
 
   iota_str_t *api_path = NULL;
-  api_path = iota_str_reserve( strlen(indexer_path) + strlen(OUTPUTS_NFT_PATH) + 1);
+  api_path = iota_str_reserve(strlen(indexer_path) + strlen(OUTPUTS_NFT_PATH) + 1);
   if (api_path == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
@@ -637,7 +637,7 @@ int get_alias_outputs(iota_client_conf_t const *conf, char const *const indexer_
   }
 
   iota_str_t *api_path = NULL;
-  api_path = iota_str_reserve( strlen(indexer_path) + strlen(OUTPUTS_ALIAS_PATH) + 1);
+  api_path = iota_str_reserve(strlen(indexer_path) + strlen(OUTPUTS_ALIAS_PATH) + 1);
   if (api_path == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
@@ -673,7 +673,7 @@ int get_foundry_outputs(iota_client_conf_t const *conf, char const *const indexe
   }
 
   iota_str_t *api_path = NULL;
-  api_path = iota_str_reserve( strlen(indexer_path) + strlen(OUTPUTS_FOUNDRY_PATH) + 1);
+  api_path = iota_str_reserve(strlen(indexer_path) + strlen(OUTPUTS_FOUNDRY_PATH) + 1);
   if (api_path == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
@@ -716,8 +716,7 @@ int get_outputs_from_nft_id(iota_client_conf_t const *conf, char const *const in
 
   iota_str_t *api_path = NULL;
   // api_path = indexer_path + OUTPUTS_NFT_PATH + '/0x' + nft_id + '\0'
-  api_path = iota_str_reserve( strlen(indexer_path) + strlen(OUTPUTS_NFT_PATH) + 3 +
-                              BIN_TO_HEX_BYTES(NFT_ID_BYTES) + 1);
+  api_path = iota_str_reserve(strlen(indexer_path) + strlen(OUTPUTS_NFT_PATH) + 3 + BIN_TO_HEX_BYTES(NFT_ID_BYTES) + 1);
   if (api_path == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
@@ -752,8 +751,8 @@ int get_outputs_from_alias_id(iota_client_conf_t const *conf, char const *const 
 
   iota_str_t *api_path = NULL;
   // api_path = indexer_path + OUTPUTS_ALIAS_PATH + '/0x' + alias_id + '\0'
-  api_path = iota_str_reserve( strlen(indexer_path) + strlen(OUTPUTS_ALIAS_PATH) + 3 +
-                              BIN_TO_HEX_BYTES(ALIAS_ID_BYTES) + 1);
+  api_path =
+      iota_str_reserve(strlen(indexer_path) + strlen(OUTPUTS_ALIAS_PATH) + 3 + BIN_TO_HEX_BYTES(ALIAS_ID_BYTES) + 1);
   if (api_path == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
@@ -788,7 +787,7 @@ int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const *cons
 
   iota_str_t *api_path = NULL;
   // api_path =  indexer_path + OUTPUTS_FOUNDRY_PATH + '/0x' + foundry_id + '\0'
-  api_path = iota_str_reserve( strlen(indexer_path) + strlen(OUTPUTS_FOUNDRY_PATH) + 3 +
+  api_path = iota_str_reserve(strlen(indexer_path) + strlen(OUTPUTS_FOUNDRY_PATH) + 3 +
                               BIN_TO_HEX_BYTES(FOUNDRY_ID_BYTES) + 1);
   if (api_path == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
@@ -796,8 +795,7 @@ int get_outputs_from_foundry_id(iota_client_conf_t const *conf, char const *cons
   }
 
   // composing API path
-  snprintf(api_path->buf, api_path->cap, "%s%s/0x%s", indexer_path, OUTPUTS_FOUNDRY_PATH,
-           foundry_id);
+  snprintf(api_path->buf, api_path->cap, "%s%s/0x%s", indexer_path, OUTPUTS_FOUNDRY_PATH, foundry_id);
   api_path->len = strlen(api_path->buf);
 
   int ret = get_outputs_api_call(conf, api_path->buf, res);

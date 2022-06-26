@@ -143,7 +143,7 @@ int iota_crypto_sign(uint8_t const priv_key[], uint8_t msg[], size_t msg_len, ui
 int iota_crypto_sign_open(uint8_t msg[], size_t msg_len, uint8_t const pub_key[], uint8_t signature[]) {
 #if defined(CRYPTO_USE_SODIUM)
 #if defined(_MSC_VER)
-// non-VAL implementation for MS Visual-Studio
+  // non-VAL implementation for MS Visual-Studio
   uint8_t *sm_buff_ptr;
   size_t mem_size;
   int rc;
@@ -152,19 +152,17 @@ int iota_crypto_sign_open(uint8_t msg[], size_t msg_len, uint8_t const pub_key[]
 
   mem_size = (ED_SIGNATURE_BYTES + msg_len) * sizeof(uint8_t);
 
-  if ((sm_buff_ptr = malloc(mem_size)) != (uint8_t *)0 ) {
-
+  if ((sm_buff_ptr = malloc(mem_size)) != (uint8_t *)0) {
     memset(sm_buff_ptr, 0, mem_size);
 
     memcpy(sm_buff_ptr, signature, ED_SIGNATURE_BYTES);
     memcpy(sm_buff_ptr + ED_SIGNATURE_BYTES, msg, msg_len);
-    rc =  crypto_sign_ed25519_open(msg, (unsigned long long *)&msg_len, sm_buff_ptr,
-                                   (unsigned long long)ED_SIGNATURE_BYTES + msg_len, pub_key);
+    rc = crypto_sign_ed25519_open(msg, (unsigned long long *)&msg_len, sm_buff_ptr,
+                                  (unsigned long long)ED_SIGNATURE_BYTES + msg_len, pub_key);
     free(sm_buff_ptr);
-    sm_buff_ptr = ((uint8_t *)0 );
-  
+    sm_buff_ptr = ((uint8_t *)0);
   }
-  return ( rc );
+  return (rc);
 #else
   uint8_t sm_buff[ED_SIGNATURE_BYTES + msg_len];
   memcpy(sm_buff, signature, ED_SIGNATURE_BYTES);

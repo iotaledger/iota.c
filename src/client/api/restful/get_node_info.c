@@ -376,7 +376,7 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     goto end;
   }
 
-  if ( res->u.output_node_info->plugins != (UT_array *) 0 ) {
+  if (res->u.output_node_info->plugins != (UT_array *)0) {
     // plugins
     utarray_new(res->u.output_node_info->plugins, &ut_str_icd);
     if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_PLUGINS, res->u.output_node_info->plugins)) != 0) {
@@ -461,7 +461,7 @@ void node_info_print(res_node_info_t *res, uint8_t indentation) {
       printf("%s\t\t%s", PRINT_INDENTATION(indentation), *(char **)utarray_eltptr(info->features, (unsigned int)i));
     }
     printf("\n");
-    if ( info->plugins != (UT_array *) 0 ) {
+    if (info->plugins != (UT_array *)0) {
       printf("%s\t],\n", PRINT_INDENTATION(indentation));
       printf("%s\tplugins: [\n", PRINT_INDENTATION(indentation));
       len = utarray_len(info->plugins);

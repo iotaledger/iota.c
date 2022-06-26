@@ -130,7 +130,7 @@ int wallet_update_node_config(iota_wallet_t* w) {
                            info->u.output_node_info->rent_structure.v_byte_factor_data,
                            info->u.output_node_info->rent_structure.v_byte_factor_key);
 
-      if ( info->u.output_node_info->plugins != (UT_array *) 0 ) {
+      if (info->u.output_node_info->plugins != (UT_array*)0) {
         // update indexer path
         size_t len = utarray_len(info->u.output_node_info->plugins);
         for (size_t i = 0; i < len; i++) {

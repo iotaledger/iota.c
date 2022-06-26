@@ -376,9 +376,9 @@ void unlock_list_print(unlock_list_t* list, uint8_t indentation) {
         printf("%s\t\tType: %s\n", PRINT_INDENTATION(indentation),
                ((byte_t*)elm->current.obj)[0] ? "UNKNOWN" : "ED25519");
         printf("%s\t\tPub key: ", PRINT_INDENTATION(indentation));
-        dump_hex_str((const byte_t *)elm->current.obj + 1, ED_PUBLIC_KEY_BYTES);
+        dump_hex_str((const byte_t*)elm->current.obj + 1, ED_PUBLIC_KEY_BYTES);
         printf("%s\t\tSignature: ", PRINT_INDENTATION(indentation));
-        dump_hex_str((const byte_t *)elm->current.obj + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES);
+        dump_hex_str((const byte_t*)elm->current.obj + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES);
         printf("%s\t]\n", PRINT_INDENTATION(indentation));
       } else if (elm->current.type == UNLOCK_REFERENCE_TYPE) {  // reference unlock
         printf("%s\tReference Unlock[ ", PRINT_INDENTATION(indentation));

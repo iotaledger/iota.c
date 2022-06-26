@@ -111,8 +111,8 @@ static cJSON *unlock_signature_serialize(unlock_t const *sig_unlock) {
       }
 
       // add signature
-      if (bin_2_hex((const byte_t *)sig_unlock->obj + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES, JSON_HEX_ENCODED_STRING_PREFIX,
-                    str_tmp, sizeof(str_tmp)) == 0) {
+      if (bin_2_hex((const byte_t *)sig_unlock->obj + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES,
+                    JSON_HEX_ENCODED_STRING_PREFIX, str_tmp, sizeof(str_tmp)) == 0) {
         if (cJSON_AddStringToObject(sig, JSON_KEY_SIG, str_tmp) == NULL) {
           printf("[%s:%d]: add signature to json failed\n", __func__, __LINE__);
           goto err;
