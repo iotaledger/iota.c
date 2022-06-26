@@ -70,7 +70,7 @@ char *get_node_plugins_at(res_node_info_t *info, size_t idx) {
     return NULL;
   }
 
-  if (info->u.output_node_info->plugins != (UT_array*)0) {
+  if (info->u.output_node_info->plugins != (UT_array *)0) {
     printf("[%s:%d]: get plugins failed (null parameter)\n", __func__, __LINE__);
     return NULL;
   }
@@ -90,7 +90,7 @@ size_t get_node_plugins_num(res_node_info_t *info) {
     return 0;
   }
 
-  if (info->u.output_node_info->plugins != (UT_array*)0) {
+  if (info->u.output_node_info->plugins != (UT_array *)0) {
     printf("[%s:%d]: get_plugins failed (null parameter)\n", __func__, __LINE__);
     return 0;
   }
