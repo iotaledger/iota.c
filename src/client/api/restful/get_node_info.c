@@ -386,14 +386,12 @@ int deser_node_info(char const *const j_str, res_node_info_t *res) {
     goto end;
   }
 
-#ifdef __QUESTION_IS_THIS_OBSOLETE__
   // plugins
   utarray_new(res->u.output_node_info->plugins, &ut_str_icd);
   if ((ret = json_string_array_to_utarray(json_obj, JSON_KEY_PLUGINS, res->u.output_node_info->plugins)) != 0) {
-    printf("[%s:%d]: gets %s json array failed\n", __func__, __LINE__, JSON_KEY_PLUGINS);
-    goto end;
+    // It is not critical when info about plugins is not available.
+    ret = (int)0;
   }
-#endif
 
 end:
   cJSON_Delete(json_obj);
