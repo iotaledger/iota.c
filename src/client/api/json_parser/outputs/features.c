@@ -272,7 +272,7 @@ static cJSON *json_feat_tag_serialize(feature_tag_t *tag) {
     cJSON_AddNumberToObject(meta, JSON_KEY_TYPE, FEAT_TAG_TYPE);
 
     // add tag
-    char tag_str[JSON_STR_WITH_PREFIX_BYTES(MAX_INDEX_TAG_BYTES)] = {};
+    char tag_str[JSON_STR_WITH_PREFIX_BYTES(MAX_INDEX_TAG_BYTES)] = {0};
 
     // TODO, is tag contain tag length in JSON object?
     // convert tag to hex string

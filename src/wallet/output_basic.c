@@ -49,7 +49,7 @@ res_outputs_id_t* wallet_get_unspent_basic_output_ids(iota_wallet_t* w, address_
     return NULL;
   }
 
-  char send_addr_bech32[BECH32_MAX_STRING_LEN + 1] = {};
+  char send_addr_bech32[BECH32_MAX_STRING_LEN + 1] = {0};
   if (address_to_bech32(send_addr, w->bech32HRP, send_addr_bech32, sizeof(send_addr_bech32)) != 0) {
     printf("[%s:%d] address to bech32 conversion failed\n", __func__, __LINE__);
     return NULL;

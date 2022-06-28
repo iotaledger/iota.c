@@ -138,7 +138,7 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
     }
 
     // amount
-    char amount_str[65] = {};
+    char amount_str[65] = {0};
     sprintf(amount_str, "%" PRIu64 "", alias->amount);
     if (!cJSON_AddStringToObject(alias_obj, JSON_KEY_AMOUNT, amount_str)) {
       printf("[%s:%d] add amount to alias error\n", __func__, __LINE__);
@@ -156,7 +156,7 @@ cJSON *json_output_alias_serialize(output_alias_t *alias) {
     }
 
     // alias id
-    char alias_id_str[JSON_STR_WITH_PREFIX_BYTES(ALIAS_ID_BYTES)] = {};
+    char alias_id_str[JSON_STR_WITH_PREFIX_BYTES(ALIAS_ID_BYTES)] = {0};
     if (bin_2_hex(alias->alias_id, ALIAS_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, alias_id_str,
                   sizeof(alias_id_str)) != 0) {
       printf("[%s:%d] convert alias id to hex string error\n", __func__, __LINE__);

@@ -359,7 +359,7 @@ cJSON *json_output_foundry_serialize(output_foundry_t *foundry) {
     }
 
     // amount
-    char amount_str[65] = {};
+    char amount_str[65] = {0};
     sprintf(amount_str, "%" PRIu64 "", foundry->amount);
     if (!cJSON_AddStringToObject(output_obj, JSON_KEY_AMOUNT, amount_str)) {
       printf("[%s:%d] add amount to foundry error\n", __func__, __LINE__);

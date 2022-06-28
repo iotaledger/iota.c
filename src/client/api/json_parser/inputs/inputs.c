@@ -56,7 +56,7 @@ int json_inputs_deserialize(cJSON *inputs_obj, utxo_inputs_list_t **inputs) {
 }
 
 cJSON *json_inputs_serialize(utxo_inputs_list_t *inputs) {
-  char tx_id_str[JSON_STR_WITH_PREFIX_BYTES(IOTA_TRANSACTION_ID_BYTES)] = {};
+  char tx_id_str[JSON_STR_WITH_PREFIX_BYTES(IOTA_TRANSACTION_ID_BYTES)] = {0};
   cJSON *input_arr = NULL;
 
   // empty array

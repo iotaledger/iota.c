@@ -6,9 +6,8 @@
 
 #include "core/constants.h"
 
-#define NODE_API_PATH "/api/v2"
-#define PLUGIN_API_PATH "/api/plugins"
-#define INDEXER_API_PATH "/indexer/v1"
+#define NODE_API_PATH "/api/core/v2"
+#define INDEXER_API_PATH "/api/indexer/v1"
 
 #define IOTA_ENDPOINT_MAX_LEN 256
 

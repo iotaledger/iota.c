@@ -110,7 +110,7 @@ int wallet_update_node_config(iota_wallet_t* w) {
   int ret = get_node_info(&w->endpoint, info);
   if (ret == 0) {
     if (info->is_error == false) {
-      uint8_t network_id_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
+      uint8_t network_id_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {0};
       // update bech32 HRP
       strncpy(w->bech32HRP, info->u.output_node_info->bech32hrp, sizeof(w->bech32HRP));
       // update network protocol version
@@ -130,14 +130,16 @@ int wallet_update_node_config(iota_wallet_t* w) {
                            info->u.output_node_info->rent_structure.v_byte_factor_data,
                            info->u.output_node_info->rent_structure.v_byte_factor_key);
 
-      // update indexer path
-      size_t len = utarray_len(info->u.output_node_info->plugins);
-      for (size_t i = 0; i < len; i++) {
-        char** p = (char**)utarray_eltptr(info->u.output_node_info->plugins, i);
-        // indexer path contains "indexer" string
-        if (strstr(*p, "indexer")) {
-          w->indexer_path[0] = '/';
-          memcpy(&w->indexer_path[1], *p, strlen(*p) + 1);
+      if (info->u.output_node_info->plugins != (UT_array*)0) {
+        // update indexer path
+        size_t len = utarray_len(info->u.output_node_info->plugins);
+        for (size_t i = 0; i < len; i++) {
+          char** p = (char**)utarray_eltptr(info->u.output_node_info->plugins, i);
+          // indexer path contains "indexer" string
+          if (strstr(*p, "indexer")) {
+            w->indexer_path[0] = '/';
+            memcpy(&w->indexer_path[1], *p, strlen(*p) + 1);
+          }
         }
       }
 
@@ -187,7 +189,7 @@ int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t in
 
 int wallet_get_address_and_keypair_from_index(iota_wallet_t* w, bool change, uint32_t index, address_t* addr,
                                               ed25519_keypair_t* keypair) {
-  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {};
+  char addr_path[IOTA_ACCOUNT_PATH_MAX] = {0};
 
   if (wallet_ed25519_address_from_index(w, change, index, addr) != 0) {
     printf("[%s:%d] get sender address failed\n", __func__, __LINE__);
@@ -1026,7 +1028,7 @@ core_block_t* wallet_create_core_block(iota_wallet_t* w, transaction_payload_t* 
   }
 
   // calculate transaction essence hash
-  byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {};
+  byte_t essence_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {0};
   if (core_block_essence_hash_calc(core_block, essence_hash, sizeof(essence_hash)) != 0) {
     printf("[%s:%d] calculate essence hash failed\n", __func__, __LINE__);
     core_block_free(core_block);

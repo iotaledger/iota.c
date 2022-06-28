@@ -13,7 +13,7 @@ static int create_signature_ed25519_unlock(byte_t essence_hash[], signing_data_t
   int32_t pub_index = unlock_list_find_pub(*unlock_list, sign_data->keypair->pub);
   if (pub_index == -1) {
     // public key is not found in the unlock list
-    byte_t sig_unlock[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+    byte_t sig_unlock[ED25519_SIGNATURE_BLOCK_BYTES] = {0};
     sig_unlock[0] = ADDRESS_TYPE_ED25519;
     memcpy(sig_unlock + 1, sign_data->keypair->pub, ED_PUBLIC_KEY_BYTES);
 

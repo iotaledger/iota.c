@@ -111,7 +111,7 @@ cJSON *json_output_nft_serialize(output_nft_t *nft) {
     }
 
     // amount
-    char amount_str[65] = {};
+    char amount_str[65] = {0};
     sprintf(amount_str, "%" PRIu64 "", nft->amount);
     if (!cJSON_AddStringToObject(output_obj, JSON_KEY_AMOUNT, amount_str)) {
       printf("[%s:%d] add amount to NFT error\n", __func__, __LINE__);
@@ -129,7 +129,7 @@ cJSON *json_output_nft_serialize(output_nft_t *nft) {
     }
 
     // NFT ID
-    char id_str[JSON_STR_WITH_PREFIX_BYTES(NFT_ID_BYTES)] = {};
+    char id_str[JSON_STR_WITH_PREFIX_BYTES(NFT_ID_BYTES)] = {0};
     if (bin_2_hex(nft->nft_id, NFT_ID_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, id_str, sizeof(id_str)) != 0) {
       printf("[%s:%d] convert NFT ID to hex string error\n", __func__, __LINE__);
       goto err;

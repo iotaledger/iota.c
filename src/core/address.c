@@ -13,7 +13,7 @@
 
 int address_keypair_from_path(byte_t seed[], size_t seed_len, char path[], ed25519_keypair_t *keypair) {
   // derive key from seed
-  slip10_key_t key = {};
+  slip10_key_t key = {0};
   int ret = slip10_key_from_path(seed, seed_len, path, ED25519_CURVE, &key);
   if (ret != 0) {
     printf("[%s:%d] derive key from path failed, err: %d\n", __func__, __LINE__, ret);
@@ -42,7 +42,7 @@ uint8_t address_len(address_t const *const addr) {
 
 int ed25519_address_from_path(byte_t seed[], size_t seed_len, char path[], address_t *addr) {
   // ed25519 keypair from slip10 private key
-  ed25519_keypair_t addr_keypair = {};
+  ed25519_keypair_t addr_keypair = {0};
 
   if (address_keypair_from_path(seed, seed_len, path, &addr_keypair) != 0) {
     return -1;
@@ -154,10 +154,10 @@ int address_from_bech32(char const hrp[], char const bech32[], address_t *addr) 
     return -1;
   }
 
-  char hrp_actual[84] = {};
-  uint8_t data[64] = {};
+  char hrp_actual[84] = {0};
+  uint8_t data[64] = {0};
   size_t data_len = 0;
-  byte_t serialized_addr[ADDRESS_SERIALIZED_BYTES] = {};
+  byte_t serialized_addr[ADDRESS_SERIALIZED_BYTES] = {0};
   size_t serialized_len = 0;
 
   if (!bech32_decode(hrp_actual, data, &data_len, bech32)) {
@@ -186,8 +186,8 @@ int address_to_bech32(address_t *addr, char const hrp[], char bech32_buf[], size
     return -1;
   }
 
-  byte_t serialized_addr[33] = {};
-  uint8_t data[64] = {};
+  byte_t serialized_addr[33] = {0};
+  uint8_t data[64] = {0};
   size_t data_len = 0;
   size_t ser_len = address_serialize(addr, serialized_addr, sizeof(serialized_addr));
   if (ser_len == 0) {

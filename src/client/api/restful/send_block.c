@@ -49,7 +49,7 @@ int send_core_block(iota_client_conf_t const* const conf, core_block_t* blk, res
   byte_buf_t* json_data = byte_buf_new();
   byte_buf_t* node_res = byte_buf_new();
   res_tips_t* tips = NULL;
-  byte_t tmp_blk_parent[IOTA_BLOCK_ID_BYTES] = {};
+  byte_t tmp_blk_parent[IOTA_BLOCK_ID_BYTES] = {0};
 
   if (!json_data || !node_res) {
     printf("[%s:%d] allocate http buffer failed\n", __func__, __LINE__);

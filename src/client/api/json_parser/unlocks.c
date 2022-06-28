@@ -29,7 +29,7 @@ static int unlock_signature_deserialize(cJSON *elm, unlock_list_t **unlock_list)
 
   switch (sig_type) {
     case ADDRESS_TYPE_ED25519: {
-      byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {};
+      byte_t sig_block[ED25519_SIGNATURE_BLOCK_BYTES] = {0};
       sig_block[0] = 0;  // denote ed25519 signature
       // public key
       if (json_get_hex_str_to_bin(sig_obj, JSON_KEY_PUB_KEY, sig_block + 1, ED_PUBLIC_KEY_BYTES) != JSON_OK) {
@@ -96,10 +96,10 @@ static cJSON *unlock_signature_serialize(unlock_t const *sig_unlock) {
       }
 
       // buffer to hold public and signature string
-      char str_tmp[JSON_STR_WITH_PREFIX_BYTES(ED_PRIVATE_KEY_BYTES)] = {};
+      char str_tmp[JSON_STR_WITH_PREFIX_BYTES(ED_PRIVATE_KEY_BYTES)] = {0};
 
       // add public key
-      if (bin_2_hex(sig_unlock->obj + 1, ED_PUBLIC_KEY_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, str_tmp,
+      if (bin_2_hex((const byte_t *)sig_unlock->obj + 1, ED_PUBLIC_KEY_BYTES, JSON_HEX_ENCODED_STRING_PREFIX, str_tmp,
                     sizeof(str_tmp)) == 0) {
         if (cJSON_AddStringToObject(sig, JSON_KEY_PUB_KEY, str_tmp) == NULL) {
           printf("[%s:%d]: add public key to json failed\n", __func__, __LINE__);
@@ -111,8 +111,8 @@ static cJSON *unlock_signature_serialize(unlock_t const *sig_unlock) {
       }
 
       // add signature
-      if (bin_2_hex(sig_unlock->obj + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES, JSON_HEX_ENCODED_STRING_PREFIX,
-                    str_tmp, sizeof(str_tmp)) == 0) {
+      if (bin_2_hex((const byte_t *)sig_unlock->obj + 1 + ED_PUBLIC_KEY_BYTES, ED_SIGNATURE_BYTES,
+                    JSON_HEX_ENCODED_STRING_PREFIX, str_tmp, sizeof(str_tmp)) == 0) {
         if (cJSON_AddStringToObject(sig, JSON_KEY_SIG, str_tmp) == NULL) {
           printf("[%s:%d]: add signature to json failed\n", __func__, __LINE__);
           goto err;

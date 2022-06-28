@@ -67,7 +67,7 @@ cJSON *json_native_tokens_serialize(native_tokens_list_t *native_tokens) {
       return tokens;
     }
 
-    char token_id[JSON_STR_WITH_PREFIX_BYTES(NATIVE_TOKEN_ID_BYTES)] = {};
+    char token_id[JSON_STR_WITH_PREFIX_BYTES(NATIVE_TOKEN_ID_BYTES)] = {0};
     native_tokens_list_t *elm;
     LL_FOREACH(native_tokens, elm) {
       cJSON *item = cJSON_CreateObject();

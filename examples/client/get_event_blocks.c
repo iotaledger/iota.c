@@ -157,7 +157,7 @@ static void parse_and_print_output_payload(event_client_event_t *event) {
 void process_event_data(event_client_event_t *event) {
   // check for topics milestone-info/latest and milestone-info/confirmed
   if (!strcmp(event->topic, TOPIC_MILESTONE_LATEST) || !strcmp(event->topic, TOPIC_MILESTONE_CONFIRMED)) {
-    events_milestone_payload_t res = {};
+    events_milestone_payload_t res = {0};
     if (parse_milestone_payload((char *)event->data, &res) == 0) {
       printf("Index :%u\nTimestamp : %u\n", res.index, res.timestamp);
     }
