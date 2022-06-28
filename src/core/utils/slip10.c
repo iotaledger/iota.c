@@ -122,7 +122,7 @@ int slip10_parse_path(char str[], bip32_path_t* path) {
     token = strtok(NULL, "/");
     path->len += 1;
 
-    if (path->len >= MAX_PIB32_PATH) {
+    if (path->len >= MAX_BIP32_PATH) {
       // path too long
       ret = -3;
       goto end;
