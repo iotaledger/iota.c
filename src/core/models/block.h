@@ -114,6 +114,15 @@ size_t core_block_serialize_len(core_block_t* blk);
 size_t core_block_serialize(core_block_t* blk, byte_t buf[], size_t buf_len);
 
 /**
+ * @brief Deserialize binary data to a block object
+ *
+ * @param[in] buf The binary data buffer
+ * @param[in] buf_len The length of the buffer
+ * @return core_block_t*
+ */
+core_block_t* core_block_deserialize(byte_t buf[], size_t buf_len);
+
+/**
  * @brief Print out a core block
  *
  * @param[in] blk The block object
