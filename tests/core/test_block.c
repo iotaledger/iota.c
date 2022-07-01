@@ -11,6 +11,7 @@
 #include "core/models/payloads/transaction.h"
 #include "core/models/signing.h"
 #include "core/models/unlocks.h"
+#include "core/utils/byte_buffer.h"
 #include "core/utils/macros.h"
 #include "unity/unity.h"
 
@@ -256,6 +257,14 @@ void test_block_with_tx_serialize() {
   printf("Serialized blocks: ");
   dump_hex_str(core_block_buf, core_block_expected_len);
 
+  // block deserialization
+  core_block_t* deser_blk = core_block_deserialize(core_block_buf, core_block_expected_len);
+  TEST_ASSERT_NOT_NULL(deser_blk);
+  TEST_ASSERT(deser_blk->protocol_version == blk->protocol_version);
+  TEST_ASSERT(deser_blk->payload_type == blk->payload_type);
+  TEST_ASSERT(core_block_parent_len(deser_blk) == core_block_parent_len(blk));
+  TEST_ASSERT(deser_blk->nonce == blk->nonce);
+
   // print a block
   core_block_print(blk, 0);
 
@@ -267,6 +276,7 @@ void test_block_with_tx_serialize() {
   output_basic_free(basic_output_two);
   tagged_data_free(tagged_data);
   core_block_free(blk);
+  core_block_free(deser_blk);
 }
 
 void test_block_with_tagged_data_serialize() {
@@ -329,6 +339,14 @@ void test_block_with_tagged_data_serialize() {
   printf("Serialized blocks: ");
   dump_hex_str(core_block_buf, core_block_expected_len);
 
+  // block deserialization
+  core_block_t* deser_blk = core_block_deserialize(core_block_buf, core_block_expected_len);
+  TEST_ASSERT_NOT_NULL(deser_blk);
+  TEST_ASSERT(deser_blk->protocol_version == blk->protocol_version);
+  TEST_ASSERT(deser_blk->payload_type == blk->payload_type);
+  TEST_ASSERT(core_block_parent_len(deser_blk) == core_block_parent_len(blk));
+  TEST_ASSERT(deser_blk->nonce == blk->nonce);
+
   // print core block
   core_block_print(blk, 0);
 
@@ -336,6 +354,7 @@ void test_block_with_tagged_data_serialize() {
   free(serialized_data_hex_str);
   free(core_block_buf);
   core_block_free(blk);
+  core_block_free(deser_blk);
 }
 
 int main() {

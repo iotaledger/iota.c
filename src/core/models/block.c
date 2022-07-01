@@ -238,6 +238,61 @@ size_t core_block_serialize(core_block_t* blk, byte_t buf[], size_t buf_len) {
   return offset;
 }
 
+core_block_t* core_block_deserialize(byte_t buf[], size_t buf_len) {
+  if (buf == NULL || buf_len < 2) {
+    printf("[%s:%d] invalid parameters\n", __func__, __LINE__);
+    return NULL;
+  }
+
+  size_t offset = 0;
+  // protocol version
+  core_block_t* b = core_block_new(buf[offset]);
+  if (!b) {
+    printf("[%s:%d] create block failed\n", __func__, __LINE__);
+    return NULL;
+  }
+  offset += sizeof(uint8_t);
+  // parents count
+  uint8_t parents = buf[offset];
+  offset += sizeof(uint8_t);
+
+  // parents
+  for (uint8_t i = 0; i < parents; i++) {
+    core_block_add_parent(b, buf + offset);
+    offset += IOTA_BLOCK_ID_BYTES;
+  }
+
+  uint32_t payload_len = 0;
+  memcpy(&payload_len, buf + offset, sizeof(payload_len));
+  offset += sizeof(payload_len);
+
+  // payload type
+  memcpy(&b->payload_type, buf + offset, sizeof(b->payload_type));
+  // payload
+  switch (b->payload_type) {
+    case CORE_BLOCK_PAYLOAD_TRANSACTION:
+      b->payload = tx_payload_deserialize(buf + offset, buf_len - offset);
+      break;
+    case CORE_BLOCK_PAYLOAD_TAGGED:
+      b->payload = tagged_data_deserialize(buf + offset, buf_len - offset);
+      break;
+    case CORE_BLOCK_PAYLOAD_MILESTONE:
+    case CORE_BLOCK_PAYLOAD_INDEXATION:
+    case CORE_BLOCK_PAYLOAD_RECEIPT:
+    case CORE_BLOCK_PAYLOAD_TREASURY:
+    case CORE_BLOCK_PAYLOAD_DEPRECATED_0:
+    case CORE_BLOCK_PAYLOAD_DEPRECATED_1:
+    default:
+      printf("[%s:%d]: unsupported payload type\n", __func__, __LINE__);
+      core_block_free(b);
+      return NULL;
+  }
+  // nonce
+  offset += payload_len;
+  memcpy(&b->nonce, buf + offset, sizeof(b->nonce));
+  return b;
+}
+
 void core_block_print(core_block_t* blk, uint8_t indentation) {
   printf("%sBlock: [\n", PRINT_INDENTATION(indentation));
 

@@ -11,6 +11,7 @@
 #include "client/api/events/sub_serialized_output.h"
 #include "client/api/restful/get_block_metadata.h"
 #include "client/api/restful/get_output.h"
+#include "core/models/payloads/tagged_data.h"
 
 // Update block id for testing
 char const *const test_block_id = "4a0c386d0587a6fda9defb85103e975714e6baeb7cd4d0ab673531057c8ae16e";
@@ -145,6 +146,21 @@ static void print_serialized_data(unsigned char *data, uint32_t len) {
   printf("\n");
 }
 
+static void print_serialized_block(unsigned char *data, uint32_t len) {
+  core_block_t *b = core_block_deserialize(data, len);
+  if (b) {
+    core_block_print(b, 0);
+    if (b->payload_type == CORE_BLOCK_PAYLOAD_TAGGED) {
+      tagged_data_payload_t *t = (tagged_data_payload_t *)b->payload;
+      printf("Tag: %.*s\n", (int)t->tag->len, t->tag->data);
+      printf("Data: %.*s\n", (int)t->data->len, t->data->data);
+    }
+    core_block_free(b);
+  } else {
+    printf("decode block failed\n");
+  }
+}
+
 static void parse_and_print_output_payload(event_client_event_t *event) {
   get_output_t *output = get_output_new();
   if (output) {
@@ -164,28 +180,29 @@ void process_event_data(event_client_event_t *event) {
   }
   // check for topic milestones
   else if (!strcmp(event->topic, TOPIC_MILESTONES)) {
+    // TODO: milestone deserialization
     print_serialized_data(event->data, event->data_len);
   }
   // check for topic blocks
   else if (!strcmp(event->topic, TOPIC_BLOCKS)) {
-    print_serialized_data(event->data, event->data_len);
+    print_serialized_block(event->data, event->data_len);
   }
   // check for topic blocks/transaction
   else if (!strcmp(event->topic, TOPIC_BLK_TRANSACTION)) {
-    print_serialized_data(event->data, event->data_len);
+    print_serialized_block(event->data, event->data_len);
   }
   // check for topic blocks/transaction/tagged-data
   else if (!strcmp(event->topic, TOPIC_BLK_TXN_TAGGED_DATA)) {
-    print_serialized_data(event->data, event->data_len);
+    print_serialized_block(event->data, event->data_len);
   }
   // check for topic blocks/tagged-data
   else if (!strcmp(event->topic, TOPIC_BLK_TAGGED_DATA)) {
-    print_serialized_data(event->data, event->data_len);
+    print_serialized_block(event->data, event->data_len);
   }
   // check for topics blocks/transaction/tagged-data/{tag} and blocks/tagged-data/{tag}
   else if (strstr(event->topic, "blocks/transaction/tagged-data/") != NULL ||
            strstr(event->topic, "blocks/tagged-data/") != NULL) {
-    print_serialized_data(event->data, event->data_len);
+    print_serialized_block(event->data, event->data_len);
   }
   // check for topic block-metadata/{blockId} and block-metadata/referenced
   else if (!strcmp(event->topic, "block-metadata/")) {
@@ -193,7 +210,7 @@ void process_event_data(event_client_event_t *event) {
   }
   // check for topic transactions/{transactionId}/included-block
   else if ((strstr(event->topic, "transactions/") != NULL) && (strstr(event->topic, "/included-block") != NULL)) {
-    print_serialized_data(event->data, event->data_len);
+    print_serialized_block(event->data, event->data_len);
   }
   /* check for topics :
   1. outputs/{outputId}
