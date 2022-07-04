@@ -41,62 +41,42 @@ int event_sub_tx_blk_tagged_data(event_client_handle_t client, int *mid, byte_t 
   return event_subscribe(client, mid, topic_buff, qos);
 }
 
-static char *event_build_blk_tagged_data_topic(byte_t tag[], uint8_t tag_len) {
-  char *topic_buff_ptr;
-
+int event_sub_blk_tagged_data(event_client_handle_t client, int *mid, byte_t tag[], uint8_t tag_len, int qos) {
   if (tag_len > TAGGED_DATA_TAG_MAX_LENGTH_BYTES) {
     printf("[%s:%d]: Tag length is invalid\n", __func__, __LINE__);
-    return ((char *)0);
+    return -1;
   }
 
   // hex encoded tag string
   char tag_str[BIN_TO_HEX_STR_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
   if (bin_2_hex(tag, tag_len, NULL, tag_str, sizeof(tag_str)) != 0) {
     printf("[%s:%d] bin to hex tag conversion failed\n", __func__, __LINE__);
-    return ((char *)0);
+    return -1;
   }
 
   // 22 is the max length for string blocks/tagged-data/0x, max hex-encoded-tag is 128
-  if ((topic_buff_ptr = (char *)malloc(22 + BIN_TO_HEX_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES))) == (char *)0) {
-    printf("[%s:%d] Allocate Topic-Buffer failed\n", __func__, __LINE__);
-    return ((char *)0);
-  }
+  char topic_buff[22 + BIN_TO_HEX_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
+  sprintf(topic_buff, "%s/0x%s", TOPIC_BLK_TAGGED_DATA, tag_str);
 
-  sprintf(topic_buff_ptr, "blocks/tagged-data/0x%s", tag_str);
-
-  return (topic_buff_ptr);
-}
-
-int event_sub_blk_tagged_data(event_client_handle_t client, int *mid, byte_t tag[], uint8_t tag_len, int qos) {
-  char *topic_buff_ptr;
-  int rc;
-
-  if ((topic_buff_ptr = event_build_blk_tagged_data_topic(tag, tag_len)) == (char *)0) {
-    printf("[%s:%d] Build Topic failed\n", __func__, __LINE__);
-    return -1;
-  }
-
-  rc = event_subscribe(client, mid, topic_buff_ptr, qos);
-
-  free((void *)topic_buff_ptr);
-  topic_buff_ptr = (char *)0;
-
-  return (rc);
+  return event_subscribe(client, mid, topic_buff, qos);
 }
 
 int event_unsub_blk_tagged_data(event_client_handle_t client, int *mid, byte_t tag[], uint8_t tag_len) {
-  char *topic_buff_ptr;
-  int rc;
-
-  if ((topic_buff_ptr = event_build_blk_tagged_data_topic(tag, tag_len)) == (char *)0) {
-    printf("[%s:%d] Build Topic failed\n", __func__, __LINE__);
+  if (tag_len > TAGGED_DATA_TAG_MAX_LENGTH_BYTES) {
+    printf("[%s:%d]: Tag length is invalid\n", __func__, __LINE__);
     return -1;
   }
 
-  rc = event_unsubscribe(client, mid, topic_buff_ptr);
+  // hex encoded tag string
+  char tag_str[BIN_TO_HEX_STR_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
+  if (bin_2_hex(tag, tag_len, NULL, tag_str, sizeof(tag_str)) != 0) {
+    printf("[%s:%d] bin to hex tag conversion failed\n", __func__, __LINE__);
+    return -1;
+  }
 
-  free((void *)topic_buff_ptr);
-  topic_buff_ptr = (char *)0;
+  // 22 is the max length for string blocks/tagged-data/0x, max hex-encoded-tag is 128
+  char topic_buff[22 + BIN_TO_HEX_BYTES(TAGGED_DATA_TAG_MAX_LENGTH_BYTES)] = {0};
+  sprintf(topic_buff, "%s/0x%s", TOPIC_BLK_TAGGED_DATA, tag_str);
 
-  return (rc);
+  return event_unsubscribe(client, mid, topic_buff);
 }
