@@ -46,6 +46,17 @@ int event_sub_tx_blk_tagged_data(event_client_handle_t client, int *mid, byte_t 
  */
 int event_sub_blk_tagged_data(event_client_handle_t client, int *mid, byte_t tag[], uint8_t tag_len, int qos);
 
+/**
+ * @brief Unsubscribes blocks/tagged-data/{tag} topic for receiving blocks with {tag}
+ *
+ * @param[in] client The event client object
+ * @param[in] mid If not NULL, mid will return the message id of the topic subscription
+ * @param[in] tag A tag to get blocks
+ * @param[in] tag_len The length of the tag in bytes
+ * @return int 0 If success
+ */
+int event_unsub_blk_tagged_data(event_client_handle_t client, int *mid, byte_t tag[], uint8_t tag_len);
+
 #ifdef __cplusplus
 }
 #endif
