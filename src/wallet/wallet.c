@@ -112,12 +112,13 @@ int wallet_update_node_config(iota_wallet_t* w) {
     if (info->is_error == false) {
       uint8_t network_id_hash[CRYPTO_BLAKE2B_256_HASH_BYTES] = {0};
       // update bech32 HRP
-      strncpy(w->bech32HRP, info->u.output_node_info->bech32hrp, sizeof(w->bech32HRP));
+      strncpy(w->bech32HRP, info->u.info->protocol_params.bech32hrp, sizeof(w->bech32HRP));
       // update network protocol version
-      w->protocol_version = info->u.output_node_info->protocol_version;
+      w->protocol_version = info->u.info->protocol_params.version;
       // update network ID
-      ret = iota_blake2b_sum((const uint8_t*)info->u.output_node_info->network_name,
-                             strlen(info->u.output_node_info->network_name), network_id_hash, sizeof(network_id_hash));
+      ret = iota_blake2b_sum((const uint8_t*)info->u.info->protocol_params.network_name,
+                             strlen(info->u.info->protocol_params.network_name), network_id_hash,
+                             sizeof(network_id_hash));
 
       if (ret == 0) {
         memcpy(&w->network_id, network_id_hash, sizeof(w->network_id));
@@ -126,22 +127,11 @@ int wallet_update_node_config(iota_wallet_t* w) {
       }
 
       // update byte cost
-      byte_cost_config_set(&w->byte_cost, info->u.output_node_info->rent_structure.v_byte_cost,
-                           info->u.output_node_info->rent_structure.v_byte_factor_data,
-                           info->u.output_node_info->rent_structure.v_byte_factor_key);
+      byte_cost_config_set(&w->byte_cost, info->u.info->protocol_params.rent.v_byte_cost,
+                           info->u.info->protocol_params.rent.v_byte_factor_data,
+                           info->u.info->protocol_params.rent.v_byte_factor_key);
 
-      if (info->u.output_node_info->plugins != (UT_array*)0) {
-        // update indexer path
-        size_t len = utarray_len(info->u.output_node_info->plugins);
-        for (size_t i = 0; i < len; i++) {
-          char** p = (char**)utarray_eltptr(info->u.output_node_info->plugins, i);
-          // indexer path contains "indexer" string
-          if (strstr(*p, "indexer")) {
-            w->indexer_path[0] = '/';
-            memcpy(&w->indexer_path[1], *p, strlen(*p) + 1);
-          }
-        }
-      }
+      // TODO fillin w->indexer_path
 
     } else {
       ret = -2;

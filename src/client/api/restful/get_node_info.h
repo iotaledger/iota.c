@@ -24,6 +24,17 @@ typedef struct {
 } milestone_info_t;
 
 /**
+ * @brief The status of the connected node
+ *
+ */
+typedef struct {
+  milestone_info_t latest_milestone;     ///< The latest known milestone
+  milestone_info_t confirmed_milestone;  ///< The current confirmed milestone
+  uint32_t pruning_index;                ///< The milestone index at which the last pruning commenced
+  bool is_healthy;                       ///< Whether the node is healthy.
+} node_status_t;
+
+/**
  * @brief The rent structure used by given node/network
  *
  */
@@ -31,7 +42,23 @@ typedef struct {
   uint16_t v_byte_cost;        ///< The Byte Cost
   uint8_t v_byte_factor_data;  ///< The Byte Factor Data
   uint8_t v_byte_factor_key;   ///< The Byte Factor Key
-} rent_structure_info_t;
+} rent_structure_t;
+
+/**
+ * @brief The protocol parameters of the node
+ *
+ */
+typedef struct {
+  uint8_t version;
+  char network_name[32];   ///< The network name of this node
+  char bech32hrp[16];      ///< The Bech32 HRP, the possible HRP string:
+                           ///< `atoi` for testnet, `iota` for mainnet,
+                           ///< `rms` for Shimmer testnet, `smr` for Shimmer.
+  rent_structure_t rent;   ///< The rent structure
+  uint32_t min_pow_score;  ///< The minimum pow score of the network
+  uint8_t below_max_deep;  ///< The below max depth parameter of the network.
+  uint64_t token_supply;   ///< TokenSupply defines the current token supply on the network.
+} protocol_paramters_t;
 
 /**
  * @brief The base token information
@@ -44,34 +71,32 @@ typedef struct {
   char subunit[16];        ///< The base token subunit
   uint32_t decimals;       ///< The base token amount of decimals
   bool use_metric_prefix;  ///< The base token uses the metric prefix
-} base_token_info_t;
+} base_token_t;
 
 /**
- * @brief The general information about the node
+ * @brief The metrics of the connected node.
  *
  */
 typedef struct {
-  char name[32];                         ///< The name of this node
-  char version[32];                      ///< The version of this node
-  bool is_healthy;                       ///< Whether the node is healthy.
-  milestone_info_t latest_milestone;     ///< The latest known milestone
-  milestone_info_t confirmed_milestone;  ///< The current confirmed milestone
-  uint32_t pruning_milestone_index;      ///< The milestone index at which the last pruning commenced
-  float blk_per_sec;                     ///< The current rate of new blocks per second
-  float referenced_blk_per_sec;          ///< The current rate of referenced blocks per second
-  float referenced_rate;     ///< The ratio of referenced blocks in relation to new blocks of the last confirmed
-                             ///< milestone
-  char network_name[32];     ///< The network name of this node
-  uint8_t protocol_version;  ///< The protocol version currently used by the network
-  char bech32hrp[16];        ///< The Bech32 HRP, the possible HRP string:
-                             ///< `atoi` for testnet, `iota` for mainnet,
-                             ///< `rms` for Shimmer testnet, `smr` for Shimmer.
-  uint32_t min_pow_score;    ///< The minimum pow score of the network
-  rent_structure_info_t rent_structure;  ///< The rent structure used by given node/network
-  uint64_t token_supply;                 ///< Current supply of base token on the network
-  base_token_info_t base_token;          ///< Base token information
-  UT_array *features;                    ///< The features this node exposes
-  UT_array *plugins;                     ///< The plugins paths
+  float block_per_sec;             ///< The current rate of new blocks per second
+  float referenced_block_per_sec;  ///< The current rate of referenced blocks per second
+  float referenced_rate;           ///< The ratio of referenced blocks in relation to new blocks of the last confirmed
+                                   ///< milestone
+} node_metrics_t;
+
+/**
+ * @brief The general information about the connected node
+ *
+ */
+typedef struct {
+  char name[32];                           ///< The name of this node
+  char version[32];                        ///< The version of this node
+  uint8_t supported_protocol_version[32];  ///< The protocol versions this node supports.
+  node_status_t status;                    ///< The status of the node
+  protocol_paramters_t protocol_params;    ///< The protocol parameters
+  base_token_t base_token;                 ///< Base token information
+  node_metrics_t metrics;                  ///< The metrics of the node
+  UT_array *features;                      ///< The features this node exposes
 } get_node_info_t;
 
 /**
@@ -81,8 +106,8 @@ typedef struct {
 typedef struct {
   bool is_error;  ///< True if got an error from the node.
   union {
-    res_err_t *error;                   ///< Error message if is_error is True
-    get_node_info_t *output_node_info;  ///< node info if is_error is False
+    res_err_t *error;       ///< Error message if is_error is True
+    get_node_info_t *info;  ///< node info if is_error is False
   } u;
 } res_node_info_t;
 
@@ -116,22 +141,6 @@ size_t get_node_features_num(res_node_info_t *info);
  */
 
 char *get_node_features_at(res_node_info_t *info, size_t idx);
-
-/**
- * @brief Gets number of node plugins
- * @param[in] info Object with node info
- * @return The number of plugins
- */
-size_t get_node_plugins_num(res_node_info_t *info);
-
-/**
- * @brief Gets strings with node plugins
- * @param[in] info Object with node info
- * @param[in] idx Plugin index
- * @return char* with plugins
- */
-
-char *get_node_plugins_at(res_node_info_t *info, size_t idx);
 
 /**
  * @brief Gets info API
