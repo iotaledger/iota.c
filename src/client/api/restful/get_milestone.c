@@ -374,7 +374,7 @@ int get_utxo_changes_by_ms_index(iota_client_conf_t const *conf, uint32_t index,
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%u%s", cmd_str_pre, index, cmd_str_post);
+  snprintf(cmd->buf, cmd->cap, "%s%s%u%s", CORE_API_ROUTE, cmd_str_pre, index, cmd_str_post);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
