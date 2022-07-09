@@ -25,6 +25,9 @@ option(BIP39_ENGLISH_ONLY "Support English mnemonic only" OFF)
 option(WITH_IOTA_CLIENT "Build library with client module" ON)
 option(WITH_IOTA_CORE "Build library with core module" OFF)
 
+# Support LSP server
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(MainCryptoLibs "openssl" "libsodium" "mbedtls")
 set(CryptoUse
     "openssl"

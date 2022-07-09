@@ -7,46 +7,46 @@
 #include "core/utils/bech32.h"
 #include "functional_cases.h"
 
+#define CORE_API_ROUTE "/api/core/v2"
+#define INDEXER_API_ROUTE "/api/indexer/v1"
+
 /**
  * @brief list all test cases and inital state
  *
  */
 test_item_t test_cases[MAX_TEST_CASE] = {
     // node
-    {CORE_GET_NODE_INFO, "GET /api/v2/info", STATE_NA},
-    {CORE_GET_TIPS, "GET /api/v2/tips", STATE_NA},
+    {CORE_GET_NODE_INFO, "GET " CORE_API_ROUTE "/info", STATE_NA},
+    {CORE_GET_TIPS, "GET " CORE_API_ROUTE "/tips", STATE_NA},
     // Blocks
-    {CORE_POST_BASIC_MSG, "POST /api/v2/blocks Basic", STATE_NA},
-    {CORE_POST_TAGGED_MSG, "POST /api/v2/blocks Tagged", STATE_NA},
-    {CORE_GET_MSG_MILESTONE, "GET /api/v2/blocks/{blockId} Milestone", STATE_NA},
-    {CORE_GET_MSG_BASIC, "GET /api/v2/blocks/{blockId} Basic", STATE_NA},
-    {CORE_GET_MSG_TAGGED, "GET /api/v2/blocks/{blockId} Tagged", STATE_NA},
-    {CORE_GET_MSG_META_MILESTONE, "GET /api/v2/blocks/{blockId}/metadata Milestone", STATE_NA},
-    {CORE_GET_MSG_META_BASIC, "GET /api/v2/blocks/{blockId}/metadata Basic", STATE_NA},
-    {CORE_GET_MSG_META_TAGGED, "GET /api/v2/blocks/{blockId}/metadata Tagged", STATE_NA},
-    {CORE_GET_MSG_CHILD_MILESTONE, "GET /api/v2/blocks/{blockId}/children Miletone", STATE_NA},
-    {CORE_GET_MSG_CHILD_BASIC, "GET /api/v2/blocks/{blockId}/children Basic", STATE_NA},
-    {CORE_GET_MSG_CHILD_TAGGED, "GET /api/v2/blocks/{blockId}/children Tagged", STATE_NA},
+    {CORE_POST_BASIC_MSG, "POST " CORE_API_ROUTE "/blocks Basic", STATE_NA},
+    {CORE_POST_TAGGED_MSG, "POST " CORE_API_ROUTE "/blocks Tagged", STATE_NA},
+    {CORE_GET_MSG_MILESTONE, "GET " CORE_API_ROUTE "/blocks/{blockId} Milestone", STATE_NA},
+    {CORE_GET_MSG_BASIC, "GET " CORE_API_ROUTE "/blocks/{blockId} Basic", STATE_NA},
+    {CORE_GET_MSG_TAGGED, "GET " CORE_API_ROUTE "/blocks/{blockId} Tagged", STATE_NA},
+    {CORE_GET_MSG_META_MILESTONE, "GET " CORE_API_ROUTE "/blocks/{blockId}/metadata Milestone", STATE_NA},
+    {CORE_GET_MSG_META_BASIC, "GET " CORE_API_ROUTE "/blocks/{blockId}/metadata Basic", STATE_NA},
+    {CORE_GET_MSG_META_TAGGED, "GET " CORE_API_ROUTE "/blocks/{blockId}/metadata Tagged", STATE_NA},
     // UTXO
-    {CORE_GET_OUTPUTS, "GET /api/v2/outputs/{outputId}", STATE_NA},
-    {CORE_GET_OUTPUTS_METADATA, "GET /api/v2/outputs/{outputId}/metadata", STATE_NA},
-    {CORE_GET_RECEIPTS, "GET /api/v2/receipts", STATE_NOT_SUPPORT},
-    {CORE_GET_RECEIPTS_MIGRATED, "GET /api/v2/receipts/{migratedAt}", STATE_NOT_SUPPORT},
-    {CORE_GET_TREASURY, "GET /api/v2/treasury", STATE_NOT_SUPPORT},
-    {CORE_GET_TX_INC_MSG, "GET /api/v2/transactions/{transactionId}/included-block", STATE_NA},
+    {CORE_GET_OUTPUTS, "GET " CORE_API_ROUTE "/outputs/{outputId}", STATE_NA},
+    {CORE_GET_OUTPUTS_METADATA, "GET " CORE_API_ROUTE "/outputs/{outputId}/metadata", STATE_NA},
+    {CORE_GET_RECEIPTS, "GET " CORE_API_ROUTE "/receipts", STATE_NOT_SUPPORT},
+    {CORE_GET_RECEIPTS_MIGRATED, "GET " CORE_API_ROUTE "/receipts/{migratedAt}", STATE_NOT_SUPPORT},
+    {CORE_GET_TREASURY, "GET " CORE_API_ROUTE "/treasury", STATE_NOT_SUPPORT},
+    {CORE_GET_TX_INC_MSG, "GET " CORE_API_ROUTE "/transactions/{transactionId}/included-block", STATE_NA},
     // Milestones
-    {CORE_GET_MILESTONES, "GET /api/v2/milestones/{milestoneId}", STATE_NA},
-    {CORE_GET_MILESTONES_UTXO, "GET /api/v2/milestones/{milestoneId}/utxo-changes", STATE_NA},
-    {CORE_GET_MILESTONES_INDEX, "GET /api/v2/milestones/by-index/{index}", STATE_NA},
-    {CORE_GET_MILESTONES_INDEX_UTXO, "GET /api/v2/milestones/by-index/{index}/utxo-changes", STATE_NA},
+    {CORE_GET_MILESTONES, "GET " CORE_API_ROUTE "/milestones/{milestoneId}", STATE_NA},
+    {CORE_GET_MILESTONES_UTXO, "GET " CORE_API_ROUTE "/milestones/{milestoneId}/utxo-changes", STATE_NA},
+    {CORE_GET_MILESTONES_INDEX, "GET " CORE_API_ROUTE "/milestones/by-index/{index}", STATE_NA},
+    {CORE_GET_MILESTONES_INDEX_UTXO, "GET " CORE_API_ROUTE "/milestones/by-index/{index}/utxo-changes", STATE_NA},
     // Indexer
-    {INDEXER_GET_BASIC, "GET /api/plugins/indexer/v1/outputs/basic", STATE_NA},
-    {INDEXER_GET_ALIAS, "GET /api/plugins/indexer/v1/outputs/alias", STATE_NA},
-    {INDEXER_GET_ALIAS_ID, "GET /api/plugins/indexer/v1/outputs/alias/{aliasId}", STATE_NA},
-    {INDEXER_GET_FOUNDRY, "GET /api/plugins/indexer/v1/outputs/foundry", STATE_NA},
-    {INDEXER_GET_FOUNDRY_ID, "GET /api/plugins/indexer/v1/outputs/foundry/{foundryId}", STATE_NA},
-    {INDEXER_GET_NFT, "GET /api/plugins/indexer/v1/outputs/nft", STATE_NA},
-    {INDEXER_GET_NFT_ID, "GET /api/plugins/indexer/v1/outputs/nft/{nftId}", STATE_NA},
+    {INDEXER_GET_BASIC, "GET " INDEXER_API_ROUTE "/outputs/basic", STATE_NA},
+    {INDEXER_GET_ALIAS, "GET " INDEXER_API_ROUTE "/outputs/alias", STATE_NA},
+    {INDEXER_GET_ALIAS_ID, "GET " INDEXER_API_ROUTE "/outputs/alias/{aliasId}", STATE_NA},
+    {INDEXER_GET_FOUNDRY, "GET " INDEXER_API_ROUTE "/outputs/foundry", STATE_NA},
+    {INDEXER_GET_FOUNDRY_ID, "GET " INDEXER_API_ROUTE "/outputs/foundry/{foundryId}", STATE_NA},
+    {INDEXER_GET_NFT, "GET " INDEXER_API_ROUTE "/outputs/nft", STATE_NA},
+    {INDEXER_GET_NFT_ID, "GET " INDEXER_API_ROUTE "/outputs/nft/{nftId}", STATE_NA},
     // faucet
     {FAUCET_GET_ENQUEUE, "GET Faucet enqueue", STATE_NA}};
 

@@ -207,16 +207,16 @@ void test_send_blk_tx_basic() {
   TEST_ASSERT_EQUAL_INT(0, ret);
   TEST_ASSERT_FALSE(info->is_error);
 
-  address_to_bech32(&addr_send, info->u.output_node_info->bech32hrp, bech32_sender, sizeof(bech32_sender));
-  address_to_bech32(&addr_recv, info->u.output_node_info->bech32hrp, bech32_receiver, sizeof(bech32_receiver));
+  address_to_bech32(&addr_send, info->u.info->protocol_params.bech32hrp, bech32_sender, sizeof(bech32_sender));
+  address_to_bech32(&addr_recv, info->u.info->protocol_params.bech32hrp, bech32_receiver, sizeof(bech32_receiver));
   printf("sender: %s\nreceiver: %s\n", bech32_sender, bech32_receiver);
 
   // Set correct protocol version and network ID
-  uint8_t ver = info->u.output_node_info->protocol_version;
+  uint8_t ver = info->u.info->protocol_params.version;
   uint8_t network_id_hash[CRYPTO_BLAKE2B_256_HASH_BYTES];
   uint64_t network_id;
-  iota_blake2b_sum((const uint8_t*)info->u.output_node_info->network_name,
-                   strlen(info->u.output_node_info->network_name), network_id_hash, sizeof(network_id_hash));
+  iota_blake2b_sum((const uint8_t*)info->u.info->protocol_params.network_name,
+                   strlen(info->u.info->protocol_params.network_name), network_id_hash, sizeof(network_id_hash));
   res_node_info_free(info);
   memcpy(&network_id, network_id_hash, sizeof(network_id));
 
@@ -230,7 +230,7 @@ void test_send_blk_tx_basic() {
   outputs_query_list_t* query_param = outputs_query_list_new();
   TEST_ASSERT_NULL(query_param);
   outputs_query_list_add(&query_param, QUERY_PARAM_ADDRESS, bech32_sender);
-  TEST_ASSERT(get_basic_outputs(&ctx, INDEXER_API_PATH, query_param, res) == 0);
+  TEST_ASSERT(get_basic_outputs(&ctx, INDEXER_API_ROUTE, query_param, res) == 0);
   TEST_ASSERT(res_outputs_output_id_count(res) > 0);
 
   // dump outputs for debugging

@@ -116,5 +116,5 @@ static char const* const JSON_KEY_UNIT = "unit";
 static char const* const JSON_KEY_SUBUNIT = "subunit";
 static char const* const JSON_KEY_DECIMALS = "decimals";
 static char const* const JSON_KEY_USE_METRIC_PREFIX = "useMetricPrefix";
-
+static char const* const JSON_KEY_BELOW_MAX_DEPTH = "belowMaxDepth";
 #endif

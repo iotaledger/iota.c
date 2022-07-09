@@ -156,15 +156,15 @@ int get_output(iota_client_conf_t const *conf, char const output_id[], res_outpu
 
   iota_str_t *cmd = NULL;
   char const *const cmd_str = "/outputs/0x";
-  // reserver buffer enough for NODE_API_PATH + cmd_info + BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) + 1
-  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) + 1);
+  // reserver buffer enough for CORE_API_ROUTE + cmd_info + BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) + 1
+  cmd = iota_str_reserve(strlen(CORE_API_ROUTE) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, output_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", CORE_API_ROUTE, cmd_str, output_id);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
@@ -209,7 +209,7 @@ int get_output_meta(iota_client_conf_t const *conf, char const output_id[], res_
   char const *const cmd_pre = "/outputs/0x";
   char const *const cmd_post = "/metadata";
 
-  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_pre) + strlen(cmd_post) +
+  cmd = iota_str_reserve(strlen(CORE_API_ROUTE) + strlen(cmd_pre) + strlen(cmd_post) +
                          BIN_TO_HEX_BYTES(IOTA_OUTPUT_ID_BYTES) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
@@ -217,7 +217,7 @@ int get_output_meta(iota_client_conf_t const *conf, char const output_id[], res_
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_pre, output_id, cmd_post);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", CORE_API_ROUTE, cmd_pre, output_id, cmd_post);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration

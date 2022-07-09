@@ -49,11 +49,11 @@ void test_send_tagged_data() {
   iota_str_t* cmd = NULL;
   char const* const cmd_str = "/blocks/0x";
 
-  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
+  cmd = iota_str_reserve(strlen(CORE_API_ROUTE) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
   TEST_ASSERT_NOT_NULL(cmd);
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, res.u.blk_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", CORE_API_ROUTE, cmd_str, res.u.blk_id);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
@@ -111,11 +111,11 @@ void test_send_binary_tagged_data() {
   iota_str_t* cmd = NULL;
   char const* const cmd_str = "/blocks/0x";
 
-  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
+  cmd = iota_str_reserve(strlen(CORE_API_ROUTE) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
   TEST_ASSERT_NOT_NULL(cmd);
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, res.u.blk_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", CORE_API_ROUTE, cmd_str, res.u.blk_id);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration

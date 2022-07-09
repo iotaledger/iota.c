@@ -89,14 +89,14 @@ int get_block_by_id(iota_client_conf_t const *conf, char const blk_id[], res_blo
   iota_str_t *cmd = NULL;
   char const *const cmd_str = "/blocks/0x";
 
-  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
+  cmd = iota_str_reserve(strlen(CORE_API_ROUTE) + strlen(cmd_str) + BIN_TO_HEX_BYTES(IOTA_BLOCK_ID_BYTES) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s", NODE_API_PATH, cmd_str, blk_id);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s", CORE_API_ROUTE, cmd_str, blk_id);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
