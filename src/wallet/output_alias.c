@@ -88,7 +88,7 @@ static res_outputs_id_t* get_alias_output_from_alias_id(iota_wallet_t* w, byte_t
     return NULL;
   }
 
-  if (get_outputs_from_alias_id(&w->endpoint, INDEXER_API_PATH, alias_id_str, res) != 0) {
+  if (get_outputs_from_alias_id(&w->endpoint, INDEXER_API_ROUTE, alias_id_str, res) != 0) {
     printf("[%s:%d] can not get output by output id\n", __func__, __LINE__);
     res_outputs_free(res);
     return NULL;

@@ -6,8 +6,12 @@
 
 #include "core/constants.h"
 
-#define NODE_API_PATH "/api/core/v2"
-#define INDEXER_API_PATH "/api/indexer/v1"
+// supported protoocl version of this client library
+#define SUPPORTED_PROTOCOL_VERSION 2
+// Core API route prefix of the node
+#define CORE_API_ROUTE "/api/core/v2"
+// Indexer API route prefix of the node
+#define INDEXER_API_ROUTE "/api/indexer/v1"
 
 #define IOTA_ENDPOINT_MAX_LEN 256
 

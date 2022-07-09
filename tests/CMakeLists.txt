@@ -91,7 +91,6 @@ if(WITH_IOTA_CLIENT)
   add_iota_test("client/api_restful/test_send_tagged_data.c" client_send_tagged_data)
   add_iota_test("client/api_restful/test_faucet_enqueue.c" client_faucet_enqueue)
   add_iota_test("client/api_restful/test_block_meta.c" client_block_meta)
-  add_iota_test("client/api_restful/test_block_children.c" client_block_children)
   add_iota_test("client/api_restful/test_get_transaction_included_block.c" client_get_transaction_included_block)
 endif()
 

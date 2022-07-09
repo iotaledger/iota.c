@@ -186,14 +186,15 @@ int get_block_metadata(iota_client_conf_t const *ctx, char const blk_id[], res_b
   char const *const cmd_prefix = "/blocks/0x";
   char const *const cmd_suffix = "/metadata";
 
-  iota_str_t *cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_prefix) + blk_str_len + strlen(cmd_suffix) + 1);
+  iota_str_t *cmd =
+      iota_str_reserve(strlen(CORE_API_ROUTE) + strlen(cmd_prefix) + blk_str_len + strlen(cmd_suffix) + 1);
   if (!cmd) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_prefix, blk_id, cmd_suffix);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", CORE_API_ROUTE, cmd_prefix, blk_id, cmd_suffix);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration

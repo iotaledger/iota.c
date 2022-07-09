@@ -26,7 +26,7 @@ int get_transaction_included_block_by_id(iota_client_conf_t const *conf, char co
   char const *const cmd_pre = "/transactions/0x";
   char const *const cmd_post = "/included-block";
 
-  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_pre) + strlen(cmd_post) +
+  cmd = iota_str_reserve(strlen(CORE_API_ROUTE) + strlen(cmd_pre) + strlen(cmd_post) +
                          BIN_TO_HEX_BYTES(IOTA_TRANSACTION_ID_BYTES) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
@@ -34,7 +34,7 @@ int get_transaction_included_block_by_id(iota_client_conf_t const *conf, char co
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", NODE_API_PATH, cmd_pre, tx_id, cmd_post);
+  snprintf(cmd->buf, cmd->cap, "%s%s%s%s", CORE_API_ROUTE, cmd_pre, tx_id, cmd_post);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration

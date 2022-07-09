@@ -7,7 +7,6 @@
 
 #include "client/api/restful/faucet_enqueue.h"
 #include "client/api/restful/get_block.h"
-#include "client/api/restful/get_block_children.h"
 #include "client/api/restful/get_block_metadata.h"
 #include "client/api/restful/get_milestone.h"
 #include "client/api/restful/get_node_info.h"
@@ -570,93 +569,6 @@ static int validating_blocks(test_config_t* conf, test_data_t* params, test_item
     return -1;
   }
   block_meta_free(meta);
-
-  // validating /api/v2/blocks/{blockId}/children
-  res_block_children_t* block_child = res_block_children_new();
-  if (block_child) {
-    ret = get_block_children(&params->w->endpoint, params->basic_blk_id, block_child);
-    if (ret == 0) {
-      if (block_child->is_error) {
-        printf("[%s:%d] Err: %s\n", __func__, __LINE__, block_child->u.error->msg);
-        res_block_children_free(block_child);
-        items[CORE_GET_MSG_CHILD_BASIC].st = STATE_NG;
-        return -1;
-      } else {
-        if (conf->show_payload) {
-          print_block_children(block_child, 0);
-        }
-        printf("[%s:%d] GET /api/v2/blocks/{blockId}/children: Basic Outputs PASS\n", __func__, __LINE__);
-        items[CORE_GET_MSG_CHILD_BASIC].st = STATE_PASS;
-      }
-    } else {
-      printf("[%s:%d] performed get_block_children failed\n", __func__, __LINE__);
-      items[CORE_GET_MSG_CHILD_BASIC].st = STATE_NG;
-      res_block_children_free(block_child);
-      return ret;
-    }
-  } else {
-    printf("[%s:%d] allocate block children response failed\n", __func__, __LINE__);
-    return -1;
-  }
-  res_block_children_free(block_child);
-  block_child = NULL;
-  // Milestone
-  block_child = res_block_children_new();
-  if (block_child) {
-    ret = get_block_children(&params->w->endpoint, params->milestone_blk_id, block_child);
-    if (ret == 0) {
-      // milestone is not a block
-      if (block_child->is_error) {
-        printf("[%s:%d] GET /api/v2/blocks/{blockId}/children: Milestone PASS\n", __func__, __LINE__);
-        items[CORE_GET_MSG_CHILD_MILESTONE].st = STATE_PASS;
-      } else {
-        // TODO, fix hornet#1488
-        printf("[%s:%d] GET /api/v2/blocks/{blockId}/children: Milestone NG\n", __func__, __LINE__);
-        printf("[%s:%d] https://github.com/gohornet/hornet/issues/1488\n", __func__, __LINE__);
-        items[CORE_GET_MSG_CHILD_MILESTONE].st = STATE_NG;
-        // res_block_children_free(block_child);
-        // return -1;
-      }
-    } else {
-      printf("[%s:%d] performed get_block_children failed\n", __func__, __LINE__);
-      items[CORE_GET_MSG_CHILD_MILESTONE].st = STATE_NG;
-      res_block_children_free(block_child);
-      return ret;
-    }
-  } else {
-    printf("[%s:%d] allocate block children response failed\n", __func__, __LINE__);
-    return -1;
-  }
-  res_block_children_free(block_child);
-  block_child = NULL;
-  // Tagged Data
-  block_child = res_block_children_new();
-  if (block_child) {
-    ret = get_block_children(&params->w->endpoint, params->tagged_blk_id, block_child);
-    if (ret == 0) {
-      if (block_child->is_error) {
-        printf("[%s:%d] Err: %s\n", __func__, __LINE__, block_child->u.error->msg);
-        items[CORE_GET_MSG_CHILD_TAGGED].st = STATE_NG;
-        res_block_children_free(block_child);
-        return -1;
-      } else {
-        if (conf->show_payload) {
-          print_block_children(block_child, 0);
-        }
-        printf("[%s:%d] GET /api/v2/blocks/{blockId}/children: Tagged Data PASS\n", __func__, __LINE__);
-        items[CORE_GET_MSG_CHILD_TAGGED].st = STATE_PASS;
-      }
-    } else {
-      printf("[%s:%d] performed get_block_children failed\n", __func__, __LINE__);
-      items[CORE_GET_MSG_CHILD_TAGGED].st = STATE_NG;
-      res_block_children_free(block_child);
-      return ret;
-    }
-  } else {
-    printf("[%s:%d] allocate block children response failed\n", __func__, __LINE__);
-    return -1;
-  }
-  res_block_children_free(block_child);
 
   return 0;
 }

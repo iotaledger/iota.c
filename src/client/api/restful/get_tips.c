@@ -38,15 +38,15 @@ int get_tips(iota_client_conf_t const *conf, res_tips_t *res) {
 
   iota_str_t *cmd = NULL;
   char const *const cmd_tips = "/tips";
-  // reserver buffer enough for NODE_API_PATH + cmd_tips
-  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_tips) + 1);
+  // reserver buffer enough for CORE_API_ROUTE + cmd_tips
+  cmd = iota_str_reserve(strlen(CORE_API_ROUTE) + strlen(cmd_tips) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s", NODE_API_PATH, cmd_tips);
+  snprintf(cmd->buf, cmd->cap, "%s%s", CORE_API_ROUTE, cmd_tips);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration

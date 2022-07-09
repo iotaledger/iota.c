@@ -230,7 +230,7 @@ void test_send_blk_tx_basic() {
   outputs_query_list_t* query_param = outputs_query_list_new();
   TEST_ASSERT_NULL(query_param);
   outputs_query_list_add(&query_param, QUERY_PARAM_ADDRESS, bech32_sender);
-  TEST_ASSERT(get_basic_outputs(&ctx, INDEXER_API_PATH, query_param, res) == 0);
+  TEST_ASSERT(get_basic_outputs(&ctx, INDEXER_API_ROUTE, query_param, res) == 0);
   TEST_ASSERT(res_outputs_output_id_count(res) > 0);
 
   // dump outputs for debugging

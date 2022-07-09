@@ -131,7 +131,8 @@ int wallet_update_node_config(iota_wallet_t* w) {
                            info->u.info->protocol_params.rent.v_byte_factor_data,
                            info->u.info->protocol_params.rent.v_byte_factor_key);
 
-      // TODO fillin w->indexer_path
+      // TODO fillin the route with "api/routes" response
+      strncpy(w->indexer_path, INDEXER_API_ROUTE, sizeof(INDEXER_API_ROUTE));
 
     } else {
       ret = -2;

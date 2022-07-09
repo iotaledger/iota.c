@@ -70,15 +70,15 @@ int get_node_info(iota_client_conf_t const *conf, res_node_info_t *res) {
 
   iota_str_t *cmd = NULL;
   char const *const cmd_info = "/info";
-  // reserver buffer enough for NODE_API_PATH + cmd_info
-  cmd = iota_str_reserve(strlen(NODE_API_PATH) + strlen(cmd_info) + 1);
+  // reserver buffer enough for CORE_API_ROUTE + cmd_info
+  cmd = iota_str_reserve(strlen(CORE_API_ROUTE) + strlen(cmd_info) + 1);
   if (cmd == NULL) {
     printf("[%s:%d]: allocate command buffer failed\n", __func__, __LINE__);
     return -1;
   }
 
   // composing API command
-  snprintf(cmd->buf, cmd->cap, "%s%s", NODE_API_PATH, cmd_info);
+  snprintf(cmd->buf, cmd->cap, "%s%s", CORE_API_ROUTE, cmd_info);
   cmd->len = strlen(cmd->buf);
 
   // http client configuration
