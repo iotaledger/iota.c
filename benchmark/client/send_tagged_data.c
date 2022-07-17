@@ -26,7 +26,7 @@ int main() {
   }
 
   int result = get_node_info(&ctx, info);
-  if (result != 0 || info->is_error || info->u.output_node_info == NULL) {
+  if (result != 0 || info->is_error || info->u.info == NULL) {
     printf("[%s:%d]: Can not received node info data!\n", __func__, __LINE__);
     res_node_info_free(info);
     return -1;
@@ -34,9 +34,9 @@ int main() {
 
   byte_t tag[] = "Test tag from a benchmark application.";
   byte_t tag_data[] = "Test tagged data from a benchmark application";
-  res_send_block_t res = {};
+  res_send_block_t res = {0};
 
-  result = send_tagged_data_block(&ctx, info->u.output_node_info->protocol_version, tag, sizeof(tag), tag_data,
+  result = send_tagged_data_block(&ctx, info->u.info->protocol_params.version, tag, sizeof(tag), tag_data,
                                   sizeof(tag_data), &res);
   if (result != 0 || res.is_error) {
     printf("[%s:%d]: Can not send tagged data block!\n", __func__, __LINE__);
