@@ -5,7 +5,7 @@ The Core API implemented objects, structures, utils for IOTA protocol.
 It provides the following functionalities:
 
 * Address derivation
-* Message creations
+* Block creations
 * UTXO Input/Output operations
 * Bech32, Slip10, uint256, and Byte Buffer utils
 
@@ -78,55 +78,55 @@ It provides the following functionalities:
 
 ## Models
 
-### Message
+### Block
 
 ```{eval-rst}
-.. doxygenenum:: core_message_payload_type_t
+.. doxygenenum:: core_block_payload_type_t
 ```
 
 ```{eval-rst}
-.. doxygenstruct:: core_message_t
+.. doxygenstruct:: core_block_t
   :members:
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: core_message_new
+.. doxygenfunction:: core_block_new
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: core_message_free
+.. doxygenfunction:: core_block_free
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: core_message_essence_hash_calc
+.. doxygenfunction:: core_block_essence_hash_calc
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: core_message_add_parent
+.. doxygenfunction:: core_block_add_parent
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: core_message_parent_len
+.. doxygenfunction:: core_block_parent_len
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: core_message_get_parent_id
+.. doxygenfunction:: core_block_get_parent_id
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: core_message_get_payload_type
+.. doxygenfunction:: core_block_get_payload_type
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: core_message_serialize_len
+.. doxygenfunction:: core_block_serialize_len
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: core_message_serialize
+.. doxygenfunction:: core_block_serialize
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: core_message_print
+.. doxygenfunction:: core_block_print
 ```
 
 ### Signing
@@ -165,14 +165,14 @@ It provides the following functionalities:
 .. doxygenfunction:: signing_transaction_sign
 ```
 
-### Unlock Blocks
+### Unlocks
 
 ```{eval-rst}
 .. doxygenenum:: unlock_type_t
 ```
 
 ```{eval-rst}
-.. doxygenstruct:: unlock_block_t
+.. doxygenstruct:: unlock_t
   :members:
 ```
 
@@ -182,55 +182,55 @@ It provides the following functionalities:
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_add
+.. doxygenfunction:: unlock_list_add
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_add_signature
+.. doxygenfunction:: unlock_list_add_signature
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_add_reference
+.. doxygenfunction:: unlock_list_add_reference
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_add_alias
+.. doxygenfunction:: unlock_list_add_alias
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_add_nft
+.. doxygenfunction:: unlock_list_add_nft
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_count
+.. doxygenfunction:: unlock_list_count
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_get
+.. doxygenfunction:: unlock_list_get
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_find_pub
+.. doxygenfunction:: unlock_list_find_pub
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_serialize_length
+.. doxygenfunction:: unlock_list_serialize_length
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_serialize
+.. doxygenfunction:: unlock_list_serialize
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_deserialize
+.. doxygenfunction:: unlock_list_deserialize
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_free
+.. doxygenfunction:: unlock_list_free
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: unlock_blocks_print
+.. doxygenfunction:: unlock_list_print
 ```
 
 ### Inputs
@@ -369,14 +369,6 @@ It provides the following functionalities:
 
 ```{eval-rst}
 .. doxygenfunction:: milestone_payload_get_parent
-```
-
-```{eval-rst}
-.. doxygenfunction:: milestone_payload_get_pub_keys_count
-```
-
-```{eval-rst}
-.. doxygenfunction:: milestone_payload_get_pub_key
 ```
 
 ```{eval-rst}

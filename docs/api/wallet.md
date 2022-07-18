@@ -1,19 +1,15 @@
 # Wallet API Reference
 
-This is reference implementation as wallet APIs. Users are able to implement wallet application based on [RESTful APIs](./restful.md#restful-api-reference).
+The Wallet API provides some helper methods for developers to create wallet alllications.
 
-## Setting
+## Wallet Configuration
 
 ```{eval-rst}
 .. doxygenstruct:: iota_wallet_t
   :members:
 ```
 
-```{eval-rst}
-.. doxygenfunction:: wallet_update_bech32HRP
-```
-
-## Create
+## Create and Destory Methods
 
 ```{eval-rst}
 .. doxygenfunction:: wallet_create
@@ -23,40 +19,72 @@ This is reference implementation as wallet APIs. Users are able to implement wal
 .. doxygenfunction:: wallet_destroy
 ```
 
-## Endpoint
-
 ```{eval-rst}
 .. doxygenfunction:: wallet_set_endpoint
 ```
 
-## Address
+```{eval-rst}
+.. doxygenfunction:: wallet_update_node_config
+```
+
+## Address Methods
 
 ```{eval-rst}
-.. doxygenfunction:: wallet_address_from_index
+.. doxygenfunction:: wallet_ed25519_address_from_index
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: wallet_bech32_from_index
+.. doxygenfunction:: wallet_get_address_and_keypair_from_index
 ```
 
-## Balance
+## UTXO Methods
 
 ```{eval-rst}
-.. doxygenfunction:: wallet_balance_by_address
-```
-
-```{eval-rst}
-.. doxygenfunction:: wallet_balance_by_bech32
+.. doxygenfunction:: wallet_is_collected_balance_sufficient
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: wallet_balance_by_index
+.. doxygenfunction:: wallet_calculate_remainder_amount
 ```
-
-## Send
 
 ```{eval-rst}
 .. doxygenfunction:: wallet_send
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_create_core_block
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_send_block
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_alias_output_create
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_alias_output_state_transition
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_alias_output_destroy
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_basic_output_create
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_get_unspent_basic_output_ids
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_basic_output_send
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_foundry_output_mint_native_tokens
 ```
 
 ## Mnemonic Sentence
