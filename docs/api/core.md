@@ -5,7 +5,7 @@ The Core API implemented objects, structures, utils for IOTA protocol.
 It provides the following functionalities:
 
 * Address derivation
-* Message creations
+* Block creations
 * UTXO Input/Output operations
 * Bech32, Slip10, uint256, and Byte Buffer utils
 
@@ -78,7 +78,7 @@ It provides the following functionalities:
 
 ## Models
 
-### Message
+### Block
 
 ```{eval-rst}
 .. doxygenenum:: core_block_payload_type_t
