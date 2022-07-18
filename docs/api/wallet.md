@@ -34,17 +34,57 @@ The Wallet API provides some helper methods for developers to create wallet alll
 ```
 
 ```{eval-rst}
-.. doxygenfunction:: wallet_balance_by_address
-```
-
-```{eval-rst}
-.. doxygenfunction:: wallet_balance_by_bech32
+.. doxygenfunction:: wallet_get_address_and_keypair_from_index
 ```
 
 ## UTXO Methods
 
 ```{eval-rst}
-.. doxygenfunction:: wallet_send_basic_outputs
+.. doxygenfunction:: wallet_is_collected_balance_sufficient
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_calculate_remainder_amount
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_send
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_create_core_block
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_send_block
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_alias_output_create
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_alias_output_state_transition
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_alias_output_destroy
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_basic_output_create
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_get_unspent_basic_output_ids
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_basic_output_send
+```
+
+```{eval-rst}
+.. doxygenfunction:: wallet_foundry_output_mint_native_tokens
 ```
 
 ## Mnemonic Sentence

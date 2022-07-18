@@ -20,7 +20,7 @@ if os.environ.get('READTHEDOCS', None) == 'True':
 # -- Project information -----------------------------------------------------
 
 project = 'IOTA C Client'
-copyright = '2021, IOTA Stiftung'
+copyright = '2022, IOTA Stiftung'
 author = 'Sam Chen'
 
 master_doc = "index"

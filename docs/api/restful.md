@@ -104,22 +104,6 @@ Find the metadata of a given block ID.
 .. doxygenfunction:: get_block_metadata
 ```
 
-### `/api/v2/blocks/{blockId}/children`
-
-Returns the children of a block.
-
-```{eval-rst}
-.. doxygenstruct:: block_children_t
-```
-
-```{eval-rst}
-.. doxygenstruct:: res_block_children_t
-```
-
-```{eval-rst}
-.. doxygenfunction:: get_block_children
-```
-
 ## UTXO
 
 ### `/api/v2/outputs/{outputId}`
