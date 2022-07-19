@@ -134,6 +134,7 @@ int wallet_get_address_and_keypair_from_index(iota_wallet_t* w, bool change, uin
 /**
  * @brief Check if collected balance is sufficient for newly created outputs
  *
+ * @param[in] w A wallet instance
  * @param[in] send_amount Wanted amount to send
  * @param[in] collected_amount A collected amount to be sent
  * @param[in] remainder_amount A remainder amount to be sent
@@ -163,6 +164,19 @@ int wallet_calculate_remainder_amount(uint64_t send_amount, uint64_t collected_a
                                       native_tokens_list_t* collected_native_tokens, uint64_t* remainder_amount,
                                       native_tokens_list_t** remainder_native_tokens);
 
+/**
+ * @brief Send a block to the network with options
+ *
+ * @param[in] w A wallet instance
+ * @param[in] sender_addr The sender address
+ * @param[in] sender_keypair The sender keypair
+ * @param[in] inputs The inputs of the block
+ * @param[in] outputs The outputs of the block
+ * @param[in] minted_tokens A list of native tokens
+ * @param[in] transaction_id The transaction ID
+ * @param[out] blk_res the response object
+ * @return int 0 on success
+ */
 int wallet_send(iota_wallet_t* w, address_t* sender_addr, ed25519_keypair_t* sender_keypair, utxo_inputs_list_t* inputs,
                 utxo_outputs_list_t* outputs, native_tokens_list_t* minted_tokens, byte_t transaction_id[],
                 res_send_block_t* blk_res);
