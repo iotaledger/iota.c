@@ -20,7 +20,7 @@ extern "C" {
  *
  * @param[in] client The event client instance
  * @param[out] mid If not NULL, mid will return the message id of the topic subscription
- * @param[in] msg_id A messsage id for the event
+ * @param[in] msg_id A message id for the event
  * @param[in] qos A QoS level for the topic
  * @return int 0 If Success
  */

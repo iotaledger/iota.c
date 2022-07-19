@@ -71,7 +71,7 @@ int event_sub_outputs_unlock_address_spent(event_client_handle_t client, int *mi
     return -1;
   }
 
-  // Check if addr_Bech32 has valid length
+  // Check if addr_bech32 has valid length
   if (!is_valid_bech32_len(addr_bech32)) {
     printf("[%s:%d] invalid Bech32 address\n", __func__, __LINE__);
     return -1;
