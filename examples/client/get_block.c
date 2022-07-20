@@ -19,7 +19,7 @@
 //#define BLK_ID "e95846e997dc6dae80e9a6dea908577a167b5e7c53b9fd802a760486a8c90d0f"
 
 int main(void) {
-  iota_client_conf_t ctx = {.host = "localhost", .port = 443, .use_tls = true};
+  iota_client_conf_t ctx = {.host = "localhost", .port = 14265, .use_tls = false};
 
   res_block_t *blk = res_block_new();
   if (!blk) {

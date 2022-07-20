@@ -56,6 +56,7 @@ int token_transfer() {
     return -1;
   }
 
+  // for displaying the bech32 address
   address_t sender, receiver;
   if (wallet_ed25519_address_from_index(w, false, sender_addr_index, &sender) != 0) {
     printf("Failed to generate the sender address from the index!\n");
@@ -76,7 +77,7 @@ int token_transfer() {
     wallet_destroy(w);
     return -1;
   }
-  // convert sender address to bech32 format
+  // convert receiver address to bech32 format
   char bech32_receiver[BECH32_MAX_STRING_LEN + 1] = {};
   if (address_to_bech32(&receiver, w->bech32HRP, bech32_receiver, sizeof(bech32_receiver)) != 0) {
     printf("Failed encoding receiver address to bech32 format!\n");
@@ -91,7 +92,7 @@ int token_transfer() {
   // transfer tokens
   printf("Sending transaction block to the Tangle...\n");
   res_send_block_t blk_res = {};
-  if (wallet_send_basic_outputs(w, 0, 0, &receiver, amount * Mi, &blk_res) != 0) {
+  if (wallet_basic_output_send(w, false, sender_addr_index, amount * Mi, NULL, &receiver, &blk_res) != 0) {
     printf("Sending block to the Tangle failed!\n");
     wallet_destroy(w);
     return -1;

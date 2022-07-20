@@ -16,7 +16,7 @@ extern "C" {
  *
  * @param[in] client The event client object
  * @param[out] mid If not NULL, mid will return the message id of the topic subscription
- * @param[in] transaction_id A transacton id
+ * @param[in] transaction_id A transaction id
  * @param[in] qos The QoS level for the topic
  * @return int 0 If success
  */

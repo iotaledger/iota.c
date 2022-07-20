@@ -6,7 +6,7 @@
 <h2 align="center">The official C client library for interacting with the Tangle</h2>
 
 <p align="center">
-    <a href="https://chrysalis.docs.iota.org/" style="text-decoration:none;">
+    <a href="https://iota-c-client.readthedocs.io/en/latest/index.html" style="text-decoration:none;">
     <img src="https://img.shields.io/badge/Documentation%20portal-blue.svg?style=for-the-badge"
          alt="Developer Documentation">
       </p>
