@@ -1,3 +1,21 @@
+# v1.0.0 - 2022-07-20
+
+**This is a breaking change for the Stardust protocol update, should be used with [HORNET-2.0.0-beta.1](https://github.com/iotaledger/hornet/releases/tag/v2.0.0-beta.1) or newer**
+
+## New Features
+
+- Implemented helper methods for wallet applications
+- Implemented functional tests for validating the client with a private tangle
+- Implemented benchmark for evaluating the client performance
+- Support Arduino-ESP32 development framework
+- Implemented Node Core RESTful API v2
+- Implemented Node Indexer RESTful API v1
+- Implemented Node Event API v2
+- Support Native Tokens and NFTs
+- Support conditional transfers
+
+Full Changelog: [v0.4.0...v1.0.0](https://github.com/iotaledger/iota.c/compare/v0.4.0...v1.0.0)
+
 # v0.4.0 - 2021-12-16
 
 - Added libsodium support on Linux
