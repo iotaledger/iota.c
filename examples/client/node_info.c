@@ -11,7 +11,7 @@
 #include "client/api/restful/get_node_info.h"
 
 int main(void) {
-  iota_client_conf_t ctx = {.host = "localhost", .port = 443, .use_tls = true};
+  iota_client_conf_t ctx = {.host = "localhost", .port = 14265, .use_tls = false};
 
   res_node_info_t *info = res_node_info_new();
   if (!info) {

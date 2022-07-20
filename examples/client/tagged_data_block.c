@@ -18,7 +18,7 @@
 #define MESSAGE "Hello world"
 
 int main(void) {
-  iota_client_conf_t ctx = {.host = "localhost", .port = 443, .use_tls = true};
+  iota_client_conf_t ctx = {.host = "localhost", .port = 14265, .use_tls = false};
 
   res_send_block_t res = {0};
 

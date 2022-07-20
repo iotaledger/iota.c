@@ -40,7 +40,7 @@ static int xor_encrypt_decrypt(byte_t *src, size_t src_len, byte_t *dest, size_t
 }
 
 int main(void) {
-  iota_client_conf_t ctx = {.host = "localhost", .port = 443, .use_tls = true};
+  iota_client_conf_t ctx = {.host = "localhost", .port = 14265, .use_tls = false};
 
   byte_t encrypted[100] = {};
   byte_t decrypted[100] = {};

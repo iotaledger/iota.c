@@ -106,8 +106,6 @@ int wallet_get_address_path(iota_wallet_t* w, bool change, uint32_t index, char*
 /**
  * @brief Get an ed25519 address from the given account, change, and index
  *
- * https://chrysalis.docs.iota.org/guides/dev_guide/#addresskey-space
- *
  * @param[in] w A wallet instance
  * @param[in] change The change index which is {0, 1}, also known as wallet chain.
  * @param[in] index Address index
@@ -118,8 +116,6 @@ int wallet_ed25519_address_from_index(iota_wallet_t* w, bool change, uint32_t in
 
 /**
  * @brief Get an ed25519 address and keypair from the given account, change, and index
- *
- * https://chrysalis.docs.iota.org/guides/dev_guide/#addresskey-space
  *
  * @param[in] w A wallet instance
  * @param[in] change The change index which is {0, 1}, also known as wallet chain.

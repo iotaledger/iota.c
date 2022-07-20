@@ -16,8 +16,8 @@
 #include "wallet/output_basic.h"
 #include "wallet/wallet.h"
 
-#define NODE_DEFAULT_HRP "iota"
-#define NODE_DEFAULT_HOST "chrysalis-nodes.iota.org"
+#define NODE_DEFAULT_HRP "rms"
+#define NODE_DEFAULT_HOST "api.testnet.shimmer.network"
 #define NODE_DEFAULT_PORT 443
 
 iota_wallet_t* wallet_create(char const ms[], char const pwd[], uint32_t coin_type, uint32_t account_index) {
