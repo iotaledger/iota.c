@@ -42,7 +42,7 @@ void test_deser_node_info() {
       "\"0x24db3136e62253e6123d16aeca1d44d0e6c861a1d4a82ec2476a9b7fb6530efa\"},\"confirmedMilestone\":{\"index\":969,"
       "\"timestamp\":1657273891,\"milestoneId\":\"0x24db3136e62253e6123d16aeca1d44d0e6c861a1d4a82ec2476a9b7fb6530efa\"}"
       ",\"pruningIndex\":0},\"supportedProtocolVersions\":[2],\"protocol\":{\"version\":2,\"networkName\":\"alphanet-"
-      "8\",\"bech32HRP\":\"rms\",\"minPoWScore\":1000,\"belowMaxDepth\":15,\"rentStructure\":{\"vByteCost\":500,"
+      "8\",\"bech32Hrp\":\"rms\",\"minPowScore\":1000,\"belowMaxDepth\":15,\"rentStructure\":{\"vByteCost\":500,"
       "\"vByteFactorData\":1,\"vByteFactorKey\":10},\"tokenSupply\":\"2779530283277761\"},"
       "\"pendingProtocolParameters\":[],\"baseToken\":{\"name\":\"Shimmer\",\"tickerSymbol\":\"SMR\",\"unit\":\"SMR\","
       "\"subunit\":\"glow\",\"decimals\":6,\"useMetricPrefix\":false},\"metrics\":{\"blocksPerSecond\":1.4,"

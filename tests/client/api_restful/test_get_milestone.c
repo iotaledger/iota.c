@@ -25,7 +25,7 @@ void test_deser_get_milestone() {
       "\"0xde9e9d780ba7ebeebc38da16cb53b2a8991d38eee94bcdc3f3ef99aa8c345652\"],\"inclusionMerkleRoot\": "
       "\"0xa18996d96163405e3c0eb13fa3459a07f68a89e8cf7cc239c89e7192344daa5b\",\"appliedMerkleRoot\": "
       "\"0xee26ac07834c603c22130fced361ca58552b0dbfc63e4b73ba24b3b59d9f4050\",\"options\": [{\"type\": "
-      "1,\"nextPoWScore\": 2000,\"nextPoWScoreMilestoneIndex\": 15475}],\"metadata\": "
+      "1,\"nextPowScore\": 2000,\"nextPowScoreMilestoneIndex\": 15475}],\"metadata\": "
       "\"0xd6ac43e9ca750\",\"signatures\": [{\"type\": 0,\"publicKey\": "
       "\"0xee26ac07834c603c22130fced361ca58552b0dbfc63e4b73ba24b3b59d9f4050\",\"signature\": "
       "\"0x0492a353f96883c472e2686a640e77eda30be8fcc417aa9fc1c15eae854661e0253287be6ea68f649f19ca590de0a6c57fb88635ef0e"
