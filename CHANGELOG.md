@@ -1,3 +1,15 @@
+# v1.0.1 - 2022-07-28
+
+**This is a breaking change for the node API update, should be used with [HORNET-2.0.0-beta.3](https://github.com/iotaledger/hornet/releases/tag/v2.0.0-beta.3) or newer**
+
+## Changes
+
+- Client - JSON keys are changed in RESTful APIs
+- Wallet - fixed strncpy issue
+- Doc - update examples link
+
+**Full Changelog**: https://github.com/iotaledger/iota.c/compare/v1.0.0...v1.0.1
+
 # v1.0.0 - 2022-07-20
 
 **This is a breaking change for the Stardust protocol update, should be used with [HORNET-2.0.0-beta.1](https://github.com/iotaledger/hornet/releases/tag/v2.0.0-beta.1) or newer**
