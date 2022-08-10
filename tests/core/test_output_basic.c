@@ -31,7 +31,6 @@ unlock_cond_t* unlock_storage = NULL;
 address_t test_addr = {};
 uint64_t unlock_storage_amount = 9876543210;
 unlock_cond_t* unlock_timelock = NULL;
-uint32_t unlock_time_ms = 1200;
 uint32_t unlock_time_unix = 164330008;
 unlock_cond_t* unlock_expir = NULL;
 unlock_cond_t* unlock_state = NULL;
@@ -53,8 +52,8 @@ void setUp(void) {
   // create test unlock conditions
   unlock_addr = condition_addr_new(&test_addr);
   unlock_storage = condition_storage_new(&test_addr, unlock_storage_amount);
-  unlock_timelock = condition_timelock_new(unlock_time_ms, unlock_time_unix);
-  unlock_expir = condition_expir_new(&test_addr, unlock_time_ms, unlock_time_unix);
+  unlock_timelock = condition_timelock_new(unlock_time_unix);
+  unlock_expir = condition_expir_new(&test_addr, unlock_time_unix);
   unlock_state = condition_state_new(&test_addr);
   unlock_gov = condition_governor_new(&test_addr);
 }
@@ -125,12 +124,10 @@ void test_output_basic() {
   cond = condition_list_get(output->unlock_conditions, 2);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_EXPIRATION, cond->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_expir_t*)cond->obj)->addr));
-  TEST_ASSERT(unlock_time_ms == ((unlock_cond_expir_t*)cond->obj)->milestone);
   TEST_ASSERT(unlock_time_unix == ((unlock_cond_expir_t*)cond->obj)->time);
   // 3: Timelock Unlock
   cond = condition_list_get(output->unlock_conditions, 3);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_TIMELOCK, cond->type);
-  TEST_ASSERT(unlock_time_ms == ((unlock_cond_timelock_t*)cond->obj)->milestone);
   TEST_ASSERT(unlock_time_unix == ((unlock_cond_timelock_t*)cond->obj)->time);
 
   // features should be in adding order
@@ -200,13 +197,11 @@ void test_output_basic() {
   // 2: Timelock Unlock
   cond = condition_list_get(deser_output->unlock_conditions, 2);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_TIMELOCK, cond->type);
-  TEST_ASSERT(unlock_time_ms == ((unlock_cond_timelock_t*)cond->obj)->milestone);
   TEST_ASSERT(unlock_time_unix == ((unlock_cond_timelock_t*)cond->obj)->time);
   // 3: Expiration Unlock
   cond = condition_list_get(deser_output->unlock_conditions, 3);
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_EXPIRATION, cond->type);
   TEST_ASSERT_TRUE(address_equal(&test_addr, ((unlock_cond_expir_t*)cond->obj)->addr));
-  TEST_ASSERT(unlock_time_ms == ((unlock_cond_expir_t*)cond->obj)->milestone);
   TEST_ASSERT(unlock_time_unix == ((unlock_cond_expir_t*)cond->obj)->time);
 
   // deserialized features

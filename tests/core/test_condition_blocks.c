@@ -89,32 +89,17 @@ void test_condition_storage() {
 
 void test_condition_timelock() {
   // should be NULL, Timelock condition is invalid if Milestone Index and Unix time are zero.
-  TEST_ASSERT_NULL(condition_timelock_new(0, 0));
+  TEST_ASSERT_NULL(condition_timelock_new(0));
 
-  unlock_cond_t* b = condition_timelock_new(100, 123);
+  unlock_cond_t* b = condition_timelock_new(123);
   TEST_ASSERT_NOT_NULL(b);
   TEST_ASSERT(b->type == UNLOCK_COND_TIMELOCK);
-  TEST_ASSERT(((unlock_cond_timelock_t*)b->obj)->milestone == 100);
   TEST_ASSERT(((unlock_cond_timelock_t*)b->obj)->time == 123);
-  condition_free(b);
-
-  b = condition_timelock_new(0, 123);
-  TEST_ASSERT_NOT_NULL(b);
-  TEST_ASSERT(b->type == UNLOCK_COND_TIMELOCK);
-  TEST_ASSERT(((unlock_cond_timelock_t*)b->obj)->milestone == 0);
-  TEST_ASSERT(((unlock_cond_timelock_t*)b->obj)->time == 123);
-  condition_free(b);
-
-  b = condition_timelock_new(100, 0);
-  TEST_ASSERT_NOT_NULL(b);
-  TEST_ASSERT(b->type == UNLOCK_COND_TIMELOCK);
-  TEST_ASSERT(((unlock_cond_timelock_t*)b->obj)->milestone == 100);
-  TEST_ASSERT(((unlock_cond_timelock_t*)b->obj)->time == 0);
 
   // serialization tests
   byte_t buf[64] = {};
   // insufficient buffer
-  TEST_ASSERT(condition_serialize(b, buf, 4) == 0);
+  TEST_ASSERT(condition_serialize(b, buf, 1) == 0);
   size_t serial_len = condition_serialize(b, buf, sizeof(buf));
   // should be equal to expected length
   TEST_ASSERT(serial_len == condition_serialize_len(b));
@@ -124,7 +109,6 @@ void test_condition_timelock() {
   TEST_ASSERT_NOT_NULL(deser_cond);
   // validate unlock condition data
   TEST_ASSERT(b->type == deser_cond->type);
-  TEST_ASSERT(((unlock_cond_timelock_t*)b->obj)->milestone == ((unlock_cond_timelock_t*)deser_cond->obj)->milestone);
   TEST_ASSERT(((unlock_cond_timelock_t*)b->obj)->time == ((unlock_cond_timelock_t*)deser_cond->obj)->time);
 
   // clean up
@@ -134,29 +118,20 @@ void test_condition_timelock() {
 
 void test_condition_expiration() {
   // should be NULL
-  TEST_ASSERT_NULL(condition_expir_new(NULL, 0, 100));
+  TEST_ASSERT_NULL(condition_expir_new(NULL, 0));
 
   // random ed25519 address
   address_t addr = {};
   addr.type = ADDRESS_TYPE_ED25519;
   iota_crypto_randombytes(addr.address, ED25519_PUBKEY_BYTES);
   // should be NULL
-  TEST_ASSERT_NULL(condition_expir_new(&addr, 0, 0));
+  TEST_ASSERT_NULL(condition_expir_new(&addr, 0));
 
-  unlock_cond_t* b = condition_expir_new(&addr, 0, 1023);
+  unlock_cond_t* b = condition_expir_new(&addr, 1023);
   TEST_ASSERT_NOT_NULL(b);
   TEST_ASSERT(b->type == UNLOCK_COND_EXPIRATION);
   TEST_ASSERT_TRUE(address_equal(&addr, ((unlock_cond_expir_t*)b->obj)->addr));
-  TEST_ASSERT(((unlock_cond_expir_t*)b->obj)->milestone == 0);
   TEST_ASSERT(((unlock_cond_expir_t*)b->obj)->time == 1023);
-  condition_free(b);
-
-  b = condition_expir_new(&addr, 100, 0);
-  TEST_ASSERT_NOT_NULL(b);
-  TEST_ASSERT(b->type == UNLOCK_COND_EXPIRATION);
-  TEST_ASSERT_TRUE(address_equal(&addr, ((unlock_cond_expir_t*)b->obj)->addr));
-  TEST_ASSERT(((unlock_cond_expir_t*)b->obj)->milestone == 100);
-  TEST_ASSERT(((unlock_cond_expir_t*)b->obj)->time == 0);
 
   // serialization tests
   byte_t buf[64] = {};
@@ -172,7 +147,6 @@ void test_condition_expiration() {
   // validate unlock condition data
   TEST_ASSERT(b->type == deser_cond->type);
   TEST_ASSERT_TRUE(address_equal(((unlock_cond_expir_t*)b->obj)->addr, ((unlock_cond_expir_t*)deser_cond->obj)->addr));
-  TEST_ASSERT(((unlock_cond_expir_t*)b->obj)->milestone == ((unlock_cond_expir_t*)deser_cond->obj)->milestone);
   TEST_ASSERT(((unlock_cond_expir_t*)b->obj)->time == ((unlock_cond_expir_t*)deser_cond->obj)->time);
 
   // clean up
@@ -263,7 +237,7 @@ void test_condition_list() {
 
   unlock_cond_t* cond = NULL;
   // 0: add timelock
-  cond = condition_timelock_new(100, 0);
+  cond = condition_timelock_new(100);
   TEST_ASSERT(condition_list_add(&list, cond) == 0);
   TEST_ASSERT(condition_list_len(list) == 1);
   // add one more timelock, should be failed
@@ -308,7 +282,7 @@ void test_condition_list() {
 
   // 5: add Expiration unlock condition
   condition_free(cond);
-  cond = condition_expir_new(&addr, 321, 1234546);
+  cond = condition_expir_new(&addr, 1234546);
   TEST_ASSERT(condition_list_add(&list, cond) == 0);
   TEST_ASSERT(condition_list_len(list) == 6);
   // add one more address, should be failed
@@ -361,7 +335,7 @@ void test_condition_list_syntactic() {
 
   unlock_cond_t* cond = NULL;
   // 0: add timelock
-  cond = condition_timelock_new(100, 0);
+  cond = condition_timelock_new(100);
   TEST_ASSERT(condition_list_add(&list, cond) == 0);
   // 1: add state controller
   condition_free(cond);

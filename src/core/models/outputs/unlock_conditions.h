@@ -55,27 +55,24 @@ typedef struct {
 /**
  * @brief Timelock Unlock Condition
  *
- * Defines a milestone index and/or unix timestamp until which the output can not be unlocked.
+ * Defines an Unix timestamp until which the output can not be unlocked.
  *
  */
 typedef struct {
-  uint32_t milestone;  // The milestone index starting from which the output can be consumed.
-  uint32_t time;       // Unix time (seconds since Unix epoch) starting from which the output can be consumed.
+  uint32_t time;  // Unix time (seconds since Unix epoch) starting from which the output can be consumed.
 } unlock_cond_timelock_t;
 
 /**
  * @brief Expiration Unlock Condition
  *
- * Defines a milestone index and/or unix time until which only Address, defined in Address Unlock Condition, is allowed
- * to unlock the output. After the milestone index and/or unix time, only Return Address can unlock it.
+ * Defines an Unix time until which only Address, defined in Address Unlock Condition, is allowed
+ * to unlock the output. After the Unix time, only Return Address can unlock it.
  *
  */
 typedef struct {
-  address_t* addr;     // Return Address
-  uint32_t milestone;  // Before this milestone index, Address Unlock Condition is allowed to unlock the output, after
-                       // that only the address defined in Return Address.
-  uint32_t time;  // Before this unix time, Address Unlock Condition is allowed to unlock the output, after that only
-                  // the address defined in Return Address.
+  address_t* addr;  // Return Address
+  uint32_t time;    // Before this Unix time, Address Unlock Condition is allowed to unlock the output, after that only
+                    // the address defined in Return Address.
 } unlock_cond_expir_t;
 
 /**
@@ -115,26 +112,24 @@ unlock_cond_t* condition_storage_new(address_t const* const addr, uint64_t amoun
 /**
  * @brief Create a Timelock Unlock Condition
  *
- * A milestone index and/or unix timestamp until which the output can not be unlocked.
+ * An Unix timestamp until which the output can not be unlocked.
  *
- * @param[in] milestone A milestone index
  * @param[in] time An Unix timestamp in seconds
  * @return unlock_cond_t*
  */
-unlock_cond_t* condition_timelock_new(uint32_t milestone, uint32_t time);
+unlock_cond_t* condition_timelock_new(uint32_t time);
 
 /**
  * @brief Create a Expiration Unlock Condition
  *
- * A milestone index and/or unix time until which only Address, defined in Address Unlock Condition, is allowed to
- * unlock the output. After the milestone index and/or unix time, only Return Address can unlock it.
+ * An Unix time until which only Address, defined in Address Unlock Condition, is allowed to
+ * unlock the output. After the Unix time, only Return Address can unlock it.
  *
  * @param[in] addr A return address
- * @param[in] milestone A milestone index
  * @param[in] time An Unix timestamp in seconds
  * @return unlock_cond_t*
  */
-unlock_cond_t* condition_expir_new(address_t const* const addr, uint32_t milestone, uint32_t time);
+unlock_cond_t* condition_expir_new(address_t const* const addr, uint32_t time);
 
 /**
  * @brief Create a State Controll Address Unlock Condition
