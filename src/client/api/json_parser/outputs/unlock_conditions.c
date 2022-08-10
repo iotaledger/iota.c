@@ -158,19 +158,11 @@ err:
 
 /*
   "type": 2,
-  "milestoneIndex": 45598,
   "unixTime": 123123
 */
 int json_condition_timelock_deserialize(cJSON *unlock_cond_obj, unlock_cond_list_t **cond_list) {
   if (unlock_cond_obj == NULL || cond_list == NULL) {
     printf("[%s:%d]: Invalid parameters\n", __func__, __LINE__);
-    return -1;
-  }
-
-  // milestone index
-  uint32_t milestone;
-  if (json_get_uint32(unlock_cond_obj, JSON_KEY_MILESTONE_IDX, &milestone) != JSON_OK) {
-    printf("[%s:%d]: getting %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_IDX);
     return -1;
   }
 
@@ -182,7 +174,7 @@ int json_condition_timelock_deserialize(cJSON *unlock_cond_obj, unlock_cond_list
   }
 
   // add new unlock condition into a list
-  unlock_cond_t *unlock_blk = condition_timelock_new(milestone, timestamp);
+  unlock_cond_t *unlock_blk = condition_timelock_new(timestamp);
   if (condition_list_add(cond_list, unlock_blk) != 0) {
     printf("[%s:%d] can not add new unlock condition into a list\n", __func__, __LINE__);
     condition_free(unlock_blk);
@@ -199,11 +191,6 @@ static cJSON *json_condition_timelock_serialize(unlock_cond_timelock_t *timelock
     // add type
     if (!cJSON_AddNumberToObject(time_obj, JSON_KEY_TYPE, UNLOCK_COND_TIMELOCK)) {
       printf("[%s:%d] add type into condition error\n", __func__, __LINE__);
-      goto err;
-    }
-    // add mileston index
-    if (!cJSON_AddNumberToObject(time_obj, JSON_KEY_MILESTONE_IDX, timelock->milestone)) {
-      printf("[%s:%d] add milestone index into condition error\n", __func__, __LINE__);
       goto err;
     }
     // add Unix time
@@ -225,7 +212,6 @@ err:
     "type": 0,
     "pubKeyHash": "0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb"
   },
-  "milestoneIndex": 45598,
   "unixTime": 123123
 */
 int json_condition_expir_deserialize(cJSON *unlock_cond_obj, unlock_cond_list_t **cond_list) {
@@ -241,13 +227,6 @@ int json_condition_expir_deserialize(cJSON *unlock_cond_obj, unlock_cond_list_t 
     return -1;
   }
 
-  // milestone index
-  uint32_t milestone;
-  if (json_get_uint32(unlock_cond_obj, JSON_KEY_MILESTONE_IDX, &milestone) != JSON_OK) {
-    printf("[%s:%d]: getting %s json uint32 failed\n", __func__, __LINE__, JSON_KEY_MILESTONE_IDX);
-    return -1;
-  }
-
   // unix time
   uint32_t timestamp;
   if (json_get_uint32(unlock_cond_obj, JSON_KEY_UNIXTIME, &timestamp) != JSON_OK) {
@@ -256,7 +235,7 @@ int json_condition_expir_deserialize(cJSON *unlock_cond_obj, unlock_cond_list_t 
   }
 
   // add new unlock condition into a list
-  unlock_cond_t *unlock_blk = condition_expir_new(&address, milestone, timestamp);
+  unlock_cond_t *unlock_blk = condition_expir_new(&address, timestamp);
   if (condition_list_add(cond_list, unlock_blk) != 0) {
     printf("[%s:%d] can not add new unlock condition into a list\n", __func__, __LINE__);
     condition_free(unlock_blk);
@@ -288,11 +267,6 @@ static cJSON *json_condition_expir_serialize(unlock_cond_expir_t *expir) {
       goto err;
     }
 
-    // add mileston index
-    if (!cJSON_AddNumberToObject(expir_obj, JSON_KEY_MILESTONE_IDX, expir->milestone)) {
-      printf("[%s:%d] add milestone index into condition error\n", __func__, __LINE__);
-      goto err;
-    }
     // add Unix time
     if (!cJSON_AddNumberToObject(expir_obj, JSON_KEY_UNIXTIME, expir->time)) {
       printf("[%s:%d] add Unix time into condition error\n", __func__, __LINE__);

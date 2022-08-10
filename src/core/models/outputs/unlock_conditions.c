@@ -78,15 +78,14 @@ static unlock_cond_storage_t* cond_storage_deserialize(byte_t buf[], size_t buf_
   return d;
 }
 
-static unlock_cond_timelock_t* cond_timelock_new(uint32_t milestone, uint32_t time) {
-  if (milestone == 0 && time == 0) {
+static unlock_cond_timelock_t* cond_timelock_new(uint32_t time) {
+  if (time == 0) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
 
   unlock_cond_timelock_t* timelock = malloc(sizeof(unlock_cond_timelock_t));
   if (timelock) {
-    timelock->milestone = milestone;
     timelock->time = time;
     return timelock;
   }
@@ -94,18 +93,15 @@ static unlock_cond_timelock_t* cond_timelock_new(uint32_t milestone, uint32_t ti
 }
 
 static size_t cond_timelock_serialize_len(unlock_cond_timelock_t* t) {
-  // milestone index + unix time
-  return sizeof(t->milestone) + sizeof(t->time);
+  // Unix time
+  return sizeof(t->time);
 }
 
 static size_t cond_timelock_serialize(unlock_cond_timelock_t* t, byte_t buf[], size_t buf_len) {
-  if (buf_len >= sizeof(t->milestone) + sizeof(t->time)) {
-    // serialize milestone and time
-    memcpy(buf, &t->milestone, sizeof(t->milestone));
-    size_t offset = sizeof(t->milestone);
-    memcpy(buf + offset, &t->time, sizeof(t->time));
-    offset += sizeof(t->time);
-    return offset;
+  if (buf_len >= sizeof(t->time)) {
+    // serialize time
+    memcpy(buf, &t->time, sizeof(t->time));
+    return sizeof(t->time);
   }
 
   printf("[%s:%d] timelock serialization failed\n", __func__, __LINE__);
@@ -120,8 +116,7 @@ static unlock_cond_timelock_t* cond_timelock_deserialize(byte_t buf[], size_t bu
 
   unlock_cond_timelock_t* t = malloc(sizeof(unlock_cond_timelock_t));
   if (t) {
-    memcpy(&t->milestone, buf, sizeof(t->milestone));
-    memcpy(&t->time, buf + sizeof(t->milestone), sizeof(t->time));
+    memcpy(&t->time, buf, sizeof(t->time));
   }
   return t;
 }
@@ -132,8 +127,8 @@ static void cond_timelock_free(unlock_cond_timelock_t* timelock) {
   }
 }
 
-static unlock_cond_expir_t* cond_expir_new(address_t const* const addr, uint32_t milestone, uint32_t time) {
-  if (!addr || (milestone == 0 && time == 0)) {
+static unlock_cond_expir_t* cond_expir_new(address_t const* const addr, uint32_t time) {
+  if (!addr || time == 0) {
     printf("[%s:%d] invalid parameter\n", __func__, __LINE__);
     return NULL;
   }
@@ -145,7 +140,6 @@ static unlock_cond_expir_t* cond_expir_new(address_t const* const addr, uint32_t
       free(expir);
       return NULL;
     }
-    expir->milestone = milestone;
     expir->time = time;
     return expir;
   }
@@ -154,7 +148,7 @@ static unlock_cond_expir_t* cond_expir_new(address_t const* const addr, uint32_t
 
 static size_t cond_expir_serialize_len(unlock_cond_expir_t* e) {
   // return address + milestone index + unix time
-  return address_serialized_len((address_t*)e->addr) + sizeof(e->milestone) + sizeof(e->time);
+  return address_serialized_len((address_t*)e->addr) + sizeof(e->time);
 }
 
 static size_t cond_expir_serialize(unlock_cond_expir_t* e, byte_t buf[], size_t buf_len) {
@@ -165,9 +159,7 @@ static size_t cond_expir_serialize(unlock_cond_expir_t* e, byte_t buf[], size_t 
     return offset;
   }
 
-  // serialize milestone and time
-  memcpy(buf + offset, &e->milestone, sizeof(e->milestone));
-  offset += sizeof(e->milestone);
+  // serialize time
   memcpy(buf + offset, &e->time, sizeof(e->time));
   offset += sizeof(e->time);
   return offset;
@@ -188,14 +180,13 @@ static unlock_cond_expir_t* cond_expir_deserialize(byte_t buf[], size_t buf_len)
     e->addr = address_deserialize(buf, buf_len);
     if (e->addr) {
       size_t offset = address_serialized_len(e->addr);
-      if ((buf_len - offset) < (sizeof(e->milestone) + sizeof(e->time))) {
+      if ((buf_len - offset) < sizeof(e->time)) {
         printf("[%s:%d] insufficient buffer size\n", __func__, __LINE__);
         cond_expir_free(e);
         return NULL;
       }
-      // deserialize milestone and time
-      memcpy(&e->milestone, buf + offset, sizeof(e->milestone));
-      memcpy(&e->time, buf + offset + sizeof(e->milestone), sizeof(e->time));
+      // deserialize time
+      memcpy(&e->time, buf + offset, sizeof(e->time));
     } else {
       cond_expir_free(e);
       return NULL;
@@ -247,10 +238,10 @@ unlock_cond_t* condition_storage_new(address_t const* const addr, uint64_t amoun
   return cond;
 }
 
-unlock_cond_t* condition_timelock_new(uint32_t milestone, uint32_t time) {
+unlock_cond_t* condition_timelock_new(uint32_t time) {
   unlock_cond_t* cond = malloc(sizeof(unlock_cond_t));
   if (cond) {
-    cond->obj = cond_timelock_new(milestone, time);
+    cond->obj = cond_timelock_new(time);
     if (!cond->obj) {
       free(cond);
       return NULL;
@@ -261,10 +252,10 @@ unlock_cond_t* condition_timelock_new(uint32_t milestone, uint32_t time) {
   return cond;
 }
 
-unlock_cond_t* condition_expir_new(address_t const* const addr, uint32_t milestone, uint32_t time) {
+unlock_cond_t* condition_expir_new(address_t const* const addr, uint32_t time) {
   unlock_cond_t* cond = malloc(sizeof(unlock_cond_t));
   if (cond) {
-    cond->obj = cond_expir_new(addr, milestone, time);
+    cond->obj = cond_expir_new(addr, time);
     if (!cond->obj) {
       free(cond);
       return NULL;
@@ -467,11 +458,11 @@ unlock_cond_t* condition_clone(unlock_cond_t* cond) {
     }
     case UNLOCK_COND_TIMELOCK: {
       unlock_cond_timelock_t* t = (unlock_cond_timelock_t*)cond->obj;
-      return condition_timelock_new(t->milestone, t->time);
+      return condition_timelock_new(t->time);
     }
     case UNLOCK_COND_EXPIRATION: {
       unlock_cond_expir_t* e = (unlock_cond_expir_t*)cond->obj;
-      return condition_expir_new(e->addr, e->milestone, e->time);
+      return condition_expir_new(e->addr, e->time);
     }
     case UNLOCK_COND_STATE:
       return condition_state_new((address_t*)cond->obj);
@@ -523,12 +514,10 @@ void condition_print(unlock_cond_t* cond) {
       address_print(((unlock_cond_storage_t*)cond->obj)->addr);
       break;
     case UNLOCK_COND_TIMELOCK:
-      printf("Timelock: Milestone %" PRIu32 ", Unix %" PRIu32 "\n", ((unlock_cond_timelock_t*)cond->obj)->milestone,
-             ((unlock_cond_timelock_t*)cond->obj)->time);
+      printf("Timelock: Unix %" PRIu32 "\n", ((unlock_cond_timelock_t*)cond->obj)->time);
       break;
     case UNLOCK_COND_EXPIRATION:
-      printf("Expiration: Milestone %" PRIu32 ", Unix %" PRIu32 ", Address ",
-             ((unlock_cond_expir_t*)cond->obj)->milestone, ((unlock_cond_expir_t*)cond->obj)->time);
+      printf("Expiration: Unix %" PRIu32 ", Address ", ((unlock_cond_expir_t*)cond->obj)->time);
       address_print(((unlock_cond_expir_t*)cond->obj)->addr);
       break;
     case UNLOCK_COND_STATE:

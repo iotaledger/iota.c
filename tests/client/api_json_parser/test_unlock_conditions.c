@@ -67,7 +67,7 @@ void test_unlock_condition_storage_deposit_return() {
 }
 
 void test_unlock_condition_timelock() {
-  char const* const json_res = "{\"type\":2,\"milestoneIndex\": 123456789, \"unixTime\":987654321}";
+  char const* const json_res = "{\"type\":2, \"unixTime\":987654321}";
   cJSON* json_obj = cJSON_Parse(json_res);
   TEST_ASSERT_NOT_NULL(json_obj);
 
@@ -81,7 +81,6 @@ void test_unlock_condition_timelock() {
   TEST_ASSERT_EQUAL_UINT8(UNLOCK_COND_TIMELOCK, cond_unlock->type);
 
   unlock_cond_timelock_t* cond_timelock = (unlock_cond_timelock_t*)cond_unlock->obj;
-  TEST_ASSERT_EQUAL_UINT32(123456789, cond_timelock->milestone);
   TEST_ASSERT_EQUAL_UINT32(987654321, cond_timelock->time);
 
   cJSON_Delete(json_obj);
@@ -91,7 +90,7 @@ void test_unlock_condition_timelock() {
 void test_unlock_condition_expiration() {
   char const* const json_res =
       "{\"type\":3,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
-      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}, \"milestoneIndex\": 123456789, "
+      "\"0x194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb\"}, "
       "\"unixTime\":987654321}";
 
   cJSON* json_obj = cJSON_Parse(json_res);
@@ -112,7 +111,6 @@ void test_unlock_condition_expiration() {
   hex_2_bin("194eb32b9b6c61207192c7073562a0b3adf50a7c1f268182b552ec8999380acb", BIN_TO_HEX_BYTES(ED25519_PUBKEY_BYTES),
             NULL, test_addr.address, ED25519_PUBKEY_BYTES);
   TEST_ASSERT_TRUE(address_equal(&test_addr, cond_expiration->addr));
-  TEST_ASSERT_EQUAL_UINT32(123456789, cond_expiration->milestone);
   TEST_ASSERT_EQUAL_UINT32(987654321, cond_expiration->time);
 
   cJSON_Delete(json_obj);
@@ -177,9 +175,9 @@ void test_unlock_conditions() {
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"
       "{\"type\":1,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}, \"amount\":\"1337\"},"
-      "{\"type\":2,\"milestoneIndex\": 123456789, \"unixTime\":987654321},"
+      "{\"type\":2,\"unixTime\":987654321},"
       "{\"type\":3,\"returnAddress\":{\"type\":0,\"pubKeyHash\":"
-      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}, \"milestoneIndex\": 123456789, "
+      "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}, "
       "\"unixTime\":987654321},"
       "{\"type\":4,\"address\":{\"type\":0,\"pubKeyHash\":"
       "\"0xad32258255e7cf927a4833f457f220b7187cf975e82aeee2e23fcae5056ab5f4\"}},"

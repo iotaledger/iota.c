@@ -21,8 +21,8 @@ static output_basic_t* create_output_basic(bool create_native_tokens) {
   // create unlock conditions
   unlock_cond_t* unlock_addr = condition_addr_new(&addr);
   unlock_cond_t* unlock_storage = condition_storage_new(&addr, 7000000);
-  unlock_cond_t* unlock_timelock = condition_timelock_new(1200, 164330008);
-  unlock_cond_t* unlock_expir = condition_expir_new(&addr, 1200, 164330008);
+  unlock_cond_t* unlock_timelock = condition_timelock_new(164330008);
+  unlock_cond_t* unlock_expir = condition_expir_new(&addr, 164330008);
   unlock_cond_list_t* unlock_conds = condition_list_new();
   condition_list_add(&unlock_conds, unlock_storage);
   condition_list_add(&unlock_conds, unlock_addr);
