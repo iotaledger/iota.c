@@ -20,10 +20,10 @@ void test_query_params() {
   char const* const expected_query_str =
       "address=atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&aliasAddress="
       "rms1qzc7h2etq6ph4ssgpls6lucg9m84jrtngrvewsp8gjv6y5h4tth9xnas62c&hasNativeTokens=true&minNativeTokenCount=2&"
-      "maxNativeTokenCount=5&hasStorageReturnCondition=true&storageReturnAddress="
-      "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&hasTimelockCondition=true&timelockedBefore="
+      "maxNativeTokenCount=5&hasStorageDepositReturn=true&storageDepositReturnAddress="
+      "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&hasTimelock=true&timelockedBefore="
       "1643383242&timelockedAfter=1643383242&timelockedBeforeMilestone=1000&timelockedAfterMilestone=1000&"
-      "hasExpirationCondition=false&expiresBefore=1643383242&expiresAfter=1643383242&expiresBeforeMilestone=2000&"
+      "hasExpiration=false&expiresBefore=1643383242&expiresAfter=1643383242&expiresBeforeMilestone=2000&"
       "expiresAfterMilestone=2200&expirationReturnAddress="
       "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&sender="
       "atoi1qpl4a3k3dep7qmw4tdq3pss6ld40jr5yhaq4fjakxgmdgk238j5hzsk2xsk&tag=0x4ec7f23&createdBefore=1643383242&"

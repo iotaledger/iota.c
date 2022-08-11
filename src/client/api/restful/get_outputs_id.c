@@ -15,14 +15,14 @@
 #define OUTPUTS_QUERY_HAS_NATIVE_TOKENS_KEY "hasNativeTokens"
 #define OUTPUTS_QUERY_MIN_NATIVE_TOKENS_KEY "minNativeTokenCount"
 #define OUTPUTS_QUERY_MAX_NATIVE_TOKENS_KEY "maxNativeTokenCount"
-#define OUTPUTS_QUERY_STORAGE_RET_KEY "hasStorageReturnCondition"
-#define OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY "storageReturnAddress"
-#define OUTPUTS_QUERY_HAS_TIMELOCK_KEY "hasTimelockCondition"
+#define OUTPUTS_QUERY_STORAGE_DEP_KEY "hasStorageDepositReturn"
+#define OUTPUTS_QUERY_STORAGE_DEP_ADDR_KEY "storageDepositReturnAddress"
+#define OUTPUTS_QUERY_HAS_TIMELOCK_KEY "hasTimelock"
 #define OUTPUTS_QUERY_TIMELOCKED_BEFORE_KEY "timelockedBefore"
 #define OUTPUTS_QUERY_TIMELOCKED_AFTER_KEY "timelockedAfter"
 #define OUTPUTS_QUERY_TIMELOCKED_BEFORE_MS_KEY "timelockedBeforeMilestone"
 #define OUTPUTS_QUERY_TIMELOCKED_AFTER_MS_KEY "timelockedAfterMilestone"
-#define OUTPUTS_QUERY_HAS_EXP_COND_KEY "hasExpirationCondition"
+#define OUTPUTS_QUERY_HAS_EXPIRE_KEY "hasExpiration"
 #define OUTPUTS_QUERY_EXPIRES_BEFORE_KEY "expiresBefore"
 #define OUTPUTS_QUERY_EXPIRES_AFTER_KEY "expiresAfter"
 #define OUTPUTS_QUERY_EXPIRES_BEFORE_MS_KEY "expiresBeforeMilestone"
@@ -108,12 +108,12 @@ size_t get_outputs_query_str_len(outputs_query_list_t *list) {
         query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_HAS_STORAGE_RET:
-        query_str_len += strlen(OUTPUTS_QUERY_STORAGE_RET_KEY);
+        query_str_len += strlen(OUTPUTS_QUERY_STORAGE_DEP_KEY);
         query_str_len += strlen(elm->query_item->param);
         query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_STORAGE_RET_ADDR:
-        query_str_len += strlen(OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY);
+        query_str_len += strlen(OUTPUTS_QUERY_STORAGE_DEP_ADDR_KEY);
         query_str_len += strlen(elm->query_item->param);
         query_str_len += params_seperator_len;
         break;
@@ -143,7 +143,7 @@ size_t get_outputs_query_str_len(outputs_query_list_t *list) {
         query_str_len += params_seperator_len;
         break;
       case QUERY_PARAM_HAS_EXP_COND:
-        query_str_len += strlen(OUTPUTS_QUERY_HAS_EXP_COND_KEY);
+        query_str_len += strlen(OUTPUTS_QUERY_HAS_EXPIRE_KEY);
         query_str_len += strlen(elm->query_item->param);
         query_str_len += params_seperator_len;
         break;
@@ -271,10 +271,10 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_MAX_NATIVE_TOKENS_KEY, elm);
         break;
       case QUERY_PARAM_HAS_STORAGE_RET:
-        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_STORAGE_RET_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_STORAGE_DEP_KEY, elm);
         break;
       case QUERY_PARAM_STORAGE_RET_ADDR:
-        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_STORAGE_RET_ADDR_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_STORAGE_DEP_ADDR_KEY, elm);
         break;
       case QUERY_PARAM_HAS_TIMELOCK:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_HAS_TIMELOCK_KEY, elm);
@@ -292,7 +292,7 @@ size_t get_outputs_query_str(outputs_query_list_t *list, char *buf, size_t buf_l
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_TIMELOCKED_AFTER_MS_KEY, elm);
         break;
       case QUERY_PARAM_HAS_EXP_COND:
-        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_HAS_EXP_COND_KEY, elm);
+        offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_HAS_EXPIRE_KEY, elm);
         break;
       case QUERY_PARAM_EXPIRES_BEFORE:
         offset += copy_param_to_buf(buf + offset, OUTPUTS_QUERY_EXPIRES_BEFORE_KEY, elm);
